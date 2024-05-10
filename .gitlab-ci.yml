@@ -247,6 +247,12 @@ lint_package:
     KUBE_VERSION: "1.30.1"
     HELM_SETTINGS: !reference ["Validate 1.27.5", variables, HELM_SETTINGS]
 
+"Validate 1.29.1":
+  extends: .kubeconform
+  variables:
+    KUBE_VERSION: "1.29.1"
+    HELM_SETTINGS: !reference ["Validate 1.25.7", variables, HELM_SETTINGS]
+
 approve_cluster_tests:
   stage: approve-review-apps
   image: alpine:latest
