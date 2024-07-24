@@ -133,7 +133,9 @@ privateApi: {}
   # secret:
   # key:
 deployment:
-  terminationGracePeriodSeconds: 300
+  # By default, kas is configured with max connection age of two hours.
+  # Kubernetes needs to wait for kas to drain/kill those connections and exit rather than killing kas pods earlier.
+  terminationGracePeriodSeconds: 7260
   strategy: {}
   # minReadySeconds: 0
 
