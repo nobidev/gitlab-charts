@@ -107,6 +107,24 @@ describe 'kas configuration' do
     end
   end
 
+  context 'when kas is enabled with default values' do
+    let(:kas_enabled_template) do
+      HelmTemplate.new(default_values)
+    end
+
+    describe 'templates/deployment.yaml' do
+      subject(:deployment) { kas_enabled_template.resources_by_kind('Deployment')['Deployment/test-kas'] }
+
+      it 'does specify terminationGracePeriodSeconds' do
+        expect(deployment['spec']['template']['spec']['terminationGracePeriodSeconds']).to eq(7260)
+      end
+
+      it 'does specify strategy with 100% max surge' do
+        expect(deployment['spec']['strategy']).to eq({ 'rollingUpdate' => { 'maxSurge' => '100%', 'maxUnavailable' => 0 } })
+      end
+    end
+  end
+
   context 'when kas is enabled with custom values' do
     let(:kas_enabled_template) do
       HelmTemplate.new(default_values.merge(kas_values))
