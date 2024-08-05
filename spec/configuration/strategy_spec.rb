@@ -105,6 +105,7 @@ describe 'Strategy configuration' do
       'Deployment/test-toolbox',
       'Deployment/test-minio',
       'Deployment/test-gitlab-runner',
+      'Deployment/test-kas',
       'StatefulSet/test-redis-master',
       'StatefulSet/test-postgresql'
     ]
