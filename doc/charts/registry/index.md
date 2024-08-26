@@ -76,7 +76,7 @@ registry:
       interval: 24h
       dryrun: false
   image:
-    tag: 'v4.7.0-gitlab'
+    tag: 'v4.8.0-gitlab'
     pullPolicy: IfNotPresent
   annotations:
   service:
@@ -183,7 +183,7 @@ If you chose to deploy this chart as a standalone, remove the `registry` at the 
 | `image.pullPolicy`                          |                                                                      | Pull policy for the registry image |
 | `image.pullSecrets`                         |                                                                      | Secrets to use for image repository |
 | `image.repository`                          | `registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry` | Registry image |
-| `image.tag`                                 | `v4.7.0-gitlab`                                                     | Version of the image to use |
+| `image.tag`                                 | `v4.8.0-gitlab`                                                     | Version of the image to use |
 | `init.image.repository`                     |                                                                      | initContainer image |
 | `init.image.tag`                            |                                                                      | initContainer image tag |
 | `init.containerSecurityContext`             |                                                                      | initContainer container specific [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) |
@@ -399,7 +399,7 @@ You can change the included version of the Registry and `pullPolicy`.
 
 Default settings:
 
-- `tag: 'v4.7.0-gitlab'`
+- `tag: 'v4.8.0-gitlab'`
 - `pullPolicy: 'IfNotPresent'`
 
 ## Configuring the `service`
