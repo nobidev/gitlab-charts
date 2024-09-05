@@ -12,6 +12,7 @@ service:
   internalPort: 2222
   externalTrafficPolicy: Cluster
   # nodePort: xxx
+  # allocateLoadBalancerNodePorts: true
   # loadBalancerIP: x.x.x.x
   # loadBalancerSourceRanges:
   # - x.x.x.x/yy
