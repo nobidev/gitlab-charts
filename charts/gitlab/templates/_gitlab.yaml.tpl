@@ -172,3 +172,23 @@ gitlab_docs:
   enabled: {{ eq $.Values.global.appConfig.gitlab_docs.enabled true }}
   host: {{ $.Values.global.appConfig.gitlab_docs.host | quote }}
 {{- end -}}{{/* "gitlab.appConfig.gitlab_docs.configuration" */}}
+
+{{- define "gitlab.appConfig.allowedHosts.configuration" -}}
+{{- if not (empty $.Values.global.appConfig.allowedHosts) }}
+{{/* GitLab Shell access GitLab over localhost*/}}
+{{- $allowed_hosts := append $.Values.global.appConfig.allowedHosts "localhost" -}}
+
+{{/* The environment variable `POD_PRIVATE_IP` is populated in the webservice deployment*/}}
+{{- $allowed_hosts = append $allowed_hosts "<%= ENV['POD_PRIVATE_IP'] %>" -}}
+
+{{/* Iterate over all deployments and add their service DNS entries */}}
+{{- range $.Values.deployments -}}
+{{- $name := include "webservice.fullname.withSuffix" . }}
+{{- $item := printf "%s.%s.svc" $name $.Release.Namespace }}
+{{- $allowed_hosts = append $allowed_hosts $item -}}
+{{- end -}}
+
+{{/* toRawJson because we want to retain the ERB statement as-is*/}}
+allowed_hosts: {{ toRawJson $allowed_hosts }}
+{{- end -}}
+{{- end -}}

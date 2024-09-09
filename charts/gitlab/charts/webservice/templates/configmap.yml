@@ -66,6 +66,7 @@ data:
         {{- end }}
         time_zone: {{ .Values.global.time_zone | quote }}
         {{- include "gitlab.outgoing_email_settings" . | indent 8 }}
+        {{- include "gitlab.appConfig.allowedHosts.configuration" . | nindent 8 }}
       {{- with .Values.global.appConfig }}
       {{- if eq .contentSecurityPolicy.enabled true }}
       {{-   include "gitlab.appConfig.content_security_policy" . | nindent 8 }}

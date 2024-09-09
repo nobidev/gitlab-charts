@@ -8,6 +8,82 @@ describe 'gitlab.yml.erb configuration' do
     HelmTemplate.defaults
   end
 
+  context 'with default values' do
+    it 'populates gitlab.yml.erb with default values' do
+      t = HelmTemplate.new(default_values)
+      expect(t.dig(
+        'ConfigMap/test-webservice',
+        'data',
+        'gitlab.yml.erb'
+      )).not_to include('allowed_hosts:')
+    end
+  end
+
+  context 'when allowedHosts are specified' do
+    context 'with a single deployment' do
+      let(:required_values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              allowedHosts: ['123.123.123.123', '123.123.123.124']
+        )).merge(default_values)
+      end
+
+      it 'populates gitlab.yml.erb with expected values' do
+        t = HelmTemplate.new(required_values)
+        expect(t.dig(
+          'ConfigMap/test-webservice',
+          'data',
+          'gitlab.yml.erb'
+        )).to include('allowed_hosts: ["123.123.123.123","123.123.123.124","localhost","<%= ENV[\'POD_PRIVATE_IP\'] %>","test-webservice-default.default.svc"]')
+      end
+    end
+
+    context 'with multiple webservice deployments' do
+      let(:required_values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              allowedHosts: ['123.123.123.123', '123.123.123.124']
+          gitlab:
+            webservice:
+              deployments:
+                api:
+                  ingress:
+                    path: /api
+                  common:
+                    labels:
+                      api_common: true
+                      foo: api-common
+                  pod:
+                    labels:
+                      api_pod: true
+                      foo: api-pod
+                web:
+                  ingress:
+                    path: /
+                  common:
+                    labels:
+                      web_common: true
+                      foo: web-common
+                  pod:
+                    labels:
+                      web_pod: true
+                      foo: web-pod
+        )).merge(default_values)
+      end
+
+      it 'populates gitlab.yml.erb with expected values' do
+        t = HelmTemplate.new(required_values)
+        expect(t.dig(
+          'ConfigMap/test-webservice',
+          'data',
+          'gitlab.yml.erb'
+        )).to include('allowed_hosts: ["123.123.123.123","123.123.123.124","localhost","<%= ENV[\'POD_PRIVATE_IP\'] %>","test-webservice-api.default.svc","test-webservice-web.default.svc"]')
+      end
+    end
+  end
+
   context 'when CSP is disabled' do
     it 'does not populate the gitlab.yml.erb' do
       t = HelmTemplate.new(default_values)

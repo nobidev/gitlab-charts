@@ -1145,6 +1145,7 @@ application are described below:
 | `defaultProjectsFeatures.*feature*` | Boolean | `true`  | [See below](#defaultprojectsfeatures). |
 | `webhookTimeout`                    | Integer | (empty) | Waiting time in seconds before a [hook is deemed to have failed](https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#webhook-fails-or-multiple-webhook-requests-are-triggered). |
 | `graphQlTimeout`                    | Integer | (empty) | Time in seconds the Rails has to [complete a GraphQL request](https://docs.gitlab.com/ee/api/graphql/#limits). |
+| `allowedHosts`                      |         | `[]`    | An array of hosts that will be passed on as to `Rails.application.config.hosts` that will be used to validate the Host header by Rails middleware. |
 
 #### Content Security Policy
 
