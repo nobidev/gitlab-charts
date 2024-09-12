@@ -12,18 +12,16 @@ DETAILS:
 
 The `kas` sub-chart provides a configurable deployment of the
 [GitLab agent server (KAS)](https://docs.gitlab.com/ee/administration/clusters/kas.html).
-The agent server is a component you install together with GitLab. It is required to
-manage the [GitLab agent for Kubernetes](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent).
+The agent server is a component you install together with GitLab. It is the component
+[GitLab Agent for Kubernetes](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent) connects to.
 
-This chart depends on access to the GitLab API and the Gitaly Servers.
+This chart depends on access to the GitLab API, the Gitaly Servers, and Redis.
 When you enable this chart, an Ingress is deployed.
 
 To consume minimal resources, the `kas` container uses a distroless image.
-The deployed services are exposed by an Ingress, which uses
-[WebSocket proxying](https://nginx.org/en/docs/http/websocket.html) for communication.
-This proxy allows long-lived connections with the external component,
-[`agentk`](https://docs.gitlab.com/ee/user/clusters/agent/install/index.html).
-`agentk` is the Kubernetes cluster-side agent counterpart.
+The deployed services are exposed by an Ingress, which accepts
+[WebSocket](https://nginx.org/en/docs/http/websocket.html) connections from agents.
+These connections are long-lived and, hence, Ingress should be configured appropriately.
 
 The route to access the service depends on your [Ingress configuration](#specify-an-ingress).
 
