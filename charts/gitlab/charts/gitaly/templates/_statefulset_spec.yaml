@@ -16,7 +16,7 @@ spec:
   {{- if .storage }}
   replicas: {{ default (include "gitlab.gitaly.replicas" .) .storage.gitalyReplicas }}
   {{- else }}
-  replicas: {{ include "gitlab.gitaly.replicas" . }}
+  replicas: {{ coalesce .Values.statefulset.replicas (include "gitlab.gitaly.replicas" .) }}
   {{- end }}
   podManagementPolicy: Parallel
   {{- if .Values.statefulset.strategy }}

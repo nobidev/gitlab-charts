@@ -761,6 +761,45 @@ describe 'Gitaly configuration' do
     end
   end
 
+  context 'gitaly statefulset replicas' do
+    let(:values) do
+      YAML.safe_load(%(
+        global:
+          gitaly:
+            enabled: true
+            internal:
+              names:
+                - default
+                - gitaly-store-01
+                - gitaly-store-02
+        gitlab:
+          gitaly:
+            statefulset:
+              replicas: #{gitaly_sts_replicas}
+      )).merge(default_values)
+    end
+
+    let(:template) { HelmTemplate.new(values) }
+    let(:gitaly_stateful_set) { template['StatefulSet/test-gitaly'] }
+    let(:gitaly_replicas) { gitaly_stateful_set['spec']['replicas'] }
+
+    context 'when default' do
+      let(:gitaly_sts_replicas) {}
+
+      it 'sets the replicas to number of internal storage' do
+        expect(gitaly_replicas).to eq(3)
+      end
+    end
+
+    context 'when replica is provided' do
+      let(:gitaly_sts_replicas) { 5 }
+
+      it 'sets the statefulset.replicas' do
+        expect(gitaly_replicas).to eq(5)
+      end
+    end
+  end
+
   context 'gitaly service' do
     let(:values) do
       YAML.safe_load(%(
