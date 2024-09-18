@@ -2,6 +2,24 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 8.4.0 (2024-09-18)
+
+### Added (2 changes)
+
+- [add timeZone parameter for backup CronJob](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5ae4ce484179ef5d9b07922988d11a2fe28f5ec5) by @visse ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3915))
+- [Make automountServiceAccountToken configurable](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/de017158276d1b7f5cf3b3ff2ed2e2296018d75d) by @mrennie ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3652))
+
+### Changed (8 changes)
+
+- [Update dependency gitlab-qa to v14.14.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/9dfe71e35139b1df4dfdde2993bddc74b17f979d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3907))
+- [Update dependency container-registry to v4.9.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/114e73b03f107dde868864d967a77f2056ae5862) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3908))
+- [gitaly: Tune StatefulSet probes](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2869cc388ce26d88af0055e191f8fefa956f8e5a) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3850))
+- [Update dependency container-registry to v4.8.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/767e09832c0da276ab87a9c57c4dad5cd354ec96) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3888))
+- [Update Helm release gitlab-runner to v0.68.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/1fe01e6521f849cb4588be7572e726e96d331097) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3887))
+- [Update Helm release gitlab-runner to v0.68.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/3408142be8a458faccfe61ff5299fbe9e37076ec) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3880))
+- [Update Helm release cert-manager to v1.12.13](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e45d38f61348f8fae9c824a58a9e3551b91a7d5b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3876))
+- [Update dependency container-registry to v4.7.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/9da185ee884ef15ce5be7f032d734bfa654ef630) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3872))
+
 ## 8.3.3 (2024-09-16)
 
 No changes.
