@@ -17,8 +17,8 @@
   - name: etc-ssl-certs
     mountPath: /etc/ssl/certs
     readOnly: false
-  - name: etc-pki-ca-trust-extracted-pem
-    mountPath: /etc/pki/ca-trust/extracted/pem
+  - name: etc-pki-ca-trust-extracted
+    mountPath: /etc/pki/ca-trust/extracted
     readOnly: false
 {{- if or $customCAsEnabled (or $certmanagerDisabled $internalGitalyTLSEnabled $internalPraefectTLSEnabled) }}
   - name: custom-ca-certificates
@@ -37,7 +37,7 @@
 - name: etc-ssl-certs
   emptyDir:
     medium: "Memory"
-- name: etc-pki-ca-trust-extracted-pem
+- name: etc-pki-ca-trust-extracted
   emptyDir:
     medium: "Memory"
 {{- if or $customCAsEnabled (or $certmanagerDisabled $internalGitalyTLSEnabled $internalPraefectTLSEnabled) }}
@@ -103,7 +103,7 @@
 - name: etc-ssl-certs
   mountPath: /etc/ssl/certs/
   readOnly: true
-- name: etc-pki-ca-trust-extracted-pem
-  mountPath: /etc/pki/ca-trust/extracted/pem
+- name: etc-pki-ca-trust-extracted
+  mountPath: /etc/pki/ca-trust/extracted
   readOnly: true
 {{- end -}}
