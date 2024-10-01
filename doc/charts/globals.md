@@ -486,9 +486,15 @@ redis:
     registry: registry.example.com
     repository: example/redis
     tag: x.y.z
+  master:
+    resources:
+      requests:
+        memory: "2Gi"
+  commonConfiguration: |
+    maxmemory-policy allkeys-lru
 ```
 
-Refer to the [full list of settings](https://artifacthub.io/packages/helm/bitnami/redis/11.3.4#parameters)
+Refer to the [full list of settings](https://artifacthub.io/packages/helm/bitnami/redis/16.13.2#parameters)
 for more information.
 
 ### Redis Sentinel support
