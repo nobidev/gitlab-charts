@@ -2,6 +2,33 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 8.5.0 (2024-10-16)
+
+### Added (3 changes)
+
+- [gitaly: Expose max_cgroups_per_repo configuration](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/77a6b3413e322c91263331947cf44cde6296bc40) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3927))
+- [Allow to pass allocateLoadBalancerNodePorts in Service for SSH](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a37608338ad652b8aaa0501e8c838f6c25ad91de) by @dabelenda-c2c ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3899))
+- [Expose settings for default color mode and syntax highlighting](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/812e3cdf29452118fcbbb3df4a9116f3fb6eb558) by @FabianPonce ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3914))
+
+### Fixed (2 changes)
+
+- [Remove RuntimeDefault seccomp profile from Gitaly security context](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7e5007ae17eda1b4f3311b1c7f1c11379395a7da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3941))
+- [Remove beta note for registry database](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/3ca9f3b3b37b3ad1b8e218087796073d33c458d9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3934))
+
+### Changed (7 changes)
+
+- [Update dependency gitlab-qa to v14.17.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/929c7df5530f3d0651d622c2a118fbddd95b6e64) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3944))
+- [Update dependency container-registry to v4.10.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/67b675aa014798c37aca3b17ff0239e3aff055be) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3938))
+- [kas: add PodMonitor support](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/58e50f1f17ec167edd005c629b3ed90fa6f4cc71) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3884))
+- [Update dependency gitlab-qa to v14.16.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f13290f27110b59ec823d4512c10a38e4bcfef80) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3930))
+- [Support Pod Security Standards Profile Restricted](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7e4729c7e15fa5d6f185afd5ce662fa0a3274772) by @afrimberger ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3731))
+- [Update dependency gitlab-qa to v14.15.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/3b0488eb3367280e46ce8cbf0f9a177203ef36f6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3923))
+- [Update Helm release gitlab-runner to v0.69.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/3ae60617cc32b277f13ce700e93acadc2209c840) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3921))
+
+### Removed (1 change)
+
+- [Remove 'ci_jwt_signing_key' secret migrated to ApplicationSetting](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b23acb2484f63ebb7e0f461033f5a3542519b3c9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3910))
+
 ## 8.4.2 (2024-10-09)
 
 No changes.
