@@ -65,6 +65,7 @@ variables:
   GITLAB_AUTH_TOKEN: $DANGER_GITLAB_API_TOKEN
   REVIEW_APPS_AUTO_STOP_IN: "2 hours"
   LIMIT_TO: ""
+  ROOT_PIPELINE: "true"
 
 stages:
   - prepare
@@ -88,7 +89,11 @@ stages:
 include:
   - local: '/.gitlab/ci/rules.gitlab-ci.yml'
   - local: '/.gitlab/ci/review-apps.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "vcluster"'
   - local: '/.gitlab/ci/operator.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   - local: '/.gitlab/ci/environments/gke130-arm.gitlab-ci.yml'
     rules:
       # pipeline-defined variables are not available, so we're hardwiring present value of:
@@ -113,11 +118,21 @@ include:
     rules:
       - if: '$LIMIT_TO == "eks130"'
   - template: Jobs/Dependency-Scanning.latest.gitlab-ci.yml
+    rules:
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
+    rules:
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   - template: Jobs/SAST.latest.gitlab-ci.yml
+    rules:
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   - template: Jobs/SAST-IaC.latest.gitlab-ci.yml
+    rules:
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   - component: ${CI_SERVER_FQDN}/gitlab-org/components/danger-review/danger-review@1.4.1
     rules:
+      - if: '$LIMIT_TO != "" && $LIMIT_TO != null'
+        when: never
       - if: '$CI_SERVER_HOST == "gitlab.com"'
   - component: "gitlab.com/gitlab-org/quality/pipeline-common/allure-report@8.16.0"
     inputs:
@@ -344,6 +359,12 @@ pin_image_versions:
     - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE == "QA_KNAPSACK_UPDATE_PIPELINE"'
 
+trigger-debug:
+  stage: preflight
+  script:
+    - |
+      echo "LIMIT_TO: '$LIMIT_TO'"
+
 trigger-gke127:
   stage: review
   trigger:
@@ -354,6 +375,11 @@ trigger-gke127:
     variables: true
   variables:
     LIMIT_TO: gke127
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  #  - if: '$LIMIT_TO != "" || $LIMIT_TO != null'
+  #    when: never
 
 # Jobs using auto_stop_in that exit with a failure will not execute the on_stop
 # action. We get frequent failures during review_* jobs. Their accompanying
