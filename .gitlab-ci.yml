@@ -118,17 +118,9 @@ include:
     rules:
       - if: '$LIMIT_TO == "eks130"'
   - template: Jobs/Dependency-Scanning.latest.gitlab-ci.yml
+  - local: /.gitlab/ci/scanners.yml
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
-  - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
-  - template: Jobs/SAST.latest.gitlab-ci.yml
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
-  - template: Jobs/SAST-IaC.latest.gitlab-ci.yml
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null || $LIMIT_TO == "gke130"'
   - component: ${CI_SERVER_FQDN}/gitlab-org/components/danger-review/danger-review@1.4.1
     rules:
       - if: '$LIMIT_TO != "" && $LIMIT_TO != null'
@@ -146,19 +138,6 @@ include:
       - if: '$CI_SERVER_HOST != "gitlab.com"'
         when: never
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-
-dependency_scanning:
-  needs: []
-  before_script: []
-secret_detection:
-  needs: []
-  before_script: []
-sast:
-  needs: []
-  before_script: []
-iac-sast:
-  needs: []
-  before_script: []
 
 tag_auto_deploy:
   stage: staging-release
@@ -359,12 +338,6 @@ pin_image_versions:
     - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE == "QA_KNAPSACK_UPDATE_PIPELINE"'
 
-trigger-debug:
-  stage: preflight
-  script:
-    - |
-      echo "LIMIT_TO: '$LIMIT_TO'"
-
 trigger-gke127:
   stage: review
   trigger:
@@ -372,7 +345,11 @@ trigger-gke127:
       - local: .gitlab-ci.yml
     strategy: depend
   inherit:
-    variables: true
+    variables: 
+      - PIPELINE_TYPE
+      - REVIEW_REF_PREFIX
+      - LIMIT_TO
+
   variables:
     LIMIT_TO: gke127
   rules:
@@ -570,6 +547,8 @@ specs_without_cluster:
     RSPEC_TAGS: ~type:feature
   parallel: 6
   rules:
+    - if: '$LIMIT_TO != "" && $LIMIT_TO != null'
+      when: never
     - !reference [.specs, rules]
     - if: '$PIPELINE_TYPE == "AUTO_DEPLOY_PIPELINE"'
     - if: '$PIPELINE_TYPE == "RELEASE_PIPELINE"'
