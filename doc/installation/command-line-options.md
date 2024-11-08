@@ -47,7 +47,7 @@ helm inspect values gitlab/gitlab
 | `global.psql.password.secret`                  | Global name of the secret containing the psql password                                      | _Uses in-cluster non-production PostgreSQL_   |
 | `global.registry.bucket`                       | registry bucket name                                                                        | `registry`                                    |
 | `global.service.annotations`                   | Annotations to add to every `Service`                                                       | {}                                            |
-| `global.raills.sessionStore.sessionCookieTokenPrefix`  | Prefix for the generated session cookies                                        | ""                                            |
+| `global.rails.sessionStore.sessionCookieTokenPrefix`  | Prefix for the generated session cookies                                        | ""                                            |
 | `global.deployment.annotations`                | Annotations to add to every `Deployment`                                                    | {}                                            |
 | `global.time_zone`                             | Global time zone                                                                            | UTC                                           |
 
