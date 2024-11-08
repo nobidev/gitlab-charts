@@ -352,8 +352,22 @@ pin_image_versions:
     - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE == "QA_KNAPSACK_UPDATE_PIPELINE"'
 
+trigger_review_current:
+  stage: approve-review-apps
+  image: busybox
+  script:
+    - echo "Testing current platform"
+
+trigger_review_secondary:
+  stage: approve-review-apps
+  image: busybox
+  script:
+    - echo "Testing secondary platforms"
+
 trigger-gke127:
   stage: review
+  needs:
+    - trigger_review_secondary
   trigger:
     include:
       - local: .gitlab-ci.yml
@@ -371,6 +385,66 @@ trigger-gke127:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   #  - if: '$LIMIT_TO != "" || $LIMIT_TO != null'
   #    when: never
+
+trigger-gke129:
+  stage: review
+  needs:
+    - trigger_review_secondary
+  trigger:
+    include:
+      - local: .gitlab-ci.yml
+    strategy: depend
+  inherit:
+    variables: 
+      - PIPELINE_TYPE
+      - REVIEW_REF_PREFIX
+      - LIMIT_TO
+  variables:
+    LIMIT_TO: gke129
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+trigger-gke130:
+  stage: review
+  needs:
+    - trigger_review_current
+  trigger:
+    include:
+      - local: .gitlab-ci.yml
+    strategy: depend
+  inherit:
+    variables: 
+      - PIPELINE_TYPE
+      - REVIEW_REF_PREFIX
+      - LIMIT_TO
+  variables:
+    LIMIT_TO: gke130
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+trigger-gke130a:
+  stage: review
+  needs:
+    - trigger_review_current
+  trigger:
+    include:
+      - local: .gitlab-ci.yml
+    strategy: depend
+  inherit:
+    variables: 
+      - PIPELINE_TYPE
+      - REVIEW_REF_PREFIX
+      - LIMIT_TO
+  variables:
+    LIMIT_TO: gke130
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 # Jobs using auto_stop_in that exit with a failure will not execute the on_stop
 # action. We get frequent failures during review_* jobs. Their accompanying
