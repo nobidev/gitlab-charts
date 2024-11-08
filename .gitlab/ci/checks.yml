@@ -64,3 +64,40 @@ check_docs_links:
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
 
+lint_package:
+  stage: preflight
+  when: always
+  script:
+    - kubectl version --client=true --output=json
+    - helm version --template='Helm Version - {{.Version}}'
+    - helm repo add gitlab https://charts.gitlab.io
+    - helm repo add jetstack https://charts.jetstack.io
+    - helm dependency update
+    - echo "$HELM_DEFAULT_SETTINGS" | tee ./template_settings.yaml
+    - echo "$HELM_SETTINGS" | tee -a ./template_settings.yaml
+    - helm lint -f ./template_settings.yaml
+    - mkdir -p build
+    - helm package -d build .
+  artifacts:
+    expire_in: 3d
+    paths:
+    - build
+  rules:
+    - if: '$PIPELINE_TYPE == "DOCS_PIPELINE"'
+    - if: '$PIPELINE_TYPE =~ /_MR_PIPELINE$/'
+    - if: '$PIPELINE_TYPE =~ /_BRANCH_PIPELINE$/'
+    - if: '$PIPELINE_TYPE == "NIGHTLY_PIPELINE"'
+    - if: '$PIPELINE_TYPE == "AUTO_DEPLOY_PIPELINE"'
+    - if: '$PIPELINE_TYPE == "RELEASE_PIPELINE"'
+
+specs_without_cluster:
+  extends: .specs
+  variables:
+    RSPEC_TAGS: ~type:feature
+  parallel: 6
+  rules:
+    - !reference [.specs, rules]
+    - if: '$PIPELINE_TYPE == "AUTO_DEPLOY_PIPELINE"'
+    - if: '$PIPELINE_TYPE == "RELEASE_PIPELINE"'
+  needs: ['lint_package']
+

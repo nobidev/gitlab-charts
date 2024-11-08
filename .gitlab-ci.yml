@@ -120,16 +120,16 @@ include:
   - template: Jobs/Dependency-Scanning.latest.gitlab-ci.yml
   - local: /.gitlab/ci/scanners.yml
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == null || $LIMIT_TO == "gke130"'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   - local: /.gitlab/ci/validations.yml
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == null || $LIMIT_TO == "gke130"'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   - local: /.gitlab/ci/checks.yml
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == null || $LIMIT_TO == "gke130"'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   - local: /.gitlab/ci/review-docs.yml
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == null || $LIMIT_TO == "gke130"'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   - component: ${CI_SERVER_FQDN}/gitlab-org/components/danger-review/danger-review@1.4.1
     rules:
       - if: '$LIMIT_TO != "" && $LIMIT_TO != null'
@@ -270,6 +270,8 @@ approve_cluster_tests:
   image: alpine:latest
   script: echo "Proceeding to tests in CI clusters..."
   rules:
+    - if: '$LIMIT_TO != "" && $LIMIT_TO != null'
+      when: always
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
       when: manual
     - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/ && $PIPELINE_TYPE != "CANONICAL_FEATURE_BRANCH_PIPELINE"'
@@ -290,6 +292,8 @@ pin_image_versions:
     paths:
       - ci.digests.yaml
   rules:
+    - if: '$LIMIT_TO != "" && $LIMIT_TO != null'
+      when: never
     - if: '$PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
@@ -322,8 +326,9 @@ pin_image_versions:
     VARIABLES_FILE: "variables/${CI_JOB_NAME}"
   retry: 1
   extends: .source_autodevops
-  dependencies:
-    - pin_image_versions
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: pin_image_versions
   script:
     - !reference [.set_up_varfile_and_kubecontext, script]
     - kubectl version --output=json
@@ -358,9 +363,9 @@ trigger-gke127:
       - PIPELINE_TYPE
       - REVIEW_REF_PREFIX
       - LIMIT_TO
-
   variables:
     LIMIT_TO: gke127
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
   rules:
     - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -435,19 +440,6 @@ trigger-gke127:
     - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE == "QA_KNAPSACK_UPDATE_PIPELINE"'
-
-specs_without_cluster:
-  extends: .specs
-  variables:
-    RSPEC_TAGS: ~type:feature
-  parallel: 6
-  rules:
-    - if: '$LIMIT_TO != "" && $LIMIT_TO != null'
-      when: never
-    - !reference [.specs, rules]
-    - if: '$PIPELINE_TYPE == "AUTO_DEPLOY_PIPELINE"'
-    - if: '$PIPELINE_TYPE == "RELEASE_PIPELINE"'
-  needs: ['lint_package']
 
 .qa:
   image: registry.gitlab.com/gitlab-org/gitlab-omnibus-builder/distribution_ci_tools:${CI_TOOLS_VERSION}
