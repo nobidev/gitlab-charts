@@ -64,6 +64,7 @@ variables:
             enabled: true
   GITLAB_AUTH_TOKEN: $DANGER_GITLAB_API_TOKEN
   REVIEW_APPS_AUTO_STOP_IN: "2 hours"
+  LIMIT_TO: ""
 
 stages:
   - prepare
@@ -93,6 +94,8 @@ include:
       # pipeline-defined variables are not available, so we're hardwiring present value of:
       #  * $CANONICAL_PROJECT_PATH
       #
+      - if: '$LIMIT_TO != "" && $LIMIT_TO != "gke130a"'
+        when: never
       # CANONICAL_DEFAULT_BRANCH_PIPELINE
       - if: '$PIPELINE_TYPE == null && $CI_PROJECT_PATH == "gitlab-org/charts/gitlab" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       # CANONICAL_MR_PIPELINE
@@ -101,9 +104,14 @@ include:
       #  Allow in triggered pipelines
       - if: '$CI_PROJECT_PATH == "gitlab-org/charts/gitlab" && $CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
   - local: '/.gitlab/ci/environments/gke129.gitlab-ci.yml'
-  - local: '/.gitlab/ci/environments/gke130.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "gke129"'
   - local: '/.gitlab/ci/environments/eks.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "eks"'
   - local: '/.gitlab/ci/environments/eks130.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "eks130"'
   - template: Jobs/Dependency-Scanning.latest.gitlab-ci.yml
   - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
   - template: Jobs/SAST.latest.gitlab-ci.yml
@@ -335,6 +343,17 @@ pin_image_versions:
     - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE == "QA_KNAPSACK_UPDATE_PIPELINE"'
+
+trigger-gke127:
+  stage: review
+  trigger:
+    include:
+      - local: .gitlab-ci.yml
+    strategy: depend
+  inherit:
+    variables: true
+  variables:
+    LIMIT_TO: gke127
 
 # Jobs using auto_stop_in that exit with a failure will not execute the on_stop
 # action. We get frequent failures during review_* jobs. Their accompanying
