@@ -23,6 +23,8 @@
 # `.buildpacks` that contains the URLs, one on each line, in order.
 # Note: Auto CI does not work with multiple buildpacks yet
 
+# bump pipeline 
+
 default:
   image: registry.gitlab.com/gitlab-org/gitlab-build-images/debian-${DEBIAN_VERSION}-slim-ruby-${RUBY_VERSION}:kubectl-1.30-helm-3.10-helm_kubeconform-0.1.17-vcluster-0.19-awscli-1.32.93
 
