@@ -133,18 +133,19 @@ include:
       - if: '$LIMIT_TO != "" && $LIMIT_TO != null'
         when: never
       - if: '$CI_SERVER_HOST == "gitlab.com"'
-  - component: "gitlab.com/gitlab-org/quality/pipeline-common/allure-report@8.16.0"
-    inputs:
-      job_name: "e2e-test-report"
-      job_stage: "qa-report"
-      gitlab_auth_token_variable_name: "DANGER_GITLAB_API_TOKEN"
-      aws_access_key_id_variable_name: "QA_ALLURE_AWS_ACCESS_KEY_ID"
-      aws_secret_access_key_variable_name: "QA_ALLURE_AWS_SECRET_ACCESS_KEY"
-      allure_results_glob: "gitlab-qa-run-*/**/allure-results"
-    rules:
-      - if: '$CI_SERVER_HOST != "gitlab.com"'
-        when: never
-      - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  ##DISABLED   - component: "gitlab.com/gitlab-org/quality/pipeline-common/allure-report@8.16.0"
+  ##DISABLED     inputs:
+  ##DISABLED       job_name: "e2e-test-$LIMIT_TO"
+  ##DISABLED       job_stage: "qa-report"
+  ##DISABLED       gitlab_auth_token_variable_name: "DANGER_GITLAB_API_TOKEN"
+  ##DISABLED       aws_access_key_id_variable_name: "QA_ALLURE_AWS_ACCESS_KEY_ID"
+  ##DISABLED       aws_secret_access_key_variable_name: "QA_ALLURE_AWS_SECRET_ACCESS_KEY"
+  ##DISABLED       allure_results_glob: "gitlab-qa-run-*/**/allure-results"
+  ##DISABLED     rules:
+  ##DISABLED       - if: '$CI_SERVER_HOST != "gitlab.com"'
+  ##DISABLED         when: never
+  ##DISABLED       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  ##DISABLED       - if: '$LIMIT_TO != null && $LIMIT_TO !=""'
 
 tag_auto_deploy:
   stage: staging-release
