@@ -115,7 +115,6 @@ include:
   - local: '/.gitlab/ci/environments/eks130.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "eks130"'
-  - template: Jobs/Dependency-Scanning.latest.gitlab-ci.yml
   - local: /.gitlab/ci/scanners.yml
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
