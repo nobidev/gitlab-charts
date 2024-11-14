@@ -133,19 +133,6 @@ include:
       - if: '$LIMIT_TO != "" && $LIMIT_TO != null'
         when: never
       - if: '$CI_SERVER_HOST == "gitlab.com"'
-  ##DISABLED   - component: "gitlab.com/gitlab-org/quality/pipeline-common/allure-report@8.16.0"
-  ##DISABLED     inputs:
-  ##DISABLED       job_name: "e2e-test-$LIMIT_TO"
-  ##DISABLED       job_stage: "qa-report"
-  ##DISABLED       gitlab_auth_token_variable_name: "DANGER_GITLAB_API_TOKEN"
-  ##DISABLED       aws_access_key_id_variable_name: "QA_ALLURE_AWS_ACCESS_KEY_ID"
-  ##DISABLED       aws_secret_access_key_variable_name: "QA_ALLURE_AWS_SECRET_ACCESS_KEY"
-  ##DISABLED       allure_results_glob: "gitlab-qa-run-*/**/allure-results"
-  ##DISABLED     rules:
-  ##DISABLED       - if: '$CI_SERVER_HOST != "gitlab.com"'
-  ##DISABLED         when: never
-  ##DISABLED       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  ##DISABLED       - if: '$LIMIT_TO != null && $LIMIT_TO !=""'
 
 tag_auto_deploy:
   stage: staging-release
@@ -291,28 +278,6 @@ trigger_review_secondary:
       when: manual
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: manual
-
-trigger-gke127:
-  stage: review
-  needs:
-    - trigger_review_secondary
-  trigger:
-    include:
-      - local: .gitlab-ci.yml
-    strategy: depend
-  inherit:
-    variables: 
-      - PIPELINE_TYPE
-      - REVIEW_REF_PREFIX
-      - LIMIT_TO
-  variables:
-    LIMIT_TO: gke127
-    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
-  rules:
-    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  #  - if: '$LIMIT_TO != "" || $LIMIT_TO != null'
-  #    when: never
 
 trigger-gke129:
   stage: review
