@@ -94,9 +94,6 @@ include:
   - local: '/.gitlab/ci/operator.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
-  - local: '/.gitlab/ci/environments/gke130-arm.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke130a"'
   - local: '/.gitlab/ci/environments/gke129.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "gke129"'
