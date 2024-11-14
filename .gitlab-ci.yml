@@ -375,6 +375,26 @@ trigger-eks:
     - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
+trigger-eks130:
+  stage: review
+  needs:
+    - trigger_review_secondary
+  trigger:
+    include:
+      - local: .gitlab-ci.yml
+    strategy: depend
+  inherit:
+    variables: 
+      - PIPELINE_TYPE
+      - REVIEW_REF_PREFIX
+      - LIMIT_TO
+  variables:
+    LIMIT_TO: eks130
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
 
 # Jobs using auto_stop_in that exit with a failure will not execute the on_stop
 # action. We get frequent failures during review_* jobs. Their accompanying
