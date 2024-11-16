@@ -31,6 +31,7 @@ spec:
         {{- include "gitlab.standardLabels" . | nindent 8 }}
         {{- include "gitlab.commonLabels" . | nindent 8 }}
         {{- include "gitlab.podLabels" . | nindent 8 }}
+        {{- include "gitlab.kiali.labels" . | nindent 8 }}
       annotations:
       {{- $cm := "/configmap.yml" -}}
       {{- if .storage }}

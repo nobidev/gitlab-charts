@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
+    {{- include "gitlab.kiali.labels" . | nindent 4 }}
     component: "{{ .Values.controller.name }}"
     {{- include "ingress-nginx.labels" . | nindent 4 }}
     app.kubernetes.io/component: controller
@@ -35,6 +36,7 @@ spec:
       {{- end }}
     {{- end }}
       labels:
+        {{- include "gitlab.kiali.labels" . | nindent 8 }}
         {{- include "ingress-nginx.selectorLabels" . | nindent 8 }}
         component: "{{ .Values.controller.name }}"
       {{- if .Values.controller.podLabels }}

@@ -4,6 +4,7 @@ kind: Deployment
 metadata:
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.kiali.labels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
     component: "{{ .Values.controller.name }}"
     {{- include "ingress-nginx.labels" . | nindent 4 }}
@@ -44,6 +45,7 @@ spec:
     {{- end }}
       labels:
         {{- include "ingress-nginx.selectorLabels" . | nindent 8 }}
+        {{- include "gitlab.kiali.labels" . | nindent 8 }}
         component: "{{ .Values.controller.name }}"
       {{- include "gitlab.podLabels" . | nindent 8 }}
       {{- if .Values.controller.podLabels }}

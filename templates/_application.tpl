@@ -61,3 +61,11 @@ Return priorityClassName for Pod definitions
 priorityClassName: {{ $pcName }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Define a app.kubernetes.io/name: {{ .Chart.Name }} and app.kubernetes.io/version: {{ .Chart.AppVersion }} label for kiali on pods, deployments, statefulsets, and daemonsets.
+*/}}
+{{- define "gitlab.kiali.labels" -}}
+app.kubernetes.io/name: {{ .Chart.Name }}
+app.kubernetes.io/version: {{ .Chart.AppVersion }}
+{{- end -}}
