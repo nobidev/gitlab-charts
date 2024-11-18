@@ -8,5 +8,5 @@ metadata:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
     {{- include "gitlab.kiali.labels" . | nindent 4 }}
-  {{- include (print $.Template.BasePath "/_statefulset_spec.yaml") . | nindent 2 }}
+{{- include (print $.Template.BasePath "/_statefulset_spec.yaml") . | nindent 2 }}
 {{- end }}
