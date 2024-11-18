@@ -68,6 +68,6 @@ Define a app.kubernetes.io/name: {{ .Chart.Name }} and app.kubernetes.io/version
 {{- define "gitlab.kiali.labels" -}}
 {{- if .Release }}
    {{ include "gitlab.application.labels" . }}
-{{- end }}
-app.kubernetes.io/version: {{ .Chart.AppVersion }}
+   app.kubernetes.io/version: {{ .Chart.AppVersion }}
+{{- end -}}
 {{- end -}}
