@@ -19,7 +19,9 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" $ | nindent 4 }}
     {{- include "webservice.labels" . | nindent 4 }}
+    {{- if .Release }}
     {{- include "gitlab.kiali.labels" . | nindent 4 }}
+    {{- end }}
     {{- include "webservice.commonLabels" . | nindent 4 }}
     {{- if .deployment.labels -}}
     {{-   toYaml .deployment.labels | nindent 4 }}
@@ -48,7 +50,9 @@ spec:
         {{- include "gitlab.podLabels" $ | nindent 8 }}
         {{- include "webservice.commonLabels" . | nindent 8 }}
         {{- include "webservice.podLabels" . | nindent 8 }}
+        {{- if .Release }}
         {{- include "gitlab.kiali.labels" . | nindent 8 }}
+        {{- end }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yml") $ | sha256sum }}
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
