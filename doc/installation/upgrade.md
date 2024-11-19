@@ -136,6 +136,13 @@ To delete the StatefulSet for `RELEASE-redis-master`:
 
    - `<namespace>` should be replaced with the namespace where you installed the GitLab chart.
 
+1. Delete any leftover pods or PVCs related to the Redis StatefulSet from above:
+
+   ```shell
+   kubectl delete pods -l app=redis,release=RELEASE --namespace <namespace>
+   kubectl delete pvc -l app=redis,release=RELEASE --namespace <namespace> 
+   ```
+
 Then follow the [standard upgrade steps](#steps). Due to how Helm merges changes, you may need to scale up the deployments
 you scaled down in step one manually.
 
