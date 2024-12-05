@@ -526,7 +526,7 @@ describe 'Gitaly configuration' do
       end
     end
   end
- 
+
   context 'shareProcessNamespace' do
     let(:values) do
       YAML.safe_load(%(
