@@ -2,6 +2,24 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 8.7.0 (2024-12-18)
+
+### Added (3 changes)
+
+- [Support setting a global time zone](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7bc5d71dd758578d1751693d2274ccaaa33c47e9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3649))
+- [Generate and configure KAS WebSocket Token secret](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5805b620d6a43f56e3b7e3253de657376050a085) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4018))
+- [Add ActiveRecord::Encryption secrets](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0e36a29da44b6d25ac39106adc1a447ea11b8d56) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3988))
+
+### Fixed (1 change)
+
+- [Fix soft global nodeAffinity](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/df556b657da9ccc16d3bb266abca8d3a2c246d1e) by @b-fein ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4013))
+
+### Changed (3 changes)
+
+- [Update dependency danger-review to v1.4.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/53cbb8148f90ed0d860a36fd81b2822ad36cbc4b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4021))
+- [Update dependency container-registry to v4.14.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/dcc8ce8e48d88f5ff1aee9f0aa67bf4b505de585) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4017))
+- [Update Helm release gitlab-runner to v0.71.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/45c82f324306ca23d68384a65103ec889c1b6cee) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4011))
+
 ## 8.6.2 (2024-12-10)
 
 No changes.
