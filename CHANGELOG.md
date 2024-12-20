@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 8.7.1 (2024-12-20)
+
+### Fixed (1 change)
+
+- [Shared Secrets: consume idiomatic returns from yq](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/19e1aa90c41e3559959f27b4a3baf67669905400) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4039))
+
 ## 8.7.0 (2024-12-18)
 
 ### Added (3 changes)
