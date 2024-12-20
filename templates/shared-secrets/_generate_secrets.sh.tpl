@@ -25,6 +25,21 @@ function fetch_rails_value(){
   if [ "${value}" != "null" ]; then echo "${value}"; fi
 }
 
+# Converts yaml flow style arrays into sequence style.
+# If a sequence style is passed, it returns the same sequence.
+# If empty is passed it return empty.
+# ARG1 [required]: the array, flow or sequence style
+# ARG2 [optional]: indentation number (default 0).
+#    Example, array_to_sequence [1, 2, 3] becomes:
+#      - 1
+#      - 2
+#      - 3
+array_to_sequence() {
+    local array="$1"
+    local indent="${2:0}"
+    echo "$array" | yq eval ".[] | \"$(printf '%*s' "$indent" '')- \" + ." -
+}
+
 # Args: secretname
 function label_secret(){
   local secret_name=$1
@@ -168,7 +183,9 @@ if [ -n "$env" ]; then
     encrypted_settings_key_base=$(fetch_rails_value secrets.yml "${env}.encrypted_settings_key_base")
 
     active_record_encryption_primary_keys=$(fetch_rails_value secrets.yml "${env}.active_record_encryption_primary_key")
+    active_record_encryption_primary_keys=$(array_to_sequence "$active_record_encryption_primary_keys")
     active_record_encryption_deterministic_keys=$(fetch_rails_value secrets.yml "${env}.active_record_encryption_deterministic_key")
+    active_record_encryption_deterministic_keys=$(array_to_sequence "$active_record_encryption_deterministic_keys")
     active_record_encryption_key_derivation_salt=$(fetch_rails_value secrets.yml "${env}.active_record_encryption_key_derivation_salt")
   fi;
 
