@@ -171,9 +171,9 @@ data:
     {{-   end }}
     {{- end }}
 
-    {{- if .Values.backup.goCloudUrl }}
+    {{- if .Values.config.backup.go_cloud_url }}
     [backup]
-    go_cloud_url = "{{ .Values.backup.goCloudUrl }}"
+    go_cloud_url = "{{ .Values.config.backup.go_cloud_url }}"
     {{- end }}
 
     {{- if gt (int64 .Values.config.cgroups.repositories.count) 0 }}

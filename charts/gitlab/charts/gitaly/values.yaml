@@ -227,14 +227,13 @@ gpgSigning: {}
   # secret: glGPG
   # key:
 
-backup: {}
-  # goCloudUrl:
-
 # default enable gomemlimit to avoid gc related OOM errors
 gomemlimit:
   enabled: true
 
 config:
+  backup: {}
+    # go_cloud_url:
   cgroups:
     mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
     hierarchy_root: gitaly

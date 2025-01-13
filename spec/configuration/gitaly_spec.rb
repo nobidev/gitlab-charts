@@ -463,8 +463,9 @@ describe 'Gitaly configuration' do
       YAML.safe_load(%(
         gitlab:
           gitaly:
-            backup:
-              goCloudUrl: 'gs://gitaly-backups'
+            config:
+              backup:
+                go_cloud_url: 'gs://gitaly-backups'
       )).deep_merge(default_values)
     end
 
