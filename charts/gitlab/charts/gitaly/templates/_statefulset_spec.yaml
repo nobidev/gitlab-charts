@@ -59,7 +59,7 @@ spec:
       {{- include "gitlab.priorityClassName" . | nindent 6 }}
       terminationGracePeriodSeconds: {{ .Values.gracefulRestartTimeout | int | add 5 }}
       initContainers:
-      {{- if .Values.cgroups.enabled }}
+      {{- if gt (int64 .Values.config.cgroups.repositories.count) 0 }}
         - name: init-cgroups
           image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.cgroups.initContainer.image) | quote }}
           {{- include "gitlab.image.pullPolicy" $initCgroupsImageCfg | indent 10 }}
@@ -155,7 +155,7 @@ spec:
           volumeMounts:
             {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
             {{- include "gitlab.certificates.volumeMount" . | nindent 12 }}
-            {{- if .Values.cgroups.enabled }}
+            {{- if gt (int64 .Values.config.cgroups.repositories.count) 0 }}
             - name: cgroup
               mountPath: '/run/gitaly/cgroup'
             {{- end }}
@@ -217,7 +217,7 @@ spec:
       {{- include "gitlab.nodeSelector" . | nindent 6 }}
       volumes:
         {{- include "gitlab.extraVolumes" . | nindent 8 }}
-        {{- if .Values.cgroups.enabled }}
+        {{- if gt (int64 .Values.config.cgroups.repositories.count) 0 }}
         - name: cgroup
           hostPath:
             path: /sys/fs/cgroup

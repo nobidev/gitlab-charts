@@ -176,42 +176,42 @@ data:
     go_cloud_url = "{{ .Values.backup.goCloudUrl }}"
     {{- end }}
 
-    {{- if .Values.cgroups.enabled }}
-    {{-   with .Values.cgroups }}
+    {{- if gt (int64 .Values.config.cgroups.repositories.count) 0 }}
+    {{-   with .Values.config.cgroups }}
     [cgroups]
     {{-     if .mountpoint }}
     mountpoint = "{{ .mountpoint }}"
     {{-     end }}
-    {{-     if .hierarchyRoot }}
-    hierarchy_root = {{ .hierarchyRoot | quote }}
+    {{-     if .hierarchy_root }}
+    hierarchy_root = {{ .hierarchy_root | quote }}
     {{-     end }}
-    {{-     if .memoryBytes }}
-    memory_bytes = {{ .memoryBytes | int64 }}
+    {{-     if .memory_bytes }}
+    memory_bytes = {{ .memory_bytes | int64 }}
     {{-     end }}
-    {{-     if .cpuShares }}
-    cpu_shares = {{ .cpuShares | int64 }}
+    {{-     if .cpu_shares }}
+    cpu_shares = {{ .cpu_shares | int64 }}
     {{-     end }}
-    {{-     if .cpuQuotaUs }}
-    cpu_quota_us = {{ .cpuQuotaUs | int64 }}
+    {{-     if .cpu_quota_us }}
+    cpu_quota_us = {{ .cpu_quota_us | int64 }}
     {{-     end }}
     {{-  end }}
 
-    {{-   with .Values.cgroups.repositories }}
+    {{-   with .Values.config.cgroups.repositories }}
     [cgroups.repositories]
     {{-     if .count }}
     count = {{ .count | int64 }}
     {{-     end }}
-    {{-     if .memoryBytes }}
-    memory_bytes = {{ .memoryBytes | int64 }}
+    {{-     if .memory_bytes }}
+    memory_bytes = {{ .memory_bytes | int64 }}
     {{-     end }}
-    {{-     if .cpuShares }}
-    cpu_shares = {{ .cpuShares | int64 }}
+    {{-     if .cpu_shares }}
+    cpu_shares = {{ .cpu_shares | int64 }}
     {{-     end }}
-    {{-     if .cpuQuotaUs }}
-    cpu_quota_us = {{ .cpuQuotaUs | int64 }}
+    {{-     if .cpu_quota_us }}
+    cpu_quota_us = {{ .cpu_quota_us | int64 }}
     {{-     end }}
-    {{-     if .maxCgroupsPerRepo }}
-    max_cgroups_per_repo = {{ .maxCgroupsPerRepo | int64 }}
+    {{-     if .max_cgroups_per_repo }}
+    max_cgroups_per_repo = {{ .max_cgroups_per_repo | int64 }}
     {{-     end }}
     {{-   end }}
     {{- end }}

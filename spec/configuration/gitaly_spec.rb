@@ -569,30 +569,31 @@ describe 'Gitaly configuration' do
         gitlab:
           gitaly:
             cgroups:
-              enabled: #{cgroups_enabled}
               initContainer:
                 image:
                   repository: registry.gitlab.com/gitlab-org/build/cng/gitaly-init-cgroups
                   tag: master
                   pullPolicy: IfNotPresent
-              mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
-              hierarchyRoot: gitaly
-              memoryBytes: 64424509440
-              cpuShares: 1024
-              cpuQuotaUs: 400000
-              repositories:
-                count: 1000
-                memoryBytes: 32212254720
-                cpuShares: 512
-                cpuQuotaUs: 200000
-                maxCgroupsPerRepo: 2
+            config:
+              cgroups:
+                mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
+                hierarchy_root: gitaly
+                memory_bytes: 64424509440
+                cpu_shares: 1024
+                cpu_quota_us: 400000
+                repositories:
+                  count: #{cgroups_count}
+                  memory_bytes: 32212254720
+                  cpu_shares: 512
+                  cpu_quota_us: 200000
+                  max_cgroups_per_repo: 2
       )).deep_merge(default_values)
     end
 
     let(:gitaly_stateful_set) { 'StatefulSet/test-gitaly' }
 
     context 'when enabled' do
-      let(:cgroups_enabled) { true }
+      let(:cgroups_count) { 1000 }
 
       let(:template) { HelmTemplate.new(values) }
       let(:gitaly_config) { template.dig('ConfigMap/test-gitaly', 'data', 'config.toml.tpl') }
@@ -633,7 +634,7 @@ describe 'Gitaly configuration' do
     end
 
     context 'when disabled' do
-      let(:cgroups_enabled) { false }
+      let(:cgroups_count) { 0 }
 
       let(:template) { HelmTemplate.new(values) }
 
