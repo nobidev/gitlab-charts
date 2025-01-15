@@ -2,6 +2,26 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 8.8.0 (2025-01-15)
+
+### Added (1 change)
+
+- [Support configuring redis database number](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/8338b2142ebb22b256420adb656addd7a7e2be95) by @gpongelli ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3995))
+
+### Fixed (3 changes)
+
+- [Remove duplicate TZ keys in Gitaly StatefulSet](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/344ee5e80a92b8880187f60c4f8833e42e01c9d2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4046))
+- [Revert certmanager-issuer time zone change](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/703c18ffc1feab1cda16c02f7acca70f871aac11) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4043))
+- [Shared Secrets: consume idiomatic returns from yq](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/19e1aa90c41e3559959f27b4a3baf67669905400) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4039))
+
+### Changed (5 changes)
+
+- [Update dependency gitlab-exporter to v15.1.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/13bc443fde1001e18db458f3d123ae05efe7a285) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4055))
+- [Add ttlSecondsAfterFinished to certmanager_issuer](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b9b3698b41916d69bb82c467ebbe0d1aa3473bc2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4053))
+- [Update dependency container-registry to v4.15.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7d9b71c4adc0078424aa1e9ebfb65efd49ae20a9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4059))
+- [Update Helm release gitlab-runner to v0.72.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/13515980ce6275fff3d8241b73725a48f443d2fb) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4038))
+- [Update dependency gitlab-qa to v15](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a1b4854886a67007690053b6f7606636d9703f53) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4032))
+
 ## 8.7.4 (2025-01-15)
 
 No changes.
