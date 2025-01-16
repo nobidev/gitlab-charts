@@ -30,6 +30,9 @@ describe 'certmanager_issuer configuration' do
       # Expectation for the metadata name prefix
       expect(issuer_job["metadata"]["name"]).to match(/^test-issuer-[a-f0-9]+$/)
 
+      # Expectation for the container image needs to be a regex to work for master and stable branches.
+      expect(issuer_job["spec"]["template"]["spec"]["containers"][0]["image"]).to match(%r{^registry\.gitlab\.com/gitlab-org/build/cng/kubectl:(v\d+\.\d+\.\d+|master)$})
+
       # Expectation for the rest of the structure
       expect(issuer_job).to include(
         "apiVersion" => "batch/v1",
@@ -55,7 +58,6 @@ describe 'certmanager_issuer configuration' do
               "containers" => include(
                 include(
                   "name" => "create-issuer",
-                  "image" => "registry.gitlab.com/gitlab-org/build/cng/kubectl:master",
                   "command" => ["/bin/bash", "/scripts/create-issuer", "/scripts/issuer.yml"],
                   "securityContext" => {
                     "allowPrivilegeEscalation" => false,
