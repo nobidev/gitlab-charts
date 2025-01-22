@@ -179,6 +179,7 @@ CIYAML
     -f ci.psql.yaml \
     -f ci.digests.yaml \
     -f ci.prometheus.yaml \
+    --set gitlab.registry.image.tag=v4.15.0-gitlab \
     --set releaseOverride="$RELEASE_NAME" \
     --set global.hosts.hostSuffix="$HOST_SUFFIX" \
     --set global.hosts.domain="$KUBE_INGRESS_BASE_DOMAIN" \
