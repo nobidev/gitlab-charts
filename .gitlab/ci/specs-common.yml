@@ -2,6 +2,8 @@ specs_without_cluster:
   extends: .specs
   variables:
     RSPEC_TAGS: ~type:feature
+    KNAPSACK_GENERATE_REPORT: "true"
+    KNAPSACK_REPORT_PATH: knapsack_rspec_report.json
   parallel: 12
   rules:
     - !reference [.specs, rules]
