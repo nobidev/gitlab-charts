@@ -110,7 +110,7 @@ specs_without_cluster:
   extends: .specs
   variables:
     RSPEC_TAGS: ~type:feature
-  parallel: 6
+  parallel: 12
   rules:
     - !reference [.specs, rules]
     - if: '$PIPELINE_TYPE == "AUTO_DEPLOY_PIPELINE"'
