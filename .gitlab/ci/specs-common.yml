@@ -4,7 +4,7 @@ specs_without_cluster:
     RSPEC_TAGS: ~type:feature
     KNAPSACK_GENERATE_REPORT: "true"
     KNAPSACK_REPORT_PATH: knapsack_rspec_report.json
-  parallel: 1
+  parallel: 3
   rules:
     - !reference [.specs, rules]
     - if: '$PIPELINE_TYPE == "AUTO_DEPLOY_PIPELINE"'
