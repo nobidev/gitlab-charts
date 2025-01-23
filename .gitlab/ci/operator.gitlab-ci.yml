@@ -6,7 +6,6 @@ trigger_operator_test:
   variables:
     CHARTS_REF: "${CI_COMMIT_SHA}"
     TRIGGER_PROJECT: "${CI_PROJECT_PATH}"
-    PIPELINE_TYPE: "${PIPELINE_TYPE}"
   inherit:
     variables: false
   rules:
