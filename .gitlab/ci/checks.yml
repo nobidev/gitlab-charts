@@ -118,3 +118,7 @@ specs_without_cluster:
     - if: '$PIPELINE_TYPE == "AUTO_DEPLOY_PIPELINE"'
     - if: '$PIPELINE_TYPE == "RELEASE_PIPELINE"'
   needs: ['lint_package']
+  artifacts:
+    paths:
+      - knapsack_rspec_report.json
+
