@@ -12,4 +12,5 @@ trigger_operator_test:
   rules:
     - if: '$PIPELINE_TYPE == "DOCS_PIPELINE"'
       when: never
+    - !reference [.rule:skip_if_fork]
     - when: manual
