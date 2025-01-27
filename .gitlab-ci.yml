@@ -49,6 +49,7 @@ variables:
   GITLAB_QA_ADMIN_ACCESS_TOKEN: $GITLAB_ADMIN_TOKEN
   DEBIAN_VERSION: bookworm
   RUBY_VERSION: "3.3.7"
+  RUBYOPT: "--yjit"
   CI_TOOLS_VERSION: "4.22.0"
   GITLAB_QA_VERSION: "15.1.0"
   # STRICT_VERSIONS is used in RSpecs to ensure exact version match for tools like "helm" and "kubectl"
