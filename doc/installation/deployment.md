@@ -12,7 +12,7 @@ DETAILS:
 
 Before running `helm install`, you need to make some decisions about how you will run GitLab.
 Options can be specified using Helm's `--set option.name=value` command-line option.
-This guide will cover required values and common options.
+This guide covers required values and common options.
 For a complete list of options, read [Installation command line options](command-line-options.md).
 
 WARNING:
@@ -26,7 +26,7 @@ This method of deployment has different management, observability, and concepts 
 
 ## Deploy using Helm
 
-Once you have all of your configuration options collected, we can get any dependencies and
+After you have all of your configuration options collected, we can get any dependencies and
 run Helm. In this example, we've named our Helm release `gitlab`.
 
 ```shell
@@ -45,7 +45,7 @@ Note the following:
 - Helm v3 requires that the release name be specified as a
   positional argument on the command line unless the `--generate-name` option is used.
 - Helm v3 requires one to specify a duration with a unit appended to the value
-  (e.g. `120s` = `2m` and `210s` = `3m30s`). The `--timeout` option is handled as the
+  (for example, `120s` = `2m` and `210s` = `3m30s`). The `--timeout` option is handled as the
   number of seconds _without_ the unit specification.
 - The use of the `--timeout` option is deceptive in that there are multiple components that are
   deployed during an Helm install or upgrade in which the `--timeout` is applied. The `--timeout`
@@ -68,7 +68,7 @@ information, see [GitLab Helm Chart provenance](chart-provenance.md).
 
 ## Monitoring the Deployment
 
-This will output the list of resources installed once the deployment finishes which may take 5-10 minutes.
+This outputs the list of resources installed after deployment finishes which may take 5-10 minutes.
 
 The status of the deployment can be checked by running `helm status gitlab` which can also be done while
 the deployment is taking place if you run the command in another terminal.
