@@ -221,6 +221,7 @@ pin_image_versions:
     - variables
   rules:
     - !reference [.rule:skip_if_no_cluster]
+    - !reference [.rule:skip_in_security_if_not_mr_pipeline]
     - if: '$PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
@@ -547,6 +548,7 @@ release_package:
   parallel: 5
   rules:
     - !reference [.rule:skip_if_no_cluster]
+    - !reference [.rule:skip_in_security_if_not_mr_pipeline]
     - if: '$PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'

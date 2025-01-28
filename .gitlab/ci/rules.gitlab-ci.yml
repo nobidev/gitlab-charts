@@ -90,3 +90,7 @@ workflow:
 .rule:skip_docs_pipeline:
     - if: '$CI_COMMIT_BRANCH =~ /(^docs-|-docs$|^docs\/)/ || $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /(^docs-|-docs$|^docs\/)/'
       when: never
+
+.rule:skip_in_security_if_not_mr_pipeline:
+  if: '$CI_PROJECT_PATH == $SECURITY_PROJECT_PATH && $CI_PIPELINE_SOURCE != "merge_request_event"'
+  when: never

@@ -10,6 +10,7 @@
   allow_failure: true
   rules:
     - !reference [.rule:skip_if_no_cluster]
+    - !reference [.rule:skip_in_security_if_not_mr_pipeline]
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
 

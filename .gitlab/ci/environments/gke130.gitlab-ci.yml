@@ -65,6 +65,7 @@ review_specs_gke130:
     action: access
   rules:
     - !reference [.rule:skip_if_no_cluster]
+    - !reference [.rule:skip_in_security_if_not_mr_pipeline]
     - !reference [.specs, rules]
   needs: ["review_gke130"]
 
