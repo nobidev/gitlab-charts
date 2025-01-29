@@ -100,7 +100,7 @@ global:
           nested: value
 ```
 
-Assuming `/path/to/secret` contains `THE SECRET` and `/path/to/secret/raredis-override-password` contains `RARE SECRET`, his will cause the
+Assuming `/path/to/secret` contains `THE SECRET` and `/path/to/secret/raredis-override-password` contains `RARE SECRET`, this will cause the
 following to be rendered in `redis.yml`:
 
 ```yaml
