@@ -22,13 +22,15 @@ Disable the `gitaly` chart and the Gitaly service it provides, and point the oth
 You need to set the following properties:
 
 - `global.gitaly.enabled`: Set to `false` to disable the included Gitaly chart.
-- `global.gitaly.external`: This is an array of [external Gitaly service(s)](../../charts/globals.md#external).
+- `global.gitaly.external`: An array of [external Gitaly service(s)](../../charts/globals.md#external).
 - `global.gitaly.authToken.secret`: The name of the [secret which contains the token for authentication](../../installation/secrets.md#gitaly-secret).
 - `global.gitaly.authToken.key`: The key within the secret, which contains the token content.
 
-The external Gitaly services will make use of their own instances of GitLab Shell.
-Depending your implementation, you can configure those with the secrets from this
-chart, or you can configure this chart's secrets with the content from a predefined
+The external Gitaly services use their own instances of GitLab Shell.
+Depending on your implementation, you can configure:
+
+- Either those Shell instance with the secrets from this chart.
+- Or this chart's secrets with the content from a predefined
 source.
 
 You **may** need to set the following properties:
@@ -57,8 +59,8 @@ global:
       enabled: false                    # optional, default shown
 ```
 
-Example installation using the above configuration file in conjunction other
-configuration via `gitlab.yml`:
+Example installation using the above configuration together with
+other configurations defined in a `gitlab.yml`:
 
 ```shell
 helm upgrade --install gitlab gitlab/gitlab  \
@@ -74,7 +76,7 @@ to allow the complexity required.
 
 An [example values file](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/gitaly/values-multiple-external.yaml) is provided, which shows the
 appropriate set of configuration. The content of this values file is not
-interpreted correctly via `--set` arguments, so should be passed to Helm
+interpreted correctly when using `--set` arguments, so should be passed to Helm
 with the `-f / --values` flag.
 
 ### Connecting to external Gitaly over TLS
@@ -129,8 +131,8 @@ have to
 
 NOTE:
 You can choose any valid secret name and key for this, but make
-sure the key is unique across all the secrets specified in `customCAs` to avoid
-collision since all keys within the secrets will be mounted. You **do not**
+sure the key is unique across all the secrets specified in `customCAs`.
+Unique keys avoid collisions among all mounted secrets. You **do not**
 need to provide the key for the certificate, as this is the _client side_.
 
 ## Test that GitLab can connect to Gitaly
@@ -162,7 +164,7 @@ This method:
 - Uses the [repository storage moves API](https://docs.gitlab.com/ee/api/project_repository_storage_moves.html)
   to migrate repositories from the Gitaly chart to the external Gitaly service.
 - Can be performed with zero downtime.
-- Requires that the external Gitaly service resides within the same VPC/zone as the Gitaly pods.
+- Requires that the external Gitaly service resides in the same VPC/zone as the Gitaly pods.
 - Has not been tested with the [Praefect chart](../../charts/gitlab/praefect/index.md) and is not supported.
 
 #### Step 1: Set up external Gitaly Service or Gitaly Cluster
@@ -373,7 +375,7 @@ Schedule the move by following the steps indicated in [moving repositories](http
 
 1. Optional. Remove the changes made to each external Gitaly `/etc/hosts` file after following the [get the Gitaly pod IP and hostnames](#step-3-get-the-gitaly-pod-ip-and-hostnames) step.
 
-1. After you have confirmed everything is working as expected, you can delete the Gitaly PVC:
+1. After you have confirmed everything is working as expected, you can delete the Gitaly PVC (PersistentVolumeClaim):
 
    WARNING: Do not delete the Gitaly PVC until you have double checked that everything is working as expected.
 
@@ -504,8 +506,8 @@ unnecessary connections to GitLab.
 
 Once these steps are completed, GitLab is completely unavailable in the browser until the restore is completed.
 
-In order to keep the cluster accessible to the new external Gitaly service during the migration, we must add the
-IP address for the external Gitaly service to the `nginx-ingress` configuration as the only external exception.
+Add the IP address for the external Gitaly service to the `nginx-ingress` configuration as the only external exception.
+This keeps the cluster accessible to the new external Gitaly service during the migration.
 
 1. Create a `ingress-only-allow-ext-gitaly.yml` file with the following content:
 

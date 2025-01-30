@@ -11,7 +11,7 @@ This package provides versions of the services that are guaranteed to be compati
 
 ## Create VM with the Linux package
 
-Create a VM on your provider of choice, or locally. This was tested with VirtualBox, KVM, and Bhyve.
+Create a VM on your provider of choice, or locally. GitLab tested this with VirtualBox, KVM, and Bhyve.
 Ensure that the instance is reachable from the cluster.
 
 Install Ubuntu Server onto the VM that you have created. Ensure that `openssh-server` is installed, and that all packages are up to date.
@@ -19,7 +19,7 @@ Configure networking and a hostname. Make note of the hostname/IP, and ensure it
 Be sure firewall policies are in place to allow traffic.
 
 Follow the installation instructions for the [Linux package](https://about.gitlab.com/install/#ubuntu). When you perform
-the Linux package installation, **_do not_** provide the `EXTERNAL_URL=` value. We do not want automatic configuration to occur, as we'll provide a very specific configuration in the next step.
+the Linux package installation, **_do not_** provide the `EXTERNAL_URL=` value. We do not want automatic configuration to occur, be cause the next step provides a very specific configuration.
 
 ## Configure Linux package installation
 
@@ -102,7 +102,7 @@ gitaly['key_path'] = "path/to/key.pem"
 ```
 
 After creating `gitlab.rb`, reconfigure the package with `gitlab-ctl reconfigure`.
-Once the task has completed, check the running processes with `gitlab-ctl status`.
+Lastly, check the running processes with `gitlab-ctl status`.
 The output should appear as such:
 
 ```plaintext

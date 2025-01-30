@@ -130,6 +130,7 @@ exceptions:
   - JVM
   - JWT
   - KICS
+  - KVM
   - LAN
   - LDAP
   - LDAPS
@@ -174,6 +175,7 @@ exceptions:
   - POST
   - PROXY
   - PUT
+  - PVC
   - QPS
   - RAID
   - RAM
