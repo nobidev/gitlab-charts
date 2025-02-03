@@ -2,9 +2,8 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Set up standalone PostgreSQL database
 ---
-
-# Set up standalone PostgreSQL database
 
 We'll make use of the [Linux package](https://about.gitlab.com/install/#ubuntu) for Ubuntu. This package provides versions of the services that are guaranteed to be compatible with the charts' services.
 

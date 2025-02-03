@@ -2,9 +2,8 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: IAM roles for AWS when using the GitLab chart
 ---
-
-# IAM roles for AWS when using the GitLab chart
 
 The default configuration for external object storage in the charts uses access and secret keys.
 It is also possible to use IAM roles in combination with [`kube2iam`](https://github.com/jtblin/kube2iam),
@@ -26,7 +25,7 @@ An IAM role can be specified via the annotations key:
 --set registry.annotations."iam\.amazonaws\.com/role"=<role name>
 ```
 
-When creating the [`registry-storage.yaml`](../../charts/registry/index.md#storage) secret, omit the access and secret key:
+When creating the [`registry-storage.yaml`](../../charts/registry/_index.md#storage) secret, omit the access and secret key:
 
 ```yaml
 s3:
@@ -48,7 +47,7 @@ For LFS, artifacts, uploads, and packages an IAM role can be specified via the a
 
 For the [`object-storage.yaml`](../../charts/globals.md#connection) secret, omit
 the access and secret key. Because the GitLab Rails codebase uses Fog for S3
-storage, the [`use_iam_profile`](https://docs.gitlab.com/ee/administration/job_artifacts.html#s3-compatible-connection-settings)
+storage, the [`use_iam_profile`](https://docs.gitlab.com/ee/administration/cicd/secure_files.html#s3-compatible-connection-settings)
 key should be added for Fog to use the role:
 
 ```yaml
@@ -71,7 +70,7 @@ The Toolbox configuration allows for annotations to be set to upload backups to 
 --set gitlab.toolbox.annotations."iam\.amazonaws\.com/role"=<role name>
 ```
 
-The [`s3cmd.config`](index.md#backups-storage-example) secret is to be created without the access and secret keys:
+The [`s3cmd.config`](_index.md#backups-storage-example) secret is to be created without the access and secret keys:
 
 ```ini
 [default]

@@ -2,13 +2,12 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Using the Shared-Secrets Job
 ---
-
-# Using the Shared-Secrets Job
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 The `shared-secrets` job is responsible for provisioning a variety of secrets
 used across the installation, unless otherwise manually specified. This includes:

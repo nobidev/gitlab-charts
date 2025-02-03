@@ -2,13 +2,12 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Configure secrets for the GitLab chart
 ---
-
-# Configure secrets for the GitLab chart
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab requires a variety of secrets to operate:
 
@@ -308,8 +307,8 @@ This secret is referenced by the `gitlab.kas.websocketToken.secret` setting.
 ### GitLab Suggested Reviewers secret
 
 NOTE:
-The Suggested Reviewers secret is created automatically and only used on GitLab SaaS.
-This secret is not needed on self-managed GitLab instances.
+The Suggested Reviewers secret is created automatically and only used on GitLab.com.
+This secret is not needed on GitLab Self-Managed.
 
 GitLab Rails requires that a secret for Suggested Reviewers is present. You can
 leave it to the chart to auto-generate the secret, or you can create this secret

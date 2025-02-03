@@ -2,13 +2,12 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Migrating from Helm v2 to Helm v3
 ---
-
-# Migrating from Helm v2 to Helm v3
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 [Helm v2 was officially deprecated](https://helm.sh/blog/helm-v2-deprecation-timeline/) in November of 2020. Starting from GitLab Helm chart version 5.0 (GitLab App version 14.0), installation and upgrades using Helm v2.x are no longer supported. To get
 future GitLab updates, you will need to migrate to Helm v3.

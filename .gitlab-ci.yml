@@ -24,13 +24,13 @@
 # Note: Auto CI does not work with multiple buildpacks yet
 
 default:
-  image: registry.gitlab.com/gitlab-org/gitlab-build-images/debian-${DEBIAN_VERSION}-slim-ruby-${RUBY_VERSION}:kubectl-1.30-helm-3.10-helm_kubeconform-0.1.17-vcluster-0.19-awscli-1.32.93
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images/debian-${DEBIAN_VERSION}-slim-ruby-${RUBY_VERSION}:kubectl-1.31-helm-3.16-helm_kubeconform-0.1.17-vcluster-0.19-awscli-1.37.9
 
 variables:
   AUTO_DEPLOY_TAG_REGEX: '^[0-9]+\.[0-9]+\.[0-9]+\+[a-z0-9]{7,}$'
   DOCKER_VERSION: "27.1.1"
   HELM_VERSION: "3.10.3"
-  KUBECTL_VERSION: "1.27.9"
+  KUBECTL_VERSION: "1.28.3"
   STABLE_REPO_URL: "https://charts.helm.sh/stable"
   GOOGLE_APPLICATION_CREDENTIALS: ${CI_PROJECT_DIR}/.google_keyfile.json
   # AUTO_DEVOPS_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
@@ -48,9 +48,9 @@ variables:
   QA_SANITY_SUITE_OPTIONS: '--tag smoke --tag ~skip_live_env --tag ~orchestrated'
   GITLAB_QA_ADMIN_ACCESS_TOKEN: $GITLAB_ADMIN_TOKEN
   DEBIAN_VERSION: bookworm
-  RUBY_VERSION: "3.1.5"
+  RUBY_VERSION: "3.3.7"
   CI_TOOLS_VERSION: "4.22.0"
-  GITLAB_QA_VERSION: "15.0.0"
+  GITLAB_QA_VERSION: "15.1.0"
   # STRICT_VERSIONS is used in RSpecs to ensure exact version match for tools like "helm" and "kubectl"
   STRICT_VERSIONS: "true"
   KUBE_CRD_SCHEMA_URL: "https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/v3/apis__apiextensions.k8s.io__v1_openapi.json"

@@ -2,9 +2,8 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Workload Identity Federation for GKE using the GitLab chart
 ---
-
-# Workload Identity Federation for GKE using the GitLab chart
 
 > - [Introduced](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3434) in GitLab 17.0.
 

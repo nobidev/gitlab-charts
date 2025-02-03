@@ -3,13 +3,12 @@ stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ignore_in_report: true
+title: Kubernetes cheat sheet
 ---
-
-# Kubernetes cheat sheet
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This is a list of useful information regarding Kubernetes that the GitLab Support
 Team sometimes uses while troubleshooting. GitLab is making this public, so that anyone
@@ -225,7 +224,7 @@ all Kubernetes resources and dependent charts:
 
 ## Installation of minimal GitLab configuration via minikube on macOS
 
-This section is based on [Developing for Kubernetes with minikube](../development/minikube/index.md)
+This section is based on [Developing for Kubernetes with minikube](../development/minikube/_index.md)
 and [Helm](../installation/tools.md). Refer
 to those documents for details.
 
@@ -302,7 +301,7 @@ WARNING:
 This task is not something that should be regularly performed. Use it at your own risk.
 
 Patching operational GitLab service pods requires building new images, with the modified source code inside. These can _not_ be directly patched.
-The [`toolbox` / `task-runner` pod](../charts/gitlab/toolbox/index.md) has everything needed to operate as a Rails-based pod, without interfering with other normal service operations. You can use it to run independent tasks, and to modify the source code temporarily to perform some tasks.
+The [`toolbox` / `task-runner` pod](../charts/gitlab/toolbox/_index.md) has everything needed to operate as a Rails-based pod, without interfering with other normal service operations. You can use it to run independent tasks, and to modify the source code temporarily to perform some tasks.
 
 NOTE:
 If you make any changes using the `toolbox` pod, those will not be persisted if the pod is restarted. They're only present for the life of the container's operation.

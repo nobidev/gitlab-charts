@@ -2,9 +2,8 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: ClickHouse database
 ---
-
-# ClickHouse database
 
 The GitLab chart can be configured to set up GitLab with an external ClickHouse database via the HTTP interface. Required parameters:
 

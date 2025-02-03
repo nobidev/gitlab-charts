@@ -2,9 +2,8 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Environment setup
 ---
-
-# Environment setup
 
 To set up for charts development, command line tools and a
 Kubernetes cluster are required.
@@ -66,7 +65,7 @@ When dealing with networking, storage, or other complex issues, a cloud Kubernet
 
 WARNING:
 Official GitLab images are built with the x86-64 architecture.
-For local development, Apple silicon users can use an [alternate Docker setup](kind/index.md#apple-silicon-m1m2)
+For local development, Apple silicon users can use an [alternate Docker setup](kind/_index.md#apple-silicon-m1m2)
 to emulate a compatible architecture.
 Support for multiple architectures, including AArch64/ARM64, is under active development.
 See [issue 2899](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2899) for more information.
@@ -75,8 +74,8 @@ See [issue 2899](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2899) for 
 
 The following local cluster options are supported:
 
-- [minikube](minikube/index.md) - Cluster in virtual machines
-- [KinD (Kubernetes in Docker)](kind/index.md) - Cluster in Docker containers
+- [minikube](minikube/_index.md) - Cluster in virtual machines
+- [KinD (Kubernetes in Docker)](kind/_index.md) - Cluster in Docker containers
 
 ### Cloud cluster
 

@@ -83,7 +83,7 @@ describe 'kas configuration' do
             serviceLabels:
               service: true
               global: service
-      )).merge(default_values)
+      )).deep_merge!(default_values)
     end
 
     it 'Populates the additional labels in the expected manner' do

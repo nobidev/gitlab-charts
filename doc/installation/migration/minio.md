@@ -2,19 +2,18 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Use the built-in MinIO service for object storage
 ---
-
-# Use the built-in MinIO service for object storage
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This migration guide is for when you migrate from a
 [package-based installation](package_to_helm.md) to the Helm chart and you want
 to use the built-in MinIO service for object storage. This is better suited
 for testing purposes. For production use, you are advised to set up an
-[external object storage](../../advanced/external-object-storage/index.md)
+[external object storage](../../advanced/external-object-storage/_index.md)
 
 The easiest way to figure out the access details to built-in MinIO cluster is to
 look at the `gitlab.yml` file that is generated in Sidekiq, Webservice and

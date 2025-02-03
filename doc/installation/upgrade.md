@@ -2,13 +2,12 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Upgrade the GitLab chart
 ---
-
-# Upgrade the GitLab chart
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Before upgrading your GitLab installation, you need to check the
 [changelog](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/CHANGELOG.md)
@@ -23,7 +22,7 @@ see the [version mappings](version_mappings.md) between them.
 NOTE:
 **Zero-downtime upgrades** are not available with the GitLab charts but can be achieved by using [GitLab Operator](https://docs.gitlab.com/operator/gitlab_upgrades.html).
 
-We also recommend that you take a [backup](../backup-restore/index.md) first. Also note that you
+We also recommend that you take a [backup](../backup-restore/_index.md) first. Also note that you
 must provide all values using `helm upgrade --set key=value` syntax or `-f values.yaml` instead of
 using `--reuse-values`, because some of the current values might be deprecated.
 

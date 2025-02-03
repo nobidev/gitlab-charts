@@ -2,13 +2,12 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Migrate from the Linux package to the Helm chart
 ---
-
-# Migrate from the Linux package to the Helm chart
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This guide will help you migrate from a package-based GitLab installation to
 the Helm chart.
@@ -25,7 +24,7 @@ Before the migration, a few prerequisites must be met:
 - A Helm charts based deployment running the same GitLab version as the
   package-based installation is required.
 - You need to set up the object storage which the Helm chart based deployment
-  will use. For production use, we recommend you use an [external object storage](../../advanced/external-object-storage/index.md)
+  will use. For production use, we recommend you use an [external object storage](../../advanced/external-object-storage/_index.md)
   and have the login credentials to access it ready. If you are using the built-in
   MinIO service, [read the docs](minio.md) on how to grab the login credentials
   from it.

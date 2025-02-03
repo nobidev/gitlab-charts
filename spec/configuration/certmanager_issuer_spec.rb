@@ -38,7 +38,7 @@ describe 'certmanager_issuer configuration' do
           "namespace" => "default",
           "labels" => {
             "app" => "certmanager-issuer",
-            "chart" => "certmanager-issuer-0.2.0",
+            "chart" => "certmanager-issuer-0.2.1",
             "release" => "test",
             "heritage" => "Helm"
           }
@@ -47,7 +47,14 @@ describe 'certmanager_issuer configuration' do
           "activeDeadlineSeconds" => 300,
           "ttlSecondsAfterFinished" => 1800,
           "template" => include(
-            "metadata" => { "labels" => { "app" => "certmanager-issuer", "release" => "test" } },
+            "metadata" => include(
+              "labels" => include(
+                "app" => "certmanager-issuer",
+                "chart" => "certmanager-issuer-0.2.1",
+                "release" => "test",
+                "heritage" => "Helm"
+              )
+            ),
             "spec" => include(
               "securityContext" => { "runAsUser" => 65534, "fsGroup" => 65534, "seccompProfile" => { "type" => "RuntimeDefault" } },
               "serviceAccountName" => "test-certmanager-issuer",
@@ -55,8 +62,8 @@ describe 'certmanager_issuer configuration' do
               "containers" => include(
                 include(
                   "name" => "create-issuer",
-                  "image" => "registry.gitlab.com/gitlab-org/build/cng/kubectl:master",
                   "command" => ["/bin/bash", "/scripts/create-issuer", "/scripts/issuer.yml"],
+                  "image" => "registry.gitlab.com/gitlab-org/build/cng/kubectl:v42.0.0",
                   "securityContext" => {
                     "allowPrivilegeEscalation" => false,
                     "capabilities" => { "drop" => ["ALL"] },

@@ -166,7 +166,7 @@ describe 'Workhorse configuration' do
                 secret: global-secret
           redis:
             install: false
-        )).deep_merge(default_values)
+        )).deep_merge!(default_values)
       end
 
       it 'renders the global redis config' do
@@ -198,7 +198,7 @@ describe 'Workhorse configuration' do
                 secret: global-secret
           redis:
             install: false
-        )).deep_merge(default_values)
+        )).deep_merge!(default_values)
       end
 
       it 'renders the global redis config' do
@@ -234,7 +234,7 @@ describe 'Workhorse configuration' do
                   secret: workhorse
           redis:
             install: false
-        )).merge(default_values)
+        )).deep_merge!(default_values)
       end
 
       it 'overrides global redis config' do
@@ -281,7 +281,7 @@ describe 'Workhorse configuration' do
               user: redis-user
           redis:
             install: false
-        )).merge(default_values)
+        )).deep_merge!(default_values)
 
         it "adds the username to the URL" do
           toml = render_toml(raw_toml)
@@ -318,7 +318,7 @@ describe 'Workhorse configuration' do
                 user: workhorse-redis-user
           redis:
             install: false
-        )).merge(default_values)
+        )).deep_merge!(default_values)
       end
 
       it "overrides global redis config" do
@@ -358,7 +358,7 @@ describe 'Workhorse configuration' do
                   secret: workhorse
           redis:
             install: false
-        )).merge(default_values)
+        )).deep_merge!(default_values)
       end
 
       let(:webservice_config) { template.dig('ConfigMap/test-webservice', 'data') }
@@ -375,11 +375,26 @@ describe 'Workhorse configuration' do
         redis_config = toml['redis']
         expect(redis_config.keys).to match_array(%w[Password SentinelMaster Sentinel DB])
         expect(redis_config['SentinelMaster']).to eq('workhorse.redis')
-        expect(redis_config['Sentinel']).to match_array(%w[tcp://s1.workhorse.redis:26379 tcp://s2.workhorse.redis:26379])
+        # Workhorse sentinels don't use global rediss scheme
+        expect(redis_config['Sentinel']).to match_array(%w[redis://s1.workhorse.redis:26379 redis://s2.workhorse.redis:26379])
         expect(redis_config['Password']).to eq(workhorse_redis_password)
         expect(redis_config['DB']).to eq(9)
         expect(template.dig("ConfigMap/test-workhorse-default", "data", 'workhorse-config.toml.tpl')).to include('redis/workhorse-password')
         expect(template.dig('ConfigMap/test-workhorse-default', 'data', 'configure')).to include('init-config/redis/workhorse-password')
+      end
+
+      context 'with workhorse rediss scheme' do
+        before do
+          values["global"]["redis"]["workhorse"]["scheme"] = 'rediss'
+        end
+
+        it 'uses the rediss scheme' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          toml = render_toml(raw_toml)
+          redis_config = toml['redis']
+          expect(redis_config['Sentinel']).to match_array(%w[rediss://s1.workhorse.redis:26379 rediss://s2.workhorse.redis:26379])
+        end
       end
 
       context 'when workhorse redis does not have password' do
@@ -395,7 +410,7 @@ describe 'Workhorse configuration' do
           redis_config = toml['redis']
           expect(redis_config.keys).to match_array(%w[SentinelMaster Sentinel DB])
           expect(redis_config['SentinelMaster']).to eq('workhorse.redis')
-          expect(redis_config['Sentinel']).to match_array(%w[tcp://s1.workhorse.redis:26379 tcp://s2.workhorse.redis:26379])
+          expect(redis_config['Sentinel']).to match_array(%w[redis://s1.workhorse.redis:26379 redis://s2.workhorse.redis:26379])
         end
       end
 
@@ -428,7 +443,7 @@ describe 'Workhorse configuration' do
                     key: password
             redis:
               install: false
-          )).merge(default_values)
+          )).deep_merge!(default_values)
         end
 
         it 'uses global redis config' do
@@ -439,7 +454,7 @@ describe 'Workhorse configuration' do
           redis_config = toml['redis']
           expect(redis_config.keys).to match_array(%w[Password SentinelMaster Sentinel SentinelPassword DB])
           expect(redis_config['SentinelMaster']).to eq('workhorse.redis')
-          expect(redis_config['Sentinel']).to match_array(%w[tcp://s1.workhorse.redis:26379 tcp://s2.workhorse.redis:26379])
+          expect(redis_config['Sentinel']).to match_array(%w[redis://s1.workhorse.redis:26379 redis://s2.workhorse.redis:26379])
           expect(redis_config['Password']).to eq(workhorse_redis_password)
           expect(redis_config['SentinelPassword']).to eq(global_redis_sentinel_password)
           expect(redis_config['DB']).to eq(0)

@@ -2,19 +2,18 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Backing up a GitLab installation
 ---
-
-# Backing up a GitLab installation
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab backups are taken by running the `backup-utility` command in the Toolbox pod provided in the chart. Backups can also be automated by enabling the [Cron based backup](#cron-based-backup) functionality of this chart.
 
 Before running the backup for the first time, you should ensure the
-[Toolbox is properly configured](../charts/gitlab/toolbox/index.md#configuration)
-for access to [object storage](index.md#object-storage).
+[Toolbox is properly configured](../charts/gitlab/toolbox/_index.md#configuration)
+for access to [object storage](_index.md#object-storage).
 
 Follow these steps for backing up a GitLab Helm chart based installation.
 
@@ -163,5 +162,5 @@ You also need to save a copy of the rails secrets as these are not included in t
 
 ## Additional Information
 
-- [GitLab chart Backup/Restore Introduction](index.md)
+- [GitLab chart Backup/Restore Introduction](_index.md)
 - [Restoring a GitLab installation](restore.md)

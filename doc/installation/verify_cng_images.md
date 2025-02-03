@@ -2,9 +2,8 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Verifying integrity of CNG images
 ---
-
-# Verifying integrity of CNG images
 
 To ensure the CNG images aren't tampered with after they are pushed to the
 registry, their digests are signed using

@@ -2,13 +2,12 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Configure charts using globals
 ---
-
-# Configure charts using globals
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 To reduce configuration duplication when installing our wrapper Helm chart, several
 configuration settings are available to be set in the `global` section of `values.yaml`.
@@ -82,8 +81,8 @@ global:
 | Name                      | Type      | Default        | Description                                                                                                                                                                                                                                                                                                               |
 | :------------------------ | :-------: | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `domain`                  | String    | `example.com`  | The base domain. GitLab and Registry will be exposed on the subdomain of this setting. This defaults to `example.com`, but is not used for hosts that have their `name` property configured. See the `gitlab.name`, `minio.name`, and `registry.name` sections below.                                                     |
-| `externalIP`              |           | `nil`          | Set the external IP address that will be claimed from the provider. This will be templated into the [NGINX chart](nginx/index.md#configuring-nginx), in place of the more complex `nginx.service.loadBalancerIP`.                                                                                                         |
-| `externalGeoIP`           |           | `nil`          | Same as `externalIP` but for the [NGINX Geo chart](nginx/index.md#gitlab-geo). Needed to configure a static IP for [GitLab Geo](../advanced/geo/index.md) sites using a unified URL. Must be different from `externalIP`.                                                                                                 |
+| `externalIP`              |           | `nil`          | Set the external IP address that will be claimed from the provider. This will be templated into the [NGINX chart](nginx/_index.md#configuring-nginx), in place of the more complex `nginx.service.loadBalancerIP`.                                                                                                         |
+| `externalGeoIP`           |           | `nil`          | Same as `externalIP` but for the [NGINX Geo chart](nginx/_index.md#gitlab-geo). Needed to configure a static IP for [GitLab Geo](../advanced/geo/_index.md) sites using a unified URL. Must be different from `externalIP`.                                                                                                 |
 | `https`                   | Boolean   | `true`         | If set to true, you will need to ensure the NGINX chart has access to the certificates. In cases where you have TLS-termination in front of your Ingresses, you probably want to look at [`global.ingress.tls.enabled`](#configure-ingress-settings). Set to false for external URLs to use `http://` instead of `https`. |
 | `hostSuffix`              | String    |                | [See Below](#hostsuffix).                                                                                                                                                                                                                                                                                                 |
 | `gitlab.https`            | Boolean   | `false`        | If `hosts.https` or `gitlab.https` are `true`, the GitLab external URL will use `https://` instead of `http://`.                                                                                                                                                                                                          |
@@ -188,7 +187,7 @@ For those users who need to have their `path` definitions end in `/*` to match t
 `ingress.class: alb` in AWS, or another such provider.
 
 This setting ensures that all `path` entries in Ingress resources throughout this chart are rendered with this.
-The only exception is when populating the [`gitlab/webservice` deployments settings](gitlab/webservice/index.md#deployments-settings), where `path` must be specified.
+The only exception is when populating the [`gitlab/webservice` deployments settings](gitlab/webservice/_index.md#deployments-settings), where `path` must be specified.
 
 ### Cloud provider LoadBalancers
 
@@ -379,7 +378,7 @@ global:
 ### PostgreSQL load balancing
 
 This feature requires the use of an
-[external PostgreSQL](../advanced/external-db/index.md), as this chart does not
+[external PostgreSQL](../advanced/external-db/_index.md), as this chart does not
 deploy PostgreSQL in an HA fashion.
 
 The Rails components in GitLab have the ability to
@@ -452,7 +451,7 @@ By default we use an single, non-replicated Redis instance. If a highly availabl
 Redis is required, we recommend using an external Redis instance.
 
 You can bring an external Redis instance by setting `redis.install=false`, and
-following our [advanced documentation](../advanced/external-redis/index.md) for
+following our [advanced documentation](../advanced/external-redis/_index.md) for
 configuration.
 
 ```yaml
@@ -583,7 +582,7 @@ global:
 for all Sentinel instances.
 
 Note that `sentinelAuth` cannot be overridden with [Redis instance-specific settings](#multiple-redis-support)
-or [`global.redis.redisYmlOverride`](../advanced/external-redis/index.md#redisyml-override).
+or [`global.redis.redisYmlOverride`](../advanced/external-redis/_index.md#redisyml-override).
 
 ### Multiple Redis support
 
@@ -606,7 +605,7 @@ for different persistence classes, currently:
 Any number of the instances may be specified. Any instances not specified
 will be handled by the primary Redis instance specified
 by `global.redis.host` or use the deployed Redis instance from the chart.
-The only exception is for the [GitLab agent server (KAS)](gitlab/kas/index.md), which looks for Redis configuration in the following order:
+The only exception is for the [GitLab agent server (KAS)](gitlab/kas/_index.md), which looks for Redis configuration in the following order:
 
 1. `global.redis.kas`
 1. `global.redis.sharedState`
@@ -775,9 +774,9 @@ global:
 
 ```
 
-For more details on `bucket`, `certificate`, `httpSecret`, and `notificationSecret` settings, see the documentation within the [registry chart](registry/index.md).
+For more details on `bucket`, `certificate`, `httpSecret`, and `notificationSecret` settings, see the documentation within the [registry chart](registry/_index.md).
 
-For details on `enabled`, `host`, `api` and `tokenIssuer` see documentation for [command line options](../installation/command-line-options.md) and [webcervice](gitlab/webservice/index.md)
+For details on `enabled`, `host`, `api` and `tokenIssuer` see documentation for [command line options](../installation/command-line-options.md) and [webcervice](gitlab/webservice/_index.md)
 
 `host` is used to override autogenerated external registry hostname reference.
 
@@ -848,7 +847,7 @@ RPC access to Git repositories, which handles all Git calls made by GitLab.
 
 Administrators can chose to use Gitaly nodes in the following ways:
 
-- [Internal to the chart](#internal), as part of a `StatefulSet` via the [Gitaly chart](gitlab/gitaly/index.md).
+- [Internal to the chart](#internal), as part of a `StatefulSet` via the [Gitaly chart](gitlab/gitaly/_index.md).
 - [External to the chart](#external), as external pets.
 - [Mixed environment](#mixed) using both internal and external nodes.
 
@@ -895,8 +894,8 @@ Each item of this list has 3 keys:
 - `port`: (optional) The port number to reach the host on. Defaults to `8075`.
 - `tlsEnabled`: (optional) Override `global.gitaly.tls.enabled` for this particular entry.
 
-We provide an [advanced configuration](../advanced/index.md) guide for
-[using an external Gitaly service](../advanced/external-gitaly/index.md). You can also
+We provide an [advanced configuration](../advanced/_index.md) guide for
+[using an external Gitaly service](../advanced/external-gitaly/_index.md). You can also
 find sample [configuration of multiple external services](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/gitaly/values-multiple-external.yaml)
 in the examples folder.
 
@@ -975,7 +974,7 @@ global:
 ## Configure MinIO settings
 
 The GitLab global MinIO settings are located under the `global.minio` key. For more
-details on these settings, see the documentation within the [MinIO chart](minio/index.md).
+details on these settings, see the documentation within the [MinIO chart](minio/_index.md).
 
 ```yaml
 global:
@@ -986,8 +985,8 @@ global:
 
 ## Configure appConfig settings
 
-The [Webservice](gitlab/webservice/index.md), [Sidekiq](gitlab/sidekiq/index.md), and
-[Gitaly](gitlab/gitaly/index.md) charts share multiple settings, which are configured
+The [Webservice](gitlab/webservice/_index.md), [Sidekiq](gitlab/sidekiq/_index.md), and
+[Gitaly](gitlab/gitaly/_index.md) charts share multiple settings, which are configured
 with the `global.appConfig` key.
 
 ```yaml
@@ -1363,7 +1362,7 @@ This property has two sub-keys: `secret` and `key`.
 - `secret` is the name of a Kubernetes Secret. This value is required to use external object storage.
 - `key` is the name of the key in the secret which houses the YAML block. Defaults to `connection`.
 
-Valid configuration keys can be found in the [GitLab Job Artifacts Administration](https://docs.gitlab.com/ee/administration/job_artifacts.html#s3-compatible-connection-settings)
+Valid configuration keys can be found in the [GitLab Job Artifacts Administration](https://docs.gitlab.com/ee/administration/cicd/secure_files.html#s3-compatible-connection-settings)
 documentation. This matches to [Fog](https://github.com/fog/fog.github.com), and is different between
 provider modules.
 
@@ -1391,7 +1390,7 @@ assigned by the Rails code.
 
 #### cdn (only for CI Artifacts)
 
-`artifacts` setting has an additional key `cdn` [to configure Google CDN in front of a Google Cloud Storage bucket](../advanced/external-object-storage/index.md#google-cloud-cdn).
+`artifacts` setting has an additional key `cdn` [to configure Google CDN in front of a Google Cloud Storage bucket](../advanced/external-object-storage/_index.md#google-cloud-cdn).
 
 ### Incoming email settings
 
@@ -1473,7 +1472,7 @@ Prerequisites:
 - Use [GitLab 15.5.1 or later](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/101571#note_1146419137).
   You can set your GitLab version with `global.gitlabVersion: <version>`. If you need to force an image update
   after an initial deployment, also set `global.image.pullPolicy: Always`.
-- [Create the certificate authority](../advanced/internal-tls/index.md) and certificates that your `kas` pods will trust.
+- [Create the certificate authority](../advanced/internal-tls/_index.md) and certificates that your `kas` pods will trust.
 
 To configure `kas` to use the certificates you created, set the following values.
 
@@ -1505,8 +1504,8 @@ global:
 ### Suggested Reviewers settings
 
 NOTE:
-The Suggested Reviewers secret is created automatically and only used on GitLab SaaS.
-This secret is not needed on self-managed GitLab instances.
+The Suggested Reviewers secret is created automatically and only used on GitLab.com.
+This secret is not needed on GitLab Self-Managed instances.
 
 One can optionally customize the Suggested Reviewers `secret` name as well as
 `key`, either by using Helm's `--set variable` option:
@@ -1885,9 +1884,9 @@ corresponding queue:
 
 - The query is following the
   [worker matching query](https://docs.gitlab.com/ee/administration/sidekiq/processing_specific_job_classes.html#worker-matching-query) syntax.
-- The `<queue_name>` must match a valid Sidekiq queue name `sidekiq.pods[].queues` defined under [`sidekiq.pods`](gitlab/sidekiq/index.md#per-pod-settings). If the queue name
+- The `<queue_name>` must match a valid Sidekiq queue name `sidekiq.pods[].queues` defined under [`sidekiq.pods`](gitlab/sidekiq/_index.md#per-pod-settings). If the queue name
   is `nil`, or an empty string, the worker is routed to the queue generated
-  by the name of the worker instead. See [Full example of Sidekiq configuration](gitlab/sidekiq/index.md#full-example-of-sidekiq-configuration) as a reference.
+  by the name of the worker instead. See [Full example of Sidekiq configuration](gitlab/sidekiq/_index.md#full-example-of-sidekiq-configuration) as a reference.
 
 The query supports wildcard matching `*`, which matches all workers. As a
 result, the wildcard query must stay at the end of the list or the later rules
@@ -1930,7 +1929,7 @@ global:
 
 | Name        | Type    | Default | Description |
 | :---------- | :------ | :------ | :---------- |
-| serviceName | String  | `webservice-default` | Name of service to direct internal API traffic to. Do not include the Release name, as it will be templated in. Should match an entry in `gitlab.webservice.deployments`. See [`gitlab/webservice` chart](gitlab/webservice/index.md#deployments-settings) |
+| serviceName | String  | `webservice-default` | Name of service to direct internal API traffic to. Do not include the Release name, as it will be templated in. Should match an entry in `gitlab.webservice.deployments`. See [`gitlab/webservice` chart](gitlab/webservice/_index.md#deployments-settings) |
 | scheme      | String  | `http` | Scheme of the API endpoint |
 | host        | String  | | Fully qualified hostname or IP address of an API endpoint. Overrides the presence of `serviceName`. |
 | port        | Integer | `8181` | Port number of associated API server. |
@@ -1948,7 +1947,7 @@ When possible, we recommend leaving this enabled.
 
 ## Configure GitLab Shell
 
-There are several items for the global configuration of [GitLab Shell](gitlab/gitlab-shell/index.md)
+There are several items for the global configuration of [GitLab Shell](gitlab/gitlab-shell/_index.md)
 chart.
 
 ```yaml
@@ -1964,8 +1963,8 @@ global:
 | Name                  | Type    | Default | Description |
 |:--------------------- |:-------:|:------- |:----------- |
 | `port`                | Integer | `22`    | See [port](#port) below for specific documentation. |
-| `authToken`           |         |         | See [authToken](gitlab/gitlab-shell/index.md#authtoken) in the GitLab Shell chart specific documentation. |
-| `hostKeys`            |         |         | See [hostKeys](gitlab/gitlab-shell/index.md#hostkeyssecret) in the GitLab Shell chart specific documentation. |
+| `authToken`           |         |         | See [authToken](gitlab/gitlab-shell/_index.md#authtoken) in the GitLab Shell chart specific documentation. |
+| `hostKeys`            |         |         | See [hostKeys](gitlab/gitlab-shell/_index.md#hostkeyssecret) in the GitLab Shell chart specific documentation. |
 | `tcp.proxyProtocol`   | Boolean | `false` | See [TCP proxy protocol](#tcp-proxy-protocol) below for specific documentation. |
 
 ### Port
@@ -2062,7 +2061,7 @@ global:
 | `localStore.path`               | String    | `/srv/gitlab/shared/pages` | Path where pages files will be stored; only used if localStore is set to true. |
 | `apiSecret.secret`              | String    |                            | Secret containing 32 bit API key in Base64 encoded form. |
 | `apiSecret.key`                 | String    |                            | Key within the API key secret where the API key is stored. |
-| `namespaceInPath`               | Boolean   | False                      | (Beta) Enable or disable namespace in the URL path to support without wildcard DNS setup. For more information, see the [Pages domain without wildcard DNS documentation](gitlab/gitlab-pages/index.md#pages-domain-without-wildcard-dns). |
+| `namespaceInPath`               | Boolean   | False                      | (Beta) Enable or disable namespace in the URL path to support without wildcard DNS setup. For more information, see the [Pages domain without wildcard DNS documentation](gitlab/gitlab-pages/_index.md#pages-domain-without-wildcard-dns). |
 
 ## Configure Webservice
 
@@ -2284,7 +2283,7 @@ deployment will also recieve the label set `baz: bat`. Refer to the Sidekiq and
 Webservice charts for additional details.
 
 Some charts that we depend on are excluded from this label configuration. Only
-the [GitLab component sub-charts](gitlab/index.md) will receive these
+the [GitLab component sub-charts](gitlab/_index.md) will receive these
 extra labels.
 
 ### Pod

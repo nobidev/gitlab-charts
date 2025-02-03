@@ -2,13 +2,12 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Restoring a GitLab installation
 ---
-
-# Restoring a GitLab installation
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 To obtain a backup tarball of an existing GitLab instance that used other installation methods like the Linux
 package or GitLab Helm chart, follow the instructions
@@ -21,8 +20,8 @@ It is recommended that you restore a backup to the same version of GitLab on whi
 
 GitLab backup restores are taken by running the `backup-utility` command on the Toolbox pod provided in the chart.
 
-Before running the restore for the first time, you should ensure the [Toolbox is properly configured](index.md) for
-access to [object storage](index.md#object-storage)
+Before running the restore for the first time, you should ensure the [Toolbox is properly configured](_index.md) for
+access to [object storage](_index.md#object-storage)
 
 The backup utility provided by GitLab Helm chart supports restoring a tarball from any of the following locations
 
@@ -149,12 +148,12 @@ The steps for restoring a GitLab installation are
 NOTE:
 During restoration, the backup tarball needs to be extracted to disk.
 This means the Toolbox pod should have disk of necessary size available.
-For more details and configuration please see the [Toolbox documentation](../charts/gitlab/toolbox/index.md#persistence-configuration).
+For more details and configuration please see the [Toolbox documentation](../charts/gitlab/toolbox/_index.md#persistence-configuration).
 
 ### Restore the runner registration token
 
 After restoring, the included runner will not be able to register to the instance because it no longer has the correct registration token.
-Follow these [troubleshooting steps](../troubleshooting/index.md#included-gitlab-runner-failing-to-register) to get it updated.
+Follow these [troubleshooting steps](../troubleshooting/_index.md#included-gitlab-runner-failing-to-register) to get it updated.
 
 ## Enable Kubernetes related settings
 
@@ -200,5 +199,5 @@ The restoration process does not update the `gitlab-initial-root-password` secre
 
 ## Additional Information
 
-- [GitLab chart Backup/Restore Introduction](index.md)
+- [GitLab chart Backup/Restore Introduction](_index.md)
 - [Backing up a GitLab installation](backup.md)

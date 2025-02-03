@@ -2,13 +2,12 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Manage the container registry metadata database
 ---
-
-# Manage the container registry metadata database
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/5521) in GitLab 16.4 as a [beta](https://docs.gitlab.com/ee/policy/development_stages_support.html#beta) feature.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/423459) in GitLab 17.3.
@@ -460,3 +459,42 @@ cd ~
 ```
 
 After the command completes successfully, the registry is now fully migrated to the database!
+
+## Troubleshooting
+
+### Error: `panic: interface conversion: interface {} is nil, not bool`
+
+When importing [existing registries](#existing-registries), you might see this error:
+
+```shell
+panic: interface conversion: interface {} is nil, not bool
+```
+
+This is a known [issue](https://gitlab.com/gitlab-org/container-registry/-/merge_requests/2041)
+that is fixed in registry version `v4.15.2-gitlab` and in GitLab 17.9 and later.
+
+To work around this issue, upgrade your registry version:
+
+1. In your `values.yml` file, set the registry image tag:
+
+   ```yaml
+   registry:
+     image:
+       tag: v4.15.2-gitlab
+   ```
+
+1. Upgrade your Helm installation:
+
+   ```shell
+   helm upgrade gitlab -f values.yml
+   ```
+
+Alternatively, you can manually update the registry configuration:
+
+- In `/etc/docker/registry/config.yml`, set `parallelwalk` to `false` for your storage provider. For example, with S3:
+
+  ```yaml
+  storage:
+    s3:
+      parallelwalk: false
+  ```
