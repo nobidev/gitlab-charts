@@ -68,11 +68,12 @@ alertmanager['enable'] = false
 # Prevent database connections during 'gitlab-ctl reconfigure'
 gitlab_rails['auto_migrate'] = false
 
-# Configure the gitlab-shell API callback URL. Without this, `git push` will
-# fail. This can be your 'front door' GitLab URL or an internal load
-# balancer.
+# Configure the gitlab-shell API callback URL.
+# This can be your 'front door' GitLab URL or an internal load balancer.
+# Without URL and the authentication tokens `git push` will fail.
 gitlab_rails['internal_api_url'] = 'GITLAB_URL'
 gitlab_shell['secret_token'] = 'SHELL_TOKEN'
+gitaly['gitlab_secret'] = 'SHELL_TOKEN'
 
 gitaly['configuration'] = {
     # Make Gitaly accept connections on all network interfaces. You must use
