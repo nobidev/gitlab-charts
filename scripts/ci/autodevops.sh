@@ -64,10 +64,10 @@ function deploy() {
 
   #ROOT_PASSWORD=$(cat /dev/urandom | LC_TYPE=C tr -dc "[:alpha:]" | head -c 16)
   #echo "Generated root login: $ROOT_PASSWORD"
-  kubectl create secret generic "${RELEASE_NAME}-gitlab-initial-root-password" --from-literal=password=$ROOT_PASSWORD -o yaml --dry-run=client | kubectl replace --force -f -
+  kubectl create secret generic -n "${NAMESPACE}" "${RELEASE_NAME}-gitlab-initial-root-password" --from-literal=password=$ROOT_PASSWORD -o yaml --dry-run=client | kubectl replace --force -f -
 
   echo "${QA_EE_LICENSE}" > /tmp/license.gitlab
-  kubectl create secret generic "${RELEASE_NAME}-gitlab-license" --from-file=license=/tmp/license.gitlab -o yaml --dry-run=client | kubectl replace --force -f -
+  kubectl create secret generic -n "${NAMESPACE}" "${RELEASE_NAME}-gitlab-license" --from-file=license=/tmp/license.gitlab -o yaml --dry-run=client | kubectl replace --force -f -
 
   # YAML_FILE=""${KUBE_INGRESS_BASE_DOMAIN//\./-}.yaml"
 
@@ -145,6 +145,21 @@ CIYAML
         cpu: 100m
 CIYAML
 
+  if [ -n "${ADD_NGINX_DNS_ANNOTATIONS}" ]; then
+    echo "ADD_NGINX_DNS_ANNOTATIONS detected"
+    DOMAIN="-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"
+    # configure nginx and external-dns
+    cat << CIYAML > ci.nginx.yaml
+    nginx-ingress:
+      controller:
+        service:
+          annotations:
+            external-dns.alpha.kubernetes.io/ttl: "10"
+            external-dns.alpha.kubernetes.io/hostname: "kas${DOMAIN},minio${DOMAIN},registry${DOMAIN},gitlab${DOMAIN}"
+CIYAML
+    NGINX_CONFIGURATION="-f ci.nginx.yaml"
+  fi
+
   # PostgreSQL max_connection defaults to 100, which is apparently not enough to pass QA.
   cat << CIYAML > ci.psql.yaml
   postgresql:
@@ -174,6 +189,7 @@ CIYAML
     $WAIT \
     ${SENTRY_CONFIGURATION} \
     ${MULTIARCH_CONFIGURATION} \
+    ${NGINX_CONFIGURATION} \
     -f ci.details.yaml \
     -f ci.scale.yaml \
     -f ci.psql.yaml \

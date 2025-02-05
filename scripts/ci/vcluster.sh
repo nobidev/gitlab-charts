@@ -38,6 +38,12 @@ function vcluster_create() {
   kubectl annotate namespace ${vcluster_name} janitor/ttl=2d
 }
 
+function vcluster_copy_secret() {
+  kubectl get secret -n $1 $2 -o yaml \
+    | sed '/^  namespace: /d; /^  uid: /d; /^  resourceVersion: /d; /^  creationTimestamp: /d; /^  selfLink: /d; /^status:$/Q;' \
+    | vcluster connect $(vcluster_name) -- kubectl apply -n $3 -f -
+}
+
 function vcluster_run() {
   vcluster connect $(vcluster_name) -- $@
 }
