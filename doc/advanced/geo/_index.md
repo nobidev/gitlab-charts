@@ -39,7 +39,15 @@ To use GitLab Geo with the GitLab Helm chart, the following requirements must be
   - Support SSL between primary and secondary database nodes.
 - The primary site must be reachable via HTTP(S) by all secondary sites.
   Secondary sites must be accessible to the primary site via HTTP(S).
-- See [requirements for running Geo](https://docs.gitlab.com/administration/geo/#requirements-for-running-geo) for the full list of requirements.
+
+| Network direction | Ports | Notes |
+| --- | --- | --- |
+| Secondary database <-> primary database | 5432 | This is for PostgreSQL database replication between the primary and secondary clusters. Needs SSL. |
+| Secondary site <-> primary site | 80, 443 | This is for application communication between primary and secondary clusters. |
+| Primary site -> primary database | 5431 | This is internal to the primary cluster. |
+| Secondary site -> secondary database | 5431 | This is internal to the primary cluster. |
+
+See [requirements for running Geo](https://docs.gitlab.com/administration/geo/#requirements-for-running-geo) for the full list of requirements.
 
 ## Overview
 
