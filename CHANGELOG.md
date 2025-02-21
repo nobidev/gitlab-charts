@@ -2,6 +2,10 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 8.8.3 (2025-02-21)
+
+No changes.
+
 ## 8.8.2 (2025-02-11)
 
 No changes.
