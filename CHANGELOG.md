@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 8.7.8 (2025-02-26)
+
+### Fixed (1 change)
+
+- [Mount certificates to geo-logcursor init containers](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/2add0a1028fa452230d85d2641b88c5ac4cacbaa)
+
 ## 8.7.7 (2025-02-21)
 
 No changes.
