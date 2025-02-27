@@ -62,13 +62,13 @@ nginx-ingress:
         ## https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/service/annotations/#backend-protocol
         # Uncomment if terminating TLS at the NLB
         # service.beta.kubernetes.io/aws-load-balancer-backend-protocol:  "ssl"
-    config:
-      ## https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#proxy-real-ip-cidr
-      # Trusted VPC CIDR for the Load Balancer(s) - !! Review for your VPC
-      proxy-real-ip-cidr: 192.168.0.0/16
-      ## https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#use-proxy-protocol
-      # Tell NGINX to Expect ProxyProtocol headers
-      use-proxy-protocol: "true"
+  config:
+    ## https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#proxy-real-ip-cidr
+    # Trusted VPC CIDR for the Load Balancer(s) - !! Review for your VPC
+    proxy-real-ip-cidr: 192.168.0.0/16
+    ## https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#use-proxy-protocol
+    # Tell NGINX to Expect ProxyProtocol headers
+    use-proxy-protocol: "true"
 gitlab:
   gitlab-shell:
     ## https://docs.gitlab.com/ee/administration/operations/gitlab_sshd.html?tab=Helm+chart+%28Kubernetes%29#enable-gitlab-sshd
