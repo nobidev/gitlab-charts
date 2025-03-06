@@ -50,7 +50,7 @@ Ensure Registry database load balancing is configured properly and dependencies 
 */}}
 {{- define "gitlab.checkConfig.registry.database.loadBalancing" -}}
 {{- if $.Values.registry.database.loadBalancing.enabled }}
-  {{- if not $.Values.registry.database.enabled }}
+  {{- if not (and $.Values.global.registry.psql.enabled $.Values.registry.database.enabled) }}
 registry:
     Enabling database load balancing requires the metadata database to be enabled.
     See https://docs.gitlab.com/charts/charts/registry#load-balancing
@@ -74,19 +74,19 @@ registry:
 Ensure Registry Redis cache is configured properly and dependencies are met
 */}}
 {{- define "gitlab.checkConfig.registry.redis.cache" -}}
-{{-   if and $.Values.registry.redis.cache.enabled (not $.Values.registry.database.enabled) }}
+{{-   if and $.Values.registry.redis.cache.enabled (not (and $.Values.global.registry.psql.enabled $.Values.registry.database.enabled)) }}
 registry:
     Enabling the Redis cache requires the metadata database to be enabled.
     See https://docs.gitlab.com/charts/charts/registry#redis-cache
 {{-   end -}}
-{{-   if and $.Values.registry.database.enabled $.Values.registry.redis.cache.enabled }}
+{{-   if and $.Values.global.registry.psql.enabled $.Values.registry.database.enabled $.Values.registry.redis.cache.enabled }}
 {{-     if  and (kindIs "string" $.Values.registry.redis.cache.host) (empty $.Values.registry.redis.cache.host) }}
 registry:
     Enabling the Redis cache requires the host to not be empty.
     See https://docs.gitlab.com/charts/charts/registry#redis-cache
 {{-     end -}}
 {{- end -}}
-{{-   if and $.Values.registry.database.enabled $.Values.registry.redis.cache.enabled $.Values.registry.redis.cache.sentinels}}
+{{-   if and $.Values.global.registry.psql.enabled $.Values.registry.database.enabled $.Values.registry.redis.cache.enabled $.Values.registry.redis.cache.sentinels}}
 {{-     if  not $.Values.registry.redis.cache.host }}
 registry:
     Enabling the Redis cache with sentinels requires the registry.redis.cache.host to be set.

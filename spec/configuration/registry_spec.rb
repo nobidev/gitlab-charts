@@ -266,9 +266,12 @@ describe 'registry configuration' do
       context 'when primary is provided' do
         let(:values) do
           YAML.safe_load(%(
+            global:
+              registry:
+                psql:
+                  enabled: true
             registry:
               database:
-                enabled: true
                 primary: "primary.record.fqdn"
           )).deep_merge(default_values)
         end
@@ -296,9 +299,12 @@ describe 'registry configuration' do
       context 'when backgroundMigrations is enabled' do
         let(:values) do
           YAML.safe_load(%(
+            global:
+              registry:
+                psql:
+                  enabled: true
             registry:
               database:
-                enabled: true
                 backgroundMigrations:
                   enabled: true
                   maxJobRetries: 3
@@ -332,9 +338,12 @@ describe 'registry configuration' do
       context 'when backgroundMigrations is enabled and configured properly without maxJobRetries and jobInterval' do
         let(:values) do
           YAML.safe_load(%(
+            global:
+              registry:
+                psql:
+                  enabled: true
             registry:
               database:
-                enabled: true
                 backgroundMigrations:
                   enabled: true
           )).deep_merge(default_values)
@@ -373,9 +382,11 @@ describe 'registry configuration' do
                   secretKeyRef:
                     key: "keyC"
                     name: "nameC"
+              registry:
+                psql:
+                  enabled: true
             registry:
               database:
-                enabled: true
                 primary: "primary.record.fqdn"
           )).deep_merge(default_values)
         end
@@ -428,10 +439,13 @@ describe 'registry configuration' do
         with_them do
           let(:values) do
             YAML.safe_load(%(
+            global:
+              registry:
+                psql:
+                  enabled: #{enabled}
             registry:
               database:
                 configure: #{configure}
-                enabled: #{enabled}
           )).deep_merge(default_values)
           end
 
@@ -463,16 +477,72 @@ describe 'registry configuration' do
         end
       end
 
+      context "when both global and local database configuration enablement flags are present" do
+        using RSpec::Parameterized::TableSyntax
+
+        # rubocop:disable Lint/BinaryOperatorWithIdenticalOperands
+        where(:global_enabled, :local_enabled, :include_db_config) do
+          false | false | false
+          true  | false | false # Backwards compatibility with .registry.database.enabled.
+          false | true  | false
+          true  | true  | true
+        end
+        # rubocop:enable Lint/BinaryOperatorWithIdenticalOperands
+
+        with_them do
+          let(:values) do
+            YAML.safe_load(%(
+            global:
+              registry:
+                psql:
+                  enabled: #{global_enabled}
+            registry:
+              database:
+                enabled: #{local_enabled}
+          )).deep_merge(default_values)
+          end
+
+          let(:config) do
+            <<~CONFIG
+            database:
+              enabled: #{global_enabled || local_enabled}
+              host: "test-postgresql.default.svc"
+              port: 5432
+              user: registry
+              password: "DB_PASSWORD_FILE"
+              dbname: registry
+              sslmode: disable
+            CONFIG
+          end
+
+          it 'populates the database settings correctly' do
+            t = HelmTemplate.new(values)
+            expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+            if include_db_config
+              expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(config)
+              expect(t.dig('ConfigMap/test-registry', 'data', 'migrations-config.yml.tpl')).to include(config)
+            else
+              expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).not_to include(config)
+              expect(t.dig('ConfigMap/test-registry', 'data', 'migrations-config.yml.tpl')).not_to include(config)
+            end
+          end
+        end
+      end
+
       describe 'database loadBalancing config' do
         context 'when replicaCheckInterval is provided' do
           let(:values) do
             YAML.safe_load(%(
+              global:
+                registry:
+                  psql:
+                    enabled: true
               registry:
                 redis:
                   cache:
                     enabled: true
                 database:
-                  enabled: true
                   loadBalancing:
                     enabled: true
                     record: db-replica-registry.service.consul
@@ -506,12 +576,15 @@ describe 'registry configuration' do
         context 'when replicaCheckInterval is not provided' do
           let(:values) do
             YAML.safe_load(%(
+              global:
+                registry:
+                  psql:
+                    enabled: true
               registry:
                 redis:
                   cache:
                     enabled: true
                 database:
-                  enabled: true
                   loadBalancing:
                     enabled: true
                     record: db-replica-registry.service.consul
@@ -529,12 +602,15 @@ describe 'registry configuration' do
         context 'when nameserver.host and nameserver.port are provided' do
           let(:values) do
             YAML.safe_load(%(
+              global:
+                registry:
+                  psql:
+                    enabled: true
               registry:
                 redis:
                   cache:
                     enabled: true
                 database:
-                  enabled: true
                   loadBalancing:
                     enabled: true
                     record: db-replica-registry.service.consul
@@ -571,12 +647,15 @@ describe 'registry configuration' do
         context 'when nameserver.host and nameserver.port are not provided' do
           let(:values) do
             YAML.safe_load(%(
+              global:
+                registry:
+                  psql:
+                    enabled: true
               registry:
                 redis:
                   cache:
                     enabled: true
                 database:
-                  enabled: true
                   loadBalancing:
                     enabled: true
                     record: db-replica-registry.service.consul
@@ -603,12 +682,13 @@ describe 'registry configuration' do
         let(:values) do
           YAML.safe_load(%(
             global:
+              registry:
+                psql:
+                  enabled: true
               redis:
                 host: global.redis.example.com
                 port: 16379
             registry:
-              database:
-                enabled: true
               redis:
                 cache:
                   enabled: true
@@ -633,9 +713,11 @@ describe 'registry configuration' do
       context 'when customer provides a custom redis cache configuration with a single host' do
         let(:values) do
           YAML.safe_load(%(
+            global:
+              registry:
+                psql:
+                  enabled: true
             registry:
-              database:
-                enabled: true
               redis:
                 cache:
                   enabled: true
@@ -691,9 +773,11 @@ describe 'registry configuration' do
       context 'when customer provides a custom redis cache configuration with a single host without port' do
         let(:values) do
           YAML.safe_load(%(
+            global:
+              registry:
+                psql:
+                  enabled: true
             registry:
-              database:
-                enabled: true
               redis:
                 cache:
                   enabled: true
@@ -719,6 +803,9 @@ describe 'registry configuration' do
         let(:values) do
           YAML.safe_load(%(
             global:
+              registry:
+                psql:
+                  enabled: true
               redis:
                 host: redis.example.com
                 sentinels:
@@ -727,8 +814,6 @@ describe 'registry configuration' do
                   - host: sentinel2.example.com
                     port: 26379
             registry:
-              database:
-                enabled: true
               redis:
                 cache:
                   enabled: true
@@ -753,9 +838,11 @@ describe 'registry configuration' do
       context 'when customer provides a custom redis cache configuration with local sentinels' do
         let(:values) do
           YAML.safe_load(%(
+            global:
+              registry:
+                psql:
+                  enabled: true
             registry:
-              database:
-                enabled: true
               redis:
                 cache:
                   enabled: true
@@ -787,6 +874,9 @@ describe 'registry configuration' do
         let(:values) do
           YAML.safe_load(%(
             global:
+              registry:
+                psql:
+                  enabled: true
               redis:
                 host: redis.example.com
                 sentinels:
@@ -795,8 +885,6 @@ describe 'registry configuration' do
                   - host: global2.example.com
                     port: 26379
             registry:
-              database:
-                enabled: true
               redis:
                 cache:
                   enabled: true
@@ -828,6 +916,9 @@ describe 'registry configuration' do
         let(:values) do
           YAML.safe_load(%(
             global:
+              registry:
+                psql:
+                  enabled: true
               redis:
                 host: redis.example.com
                 sentinels:
@@ -840,8 +931,6 @@ describe 'registry configuration' do
                   secret: global-redis-sentinel-secret
                   key: password
             registry:
-              database:
-                enabled: true
               redis:
                 cache:
                   enabled: true
@@ -880,6 +969,9 @@ describe 'registry configuration' do
         let(:values) do
           YAML.safe_load(%(
             global:
+              registry:
+                psql:
+                  enabled: true
               redis:
                 host: redis.example.com
                 sentinels:
@@ -892,8 +984,6 @@ describe 'registry configuration' do
                   secret: global-redis-sentinel-secret
                   key: password
             registry:
-              database:
-                enabled: true
               redis:
                 cache:
                   enabled: true
@@ -1145,6 +1235,9 @@ describe 'registry configuration' do
         let(:values) do
           YAML.safe_load(%(
             global:
+              registry:
+                psql:
+                  enabled: true
               redis:
                 host: redis.example.com
                 sentinels:
@@ -1153,8 +1246,6 @@ describe 'registry configuration' do
                   - host: global2.example.com
                     port: 26379
             registry:
-              database:
-                enabled: true
               redis:
                 cache:
                   enabled: true
@@ -1249,9 +1340,11 @@ describe 'registry configuration' do
       context 'when customer provides a custom redis rate-limiter and cache configuration' do
         let(:values) do
           YAML.safe_load(%(
+            global:
+              registry:
+                psql:
+                  enabled: true
             registry:
-              database:
-                enabled: true
               redis:
                 cache:
                   enabled: true

@@ -159,6 +159,15 @@ redis:
     https://docs.gitlab.com/charts/installation/upgrade.html#use-of-globalredispassword
 {{- end -}}
 
+{{- /* Deprecation notice for registry.database user/password/host/port settings */}}
+{{- if or .Values.registry.database.enabled .Values.registry.database.user .Values.registry.database.password .Values.registry.database.host .Values.registry.database.port }}
+{{ $NOTICE }}
+registry.database:
+    The configuration keys `registry.database.enabled`, `registry.database.user`, `registry.database.password`, `registry.database.host`, and `registry.database.port` have been deprecated.
+    Please use `global.registry.psql` instead. For more details, please see:
+    https://gitlab.com/gitlab-org/charts/gitlab/-/issues/5972
+{{- end -}}
+
 {{- /* If the user is managing RBAC externally with NGINX chart 4.0.6 */}}
 {{- if or (and (index .Values "nginx-ingress" "enabled")     (not (index .Values "nginx-ingress" "rbac" "create")))
           (and (index .Values "nginx-ingress-geo" "enabled") (not (index .Values "nginx-ingress-geo" "rbac" "create"))) }}

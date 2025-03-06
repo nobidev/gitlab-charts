@@ -11,9 +11,10 @@ describe 'checkConfig registry' do
           image:
             tag: 13
 
-        registry:
-          database:
-            enabled: true
+        global:
+          registry:
+            psql:
+              enabled: true
       )).deep_merge!(default_required_values)
     end
 
@@ -23,9 +24,10 @@ describe 'checkConfig registry' do
           image:
             tag: 12
 
-        registry:
-          database:
-            enabled: true
+        global:
+          registry:
+            psql:
+              enabled: true
       )).deep_merge!(default_required_values)
     end
 
@@ -39,26 +41,34 @@ describe 'checkConfig registry' do
   describe 'registry.database (sslmode)' do
     let(:success_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
 
         registry:
           database:
-            enabled: true
             sslmode: disable
       )).deep_merge!(default_required_values)
     end
 
     let(:error_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
 
         registry:
           database:
-            enabled: true
             sslmode: testing
       )).deep_merge!(default_required_values)
     end
@@ -73,6 +83,11 @@ describe 'checkConfig registry' do
   describe 'registry.database.loadBalancing (record)' do
     let(:success_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
@@ -82,7 +97,6 @@ describe 'checkConfig registry' do
             cache:
               enabled: true
           database:
-            enabled: true
             loadBalancing:
               enabled: true
               record: db-replica-registry.service.consul
@@ -91,6 +105,11 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
@@ -100,7 +119,6 @@ describe 'checkConfig registry' do
             cache:
               enabled: true
           database:
-            enabled: true
             loadBalancing:
               enabled: true
       )).deep_merge!(default_required_values)
@@ -116,6 +134,11 @@ describe 'checkConfig registry' do
   describe 'registry.database.loadBalancing requires database.enabled to be true' do
     let(:success_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
@@ -125,7 +148,6 @@ describe 'checkConfig registry' do
             cache:
               enabled: true
           database:
-            enabled: true
             loadBalancing:
               enabled: true
               record: db-replica-registry.service.consul
@@ -134,6 +156,11 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: false
+
         postgresql:
           image:
             tag: 13
@@ -143,7 +170,6 @@ describe 'checkConfig registry' do
             cache:
               enabled: true
           database:
-            enabled: false
             loadBalancing:
               enabled: true
               record: db-replica-registry.service.consul
@@ -160,6 +186,11 @@ describe 'checkConfig registry' do
   describe 'registry.database.loadBalancing requires redis.cache.enabled to be true' do
     let(:success_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
@@ -169,7 +200,6 @@ describe 'checkConfig registry' do
             cache:
               enabled: true
           database:
-            enabled: true
             loadBalancing:
               enabled: true
               record: db-replica-registry.service.consul
@@ -178,6 +208,11 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
@@ -187,7 +222,6 @@ describe 'checkConfig registry' do
             cache:
               enabled: false
           database:
-            enabled: true
             loadBalancing:
               enabled: true
               record: db-replica-registry.service.consul
@@ -231,9 +265,11 @@ describe 'checkConfig registry' do
   describe 'registry.redis.cache (enabled)' do
     let(:success_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
         registry:
-          database:
-            enabled: true
           redis:
             cache:
               enabled: true
@@ -242,9 +278,11 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: false
         registry:
-          database:
-            enabled: false
           redis:
             cache:
               enabled: true
@@ -261,13 +299,15 @@ describe 'checkConfig registry' do
   describe 'registry.redis.cache (host)' do
     let(:success_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
         postgresql:
           image:
             tag: 13
 
         registry:
-          database:
-            enabled: true
           redis:
             cache:
               enabled: true
@@ -277,13 +317,16 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
 
         registry:
-          database:
-            enabled: true
           redis:
             cache:
               enabled: true
@@ -301,13 +344,16 @@ describe 'checkConfig registry' do
   describe 'registry.redis.cache (sentinels)' do
     let(:success_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
 
         registry:
-          database:
-            enabled: true
           redis:
             cache:
               enabled: true
@@ -322,13 +368,16 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
 
         registry:
-          database:
-            enabled: true
           redis:
             cache:
               enabled: true
@@ -351,13 +400,15 @@ describe 'checkConfig registry' do
   describe 'registry.redis.cache.password (secret)' do
     let(:success_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
         postgresql:
           image:
             tag: 13
 
         registry:
-          database:
-            enabled: true
           redis:
             cache:
               enabled: true
@@ -371,13 +422,16 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
 
         registry:
-          database:
-            enabled: true
           redis:
             cache:
               enabled: true
@@ -398,13 +452,16 @@ describe 'checkConfig registry' do
   describe 'registry.redis.cache.password (key)' do
     let(:success_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
 
         registry:
-          database:
-            enabled: true
           redis:
             cache:
               enabled: true
@@ -418,13 +475,16 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
+        global:
+          registry:
+            psql:
+              enabled: true
+
         postgresql:
           image:
             tag: 13
 
         registry:
-          database:
-            enabled: true
           redis:
             cache:
               enabled: true

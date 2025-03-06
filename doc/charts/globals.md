@@ -788,10 +788,18 @@ global:
       serviceName: registry
       port: 5000
     tokenIssuer: gitlab-issuer
-
+    psql:
+      enabled: false
+      username: registry
+      database: registry
+      host:
+      port:
+      password: {}
 ```
 
 For more details on `bucket`, `certificate`, `httpSecret`, and `notificationSecret` settings, see the documentation within the [registry chart](registry/_index.md).
+
+For more details on `psql` settings, see the documentations within [registry metadata database](registry/metadata_database.md).
 
 For details on `enabled`, `host`, `api` and `tokenIssuer` see documentation for [command line options](../installation/command-line-options.md) and [webcervice](gitlab/webservice/_index.md)
 

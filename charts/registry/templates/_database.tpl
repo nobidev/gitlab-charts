@@ -3,14 +3,14 @@ Return database configuration, if settings available.
 */}}
 {{- define "registry.database.config" -}}
 {{/*Need to use enabled or configure flags for backwards compatibility*/}}
-{{- if or .Values.database.enabled .Values.database.configure }}
+{{- if or (and .Values.global.registry.psql.enabled .Values.database.enabled) .Values.database.configure }}
 database:
-  enabled: {{ .Values.database.enabled }}
-  host: {{ default (include "gitlab.psql.host" .) .Values.database.host | quote }}
-  port: {{ default (include "gitlab.psql.port" .) .Values.database.port }}
-  user: {{ .Values.database.user }}
+  enabled: {{ and .Values.global.registry.psql.enabled .Values.database.enabled }}
+  host: {{ coalesce (pluck "host" .Values.global.registry.psql .Values.database | first) (include "gitlab.psql.host" .)  | quote }}
+  port: {{ coalesce (pluck "port" .Values.global.registry.psql .Values.database | first) (include "gitlab.psql.port" .) }}
+  user: {{ coalesce .Values.global.registry.username .Values.database.user }}
   password: "DB_PASSWORD_FILE"
-  dbname: {{ .Values.database.name }}
+  dbname: {{ coalesce .Values.global.registry.psql.database .Values.database.name }}
   sslmode: {{ .Values.database.sslmode }}
   {{- if .Values.database.ssl }}
   sslcert: /etc/docker/registry/ssl/client-certificate.pem
@@ -78,9 +78,9 @@ Return Registry's database secret entry as a projected volume
 */}}
 {{- define "gitlab.registry.database.password.projectedVolume" -}}
 - secret:
-    name: {{ default (printf "%s-registry-database-password" .Release.Name) .Values.database.password.secret }}
+    name: {{ coalesce (pluck "secret" .Values.global.registry.psql.password .Values.database.password | first) (printf "%s-registry-database-password" .Release.Name) }}
     items:
-      - key: {{ default "password" .Values.database.password.key }}
+      - key: {{ coalesce (pluck "key" .Values.global.registry.psql.password .Values.database.password | first) "password" }}
         path: database_password
 {{- end -}}
 

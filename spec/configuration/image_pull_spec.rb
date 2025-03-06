@@ -169,6 +169,9 @@ describe 'image configuration' do
 
         it 'should have both the global and local imagePullSecrets' do
           app_label = resource.dig('metadata', 'labels', 'app')
+
+          app_label = 'registry' if app_label == 'registry-migrations'
+
           expect(resource.dig('spec', 'template', 'spec', 'imagePullSecrets')).to \
             include('name' => 'ps-global')
           expect(resource.dig('spec', 'template', 'spec', 'imagePullSecrets')).to \
@@ -185,6 +188,8 @@ describe 'image configuration' do
 
                 app_label = 'kubectl' if app_label == 'certmanager-issuer' ||
                   resource&.dig('metadata', 'name')&.include?('shared-secrets')
+
+                app_label = 'registry' if app_label == 'registry-migrations'
 
                 pull_policy = "pp-#{app_label}"
 

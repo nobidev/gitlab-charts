@@ -120,6 +120,15 @@ global:
   registry:
     certificate: {}
     httpSecret: {}
+    psql:
+      enabled: true
+      username: registry
+      database: registry
+      # host:
+      # port:
+      password: {}
+      #   secret:
+      #   key:
   psql:
     ssl: {}
 
@@ -392,7 +401,7 @@ serviceAccount:
 # https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#database
 database:
   configure: false
-  enabled: false
+  enabled: true
   user: registry
   password: {}
     # secret: RELEASE_NAME-registry-database-password
