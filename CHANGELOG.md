@@ -2,6 +2,31 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 8.10.0 (2025-03-19)
+
+### Added (2 changes)
+
+- [Support configuration for KAS client timeout](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7eef185ddc07135ca5542cd01cd774f1aa950404) by @filippolmt ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4153))
+- [Document how to set up workload identity with Azure Kubernetes Service](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/563c7448014a6c3dcd0ef5987014b289e0699f39) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4119))
+
+### Fixed (1 change)
+
+- [Registry migration: Mount PostgreSQL certificates for mutual TLS](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/1160e8ce5c0223020a6a5fc70acd3d9f7a4352aa) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4137))
+
+### Changed (7 changes)
+
+- [Update dependency gitlab-qa to v15.3.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/76cdf4c38e5543645381b25cd3d3d476c008cd02) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4088))
+- [Update dependency container-registry to v4.17.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/812bec92ad44055ded60aea578c9bba261ccee26) by @gitlab-dependency-update-bot ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4155))
+- [Update redis from 6.2 to 7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a780f682a8cdff0a68e65a3303bb0f31f9ea43ee) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3977))
+- [Update Helm release gitlab-runner to v0.74.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/19abe16be3f710d7176b130f76db1bde0f5e910a) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4071))
+- [Bump KAS memory resource request](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2f95dd4dbb07a1077ecfba7cb6688e843ef2f27e) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4138))
+- [Update Helm release cert-manager to v1.12.16](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/3a6275ec284a0be14d69c8bda20907993a529edc) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4130))
+- [Update dependency container-registry to v4.16.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/17a23868a747eb4d301697afdef68df2c30bd380) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4125))
+
+### Other (1 change)
+
+- [Remove flag to toggle Redis in KAS chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f75858ec82e9cada9c15720995a7a4182e6d76e7) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4165))
+
 ## 8.9.2 (2025-03-11)
 
 No changes.
