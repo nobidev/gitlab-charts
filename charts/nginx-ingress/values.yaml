@@ -11,11 +11,11 @@ controller:
   name: controller
   image:
     registry: registry.gitlab.com
-    image: gitlab-org/cloud-native/mirror/images/ingress-nginx/controller
-    tag: "v1.11.5"
+    image: gitlab-org/cloud-native/charts/gitlab-ingress-nginx/staging/controller
+    tag: "284be18b-fips"
     fallbackTag: "v1.3.1"
     fallbackDigest: "sha256:54f7fe2c6c5a9db9a0ebf1131797109bb7a4d91f56b9b362bde2abd237dd1974"
-    digest: "sha256:a1cbad75b0a7098bf9325132794dddf9eef917e8a7fe246749a4cea7ff6f01eb"
+    digest: ""
     pullPolicy: IfNotPresent
     # www-data -> uid 101
     runAsUser: 101
