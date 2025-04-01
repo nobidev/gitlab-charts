@@ -12,7 +12,7 @@ controller:
   image:
     registry: registry.gitlab.com
     image: gitlab-org/cloud-native/charts/gitlab-ingress-nginx/staging/controller
-    tag: "284be18b-fips"
+    tag: "5d1b96ed-fips"
     fallbackTag: "v1.3.1"
     fallbackDigest: "sha256:54f7fe2c6c5a9db9a0ebf1131797109bb7a4d91f56b9b362bde2abd237dd1974"
     digest: ""
