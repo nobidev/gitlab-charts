@@ -45,7 +45,7 @@ spec:
 
       Browse to https://gitlab.{{ .Values.global.hosts.domain }}
 
-      {{ if not .Values.gitlab.migrations.initialRootPassword.secret -}}
+      {{ if and (not .Values.gitlab.migrations.initialRootPassword.secret) .Values.shared-secrets.enabled -}}
 
       GitLab is provisioned with a randomly generated administrator password. To retrieve it:
 

@@ -1,4 +1,5 @@
 {{- if .Values.enabled }}
+{{- $initialRootPassword = or .Values.global.initialRootPassword.secret .Values.gitlab.migrations.initialRootPassword.secret .shared-secrets.enabled }}
 {{- $imageCfg := dict "global" .Values.global.image "local" .Values.image -}}
 {{- $initImageCfg := include "gitlab.configure.config" .Values | fromYaml -}}
 {{- include "database.datamodel.prepare" . -}}
@@ -111,9 +112,11 @@ spec:
             - name: migrations-secrets
               mountPath: /srv/gitlab/config/secrets.yml
               subPath: rails-secrets/secrets.yml
+            {{- if $initialRootPassword }}
             - name: migrations-secrets
               mountPath: /srv/gitlab/config/initial_root_password
               subPath: migrations/initial_root_password
+            {{- end }}
             - name: migrations-secrets
               mountPath: /srv/gitlab/config/gitlab_shared_runners_registration_token
               subPath: migrations/gitlab_shared_runners_registration_token
@@ -169,11 +172,13 @@ spec:
                 - key: {{ template "gitlab.geo.psql.password.key" . }}
                   path: postgres/geo-psql-password
           {{- end }}
+          {{- if $initialRootPassword }}
           - secret:
               name: {{ template "gitlab.migrations.initialRootPassword.secret" . }}
               items:
                 - key: {{ template "gitlab.migrations.initialRootPassword.key" . }}
                   path: migrations/initial_root_password
+          {{- end }}
           - secret:
               name: {{ template "gitlab.gitlab-runner.registrationToken.secret" . }}
               items:
