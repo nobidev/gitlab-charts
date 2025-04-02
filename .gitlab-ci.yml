@@ -502,7 +502,7 @@ trigger-eks131:
 
 wait_for_dev_images:
   # Remove after https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2370 is complete
-  timeout: 2h
+  timeout: 3h
   image: "${CI_REGISTRY}/${CI_TOOLS_NAMESPACE}/gitlab-omnibus-builder/distribution_ci_tools:${CI_TOOLS_VERSION}"
   stage: prepare
   extends: .dind
