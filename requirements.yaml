@@ -48,3 +48,7 @@ dependencies:
   version: 1.32.0
   condition: haproxy.install
   repository: https://haproxytech.github.io/helm-charts
+- name: openbao
+  version: 0.12.0
+  condition: openbao.install
+  repository: https://openbao.github.io/openbao-helm

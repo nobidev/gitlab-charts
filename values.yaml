@@ -72,6 +72,7 @@ global:
     smartcard: {}
     kas: {}
     pages: {}
+    openbao: {}
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
@@ -1408,3 +1409,46 @@ gitlab-zoekt:
       secretName: '{{ include "gitlab.zoekt.indexer.internalApi.secretName" $ }}'
       secretKey: '{{ include "gitlab.zoekt.indexer.internalApi.secretKey" $ }}'
       gitlabUrl: '{{ include "gitlab.zoekt.indexer.internalApi.gitlabUrl" $ }}'
+
+openbao:
+  install: false
+  injector:
+    enabled: false
+
+  server:
+    install: true
+    ingress:
+      enabled: true
+    extraEnvironmentVars: {}
+      # BAO_PG_CONNECTION_URL: "postgres://"
+      # PGSSLMODE:
+      # PGHOST: ob-postgresql
+      # PGPORT: 5432
+      # PGUSER: postgres
+      # PGDATABASE: openbao
+    
+    extraSecretEnvironmentVars:
+      # - envName: PGPASSWORD
+      #   secretName: "postgresql-password"
+      #   secretKey: "postgresql-postgres-password"
+    
+    dataStorage:
+      enabled: false
+    ha:
+      enabled: true
+      config: |
+        ui = true
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+        }
+
+        storage "postgresql" {
+          ha_enabled = true
+        }
+
+        telemetry {
+          disable_hostname = true
+          enable_hostname_label = true
+        }

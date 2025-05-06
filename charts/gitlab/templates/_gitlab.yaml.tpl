@@ -201,3 +201,16 @@ Usage:
 oidc_provider:
   openid_id_token_expire_in_seconds: {{ $.Values.global.appConfig.oidcProvider.openidIdTokenExpireInSeconds }}
 {{- end -}}{{/* "gitlab.appConfig.oidcProvider.configuration" */}}
+
+
+{{/*
+Generates openbao configuration.
+
+Usage:
+{{ include "gitlab.appConfig.openbao.configuration" $ }}
+*/}}
+{{- define "gitlab.appConfig.openbao.configuration" -}}
+openbao:
+  url: {{ include "gitlab.openbao.url" $ | quote }}
+  # internal_url
+{{- end -}}{{/* "gitlab.appConfig.openbao.configuration" */}}
