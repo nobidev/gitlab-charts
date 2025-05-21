@@ -275,7 +275,7 @@ trigger_review_current:
     - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
       when: manual
     # Triggered from CNG
-    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
 
 .trigger_review_current:
   rules:
@@ -284,7 +284,7 @@ trigger_review_current:
       when: never
     - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
     # Triggered from CNG
-    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
 
 
 trigger_review_secondary:
