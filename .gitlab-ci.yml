@@ -535,7 +535,10 @@ wait_for_dev_images:
     - helm package --version=${VERSION}${VERSION_SUFFIX} .
     - chart_file=$(ls -l gitlab*.tgz | head -n 1 | awk '{print $NF}')
     - curl --request POST --user gitlab-ci-token:$CI_JOB_TOKEN --form "chart=@${chart_file}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/${CHANNEL}/charts"
-    - ./scripts/helm_push_oci.sh "${chart_file}"
+    - |
+      if [[ $CHANNEL =~ "devel" ]]; then
+        ./scripts/helm_push_oci.sh "${chart_file}"
+      fi
 
 publish_tagged_package:
   extends: .publish_chart_package
