@@ -81,6 +81,8 @@ workflow:
     # Support Merge Request pipelines
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$PIPELINE_TYPE != null && $LIMIT_TO != null && $LIMIT_TO != ""'
+    # If a pipeline type is specified
+    - if: '$PIPELINE_TYPE'
 
 .rule:skip_if_no_cluster:
   if: '$KUBECONFIG == null'
@@ -104,4 +106,3 @@ workflow:
 .rule:skip_if_dev:
     - if: '$CI_PROJECT_PATH == $DEV_PROJECT_PATH'
       when: never
-      
