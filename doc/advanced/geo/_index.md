@@ -312,7 +312,7 @@ This assumes you are using the `gitlab` namespace. If you want to use a differen
 
    {{< alert type="note" >}}
 
-**This step is required for Geo to function.**
+**This step is required for Geo to function**.
 
    {{< /alert >}}
 

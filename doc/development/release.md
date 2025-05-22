@@ -39,7 +39,7 @@ We will bump it for:
 ### Example release scenarios
 
 | Chart Version | GitLab Version | Release Scenario |
-| ------------- | -------------- | ---------------- |
+|---------------|----------------|------------------|
 | `0.2.0`       | `11.0.0`       | GitLab 11 release, and chart beta |
 | `0.2.1`       | `11.0.1`       | GitLab patch release |
 | `0.2.2`       | `11.0.1`       | Chart changes released |
@@ -49,7 +49,7 @@ We will bump it for:
 | `0.2.4`       | `11.0.3`       | Security release |
 | ~~`0.3.1`~~   | ~~`11.1.1`~~   | ~~Security release~~ (*1*) |
 | `0.4.1`       | `11.1.1`       | Security release (*1*) |
-| ...           | ...            | ... |
+| ...           | ...            | ...              |
 | `1.0.0`       | `11.x.0`       | GitLab minor release, along with chart GA |
 | `2.0.0`       | `11.x.x`       | Introduced some breaking change to the chart |
 | `3.0.0`       | `12.0.0`       | GitLab 12 release |
@@ -68,32 +68,32 @@ While we considered just using the GitLab version as our own, we are not yet in 
 For this chart, we propose to follow the same branching strategy as the other main GitLab components.
 
 - A `master` branch,
-- `x-x-stable` branches that we create from master per minor release.
+- `x-x-stable` branches that we create from `master` per minor release.
 - `x.x.x` tags from those stable branches.
 
 The difference between our branch names, and the other GitLab components, is that we will be using the chart's version in the branch name, rather than the GitLab version.
 
-In general, changes will be merged to master, then cherry-picked into the appropriate branch before release. GitLab image updates will happen as commits in the branches, not in master, as master will follow the latest daily images.
+In general, changes will be merged to `master`, then cherry-picked into the appropriate branch before release. GitLab image updates will happen as commits in the branches, not in `master`, as `master` will follow the latest daily images.
 
 ### Example timeline of release actions
 
 Related to releasing using the proposed branching strategy
 
 | Branch       | Tag     | Action       | Details |
-| ------------ | ------- | ------------ | ------- |
-| `0-2-stable` |         | Branch       | Branch created from master |
+|--------------|---------|--------------|---------|
+| `0-2-stable` |         | Branch       | Branch created from `master` |
 |              |         | Image update | GitLab `11.0.0-rcX` image used |
-|              |         | Pick         | Additional changes from master picked into branch |
+|              |         | Pick         | Additional changes from `master` picked into branch |
 |              |         | Image update | GitLab `11.0.0` image used |
 |              | `0.2.0` | Tag          | Chart `0.2.0` released |
-|              |         | Pick         | Fixes from master picked into branch |
+|              |         | Pick         | Fixes from `master` picked into branch |
 |              |         | Image update | GitLab `11.0.1` image used |
 |              | `0.2.1` | Tag          | Chart `0.2.1` released |
-| `0-3-stable` |         | Branch       | Branch created from master |
+| `0-3-stable` |         | Branch       | Branch created from `master` |
 |              |         | Image update | GitLab `11.1.0-rc1` image used |
 | `0-2-stable` |         | Image update | GitLab `11.0.2` image used |
 |              | `0.2.2` | Tag          | Chart  `0.2.2` released |
-| `0-3-stable` |         | Pick         | Fixes from master picked into branch |
+| `0-3-stable` |         | Pick         | Fixes from `master` picked into branch |
 |              |         | Image update | GitLab `11.1.0` image used |
 |              | `0.3.0` | Tag          | Chart `0.3.0` released |
 
