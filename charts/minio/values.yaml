@@ -2,13 +2,13 @@
 ## Distributed Minio ref: https://docs.minio.io/docs/distributed-minio-quickstart-guide
 ##
 image: "minio/minio"
-imageTag: "RELEASE.2017-12-28T01-21-00Z"
+imageTag: "RELEASE.2022-07-15T03-44-22Z"
 # imagePullPolicy: IfNotPresent
 # pullSecrets: []
 
 minioMc:
   image: minio/mc
-  tag: "RELEASE.2018-07-13T00-53-22Z"
+  tag: "RELEASE.2022-07-15T09-20-55Z"
 
 ingress:
   apiVersion:
@@ -289,3 +289,6 @@ topologySpreadConstraints: []
  #     maxSkew: 1
  #     topologyKey: topology.kubernetes.io/zone
  #     whenUnsatisfiable: DoNotSchedule
+
+## Do not log server output to stdout
+quiet: true
