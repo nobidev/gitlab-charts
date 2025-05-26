@@ -557,7 +557,7 @@ publish_devel_package:
   extends: .publish_chart_package
   variables:
     CHANNEL: "devel"
-    VERSION_SUFFIX: "-${CI_PIPELINE_ID}"
+    VERSION_SUFFIX: "-${CI_PIPELINE_ID}-${CI_COMMIT_SHORT_SHA}"
   id_tokens:
     VAULT_ID_TOKEN:
       aud: https://vault.gitlab.net
