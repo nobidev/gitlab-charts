@@ -563,9 +563,6 @@ publish_devel_package:
     VAULT_ID_TOKEN:
       aud: https://vault.gitlab.net
 
-  rules:
-    - if: '$PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
-
 release_package:
   stage: release-package
   timeout: 2h
