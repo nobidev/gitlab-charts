@@ -89,7 +89,6 @@ stages:
   - review
   - staging
   - canary
-  - specs
   - qa-manual
   - qa
   - qa-report
@@ -98,6 +97,7 @@ stages:
   - release-package
   - cleanup
   - report
+  - specs
 
 include:
   - local: '/.gitlab/ci/rules.gitlab-ci.yml'
