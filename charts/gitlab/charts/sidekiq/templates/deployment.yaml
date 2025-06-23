@@ -9,6 +9,7 @@
 {{- $fullname := include "fullname" . -}}
 {{- $image := (printf "%s:%s%s" (coalesce .Values.image.repository (include "image.repository" .)) (coalesce .Values.image.tag (include "gitlab.versionTag" . )) (include "gitlab.image.tagSuffix" .)) | toString -}}
 {{- $concurrency := .Values.concurrency -}}
+{{- $maxReplicas := .Values.maxReplicas -}}
 {{- $timeout := .Values.timeout -}}
 {{- $resources := .Values.resources -}}
 {{- $nodeSelector := default .Values.global.nodeSelector .Values.nodeSelector -}}
@@ -27,6 +28,7 @@
 {{-   $queueName := printf "%s-%s" $fullname .name | trunc 63 }}
 {{-   $podNodeSelector := default $nodeSelector .nodeSelector -}}
 {{-   $tolerations := default $tolerations .tolerations -}}
+{{-   $maxReplicasPerPod := coalesce ((.keda).maxReplicaCount) ((.hpa).maxReplicas) .maxReplicas $maxReplicas }}
 {{-   include "sidekiq.pod.common.labels" . }}
 {{-   $_ := set . "podLabels" (merge (default (dict) .podLabels) (default (dict) $.Values.podLabels) (default (dict) $.Values.global.pod.labels)) -}}
 apiVersion: apps/v1
@@ -199,6 +201,8 @@ spec:
               value: '/srv/gitlab/config'
             - name: SIDEKIQ_CONCURRENCY
               value: {{ default $concurrency .concurrency | quote }}
+            - name: SIDEKIQ_MAX_REPLICAS
+              value: {{ int $maxReplicasPerPod | quote }}
             - name: SIDEKIQ_TIMEOUT
               value: {{ default $timeout .timeout | quote }}
             - name: SIDEKIQ_QUEUES
