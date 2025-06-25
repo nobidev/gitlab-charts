@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 8.11.5 (2025-06-24)
+
+### Fixed (1 change)
+
+- [Include ClickHouse secrets in toolbox backup job](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/0eec72cd03c12303082e1d865927d2068f1c7834)
+
 ## 8.11.4 (2025-06-11)
 
 No changes.
