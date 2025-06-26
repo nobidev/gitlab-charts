@@ -386,7 +386,7 @@ gitlab:
     sshDaemon: gitlab-sshd
 ```
 
-##  設定: `mapping values are not allowed in this context` {#yaml-configuration-mapping-values-are-not-allowed-in-this-context}
+## 設定: `mapping values are not allowed in this context` {#yaml-configuration-mapping-values-are-not-allowed-in-this-context}
 
  設定に先頭のスペースが含まれている場合、次のエラーメッセージが表示されることがあります。
 

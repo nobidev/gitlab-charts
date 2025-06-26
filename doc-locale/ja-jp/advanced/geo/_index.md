@@ -64,7 +64,7 @@ GitLab GeoをGitLab Helm Chartで使用するには、次の要件を満たす�
   - プライマリは、TCPポート`5432`を公開する必要があります。
   - セカンダリは、TCPポート`5432`および`5431`を公開する必要があります。
 
-[Linuxパッケージでサポートされているオペレーティングシステム](https://docs.gitlab.com/install/requirements/#operating-systems)をインストールし、次に[Linux [パッケージ](https://docs.gitlab.com/install/requirements/#operating-systems)をインストール](https://about.gitlab.com/install/)します。インストール時に`EXTERNAL_URL`環境変数を指定しないでください。これは、パッケージを再設定する前に最小限の設定ファイルを提供するからです。
+[Linuxパッケージでサポートされているオペレーティングシステム](https://docs.gitlab.com/install/requirements/#operating-systems)をインストールし、次に[Linuxパッケージをインストール](https://about.gitlab.com/install/)します。インストール時に`EXTERNAL_URL`環境変数を指定しないでください。これは、パッケージを再設定する前に最小限の設定ファイルを提供するからです。
 
 オペレーティングシステムとGitLabパッケージをインストールしたら、使用するサービスに対して設定を作成できます。その前に、情報を収集する必要があります。
 
@@ -562,7 +562,7 @@ _このセクションは、セカンダリサイトのKubernetesで実行され
 
 1. **プライマリ**サイトにアクセスします。
 1. 左側のサイドバーの一番下にある**管理者エリア**を選択します。
-1. ** &gt; サイトを追加**を選択します。
+1. **サイトを追加**を選択します。
 1. **セカンダリ**サイトを追加します。URLには完全なGitLab URLを使用します。
 1. セカンダリサイトの`global.geo.nodeName`を持つ名前を入力します。これらのは常に文字どおり完全に一致する必要があります。
 1. 内部URL（例：`https://shanghai.gitlab.example.com`）を入力します。
@@ -656,7 +656,7 @@ _このセクションは、セカンダリサイトのKubernetesで実行され
    - 管理者の使用:
      1. **プライマリ**サイトにアクセスします。
      1. 左側のサイドバーの一番下にある**管理者エリア**を選択します。
-     1. ** &gt; サイト**を選択します。
+     1. **サイト**を選択します。
      1. 鉛筆を選択して、**セカンダリサイトを編集**します。
      1. 外部URL（例：`https://shanghai.gitlab.example.com`）を編集します。
      1. **変更の保存**を選択します。
