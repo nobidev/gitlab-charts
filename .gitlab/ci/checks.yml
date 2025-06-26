@@ -73,7 +73,6 @@ check_docs_i18n_markdown:
   dependencies: []
   before_script: []
   script:
-    # Lint Markdown
     - cd doc-locale && markdownlint-cli2 --config .markdownlint/.markdownlint-cli2.yaml '**/*.md'
   rules:
     - !reference [.rule:skip_if_dev]
