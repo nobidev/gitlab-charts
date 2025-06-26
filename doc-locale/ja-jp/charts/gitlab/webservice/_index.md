@@ -804,9 +804,9 @@ networkpolicy:
 
 `service.type`が`LoadBalancer`に設定されている場合、オプションで`service.loadBalancerIP`を指定して、ユーザー指定のIPで`LoadBalancer`を作成できます (クラウドプロバイダーがしている場合)。
 
-`service.type`が`LoadBalancer`に設定されている場合、`LoadBalancer`にアクセスできる  範囲を制限するには、`service.loadBalancerSourceRanges`も設定する必要があります (クラウドプロバイダーがしている場合)。これは現在、[  が公開されている](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2500)問題が原因で必要です。
+`service.type`が`LoadBalancer`に設定されている場合、`LoadBalancer`にアクセスできる  範囲を制限するには、`service.loadBalancerSourceRanges`も設定する必要があります (クラウドプロバイダーがしている場合)。これは現在、[が公開されている](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2500)問題が原因で必要です。
 
-`LoadBalancer`サービスタイプの詳細については、[ Kubernetesドキュメント](https://kubernetes.io/docs/concepts/services-networking/#loadbalancer)を参照してください
+`LoadBalancer`サービスタイプの詳細については、[Kubernetesドキュメント](https://kubernetes.io/docs/concepts/services-networking/#loadbalancer)を参照してください
 
 ```yaml
 service:

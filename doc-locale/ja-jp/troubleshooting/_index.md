@@ -578,9 +578,9 @@ gitlab-nginx-ingress-controller-899b7d6bf-lqcks controller W1116 19:03:13.161640
 gitlab-nginx-ingress-controller-899b7d6bf-lqcks controller W1116 19:03:13.465425       6 store.go:846] skipping ingress gitlab/gitlab-registry: nginx.ingress.kubernetes.io/configuration-snippet annotation contains invalid word proxy_pass
 ```
 
-その場合は、[ ](https://kubernetes.github.io/ingress-nginx/examples/customization/configuration-snippets/)の使用について、 とサードパーティの をしてください。`nginx-ingress.controller.config.annotation-value-word-blocklist`を調整または変更する必要がある場合があります。
+[その場合は、](https://kubernetes.github.io/ingress-nginx/examples/customization/configuration-snippets/)の使用について、 とサードパーティの をしてください。`nginx-ingress.controller.config.annotation-value-word-blocklist`を調整または変更する必要がある場合があります。
 
-詳細については、[   ](../charts/nginx/_index.md#annotation-value-word-blocklist)をしてください。
+[詳細については、](../charts/nginx/_index.md#annotation-value-word-blocklist)をしてください。
 
 ### マウントに時間がかかる {#volume-mount-takes-a-long-time}
 
@@ -624,7 +624,7 @@ gitlab:
 2024-01-19T14:12:24.214148186Z {"component": "gitlab","subcomponent":"puma.stdout","timestamp":"2024-01-19T14:12:24.213Z","pid":1,"message":"- Worker 2 (PID: 7414) booted in 0.84s, phase: 0"}
 ```
 
-この問題を解決するには、[ のメモリ制限を引き上げます](../charts/gitlab/webservice/_index.md#memory-requestslimits)。
+この問題を解決するには、[のメモリ制限を引き上げます](../charts/gitlab/webservice/_index.md#memory-requestslimits)。
 
 ### アップグレードに失敗しました-`cannot patch "gitlab-prometheus-server" with kind Deployment` {#upgrade-failed---cannot-patch-gitlab-prometheus-server-with-kind-deployment}
 

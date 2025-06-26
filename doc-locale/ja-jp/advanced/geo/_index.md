@@ -675,7 +675,7 @@ _このセクションは、セカンダリサイトのKubernetesで実行され
 
 ## Cert-managerと統合URL {#cert-manager-and-unified-url}
 
-の統合URLは、位置情報認識ルーティング（たとえば、Amazon Route 53またはGoogle Cloudの使用）でよく使用されます。これにより、ドメイン名が管理下にあることをするために[HTTP01 ](https://letsencrypt.org/docs/challenge-types/#http-01-challenge)が使用されている場合に問題が発生する可能性があります。
+の統合URLは、位置情報認識ルーティング（たとえば、Amazon Route 53またはGoogle Cloudの使用）でよく使用されます。これにより、ドメイン名が管理下にあることをするために[HTTP01](https://letsencrypt.org/docs/challenge-types/#http-01-challenge)が使用されている場合に問題が発生する可能性があります。
 
 1つのサイトの証明書をすると、Let'sは名をしているサイトにする必要があります。が別のサイトにされる場合、統合URLの証明書は発行またはされません。
 
