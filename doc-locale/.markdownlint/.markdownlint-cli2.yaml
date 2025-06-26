@@ -22,7 +22,7 @@ config:
     tables: false
     headings: true
     heading_line_length: 100
-    line_length: 800
+    line_length: 1500
   no-duplicate-heading:             # MD024
     siblings_only: true
   no-emphasis-as-heading: false     # MD036
