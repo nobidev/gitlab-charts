@@ -678,10 +678,10 @@ Puma固有のオプション:
 
 webserviceサービスでは、有効になっている場合、Prometheusの接続、NGINXおよびいくつかのGitLabからのトラフィックが必要です。通常、さまざまな場所への接続が必要です。この例では、次のネットワークポリシーを追加します。
 
--  を許可:
+- を許可:
   - `gitaly`、`gitlab-pages`、`gitlab-shell`、`kas`、`mailroom`、および`nginx-ingress`のから`8181`へのを許可
   - `Prometheus`から`8080`、`8083`、および`9229`へのを許可
--  を許可:
+- を許可:
   - `gitaly`から`8075`への
   - `kas`から`8153`への
   - `kube-dns`から`53`への

@@ -105,7 +105,7 @@ production:
    - 既存の[パスワード定義](../../charts/globals.md#multiple-redis-support)を使用し、HelmにそれをERBステートメントに置き換えさせます。
    - コンテナでシークレットがマウントされているパスを使用して、正しいERB `<%= File.read('/path/to/secret').strip.to_json %>`ステートメントを自分で記述します。
 1. `redisYmlOverride`では、 Railsのに従う必要があります。たとえば、「SharedState」インスタンスは`sharedState`と呼ばれず、`shared_state`と呼ばれます。
-1.  の継承はありません。たとえば、単一のSentinelセットを共有する3つのRedisがある場合は、Sentinelを3回繰り返す必要があります。
+1. の継承はありません。たとえば、単一のSentinelセットを共有する3つのRedisがある場合は、Sentinelを3回繰り返す必要があります。
 1. CNGイメージは、[有効な`resque.yml`と`cable.yml`を想定している](https://gitlab.com/gitlab-org/build/CNG/-/blob/4d314e505edb25ccefd4297d212bfbbb5bc562f9/gitlab-rails/scripts/lib/checks/redis.rb#L54)ため、`resque.yml`ファイルを取得するには、少なくとも`global.redis.host`を設定する必要があります。
 
 ## トラブルシューティング {#troubleshooting}

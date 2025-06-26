@@ -13,4 +13,4 @@ GitLabは、[FIPS準拠](https://docs.gitlab.com/development/fips_compliance/)�
 
 FIPS互換のGitLabのに役立つ[`examples/fips/values.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/fips/values.yaml)のGitLabチャート値の例を示します。
 
-FIPS互換のNGINXイメージを使用するための関連を提供する`nginx-ingress.controller`キーの下のコメントに注意してください。このイメージは、[NGINX   ](https://gitlab.com/gitlab-org/cloud-native/charts/gitlab-ingress-nginx)でされます。
+FIPS互換のNGINXイメージを使用するための関連を提供する`nginx-ingress.controller`キーの下のコメントに注意してください。このイメージは、[NGINX](https://gitlab.com/gitlab-org/cloud-native/charts/gitlab-ingress-nginx)でされます。

@@ -459,7 +459,7 @@ gitlab_rails['db_password']='gitlab_user_password'
 - `gitlab-geo-registry-secret`（のが有効な場合）。
 
 1. `kubectl`コンテキストをプライマリのコンテキストに変更します。
-1.  からこれらのを収集します。
+1. からこれらのを収集します。
 
    ```shell
    kubectl get --namespace gitlab -o yaml secret gitlab-geo-gitlab-shell-host-keys > ssh-host-keys.yaml
@@ -587,7 +587,7 @@ _このセクションは、セカンダリサイトのKubernetesで実行され
    kubectl --namespace gitlab exec -ti gitlab-geo-toolbox-XXX -- bash -l
    ```
 
-1.  のを確認します:
+1. のを確認します:
 
    ```shell
    gitlab-rake gitlab:geo:check
@@ -636,8 +636,8 @@ _このセクションは、セカンダリサイトのKubernetesで実行され
 
 場合によっては、ユーザーにアクセスするサイトを制御させたいことがあります。このために、 サイトをして、一意の外部URLを使用できます。次に例を示します。
 
--  の外部URL：`https://gitlab.example.com`
--  の外部URL：`https://shanghai.gitlab.example.com`
+- の外部URL：`https://gitlab.example.com`
+- の外部URL：`https://shanghai.gitlab.example.com`
 
 1. `secondary.yaml`を編集し、`webservice`がこれらのを処理できるように、セカンダリの外部URLを更新します。
 
@@ -669,7 +669,7 @@ _このセクションは、セカンダリサイトのKubernetesで実行され
 
 1. が完了し、アプリケーションがオンラインになるまで待ちます。
 
-##  {#registry}
+## {#registry}
 
 セカンダリ[レジストリ](https://docs.gitlab.com/administration/geo/replication/container_registry/#configure-container-registry-replication)をプライマリ[レジストリ](https://docs.gitlab.com/administration/geo/replication/container_registry/#configure-container-registry-replication)と[同期](../../charts/registry/_index.md#notification-secret)するには、[レジストリ](https://docs.gitlab.com/administration/geo/replication/container_registry/#configure-container-registry-replication)の[レプリケーション](https://docs.gitlab.com/administration/geo/replication/container_registry/#configure-container-registry-replication)を[通知シークレット](../../charts/registry/_index.md#notification-secret)を使用して[設定](https://docs.gitlab.com/administration/geo/replication/container_registry/#configure-container-registry-replication)できます。
 
