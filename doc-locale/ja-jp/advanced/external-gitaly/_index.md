@@ -663,13 +663,13 @@ kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure
 
 1. 複数のストレージがある場合は、[新しいリポジトリの保存場所をしてください](https://docs.gitlab.com/administration/repository_storage_paths/#configure-where-new-repositories-are-stored)。
 
-1.  を有効にします:
+1. を有効にします:
 
    ```shell
    kubectl exec <toolbox pod name> -it -- gitlab-rails runner 'Sidekiq::Cron::Job.all.map(&:enable!)'
    ```
 
-1.  が実行されていない場合は、 を元の数にします:
+1. が実行されていない場合は、 を元の数にします:
 
    ```shell
    kubectl scale deploy -lapp=gitlab-gitlab-runner,release=<release> --replicas=<value>
@@ -683,7 +683,7 @@ kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure
    kubectl delete pvc repo-data-<release>-gitaly-0
    ```
 
-####  {#rollback}
+#### {#rollback}
 
 問題が発生した場合は、サブが再度使用されるように、変更をできます。
 
@@ -695,13 +695,13 @@ kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure
    helm rollback <release> <revision>
    ```
 
-1.  が実行されていない場合は、 を元の数にします:
+1. が実行されていない場合は、 を元の数にします:
 
    ```shell
    kubectl scale deploy -lapp=webservice,release=<release> --replicas=<value>
    ```
 
-1.  が実行されていない場合は、 を元の数にします:
+1. が実行されていない場合は、 を元の数にします:
 
    ```shell
    kubectl scale deploy -lapp=sidekiq,release=<release> --replicas=<value>
@@ -713,7 +713,7 @@ kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure
    kubectl exec <toolbox pod name> -it -- gitlab-rails runner 'Sidekiq::Cron::Job.all.map(&:enable!)'
    ```
 
-1.  が実行されていない場合は、 を元の数にします:
+1. が実行されていない場合は、 を元の数にします:
 
    ```shell
    kubectl scale deploy -lapp=gitlab-gitlab-runner,release=<release> --replicas=<value>
@@ -723,4 +723,4 @@ kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure
 
 ### 関連ドキュメント {#related-documentation}
 
-- [ にする](https://docs.gitlab.com/administration/gitaly/#migrate-to-gitaly-cluster)
+- [にする](https://docs.gitlab.com/administration/gitaly/#migrate-to-gitaly-cluster)
