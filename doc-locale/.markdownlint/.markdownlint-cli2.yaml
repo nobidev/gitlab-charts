@@ -35,4 +35,5 @@ config:
   reference-links-images: false     # MD052
   ul-style:                         # MD004
     style: "dash"
+  link-fragments: false             # MD051
 fix: false
