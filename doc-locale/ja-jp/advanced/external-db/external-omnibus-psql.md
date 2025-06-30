@@ -13,7 +13,7 @@ Ubuntu用の[Linuxパッケージ](https://about.gitlab.com/install/#ubuntu)を�
 
 作成したにUbuntu Serverをインストールします。`openssh-server`がインストールされていること、およびすべてのが最新であることを確認します。とホスト名を設定します。ホスト名/ をメモし、それがKubernetesから解決可能で、到達可能であることを確認します。トラフィックを許可するために、ファイアウォールが適切に設定されていることを確認してください。
 
-[Linuxパッケージ](https://about.gitlab.com/install/#ubuntu)のインストール手順に従ってください。パッケージのインストールを実行するときは、**_しないで_**ください`EXTERNAL_URL=`値を指定します。次の手順で非常に具体的なを提供するので、自動が発生しないようにします。
+[Linuxパッケージ](https://about.gitlab.com/install/#ubuntu)のインストール手順に従ってください。パッケージのインストールを実行するときは、しないでください`EXTERNAL_URL=`値を指定します。次の手順で非常に具体的なを提供するので、自動が発生しないようにします。
 
 ## Linuxパッケージのインストールを設定 {#configure-linux-package-installation}
 
@@ -21,7 +21,7 @@ Ubuntu用の[Linuxパッケージ](https://about.gitlab.com/install/#ubuntu)を�
 
 *ノート*:この例は、[スケーリング用のPostgreSQL](https://docs.gitlab.com/administration/postgresql/)を提供するものではありません。
 
-_**注**:以下の値は置き換える必要があります_
+注:以下の値は置き換える必要があります
 
 - `DB_USERNAME`デフォルトのユーザー名は`gitlab`です
 - `DB_PASSSWORD`エンコードされていない

@@ -21,17 +21,17 @@ Gitalyが設定されていない場合は、オンプレミスまたはVMへの
 
 次のプロパティを設定する必要があります。
 
-- `global.gitaly.enabled`:`false`に設定して、含まれているGitaly Chartを無効にします。
-- `global.gitaly.external`:これは、[外部Gitalyサービス](../../charts/globals.md#external)の配列です。
-- `global.gitaly.authToken.secret`:[認証用のトークンを含むシークレット](../../installation/secrets.md#gitaly-secret)の名前。
-- `global.gitaly.authToken.key`:トークンのコンテンツを含むシークレット内のキー。
+- `global.gitaly.enabled`: `false`に設定して、含まれているGitaly Chartを無効にします。
+- `global.gitaly.external`: これは、[外部Gitalyサービス](../../charts/globals.md#external)の配列です。
+- `global.gitaly.authToken.secret`: [認証用のトークンを含むシークレット](../../installation/secrets.md#gitaly-secret)の名前。
+- `global.gitaly.authToken.key`: トークンのコンテンツを含むシークレット内のキー。
 
 外部Gitalyサービスは、GitLab Shellの独自のインスタンスを使用します。実装によっては、このChartのシークレットを使用してそれらを構成することも、定義済みのソースからのコンテンツを使用してこのChartのシークレットを構成することもできます。
 
 次のプロパティの設定が必要になる**場合**があります。
 
-- `global.shell.authToken.secret`:[GitLab Shellのシークレットを含むシークレット](../../installation/secrets.md#gitlab-shell-secret)の名前。
-- `global.shell.authToken.key`:シークレットのコンテンツを含むシークレット内のキー。
+- `global.shell.authToken.secret`: [GitLab Shellのシークレットを含むシークレット](../../installation/secrets.md#gitlab-shell-secret)の名前。
+- `global.shell.authToken.key`: シークレットのコンテンツを含むシークレット内のキー。
 
 2つの外部サービスを含む完全な構成例（`external-gitaly.yml`）。
 

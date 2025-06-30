@@ -13,13 +13,13 @@ title: スタンドアロンGitalyの設定
 
 作成した仮想マシンにUbuntu Serverをインストールします。`openssh-server`がインストールされていること、およびすべてのパッケージが最新の状態であることを確認してください。ネットワーク構築とホスト名を設定します。ホスト名/IPをメモし、それがKubernetesクラスターから解決可能で、到達可能であることを確認します。トラフィックを許可するために、ファイアウォールポリシーが適切に設定されていることを確認してください。
 
-[Linuxパッケージ](https://about.gitlab.com/install/#ubuntu)のインストール手順に従ってください。Linuxパッケージのインストールを実行するときは、**_行わないでください_**、`EXTERNAL_URL=`の値を指定します。次の手順で非常に具体的な設定を行うため、自動設定は不要です。
+[Linuxパッケージ](https://about.gitlab.com/install/#ubuntu)のインストール手順に従ってください。Linuxパッケージのインストールを実行するときは、行わないでください、`EXTERNAL_URL=`の値を指定します。次の手順で非常に具体的な設定を行うため、自動設定は不要です。
 
 ## Linuxパッケージのインストールを設定 {#configure-linux-package-installation}
 
 最小限の`gitlab.rb`ファイルを`/etc/gitlab/gitlab.rb`に配置するように作成します。*非常に*、このノードで有効になっていることを明示的に指定します。[Gitalyを独自のサーバー上で実行](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#run-gitaly-on-its-own-server)するためのドキュメントに基づいた次のコンテンツを使用します。
 
-_**注**:以下の値は置き換える必要があります_
+注:以下の値は置き換える必要があります_
 
 - `AUTH_TOKEN`を[`gitaly-secret`シークレット](../../installation/secrets.md#gitaly-secret)の値に置き換える必要があります
 - `GITLAB_URL`は、GitLabインスタンスのURLに置き換える必要があります

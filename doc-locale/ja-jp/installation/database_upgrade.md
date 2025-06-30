@@ -129,7 +129,7 @@ kubectl delete pvc data-RELEASE_NAME-postgresql-0
 
 このシークレットは、最初にGitLabチャートによって生成され、アップグレード中またはアップグレード後には変更されません。したがって、シークレットを編集してキーを変更する必要があります。
 
-シークレットを編集したら、Helmアップグレードの値で_必ず_**`postgresql.auth.usePasswordFiles`を`true`に設定**してください。デフォルトは`false`です。
+シークレットを編集したら、Helmアップグレードの値で_必ず`postgresql.auth.usePasswordFiles`を`true`に設定**してください。デフォルトは`false`です。
 
 次のスクリプトは、シークレットのパッチ適用に役立ちます。
 
