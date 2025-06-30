@@ -33,7 +33,7 @@ Gitalyが設定されていない場合は、オンプレミスまたはVMへの
 - `global.shell.authToken.secret`: [GitLab Shellのシークレットを含むシークレット](../../installation/secrets.md#gitlab-shell-secret)の名前。
 - `global.shell.authToken.key`: シークレットのコンテンツを含むシークレット内のキー。
 
-2つの外部サービスを含む完全な構成例（`external-gitaly.yml`）。
+2つの外部サービスを含む完全な構成例(`external-gitaly.yml`)。
 
 ```yaml
 global:
@@ -363,7 +363,7 @@ kubectl get secret <release>-gitaly-secret -ojsonpath='{.data.token}' | base64 -
 
 1. すべてが期待どおりに動作していることを確認したら、Gitaly PVCを削除できます:
 
-   警告:すべてが期待どおりに動作していることを再確認するまで、Gitaly PVCを削除しないでください。
+   警告: すべてが期待どおりに動作していることを再確認するまで、Gitaly PVCを削除しないでください。
 
    ```shell
    kubectl delete pvc repo-data-<release>-gitaly-0
@@ -453,7 +453,7 @@ kubectl scale deploy -lapp=gitlab-gitlab-runner,release=<release> --replicas=0
 kubectl exec <toolbox pod name> -it -- gitlab-rails runner 'Sidekiq::Cron::Job.all.map(&:disable!)'
 ```
 
-**5\.バックグラウンドジョブが実行されていないことを確認する**
+**5.バックグラウンドジョブが実行されていないことを確認する**
 
 次のステップに進む前に、エンキューされたジョブまたは進行中のジョブが完了するまで待つ必要があります。
 
@@ -677,7 +677,7 @@ kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure
 
 1. すべてが期待どおりに動作していることを確認したら、 を削除できます:
 
-   警告:すべてが期待どおりに動作していることを再確認するまで、[手順6](#step-6-restore-and-validate-repository-backup)に従ってチェックサムが一致することを確認するまで、 を削除しないでください。
+   警告: すべてが期待どおりに動作していることを再確認するまで、[手順6](#step-6-restore-and-validate-repository-backup)に従ってチェックサムが一致することを確認するまで、 を削除しないでください。
 
    ```shell
    kubectl delete pvc repo-data-<release>-gitaly-0

@@ -72,7 +72,7 @@ helm inspect values gitlab/gitlab
 | `global.email.smime.certName`     | `tls.crt`             | S/MIME証明書ファイルの場所を特定するためのシークレットオブジェクトキー値 |
 | `global.email.smime.enabled`      | `false`               | 送信メールにS/MIME署名を追加します |
 | `global.email.smime.keyName`      | `tls.key`             | S/MIMEキーファイルの場所を特定するためのシークレットオブジェクトキー値 |
-| `global.email.smime.secretName`   | `""`                  | X.509証明書を検索するKubernetesシークレットオブジェクト（作成用の[S/MIME証明書](secrets.md#smime-certificate)） |
+| `global.email.smime.secretName`   | `""`                  | X.509証明書を検索するKubernetesシークレットオブジェクト(作成用の[S/MIME証明書](secrets.md#smime-certificate)) |
 | `global.email.subject_suffix`     | `""`                  | GitLabからのすべての送信メールの件名のサフィックス |
 | `global.smtp.address`             | `smtp.mailgun.org`    | リモートメールサーバーのホスト名またはIP |
 | `global.smtp.authentication`      | `plain`               | SMTP認証のタイプ（「plain」、「login」、「cram_md5」、または認証なしの場合は「」） |
@@ -83,7 +83,7 @@ helm inspect values gitlab/gitlab
 | `global.smtp.password.secret`     | `""`                  | SMTPパスワードを含む`Secret`の名前 |
 | `global.smtp.port`                | `2525`                | SMTPのポート |
 | `global.smtp.starttls_auto`       | `false`               | メールサーバーで有効になっている場合は、STARTTLSを使用します |
-| `global.smtp.tls`                 | _なし_                | SMTP/TLSを有効にします（SMTPS:ダイレクトTLS接続経由のSMTP) |
+| `global.smtp.tls`                 | _なし_                | SMTP/TLSを有効にします(SMTPS:ダイレクトTLS接続経由のSMTP) |
 | `global.smtp.user_name`           | `""`                  | SMTP認証httpsのユーザー名 |
 | `global.smtp.open_timeout`        | `30`                  | 接続を試行中に待機する秒数。 |
 | `global.smtp.read_timeout`        | `60`                  | 1つのブロックの読み取り中に待機する秒数。 |

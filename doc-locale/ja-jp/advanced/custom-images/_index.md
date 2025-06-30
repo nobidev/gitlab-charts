@@ -5,7 +5,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: GitLabチャートにカスタムのDockerイメージを使用する
 ---
 
-特定のシナリオ（オフライン環境など）では、インターネットからDockerイメージをプルするのではなく、独自のDockerイメージを使用したい場合があります。これを行うには、GitLabのリリースを構成する各チャートに対して、独自のDockerイメージレジストリ/リポジトリを指定する必要があります。
+特定のシナリオ(オフライン環境など)では、インターネットからDockerイメージをプルするのではなく、独自のDockerイメージを使用したい場合があります。これを行うには、GitLabのリリースを構成する各チャートに対して、独自のDockerイメージレジストリ/リポジトリを指定する必要があります。
 
 ## デフォルトイメージ形式 {#default-image-format}
 
@@ -39,6 +39,6 @@ helm template versionfinder gitlab/gitlab -f gitlab.yaml --version 7.3.0 | grep 
 
 {{< alert type="note" >}}
 
-一部のチャート（特にサードパーティのチャート）では、イメージのレジストリ/リポジトリとタグの指定方法が若干異なる場合があります。サードパーティ[チャート](https://artifacthub.io/)のドキュメントは、[Artifact Hub](https://artifacthub.io/)にあります。
+一部のチャート(特にサードパーティのチャート)では、イメージのレジストリ/リポジトリとタグの指定方法が若干異なる場合があります。サードパーティ[チャート](https://artifacthub.io/)のドキュメントは、[Artifact Hub](https://artifacthub.io/)にあります。
 
 {{< /alert >}}
