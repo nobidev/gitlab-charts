@@ -7,8 +7,8 @@ title: GitLab Pagesチャートの使用
 
 {{< details >}}
 
-- プラン:Free、Premium、Ultimate
-- 提供:GitLab Self-Managed
+- プラン: Free、Premium、Ultimate
+- 提供: GitLab Self-Managed
 
 {{< /details >}}
 
@@ -20,7 +20,7 @@ title: GitLab Pagesチャートの使用
 
 ## 設定 {#configuration}
 
-`gitlab-pages`チャートは次のように構成されています:[グローバル設定](#global-settings)および[チャート設定](#chart-settings)。
+`gitlab-pages`チャートは次のように構成されています: [グローバル設定](#global-settings)および[チャート設定](#chart-settings)。
 
 ## グローバル設定 {#global-settings}
 

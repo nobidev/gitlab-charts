@@ -178,7 +178,7 @@ helm install gitlab gitlab/gitlab \
 
 利用可能なバケットのリストが表示されます。
 
-### 「AccessDeniedException:GCPの403」エラー {#accessdeniedexception-403-errors-in-gcp}
+### 「AccessDeniedException: GCPの403」エラー {#accessdeniedexception-403-errors-in-gcp}
 
 `[Error] AccessDeniedException: 403 <GCP Account> does not have storage.objects.list access to the Google Cloud Storage bucket.`のようなエラーは、権限がないために、GitLabインスタンスのバックアップまたはリストア中に通常発生します。
 
@@ -215,7 +215,7 @@ helm install gitlab gitlab/gitlab \
 
 この問題を解決するには、[S3へのバックアップ](_index.md#backups-to-s3)の手順に従ってください。
 
-### 「PermissionError:S3を使用したファイル書き込み不可」エラー {#permissionerror-file-not-writable-errors-using-s3}
+### 「PermissionError: S3を使用したファイル書き込み不可」エラー {#permissionerror-file-not-writable-errors-using-s3}
 
 ツールボックスユーザーがバケットアイテムの保存されている権限と一致するファイルを書き込む権限を持っていない場合、`[Error] WARNING: <file> not writable: Operation not permitted`のようなエラーが発生します。
 

@@ -181,7 +181,7 @@ kubectl get secret <release>-gitaly-secret -ojsonpath='{.data.token}' | base64 -
 
 最後に、外部Gitalyサービスのファイアウォールが、構成されたGitalyポートでKubernetesポッドIP範囲のトラフィックを許可していることを確認します。
 
-#### ステップ2:新しいGitalyサービスを使用するようにインスタンスを設定する {#step-2-configure-instance-to-use-new-gitaly-service}
+#### ステップ2: 新しいGitalyサービスを使用するようにインスタンスを設定する {#step-2-configure-instance-to-use-new-gitaly-service}
 
 1. 外部Gitalyを使用するようにGitLabを設定します。メインの`gitlab.yml`設定ファイルにGitalyへの参照がある場合は、それらを削除し、次の内容で新しい`mixed-gitaly.yml`ファイルを作成します。
 
@@ -275,7 +275,7 @@ kubectl get secret <release>-gitaly-secret -ojsonpath='{.data.token}' | base64 -
 
    {{< /tabs >}}
 
-#### ステップ3:GitalyポッドのIPとホスト名を取得する {#step-3-get-the-gitaly-pod-ip-and-hostnames}
+#### ステップ3G: italyポッドのIPとホスト名を取得する {#step-3-get-the-gitaly-pod-ip-and-hostnames}
 
 リポジトリストレージ移動APIを成功させるには、外部Gitalyサービスがポッドサービスホスト名を使用してGitalyポッドに接続できる必要があります。ポッドサービスホスト名を解決できるようにするには、Gitalyプロセスを実行している各外部Gitalyサービスのhostsファイルにホスト名を追加する必要があります。
 
@@ -294,11 +294,11 @@ kubectl get secret <release>-gitaly-secret -ojsonpath='{.data.token}' | base64 -
 
 接続が確認されたら、リポジトリストレージの移動のスケジュールに進むことができます。
 
-#### ステップ4:リポジトリストレージの移動をスケジュールする {#step-4-schedule-the-repository-storage-move}
+#### ステップ4: リポジトリストレージの移動をスケジュールする {#step-4-schedule-the-repository-storage-move}
 
 [リポジトリの移動](https://docs.gitlab.com/administration/operations/moving_repositories/#moving-repositories)で示されているステップに従って、移動をスケジュールします。
 
-#### ステップ5:最終的な設定と検証 {#step-5-final-configuration-and-validation}
+#### ステップ5: 最終的な設定と検証 {#step-5-final-configuration-and-validation}
 
 1. 複数のGitalyストレージがある場合は、[新しいリポジトリの保存場所を設定](https://docs.gitlab.com/administration/repository_storage_paths/#configure-where-new-repositories-are-stored)します。
 
@@ -377,7 +377,7 @@ kubectl get secret <release>-gitaly-secret -ojsonpath='{.data.token}' | base64 -
 - すべてのユーザーにダウンタイムが発生します。
 - [Praefect Chart](../../charts/gitlab/praefect/_index.md)ではテストされておらず、サポートされていません。
 
-#### ステップ1:GitLab Chartの現在のリリースのリビジョンを取得する {#step-1-get-the-current-release-revision-of-the-gitlab-chart}
+#### ステップ1: GitLab Chartの現在のリリースのリビジョンを取得する {#step-1-get-the-current-release-revision-of-the-gitlab-chart}
 
 移行中に問題が発生する可能性は低いですが、GitLab Chartの現在のリリースのリビジョンを取得してください。出力をコピーして、[ロールバック](#rollback)を実行する必要がある場合に備えて、脇に置いてください:
 
@@ -385,7 +385,7 @@ kubectl get secret <release>-gitaly-secret -ojsonpath='{.data.token}' | base64 -
 helm history <release> --max=1
 ```
 
-#### ステップ2:外部GitalyサービスまたはGitalyクラスターをセットアップする {#step-2-setup-external-gitaly-service-or-gitaly-cluster}
+#### ステップ2: 外部GitalyサービスまたはGitalyクラスターをセットアップする {#step-2-setup-external-gitaly-service-or-gitaly-cluster}
 
 [外部Gitaly](https://docs.gitlab.com/administration/gitaly/configure_gitaly/)または[外部Gitalyクラスター](https://docs.gitlab.com/administration/gitaly/praefect/)をセットアップします。これらのステップの一部として、ChartインストールからのGitalyトークンとGitLab Shellシークレットを提供する必要があります:
 
@@ -415,11 +415,11 @@ kubectl get secret <release>-gitaly-secret -ojsonpath='{.data.token}' | base64 -
 
 {{< /tabs >}}
 
-#### ステップ3:移行中にGitの変更が行われないことを確認する {#step-3-verify-no-git-changes-can-be-made-during-migration}
+#### ステップ3: 移行中にGitの変更が行われないことを確認する {#step-3-verify-no-git-changes-can-be-made-during-migration}
 
 移行のデータ整合性を確保するために、次の手順でGitリポジトリに加えられる変更を防ぎます:
 
-**1\.メンテナンスモードを有効にする**
+**1.メンテナンスモードを有効にする**
 
 GitLab Enterprise Editionを使用している場合は、UI、API、またはRailsコンソールから[メンテナンスモード](https://docs.gitlab.com/administration/maintenance_mode/#enable-maintenance-mode)を有効にします:
 
@@ -427,7 +427,7 @@ GitLab Enterprise Editionを使用している場合は、UI、API、またはRa
 kubectl exec <toolbox pod name> -it -- gitlab-rails runner 'Gitlab::CurrentSettings.update!(maintenance_mode: true)'
 ```
 
-**2\.Runnerポッドをスケールダウンする**
+**2.Runnerポッドをスケールダウンする**
 
 GitLab Community Editionを使用している場合は、クラスターで実行されているGitLab Runnerポッドをスケールダウンする必要があります。これにより、RunnerがGitLabに接続してCI/CDジョブを処理できなくなります。
 
@@ -441,11 +441,11 @@ kubectl get deploy -lapp=gitlab-gitlab-runner,release=<release> -o jsonpath='{.i
 kubectl scale deploy -lapp=gitlab-gitlab-runner,release=<release> --replicas=0
 ```
 
-**3\.CIジョブが実行されていないことを確認する**
+**3.CIジョブが実行されていないことを確認する**
 
 管理者エリアで、**CI/CD > ジョブ**に移動します。このページにはすべてのジョブが表示されますが、**実行中**状態のジョブがないことを確認します。次のステップに進む前に、ジョブが完了するまで待つ必要があります。
 
-**4\.Sidekiq cronジョブを無効にする**
+**4.Sidekiq cronジョブを無効にする**
 
 移行中にSidekiqジョブがスケジュールおよび実行されないようにするには、すべてのSidekiq cronジョブを無効にします:
 
@@ -463,7 +463,7 @@ kubectl exec <toolbox pod name> -it -- gitlab-rails runner 'Sidekiq::Cron::Job.a
 
    ![Sidekiqのバックグラウンドジョブ](img/sidekiq_bg_jobs_v16_5.png)
 
-**6\.SidekiqポッドとWebserviceポッドをスケールダウンする**
+**6.SidekiqポッドとWebserviceポッドをスケールダウンする**
 
 整合性のあるバックアップを確実に行うために、SidekiqポッドとWebserviceポッドをスケールダウンします。両方のサービスは後の段階でスケールアップされます:
 
@@ -480,7 +480,7 @@ kubectl scale deploy -lapp=sidekiq,release=<release> --replicas=0
 kubectl scale deploy -lapp=webservice,release=<release> --replicas=0
 ```
 
-**7\.クラスターへの外部接続を制限する**
+**7.クラスターへの外部接続を制限する**
 
 ユーザーと外部GitLab RunnerがGitLabに変更を加えないようにするには、GitLabへの不要な接続をすべて制限する必要があります。
 
@@ -508,7 +508,7 @@ kubectl scale deploy -lapp=webservice,release=<release> --replicas=0
      -f ingress-only-allow-ext-gitaly.yml
    ```
 
-**8\.リポジトリチェックサムのリストを作成する**
+**8.リポジトリチェックサムのリストを作成する**
 
 バックアップを実行する前に、[すべてのGitLabリポジトリを確認](https://docs.gitlab.com/administration/raketasks/check/#check-all-gitlab-repositories)し、リポジトリチェックサムのリストを作成します。移行後にチェックサムを`diff`できるように、出力をファイルにパイプします:
 
@@ -516,7 +516,7 @@ kubectl scale deploy -lapp=webservice,release=<release> --replicas=0
 kubectl exec <toolbox pod name> -it -- gitlab-rake gitlab:git:checksum_projects > ~/checksums-before.txt
 ```
 
-#### ステップ4:すべてのリポジトリをバックアップする {#step-4-backup-all-repositories}
+#### ステップ4: すべてのリポジトリをバックアップする {#step-4-backup-all-repositories}
 
 リポジトリの[バックアップを作成](../../backup-restore/backup.md#create-the-backup)します:
 
@@ -524,7 +524,7 @@ kubectl exec <toolbox pod name> -it -- gitlab-rake gitlab:git:checksum_projects 
 kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure_files,db,external_diffs,lfs,packages,pages,registry,terraform_state,uploads
 ```
 
-#### ステップ5:新しいGitalyサービスを使用するようにインスタンスを設定する {#step-5-configure-instance-to-use-new-gitaly-service}
+#### ステップ5: 新しいGitalyサービスを使用するようにインスタンスを設定する {#step-5-configure-instance-to-use-new-gitaly-service}
 
 1. Gitalyサブチャートを無効にし、外部Gitalyを使用するようにGitLabを設定します。メインの`gitlab.yml`設定ファイルにGitalyへの参照がある場合は、それらを削除し、次の内容で新しい`external-gitaly.yml`ファイルを作成します:
 
@@ -621,7 +621,7 @@ kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure
 
    {{< /tabs >}}
 
-#### ステップ6:リポジトリのバックアップを復元して検証する {#step-6-restore-and-validate-repository-backup}
+#### ステップ6: リポジトリのバックアップを復元して検証する {#step-6-restore-and-validate-repository-backup}
 
 1. 以前に作成した[バックアップファイルを復元](../../backup-restore/restore.md#restoring-the-backup-file)します。その結果、リポジトリは構成された外部GitalyまたはGitalyクラスターにコピーされます。
 
@@ -639,7 +639,7 @@ kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure
 
    特定の行の`diff`出力で空白のチェックサムが`0000000000000000000000000000000000000000`に変化している場合、これは想定どおりであり、無視しても問題ありません。
 
-#### ステップ7:最終設定と {#step-7-final-configuration-and-validation}
+#### ステップ7: 最終設定と {#step-7-final-configuration-and-validation}
 
 1. 外部ユーザーとGitLabがGitLabに再度できるように、`gitlab.yml`ファイルと`external-gitaly.yml`ファイルを適用します。`ingress-only-allow-ext-gitaly.yml`を指定しないため、制限が削除されます。
 

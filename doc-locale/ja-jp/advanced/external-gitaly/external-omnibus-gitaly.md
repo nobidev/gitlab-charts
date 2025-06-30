@@ -19,7 +19,7 @@ title: スタンドアロンGitalyの設定
 
 最小限の`gitlab.rb`ファイルを`/etc/gitlab/gitlab.rb`に配置するように作成します。*非常に*、このノードで有効になっていることを明示的に指定します。[Gitalyを独自のサーバー上で実行](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#run-gitaly-on-its-own-server)するためのドキュメントに基づいた次のコンテンツを使用します。
 
-注:以下の値は置き換える必要があります_
+注: 以下の値は置き換える必要があります_
 
 - `AUTH_TOKEN`を[`gitaly-secret`シークレット](../../installation/secrets.md#gitaly-secret)の値に置き換える必要があります
 - `GITLAB_URL`は、GitLabインスタンスのURLに置き換える必要があります

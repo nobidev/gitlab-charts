@@ -343,6 +343,6 @@ Cloud CDNを使用するには:
 
 ## トラブルシューティング {#troubleshooting}
 
-### Azure Blob:URL \[FILTERED]がブロックされています:ローカルネットワークへのリクエストは許可されていません {#azure-blob-url-filtered-is-blocked-requests-to-the-local-network-are-not-allowed}
+### Azure Blob: URL \[FILTERED]がブロックされています: ローカルネットワークへのリクエストは許可されていません {#azure-blob-url-filtered-is-blocked-requests-to-the-local-network-are-not-allowed}
 
 これは、Azure Blobホスト名が[RFC1918（ローカル/プライベート）IPアドレス](https://learn.microsoft.com/en-us/azure/storage/common/storage-private-endpoints#dns-changes-for-private-endpoints)に[解決](https://learn.microsoft.com/en-us/azure/storage/common/storage-private-endpoints#dns-changes-for-private-endpoints)された場合に発生します。回避策として、Azure Blobホスト名（`yourinstance.blob.core.windows.net`）の[送信](https://docs.gitlab.com/security/webhooks/#allowlist-for-local-requests)リクエスト
