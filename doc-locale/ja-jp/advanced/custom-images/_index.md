@@ -35,7 +35,7 @@ helm template versionfinder gitlab/gitlab -f gitlab.yaml --version 7.3.0 | grep 
 
 ## 値ファイルの例 {#example-values-file}
 
-カスタムの[Docker](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/custom-images/values.yaml) [レジストリ](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/custom-images/values.yaml)/[リポジトリ](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/custom-images/values.yaml)と[タグ](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/custom-images/values.yaml)を[Configure](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/custom-images/values.yaml)する方法を示す[値](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/custom-images/values.yaml)ファイルの例[example values file](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/custom-images/values.yaml)があります。このファイルの関連セクションをコピーして、独自のリリースに使用できます。
+カスタムのDockerレジストリ/リポジトリとタグをConfigureする方法を示す[値ファイルの例](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/custom-images/values.yaml)があります。このファイルの関連セクションをコピーして、独自のリリースに使用できます。
 
 {{< alert type="note" >}}
 
