@@ -7,8 +7,6 @@ image:
   # pullSecrets: []
   # tag: master
 
-listenAddr: '::'
-
 service:
   name: gitlab-exporter
   type: ClusterIP

@@ -354,7 +354,7 @@ describe 'Sidekiq configuration' do
             'sidekiq_exporter' => {
               'enabled' => true,
               'log_enabled' => false,
-              'address' => '*',
+              'address' => '0.0.0.0',
               'port' => 3807
             }
           )
@@ -385,7 +385,6 @@ describe 'Sidekiq configuration' do
                   enabled: true
                   log_enabled: true
                   port: 2222
-                  listenAddr: 0.0.0.0
           )).deep_merge(default_values)
         end
 
@@ -431,21 +430,20 @@ describe 'Sidekiq configuration' do
           expect(monitoring).to include(
             'sidekiq_health_checks' => {
               'enabled' => true,
-              'address' => '*',
+              'address' => '0.0.0.0',
               'port' => 3808
             }
           )
         end
       end
 
-      context 'when custom port and listen address is set' do
+      context 'when custom port is set' do
         let(:values) do
           YAML.safe_load(%(
             gitlab:
               sidekiq:
                 health_checks:
                   port: 2222
-                  listenAddr: 0.0.0.0
           )).deep_merge(default_values)
         end
 

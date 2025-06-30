@@ -1003,9 +1003,6 @@ nginx-ingress: &nginx-ingress
 
     service:
       externalTrafficPolicy: "Local"
-      # Configure no IP families to delegate assignment to controller based on cluster config.
-      ipFamilies: []
-      ipFamilyPolicy: "PreferDualStack"
     ingressClassByName: false
     ingressClassResource:
       name: '{{ include "ingress.class.name" $ | quote }}'

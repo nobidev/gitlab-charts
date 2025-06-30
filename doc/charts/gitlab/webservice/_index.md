@@ -110,8 +110,7 @@ to the `helm install` command using the `--set` flags.
 | `minio.bucket`                                                | `git-lfs`                                                       | Name of storage bucket, when using MinIO |
 | `minio.port`                                                  | `9000`                                                          | Port for MinIO service |
 | `minio.serviceName`                                           | `minio-svc`                                                     | Name of MinIO service |
-| `monitoring.ipWhitelist`                                      | `[0.0.0.0/0, ::/0]`                                             | List of IPs to whitelist for the monitoring endpoints |
-| `monitoring.exporter.listenAddr`                              | `*`                                                             | Metrics listen address. |
+| `monitoring.ipWhitelist`                                      | `[0.0.0.0/0]`                                                   | List of IPs to whitelist for the monitoring endpoints |
 | `monitoring.exporter.enabled`                                 | `false`                                                         | Enable webserver to expose Prometheus metrics, this is overridden by `metrics.enabled` if the metrics port is set to the monitoring exporter port |
 | `monitoring.exporter.port`                                    | `8083`                                                          | Port number to use for the metrics exporter |
 | `psql.password.key`                                           | `psql-password`                                                 | Key to psql password in psql secret |
@@ -121,7 +120,6 @@ to the `helm install` command using the `--set` flags.
 | `puma.workerMaxMemory`                                        |                                                                 | The maximum memory (in megabytes) for the Puma worker killer |
 | `puma.threads.min`                                            | `4`                                                             | The minimum amount of Puma threads |
 | `puma.threads.max`                                            | `4`                                                             | The maximum amount of Puma threads |
-| `puma.bindIp6`                                                | `true`                                                          | Bind IPv6 addresses with Puma. |
 | `rack_attack.git_basic_auth`                                  | `{}`                                                            | See [GitLab documentation](https://docs.gitlab.com/administration/settings/protected_paths/) for details |
 | `redis.serviceName`                                           | `redis`                                                         | Redis service name |
 | `global.registry.api.port`                                    | `5000`                                                          | Registry port |
