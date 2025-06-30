@@ -540,12 +540,12 @@ _このセクションは、セカンダリサイトのKubernetesで実行され
    - [`global.geo.psql.host`](../../charts/globals.md#configure-postgresql-settings)
    - `global.geo.nodeName`は[管理者エリアのサイトの[名前]フィールド](https://docs.gitlab.com/administration/geo_sites/#common-settings)と一致する必要があります
    - `nginx-ingress-geo.enabled`を設定して、内部トラフィック用に事前にされた を有効にすることもできます。[これにより、サイトをプライマリにすることが容易になります](../../charts/nginx/_index.md#gitlab-geo)。
-   - [gitlab.webservice](../../charts/gitlab/webservice/_index.md#ingress-settings)の追加の  をして、セカンダリサイトの内部URLに送信されるトラフィックを処理します。
+   - [gitlab.webservice](../../charts/gitlab/webservice/_index.md#ingress-settings)の追加の をして、セカンダリサイトの内部URLに送信されるトラフィックを処理します。
    - その他の追加もします。次に例を示します。
      - [SSL/TLSの](../../installation/tools.md#tls-certificates)
      - [外部Redisの使用](../external-redis/_index.md)
      - [外部オブジェクトストレージの使用](../external-object-storage/_index.md)
-   - 外部データベースの場合、`global.psql.host`はセカンダリの読み取り専用データベースであり、`global.geo.psql.host`は  のトラッキングデータベースです
+   - 外部データベースの場合、`global.psql.host`はセカンダリの読み取り専用データベースであり、`global.geo.psql.host`は のトラッキングデータベースです
    <!-- markdownlint-enable MD044 -->
 
 1. このを使用してをします:
