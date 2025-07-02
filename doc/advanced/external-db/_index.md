@@ -69,3 +69,71 @@ To configure the GitLab chart to use an external database:
      --set global.psql.password.secret=gitlab-postgresql-password
      --set global.psql.password.key=postgres-password
    ```
+### Container Registry Database (Optional)
+
+If you plan to use the [container registry metadata database](https://docs.gitlab.com/ee/administration/packages/container_registry_metadata_database.html),
+you should also create the registry database and user:
+
+1. Create a `registry` user with a password of your choice.
+1. Create the `registry` database and make the registry user an owner of the database.
+1. Grant additional roles to your `registry` user as mentioned below for cloud-managed services.
+
+Example SQL commands:
+
+```sql
+-- Create the registry user
+CREATE USER registry WITH PASSWORD '<your_registry_password>';
+
+-- Create the registry database
+CREATE DATABASE registry OWNER registry;
+
+-- For cloud-managed services, grant additional roles as needed:
+-- Amazon RDS: GRANT rds_superuser TO registry;
+-- Azure Database: GRANT azure_pg_admin TO registry;
+-- Google Cloud SQL: GRANT cloudsqlsuperuser TO registry;
+```
+
+{{< alert type="note" >}}
+
+Even if you're not immediately planning to use the registry metadata database,
+creating these objects now will simplify future migration when you decide to
+enable the registry database feature.
+
+{{< /alert >}}
+
+#### Example Configuration Section
+
+**Add to the existing configuration:**
+```yaml
+global:
+  # Main GitLab database
+  psql:
+    host: <your_db_host>
+    port: <your_db_port>
+    username: <your_rails_db_user>
+    database: gitlabhq_production
+    password:
+      secret: <gitlab-postgresql-password>
+      key: <password>
+
+  # Registry database (when enabled)
+  registry:
+    database:
+      enabled: true
+      host: <your_db_host> # Same host as main database
+      port: <your_db_port> # Same port as main database
+      user: registry
+      password:
+        secret: <gitlab-registry-password>
+        key: <password>
+      dbname: registry
+      sslmode: require # See the PostgreSQL documentation for additional information https://www.postgresql.org/docs/16/libpq-ssl.html
+      sslcert: </path/to/cert.pem>
+      sslkey: </path/to/private.key>
+      sslrootcert: </path/to/ca.pem>
+
+
+# Disable built-in PostgreSQL
+postgresql:
+  install: false
+```
