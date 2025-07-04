@@ -73,7 +73,15 @@ To configure the GitLab chart to use an external database:
 ### Container Registry Database (Optional)
 
 If you plan to use the [container registry metadata database](https://docs.gitlab.com/ee/administration/packages/container_registry_metadata_database.html),
-you should also create the registry database and user:
+you should also create the registry database and user.
+
+{{< alert type="note" >}}
+
+Even if you're not immediately planning to use the registry metadata database,
+creating these objects now will simplify future migration when you decide to
+enable the registry database.
+
+{{< /alert >}}
 
 1. Create a `registry` user with a password of your choice.
 1. Create the `registry` database and make the registry user an owner of the database.
@@ -94,48 +102,52 @@ CREATE DATABASE registry OWNER registry;
 -- Google Cloud SQL: GRANT cloudsqlsuperuser TO registry;
 ```
 
-{{< alert type="note" >}}
+To configure GitLab to use both databases:
 
-Even if you're not immediately planning to use the registry metadata database,
-creating these objects now will simplify future migration when you decide to
-enable the registry database feature.
+1. Export the Helm values:
 
-{{< /alert >}}
+   ```shell
+   helm get values gitlab > gitlab_values.yaml
+   ```
 
-#### Example Configuration Section
+1. Edit `gitlab_values.yaml`:
 
-**Add to the existing configuration:**
+   ```yaml
+   global:
+     # Main GitLab database
+     psql:
+       host: <your_db_host>
+       port: <your_db_port>
+       username: <your_rails_db_user>
+       database: gitlabhq_production
+       password:
+         secret: <gitlab-postgresql-password>
+         key: <password>
 
-```yaml
-global:
-  # Main GitLab database
-  psql:
-    host: <your_db_host>
-    port: <your_db_port>
-    username: <your_rails_db_user>
-    database: gitlabhq_production
-    password:
-      secret: <gitlab-postgresql-password>
-      key: <password>
-
-  # Registry database (when enabled)
-  registry:
-    database:
-      enabled: true
-      host: <your_db_host> # Same host as main database
-      port: <your_db_port> # Same port as main database
-      user: registry
-      password:
-        secret: <gitlab-registry-password>
-        key: <password>
-      dbname: registry
-      sslmode: require # See the PostgreSQL documentation for additional information https://www.postgresql.org/docs/16/libpq-ssl.html
-      sslcert: </path/to/cert.pem>
-      sslkey: </path/to/private.key>
-      sslrootcert: </path/to/ca.pem>
+     # Registry database (when enabled)
+     registry:
+       database:
+         enabled: true
+         host: <your_db_host> # Same host as main database
+         port: <your_db_port> # Same port as main database
+         user: registry
+         password:
+           secret: <gitlab-registry-password>
+           key: <password>
+         dbname: registry
+         sslmode: require # See the PostgreSQL documentation for additional information https://www.postgresql.org/docs/16/libpq-ssl.html
+         sslcert: </path/to/cert.pem>
+         sslkey: </path/to/private.key>
+         sslrootcert: </path/to/ca.pem>
 
 
-# Disable built-in PostgreSQL
-postgresql:
-  install: false
-```
+   # Disable built-in PostgreSQL
+   postgresql:
+     install: false
+   ```
+
+1. Save the file and apply the new values:
+
+   ```shell
+   helm upgrade -f gitlab_values.yaml gitlab gitlab/gitlab
+   ```
