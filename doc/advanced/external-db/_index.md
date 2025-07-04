@@ -70,7 +70,7 @@ To configure the GitLab chart to use an external database:
      --set global.psql.password.key=postgres-password
    ```
 
-### Container Registry Database (Optional)
+### Container registry database (optional)
 
 If you plan to use the [container registry metadata database](https://docs.gitlab.com/ee/administration/packages/container_registry_metadata_database.html),
 you should also create the registry database and user.
