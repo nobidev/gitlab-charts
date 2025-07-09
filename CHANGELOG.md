@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 8.11.7 (2025-07-09)
+
+### Changed (1 change)
+
+- [Update default NGINX controller from 1.11.5 to 1.11.7](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/6beb7efa74bb25e8eec8f34d5d36f42832afd122)
+
 ## 8.11.6 (2025-06-25)
 
 No changes.
