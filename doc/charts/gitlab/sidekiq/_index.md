@@ -624,7 +624,7 @@ places. This examples adds the following network policy:
 {{< alert type="note" >}}
 
 The Sidekiq service requires outbound connectivity to the public
-internet for images on [external object storage](../../../advanced/external-object-storage) if no local endpoint is available.  
+internet for images on [external object storage](../../../advanced/external-object-storage) if no local endpoint is available.
 
 {{< /alert >}}
 

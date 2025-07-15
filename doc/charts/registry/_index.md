@@ -586,7 +586,7 @@ adds the following network restrictions to the Registry service:
   - To the internet `0.0.0.0/0` to port `443`
 
 _Note that the registry service requires outbound connectivity to the public
-internet for images on [external object storage](../../advanced/external-object-storage) if no endpoint is used_  
+internet for images on [external object storage](../../advanced/external-object-storage) if no endpoint is used_
 
 The example is based on the assumption that `kube-dns` was deployed
 to the namespace `kube-system`, `prometheus` was deployed to the namespace
