@@ -2,6 +2,32 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.2.0 (2025-07-16)
+
+### Added (1 change)
+
+- [Allow to configure the chart for IPv6-only](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/89b3c29ab56bdf76ab87bcd528a4b0bb205e0779) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4072))
+
+### Fixed (1 change)
+
+- [Fix database-upgrade post if multiple deployments](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b80b3c5576ef500f2dfa1c50be0581fab6392a61) by @thomasgl-orange ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4347))
+
+### Changed (13 changes)
+
+- [Update dependency gitlab-exporter to v15.6.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/cd7c988df16fecd9dac311ce0fd02d0cf42ceea8) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4389))
+- [Webservice: Default to IPv4-only binds](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7f2a8261bdf05a7d5a5ab3d73d06aaf7e0ef0663) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4382))
+- [Update dependency container-registry to v4.24.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7f6da8cfb21149ce71068b0929bb2e40c17be285) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4369))
+- [Set GODEBUG defaults and fix env override checks](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/abd4758a7a2f1bdb3fdda8ccffba6d390b75fe0f) by @dustinmm80 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4359))
+- [Update Helm release gitlab-zoekt to v2.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/d2079811a620424db15cba8653ccd4f7c5eaa020) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4380))
+- [Update Helm release gitlab-runner to v0.78.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/16bf336729f1fa7efc5dad3196d23afa5884267e) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4364))
+- [Update bundled NGINX chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/211e06b91e953041a46274754d11e353ddb4f87d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4269))
+- [Update Helm release prometheus to v27.23.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c6a9e0bd8a2cc10009bf613a48966827b4fd541a) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4339))
+- [Update dependency gitlab-exporter to v15.5.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/208c7307e2cdf0fec18ebfff2cb2548ebdb15b49) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4370))
+- [Update default NGINX controller from 1.11.5 to 1.11.7](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/295d8d994b6a207f4314a0e12309e7d903c872f4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4362))
+- [Migrations: add objectstorage bits for migrations that test config](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e17eb09c5ff81cf289900746df3473908769c4e6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4349))
+- [Update recommended Helm version to 3.17.3+](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4e70185ac1f8ee8d755b77b87190d5e30eb91c14) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4336))
+- [Update Helm release gitlab-runner to v0.78.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0509f329431e8eb8a9b9e991eb2608be97617c6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4344))
+
 ## 9.1.2 (2025-07-09)
 
 ### Changed (3 changes)
