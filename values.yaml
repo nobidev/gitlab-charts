@@ -1010,7 +1010,7 @@ nginx-ingress: &nginx-ingress
       upstream-keepalive-time:        30s # 30 second limit for connection reuse
       upstream-keepalive-timeout:       5 # 5 second timeout to hold open idle connections
       upstream-keepalive-requests:   1000 # 1000 requests per connection, before recycling
-
+    electionID: ingress-controller-leader
     service:
       externalTrafficPolicy: "Local"
       # Configure no IP families to delegate assignment to controller based on cluster config.
