@@ -298,39 +298,6 @@ function check_domain_ip() {
   fi
 }
 
-function install_external_dns() {
-  local provider="${1}"
-  local domain_filter="${2}"
-  local helm_args=''
-
-  echo "Checking External DNS..."
-  release_name="gitlab-external-dns"
-  if ! helm status --namespace "${NAMESPACE}"  "${release_name}" > /dev/null 2>&1 ; then
-    case "${provider}" in
-      google)
-        # We need to store the credentials in a secret
-        kubectl create secret generic "${release_name}-secret" --from-literal="credentials.json=${GOOGLE_CLOUD_KEYFILE_JSON}"
-        helm_args=" --set google.project=${GOOGLE_PROJECT_ID} --set google.serviceAccountSecret=${release_name}-secret"
-        ;;
-      aws)
-        echo "Installing external-dns, ensure the NodeGroup has the permissions specified in"
-        echo "https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/aws.md#iam-permissions"
-        ;;
-    esac
-
-    helm repo add bitnami https://charts.bitnami.com/bitnami
-
-    helm install "${release_name}" bitnami/external-dns \
-      --namespace "${NAMESPACE}" \
-      --set provider="${provider}" \
-      --set domainFilters[0]="${domain_filter}" \
-      --set txtOwnerId="${NAMESPACE}" \
-      --set rbac.create="true" \
-      --set policy='sync' \
-      ${helm_args}
-  fi
-}
-
 function create_secret() {
   kubectl create secret -n "$NAMESPACE" \
     docker-registry gitlab-registry-docker \
