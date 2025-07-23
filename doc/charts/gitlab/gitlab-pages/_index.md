@@ -247,7 +247,7 @@ the following network policy:
   - To the `webservice` pod to port `8181`
   - To endpoints like AWS VPC endpoint for S3 `172.16.1.0/24` on port `443`
 
-_Note the example provided is only an example and may not be complete_  
+_Note the example provided is only an example and may not be complete_
 
 The example is based on the assumption that `kube-dns` was deployed
 to the namespace `kube-system`, `prometheus` was deployed to the namespace
