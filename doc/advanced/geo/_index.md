@@ -245,7 +245,7 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
      hosts:
        domain: example.com
        # optionally configure a static IP for the default LoadBalancer
-       # externalIP: 
+       # externalIP:
        # optionally configure a static IP for the Geo LoadBalancer
        # externalGeoIP:
      # configure DB connection

@@ -7,7 +7,7 @@ title: Working with the bundled NGINX
 
 ## NGINX
 
-We provide a fork of NGINX with this chart that we maintain via patch files. 
+We provide a fork of NGINX with this chart that we maintain via patch files.
 This approach was choosen to easier upgrade NGINX chart versions and have
 a better overview of changes that we made.
 

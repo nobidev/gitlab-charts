@@ -437,7 +437,7 @@ This error is caused by OpenSSH `sshd` being unable to handle readiness and live
 
 ```yaml
 gitlab:
-  gitlab-shell: 
+  gitlab-shell:
     sshDaemon: gitlab-sshd
 ```
 
