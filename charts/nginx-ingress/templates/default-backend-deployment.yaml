@@ -37,6 +37,8 @@ spec:
       annotations: {{ toYaml .Values.defaultBackend.podAnnotations | nindent 8 }}
     {{- end }}
       labels:
+        {{- include "gitlab.standardLabels" . | nindent 8 }}
+        {{- include "gitlab.commonLabels" . | nindent 8 }}
         {{- include "ingress-nginx.labels" . | nindent 8 }}
         component: "{{ .Values.defaultBackend.name }}"
         app.kubernetes.io/component: default-backend
