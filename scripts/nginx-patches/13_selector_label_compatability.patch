@@ -442,6 +442,8 @@ index a403b57ca..6114db2d1 100644
 @@ -37,6 +38,7 @@ spec:
      {{- end }}
        labels:
+         {{- include "gitlab.standardLabels" . | nindent 8 }}
+         {{- include "gitlab.commonLabels" . | nindent 8 }}
          {{- include "ingress-nginx.labels" . | nindent 8 }}
 +        component: "{{ .Values.defaultBackend.name }}"
          app.kubernetes.io/component: default-backend

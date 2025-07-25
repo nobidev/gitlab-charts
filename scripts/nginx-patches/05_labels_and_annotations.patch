@@ -1,6 +1,6 @@
 # GitLab NGINX Patch: Use GitLab labels and annotations for consistent Pod metadata.
 diff --git a/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-createSecret.yaml b/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-createSecret.yaml
-index 463ab80d7..d60bd7067 100644
+index af3ea12a3..474e68a62 100644
 --- a/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-createSecret.yaml
 +++ b/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-createSecret.yaml
 @@ -11,6 +11,8 @@ metadata:
@@ -13,7 +13,7 @@ index 463ab80d7..d60bd7067 100644
      app.kubernetes.io/component: admission-webhook
      {{- with .Values.controller.admissionWebhooks.patch.labels }}
 diff --git a/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-patchWebhook.yaml b/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
-index 862c83c1e..ab4ab64a7 100644
+index 87dd2c251..5e3950f68 100644
 --- a/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
 +++ b/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
 @@ -11,6 +11,8 @@ metadata:
@@ -25,6 +25,19 @@ index 862c83c1e..ab4ab64a7 100644
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: admission-webhook
      {{- with .Values.controller.admissionWebhooks.patch.labels }}
+diff --git a/charts/nginx-ingress/templates/clusterrole.yaml b/charts/nginx-ingress/templates/clusterrole.yaml
+index 51bc5002c..235eaf102 100644
+--- a/charts/nginx-ingress/templates/clusterrole.yaml
++++ b/charts/nginx-ingress/templates/clusterrole.yaml
+@@ -9,6 +9,8 @@ apiVersion: rbac.authorization.k8s.io/v1
+ kind: ClusterRole
+ metadata:
+   labels:
++    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.commonLabels" . | nindent 4 }}
+     {{- include "ingress-nginx.labels" . | nindent 4 }}
+     {{- with .Values.controller.labels }}
+     {{- toYaml . | nindent 4 }}
 diff --git a/charts/nginx-ingress/templates/clusterrolebinding.yaml b/charts/nginx-ingress/templates/clusterrolebinding.yaml
 index 8f91aac80..00bc22f09 100644
 --- a/charts/nginx-ingress/templates/clusterrolebinding.yaml
@@ -104,7 +117,7 @@ index b73cdc2d0..c82dc2034 100644
      app.kubernetes.io/component: controller
      {{- with .Values.controller.labels }}
 diff --git a/charts/nginx-ingress/templates/controller-daemonset.yaml b/charts/nginx-ingress/templates/controller-daemonset.yaml
-index 30c742abc..3e77b9068 100644
+index f7bef39e8..63cee2890 100644
 --- a/charts/nginx-ingress/templates/controller-daemonset.yaml
 +++ b/charts/nginx-ingress/templates/controller-daemonset.yaml
 @@ -3,6 +3,8 @@ apiVersion: apps/v1
@@ -117,7 +130,7 @@ index 30c742abc..3e77b9068 100644
      app.kubernetes.io/component: controller
      {{- with .Values.controller.labels }}
 diff --git a/charts/nginx-ingress/templates/controller-deployment.yaml b/charts/nginx-ingress/templates/controller-deployment.yaml
-index deeca7cbd..d56f34904 100644
+index cec18108b..94b30700a 100644
 --- a/charts/nginx-ingress/templates/controller-deployment.yaml
 +++ b/charts/nginx-ingress/templates/controller-deployment.yaml
 @@ -3,6 +3,8 @@ apiVersion: apps/v1
@@ -152,10 +165,10 @@ index deeca7cbd..d56f34904 100644
          {{- toYaml .Values.controller.podLabels | nindent 8 }}
        {{- end }}
 diff --git a/charts/nginx-ingress/templates/controller-hpa.yaml b/charts/nginx-ingress/templates/controller-hpa.yaml
-index b5f81b8e7..f1380f726 100644
+index ec9ad7380..7d435c6b7 100644
 --- a/charts/nginx-ingress/templates/controller-hpa.yaml
 +++ b/charts/nginx-ingress/templates/controller-hpa.yaml
-@@ -7,6 +7,8 @@ metadata:
+@@ -6,6 +6,8 @@ metadata:
    annotations: {{ toYaml . | nindent 4 }}
    {{- end }}
    labels:
@@ -217,10 +230,10 @@ index e68f9916d..1ac8b6e5e 100644
      app.kubernetes.io/component: controller
      {{- with .Values.controller.labels }}
 diff --git a/charts/nginx-ingress/templates/controller-poddisruptionbudget.yaml b/charts/nginx-ingress/templates/controller-poddisruptionbudget.yaml
-index 90508d681..c7d5b2cfb 100644
+index a1f5fbba2..842b74b7e 100644
 --- a/charts/nginx-ingress/templates/controller-poddisruptionbudget.yaml
 +++ b/charts/nginx-ingress/templates/controller-poddisruptionbudget.yaml
-@@ -13,6 +13,8 @@ apiVersion: {{ template "gitlab.pdb.apiVersion" $pdbCfg }}
+@@ -12,6 +12,8 @@ apiVersion: {{ ternary "policy/v1" "policy/v1beta1" (semverCompare ">=1.21.0-0"
  kind: PodDisruptionBudget
  metadata:
    labels:
@@ -282,7 +295,7 @@ index f20f53469..b891f8461 100644
      app.kubernetes.io/component: controller
      {{- with .Values.controller.labels }}
 diff --git a/charts/nginx-ingress/templates/controller-service-internal.yaml b/charts/nginx-ingress/templates/controller-service-internal.yaml
-index 6d0b47caf..e49c2e0db 100644
+index 0f43d9703..c2a631fa3 100644
 --- a/charts/nginx-ingress/templates/controller-service-internal.yaml
 +++ b/charts/nginx-ingress/templates/controller-service-internal.yaml
 @@ -7,6 +7,8 @@ metadata:
@@ -321,7 +334,7 @@ index 67aac0d9a..da1384b20 100644
      app.kubernetes.io/component: controller
      {{- with .Values.controller.labels }}
 diff --git a/charts/nginx-ingress/templates/controller-service.yaml b/charts/nginx-ingress/templates/controller-service.yaml
-index e082c958d..f25955b8c 100644
+index 6ed62d8b7..3c0707733 100644
 --- a/charts/nginx-ingress/templates/controller-service.yaml
 +++ b/charts/nginx-ingress/templates/controller-service.yaml
 @@ -7,6 +7,8 @@ metadata:
@@ -334,7 +347,7 @@ index e082c958d..f25955b8c 100644
      app.kubernetes.io/component: controller
    {{- if .Values.controller.service.labels }}
 diff --git a/charts/nginx-ingress/templates/controller-serviceaccount.yaml b/charts/nginx-ingress/templates/controller-serviceaccount.yaml
-index a1ebd9ea2..ae11a3992 100644
+index df83de3d0..48668374c 100644
 --- a/charts/nginx-ingress/templates/controller-serviceaccount.yaml
 +++ b/charts/nginx-ingress/templates/controller-serviceaccount.yaml
 @@ -3,6 +3,8 @@ apiVersion: v1
@@ -360,7 +373,7 @@ index 93ab4d242..d7f967713 100644
      app.kubernetes.io/component: controller
      {{- if .Values.controller.metrics.serviceMonitor.additionalLabels }}
 diff --git a/charts/nginx-ingress/templates/default-backend-deployment.yaml b/charts/nginx-ingress/templates/default-backend-deployment.yaml
-index e4e322d5f..a403b57ca 100644
+index e035cd599..866cd8a90 100644
 --- a/charts/nginx-ingress/templates/default-backend-deployment.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-deployment.yaml
 @@ -3,6 +3,8 @@ apiVersion: apps/v1
@@ -383,6 +396,21 @@ index e4e322d5f..a403b57ca 100644
  spec:
    selector:
      matchLabels:
+@@ -30,11 +36,14 @@ spec:
+       annotations: {{ toYaml .Values.defaultBackend.podAnnotations | nindent 8 }}
+     {{- end }}
+       labels:
++        {{- include "gitlab.standardLabels" . | nindent 8 }}
++        {{- include "gitlab.commonLabels" . | nindent 8 }}
+         {{- include "ingress-nginx.labels" . | nindent 8 }}
+         app.kubernetes.io/component: default-backend
+         {{- with .Values.defaultBackend.labels }}
+         {{- toYaml . | nindent 8 }}
+         {{- end }}
++      {{- include "gitlab.podLabels" . | nindent 8 }}
+       {{- if .Values.defaultBackend.podLabels }}
+         {{- toYaml .Values.defaultBackend.podLabels | nindent 8 }}
+       {{- end }}
 diff --git a/charts/nginx-ingress/templates/default-backend-extra-configmaps.yaml b/charts/nginx-ingress/templates/default-backend-extra-configmaps.yaml
 index 9af56cf38..5c9c39beb 100644
 --- a/charts/nginx-ingress/templates/default-backend-extra-configmaps.yaml
@@ -397,10 +425,10 @@ index 9af56cf38..5c9c39beb 100644
      app.kubernetes.io/component: default-backend
      {{- with $.Values.defaultBackend.labels }}
 diff --git a/charts/nginx-ingress/templates/default-backend-hpa.yaml b/charts/nginx-ingress/templates/default-backend-hpa.yaml
-index 03e562cb5..48375f08c 100644
+index 49bcdcfdc..b2eff1b31 100644
 --- a/charts/nginx-ingress/templates/default-backend-hpa.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-hpa.yaml
-@@ -7,6 +7,8 @@ metadata:
+@@ -6,6 +6,8 @@ metadata:
    annotations: {{ toYaml . | nindent 4 }}
    {{- end }}
    labels:
@@ -423,10 +451,10 @@ index 90b3c2ba0..bb2e5440e 100644
      app.kubernetes.io/component: default-backend
      {{- with .Values.defaultBackend.labels }}
 diff --git a/charts/nginx-ingress/templates/default-backend-poddisruptionbudget.yaml b/charts/nginx-ingress/templates/default-backend-poddisruptionbudget.yaml
-index 6b876e764..67082d634 100644
+index e399ea8a4..f2dd66906 100644
 --- a/charts/nginx-ingress/templates/default-backend-poddisruptionbudget.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-poddisruptionbudget.yaml
-@@ -9,6 +9,8 @@ apiVersion: {{ template "gitlab.pdb.apiVersion" $pdbCfg }}
+@@ -8,6 +8,8 @@ apiVersion: {{ ternary "policy/v1" "policy/v1beta1" (semverCompare ">=1.21.0-0"
  kind: PodDisruptionBudget
  metadata:
    labels:
@@ -449,7 +477,7 @@ index 65b6b8362..3be36c95a 100644
      app.kubernetes.io/component: default-backend
      {{- with .Values.defaultBackend.labels }}
 diff --git a/charts/nginx-ingress/templates/default-backend-serviceaccount.yaml b/charts/nginx-ingress/templates/default-backend-serviceaccount.yaml
-index 15b1388f0..f023c054e 100644
+index 6fd2d6234..30170aa81 100644
 --- a/charts/nginx-ingress/templates/default-backend-serviceaccount.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-serviceaccount.yaml
 @@ -3,6 +3,8 @@ apiVersion: v1
@@ -461,36 +489,11 @@ index 15b1388f0..f023c054e 100644
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: default-backend
      {{- with .Values.defaultBackend.labels }}
-diff --git a/charts/nginx-ingress/templates/default-backend-deployment.yaml b/charts/nginx-ingress/templates/default-backend-deployment.yaml
-index ea84caec9..8bfc3db50 100644
---- a/charts/nginx-ingress/templates/default-backend-deployment.yaml
-+++ b/charts/nginx-ingress/templates/default-backend-deployment.yaml
-@@ -43,6 +43,7 @@ spec:
-         {{- with .Values.defaultBackend.labels }}
-         {{- toYaml . | nindent 8 }}
-         {{- end }}
-+      {{- include "gitlab.podLabels" . | nindent 8 }}
-       {{- if .Values.defaultBackend.podLabels }}
-         {{- toYaml .Values.defaultBackend.podLabels | nindent 8 }}
-       {{- end }}
-diff --git a/charts/nginx-ingress/templates/clusterrole.yaml b/charts/nginx-ingress/templates/clusterrole.yaml
-index 51bc5002c..235eaf102 100644
---- a/charts/nginx-ingress/templates/clusterrole.yaml
-+++ b/charts/nginx-ingress/templates/clusterrole.yaml
-@@ -9,6 +9,8 @@ apiVersion: rbac.authorization.k8s.io/v1
- kind: ClusterRole
- metadata:
-   labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
-+    {{- include "gitlab.commonLabels" . | nindent 4 }}
-     {{- include "ingress-nginx.labels" . | nindent 4 }}
-     {{- with .Values.controller.labels }}
-     {{- toYaml . | nindent 4 }}
 diff --git a/charts/nginx-ingress/values.yaml b/charts/nginx-ingress/values.yaml
-index 15aaf2ca1..efe20d2ac 100644
+index dd2e41d04..5b56fbd72 100644
 --- a/charts/nginx-ingress/values.yaml
 +++ b/charts/nginx-ingress/values.yaml
-@@ -1210,3 +1210,6 @@ dhParam: ""
+@@ -1209,3 +1209,6 @@ dhParam: ""
  tcpExternalConfig: ""
  
  externalIpTpl: '{{ .Values.global.hosts.externalIP }}'
