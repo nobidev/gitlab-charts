@@ -95,7 +95,8 @@ function bootstrap(){
       --set google.project=$PROJECT \
       --set txtOwnerId=$CLUSTER_NAME \
       --set rbac.create=true \
-      --set policy=sync
+      --set policy=sync \
+      --set image.repository=bitnamilegacy/external-dns
   fi
 }
 
