@@ -15,7 +15,7 @@ describe 'Webservice monitoring/metrics configuration' do
         expect(monitoring).to include(
           'web_exporter' => {
             'enabled' => true,
-            'address' => '0.0.0.0',
+            'address' => '*',
             'port' => 8083
           }
         )
@@ -36,7 +36,7 @@ describe 'Webservice monitoring/metrics configuration' do
         expect(monitoring).to include(
           'web_exporter' => {
             'enabled' => false,
-            'address' => '0.0.0.0',
+            'address' => '*',
             'port' => 8083
           }
         )
