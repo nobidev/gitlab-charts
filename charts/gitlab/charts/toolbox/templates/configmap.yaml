@@ -89,6 +89,7 @@ data:
       {{- include "gitlab.appConfig.oidcProvider.configuration" $ | nindent 6 }}
       {{- include "gitlab.geo.config" $ | nindent 6 }}
       {{- include "gitlab.pages.config" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.ciIdTokens.configuration" $ | nindent 6 }}
       mattermost:
         enabled: false
       ## Registry Integration

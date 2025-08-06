@@ -120,6 +120,7 @@ data:
       {{- include "gitlab.appConfig.sidekiq.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.oidcProvider.configuration" $ | nindent 6 }}
       {{- include "gitlab.pages.config" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.ciIdTokens.configuration" $ | nindent 6 }}
       mattermost:
         enabled: false
       gitlab_ci:
