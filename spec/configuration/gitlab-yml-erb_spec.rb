@@ -576,4 +576,49 @@ describe 'gitlab.yml.erb configuration' do
       end
     end
   end
+
+  context 'CI ID token configuration' do
+    let(:values) { HelmTemplate.defaults }
+    let(:template) { HelmTemplate.new(values) }
+    let(:sidekiq_config) do
+      cicd_token_config(template.dig('ConfigMap/test-sidekiq', 'data', 'gitlab.yml.erb'))
+    end
+
+    let(:webservice_config) do
+      cicd_token_config(template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb'))
+    end
+
+    let(:toolbox_config) do
+      cicd_token_config(template.dig('ConfigMap/test-toolbox', 'data', 'gitlab.yml.erb'))
+    end
+
+    def cicd_token_config(gitlab_yml)
+      YAML.safe_load(gitlab_yml)['production']['ci_id_tokens']
+    end
+
+    context 'disabled (default)' do
+      it 'does not render CI ID token config' do
+        expect(sidekiq_config).to be_nil
+        expect(webservice_config).to be_nil
+        expect(toolbox_config).to be_nil
+      end
+    end
+
+    context 'enabled' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          global:
+            appConfig:
+              ciIdTokens:
+                issuerUrl: issuer.example.com
+          ))
+      end
+
+      it 'does render CI ID token config' do
+        expect(sidekiq_config).to eq({ 'issuer_url' => 'issuer.example.com' })
+        expect(webservice_config).to eq({ 'issuer_url' => 'issuer.example.com' })
+        expect(toolbox_config).to eq({ 'issuer_url' => 'issuer.example.com' })
+      end
+    end
+  end
 end
