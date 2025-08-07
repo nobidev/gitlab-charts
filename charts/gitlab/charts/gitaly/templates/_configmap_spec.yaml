@@ -109,7 +109,6 @@ data:
     token = {% file.Read "/etc/gitlab-secrets/gitaly/gitaly_token" | strings.TrimSpace | data.ToJSON %}
 
     [git]
-    use_bundled_binaries = true
     ignore_gitconfig = true
     {{- if .Values.gpgSigning.enabled }}
     signing_key = '/etc/gitlab-secrets/gitaly/signing_key.gpg'
