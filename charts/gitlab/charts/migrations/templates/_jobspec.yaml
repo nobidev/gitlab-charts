@@ -160,6 +160,9 @@ spec:
           {{- range $.Values.local.psql }}
           {{-   include "gitlab.psql.secret" . | nindent 10 }}
           {{- end }}
+          {{- if $.Values.global.clickhouse.enabled }}
+            {{- include "gitlab.clickhouse.main.secrets" $ | nindent 10 }}
+          {{- end }}
           {{- if include "gitlab.geo.secondary" $ }}
           - secret:
               name: {{ template "gitlab.geo.psql.password.secret" . }}
