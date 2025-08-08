@@ -117,6 +117,3 @@ scriptTpl: |
   {{- else }}
   /scripts/db-migrate;
   {{- end}}
-  {{- if $.Values.global.clickhouse.enabled }}
-  /scripts/clickhouse-migrate
-  {{- end}}
