@@ -77,7 +77,7 @@ global:
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
     apiVersion: ""
-    configureCertmanager: true
+    configureCertmanager: false
     useNewIngressForCerts: false
     provider: nginx
     # class:
@@ -975,7 +975,7 @@ upgradeCheck:
 ## Installation of certmananger.
 ## This value replaces `certmanager.install` to allow certmanager schema validation to pass.
 ## See dependencies in Chart.yaml for current version
-installCertmanager: true
+installCertmanager: false
 
 ## Configuration of jetstack/cert-manager
 certmanager:
