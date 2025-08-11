@@ -83,7 +83,7 @@ redis:
     mainname: {{ .Values.redis.cache.host }}
     {{- if .Values.redis.cache.sentinelpassword }}
     {{-   if .Values.redis.cache.sentinelpassword.enabled }}
-    sentinelpassword: {{ file.Read "/config/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON }}
+    sentinelpassword: {% file.Read "/config/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON %}
     {{-   end }}
     {{- end }}
     {{- else if .Values.redis.cache.cluster }}
@@ -94,7 +94,7 @@ redis:
     addr: {{ include "registry.redis.host.addresses" .redisMergedConfig | quote }}
     mainname: {{ template "gitlab.redis.host" . }}
     {{- if .redisMergedConfig.sentinelAuth.enabled }}
-    sentinelpassword: {{ file.Read "/config/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON }}
+    sentinelpassword: {% file.Read "/config/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON %}
     {{- end }}
     {{- else }}
     addr: {{ printf "%s:%s" ( include "gitlab.redis.host" . ) ( include "gitlab.redis.port" . ) | quote }}
