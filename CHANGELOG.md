@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.0.6 (2025-08-12)
+
+### Changed (1 change)
+
+- [PostgreSQL/Redis: Switch to bitnami legacy repo](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/f71b5d06e12f9a4123a0192db28b2d89ea7a08d2)
+
 ## 9.0.5 (2025-07-22)
 
 No changes.
