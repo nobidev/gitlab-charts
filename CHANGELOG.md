@@ -2,6 +2,16 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.1.4 (2025-08-12)
+
+### Added (1 change)
+
+- [Support configuring CI/CD token issuer](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/5d88f06399d02ef17b6414c42854a6dacac701c7)
+
+### Changed (1 change)
+
+- [PostgreSQL/Redis: Switch to bitnami legacy repo](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/434201a5d8271400b4bf7a1b1c1ce45ff2aaaad7)
+
 ## 9.1.3 (2025-07-22)
 
 No changes.
