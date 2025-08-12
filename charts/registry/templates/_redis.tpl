@@ -19,7 +19,7 @@ Expectation: input contents has .sentinels or .cluster, which is a List of Dict
 {{- end -}}
 
 {{- define "gitlab.registry.redisCacheSecret.mount" -}}
-{{- if .Values.redis.cache.password.enabled }}
+{{- if .Values.registry.redis.cache.password.enabled }}
 - secret:
     name: {{ default (include  "redis.secretName" . ) ( .Values.redis.cache.password.secret | quote) }}
     items:
@@ -86,8 +86,8 @@ redis:
     sentinelpassword: {% file.Read "/config/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON %}
     {{-   end }}
     {{- end }}
-    {{- else if .Values.redis.cache.cluster }}
-    addr: {{ include "registry.redis.host.addresses" .Values.redis.cache | quote }}
+    {{- else if .Values.registry.redis.cache.cluster }}
+    addr: {{ include "registry.redis.host.addresses" .Values.registry.redis.cache | quote }}
     {{- else if .redisMergedConfig.sentinels }}
     addr: {{ include "registry.redis.host.addresses" .redisMergedConfig | quote }}
     mainname: {{ template "gitlab.redis.host" . }}
@@ -102,7 +102,7 @@ redis:
     {{- if .Values.redis.cache.username }}
     username: {{ .Values.redis.cache.username }}
     {{- end }}
-    {{- if .Values.redis.cache.password.enabled }}
+    {{- if .Values.registry.redis.cache.password.enabled }}
     password: "REDIS_CACHE_PASSWORD"
     {{- end }}
     {{- if hasKey .Values.redis.cache "db" }}
