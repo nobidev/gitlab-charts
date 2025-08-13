@@ -2,6 +2,21 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.2.2 (2025-08-12)
+
+### Added (1 change)
+
+- [Support configuring CI/CD token issuer](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/992936c02038ff7e9db94d355dfb739a80603251)
+
+### Fixed (1 change)
+
+- [NGINX Ingress: Set static election ID](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/a78aae6ec8c86ed295d7d0b4e7826522a8af138a)
+
+### Changed (2 changes)
+
+- [Backport Runner 0.79.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/d191a17c25a9353ddc336cfdec742d79fd25c6d1)
+- [PostgreSQL/Redis: Switch to bitnami legacy repo](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/4e39f1a125a9a6916d5a65f1576a9301300d1d6e)
+
 ## 9.2.1 (2025-07-22)
 
 No changes.
