@@ -86,8 +86,8 @@ redis:
     sentinelpassword: {% file.Read "/config/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON %}
     {{-   end }}
     {{- end }}
-    {{- else if .Values.registry.redis.cache.cluster }}
-    addr: {{ include "registry.redis.host.addresses" .Values.registry.redis.cache | quote }}
+    {{- else if .Values.redis.cache.cluster }}
+    addr: {{ include "registry.redis.host.addresses" .Values.redis.cache | quote }}
     {{- else if .redisMergedConfig.sentinels }}
     addr: {{ include "registry.redis.host.addresses" .redisMergedConfig | quote }}
     mainname: {{ template "gitlab.redis.host" . }}
