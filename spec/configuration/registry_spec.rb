@@ -1441,6 +1441,36 @@ describe 'registry configuration' do
         end
       end
 
+      context 'when customer provides a registry redis cache cluster configuration' do
+        let(:values) do
+          YAML.safe_load(%(
+            registry:
+              database:
+                enabled: true
+              redis:
+                cache:
+                  enabled: true
+                  cluster:
+                    - host: redis1.cache-cluster.example.com
+                      port: 16379
+                    - host: redis2.cache-cluster.example.com
+        )).deep_merge(default_values)
+        end
+
+        it 'populates the registry redis cache settings with the list of host:port' do
+          t = HelmTemplate.new(values)
+          expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+          expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
+            <<~CONFIG
+            redis:
+              cache:
+                enabled: true
+                addr: "redis1.cache-cluster.example.com:16379,redis2.cache-cluster.example.com:6379"
+            CONFIG
+          )
+        end
+      end
+
       context 'when customer provides a redis rate-limiting cluster configuration in presense of global sentinels' do
         let(:values) do
           YAML.safe_load(%(
