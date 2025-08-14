@@ -314,6 +314,7 @@ global:
   webservice: {}
     # workerTimeout: 60
   appConfig:
+    relativeRootUrl: ""
     microsoft_graph_mailer:
       enabled: false
     incomingEmail:

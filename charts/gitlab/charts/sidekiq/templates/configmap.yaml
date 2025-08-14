@@ -29,6 +29,9 @@ data:
       gitlab:
         host: {{ template "gitlab.gitlab.hostname" . }}
         https: {{ hasPrefix "https://" (include "gitlab.gitlab.url" .) }}
+        {{- if .Values.global.appConfig.relativeRootUrl }}
+        relative_root_url: {{ .Values.global.appConfig.relativeRootUrl | quote }}
+        {{- end }}
         {{- with .Values.global.hosts.ssh }}
         ssh_host: {{ . | quote }}
         {{- end }}
