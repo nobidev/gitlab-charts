@@ -234,10 +234,6 @@ data:
     {{- include "workhorse.redis.config" $ | nindent 4 }}
     {{- end }}
     {{- include "workhorse.object_storage.config" $ | nindent 4 }}
-    [auth_backend]
-    {{- if $.Values.global.appConfig.relativeUrlRoot }}
-    relative_url_root = {{ $.Values.global.appConfig.relativeUrlRoot | quote }}
-    {{- end }}
     [image_resizer]
     max_scaler_procs = {{ $.Values.workhorse.imageScaler.maxProcs | int }}
     max_filesize = {{ $.Values.workhorse.imageScaler.maxFileSizeBytes | int }}
