@@ -38,8 +38,8 @@ data:
       gitlab:
         host: {{ template "gitlab.gitlab.hostname" . }}
         https: {{ hasPrefix "https://" (include "gitlab.gitlab.url" .) }}
-        {{- if .Values.global.appConfig.relativeRootUrl }}
-        relative_root_url: {{ .Values.global.appConfig.relativeRootUrl | quote }}
+        {{- if .Values.global.appConfig.relativeUrlRoot }}
+        relative_url_root: {{ .Values.global.appConfig.relativeUrlRoot | quote }}
         {{- end }}
         {{- with .Values.global.hosts.ssh }}
         ssh_host: {{ . | quote }}
@@ -234,6 +234,10 @@ data:
     {{- include "workhorse.redis.config" $ | nindent 4 }}
     {{- end }}
     {{- include "workhorse.object_storage.config" $ | nindent 4 }}
+    [auth_backend]
+    {{- if $.Values.global.appConfig.relativeUrlRoot }}
+    relative_url_root = {{ $.Values.global.appConfig.relativeUrlRoot | quote }}
+    {{- end }}
     [image_resizer]
     max_scaler_procs = {{ $.Values.workhorse.imageScaler.maxProcs | int }}
     max_filesize = {{ $.Values.workhorse.imageScaler.maxFileSizeBytes | int }}

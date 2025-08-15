@@ -373,7 +373,7 @@ spec:
             - name: TMPDIR
               value: "/tmp/gitlab"
             - name: GITLAB_WORKHORSE_AUTH_BACKEND
-              value: "http://localhost:{{ $.Values.service.internalPort }}"
+              value: "http://localhost:{{ $.Values.service.internalPort }}{{ if $.Values.global.appConfig.relativeUrlRoot }}{{ $.Values.global.appConfig.relativeUrlRoot }}{{ end }}"
             - name: GITLAB_WORKHORSE_EXTRA_ARGS
               value: {{ .workhorse.extraArgs | quote }}
             - name: GITLAB_WORKHORSE_LISTEN_PORT

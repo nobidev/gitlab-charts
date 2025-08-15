@@ -20,6 +20,11 @@ data:
     # Url to gitlab instance. Used for api calls. Should end with a slash.
     gitlab_url: "{{ template "gitlab.workhorse.url" . }}/"
 
+    # Relative root URL for GitLab instance
+    {{- if .Values.global.appConfig.relativeUrlRoot }}
+    gitlab_relative_url_root: {{ .Values.global.appConfig.relativeUrlRoot | quote }}
+    {{- end }}
+
     secret_file: /etc/gitlab-secrets/shell/.gitlab_shell_secret
 
     # File used as authorized_keys for gitlab user
