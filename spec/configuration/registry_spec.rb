@@ -1519,6 +1519,8 @@ describe 'registry configuration' do
                   - host: global2.example.com
                     port: 26379
             registry:
+              database:
+                enabled: true
               redis:
                 cache:
                   enabled: true
