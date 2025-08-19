@@ -201,6 +201,7 @@ CIYAML
     -f ci.digests.yaml \
     -f ci.prometheus.yaml \
     --set releaseOverride="$RELEASE_NAME" \
+    --set global.appConfig.relativeUrlRoot="/bar" \
     --set global.hosts.hostSuffix="$HOST_SUFFIX" \
     --set global.hosts.domain="$KUBE_INGRESS_BASE_DOMAIN" \
     --set global.ingress.annotations."external-dns\.alpha\.kubernetes\.io/ttl"="10" \

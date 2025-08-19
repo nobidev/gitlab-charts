@@ -20,7 +20,7 @@ wait_for_deploy
 check_domain_ip
 
 # Generate variables file
-echo "export GITLAB_URL=gitlab-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}" >> "${VARIABLES_FILE}"
+echo "export GITLAB_URL=gitlab-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}/bar" >> "${VARIABLES_FILE}"
 echo "export GITLAB_ROOT_DOMAIN=${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}" >> "${VARIABLES_FILE}"
 echo "export REGISTRY_URL=registry-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}" >> "${VARIABLES_FILE}"
 echo "export S3_ENDPOINT=https://minio-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}" >> "${VARIABLES_FILE}"
