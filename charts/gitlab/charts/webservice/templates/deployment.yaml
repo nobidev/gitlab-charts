@@ -255,6 +255,10 @@ spec:
             {{- end }}
             - name: WORKHORSE_ARCHIVE_CACHE_DISABLED
               value: "true"
+            {{- if $.Values.global.appConfig.relativeUrlRoot }}
+            - name: RAILS_RELATIVE_URL_ROOT
+              value: {{ $.Values.global.appConfig.relativeUrlRoot | quote }}
+            {{- end }}
             {{- include "webservice.extraEnv" (dict "global" $.Values.global "local" .) | nindent 12 }}
             {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 12 }}
           volumeMounts:
@@ -387,10 +391,6 @@ spec:
             {{- if .workhorse.sentryDSN }}
             - name: GITLAB_WORKHORSE_SENTRY_DSN
               value: {{ .workhorse.sentryDSN }}
-            {{- end }}
-            {{- if $.Values.global.appConfig.relativeUrlRoot }}
-            - name: RAILS_RELATIVE_URL_ROOT
-              value: {{ $.Values.global.appConfig.relativeUrlRoot | quote }}
             {{- end }}
             - name: SHUTDOWN_BLACKOUT_SECONDS
               value: "{{ .shutdown.blackoutSeconds }}"
