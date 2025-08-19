@@ -325,7 +325,7 @@ spec:
           {{- end }}
           livenessProbe:
             httpGet:
-              path: /-/liveness
+              path: {{ if $.Values.global.appConfig.relativeUrlRoot }}{{ $.Values.global.appConfig.relativeUrlRoot }}{{ end }}/-/liveness
               {{- if and (not $.Values.http.enabled) $.Values.tls.enabled }}
               scheme: HTTPS
               port: {{ $.Values.service.tls.internalPort }}
@@ -339,7 +339,7 @@ spec:
             failureThreshold: {{ .deployment.livenessProbe.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: /-/readiness
+              path: {{ if $.Values.global.appConfig.relativeUrlRoot }}{{ $.Values.global.appConfig.relativeUrlRoot }}{{ end }}/-/readiness
               {{- if and (not $.Values.http.enabled) $.Values.tls.enabled }}
               scheme: HTTPS
               port: {{ $.Values.service.tls.internalPort }}
