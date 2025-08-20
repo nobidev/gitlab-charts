@@ -81,11 +81,11 @@ redis:
     {{- if .Values.redis.cache.sentinels }}
     addr: {{ include "registry.redis.host.addresses" .Values.redis.cache | quote }}
     mainname: {{ .Values.redis.cache.host }}
-    {{- if .Values.redis.cache.sentinelpassword }}
-    {{-   if .Values.redis.cache.sentinelpassword.enabled }}
+    {{-   if .Values.redis.cache.sentinelpassword }}
+    {{-     if .Values.redis.cache.sentinelpassword.enabled }}
     sentinelpassword: {% file.Read "/config/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON %}
+    {{-     end }}
     {{-   end }}
-    {{- end }}
     {{- else if .Values.redis.cache.cluster }}
     addr: {{ include "registry.redis.host.addresses" .Values.redis.cache | quote }}
     {{- else if .redisMergedConfig.sentinels }}
