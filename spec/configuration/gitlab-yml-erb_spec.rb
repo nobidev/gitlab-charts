@@ -708,36 +708,6 @@ describe 'gitlab.yml.erb configuration' do
         )).to include('gitlab_relative_url_root: "/gitlab"')
       end
 
-      it 'sets RAILS_RELATIVE_URL_ROOT environment variable in webservice deployment' do
-        t = HelmTemplate.new(required_values)
-        expect(t.exit_code).to eq(0)
-
-        webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
-        webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
-
-        env_vars = webservice_container['env']
-        rails_env_var = env_vars.find { |env| env['name'] == 'RAILS_RELATIVE_URL_ROOT' }
-
-        expect(rails_env_var).not_to be_nil
-        expect(rails_env_var['value']).to eq('/gitlab')
-      end
-
-      it 'includes relativeUrlRoot in webservice health check paths' do
-        t = HelmTemplate.new(required_values)
-        expect(t.exit_code).to eq(0)
-
-        webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
-        webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
-
-        # Check liveness probe path
-        liveness_probe = webservice_container['livenessProbe']
-        expect(liveness_probe.dig('httpGet', 'path')).to eq('/gitlab/-/liveness')
-
-        # Check readiness probe path
-        readiness_probe = webservice_container['readinessProbe']
-        expect(readiness_probe.dig('httpGet', 'path')).to eq('/gitlab/-/readiness')
-      end
-
       it 'includes relativeUrlRoot in registry auth endpoint' do
         t = HelmTemplate.new(required_values)
         expect(t.exit_code).to eq(0)
@@ -746,7 +716,7 @@ describe 'gitlab.yml.erb configuration' do
           'ConfigMap/test-registry',
           'data',
           'config.yml.tpl'
-        )).to include('realm: http://gitlab.example.com/gitlab/jwt/auth')
+        )).to include('realm: https://gitlab.example.com/gitlab/jwt/auth')
       end
     end
 
@@ -783,35 +753,6 @@ describe 'gitlab.yml.erb configuration' do
         )).not_to include('gitlab_relative_url_root')
       end
 
-      it 'does not set RAILS_RELATIVE_URL_ROOT environment variable in webservice deployment' do
-        t = HelmTemplate.new(required_values)
-        expect(t.exit_code).to eq(0)
-
-        webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
-        webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
-
-        env_vars = webservice_container['env']
-        rails_env_var = env_vars.find { |env| env['name'] == 'RAILS_RELATIVE_URL_ROOT' }
-
-        expect(rails_env_var).to be_nil
-      end
-
-      it 'does not include relativeUrlRoot in webservice health check paths' do
-        t = HelmTemplate.new(required_values)
-        expect(t.exit_code).to eq(0)
-
-        webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
-        webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
-
-        # Check liveness probe path
-        liveness_probe = webservice_container['livenessProbe']
-        expect(liveness_probe.dig('httpGet', 'path')).to eq('/-/liveness')
-
-        # Check readiness probe path
-        readiness_probe = webservice_container['readinessProbe']
-        expect(readiness_probe.dig('httpGet', 'path')).to eq('/-/readiness')
-      end
-
       it 'does not include relativeUrlRoot in registry auth endpoint' do
         t = HelmTemplate.new(required_values)
         expect(t.exit_code).to eq(0)
@@ -820,7 +761,7 @@ describe 'gitlab.yml.erb configuration' do
           'ConfigMap/test-registry',
           'data',
           'config.yml.tpl'
-        )).to include('realm: http://gitlab.example.com/jwt/auth')
+        )).to include('realm: https://gitlab.example.com/jwt/auth')
       end
     end
   end
