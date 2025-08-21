@@ -676,7 +676,7 @@ describe 'gitlab.yml.erb configuration' do
     end
 
     context 'when configured' do
-      let(:value) { '"/gitlab"' }
+      let(:value) { "/gitlab" }
 
       it 'populates relative_url_root in gitlab.yml.erb' do
         t = HelmTemplate.new(required_values)
@@ -714,10 +714,10 @@ describe 'gitlab.yml.erb configuration' do
 
         webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
         webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
-        
+
         env_vars = webservice_container['env']
         rails_env_var = env_vars.find { |env| env['name'] == 'RAILS_RELATIVE_URL_ROOT' }
-        
+
         expect(rails_env_var).not_to be_nil
         expect(rails_env_var['value']).to eq('/gitlab')
       end
@@ -728,11 +728,11 @@ describe 'gitlab.yml.erb configuration' do
 
         webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
         webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
-        
+
         # Check liveness probe path
         liveness_probe = webservice_container['livenessProbe']
         expect(liveness_probe.dig('httpGet', 'path')).to eq('/gitlab/-/liveness')
-        
+
         # Check readiness probe path
         readiness_probe = webservice_container['readinessProbe']
         expect(readiness_probe.dig('httpGet', 'path')).to eq('/gitlab/-/readiness')
@@ -789,10 +789,10 @@ describe 'gitlab.yml.erb configuration' do
 
         webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
         webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
-        
+
         env_vars = webservice_container['env']
         rails_env_var = env_vars.find { |env| env['name'] == 'RAILS_RELATIVE_URL_ROOT' }
-        
+
         expect(rails_env_var).to be_nil
       end
 
@@ -802,11 +802,11 @@ describe 'gitlab.yml.erb configuration' do
 
         webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
         webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
-        
+
         # Check liveness probe path
         liveness_probe = webservice_container['livenessProbe']
         expect(liveness_probe.dig('httpGet', 'path')).to eq('/-/liveness')
-        
+
         # Check readiness probe path
         readiness_probe = webservice_container['readinessProbe']
         expect(readiness_probe.dig('httpGet', 'path')).to eq('/-/readiness')
