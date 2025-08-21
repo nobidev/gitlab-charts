@@ -248,6 +248,7 @@ global:
   appConfig:
     ## https://docs.gitlab.com/charts/charts/globals#general-application-settings
     # cdnHost:
+    relativeUrlRoot: ""
     enableUsagePing: true
     enableSeatLink: true
     enableImpersonation:

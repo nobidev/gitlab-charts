@@ -54,9 +54,9 @@ Calls into the `gitlab.gitlabHost` function for the hostname part of the url.
 */}}
 {{- define "gitlab.gitlab.url" -}}
 {{- if or .Values.global.hosts.https .Values.global.hosts.gitlab.https -}}
-{{-   printf "https://%s" (include "gitlab.gitlab.hostname" .) -}}
+{{-   printf "https://%s" (include "gitlab.gitlab.hostname" .) -}}{{ if .Values.global.appConfig.relativeUrlRoot }}{{ .Values.global.appConfig.relativeUrlRoot }}{{ end }}
 {{- else -}}
-{{-   printf "http://%s" (include "gitlab.gitlab.hostname" .) -}}
+{{-   printf "http://%s" (include "gitlab.gitlab.hostname" .) -}}{{ if .Values.global.appConfig.relativeUrlRoot }}{{ .Values.global.appConfig.relativeUrlRoot }}{{ end }}
 {{- end -}}
 {{- end -}}
 
