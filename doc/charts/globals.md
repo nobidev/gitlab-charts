@@ -976,6 +976,7 @@ with the `global.appConfig` key.
 global:
   appConfig:
     # cdnHost:
+    relativeUrlRoot: ""
     contentSecurityPolicy:
       enabled: false
       report_only: true
@@ -1130,6 +1131,7 @@ application are described below:
 | Name                                |  Type   | Default | Description |
 |:------------------------------------|:-------:|:--------|:------------|
 | `cdnHost`                           | String  | (empty) | Sets a base URL for a CDN to serve static assets (for example, `https://mycdnsubdomain.fictional-cdn.com`). |
+| `relativeUrlRoot`                   | String  | (empty) | Sets a relative URL root for GitLab (for example, `/gitlab`). When configured, GitLab will be accessible at the specified path instead of the root path. |
 | `contentSecurityPolicy`             | Struct  |         | [See below](#content-security-policy). |
 | `enableUsagePing`                   | Boolean | `true`  | A flag to disable the [usage ping support](https://docs.gitlab.com/administration/settings/usage_statistics/). |
 | `enableSeatLink`                    | Boolean | `true`  | A flag to disable the [seat link support](https://docs.gitlab.com/subscriptions/#seat-link). |

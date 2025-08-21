@@ -665,4 +665,163 @@ describe 'gitlab.yml.erb configuration' do
       end
     end
   end
+
+  context 'relativeUrlRoot configuration' do
+    let(:required_values) do
+      YAML.safe_load(%(
+        global:
+          appConfig:
+            relativeUrlRoot: #{value}
+      )).deep_merge!(default_values)
+    end
+
+    context 'when configured' do
+      let(:value) { '"/gitlab"' }
+
+      it 'populates relative_url_root in gitlab.yml.erb' do
+        t = HelmTemplate.new(required_values)
+        expect(t.exit_code).to eq(0)
+
+        # Check webservice config
+        expect(t.dig(
+          'ConfigMap/test-webservice',
+          'data',
+          'gitlab.yml.erb'
+        )).to include('relative_url_root: "/gitlab"')
+
+        # Check sidekiq config
+        expect(t.dig(
+          'ConfigMap/test-sidekiq',
+          'data',
+          'gitlab.yml.erb'
+        )).to include('relative_url_root: "/gitlab"')
+      end
+
+      it 'populates gitlab_relative_url_root in gitlab-shell config' do
+        t = HelmTemplate.new(required_values)
+        expect(t.exit_code).to eq(0)
+
+        expect(t.dig(
+          'ConfigMap/test-gitlab-shell',
+          'data',
+          'config.yml.tpl'
+        )).to include('gitlab_relative_url_root: "/gitlab"')
+      end
+
+      it 'sets RAILS_RELATIVE_URL_ROOT environment variable in webservice deployment' do
+        t = HelmTemplate.new(required_values)
+        expect(t.exit_code).to eq(0)
+
+        webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
+        webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
+        
+        env_vars = webservice_container['env']
+        rails_env_var = env_vars.find { |env| env['name'] == 'RAILS_RELATIVE_URL_ROOT' }
+        
+        expect(rails_env_var).not_to be_nil
+        expect(rails_env_var['value']).to eq('/gitlab')
+      end
+
+      it 'includes relativeUrlRoot in webservice health check paths' do
+        t = HelmTemplate.new(required_values)
+        expect(t.exit_code).to eq(0)
+
+        webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
+        webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
+        
+        # Check liveness probe path
+        liveness_probe = webservice_container['livenessProbe']
+        expect(liveness_probe.dig('httpGet', 'path')).to eq('/gitlab/-/liveness')
+        
+        # Check readiness probe path
+        readiness_probe = webservice_container['readinessProbe']
+        expect(readiness_probe.dig('httpGet', 'path')).to eq('/gitlab/-/readiness')
+      end
+
+      it 'includes relativeUrlRoot in registry auth endpoint' do
+        t = HelmTemplate.new(required_values)
+        expect(t.exit_code).to eq(0)
+
+        expect(t.dig(
+          'ConfigMap/test-registry',
+          'data',
+          'config.yml.tpl'
+        )).to include('realm: http://gitlab.example.com/gitlab/jwt/auth')
+      end
+    end
+
+    context 'when not configured' do
+      let(:value) { nil }
+
+      it 'does not populate relative_url_root in gitlab.yml.erb' do
+        t = HelmTemplate.new(required_values)
+        expect(t.exit_code).to eq(0)
+
+        # Check webservice config
+        expect(t.dig(
+          'ConfigMap/test-webservice',
+          'data',
+          'gitlab.yml.erb'
+        )).not_to include('relative_url_root')
+
+        # Check sidekiq config
+        expect(t.dig(
+          'ConfigMap/test-sidekiq',
+          'data',
+          'gitlab.yml.erb'
+        )).not_to include('relative_url_root')
+      end
+
+      it 'does not populate gitlab_relative_url_root in gitlab-shell config' do
+        t = HelmTemplate.new(required_values)
+        expect(t.exit_code).to eq(0)
+
+        expect(t.dig(
+          'ConfigMap/test-gitlab-shell',
+          'data',
+          'config.yml.tpl'
+        )).not_to include('gitlab_relative_url_root')
+      end
+
+      it 'does not set RAILS_RELATIVE_URL_ROOT environment variable in webservice deployment' do
+        t = HelmTemplate.new(required_values)
+        expect(t.exit_code).to eq(0)
+
+        webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
+        webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
+        
+        env_vars = webservice_container['env']
+        rails_env_var = env_vars.find { |env| env['name'] == 'RAILS_RELATIVE_URL_ROOT' }
+        
+        expect(rails_env_var).to be_nil
+      end
+
+      it 'does not include relativeUrlRoot in webservice health check paths' do
+        t = HelmTemplate.new(required_values)
+        expect(t.exit_code).to eq(0)
+
+        webservice_deployment = t.dig('Deployment/test-webservice', 'spec', 'template', 'spec', 'containers')
+        webservice_container = webservice_deployment.find { |c| c['name'] == 'webservice' }
+        
+        # Check liveness probe path
+        liveness_probe = webservice_container['livenessProbe']
+        expect(liveness_probe.dig('httpGet', 'path')).to eq('/-/liveness')
+        
+        # Check readiness probe path
+        readiness_probe = webservice_container['readinessProbe']
+        expect(readiness_probe.dig('httpGet', 'path')).to eq('/-/readiness')
+      end
+
+      it 'does not include relativeUrlRoot in registry auth endpoint' do
+        t = HelmTemplate.new(required_values)
+        expect(t.exit_code).to eq(0)
+
+        expect(t.dig(
+          'ConfigMap/test-registry',
+          'data',
+          'config.yml.tpl'
+        )).to include('realm: http://gitlab.example.com/jwt/auth')
+      end
+    end
+  end
 end
