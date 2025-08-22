@@ -325,7 +325,7 @@ spec:
           {{- end }}
           livenessProbe:
             httpGet:
-              path: {{ if $.Values.global.appConfig.relativeUrlRoot }}{{ $.Values.global.appConfig.relativeUrlRoot }}{{ end }}/-/liveness
+              path: {{ $.Values.global.appConfig.relativeUrlRoot }}/-/liveness
               {{- if and (not $.Values.http.enabled) $.Values.tls.enabled }}
               scheme: HTTPS
               port: {{ $.Values.service.tls.internalPort }}
@@ -339,7 +339,7 @@ spec:
             failureThreshold: {{ .deployment.livenessProbe.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: {{ if $.Values.global.appConfig.relativeUrlRoot }}{{ $.Values.global.appConfig.relativeUrlRoot }}{{ end }}/-/readiness
+              path: {{ $.Values.global.appConfig.relativeUrlRoot }}/-/readiness
               {{- if and (not $.Values.http.enabled) $.Values.tls.enabled }}
               scheme: HTTPS
               port: {{ $.Values.service.tls.internalPort }}
@@ -377,7 +377,7 @@ spec:
             - name: TMPDIR
               value: "/tmp/gitlab"
             - name: GITLAB_WORKHORSE_AUTH_BACKEND
-              value: "http://localhost:{{ $.Values.service.internalPort }}{{ if $.Values.global.appConfig.relativeUrlRoot }}{{ $.Values.global.appConfig.relativeUrlRoot }}{{ end }}"
+              value: "http://localhost:{{ $.Values.service.internalPort }}{{ $.Values.global.appConfig.relativeUrlRoot }}"
             - name: GITLAB_WORKHORSE_EXTRA_ARGS
               value: {{ .workhorse.extraArgs | quote }}
             - name: GITLAB_WORKHORSE_LISTEN_PORT
