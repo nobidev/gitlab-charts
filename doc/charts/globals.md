@@ -92,8 +92,6 @@ global:
     hostSuffix: staging
 ```
 
-
-
 ## Configure Horizontal Pod Autoscaler settings
 
 The GitLab global host settings for HPA are located under the `global.hpa` key:
