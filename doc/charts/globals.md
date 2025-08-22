@@ -1192,6 +1192,10 @@ For example, instead of using subdomains like `https://gitlab.your-domain.com`, 
 global:
   appConfig:
     relativeUrlRoot: "/gitlab"
+  hosts:
+    domain: example.com
+    gitlab:
+      name: example.com
 ```
 
 #### `defaultProjectsFeatures`
