@@ -48,3 +48,16 @@ webservice:
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.webservice.loadBalancer */}}
+
+{{/*
+Ensure relativeUrlRoot is either empty or starts with a leading slash
+*/}}
+{{- define "gitlab.checkConfig.appConfig.relativeUrlRoot" -}}
+{{- $relativeUrlRoot := $.Values.global.appConfig.relativeUrlRoot }}
+{{- if and $relativeUrlRoot (not (hasPrefix "/" $relativeUrlRoot)) }}
+gitlab: relativeUrlRoot must start with a leading slash
+        The current value of global.appConfig.relativeUrlRoot ({{ $relativeUrlRoot }}) does not start with a leading slash.
+        Please set it to either an empty string or a value that starts with "/" (e.g., "/gitlab").
+{{- end }}
+{{- end }}
+{{/* END gitlab.checkConfig.appConfig.relativeUrlRoot */}}
