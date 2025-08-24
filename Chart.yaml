@@ -1,7 +1,7 @@
 ---
 apiVersion: v2
 name: gitlab
-version: 9.2.2
+version: 9.3.0
 appVersion: master
 description: GitLab is the most comprehensive AI-powered DevSecOps Platform.
 keywords:
@@ -36,7 +36,7 @@ dependencies:
   repository: https://charts.bitnami.com/bitnami
   condition: postgresql.install
 - name: gitlab-runner
-  version: 0.79.1
+  version: 0.80.0
   repository: https://charts.gitlab.io/
   condition: gitlab-runner.install
 - name: redis
@@ -64,6 +64,6 @@ dependencies:
   version: 10.19.4
 - name: kubernetes-ingress
   alias: haproxy
-  version: 1.32.0
+  version: 1.39.4
   condition: haproxy.install
   repository: https://haproxytech.github.io/helm-charts

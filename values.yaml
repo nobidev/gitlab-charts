@@ -1101,6 +1101,9 @@ haproxy:
         - name: ssh
           port: 22
           targetPort: 22
+      enablePorts:
+        # Disable QUIC (UDP based) because LoadBalancer Services do not support UDP/TCP at the same time.
+        quic: false
     extraArgs:
       - --configmap-tcp-services=$(POD_NAMESPACE)/$(POD_NAMESPACE)-haproxy-tcp
 

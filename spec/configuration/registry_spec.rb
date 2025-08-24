@@ -1570,6 +1570,174 @@ describe 'registry configuration' do
           expect(cache_secret).not_to be_empty
         end
       end
+
+      context 'when customer provides a custom redis rate limiting configuration with a registry Sentinel password' do
+        let(:values) do
+          YAML.safe_load(%(
+            global:
+              redis:
+                host: redis.example.com
+                sentinels:
+                  - host: sentinel1.example.com
+                    port: 26379
+                  - host: sentinel2.example.com
+                    port: 26379
+                sentinelAuth:
+                  enabled: true
+                  secret: global-redis-sentinel-secret
+                  key: password
+            registry:
+              database:
+                enabled: true
+              redis:
+                rateLimiting:
+                  enabled: true
+                  sentinelpassword:
+                    enabled: true
+                    secret: local-redis-sentinel-secret
+                    key: password
+        )).deep_merge(default_values)
+        end
+
+        it 'populates the redis rate limiting settings in the expected manner' do
+          t = HelmTemplate.new(values)
+          expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+          registry_yml = render_yaml(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl'))
+          redis = registry_yml.dig('redis', 'ratelimiter')
+          expect(redis['enabled']).to eq(true)
+          expect(redis['addr']).to eq("sentinel1.example.com:26379,sentinel2.example.com:26379")
+          expect(redis['mainname']).to eq('redis.example.com')
+          expect(redis['sentinelpassword']).to eq(sentinel_password)
+
+          projected_secret = t.get_projected_secret('Deployment/test-registry', 'registry-secrets', 'local-redis-sentinel-secret')
+          expect(projected_secret).to eql(
+            "name" => "local-redis-sentinel-secret",
+            "items" => [
+              {
+                "key" => "password",
+                "path" => "redis-sentinel/redis-sentinel-password"
+              }
+            ]
+          )
+        end
+      end
+
+      context 'when customer provides a custom redis cache rate limiting configuration with a registry Sentinel password' do
+        let(:values) do
+          YAML.safe_load(%(
+            global:
+              redis:
+                host: redis.example.com
+                sentinels:
+                  - host: sentinel1.example.com
+                    port: 26379
+                  - host: sentinel2.example.com
+                    port: 26379
+                sentinelAuth:
+                  enabled: true
+                  secret: global-redis-sentinel-secret
+                  key: password
+            registry:
+              database:
+                enabled: true
+              redis:
+                cache:
+                  enabled: true
+                  sentinelpassword:
+                    enabled: true
+                    secret: local-redis-cache-sentinel-secret
+                    key: password
+                rateLimiting:
+                  enabled: true
+                  sentinelpassword:
+                    enabled: true
+                    secret: local-redis-ratelimiting-sentinel-secret
+                    key: password
+        )).deep_merge(default_values)
+        end
+
+        it 'populates the redis cache and rate limiting settings in the expected manner' do
+          t = HelmTemplate.new(values)
+          expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+          registry_yml = render_yaml(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl'))
+          redis = registry_yml.dig('redis', 'ratelimiter')
+          expect(redis['enabled']).to eq(true)
+          expect(redis['addr']).to eq("sentinel1.example.com:26379,sentinel2.example.com:26379")
+          expect(redis['mainname']).to eq('redis.example.com')
+          expect(redis['sentinelpassword']).to eq(sentinel_password)
+
+          projected_cache_secret = t.get_projected_secret('Deployment/test-registry', 'registry-secrets', 'local-redis-cache-sentinel-secret')
+          expect(projected_cache_secret).to eql(
+            "name" => "local-redis-cache-sentinel-secret",
+            "items" => [
+              {
+                "key" => "password",
+                "path" => "redis-sentinel/redis-sentinel-password"
+              }
+            ]
+          )
+          projected_ratelimiting_secret = t.get_projected_secret('Deployment/test-registry', 'registry-secrets', 'local-redis-ratelimiting-sentinel-secret')
+          expect(projected_ratelimiting_secret).to eql(
+            "name" => "local-redis-ratelimiting-sentinel-secret",
+            "items" => [
+              {
+                "key" => "password",
+                "path" => "redis-sentinel/redis-sentinel-password"
+              }
+            ]
+          )
+        end
+      end
+
+      context 'when customer provides a custom redis rate limiting configuration with global Sentinel password' do
+        let(:values) do
+          YAML.safe_load(%(
+            global:
+              redis:
+                host: redis.example.com
+                sentinels:
+                  - host: sentinel1.example.com
+                    port: 26379
+                  - host: sentinel2.example.com
+                    port: 26379
+                sentinelAuth:
+                  enabled: true
+                  secret: global-redis-sentinel-secret
+                  key: password
+            registry:
+              database:
+                enabled: true
+              redis:
+                rateLimiting:
+                  enabled: true
+        )).deep_merge(default_values)
+        end
+
+        it 'populates the redis cache settings in the expected manner' do
+          t = HelmTemplate.new(values)
+          expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+          registry_yml = render_yaml(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl'))
+          redis = registry_yml.dig('redis', 'ratelimiter')
+          expect(redis['enabled']).to eq(true)
+          expect(redis['addr']).to eq("sentinel1.example.com:26379,sentinel2.example.com:26379")
+          expect(redis['mainname']).to eq('redis.example.com')
+          expect(redis['sentinelpassword']).to eq(sentinel_password)
+
+          projected_secret = t.get_projected_secret('Deployment/test-registry', 'registry-secrets', 'global-redis-sentinel-secret')
+          expect(projected_secret).to eql(
+            "name" => "global-redis-sentinel-secret",
+            "items" => [
+              {
+                "key" => "password",
+                "path" => "redis-sentinel/redis-sentinel-password"
+              }
+            ]
+          )
+        end
+      end
     end
 
     describe 'redis load balancing config' do

@@ -40,7 +40,7 @@ variables:
   HELM_MAX_HISTORY: 20
   NAMESPACE: $KUBE_NAMESPACE
   REVIEW_REF_PREFIX: ""
-  ISSUE_BOT_LABELS_EXTRA: "group::Self Managed,type::maintenance,maintenance::pipelines"
+  ISSUE_BOT_LABELS_EXTRA: "group::operate,type::maintenance,maintenance::pipelines"
   SAST_EXCLUDED_PATHS: "/doc,/examples,/spec"
   CANONICAL_PROJECT_PATH: 'gitlab-org/charts/gitlab'
   SECURITY_PROJECT_PATH: 'gitlab-org/security/charts/gitlab'

@@ -1,6 +1,6 @@
 ---
 stage: GitLab Delivery
-group: Self Managed
+group: Operate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 title: Configure secrets for the GitLab chart
 ---
@@ -132,7 +132,6 @@ Generate the OpenSSH certificate-key pairs:
 ```shell
 mkdir -p hostKeys
 ssh-keygen -t rsa  -f hostKeys/ssh_host_rsa_key -N ""
-ssh-keygen -t dsa  -f hostKeys/ssh_host_dsa_key -N ""
 ssh-keygen -t ecdsa  -f hostKeys/ssh_host_ecdsa_key -N ""
 ssh-keygen -t ed25519  -f hostKeys/ssh_host_ed25519_key -N ""
 ```

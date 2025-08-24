@@ -1,6 +1,6 @@
 ---
 stage: GitLab Delivery
-group: Self Managed
+group: Operate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 title: Using the Container Registry
 ---
@@ -316,6 +316,9 @@ If you chose to deploy this chart as a standalone, remove the `registry` at the 
 | `redis.rateLimiting.password.enabled`                    | `false`                                                              | Indicates whether the Redis instance is password protected. |
 | `redis.rateLimiting.password.secret`                     | `gitlab-redis-secret`                                                | Name of the secret containing the Redis password. This will be automatically created if not provided, when the `shared-secrets` feature is enabled. |
 | `redis.rateLimiting.password.key`                        | `redis-password`                                                     | Secret key in which the Redis password is stored. |
+| `redis.rateLimiting.sentinelpassword.enabled`                   | `false`                                                              | Indicates whether Redis Sentinels are password protected. If `redis.rateLimiting.sentinelpassword` is empty, the values from `global.redis.sentinelAuth` are used. Only used when `redis.rateLimiting.sentinels` is defined. |
+| `redis.rateLimiting.sentinelpassword.secret`                    | `gitlab-redis-secret`                                                | Name of the secret containing the Redis Sentinel password. |
+| `redis.rateLimiting.sentinelpassword.key`                       | `redis-sentinel-password`                                            | Secret key in which the Redis Sentinel password is stored. |
 | `redis.rateLimiting.db`                                  | `0`                                                                  | The name of the database to use for each connection. |
 | `redis.rateLimiting.dialtimeout`                         | `0s`                                                                 | The timeout for connecting to the Redis instance. Defaults to no timeout. |
 | `redis.rateLimiting.readtimeout`                         | `0s`                                                                 | The timeout for reading from the Redis instance. Defaults to no timeout. |

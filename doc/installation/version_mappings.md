@@ -1,6 +1,6 @@
 ---
 stage: GitLab Delivery
-group: Self Managed
+group: Operate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 title: GitLab Helm chart versions
 ---
@@ -40,6 +40,9 @@ The table below maps some of the key previous supported chart versions and suppo
 
 | Chart version | GitLab version |
 |---------------|----------------|
+| 9.3.0 | 18.3.0 |
+| 9.2.4 | 18.2.4 |
+| 9.2.3 | 18.2.3 |
 | 9.2.2 | 18.2.2 |
 | 9.2.1 | 18.2.1 |
 | 9.2.0 | 18.2.0 |
@@ -55,6 +58,7 @@ The table below maps some of the key previous supported chart versions and suppo
 | 9.0.2 | 18.0.2 |
 | 9.0.1 | 18.0.1 |
 | 9.0.0 | 18.0.0 |
+| 8.11.8 | 17.11.7 |
 | 8.11.7 | 17.11.6 |
 | 8.11.6 | 17.11.5 |
 | 8.11.5 | 17.11.5 |
