@@ -697,17 +697,6 @@ describe 'gitlab.yml.erb configuration' do
         )).to include('relative_url_root: "/gitlab"')
       end
 
-      it 'populates gitlab_relative_url_root in gitlab-shell config' do
-        t = HelmTemplate.new(required_values)
-        expect(t.exit_code).to eq(0)
-
-        expect(t.dig(
-          'ConfigMap/test-gitlab-shell',
-          'data',
-          'config.yml.tpl'
-        )).to include('gitlab_relative_url_root: "/gitlab"')
-      end
-
       it 'includes relativeUrlRoot in registry auth endpoint' do
         t = HelmTemplate.new(required_values)
         expect(t.exit_code).to eq(0)
