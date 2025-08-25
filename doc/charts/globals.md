@@ -1125,13 +1125,19 @@ global:
 
 ### General application settings
 
+{{< history >}}
+
+- `relativeUrlRoot` setting [introduced](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6121) in GitLab 18.4.
+
+{{< /history >}}
+
 The `appConfig` settings that can be used to tweak the general properties of the Rails
 application are described below:
 
 | Name                                |  Type   | Default | Description |
 |:------------------------------------|:-------:|:--------|:------------|
 | `cdnHost`                           | String  | (empty) | Sets a base URL for a CDN to serve static assets (for example, `https://mycdnsubdomain.fictional-cdn.com`). |
-| `relativeUrlRoot`                   | String  | (empty) | Sets a relative URL root for GitLab (for example, `/gitlab`). When configured, GitLab will be accessible at the specified path instead of the root path. [See below](#relative-url-root). |
+| `relativeUrlRoot`                   | String  | (empty) | Sets a [relative URL root](#relative-url-root) for GitLab (for example, `/gitlab`). When configured, GitLab will be accessible at the specified path instead of the root path. |
 | `contentSecurityPolicy`             | Struct  |         | [See below](#content-security-policy). |
 | `enableUsagePing`                   | Boolean | `true`  | A flag to disable the [usage ping support](https://docs.gitlab.com/administration/settings/usage_statistics/). |
 | `enableSeatLink`                    | Boolean | `true`  | A flag to disable the [seat link support](https://docs.gitlab.com/subscriptions/#seat-link). |
@@ -1184,7 +1190,8 @@ test the configuration.
 
 #### Relative URL Root
 
-The `relativeUrlRoot` setting allows you to configure GitLab to be accessible at a subpath instead of the root path. This is useful when you want to host GitLab behind a reverse proxy or load balancer that serves multiple applications.
+You can configure GitLab to be accessible at a subpath instead of the root path by using the `relativeUrlRoot` setting. Use this setting when you want to host GitLab behind a
+reverse proxy or load balancer that serves multiple applications.
 
 For example, instead of using subdomains like `https://gitlab.your-domain.com`, you can host GitLab at `https://your-domain.com/gitlab`.
 
