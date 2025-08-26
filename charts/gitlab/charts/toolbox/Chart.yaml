@@ -1,8 +1,8 @@
 ---
 apiVersion: v2
 name: toolbox
-version: 9.2.4
-appVersion: v18.2.4
+version: 9.2.5
+appVersion: v18.2.5
 description: For manually running rake tasks through kubectl
 keywords:
 - gitlab
