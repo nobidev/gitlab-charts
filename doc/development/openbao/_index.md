@@ -29,17 +29,29 @@ with GitLab.
      install: true
    ```
 
-1. Initialise OpenBao
+1. Initialise OpenBao. Make sure to pass the correct namespace, release and external GitLab and OpenBao URLs.
 
    ```script
    export NAMESPACE=gitlab
    export RELEASE=gitlab
-   curl -s "https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/scripts/dev/init-bao.sh" | bash
+   curl -s "https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/scripts/dev/init-bao.sh" \
+     | bash -s -- https://gitlab.example.com https://openbao.example.com
    ```
 
-   The script will initialise OpenBao and stores the unseal keys as a Kubernetes secret.
+   First, the script initialises OpenBao and stores the unseal and root keys as Kubernetes secrets.
+   Then, it sets up the authentication policies and revokes the original root token.
 
-1. Enable OpenBao auth and the GitLab feature flags by following [the development documentation](https://gitlab.com/gitlab-org/gitlab-development-kit/-/blob/main/doc/howto/openbao.md?ref_type=heads#configure-openbao-for-gdk).
+1. Enable the necessary feature flags in a rails console:
+
+   ```script
+   Feature.enable(:secrets_manager)
+   Feature.enable(:ci_tanukey_ui)   
+   ```
+
+1. In GitLab, on the left sidebar, select **Search or go to** and find your project.
+1. Select **Settings > General**.
+1. Expand **Visibility, project features, permissions**.
+1. Turn on the **Secrets Manager** toggle, and wait for the Secrets Manager to be provisioned.
 
 ## Configuration
 

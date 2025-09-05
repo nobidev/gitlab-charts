@@ -289,8 +289,10 @@ If you chose to deploy this chart as a standalone, remove the `registry` at the 
 | `redis.cache.enabled`                                    | `false`                                                              | When set to `true`, the Redis cache is enabled. This feature is dependent on the [metadata database](#database) being enabled. Repository metadata will be cached on the configured Redis instance. |
 | `redis.cache.host`                                       | `<Redis URL>`                                                        | The hostname of the Redis instance. If empty, the value will be filled as `global.redis.host:global.redis.port`. |
 | `redis.cache.port`                                       | `6379`                                                               | The port of the Redis instance. |
+| `redis.cache.cluster`                                    | `[]`                                                                 | List of addresses with host and port. |
 | `redis.cache.sentinels`                                  | `[]`                                                                 | List sentinels with host and port. |
 | `redis.cache.mainname`                                   |                                                                      | The main server name. Only applicable for Sentinel. |
+| `redis.cache.username`                                   |                                                                      | The username used to connect to the Redis instance. |
 | `redis.cache.password.enabled`                           | `false`                                                              | Indicates whether the Redis cache used by the Registry is password protected. |
 | `redis.cache.password.secret`                            | `gitlab-redis-secret`                                                | Name of the secret containing the Redis password. This will be automatically created if not provided, when the `shared-secrets` feature is enabled. |
 | `redis.cache.password.key`                               | `redis-password`                                                     | Secret key in which the Redis password is stored. |
@@ -1220,7 +1222,7 @@ redis:
 
 #### Cluster
 
-The `redis.rateLimiting.cluster` property is a list of hosts and ports
+The `redis.cache.cluster` property is a list of hosts and ports
 to connect to a Redis cluster. For example:
 
 ```yaml

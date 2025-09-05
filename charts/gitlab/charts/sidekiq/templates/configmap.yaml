@@ -164,5 +164,6 @@ data:
     {{- end }}
     {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
     {{- include "gitlab.geo.psql.ssl.initScript" . | nindent 4 }}
+    {{- include "gitlab.topologyService.configureScript" $ | nindent 4 }}
 # Leave this here - This line denotes end of block to the parser.
 {{- end }}

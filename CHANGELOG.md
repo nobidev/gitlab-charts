@@ -2,6 +2,10 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.3.1 (2025-08-26)
+
+No changes.
+
 ## 9.3.0 (2025-08-20)
 
 ### Added (3 changes)
@@ -30,6 +34,10 @@ entry.
 - [Update Helm release gitlab-zoekt to v2.8.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c7c56b976e1374bf84db3e6d00a23a5e00708b70) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4422))
 - [Update certmanager from v1.12 to v1.17](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c990cd36ed7d6910be91a7bd01e65ad98fed8148) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4234))
 - [Update dependency container-registry to v4.25.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ca12af55763a3a4ae2fe8352b35f9a7aef91d6aa) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4412))
+
+## 9.2.5 (2025-08-26)
+
+No changes.
 
 ## 9.2.4 (2025-08-18)
 
@@ -83,6 +91,10 @@ No changes.
 - [Migrations: add objectstorage bits for migrations that test config](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e17eb09c5ff81cf289900746df3473908769c4e6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4349))
 - [Update recommended Helm version to 3.17.3+](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4e70185ac1f8ee8d755b77b87190d5e30eb91c14) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4336))
 - [Update Helm release gitlab-runner to v0.78.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0509f329431e8eb8a9b9e991eb2608be97617c6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4344))
+
+## 9.1.5 (2025-08-26)
+
+No changes.
 
 ## 9.1.4 (2025-08-12)
 

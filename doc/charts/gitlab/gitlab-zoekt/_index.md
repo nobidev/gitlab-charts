@@ -63,7 +63,7 @@ To configure Zoekt for a top-level group in GitLab:
    kubectl exec <toolbox pod name> -it -c toolbox -- gitlab-rails console -e production
    ```
 
-1. [Enable exact code search](https://docs.gitlab.com/integration/exact_code_search/zoekt/#enable-exact-code-search).
+1. [Enable exact code search](https://docs.gitlab.com/integration/zoekt/#enable-exact-code-search).
 1. Set up indexing:
 
    {{< tabs >}}

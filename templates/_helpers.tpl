@@ -700,3 +700,51 @@ Return the Topology Service TLS Secret name
 {{- define "topology-service.tls.secret" -}}
 {{- default (printf "%s-topology-service-tls" .Release.Name) $.Values.global.appConfig.cell.topologyServiceClient.tls.secret | quote -}}
 {{- end -}}
+
+{{/*
+Mount topology service TLS secrets in projected volume sources
+Usage: {{ include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
+*/}}
+{{- define "gitlab.topologyService.mountSecrets" -}}
+{{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+- secret:
+    name: {{ template "topology-service.tls.secret" $ }}
+    items:
+      - key: "tls.crt"
+        path: "topology-service/tls.crt"
+      - key: "tls.key"
+        path: "topology-service/tls.key"
+{{- end }}
+{{- end -}}
+
+{{/*
+Volume mounts for topology service TLS files
+Usage: {{ include "gitlab.topologyService.volumeMounts" (dict "context" $ "secretsVolumeName" "webservice-secrets") | nindent 12 }}
+*/}}
+{{- define "gitlab.topologyService.volumeMounts" -}}
+{{- $context := .context -}}
+{{- if and $context.Values.global.appConfig.cell.enabled $context.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+- name: {{ .secretsVolumeName }}
+  mountPath: /srv/gitlab/config/topology-service/tls.crt
+  subPath: topology-service/tls.crt
+  readOnly: true
+- name: {{ .secretsVolumeName }}
+  mountPath: /srv/gitlab/config/topology-service/tls.key
+  subPath: topology-service/tls.key
+  readOnly: true
+{{- end }}
+{{- end -}}
+
+{{/*
+Configure script for topology service TLS secrets
+Usage: {{ include "gitlab.topologyService.configureScript" $ | nindent 4 }}
+*/}}
+{{- define "gitlab.topologyService.configureScript" -}}
+{{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+  if [ -d /init-config/topology-service ]; then
+    mkdir -p /init-secrets/topology-service
+    cp -v -L /init-config/topology-service/tls.key /init-secrets/topology-service/tls.key
+    cp -v -L /init-config/topology-service/tls.crt /init-secrets/topology-service/tls.crt
+  fi
+{{- end }}
+{{- end -}}

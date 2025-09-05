@@ -286,16 +286,7 @@ spec:
               mountPath: /srv/gitlab/config/puma.key
               subPath: puma/puma.key
            {{- end }}
-           {{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
-            - name: webservice-secrets
-              mountPath: /srv/gitlab/config/topology-service/tls.crt
-              subPath: topology-service/tls.crt
-              readOnly: true
-            - name: webservice-secrets
-              mountPath: /srv/gitlab/config/topology-service/tls.key
-              subPath: topology-service/tls.key
-              readOnly: true
-           {{- end }}
+           {{- include "gitlab.topologyService.volumeMounts" (dict "context" $ "secretsVolumeName" "webservice-secrets") | nindent 12 }}
             - name: webservice-config
               mountPath: '/etc/krb5.conf'
               subPath: krb5.conf
@@ -499,15 +490,7 @@ spec:
                 - key: "tls.key"
                   path: "gitlab-workhorse/tls.key"
           {{- end }}
-          {{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
-          - secret:
-              name: {{ template "topology-service.tls.secret" $ }}
-              items:
-                - key: "tls.crt"
-                  path: "topology-service/tls.crt"
-                - key: "tls.key"
-                  path: "topology-service/tls.key"
-          {{- end }}
+          {{- include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
           {{- if eq (include "webservice-metrics.tls.enabled" $) "true" }}
           - secret:
               name: {{ template "webservice-metrics.tls.secret" $ }}

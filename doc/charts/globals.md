@@ -915,7 +915,7 @@ All Gitaly nodes **must** share the same authentication token.
 
 ### TLS settings
 
-Configuring Gitaly to serve via TLS is detailed [in the Gitaly chart's documentation](gitlab/gitaly#running-gitaly-over-tls).
+Configuring Gitaly to serve via TLS is detailed [in the Gitaly chart's documentation](gitlab/gitaly/_index.md#running-gitaly-over-tls).
 
 ## Configure Praefect settings
 

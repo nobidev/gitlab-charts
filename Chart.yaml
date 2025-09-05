@@ -1,7 +1,7 @@
 ---
 apiVersion: v2
 name: gitlab
-version: 9.3.0
+version: 9.3.1
 appVersion: master
 description: GitLab is the most comprehensive AI-powered DevSecOps Platform.
 keywords:
@@ -51,11 +51,11 @@ dependencies:
   version: "*.*.*"
   alias: nginx-ingress-geo
 - name: gitlab-zoekt
-  version: 3.0.0
+  version: 3.2.0
   repository: https://charts.gitlab.io/
   condition: gitlab-zoekt.install
 - name: openbao
-  version: 0.3.3
+  version: 0.5.1
   repository: https://charts.gitlab.io/
   condition: openbao.install
 - name: traefik

@@ -1485,7 +1485,7 @@ gitlab-zoekt:
   install: false
   gateway:
     basicAuth:
-      enabled: true
+      enabled: false # Basic auth is no longer needed because we've switched to using JWT instead
       secretName: '{{ include "gitlab.zoekt.gateway.basicAuth.secretName" $ }}'
   indexer:
     internalApi:
