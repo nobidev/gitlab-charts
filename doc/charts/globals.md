@@ -1190,10 +1190,19 @@ test the configuration.
 
 #### Relative URL Root
 
-You can configure GitLab to be accessible at a subpath instead of the root path by using the `relativeUrlRoot` setting. Use this setting when you want to host GitLab behind a
-reverse proxy or load balancer that serves multiple applications.
 
-For example, instead of using subdomains like `https://gitlab.your-domain.com`, you can host GitLab at `https://your-domain.com/gitlab`.
+{{< alert type="warning" >}}
+
+Configuring a relative URL for GitLab has [known issues with Geo](https://gitlab.com/gitlab-org/gitlab/-/issues/456427) and
+[testing limitations](https://gitlab.com/gitlab-org/gitlab/-/issues/439943).
+
+{{< /alert >}}
+
+While we recommended installing GitLab in its own (sub)domain, sometimes it is not possible. In that case,
+GitLab can also be installed under a relative URL, for example, `https://example.com/gitlab`.
+
+If you are hosting multiple Ingresses for your host in this cluster, also set the Webservice Ingress path to
+match your relative URL.
 
 ```yaml
 global:
