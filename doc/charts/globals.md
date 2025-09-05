@@ -1190,7 +1190,6 @@ test the configuration.
 
 #### Relative URL Root
 
-
 {{< alert type="warning" >}}
 
 Configuring a relative URL for GitLab has [known issues with Geo](https://gitlab.com/gitlab-org/gitlab/-/issues/456427) and
