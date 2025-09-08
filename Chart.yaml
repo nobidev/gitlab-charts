@@ -51,7 +51,7 @@ dependencies:
   version: "*.*.*"
   alias: nginx-ingress-geo
 - name: gitlab-zoekt
-  version: 3.2.0
+  version: 3.3.0
   repository: https://charts.gitlab.io/
   condition: gitlab-zoekt.install
 - name: openbao

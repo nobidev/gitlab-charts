@@ -53,6 +53,40 @@ with GitLab.
 1. Expand **Visibility, project features, permissions**.
 1. Turn on the **Secrets Manager** toggle, and wait for the Secrets Manager to be provisioned.
 
+## Backup and Restore
+
+A complete OpenBao backup requires securing two critical components: unseal keys and the
+PostgreSQL database.
+
+### Unseal Keys
+
+Back up the OpenBao unseal keys following the [secret backup procedures](../../backup-restore/backup.md#back-up-the-secrets)
+documented for OpenBao Secrets. These keys are essential for accessing your OpenBao data
+after restoration.
+
+### Database Backup
+
+{{< alert type="warning" >}}
+
+Before restoring a OpenBao backup, make sure OpenBao is scaled down, as it will try to
+recreate its database schema, which can lead to unexpected errors.
+
+```shell
+kubectl scale deploy -lapp=openbao,release=<helm release name> -n <namespace> --replicas=0
+```
+
+{{< /alert >}}
+
+By default, the OpenBao PostgreSQL data is backed up and restored as part of the chart's
+built-in backup procedure.
+
+If you've configured OpenBao to use a different database (logical or physical), this
+database must be backed up manually. The default backup tooling only covers the standard
+PostgreSQL setup, because the tooling has no awareness of other external databases.
+
+To avoid any synchronisation issues, the GitLab and OpenBao database should be backed up
+at the same time.
+
 ## Configuration
 
 ## Configuring the database
