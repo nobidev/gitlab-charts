@@ -1200,8 +1200,7 @@ Configuring a relative URL for GitLab has [known issues with Geo](https://gitlab
 While we recommended installing GitLab in its own (sub)domain, sometimes it is not possible. In that case,
 GitLab can also be installed under a relative URL, for example, `https://example.com/gitlab`.
 
-If you are hosting multiple Ingresses for your host in this cluster, also set the Webservice Ingress path to
-match your relative URL.
+The Ingresses of all Webservice deployments will have this path prefixed.
 
 ```yaml
 global:
