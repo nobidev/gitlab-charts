@@ -5,7 +5,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Working with the bundled NGINX
 ---
 
-## NGINX
+## NGINX Fork
 
 We provide a fork of NGINX with this chart that we maintain via patch files.
 This approach was choosen to easier upgrade NGINX chart versions and have
