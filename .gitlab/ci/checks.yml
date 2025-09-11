@@ -98,7 +98,7 @@ check_docs_links:
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
 
 docs-test hugo:
-  image: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/docs-gitlab-com-builder:hugo-0.145.0
+  image: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/docs-gitlab-com-builder:hugo-0.148.2
   stage: prepare
   variables:
     DOCS_BRANCH: "main"
