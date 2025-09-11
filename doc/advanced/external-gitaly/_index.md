@@ -10,7 +10,7 @@ This document intends to provide documentation on how to configure this Helm cha
 If you don't have Gitaly configured, for on-premise or deployment to VM,
 consider using our [Linux package](external-omnibus-gitaly.md).
 
-{{< alert type="note" >}}
+{{< alert type="notesss" >}}
 
 External Gitaly _services_ can be provided by Gitaly nodes, or
 [Praefect](https://docs.gitlab.com/administration/gitaly/praefect/) clusters.
