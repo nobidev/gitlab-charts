@@ -37,7 +37,22 @@ Returns a YAML string with the annotations.
 {{-     $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-read-timeout" $ingress.local.proxyReadTimeout -}}
 {{-     $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-connect-timeout" $ingress.local.proxyConnectTimeout -}}
 {{-     $_ := set $annotations "nginx.ingress.kubernetes.io/service-upstream" $ingress.local.serviceUpstream  -}}
+{{-     if $ingress.local.proxyRequestBufferingOffRegex -}}
+{{-       $regex := $ingress.local.proxyRequestBufferingOffRegex -}}
+{{-       $workhorse := (include "gitlab.workhorse.url" .root) -}}
+{{-       $snippet := (include "webservice.ingress.nginx.proxyRequestBufferingOffSnippet" (dict "regex" $regex "workhorse" $workhorse)) -}}
+{{-       $_ := set $annotations "nginx.ingress.kubernetes.io/server-snippet" $snippet -}}
+{{-       $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-request-buffering" "on" -}}
+{{-     end }}
 {{-     $annotations | toYaml -}}
 {{-   end }}
 {{- end }}
 {{- end }}
+
+{{- define "webservice.ingress.nginx.proxyRequestBufferingOffSnippet" -}}
+location ~ ({{ .regex }}) {
+  proxy_cache off;
+  proxy_pass {{ .workhorse }};
+  proxy_request_buffering off;
+}
+{{- end -}}

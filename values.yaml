@@ -1012,8 +1012,9 @@ nginx-ingress: &nginx-ingress
       digest: "sha256:016a25cf89bf7f930869ccd7cb3dd4acbe106cd4da1419804951ef9c8636f053"
     addHeaders:
       Referrer-Policy: strict-origin-when-cross-origin
+    allowSnippetAnnotations: true
     config: &nginx-ingress-controller-config
-      annotation-value-word-blocklist: "load_module,lua_package,_by_lua,location,root,proxy_pass,serviceaccount,{,},',\""
+      annotation-value-word-blocklist: "load_module,lua_package,_by_lua,root,serviceaccount,',\""
       hsts: "true"
       hsts-include-subdomains: "false"
       hsts-max-age: "63072000"

@@ -55,6 +55,7 @@ This is output as YAML, it can be read back in as a dict via `toYaml`.
   annotations:
     {{- $v.annotations | toYaml | nindent 4 }}
   proxyConnectTimeout: {{ $v.proxyConnectTimeout }}
+  proxyRequestBufferingOffRegex: {{ $v.proxyRequestBufferingOffRegex }}
   proxyReadTimeout: {{ $v.proxyReadTimeout }}
   proxyBodySize: {{ $v.proxyBodySize | quote }}
   serviceUpstream: {{ $v.serviceUpstream | quote }}
