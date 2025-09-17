@@ -1,0 +1,28 @@
+# GitLab NGINX Patch: Allow to template configmap name to inject ConfigMap controlled by root chart
+# with dynamic name.
+diff --git a/charts/nginx-ingress/templates/controller-daemonset.yaml b/charts/nginx-ingress/templates/controller-daemonset.yaml
+index ce85c9870..1e787ee2b 100644
+--- a/charts/nginx-ingress/templates/controller-daemonset.yaml
++++ b/charts/nginx-ingress/templates/controller-daemonset.yaml
+@@ -224,7 +224,7 @@ spec:
+       {{- if .Values.controller.customTemplate.configMapName }}
+         - name: nginx-template-volume
+           configMap:
+-            name: {{ .Values.controller.customTemplate.configMapName }}
++            name: {{ tpl .Values.controller.customTemplate.configMapName . }}
+             items:
+             - key: {{ .Values.controller.customTemplate.configMapKey }}
+               path: nginx.tmpl
+diff --git a/charts/nginx-ingress/templates/controller-deployment.yaml b/charts/nginx-ingress/templates/controller-deployment.yaml
+index 0e10ddcbd..e022b3db3 100644
+--- a/charts/nginx-ingress/templates/controller-deployment.yaml
++++ b/charts/nginx-ingress/templates/controller-deployment.yaml
+@@ -237,7 +237,7 @@ spec:
+       {{- if .Values.controller.customTemplate.configMapName }}
+         - name: nginx-template-volume
+           configMap:
+-            name: {{ .Values.controller.customTemplate.configMapName }}
++            name: {{ tpl .Values.controller.customTemplate.configMapName . }}
+             items:
+             - key: {{ .Values.controller.customTemplate.configMapKey }}
+               path: nginx.tmpl

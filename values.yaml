@@ -1002,6 +1002,9 @@ nginx-ingress: &nginx-ingress
   enabled: true
   tcpExternalConfig: "true"
   controller: &nginx-ingress-controller
+    customTemplate:
+      configMapName: '{{ include "gitlab.nginx.template.configmap" . }}'
+      configMapKey: "nginx.tpl"
     podSecurityContext:
       seccompProfile:
         type: "RuntimeDefault"

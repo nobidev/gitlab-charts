@@ -750,3 +750,10 @@ Usage: {{ include "gitlab.topologyService.configureScript" $ | nindent 4 }}
   fi
 {{- end }}
 {{- end -}}
+
+{{/*
+Render name of the ConfigMap which stores a customized NGINX template.
+*/}}
+{{- define "gitlab.nginx.template.configmap" -}}
+{{- printf "%s-nginx-tpl" .Release.Name }}
+{{- end -}}

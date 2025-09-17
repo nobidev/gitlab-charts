@@ -1,3 +1,11 @@
+{{/*
+This template is used by NGINX Ingress to template the NGINX configuration.
+It's based on the upstream template with minor extension to enable path-based operations
+for incoming workhorse/webservice traffic.
+
+https://github.com/kubernetes/ingress-nginx/blob/controller-v1.11.7/rootfs/etc/nginx/template/nginx.tmpl
+*/}}
+
 {{ $all := . }}
 {{ $servers := .Servers }}
 {{ $cfg := .Cfg }}
@@ -1471,6 +1479,17 @@ stream {
             proxy_max_temp_file_size                {{ $location.Proxy.ProxyMaxTempFileSize }};
             {{ end }}
             proxy_request_buffering                 {{ $location.Proxy.RequestBuffering }};
+            {{ if contains $ing.Rule "-webservice-" }}
+            # Begin custom GitLab snippet.
+            location ~ (/api/v\d/jobs/\d+/artifacts$|/import/gitlab_project$|\.git/git-receive-pack$|\.git/ssh-receive-pack$|\.git/ssh-upload-pack$|\.git/gitlab-lfs/objects|\.git/info/lfs/objects/batch$) {
+              proxy_request_buffering off;
+              proxy_cache             off;
+
+              set $proxy_upstream_name {{ buildUpstreamName $location | quote }};
+              {{ buildProxyPass $server.Hostname $all.Backends $location }}
+            }
+            # End custom GitLab snippet.
+            {{- end }}
             proxy_http_version                      {{ $location.Proxy.ProxyHTTPVersion }};
 
             proxy_cookie_domain                     {{ $location.Proxy.CookieDomain }};

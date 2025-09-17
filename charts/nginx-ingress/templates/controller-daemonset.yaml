@@ -224,7 +224,7 @@ spec:
       {{- if .Values.controller.customTemplate.configMapName }}
         - name: nginx-template-volume
           configMap:
-            name: {{ .Values.controller.customTemplate.configMapName }}
+            name: {{ tpl .Values.controller.customTemplate.configMapName . }}
             items:
             - key: {{ .Values.controller.customTemplate.configMapKey }}
               path: nginx.tmpl
