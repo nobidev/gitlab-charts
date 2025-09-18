@@ -4,6 +4,8 @@ It's based on the upstream template with minor extension to enable path-based op
 for incoming workhorse/webservice traffic.
 
 https://github.com/kubernetes/ingress-nginx/blob/controller-v1.11.7/rootfs/etc/nginx/template/nginx.tmpl
+
+Introduced in https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4512.
 */}}
 
 {{ $all := . }}
@@ -1481,10 +1483,21 @@ stream {
             proxy_request_buffering                 {{ $location.Proxy.RequestBuffering }};
             {{ if contains $ing.Rule "-webservice-" }}
             # Begin custom GitLab snippet.
+            {{/*
+            Turn off proxy_request_buffering for specific workhorse/webservice paths where it's
+            either functionally required or improves performance. This is configured using a
+            sublocation that inherits most settings from its parent location block.
+            */}}
             location ~ (/api/v\d/jobs/\d+/artifacts$|/import/gitlab_project$|\.git/git-receive-pack$|\.git/ssh-receive-pack$|\.git/ssh-upload-pack$|\.git/gitlab-lfs/objects|\.git/info/lfs/objects/batch$) {
               proxy_request_buffering off;
               proxy_cache             off;
 
+              {{/*
+              Configure the proxy_pass directive explicitly since it doesn't
+              inherit from the parent location block. The upstream is handled
+              dynamically with Lua, and requires the setting the proxy_upstream_name
+              variable.
+              */}}
               set $proxy_upstream_name {{ buildUpstreamName $location | quote }};
               {{ buildProxyPass $server.Hostname $all.Backends $location }}
             }

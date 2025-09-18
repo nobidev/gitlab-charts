@@ -65,6 +65,56 @@ tcp:
 
 The format for the value is the same as describe above in the "Direct Deployment" section.
 
+### Proxy request buffering
+
+The GitLab webservice needs a customized NGINX [`proxy_request_buffering`](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_request_buffering)
+settings based on the request path. This helps with SSH handling especially in Geo setups and more
+performant uploads and project imports.
+
+The default NGINX annotation always applies to all traffic received and can't select
+requests based on the request path. To address that, the bundled NGINX uses a
+[custom NGINX template](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/custom-template/).
+
+To also apply these changes to an external NGINX, you can either configure your NGINX
+Ingress with these values:
+
+```yaml
+controller:
+  customTemplate:
+    configMapName: '<gitlab release>-nginx-tpl'
+    configMapKey: "nginx.tpl"
+```
+
+#### Using a server snippet
+
+{{< alert type="warning" >}}
+
+NGINX Ingress snippets have the potential to access Secrets and service account tokens,
+creating security risks. Review [CVE-2021-25742](https://github.com/kubernetes/kubernetes/issues/126811)
+to determine whether using snippets is appropriate for your security requirements and environment."
+
+{{< /alert >}}
+
+As an alternative to using a custom NGINX template, you can configure a [`server-snippet`](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#server-snippet).
+Server snippets are disabled by default and can be enabled by deploying NGINX with
+the `controller.allowSnippetAnnotations=true` value. Once snippet annotations are
+enabled, you can configure `proxy_request_buffering` through the webservice chart:
+
+```yaml
+gitlab:
+  webservice:
+    ingress:
+      annotations:
+        nginx.ingress.kubernetes.io/server-snippet: |-
+          location ~ /api/v\\d/jobs/\\d+/artifacts$|/import/gitlab_project$|\\.git/git-receive-pack$|\\.git/ssh-receive-pack$|\\.git/ssh-upload-pack$|\\.git/gitlab-lfs/objects|\\.git/info/lfs/objects/batch$ {
+            proxy_request_buffering off;
+            proxy_cache             off;
+
+            set $proxy_upstream_name "<release>-nginx-<release>-webservice-default-8181";
+            proxy_pass http://upstream_balancer;
+          }
+```
+
 ## Customize the GitLab Ingress options
 
 The NGINX Ingress Controller uses an annotation to mark which Ingress Controller
