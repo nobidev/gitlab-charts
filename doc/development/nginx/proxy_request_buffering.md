@@ -8,7 +8,7 @@ title: Working with the bundled NGINX
 ## NGINX Proxy Request Buffering
 
 [NGINXs `proxy_request_buffering`](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_request_buffering)
-controls how incoming incoming client requests are handled before forwarding to
+controls how incoming client requests are handled before forwarding to the
 upstream server.
 
 ### Default Behavior (`on`)
