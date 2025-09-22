@@ -560,6 +560,19 @@ webservice:
 
 `annotations` is used to set annotations on the Webservice Ingress.
 
+### Proxy Request Buffering
+
+If you use the in-chart NGINX Ingress controller, [`proxy_request_buffering`](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_request_buffering)
+is always `off` for a set of known paths. These paths expect streaming uploads
+and Git over HTTPS traffic which either break with proxy request buffering or
+are less performant.
+
+The value of the [`nginx.ingress.kubernetes.io/proxy-request-buffering` annotation](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#annotations)
+does not apply to these paths.
+
+Check the [external NGINX documentation](../../../advanced/external-nginx/_index.md#proxy-request-buffering) to
+configure the same behavior for a external NGINX Ingress controller.
+
 ### `serviceUpstream`
 
 This helps balance traffic to the Webservice pods more evenly by telling NGINX to directly
