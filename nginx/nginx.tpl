@@ -1488,9 +1488,11 @@ stream {
             either functionally required or improves performance. This is configured using a
             sublocation that inherits most settings from its parent location block.
             */}}
+            add_header X-GitLab-Nginx-Request-Buffering "default";
             location ~ (/api/v\d/jobs/\d+/artifacts$|/import/gitlab_project$|\.git/git-receive-pack$|\.git/ssh-receive-pack$|\.git/ssh-upload-pack$|\.git/gitlab-lfs/objects|\.git/info/lfs/objects/batch$) {
               proxy_request_buffering off;
               proxy_cache             off;
+              add_header              X-GitLab-Nginx-Request-Buffering "off";
 
               {{/*
               Configure the proxy_pass directive explicitly since it doesn't
