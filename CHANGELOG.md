@@ -2,6 +2,10 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.3.3 (2025-09-25)
+
+No changes.
+
 ## 9.3.2 (2025-09-09)
 
 No changes.
