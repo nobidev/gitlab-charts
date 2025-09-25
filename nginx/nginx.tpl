@@ -1481,7 +1481,12 @@ stream {
             proxy_max_temp_file_size                {{ $location.Proxy.ProxyMaxTempFileSize }};
             {{ end }}
             proxy_request_buffering                 {{ $location.Proxy.RequestBuffering }};
-            {{ if contains $ing.Rule "-webservice-" }}
+
+            {{/*
+            Match Rule and Backend to only match the workhorse rule of backend GitLab webservice ingress.
+            The Ingress might have other backends owned by certmanager.
+            */}}
+            {{ if and (contains $ing.Rule "-webservice-") (contains $location.Backend "-webservice-") }}
             # Begin custom GitLab snippet.
             {{/*
             Turn off proxy_request_buffering for specific workhorse/webservice paths where it's
