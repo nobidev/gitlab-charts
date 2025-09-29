@@ -1483,10 +1483,15 @@ stream {
             proxy_request_buffering                 {{ $location.Proxy.RequestBuffering }};
 
             {{/*
-            Match Rule and Backend to only match the workhorse rule of backend GitLab webservice ingress.
-            The Ingress might have other backends owned by certmanager.
+            Match GitLab owned Annotation and Backend name to only match the workhorse rule of backend GitLab webservice ingress.
+            The Ingress might have other backends added by certmanager.
             */}}
-            {{ if and (contains $ing.Rule "-webservice-") (contains $location.Backend "-webservice-") }}
+            {{- $isGitLabWebservice := false }}
+            {{- with index $ing.Annotations "gitlab.com/ingress.type" -}}
+            {{-   $isGitLabWebservice = (eq . "webservice") }}
+            {{- end -}}
+
+            {{ if and $isGitLabWebservice (contains $location.Backend "-webservice-") }}
             # Begin custom GitLab snippet.
             {{/*
             Turn off proxy_request_buffering for specific workhorse/webservice paths where it's

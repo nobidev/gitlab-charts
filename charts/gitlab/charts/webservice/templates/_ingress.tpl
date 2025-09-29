@@ -27,6 +27,7 @@ metadata:
     {{- else }}
       {{- include "ingress.class.annotation" .ingressCfg | nindent 4 }}
     {{- end }}
+    gitlab.com/ingress.type: "webservice"
     kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" .ingressCfg }}"
     {{- include "gitlab.certmanager_annotations" .root | nindent 4 }}
   {{- range $key, $value := merge .ingressCfg.local.annotations $global.ingress.annotations (include "webservice.ingress.nginx.annotations" . | fromYaml)}}
