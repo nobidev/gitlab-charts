@@ -1483,7 +1483,7 @@ stream {
             proxy_request_buffering                 {{ $location.Proxy.RequestBuffering }};
 
             {{/*
-            Match GitLab owned Annotation and Backend name to only match the workhorse rule of backend GitLab webservice ingress.
+            Match GitLab ingress annotation and backend name to only match the workhorse rule of backend GitLab webservice ingress.
             The Ingress might have other backends added by certmanager.
             */}}
             {{- $isGitLabWebservice := false }}
