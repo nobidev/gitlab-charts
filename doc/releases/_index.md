@@ -1,16 +1,13 @@
 ---
-stage: GitLab Delivery
-group: Operate
-info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#designated-technical-writers
-title: GitLab Helm chart upgrade notes
+redirect_to: 'https://docs.gitlab.com/update/versions/'
+remove_date: '2026-09-30'
 ---
 
-Upgrade notes for recent GitLab Helm chart versions. For upgrade notes for older versions, see the
-[GitLab documentation archives](https://archives.docs.gitlab.com).
+<!-- markdownlint-disable -->
 
-{{< cards >}}
+This document was moved to [another location](https://docs.gitlab.com/update/versions/).
 
-- [GitLab Helm chart 9.0 upgrade notes](9_0.md)
-- [GitLab Helm chart 8.0 upgrade notes](8_0.md)
-
-{{< /cards >}}
+<!-- This redirect file can be deleted after <2026-09-30>. -->
+<!-- Redirects that point to other docs in the same project expire in three months. -->
+<!-- Redirects that point to docs in a different project or site (for example, link is not relative and starts with `https:`) expire in one year. -->
+<!-- Before deletion, see: https://docs.gitlab.com/development/documentation/redirects -->
