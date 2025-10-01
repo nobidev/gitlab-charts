@@ -515,13 +515,13 @@ global:
 
     ## Configure Database Traffic Capture. This is a Gitlab internal-use experiment.
     #databaseTrafficCapture:
-     # config:
-       # storage:
-         # connector:
-          #  provider: ""
-          #  projectId: ""
-          #  credentials: ""
-          #  bucket: ""
+    #  config:
+    #    storage:
+    #      connector:
+    #        provider: ""
+    #        projectId: ""
+    #        credentials: ""
+    #        bucket: ""
 
     ## Configure GitLab Cells. Cells is a GitLab internal-use experiment.
     ## https://docs.gitlab.com/administration/cells/
