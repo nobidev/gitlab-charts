@@ -66,9 +66,9 @@ describe 'database traffic capture configuration' do
           'storage' => {
             'connector' => {
               'provider' => 'provider',
-              'project_id' => '',
-              'credentials' => '',
-              'bucket' => ''
+              'project_id' => nil,
+              'credentials' => nil,
+              'bucket' => nil
             }
           }
         }
