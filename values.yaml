@@ -518,10 +518,10 @@ global:
     #  config:
     #    storage:
     #      connector:
-    #        provider: ""
-    #        projectId: ""
-    #        credentials: ""
-    #        bucket: ""
+    #        provider:
+    #        projectId:
+    #        credentials:
+    #        bucket:
 
     ## Configure GitLab Cells. Cells is a GitLab internal-use experiment.
     ## https://docs.gitlab.com/administration/cells/
