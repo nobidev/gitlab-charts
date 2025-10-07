@@ -1019,7 +1019,7 @@ nginx-ingress: &nginx-ingress
     image:
       registry: registry.gitlab.com
       image: gitlab-org/cloud-native/mirror/images/ingress-nginx/controller
-      tag: "7a9558b1-ubi"
+      tag: "7a9558b1-fips"
       repository: registry.gitlab.com/gitlab-org/cloud-native/charts/gitlab-ingress-nginx/staging/controller
       digest: "" # empty to use the tag rather than the digest
     addHeaders:
