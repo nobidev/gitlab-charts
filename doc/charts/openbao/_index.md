@@ -127,10 +127,6 @@ the `helm install` command using the `--set` flags.
 
 | Parameter                                                | Default                                                 | Description |
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
-| `image.repository`                                       | `quay.io/openbao/openbao-ubi`                           | Repository of the OpenBao image. |
-| `image.pullPolicy`                                       | `IfNotPresent`                                          | Image pull policy. |
-| `image.tag`                                              |                                                         | Override this to deploy a custom OpenBao version. |
-| `imagePullSecrets`                                       | `[]`                                                    | Secrets to pull images from private repositories. |
 | `serviceAccount.create`                                  | true                                                    | Create a service account for OpenBao. |
 | `serviceAccount.automount`                               | true                                                    | |
 | `serviceAccount.annotations`                             | `{}`                                                    | Additional service account annotations. |
@@ -139,7 +135,10 @@ the `helm install` command using the `--set` flags.
 | `securityContext.capabilities`                           | `{ drop: ["ALL"] }`                                     | |
 | `securityContext.runAsNonRoot`                           | true                                                    | |
 | `securityContext.allowPrivilegeEscalation`               | false                                                   | |
-| `securityContext.runAsUser`                              | 1000                                                    | |
+| `securityContext.runAsUser`                              | 65532                                                   | |
+| `podSecurityContext.seccompProfile`                      | `RuntimeDefault`                                        | |
+| `podSecurityContext.runAsUser`                           | 65532                                                   | |
+| `podSecurityContext.fsGroup`                             | 65532                                                   | |
 | `serviceActive.type`                                     | ClusterIP                                               | Service type of the active OpenBao pod. |
 | `serviceActive.annotations`                              | `{}`                                                    | Service annotations of the active OpenBao pod. |
 | `serviceInactive.type`                                   | ClusterIP                                               | Service type of the standby OpenBao pods. |
@@ -157,10 +156,26 @@ the `helm install` command using the `--set` flags.
 | `config.ui`                                              | true                                                    | Enable the OpenBao UI. |
 | `config.clusterPort`                                     | 8201                                                    | OpenBao cluster port. |
 | `config.apiPort`                                         | 8200                                                    | OpenBao API port. |
+| `config.cacheSize`                                       | 8200                                                    | Size of the read cache used by the physical storage subsystem as a number of entries. |
+| `config.maxRequestSize`                                  | 786432                                                  | Maximum request size in bytes. Default is 768KB. |
+| `config.maxRequestJsonMemory`                            | 1048576                                                 | Maximum size of the JSON-parsed request body in bytes. Default is 1MB. |
+
+### Image
+
+This chart deploys a [Cloud Native GitLab image](https://gitlab.com/gitlab-org/build/CNG) to deploy OpenBao.
+The OpenBao build includes [modifications](https://gitlab.com/gitlab-org/govern/secrets-management/openbao-internal)
+from the upstream version. As a result, some functionality may differ from the standard OpenBao releases.
+
+| Parameter                                                | Default                                                   | Description |
+|----------------------------------------------------------|-----------------------------------------------------------|-------------|
+| `image.repository`                                       | `registry.gitlab.com/gitlab-org/build/cng/gitlab-openbao` | Repository of the OpenBao image. |
+| `image.pullPolicy`                                       | `IfNotPresent`                                            | Image pull policy. |
+| `image.tag`                                              |                                                           | Override this to deploy a custom OpenBao version. |
+| `imagePullSecrets`                                       | `[]`                                                      | Secrets to pull images from private repositories. |
 
 ### Ingress and TLS
 
-The OpenBao charts defaults to end-to-end TLS encryption, which means the Ingress passes the TLS encryption to OpenBao.
+The OpenBao chart defaults to end-to-end TLS encryption, which means the Ingress passes the TLS encryption to OpenBao.
 
 | Parameter                                                | Default                                                 | Description |
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
@@ -186,6 +201,8 @@ OpenBao is preconfigured to expose Prometheus metrics which will be scraped by t
 | `config.telemetry.disableHostname`                       | true                                                    | Prefix gauge values with local hostname. |
 | `config.telemetry.prometheusRetentionTime`               | `24h`                                                   | Metrics retention time. |
 | `config.telemetry.metricsPrefix`                         | `openbao`                                               | Prefix for all metrics. |
+| `config.telemetry.usageGaugePeriod`                      | 0                                                       | Interval at which high-cardinality usage data is collected, such as token counts, entity counts, and secret counts. |
+| `config.telemetry.numLeaseMetricsBuckets`                | 1                                                       | Number of expiry buckets for leases. |
 | `config.metricsListener.enabled`                         | true                                                    | Enable a second API port to serve requests for metrics. The listener can serve all API requests, but serves requests for metrics without authentication. |
 | `config.metricsListener.tlsDisable`                      | false                                                   | Disable internal TLS of the metrics listener. |
 | `config.metricsListener.port`                            | 8209                                                    | Port of the metrics listener. |
@@ -198,7 +215,6 @@ declarative [self initialization](https://openbao.org/docs/configuration/self-in
 
 | Parameter                                                | Default                                                 | Description |
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
-| `config.staticUnsealSecret.generate`                     | false                                                   | Generate a static key to auto unseal OpenBao. Defaults to false as managed by GitLab charts shared-secret chart. |
 | `config.unseal.static.enabled`                           | true                                                    | Enable static auto unsealing. |
 | `config.unseal.static.currentKeyId`                      | `static-unseal-0`                                       | ID of the current static unsealing key. |
 | `config.unseal.static.currentKey`                        | `/srv/openbao/keys/static-unseal-0`                     | Path of the current static unsealing key. |
@@ -208,7 +224,20 @@ declarative [self initialization](https://openbao.org/docs/configuration/self-in
 | `config.initialize.oidcDiscoveryUrl`                     | External GitLab host                                    | OIDC discovery URL. Defaults to the external GitLab hostname. |
 | `config.initialize.boundIssuer`                          | External OpenBao host                                   | OIDC issuer. Defaults to the external OpenBao hostname. |
 | `config.initialize.boundAudiences`                       | External OpenBao host                                   | OIDC role audiences. Defaults to the external OpenBao hostname. |
+| `staticUnsealSecret.generate`                            | false                                                   | Generate a static key to auto unseal OpenBao. Defaults to false as managed by GitLab charts shared-secret chart. |
 | `initializeTpl`                                          |                                                         | Template passed to self initialize OpenBao. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
+
+### Auditing
+
+The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/) to stream events to GitLab rails.
+
+| Parameter                                                | Default                                                 | Description |
+|----------------------------------------------------------|---------------------------------------------------------|-------------|
+| `config.audit.http.enabled`                              | true                                                    | Enable streaming of auditing events via HTTP to GitLab rails. |
+| `config.audit.http.streamingUri`                         | Internal workhorse URL                                  | Endpoint to stream auditing events to. |
+| `config.audit.http.authTokenPath`                        | `/srv/openbao/audit/gitlab-auth`                        | Path the token shared with GitLab rails is mounted at. |
+| `httpAuditSecret.generate`                               | false                                                   | Generate a secret to be shared with GitLab rails for authenticated auditing. Defaults to false as managed by GitLab charts shared-secret chart. |
+| `initializeTpl`                                          |                                                         | Template passed to configure OpenBao auditing. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
 
 ### Configuring the database
 
