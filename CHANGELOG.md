@@ -2,6 +2,24 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.5.0 (2025-10-15)
+
+### Added (1 change)
+
+- [Add adoptCfRayHeader configuration for Workhorse](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/96cb3a6b478a4bbe8fb5cf08e677b2499c6d6c9d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4535))
+
+### Fixed (2 changes)
+
+- [fix: increase Geo Logcursor memory request to 1Gi](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0f2334e59fc3018ea95ef658128c2e4544571839) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4526))
+- [Extend the env deduplication on deployments and pods](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c51c9456bf8f2a4cce2ff20250a1795d7089afc1) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4537))
+
+### Changed (4 changes)
+
+- [Ingress NGINX: update controller to v1.11.8](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7f73450aead769a94f5a33e0cea649549b3cf69b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4560))
+- [Update Helm release gitlab-zoekt to v3.6.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/829e1cfb33fdad58edac221fd7b59a3125e8c700) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4561))
+- [Update Helm release gitlab-zoekt to v3.5.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/af559e0f062088aacd17ea0d5885aa183d60571c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4550))
+- [Update Helm release gitlab-runner to v0.81.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/62c7c4f8602822ef0c30c305e3aa6d15d6c5d926) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4528))
+
 ## 9.4.2 (2025-10-08)
 
 No changes.
