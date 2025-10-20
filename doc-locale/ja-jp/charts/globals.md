@@ -210,7 +210,7 @@ Ingressオブジェクトの[cert-manager](https://cert-manager.io/docs/installa
 
 デフォルトのロジック（`global.ingress.useNewIngressForCerts`が`false`の場合）は、検証のために既存のIngressを再利用します。このデフォルトは、状況によっては適切ではありません。フラグを`true`に設定すると、検証のたびに新しいIngressオブジェクトが作成されます。
 
-GKE Ingressコントローラーで使用する場合、`global.ingress.useNewIngressForCerts`を`true`に設定することはできません。これを有効にすることについて詳しくは、[リリースノート](../releases/7_0.md#bundled-certmanager)を参照してください。
+GKE Ingressコントローラーで使用する場合、`global.ingress.useNewIngressForCerts`を`true`に設定することはできません。これを有効にすることについて詳しくは
 
 ## GitLabバージョン {#gitlab-version}
 
@@ -2264,7 +2264,7 @@ global:
 
 {{< alert type="note" >}}
 
-[`nginx-ingress` Helmチャートのフォーク](nginx/fork.md)に関する現在の制限のため、現在のところ、`dedicatedPort`を指定しても、チャートの`nginx-ingress`コントローラーで使用するためのポートは公開されません。クラスターのオペレーターが、このポートを自分で公開する必要があります。詳細について、また可能な回避策については、[こちらのチャートイシュー](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3531)を参照してください。
+[`nginx-ingress` Helmチャートのフォーク](nginx/_index.md)に関する現在の制限のため、現在のところ、`dedicatedPort`を指定しても、チャートの`nginx-ingress`コントローラーで使用するためのポートは公開されません。クラスターのオペレーターが、このポートを自分で公開する必要があります。詳細について、また可能な回避策については、[こちらのチャートイシュー](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3531)を参照してください。
 
 {{< /alert >}}
 
