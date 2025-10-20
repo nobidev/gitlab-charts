@@ -47,7 +47,7 @@ title: グローバル変数を使用してチャートを設定する
 - [ジョブ](#jobs)
 - [Traefik](#traefik)
 
-## ホストの設定
+## ホストの設定 {#configure-host-settings}
 
 GitLabグローバルホストの設定は、`global.hosts`キーの下にあります。
 
@@ -105,7 +105,7 @@ global:
 | `pages.https`             | 文字列    |                | `global.pages.https`、`global.hosts.pages.https`、または`global.hosts.https`が`true`の場合、プロジェクト設定UIにおいて、GitLab PagesのURLには`http://`ではなく`https://`を使用します。                                                                                                                                  |
 | `ssh`                     | 文字列    |                | SSH経由でリポジトリを複製するためのホスト名。設定されている場合、`global.hosts.domain`と`global.hosts.hostSuffix`の設定に関係なくこのホスト名が使用されます。 |
 
-### hostSuffix
+### hostSuffix {#hostsuffix}
 
 ベース`domain`を使用してホスト名を構成する際には`hostSuffix`がサブドメインに付加されますが、独自の`name`が設定されているホストには使用されません。
 
@@ -118,7 +118,7 @@ global:
     hostSuffix: staging
 ```
 
-## Horizontal Pod Autoscalerの設定
+## Horizontal Pod Autoscalerの設定 {#configure-horizontal-pod-autoscaler-settings}
 
 HPAのGitLabグローバルホストの設定は、`global.hpa`キーの下にあります:
 
@@ -126,7 +126,7 @@ HPAのGitLabグローバルホストの設定は、`global.hpa`キーの下に�
 | :----------- | :-------: | :------ | :-------------------------------------------------------------------- |
 | `apiVersion` | 文字列    |         | HorizontalPodAutoscalerオブジェクトの定義で使用するAPIバージョン。 |
 
-## PodDisruptionBudgetの設定
+## PodDisruptionBudgetの設定 {#configure-poddisruptionbudget-settings}
 
 PDBのGitLabグローバルホストの設定は、`global.pdb`キーの下にあります:
 
@@ -134,7 +134,7 @@ PDBのGitLabグローバルホストの設定は、`global.pdb`キーの下に�
 | :----------- | :-------: | :------ | :-------------------------------------------------------------------- |
 | `apiVersion` | 文字列    |         | PodDisruptionBudgetオブジェクトの定義で使用するAPIバージョン。 |
 
-## CronJobの設定
+## CronJobの設定 {#configure-cronjob-settings}
 
 CronJobのGitLabグローバルホストの設定は、`global.batch.cronJob`キーの下にあります:
 
@@ -142,7 +142,7 @@ CronJobのGitLabグローバルホストの設定は、`global.batch.cronJob`キ
 | :----------- | :-------: | :------ | :-------------------------------------------------------------------- |
 | `apiVersion` | 文字列    |         | CronJobオブジェクトの定義で使用するAPIバージョン。 |
 
-## モニタリングの設定
+## モニタリングの設定 {#configure-monitoring-settings}
 
 ServiceMonitorとPodMonitorのGitLabのグローバル設定は、`global.monitoring`キーの下にあります:
 
@@ -150,7 +150,7 @@ ServiceMonitorとPodMonitorのGitLabのグローバル設定は、`global.monito
 | :----------- | :-------: | :------ | :-------------------------------------------------------------------- |
 | `enabled`    | ブール値   | `false` | `monitoring.coreos.com/v1`APIの可用性に関係なく、モニタリングリソースを有効にします。 |
 
-## Ingressの設定
+## Ingressの設定 {#configure-ingress-settings}
 
 IngressのGitLabグローバルホストの設定は、`global.ingress`キーの下にあります:
 
@@ -173,7 +173,7 @@ IngressのGitLabグローバルホストの設定は、`global.ingress`キーの
 - [`AWS`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/aws/ingress.yaml)
 - [`GKE`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/gke/ingress.yaml)
 
-### Ingressパス
+### Ingressパス {#ingress-path}
 
 このチャートでは、Ingressオブジェクトの`path`エントリの定義を変更する必要があるユーザーを支援する手段として、`global.ingress.path`を採用しています。多くのユーザーはこの設定を必要としないため、_設定しないでください_。
 
@@ -181,7 +181,7 @@ GCPで`ingress.class: gce`、AWSで`ingress.class: alb`を利用する場合な�
 
 この設定により、このチャート全体としてIngressリソースのすべての`path`エントリのレンダリングでこれが使用されるようになります。唯一の例外として、[`gitlab/webservice`デプロイの設定](gitlab/webservice/_index.md#deployments-settings)にデータを入力する場合には`path`を指定する必要があります。
 
-### クラウドプロバイダーロードバランサー
+### クラウドプロバイダーロードバランサー {#cloud-provider-loadbalancers}
 
 さまざまなクラウドプロバイダーのロードバランサーの実装は、このチャートの一部としてデプロイされるIngressリソースとNGINXコントローラーの設定に影響を与えます。次の表に例を示します。
 
@@ -191,7 +191,7 @@ GCPで`ingress.class: gce`、AWSで`ingress.class: alb`を利用する場合な�
 | AWS | 7 | [`aws/elb-layer7-loadbalancer`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/aws/elb-layer7-loadbalancer.yaml) |
 | AWS | 7 | [`aws/alb-full`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/aws/alb-full.yaml) |
 
-### `global.ingress.configureCertmanager`
+### `global.ingress.configureCertmanager` {#globalingressconfigurecertmanager}
 
 Ingressオブジェクトの[cert-manager](https://cert-manager.io/docs/installation/helm/)の自動設定を制御するグローバル設定。`true`の場合は、`certmanager-issuer.email`が設定されている必要があります。
 
@@ -204,7 +204,7 @@ Ingressオブジェクトの[cert-manager](https://cert-manager.io/docs/installa
 - `minio.ingress.tls.secretName`
 - `global.ingress.annotations`
 
-### `global.ingress.useNewIngressForCerts`
+### `global.ingress.useNewIngressForCerts` {#globalingressusenewingressforcerts}
 
 `cert-manager`の動作を変更して、毎回動的に作成される新しいIngressを使用してACMEチャレンジ検証を実行するようにするためのグローバル設定。
 
@@ -212,7 +212,7 @@ Ingressオブジェクトの[cert-manager](https://cert-manager.io/docs/installa
 
 GKE Ingressコントローラーで使用する場合、`global.ingress.useNewIngressForCerts`を`true`に設定することはできません。これを有効にすることについて詳しくは、[リリースノート](../releases/7_0.md#bundled-certmanager)を参照してください。
 
-## GitLabバージョン
+## GitLabバージョン {#gitlab-version}
 
 {{< alert type="note" >}}
 
@@ -228,7 +228,7 @@ GKE Ingressコントローラーで使用する場合、`global.ingress.useNewIn
 
 これは、`webservice`、`sidekiq`、および`migration`のチャートで使用されるデフォルトのイメージタグに影響します。`gitaly`、`gitlab-shell`、および`gitlab-runner`のイメージタグは、個別に更新して、GitLabバージョンと互換性のあるバージョンにする必要があります。
 
-## すべてのイメージタグへのサフィックスの追加
+## すべてのイメージタグへのサフィックスの追加 {#adding-suffix-to-all-image-tags}
 
 Helmチャートで使用されるすべてのイメージの名前にサフィックスを追加する場合は、`global.image.tagSuffix`キーを使用することができます。このユースケースの例としては、GitLabからfips準拠のコンテナイメージを使用する場合があり、それらはすべてイメージタグに拡張子`-fips`を付けて構成されます。
 
@@ -236,7 +236,7 @@ Helmチャートで使用されるすべてのイメージの名前にサフィ�
 --set global.image.tagSuffix="-fips"
 ```
 
-## すべてのコンテナのカスタムタイムゾーン
+## すべてのコンテナのカスタムタイムゾーン {#custom-time-zone-for-all-containers}
 
 すべてのGitLabコンテナに対してカスタムタイムゾーンを設定する場合は、`global.time_zone`キーを使用することができます。使用可能な値については、[tzデータベースのタイムゾーンのリスト](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)の`TZ identifier`を参照してください。デフォルトは`UTC`です。
 
@@ -244,7 +244,7 @@ Helmチャートで使用されるすべてのイメージの名前にサフィ�
 --set global.time_zone="America/Chicago"
 ```
 
-## PostgreSQLの設定
+## PostgreSQLの設定 {#configure-postgresql-settings}
 
 GitLabのグローバルPostgreSQLの設定は、`global.psql`キーの下にあります。GitLabでは、`main`データベース用と`ci`用の2つのデータベース接続を使用しています。デフォルトの場合、これらの指すPostgreSQLデータベースは同じです。
 
@@ -302,13 +302,13 @@ global:
 | `applicationName`    | 文字列    |                        | データベースに接続しているアプリケーションの名前。空文字列（`""`）に設定すると、これを無効にすることができます。デフォルトの場合、実行中のプロセスの名前（`sidekiq`、`puma`など）に設定されます。  |
 | `ci.enabled`         | ブール値   | `true`                 | [2つのデータベース接続](#configure-multiple-database-connections)を有効にします。                                                                                                                  |
 
-### チャートごとのPostgreSQL
+### チャートごとのPostgreSQL {#postgresql-per-chart}
 
 一部の複雑なデプロイでは、このチャートの複数の部分についてPostgreSQLの設定を異なるものにすることが望ましい場合があります。`v4.2.0`の時点では、`gitlab.sidekiq.psql`など、`global.psql`内で使用可能なすべてのプロパティをチャートごとに設定できます。ローカル設定を指定した場合、それによってグローバル値がオーバーライドされます。_存在しないもの_については、`global.psql`から継承されます（`psql.load_balancing`を除く）。
 
 設計上、[PostgreSQLのロードバランシング](#postgresql-load-balancing)がグローバルから継承_されることはありません_。
 
-### PostgreSQL SSL
+### PostgreSQL SSL {#postgresql-ssl}
 
 {{< alert type="note" >}}
 
@@ -345,7 +345,7 @@ global:
       PGSSLROOTCERT: '/etc/gitlab/postgres/ssl/server-ca.pem'
 ```
 
-### PostgreSQLのロードバランシング
+### PostgreSQLのロードバランシング {#postgresql-load-balancing}
 
 このチャートでは、HA方式でPostgreSQLをデプロイしないため、この機能を使用するには、[外部PostgreSQL](../advanced/external-db/_index.md)を使用する必要があります。
 
@@ -397,7 +397,7 @@ global:
       replica_check_interval:     # See documentation
 ```
 
-### 複数のデータベース接続を設定する
+### 複数のデータベース接続を設定する {#configure-multiple-database-connections}
 
 {{< history >}}
 
@@ -407,7 +407,7 @@ global:
 
 GitLab 16.0におけるGitLabのデフォルトでは、同じPostgreSQLデータベースを指す2つのデータベース接続を使用します。
 
-## Redisの設定
+## Redisの設定 {#configure-redis-settings}
 
 GitLabグローバルRedisの設定は、`global.redis`キーの下にあります。
 
@@ -444,7 +444,7 @@ global:
 | `auth.secret`      | 文字列  |         | Redisの`auth.secret`属性は、プル元となるKubernetesの`Secret`の名前を定義します。 |
 | `scheme`           | 文字列  | `redis` | Redis URLの生成に使用するURIスキーム。有効な値は、`redis`、`rediss`、および`tcp`です。`rediss`（SSL暗号化接続）スキームを使用する場合、サーバーで使用される証明書は、システムで信頼するチェーンの一部でなければなりません。そのためには、[カスタム公開認証局（CA）](#custom-certificate-authorities)のリストに追加することができます。 |
 
-### Redisチャート固有の設定
+### Redisチャート固有の設定 {#configure-redis-chart-specific-settings}
 
 [Redisチャート](https://github.com/bitnami/charts/tree/main/bitnami/redis)を直接設定するための設定は、`redis`キーの下にあります。
 
@@ -459,7 +459,7 @@ redis:
 
 詳細については、[全設定のリスト](https://artifacthub.io/packages/helm/bitnami/redis/11.3.4#parameters)を参照してください。
 
-### Redis Sentinelのサポート
+### Redis Sentinelのサポート {#redis-sentinel-support}
 
 現在のRedis Sentinelサポートでサポートされるのは、GitLabチャートはと別個にデプロイされたSentinelだけです。その結果として、GitLabチャートによる Redisデプロイを`redis.install=false`により無効にする必要があります。Redisパスワードを含むKubernetes Secretを、GitLabチャートをデプロイする前に手動で作成する必要があります。
 
@@ -494,7 +494,7 @@ global:
 
 上記の表でも指定されているのでない限り、一般的な[Redis設定](#configure-redis-settings)に含まれる先行するすべてのRedis属性は、Sentinelサポートに引き続き適用されます。
 
-#### Redis Sentinelのパスワードサポート
+#### Redis Sentinelのパスワードサポート {#redis-sentinel-password-support}
 
 {{< history >}}
 
@@ -535,7 +535,7 @@ global:
 
 `sentinelAuth`は、[Redisインスタンス固有の設定](#multiple-redis-support)または[`global.redis.redisYmlOverride`](../advanced/external-redis/_index.md#redisyml-override)でオーバーライドできないことに注意してください。
 
-### 複数のRedisのサポート
+### 複数のRedisのサポート {#multiple-redis-support}
 
 GitLabチャートには、さまざまな永続クラス用に別個のRedisインスタンスで実行するためのサポートが含まれています。現在のところ、次のとおりです。
 
@@ -657,7 +657,7 @@ global:
 
 インスタンス定義ごとに、Redis Sentinelのサポートも使用できます。Sentinelの設定は**共有されません**。Sentinelを使用するインスタンスごとに指定する必要があります。Sentinelサーバーの設定に使用する属性については、[Sentinelの設定](#redis-sentinel-support)を参照してください。
 
-### セキュアなRedisスキーム（SSL）を指定する
+### セキュアなRedisスキーム（SSL）を指定する {#specify-secure-redis-scheme-ssl}
 
 SSLでRedisに接続するには、次のようにします。
 
@@ -679,7 +679,7 @@ SSLでRedisに接続するには、次のようにします。
 1. Bitnamiの[TLSを有効にする手順](https://github.com/bitnami/charts/tree/main/bitnami/redis#securing-traffic-using-tls)に従います。チャートコンポーネントが、Redis証明書の作成に使用する公開認証局（CA）を信頼していることを確認します。
 1. 任意。カスタム公開認証局を使用する場合については、[カスタム公開認証局（CA）](#custom-certificate-authorities)のグローバル設定を参照してください。
 
-### パスワードレスRedisサーバー
+### パスワードレスRedisサーバー {#password-less-redis-servers}
 
 Google Cloud Memorystoreなどの一部のRedisサービスでは、パスワードとそれに関連する`AUTH`コマンドを使用しません。パスワードの使用と要件は、次の設定により無効にできます。
 
@@ -693,7 +693,7 @@ redis:
   enabled: false
 ```
 
-## レジストリの設定
+## レジストリの設定 {#configure-gitaly-settings}
 
 レジストリのグローバル設定は、`global.registry`キーの下にあります。
 
@@ -722,7 +722,7 @@ global:
 
 `host`は、自動生成された外部レジストリホスト名参照をオーバーライドするために使用されます。
 
-### notifications（通知）
+### notifications（通知）{#notifications}
 
 この設定は、[レジストリ通知](https://distribution.github.io/distribution/about/notifications/)を設定するために使用されます。これは、（アップストリームの指定に従って）マップを取り込みますが、Kubernetes Secretsとして機密ヘッダーを提供するという機能が追加されています。たとえば、認証ヘッダーには機密データが含まれ、他のヘッダーには標準のデータが含まれている次のスニペットについて考えてみましょう。
 
@@ -750,7 +750,7 @@ global:
 
 この例の場合、ヘッダー`X-Random-Config`は標準のヘッダーであり、その値は`values.yaml`ファイル内に、または`--set`フラグを介してプレーンテキストで指定できます。ただし、ヘッダー`Authorization`は機密ヘッダーであるため、Kubernetes secretからマウントすることをお勧めします。シークレットの構造の詳細については、[シークレットに関するドキュメント](../installation/secrets.md#registry-sensitive-notification-headers)を参照してください
 
-## Gitalyの設定
+## Gitalyの設定 {#configure-gitaly-settings}
 
 Gitalyのグローバル設定は、`global.gitaly`キーの下にあります。
 
@@ -773,7 +773,7 @@ global:
       secretName: gitlab-gitaly-tls
 ```
 
-### Gitalyホスト
+### Gitalyホスト {#gitaly-hosts}
 
 [Gitaly](https://gitlab.com/gitlab-org/gitaly)は、Gitリポジトリへの高レベルRPCアクセスを提供するサービスであり、GitLabによってなされるすべてのGit呼び出しを処理します。
 
@@ -789,7 +789,7 @@ global:
 
 現時点で、Gitaly認証トークンは、内部または外部のすべてのGitalyサービスで同一であることが期待されています。これらが揃っていることを確認してください。詳細については、[イシュー#1992](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1992)を参照してください。
 
-#### internal（内部）
+#### internal（内部）{#internal}
 
 現在のところ、`internal`キーは1つのキー`names`だけで構成されており、これはチャートによって管理される[ストレージ名](https://docs.gitlab.com/administration/repository_storage_paths/)のリストです。リスト内の名前ごとに（*論理的な順序*で）1つのポッドが生成されます。その名前は`${releaseName}-gitaly-${ordinal}`です（`ordinal`は`names`リスト内のインデックス）。動的なプロビジョニングが有効になっている場合、`PersistentVolumeClaim`は一致します。
 
@@ -799,7 +799,7 @@ global:
 
 [複数の内部ノードの設定](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/gitaly/values-multiple-internal.yaml)のサンプルがexamplesフォルダーにあります。
 
-#### external（外部）
+#### external（外部）{#external}
 
 `external`キーは、クラスターの外部にあるGitalyノードの設定を提供します。このリストの各項目には、次の3つのキーがあります。
 
@@ -812,7 +812,7 @@ GitLabでは、[外部Gitalyサービスの使用](../advanced/external-gitaly/_
 
 可用性の高いGitalyサービスを提供するために、外部[Praefect](https://docs.gitlab.com/administration/gitaly/praefect/)を使用することもできます。クライアントにとっては違いがないため、2つの設定は交換可能です。
 
-#### 混合
+#### 混合 {#mixed}
 
 内部Gitalyノードと外部Gitalyノードの両方を使用することは可能ですが、次の点に注意してください。
 
@@ -821,7 +821,7 @@ GitLabでは、[外部Gitalyサービスの使用](../advanced/external-gitaly/_
 
 examplesフォルダーに、[内部ノードと外部ノードの混合設定](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/gitaly/values-multiple-mixed.yaml)の例があります。
 
-### authToken
+### authToken {#authToken}
 
 Gitalyの`authToken`属性には、次の2つのサブキーがあります。
 
@@ -830,7 +830,7 @@ Gitalyの`authToken`属性には、次の2つのサブキーがあります。
 
 すべてのGitalyノードで同じ認証トークンを**共有する**必要があります。
 
-### 非推奨のGitaly設定
+### 非推奨のGitaly設定 {#deprecated-gitaly-settings}
 
 | 名前                         | 型    | デフォルト | 説明 |
 |:---------------------------- |:-------:|:------- |:----------- |
@@ -838,23 +838,22 @@ Gitalyの`authToken`属性には、次の2つのサブキーがあります。
 | `port`*（非推奨）*        | 整数 | `8075`  | Gitalyサーバーへの接続に使用するポート。 |
 | `serviceName`*（非推奨）* | 文字列  |         | Gitalyサーバーを操作している`service`の名前。これが存在して、`host`が存在しない場合、チャートでは、`host`値ではなくサービスのホスト名（および現在の`.Release.Name`）をテンプレートとして設定します。これは、GitalyをGitLabチャート全体の一部として使用する場合に便利です。 |
 
-### TLSの設定
+### TLSの設定 {#tls-settings}
 
 TLS経由で動作するようにGitalyを設定する方法について詳しくは、[Gitalyチャートのドキュメント](gitlab/gitaly#running-gitaly-over-tls)をご覧ください。
 
-## Praefectの設定
-
+## Praefectの設定 {#configure-praefect-settings}
 Praefectのグローバル設定は、`global.praefect`キーの下にあります。
 
 Praefectはデフォルトで無効になっています。追加の設定なしで有効にした場合、Gitalyレプリカが3つ作成され、デフォルトのPostgreSQLインスタンス上にPraefectデータベースを手動で作成する必要があります。
 
-### Praefectを有効にする
+### Praefectを有効にする {#enable-praefect}
 
 デフォルト設定でPraefectを有効にするには、`global.praefect.enabled=true`を設定します。
 
 Praefectを使用してGitalyクラスターを操作する方法の詳細については、[Praefectのドキュメント](https://docs.gitlab.com/administration/gitaly/praefect/)を参照してください。
 
-### Praefectのグローバル設定
+### Praefectのグローバル設定 {#global-settings-for-praefect}
 
 ```yaml
 global:
@@ -879,7 +878,7 @@ global:
 | psql.user       | 文字列  | `praefect` | 使用するデータベースユーザー                                           |
 | psql.dbName | 文字列 | `praefect` | 使用するデータベースの名前 |
 
-## MinIOの設定
+## MinIOの設定 {#configure-minio-settings} {#configure-minio-settings}
 
 GitLabのグローバルMinIO設定は、`global.minio`キーの下にあります。これらの設定の詳細については、[MinIOチャート](minio/_index.md)内のドキュメントを参照してください。
 
@@ -890,7 +889,7 @@ global:
     credentials: {}
 ```
 
-## appConfigの設定
+## appConfigの設定 {#configure-appconfig-settings} {#configure-appconfig-settings}
 
 [Webservice](gitlab/webservice/_index.md)、[Sidekiq](gitlab/sidekiq/_index.md)、および [Gitaly](gitlab/gitaly/_index.md)のチャートでは複数の設定が共有されており、それらは`global.appConfig`キーで設定されます。
 
@@ -1042,7 +1041,7 @@ global:
       routingRules: []
 ```
 
-### 一般的なアプリケーション設定
+### 一般的なアプリケーション設定 {#general-application-settings}  {#general-application-settings}
 
 Railsアプリケーションの一般的なプロパティを微調整するために使用できる`appConfig`設定について、以下に説明します。
 
@@ -1063,7 +1062,7 @@ Railsアプリケーションの一般的なプロパティを微調整するた
 | `webhookTimeout`                    | 整数 | （空） | [フックが失敗したと見なされる](https://docs.gitlab.com/user/project/integrations/webhooks/#webhook-fails-or-multiple-webhook-requests-are-triggered)までの待機時間（秒単位）。 |
 | `graphQlTimeout`                    | 整数 | （空） | Railsが[GraphQLリクエストを完了](https://docs.gitlab.com/api/graphql/#limits)するまでの時間（秒単位）。 |
 
-#### コンテンツセキュリティポリシー
+#### コンテンツセキュリティポリシー {#content-security-policy} {#content-security-policy}
 
 コンテンツセキュリティポリシー（CSP）を設定することは、JavaScriptクロスサイトスクリプティング（XSS）攻撃を阻止するのに役立ちます。設定の詳細については、GitLabドキュメントを参照してください。[コンテンツセキュリティポリシーのドキュメント](https://docs.gitlab.com/omnibus/settings/configuration/#set-a-content-security-policy)
 
@@ -1096,7 +1095,7 @@ global:
 
 CSPルールを不適切に設定すると、GitLabが正常に動作しなくなる可能性があります。ポリシーを実際に展開していく前に、`report_only`を`true`に変更して設定をテストするとよいかもしれません。
 
-#### defaultProjectsFeatures
+#### defaultProjectsFeatures {#defaultprojectsfeatures} {#defaultprojectsfeatures}
 
 新規プロジェクト作成時に、対応する各機能をデフォルトで有効にするかどうかを決定するフラグ。どのフラグもデフォルトは`true`です。
 
@@ -1110,7 +1109,7 @@ defaultProjectsFeatures:
   containerRegistry: true
 ```
 
-### Gravatar/Libravatarの設定
+### Gravatar/Libravatarの設定 {#gravatar-libravatar-settings}
 
 デフォルトの場合、チャートはgravatar.comで利用可能なGravatarアバターサービスと連携します。とはいえ、必要に応じてカスタムLibravatarサービスも使用できます:
 
@@ -1119,7 +1118,7 @@ defaultProjectsFeatures:
 | `gravatar.plainURL` | 文字列 | （空） | [LibravatarインスタンスのHTTP URL（gravatar.comの使用に代わるもの）](https://docs.gitlab.com/administration/libravatar/)。 |
 | `gravatar.sslUrl`   | 文字列 | （空） | [LibravatarインスタンスのHTTPS URL（gravatar.comの使用に代わるもの）](https://docs.gitlab.com/administration/libravatar/)。 |
 
-### GitLabインスタンスに対するAnalyticsサービスのフック
+### GitLabインスタンスに対するAnalyticsサービスのフック {#hooking-analytics-services-to-the-gitlab-instance}
 
 Google AnalyticsやMatomoなどのAnalyticsサービス設定は、`appConfig`の下の`extra`キーで定義されています。
 
@@ -1133,7 +1132,7 @@ Google AnalyticsやMatomoなどのAnalyticsサービス設定は、`appConfig`�
 | `extra.googleTagManagerNonceId` | 文字列 | （空） | GoogleタグマネージャーID。 |
 | `extra.bizible`            | ブール値 | `false` | Bizibleスクリプトを有効にする場合はtrueに設定 |
 
-### 統合されたオブジェクトストレージ
+### 統合されたオブジェクトストレージ {#consolidated-object-storage}
 
 オブジェクトストレージの個々の設定方法について説明する以下のセクションに加えて、これらの項目の共有設定を使いやすくするため、統合されたオブジェクトストレージ設定が追加されました。`object_store`を利用すると、`connection`を1回設定するだけで、オブジェクトストレージでサポートされる機能のうち、`connection`プロパティでは個別に設定されないものすべてに対してそれが使用されるようになります。
 
@@ -1159,7 +1158,7 @@ Google AnalyticsやMatomoなどのAnalyticsサービス設定は、`appConfig`�
 
 [接続](#connection)に`AWS`プロバイダー（内蔵MinIOなどのS3互換プロバイダー）を使用する場合、GitLab Workhorseにより、ストレージ関連のすべてのアップロードをオフロードできます。この統合設定を使用する場合、これは自動的に有効になります。
 
-### バケットを指定する
+### バケットを指定する {#specify-buckets}
 
 オブジェクトは、タイプごとに異なるバケットに格納する必要があります。デフォルトの場合、GitLabがタイプごとに使用するバケット名は次のとおりです。
 
@@ -1188,7 +1187,7 @@ Google AnalyticsやMatomoなどのAnalyticsサービス設定は、`appConfig`�
 --set global.appConfig.dependencyProxy.bucket=<BUCKET NAME>
 ```
 
-#### storage_options
+#### storage_options {#storage_options}
 
 `storage_options`は、[S3サーバー側の暗号化](https://docs.gitlab.com/administration/object_storage/#server-side-encryption-headers)を設定するために使用されます。
 
@@ -1212,7 +1211,7 @@ Google AnalyticsやMatomoなどのAnalyticsサービス設定は、`appConfig`�
     server_side_encryption_kms_key_id: arn:aws:kms:us-west-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
 ```
 
-### LFS、アーティファクト、アップロード、パッケージ、外部MR差分、および依存プロキシ
+### LFS、アーティファクト、アップロード、パッケージ、外部MR差分、および依存プロキシ {#lfs-artifacts-uploads-packages-external-mr-diffs-and-dependency-proxy}
 
 これらの設定の詳細を以下に示します。`bucket`プロパティのデフォルト値を除けば、構造的に同じなので、ドキュメントを個別に繰り返すことはしません。
 
@@ -1232,7 +1231,7 @@ Google AnalyticsやMatomoなどのAnalyticsサービス設定は、`appConfig`�
 | `bucket`         | 文字列  | さまざま | オブジェクトストレージプロバイダーから使用するバケットの名前。サービスに応じて、デフォルトは`git-lfs`、`gitlab-artifacts`、`gitlab-uploads`、`gitlab-packages`のどれかになります。 |
 | `connection`     | 文字列  | `{}`    | [下記を参照](#connection)。 |
 
-#### connection（接続）
+#### connection（接続） {#connection}
 
 `connection`プロパティは、Kubernetes Secretに移行されました。このシークレットの内容は、YAML形式のファイルでなければなりません。デフォルトは`{}`であり、`global.minio.enabled`が`true`の場合は無視されます。
 
@@ -1256,21 +1255,21 @@ kubectl create secret generic gitlab-rails-storage \
     --from-file=connection=rails.yaml
 ```
 
-#### when（外部MR差分のみ）
+#### when（外部MR差分のみ） {#when-only-for-external-mr-diffs}
 
 `externalDiffs`の設定には、[オブジェクトストレージに特定の差分を条件付きで保存する](https://docs.gitlab.com/administration/merge_request_diffs/#alternative-in-database-storage)ための追加キー`when`があります。Railsコードによってデフォルト値が割り当てられるようにするため、チャートではこの設定がデフォルトで空のままになっています。
 
-#### CDN（CIアーティファクトのみ）
+#### CDN（CIアーティファクトのみ） {#cdn-only-for-ci-artifacts}
 
 `artifacts`の設定には、[Google Cloud Storageバケットより前にGoogle CDNを設定する](../advanced/external-object-storage/_index.md#google-cloud-cdn)ための追加キー`cdn`があります。
 
-### 受信メールの設定
+### 受信メールの設定 {#incoming-email-settings}
 
 受信メールの設定については、[コマンドラインオプション](../installation/command-line-options.md#incoming-email-configuration)のページで説明されています。
 
-### KASの設定
+### KASの設定 {#kas-settings}
 
-#### カスタムシークレット
+#### カスタムシークレット {#custom-secret}
 
 オプションとして、KAS `secret`の名前と`key`をカスタマイズできます。そのためには、以下のようにしてHelmの`--set variable`オプションを使用するか、
 
@@ -1291,7 +1290,7 @@ global:
 
 シークレット値をカスタマイズする場合は、[シークレットに関するドキュメント](../installation/secrets.md#gitlab-kas-secret)を参照してください。
 
-#### カスタムURL
+#### カスタムURL {#custom-urls} 
 
 GitLabバックエンドでKASに使用されるURLは、Helmの`--set variable`オプションを使用してカスタマイズできます。
 
@@ -1312,7 +1311,7 @@ global:
       clientTimeoutSeconds: 10 # Optional, default is 5 seconds
 ```
 
-#### 外部KAS
+#### 外部KAS {#external-kas}
 
 外部KASサーバー（チャートによって管理されていないもの）は、それを明示的に有効にして必要なURLを設定することにより、GitLabバックエンドに認識させることができます。そのためには、以下のようにしてHelmの`--set variable`オプションを使用するか、
 
@@ -1335,7 +1334,7 @@ global:
       clientTimeoutSeconds: 10 # Optional, default is 5 seconds
 ```
 
-#### TLSの設定
+#### TLSの設定 {#tls-settings-1}
 
 KASでは、その`kas`ポッドと他のGitLabチャートコンポーネントとの間のTLS通信がサポートされています。
 
@@ -1371,7 +1370,7 @@ global:
       caSecretName: *internal-ca
 ```
 
-### レビュアーの推奨設定
+### レビュアーの推奨設定 {#suggested-reviewers-settings}
 
 {{< alert type="note" >}}
 
@@ -1398,7 +1397,7 @@ global:
 
 シークレット値をカスタマイズする場合は、[シークレットに関するドキュメント](../installation/secrets.md#gitlab-suggested-reviewers-secret)を参照してください。
 
-### LDAP
+### LDAP {#ldap}
 
 `ldap.servers`の設定により、[LDAP](https://docs.gitlab.com/administration/auth/ldap/)ユーザー認証を設定できます。これはマップとして提示され、ソースからのインストールと同じようにして、`gitlab.yml`の中の適切なLDAPサーバー設定に変換されます。
 
@@ -1442,7 +1441,7 @@ Helmの`--set`項目の中で、カンマは[特殊文字](https://helm.sh/docs/
 
 {{< /alert >}}
 
-#### LDAP Webサインインを無効にする
+#### LDAP Webサインインを無効にする {#disable-ldap-web-sign-in}
 
 SAMLなどの代替手段が望ましいなら、Web UIを通じてLDAP認証情報を使用しないようにすると便利な場合があります。これにより、グループ同期にLDAPを使用しつつ、SAML Identity Providerがカスタム2FAなどの追加チェックを処理できるようになります。
 
@@ -1450,7 +1449,7 @@ LDAP Webサインインが無効になっている場合、ユーザーのサイ
 
 WebサインインにLDAPを使用することを無効にするには、`global.appConfig.ldap.preventSignin: true`を設定します。
 
-#### カスタムCAまたは自己署名LDAP証明書の使用
+#### カスタムCAまたは自己署名LDAP証明書の使用 {#using-a-custom-ca-or-self-signed-ldap-certificates}
 
 LDAPサーバーでカスタムCAまたは自己署名証明書を使用する場合は、以下を実行する必要があります。
 
@@ -1487,7 +1486,7 @@ GitLab 15.9以降、`/etc/ssl/certs/`の証明書に`ca-cert-`のプレフィッ
 
 詳細については、[カスタム公開認証局（CA）](#custom-certificate-authorities)を参照してください。
 
-### DuoAuth
+### DuoAuth {#duoauth}
 
 [GitLab Duoで2要素認証（2FA）を有効にする](https://docs.gitlab.com/user/profile/account/two_factor_authentication/#enable-one-time-password)には、以下の設定を使用します。
 
@@ -1510,7 +1509,7 @@ global:
 | `integrationKey` | 文字列  |         | GitLab Duo APIインテグレーションキー                    |
 | `secretKey`      |         |         | GitLab Duo APIシークレットキー。[シークレットの名前とキーの名前で構成](#configure-the-gitlab-duo-secret-key)されていなければなりません。 |
 
-### GitLab Duoシークレットキーを設定する
+### GitLab Duoシークレットキーを設定する {#configure-the-cisco-duo-secret-key}
 
 GitLab HelmチャートでGitLab Duo認証インテグレーションを設定するには、`global.appConfig.duoAuth.secretKey.secret`の設定の中でGitLab Duo認証secret_key値を含むシークレットを提供する必要があります。
 
@@ -1520,7 +1519,7 @@ GitLab Duoアカウント`secretKey`を格納するKubernetes Secretオブジェ
 kubectl create secret generic <secret_object_name> --from-literal=secretKey=<duo_secret_key_value>
 ```
 
-### OmniAuth
+### OmniAuth {#omniauth}
 
 GitLabでは、OmniAuthを利用することにより、ユーザーがGitHub、Google、その他の一般的なサービスを使用してサインインできるようになっています。詳細については、GitLabの[OmniAuthドキュメント](https://docs.gitlab.com/integration/omniauth/#configure-common-settings)を参照してください。
 
@@ -1558,7 +1557,7 @@ omniauth:
 | `syncProfileAttributes`   |         | `['email']` |
 | `syncProfileFromProvider` |         | `[]`        |
 
-#### プロバイダー
+#### プロバイダー {#providers}
 
 `providers`は、ソースからインストールする場合と同じように、`gitlab.yml`の設定に使用されるマップの配列として提示されます。[サポートされているプロバイダー](https://docs.gitlab.com/integration/omniauth/#supported-providers)の利用可能な選択については、GitLabドキュメントを参照してください。デフォルトは`[]`です。
 
@@ -1643,7 +1642,7 @@ omniauth:
 
 `--set`引数は使い方が複雑であるため、ユーザーは、YAMLスニペットを使用し、`-f omniauth.yaml`によって`helm`に渡したいと思うかもしれません。
 
-### Cronジョブ関連の設定
+### Cronジョブ関連の設定 {#cron-jobs-related-settings}
 
 Sidekiqには、cronスタイルのスケジュールを使用して定期的に実行されるように設定できるメンテナンスジョブが含まれています。いくつかの例を以下に示します。ジョブのその他の例については、サンプル[`gitlab.yml`](https://gitlab.com/gitlab-org/gitlab/blob/master/config/gitlab.yml.example)の`cron_jobs`と`ee_cron_jobs`のセクションを参照してください。
 
@@ -1661,7 +1660,7 @@ global:
         cron: "*/7 * * * *"
 ```
 
-### Sentryの設定
+### Sentryの設定 {#sentry-settings}
 
 これらの設定は、[SentryによるGitLabエラーレポート](https://docs.gitlab.com/omnibus/settings/configuration/#error-reporting-and-logging-with-sentry)を有効にするために使用します。
 
@@ -1682,7 +1681,7 @@ global:
 | `clientside_dsn` | 文字列  |        | フロントエンドエラーのSentry DSN |
 | `environment`    | 文字列  |        | [Sentry環境](https://docs.sentry.io/concepts/key-terms/environments/)を参照 |
 
-### `gitlab_docs`の設定
+### `gitlab_docs`の設定 {#gitlab_docs-settings}
 
 これらの設定は、`gitlab_docs`を有効するために使用します。
 
@@ -1699,7 +1698,7 @@ global:
 | `enabled`         | ブール値 | `false`  | `gitlab_docs`を有効または無効にする |
 | `host`            | 文字列  |  ""        | ドキュメントホスト                       |
 
-### スマートカード認証の設定
+### スマートカード認証の設定 {#smartcard-authentication-settings}
 
 ```yaml
 global:
@@ -1720,7 +1719,7 @@ global:
 | `sanExtensions`                 | ブール値 | `false` | ユーザーと証明書を照合するためにSAN拡張機能を使用できるようにします。 |
 | `requiredForGitAccess`          | ブール値 | `false` | Gitアクセスのためのスマートカードサインインでブラウザセッションを必須にします。 |
 
-### Sidekiqルーティングルールの設定
+### Sidekiqルーティングルールの設定 {#sidekiq-routing-rules-settings}
 
 GitLabでは、ジョブのスケジュールを設定する前に、ワーカーから目的のキューへのジョブルーティングがサポートされています。Sidekiqクライアントは、設定されたルーティングルールリストに基づいてジョブを照合します。ルールは先頭から順に評価され、特定のワーカーで一致した時点で、そのワーカーの処理は停止されます（最初の一致が優先されます）。ワーカーがどのルールにも一致しない場合、ワーカー名から生成されるキュー名に戻ります。
 
@@ -1745,7 +1744,7 @@ global:
       - ["*", "default"]
 ```
 
-## Railsの設定
+## Railsの設定 {#configure-rails-settings}
 
 GitLabスイートの大部分はRailsに基づいています。そのため、このプロジェクト内の多くのコンテナはこのスタックで動作します。以下の設定は、それらのコンテナすべてに適用され、個別に設定するのではなく、グローバルに設定するための簡単なアクセス手段となります。
 
@@ -1756,7 +1755,7 @@ global:
       enabled: true
 ```
 
-## Workhorseの設定
+## Workhorseの設定 {#configure-workhorse-settings}
 
 GitLabスイートのいくつかのコンポーネントは、GitLab Workhorseを介してAPIと通信します。現在、これはWebserviceチャートの一部となっています。これらの設定は、GitLab Workhorseに接続することの必要なすべてのチャートで使用されます。それは、個別に設定するのではなく、グローバルに設定するための簡単なアクセス手段となります。
 
@@ -1776,7 +1775,7 @@ global:
 | port        | 整数 | `8181` | 関連するAPIサーバーのポート番号。 |
 | tls.enabled | ブール値 | `false` | `true`に設定すると、WorkhorseのTLSサポートが有効になります。 |
 
-### Bootsnapキャッシュ
+### Bootsnapキャッシュ {#bootsnap-cache}
 
 Railsコードベースでは、[ShopifyのBootsnap](https://github.com/Shopify/bootsnap) Gemを使用しています。その動作を設定するため、以下の設定が使用されます。
 
@@ -1786,7 +1785,7 @@ Railsコードベースでは、[ShopifyのBootsnap](https://github.com/Shopify/
 
 可能な場合は、これを有効にしておくことをお勧めします。
 
-## GitLab Shellを設定する
+## GitLab Shellを設定する {#configure-gitlab-shell}
 
 [GitLab Shell](gitlab/gitlab-shell/_index.md)チャートのグローバル設定には、複数の項目があります。
 
@@ -1807,7 +1806,7 @@ global:
 | `hostKeys`            |         |         | GitLab Shellチャート固有のドキュメントにある[hostKeys](gitlab/gitlab-shell/_index.md#hostkeyssecret)を参照。 |
 | `tcp.proxyProtocol`   | ブール値 | `false` | 具体的なドキュメントについては、下記の[TCPプロキシプロトコル](#tcp-proxy-protocol)を参照。 |
 
-### ポート
+### ポート {#port}
 
 IngressがSSHトラフィックを渡すために使用するポートと、GitLabから提供されるSSH URLで使用されるポートは、`global.shell.port`により制御できます。これは、サービスがリッスンするポートと、プロジェクトUIで提供されるSSHクローンURLに反映されます。
 
@@ -1830,7 +1829,7 @@ nginx-ingress:
       type: NodePort
 ```
 
-### TCPプロキシプロトコル
+### TCPプロキシプロトコル {#tcp-proxy-protocol}
 
 SSH Ingressで[プロキシプロトコル](https://www.haproxy.com/blog/use-the-proxy-protocol-to-preserve-a-clients-ip-address)の処理を有効にすると、プロキシプロトコルヘッダーを追加するアップストリームプロキシからの接続を適切に処理できます。それにより、SSHが追加のヘッダーを受信してSSHが損なわれるのを防ぐことができます。
 
@@ -1843,7 +1842,7 @@ global:
       proxyProtocol: true # default false
 ```
 
-## GitLab Pagesを設定する
+## GitLab Pagesを設定する {#configure-gitlab-pages}
 
 他のチャートで使用されるグローバルGitLab Pages設定についてのドキュメントは、`global.pages`キーの下にあります。
 
@@ -1896,7 +1895,7 @@ global:
 | `apiSecret.key`                 | 文字列    |                            | APIキーシークレットのうち、APIキーが格納されるキー。 |
 | `namespaceInPath`               | ブール値   | false                      | （ベータ版）ワイルドカードなしでのDNS設定をサポートするため、URLパスでのネームスペースを有効または無効にします。詳細については、[PagesドメインのワイルドカードなしDNSのドキュメント](gitlab/gitlab-pages/_index.md#pages-domain-without-wildcard-dns)を参照してください。 |
 
-## Webサービスの設定
+## Webサービスの設定 {#configure-webservice}
 
 （他のチャートでも使用される）Webサービスのグローバル設定についてのドキュメントは、`global.webservice`キーの下にあります。
 
@@ -1906,7 +1905,7 @@ global:
     workerTimeout: 60
 ```
 
-### workerTimeout
+### workerTimeout {#workertimeout}
 
 WebサービスワーカープロセスがWebサービスマスタープロセスによって強制終了されるまでのリクエストタイムアウト（秒単位）を設定します。デフォルト値は60秒です。
 
@@ -1921,7 +1920,7 @@ gitlab:
       GITLAB_RAILS_WAIT_TIMEOUT: "90"
 ```
 
-## カスタム公開認証局（CA）
+## カスタム公開認証局（CA） {#custom-certificate-authorities}
 
 {{< alert type="note" >}}
 
@@ -1966,7 +1965,7 @@ global:
 
 シークレットまたはConfigMapは、任意の数を指定でき、そのそれぞれにPEMエンコードのCA証明書を保持する任意の数のキーを含めることができます。これらは、`global.certificates.customCAs`の下のエントリとして設定します。マウントする特定のキーのリストを示す`keys:`が指定されているのでない限り、すべてのキーがマウントされます。すべてのシークレットおよびConfigMapにわたるマウントされたキーは、いずれも一意でなければなりません。シークレットとConfigMapには任意の方法で名前を付けることができますが、キー名の競合があっては*なりません*。
 
-## アプリケーションリソース
+## アプリケーションリソース {#application-resource}
 
 GitLabには、オプションで[Applicationリソース](https://github.com/kubernetes-sigs/application)を含めることができます。これは、クラスター内でGitLabアプリケーションを識別するために作成できます。バージョン`v1beta1`の[Application CRD](https://github.com/kubernetes-sigs/application#installing-the-crd)がすでにクラスターにデプロイされている必要があります。
 
@@ -1995,11 +1994,11 @@ certmanager:
   install: false
 ```
 
-## GitLabベースイメージ
+## GitLabベースイメージ {#gitlab-base-image}
 
 GitLab Helmチャートでは、さまざまな初期化タスクのために1つの共通のGitLabベースイメージを使用します。このイメージではUBIビルドがサポートされており、レイヤを他のイメージと共有します。
 
-## サービスアカウント
+## サービスアカウント {#service-accounts}
 
 GitLab Helmチャートでは、カスタム[サービスアカウント](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/)を使用してポッドを実行することができます。これは、`global.serviceAccount`の中で次のように設定します。
 
@@ -2025,7 +2024,7 @@ global:
 
 {{< /alert >}}
 
-## アノテーション
+## アノテーション {#annotations}
 
 Deployment、Service、およびIngressの各オブジェクトには、カスタムアノテーション適用できます。
 
@@ -2044,7 +2043,7 @@ global:
       environment: production
 ```
 
-## ノードセレクター
+## ノードセレクター {#node-selector}
 
 カスタム`nodeSelector`をすべてのコンポーネントにグローバルに適用することができます。グローバルのデフォルト値があるなら、各サブチャートで個別にそれをオーバーライドすることもできます。
 
@@ -2060,9 +2059,9 @@ global:
 
 {{< /alert >}}
 
-## ラベル
+## ラベル {#labels}
 
-### 共通ラベル
+### 共通ラベル {#common-labels}
 
 ラベルは、設定`common.labels`を使用することにより、さまざまなオブジェクトによって作成されるほぼすべてのオブジェクトに適用できます。これは、`global`キーの下、または特定のチャートの設定の下で適用できます。例：
 
@@ -2094,7 +2093,7 @@ gitlab:
 
 ここで利用している一部のチャートは、このラベル設定から除外されています。これらの追加ラベルを受け取るのは、[GitLabコンポーネントのサブチャート](gitlab/_index.md)だけです。
 
-### ポッド
+### `pod` {#pod}
 
 カスタムラベルは、さまざまなデプロイとジョブに適用できます。これらのラベルは、このHelmチャートによって構築される既存のラベルまたは事前設定済みラベルを補完するものです。これらの補足ラベルは、`matchSelectors`では**利用されません**。
 
@@ -2105,7 +2104,7 @@ global:
       environment: production
 ```
 
-### サービス
+### サービス {#service}
 
 カスタムラベルをサービスに適用することができます。これらのラベルは、このHelmチャートによって構築される既存のラベルまたは事前設定済みラベルを補完するものです。
 
@@ -2116,7 +2115,7 @@ global:
       environment: production
 ```
 
-## トレーシング
+## トレーシング {#tracing}
 
 GitLab Helmチャートではトレーシングがサポートされており、それは次のようにして設定できます。
 
@@ -2131,7 +2130,7 @@ global:
 - `global.tracing.connection.string`は、トレーシングスパンの送信先を設定するために使用します。詳細については、[GitLabトレーシングのドキュメント](https://docs.gitlab.com/development/distributed_tracing/)を参照してください
 - `global.tracing.urlTemplate`は、GitLabパフォーマンスバーでのトレーシング情報URLレンダリングのためのテンプレートとして使用します。
 
-## extraEnv
+## `extraEnv` {#extraenv}
 
 `extraEnv`を使用すると、GitLabチャート（`charts/gitlab/charts`）によりデプロイされるポッド内のすべてのコンテナで、追加の環境変数を公開できます。グローバルレベルで設定された追加の環境変数は、チャートレベルで指定された変数にマージされ、チャートレベルで指定された変数が優先されます。
 
@@ -2144,7 +2143,7 @@ global:
     SOME_OTHER_KEY: some_other_value
 ```
 
-## extraEnvFrom
+## `extraEnvFrom` {#extraenvfrom}
 
 `extraEnvFrom`を使用すると、ポッド内のすべてのコンテナで、他のデータソースからの追加の環境変数を公開できます。追加の環境変数は、`global`レベル（`global.extraEnvFrom`）およびサブチャートレベル（`<subchart_name>.extraEnvFrom`）で設定できます。
 
@@ -2178,7 +2177,7 @@ gitlab:
 
 {{< /alert >}}
 
-## OAuthの設定
+## OAuthの設定 {#configure-oauth-settings}
 
 OAuthインテグレーションは、サポートするサービスに合わせてすぐに利用できる設定になっています。`global.oauth`で指定されているサービスは、デプロイ中に、OAuthクライアントアプリケーションとして自動的にGitLabに登録されます。デフォルトでは、アクセス制御が有効になっている場合、このリストにGitLab Pagesが含まれています。
 
@@ -2203,7 +2202,7 @@ global:
 
 シークレットの詳細については、[シークレットのドキュメント](../installation/secrets.md#oauth-integration)を参照してください。
 
-## Kerberos
+## Kerberos  {#Kerberos}
 
 GitLab HelmチャートでKerberosインテグレーションを設定するには、GitLabホストのサービスプリンシパルを指定したKerberos [keytab](https://web.mit.edu/kerberos/krb5-devel/doc/basic/keytab_def.html)を含むシークレットを、`global.appConfig.kerberos.keytab.secret`設定に指定する必要があります。keytabファイルがない場合は、Kerberos管理者にお問い合わせください。
 
@@ -2241,7 +2240,7 @@ global:
 
 詳細については、[Kerberosのドキュメント](https://docs.gitlab.com/integration/kerberos/)を参照してください。
 
-### Kerberos専用ポート
+### Kerberos専用ポート {#dedicated-port-for-kerberos}
 
 GitLabでは、Git操作にHTTPプロトコルを使用する場合、認証交換で`negotiate`ヘッダーが含まれていると基本認証にフォールバックするというGitの制限の回避策として、[Kerberosネゴシエーション専用ポート](https://docs.gitlab.com/integration/kerberos/#http-git-access-with-kerberos-token-passwordless-authentication)の使用がサポートされています。
 
@@ -2268,11 +2267,11 @@ global:
 
 {{< /alert >}}
 
-### LDAPカスタム許可レルム
+### LDAPカスタム許可レルム {#ldap-custom-allowed-realms}
 
 ユーザーのLDAP DNがユーザーのKerberosレルムと一致しない場合、LDAPのアイデンティティとKerberosのアイデンティティをリンクするために使用されるドメインのセットを、`global.appConfig.kerberos.simpleLdapLinkingAllowedRealms`により指定できます。詳細については、[Kerberosインテグレーションのドキュメントに含まれるカスタム許可レルムのセクション](https://docs.gitlab.com/integration/kerberos/#custom-allowed-realms)を参照してください。
 
-## 送信メール
+## 送信メール {#outgoing-email}
 
 送信メールは、`global.smtp.*`、`global.appConfig.microsoft_graph_mailer.*`、および`global.email.*`により設定できます。
 
@@ -2308,11 +2307,11 @@ global:
 
 [LinuxパッケージSMTP設定のドキュメント](https://docs.gitlab.com/omnibus/settings/smtp/)に、詳しい例が含まれています。
 
-## プラットフォーム
+## プラットフォーム {#platform}
 
 `platform`キーは、GKEやEKSなどの特定のプラットフォームをターゲットとする特定の機能のために予約されています。
 
-## アフィニティ
+## アフィニティ {#affinity}
 
 アフィニティは、`global.antiAffinity`と`global.affinity`により設定できます。アフィニティを使用すると、ノードのラベルまたはノードで既に実行されているポッドのラベルに基づいて、ポッドをスケジュールできるノードを制限できます。これにより、ポッドをクラスター全体に分散させたり、特定のノードを選択したりして、ノードに障害が発生した場合の復元力を高めることができます。
 
@@ -2339,7 +2338,7 @@ global:
 
 [ポッド間アフィニティとアンチアフィニティ](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity)に関するKubernetesリファレンス
 
-## ポッドの優先度とプリエンプション
+## ポッドの優先度とプリエンプション {#pod-priority-and-preemption}
 
 ポッドの優先度は、`global.priorityClassName`により、またはサブチャートごとに`priorityClassName`により設定できます。ポッドの優先度を設定すると、保留中のポッドのスケジューリングを可能にするために、優先度の低いポッドを排除するようスケジューラーに対して指示することができます。
 
@@ -2352,7 +2351,7 @@ global:
 | :-------------------| :--:   | :------ | :------------------------------- |
 | `priorityClassName` | 文字列 |         | ポッドに割り当てられる優先度クラス。 |
 
-## ログローテーション
+## ログローテーション {#log-rotation}
 
 {{< history >}}
 
@@ -2367,7 +2366,7 @@ global:
 - [`GITLAB_LOGGER_TRUNCATE_INTERVAL`](https://gitlab.com/gitlab-org/cloud-native/gitlab-logger#truncate-logs-interval)。
 - [`GITLAB_LOGGER_MAX_FILESIZE`](https://gitlab.com/gitlab-org/cloud-native/gitlab-logger#max-log-file-size)。
 
-## ジョブ
+## ジョブ {#jobs}
 
 元々、GitLabのジョブには、Helmの`.Release.Revision`がサフィックスとして付いていましたが、`helm upgrade --install`を実行すると、何も変更されていなくても、常にジョブが更新されてしまうため、理想的な方法ではありませんでした。また、ArgoCDを使用している場合などに、`helm template`に基づくワークフローでの適切な動作の妨げにもなっていました。名前の中に`.Release.Revision`を使用するという決定は、ジョブが1回しか実行されない可能性があり、かつ`helm uninstall`がジョブを削除しないという前提に基づいていましたが、これは（現在では）間違っています。
 
@@ -2399,7 +2398,7 @@ helm <command> <options> --set global.job.nameSuffixOverride=$(date +%Y-%m-%d-%H
 | :--------------------| :--:   | :------ | :-------------------------------------------------------- |
 | `nameSuffixOverride` | 文字列 |         | 自動的に生成されるハッシュを置き換えるカスタムサフィックス |
 
-## Traefik
+## Traefik {#traefik}
 
 Traefikは、`globals.traefik`により設定できます。
 
