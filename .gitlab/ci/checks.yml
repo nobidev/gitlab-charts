@@ -110,6 +110,21 @@ docs-i18n-lint paths:
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
 
+# Perform lychee check on documentation Markdown files
+docs-i18n-lint_links:
+  image: ${DOCS_LINT_IMAGE}
+  stage: prepare
+  cache: {}
+  dependencies: []
+  before_script: []
+  script:
+    - scripts/docs_i18n_verify_links
+  rules:
+    - !reference [.rule:skip_if_dev]
+    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
+    - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
+    - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
+
 docs-test hugo:
   image: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/docs-gitlab-com-builder:hugo-0.150.1
   stage: prepare
