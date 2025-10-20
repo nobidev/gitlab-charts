@@ -693,7 +693,7 @@ redis:
   enabled: false
 ```
 
-## レジストリの設定 {#configure-gitaly-settings}
+## レジストリの設定 {#configure-registry-settings}
 
 レジストリのグローバル設定は、`global.registry`キーの下にあります。
 
@@ -843,6 +843,7 @@ Gitalyの`authToken`属性には、次の2つのサブキーがあります。
 TLS経由で動作するようにGitalyを設定する方法について詳しくは、[Gitalyチャートのドキュメント](gitlab/gitaly#running-gitaly-over-tls)をご覧ください。
 
 ## Praefectの設定 {#configure-praefect-settings}
+
 Praefectのグローバル設定は、`global.praefect`キーの下にあります。
 
 Praefectはデフォルトで無効になっています。追加の設定なしで有効にした場合、Gitalyレプリカが3つ作成され、デフォルトのPostgreSQLインスタンス上にPraefectデータベースを手動で作成する必要があります。
@@ -1507,7 +1508,7 @@ global:
 | `enabled`         | ブール値 | `false` | GitLab Duoとのインテグレーションを有効または無効にする |
 | `hostname`        | 文字列  |         | GitLab Duo APIのホスト名                           |
 | `integrationKey` | 文字列  |         | GitLab Duo APIインテグレーションキー                    |
-| `secretKey`      |         |         | GitLab Duo APIシークレットキー。[シークレットの名前とキーの名前で構成](#configure-the-gitlab-duo-secret-key)されていなければなりません。 |
+| `secretKey`      |         |         | GitLab Duo APIシークレットキー。[シークレットの名前とキーの名前で構成](#configure-the-cisco-duo-secret-key)されていなければなりません。 |
 
 ### GitLab Duoシークレットキーを設定する {#configure-the-cisco-duo-secret-key}
 
@@ -2202,7 +2203,7 @@ global:
 
 シークレットの詳細については、[シークレットのドキュメント](../installation/secrets.md#oauth-integration)を参照してください。
 
-## Kerberos  {#Kerberos}
+## Kerberos  {#kerberos}
 
 GitLab HelmチャートでKerberosインテグレーションを設定するには、GitLabホストのサービスプリンシパルを指定したKerberos [keytab](https://web.mit.edu/kerberos/krb5-devel/doc/basic/keytab_def.html)を含むシークレットを、`global.appConfig.kerberos.keytab.secret`設定に指定する必要があります。keytabファイルがない場合は、Kerberos管理者にお問い合わせください。
 
