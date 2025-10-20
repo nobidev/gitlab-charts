@@ -14,10 +14,6 @@ title: Upgrade GitLab Helm chart instances
 
 Upgrade a GitLab Helm chart instance to a later version of GitLab.
 
-Upgrades must follow a supported [upgrade path](https://docs.gitlab.com/update/upgrade_paths/). Because GitLab Helm
-chart versions don't follow the same numbering as GitLab versions, see the [version mappings](version_mappings.md)
-between them.
-
 {{< alert type="note" >}}
 
 **Zero-downtime upgrades** are only available for cloud-native GitLab instances by using
@@ -29,18 +25,21 @@ between them.
 
 Before upgrading a GitLab Helm chart instance:
 
-- Check the [CHANGELOG](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/CHANGELOG.md) corresponding to the
-  specific release you want to upgrade to.
-- Look for any [upgrade notes](https://docs.gitlab.com/update/versions/) for the GitLab Helm chart version you're
-  upgrading to.
-- If you're upgrading from versions of the GitLab Helm chart version earlier than 8.x, see the
-  [GitLab documentation archives](https://docs.gitlab.com/archives/) to access older versions of the documentation.
-- Take a [backup](../backup-restore/_index.md).
+1. Consult [information you need before you upgrade](https://docs.gitlab.com/update/plan_your_upgrade/).
+1. Because GitLab Helm chart versions don't follow the same numbering as GitLab versions, see
+   [version mappings](version_mappings.md) to find the GitLab Helm chart version you need.
+1. See the [CHANGELOG](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/CHANGELOG.md) corresponding to the
+   specific release you want to upgrade to.
+1. If you're upgrading from versions of the GitLab Helm chart version earlier than 8.x, see the
+   [GitLab documentation archives](https://docs.gitlab.com/archives/) to access older versions of the documentation.
+1. Perform a [backup](../backup-restore/_index.md).
 
-## Upgrade a GitLab Helm chart instance
+## Upgrade GitLab
 
-To upgrade a GitLab Helm chart instance:
+To upgrade GitLab:
 
+1. Consider [turning on maintenance mode](https://docs.gitlab.com/administration/maintenance_mode/) during the upgrade.
+1. [Upgrade GitLab Runner](https://docs.gitlab.com/runner/install/) to the same version as your target GitLab version.
 1. Follow the [deployment documentation](deployment.md) step by step.
 1. Extract your previously provided values:
 
@@ -63,6 +62,11 @@ To upgrade a GitLab Helm chart instance:
 
    During a major database upgrade, you should set `gitlab.migrations.enabled` to `false`.
    Ensure that you explicitly set it back to `true` for future updates.
+
+After you upgrade:
+
+1. If enabled, [turn off maintenance mode](https://docs.gitlab.com/administration/maintenance_mode/#disable-maintenance-mode).
+1. Run [upgrade health checks](https://docs.gitlab.com/update/plan_your_upgrade/#run-upgrade-health-checks).
 
 ## Upgrade the bundled PostgreSQL
 
