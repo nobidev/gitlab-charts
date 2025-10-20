@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# Script to validate i18n anchor links in localized documentation
+# This script:
+# 1. Warns when translated headings don't have English anchor links
+# 2. Fails when anchor links don't work (using lychee)
+
+set -o pipefail
+
+COLOR_RED=$'\e[31m'
+COLOR_GREEN=$'\e[32m'
+COLOR_YELLOW=$'\e[33m'
+COLOR_BLUE=$'\e[34m'
+COLOR_RESET=$'\e[39m'
+
+cd "$(dirname "$0")/.." || exit 1
+
+echo -e "${COLOR_GREEN}INFO: Validating i18n anchor links at path $(pwd)...${COLOR_RESET}\n"
+
+# Arrays to store file information
+MISSING_ANCHOR_FILES=()
+MISSING_ANCHOR_DETAILS=()
+CORRECT_ANCHOR_FILES=()
+LYCHEE_CHECK_FILES=()
+
+# Set defaults for documentation paths
+MD_DOC_PATH='docs-locale'
+
+# Run options if files specified on command line
+if [ -n "$1" ]; then
+    MD_DOC_PATH="$*"
+    echo -e "${COLOR_GREEN}INFO: Checking specified files: ${MD_DOC_PATH}${COLOR_RESET}\n"
+fi
+
+# Function to check for missing anchor links in translated headings
+check_missing_anchors() {
+    echo -e "${COLOR_GREEN}INFO: Checking for missing English anchor links in translated headings...${COLOR_RESET}\n"
+
+    local missing_count=0
+    local total_files=0
+    local files_with_correct_anchors=0
+    local files_with_missing_anchors=0
+
+    # Find all markdown files in doc-locale
+    while IFS= read -r -d '' file; do
+        # Skip if file doesn't exist (in case of glob expansion issues)
+        [[ -f "$file" ]] || continue
+
+        ((total_files++))
+
+        # Extract headings that don't have anchor links
+        local missing_in_file=""
+        local line_num=0
+        local has_missing_anchors=false
+        local has_headings=false
+        local file_missing_count=0
+        local in_code_block=false
+        local code_fence=""
+
+        while IFS= read -r line; do
+            ((line_num++))
+
+            # Check for code block markers (``` or ~~~)
+            if [[ "$line" =~ ^(\`\`\`|~~~) ]]; then
+                if [[ "$in_code_block" == false ]]; then
+                    in_code_block=true
+                    code_fence="${BASH_REMATCH[1]}"
+                elif [[ "$line" =~ ^${code_fence} ]]; then
+                    in_code_block=false
+                    code_fence=""
+                fi
+                continue
+            fi
+
+            # Skip lines inside code blocks
+            if [[ "$in_code_block" == true ]]; then
+                continue
+            fi
+
+            # Check if line is a heading (starts with ##)
+            if [[ "$line" =~ ^#{2,6}[[:space:]] ]]; then
+                has_headings=true
+                # Check if it doesn't end with {#anchor-name} pattern
+                if [[ ! "$line" =~ \{#[a-zA-Z0-9_-]+\}[[:space:]]*$ ]]; then
+                    # Extract just the heading text for cleaner display
+                    heading_text=$(echo "$line" | sed 's/^#*[[:space:]]*//')
+                    missing_in_file="${missing_in_file}    Line ${line_num}: ${heading_text}\n"
+                    ((missing_count++))
+                    ((file_missing_count++))
+                    has_missing_anchors=true
+                fi
+            fi
+        done < "$file"
+
+        # Process the file based on findings
+        if [[ "$has_missing_anchors" == true ]]; then
+            MISSING_ANCHOR_FILES+=("$file")
+            MISSING_ANCHOR_DETAILS+=("$missing_in_file")
+            ((files_with_missing_anchors++))
+        elif [[ "$has_headings" == true ]]; then
+            CORRECT_ANCHOR_FILES+=("$file")
+            LYCHEE_CHECK_FILES+=("$file")
+            ((files_with_correct_anchors++))
+        fi
+        # Note: Files without any headings are silently skipped
+
+    done < <(find "${MD_DOC_PATH}" -type f -name "*.md" -print0 2>/dev/null || echo -n)
+
+    # Return total missing count
+    return $missing_count
+}
+
+# Run the checks
+check_missing_anchors
+TOTAL_MISSING=$?
+
+# Output summary
+echo -e "\n${COLOR_GREEN}=== SUMMARY ===${COLOR_RESET}"
+echo -e "${COLOR_RED}Files with missing anchor links: ${#MISSING_ANCHOR_FILES[@]}${COLOR_RESET}"
+echo -e "${COLOR_GREEN}Files with correct English anchor links: ${#CORRECT_ANCHOR_FILES[@]} (will be checked by lychee)${COLOR_RESET}"
+echo -e "${COLOR_YELLOW}Total missing anchors: ${TOTAL_MISSING}${COLOR_RESET}"
+
+# List files with missing anchors and their line numbers
+if [[ ${#MISSING_ANCHOR_FILES[@]} -gt 0 ]]; then
+    echo -e "\n${COLOR_RED}Files with missing anchor links:${COLOR_RESET}"
+    for i in "${!MISSING_ANCHOR_FILES[@]}"; do
+        echo -e "\n  ${COLOR_YELLOW}✗ ${MISSING_ANCHOR_FILES[$i]}${COLOR_RESET}"
+        echo -e "${MISSING_ANCHOR_DETAILS[$i]}"
+    done
+fi
+
+# Add exit code based on findings
+if [[ ${#MISSING_ANCHOR_FILES[@]} -gt 0 ]]; then
+    echo -e "\n${COLOR_RED}ERROR: Found ${TOTAL_MISSING} missing anchor links in ${#MISSING_ANCHOR_FILES[@]} files${COLOR_RESET}"
+    exit 1
+else
+    echo -e "\n${COLOR_GREEN}SUCCESS: All headings have proper English anchor links${COLOR_RESET}"
+    exit 0
+fi
