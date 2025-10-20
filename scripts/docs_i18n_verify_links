@@ -23,7 +23,7 @@ CORRECT_ANCHOR_FILES=()
 LYCHEE_CHECK_FILES=()
 
 # Set defaults for documentation paths
-MD_DOC_PATH='docs-locale'
+MD_DOC_PATH='doc-locale'
 
 # Run options if files specified on command line
 if [ -n "$1" ]; then
