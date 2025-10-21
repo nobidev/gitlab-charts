@@ -111,7 +111,7 @@ docs-i18n-lint paths:
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
 
 # Perform lychee check on documentation Markdown files
-docs-i18n-lint_links:
+docs-i18n-lint-links:
   image: ${DOCS_LINT_IMAGE}
   stage: prepare
   cache: {}

@@ -1,9 +1,20 @@
 #!/bin/bash
-# create_fallback_links.sh
+set -euo pipefail
 
 # Base directories
 DOC_DIR="doc"
 LOCALE_BASE_DIR="doc-locale"
+
+# Validate required directories exist
+if [ ! -d "$DOC_DIR" ]; then
+  echo "Error: $DOC_DIR directory not found"
+  exit 1
+fi
+
+if [ ! -d "$LOCALE_BASE_DIR" ]; then
+  echo "Error: $LOCALE_BASE_DIR directory not found"
+  exit 1
+fi
 
 # Process each locale directory
 for locale_dir in "$LOCALE_BASE_DIR"/*; do
@@ -17,7 +28,9 @@ for locale_dir in "$LOCALE_BASE_DIR"/*; do
         cd "$DOC_DIR" || exit 1
         find . -type f -name "*.md" | while read -r file; do
             # Check if corresponding file exists in this locale
-            if [ ! -f "../$locale_dir/$file" ]; then
+            if [ ! -f "../$locale_dir/$file" ] || [ -L "../$locale_dir/$file" ]; then
+                # Remove existing symlink if present
+                [ -L "../$locale_dir/$file" ] && rm "../$locale_dir/$file"
                 # Create directory structure if needed
                 mkdir -p "../$locale_dir/$(dirname "$file")"
                 # Create symbolic link to original
