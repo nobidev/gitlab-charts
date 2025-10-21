@@ -103,7 +103,7 @@ docs-i18n-lint paths:
   dependencies: []
   before_script: []
   script:
-    - scripts/docs_i18n_verify_paths
+    - scripts/docs_i18n_verify.sh --verify-paths
   rules:
     - !reference [.rule:skip_if_dev]
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
@@ -118,7 +118,7 @@ docs-i18n-lint-links:
   dependencies: []
   before_script: []
   script:
-    - scripts/docs_i18n_verify_links
+    - scripts/docs_i18n_verify.sh --check-links
   rules:
     - !reference [.rule:skip_if_dev]
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
