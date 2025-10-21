@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.3.5 (2025-10-21)
+
+### Changed (1 change)
+
+- [Ingress NGINX: update controller to v1.11.8](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/1799cbae56d475dd67c3cfa3ea0583deab17de88)
+
 ## 9.3.4 (2025-10-08)
 
 No changes.
