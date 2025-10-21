@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.5.1 (2025-10-21)
+
+### Changed (1 change)
+
+- [Update dependency container-registry to v4.28.0-gitlab](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/c8629be2d2261988949cb0a526928a30b3f92113)
+
 ## 9.5.0 (2025-10-15)
 
 ### Added (1 change)
