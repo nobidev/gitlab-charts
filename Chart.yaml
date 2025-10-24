@@ -58,6 +58,11 @@ dependencies:
   version: 0.6.1
   repository: https://charts.gitlab.io/
   condition: openbao.install
+# Dummy AIGW dependency. To make this work, manually package the chart and move the archive to charts/.
+- name: ai-gateway
+  version: 1.2.3
+  repository: https://charts.gitlab.io/
+  condition: ai-gateway.install
 - name: traefik
   repository: https://helm.traefik.io/traefik
   condition: traefik.install

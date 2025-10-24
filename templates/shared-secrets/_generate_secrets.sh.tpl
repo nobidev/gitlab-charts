@@ -266,3 +266,7 @@ generate_secret_if_needed {{ template "gitlab.zoekt.gateway.basicAuth.secretName
 {{ if .Values.openbao.install -}}
 generate_secret_if_needed {{ template "gitlab.openbao.unseal.secret" . }} --from-literal={{ template "gitlab.openbao.unseal.key" . }}="$(gen_random_bytes 32)"
 {{ end }}
+
+{{ if (index .Values "ai-gateway" "install") -}}
+generate_secret_if_needed {{ template "gitlab.ai-gateway.signing.secret" . }} --from-file={{ template "gitlab.ai-gateway.signing.key" . }}=/dev/stdin <<< "$(openssl genrsa 4096)"
+{{ end }}

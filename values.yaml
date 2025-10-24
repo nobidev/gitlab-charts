@@ -74,6 +74,7 @@ global:
     pages: {}
     openbao: {}
     workspaces: {}
+    aiGateway: {}
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
@@ -1546,3 +1547,16 @@ openbao:
           database: ''
           username: ''
           sslMode: ''
+
+# Installation & configuration of AI Gateway
+ai-gateway:
+  install: false
+  extraSecretRefs:
+    - name: gitlab-ai-gateway-signing-secret # TODO: use templating "gitlab.ai-gateway.signing.secret"
+  gitlabIngress:
+    enabled: true
+  gitlab:
+    url: '{{ template "gitlab.gitlab.url" }}'
+    apiUrl: '{{ template "gitlab.gitlab.url" }}/api/v4/'
+  image:
+    tag: "self-hosted-v18.5.0-ee" # TODO: this should be defined by the charts appVersion or default values
