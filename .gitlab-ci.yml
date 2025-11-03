@@ -362,7 +362,7 @@ trigger-gke132:
   variables:
     LIMIT_TO: gke132
   rules:
-    - !reference [.trigger_review_current, rules]
+    - !reference [.trigger_review_secondary, rules]
 
 trigger-gkevc134:
   extends: .trigger_review_job
@@ -376,7 +376,7 @@ trigger-gkevc134:
 trigger-gke133:
   extends: .trigger_review_job
   needs:
-    - trigger_review_current
+    - trigger_review_secondary
   variables:
     LIMIT_TO: gke133
   rules:
@@ -385,7 +385,7 @@ trigger-gke133:
 trigger-gke134:
   extends: .trigger_review_job
   needs:
-    - trigger_review_secondary
+    - trigger_review_current
   variables:
     LIMIT_TO: gke134
   rules:
