@@ -105,12 +105,12 @@ These pipelines are further classified as either `current` or `secondary`. The
 `current` pipelines test the most recent supported Kubernetes version on the
 GKE platform only.
 
-| Minor version | GKE       | EKS       | vCluster deploy | vCluster full QA |
-| ---           | ---       | ---       | ---             | ---              |
-| 1.34          | current   | NA        | secondary       | secondary        |
-| 1.34 ARM      | secondary | NA        | NA              | NA               |
-| 1.33          | secondary | current   | NA              | NA               |
-| 1.32          | secondary | NA        | NA              | NA               |
+| Minor version | GKE       | EKS       | vCluster  |
+| ---           | ---       | ---       | ---       |
+| 1.34          | current   | NA        | secondary |
+| 1.34 ARM      | NA        | NA        | secondary |
+| 1.33          | NA        | current   | secondary |
+| 1.32          | NA        | NA        | current   |
 
 This table is in development and subject to change.
 

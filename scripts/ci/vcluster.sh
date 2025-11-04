@@ -55,6 +55,7 @@ function vcluster_helm_deploy() {
     gitlab \
     --wait --timeout 600s \
     -f ./scripts/ci/vcluster_helm_values.yaml \
+    ${RUN_ON_ARM:+-f ./scripts/ci/arm_nodeselectors.yaml} \
     -f ci.digests.yaml \
     .
 }

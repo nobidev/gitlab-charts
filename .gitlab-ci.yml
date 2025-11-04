@@ -108,21 +108,21 @@ include:
   - local: '/.gitlab/ci/operator.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
-  - local: '/.gitlab/ci/environments/gke132.gitlab-ci.yml'
+  - local: '/.gitlab/ci/environments/vcluster.132.amd64.gitlab-ci.yml'
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke132"'
-  - local: '/.gitlab/ci/environments/gke133.gitlab-ci.yml'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v132"'
+  - local: '/.gitlab/ci/environments/vcluster.133.amd64.gitlab-ci.yml'
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke133"'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v133"'
   - local: '/.gitlab/ci/environments/gke134.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke134"'
   - local: '/.gitlab/ci/environments/eks133.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "eks133"'
-  - local: '/.gitlab/ci/environments/gke134-arm.gitlab-ci.yml'
+  - local: '/.gitlab/ci/environments/vcluster.134.arm64.gitlab-ci.yml'
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke134a"'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v134a"'
   - local: /.gitlab/ci/scanners.yml
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
@@ -346,39 +346,30 @@ trigger_review_secondary:
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
 
-trigger-gke134a:
+trigger-v132:
+  extends: .trigger_review_job
+  needs:
+    - trigger_review_current
+  variables:
+    LIMIT_TO: v132
+  rules:
+    - !reference [.trigger_review_current, rules]
+
+trigger-v133:
   extends: .trigger_review_job
   needs:
     - trigger_review_secondary
   variables:
-    LIMIT_TO: gke134a
+    LIMIT_TO: v133
   rules:
     - !reference [.trigger_review_secondary, rules]
 
-trigger-gke132:
+trigger-v134:
   extends: .trigger_review_job
   needs:
     - trigger_review_secondary
   variables:
-    LIMIT_TO: gke132
-  rules:
-    - !reference [.trigger_review_secondary, rules]
-
-trigger-gkevc134:
-  extends: .trigger_review_job
-  needs:
-    - trigger_review_secondary
-  variables:
-    LIMIT_TO: gkevc134
-  rules:
-    - !reference [.trigger_review_secondary, rules]
-
-trigger-gke133:
-  extends: .trigger_review_job
-  needs:
-    - trigger_review_secondary
-  variables:
-    LIMIT_TO: gke133
+    LIMIT_TO: v134
   rules:
     - !reference [.trigger_review_secondary, rules]
 
@@ -390,6 +381,15 @@ trigger-gke134:
     LIMIT_TO: gke134
   rules:
     - !reference [.trigger_review_current, rules]
+
+trigger-v134a:
+  extends: .trigger_review_job
+  needs:
+    - trigger_review_secondary
+  variables:
+    LIMIT_TO: v134a
+  rules:
+    - !reference [.trigger_review_secondary, rules]
 
 trigger-eks133:
   extends: .trigger_review_job
