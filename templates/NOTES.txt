@@ -19,7 +19,8 @@ https://docs.gitlab.com/charts/installation/index.html#use-the-reference-archite
 The minimum required version of PostgreSQL is now 16. See https://docs.gitlab.com/charts/installation/upgrade.html for more details.
 
 {{- /* If the Container Registry metadata database is enabled */}}
-{{- if eq .Values.registry.database.enabled true }}
+{{- $dbEnabled := include "registry.database.isEnabled" . -}}
+{{- if eq $dbEnabled "true" }}
 {{ $WARNING }}
 The Container Registry metadata database has been enabled.
 Carefully review the documentation https://docs.gitlab.com/charts/charts/registry/metadata_database.html before enabling the registry database in production!

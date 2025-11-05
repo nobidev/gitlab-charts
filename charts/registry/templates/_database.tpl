@@ -1,11 +1,43 @@
 {{/*
+Return the database.enabled value as a string.
+Converts boolean values to strings for backward compatibility.
+Accepts: true, false, "true", "false", "prefer"
+*/}}
+{{- define "registry.database.enabled.value" -}}
+{{- $enabled := .Values.database.enabled -}}
+{{- if kindIs "bool" $enabled -}}
+{{-   if $enabled -}}
+"true"
+{{-   else -}}
+"false"
+{{-   end -}}
+{{- else -}}
+{{-   $enabled | quote -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Check if database is enabled (returns true for boolean true, "true", or "prefer")
+*/}}
+{{- define "registry.database.isEnabled" -}}
+{{- $enabled := .Values.database.enabled -}}
+{{- if kindIs "bool" $enabled -}}
+{{-   $enabled -}}
+{{- else if or (eq $enabled "true") (eq $enabled "prefer") -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return database configuration, if settings available.
 */}}
 {{- define "registry.database.config" -}}
 {{/*Need to use enabled or configure flags for backwards compatibility*/}}
 {{- if or .Values.database.enabled .Values.database.configure }}
 database:
-  enabled: {{ .Values.database.enabled }}
+  enabled: {{ include "registry.database.enabled.value" . }}
   host: {{ default (include "gitlab.psql.host" .) .Values.database.host | quote }}
   port: {{ default (include "gitlab.psql.port" .) .Values.database.port }}
   user: {{ include "registry.database.username" . }}

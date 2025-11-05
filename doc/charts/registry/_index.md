@@ -227,7 +227,7 @@ If you chose to deploy this chart as a standalone, remove the `registry` at the 
 | `profiling.stackdriver.service`                          | `RELEASE-registry` (templated Service name)                          | Name of the Stackdriver service to record profiles under |
 | `profiling.stackdriver.projectid`                        | GCP project where running                                            | GCP project to report profiles to |
 | `database.configure`                                     | `false`                                                              | Populate database configuration in the registry chart without enabling it. Required when [importing an existing registry](metadata_database.md#enable-for-and-import-existing-registries). |
-| `database.enabled`                                       | `false`                                                              | Enable metadata database. This is an experimental feature and must not be used in production environments. |
+| `database.enabled`                                       | `false`                                                              | Enable metadata database. Accepts boolean values (`true`, `false`) or string values (`"true"`, `"false"`, `"prefer"`). Boolean values are automatically converted to strings for backward compatibility. |
 | `database.host`                                          | `global.psql.host`                                                   | The database server hostname. |
 | `database.port`                                          | `global.psql.port`                                                   | The database server port. |
 | `database.user`                                          |                                                                      | The database username. |
@@ -1113,7 +1113,7 @@ This feature requires PostgreSQL 13 or newer.
 
 ```yaml
 database:
-  enabled: true
+  enabled: "true"  # Can also be true (boolean), "false", or "prefer"
   host: registry.db.example.com
   port: 5432
   user: registry
