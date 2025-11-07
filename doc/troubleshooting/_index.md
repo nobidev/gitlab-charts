@@ -758,3 +758,25 @@ To resolve this issue, either:
       ci:
         databaseTasks: false
   ```
+
+## ERROR: unrecognized configuration parameter "transaction_timeout"
+
+The GitLab chart deploys a toolbox for tasks like backup and restore,
+which currently ships with PostgreSQL 17 client libraries.
+
+The client libraries are backwards comatible, so if you're running
+PostgreSQL 16, backups and restores will still work, but you may
+see this error:
+
+```plaintext
+ERROR:  unrecognized configuration parameter "transaction_timeout"
+```
+
+This happens because pg_dump is backwards compatible but doesn't
+guarantee restores will work seamlessly across different server
+versions.
+
+For more details, see the [pg_dump documentation](https://www.postgresql.org/docs/current/app-pgdump.html)
+
+The backup tool will ask if you want to ignore this error, which is
+safe to do in this case.
