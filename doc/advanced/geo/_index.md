@@ -651,7 +651,7 @@ Now that both databases are configured and applications are deployed, we must te
 the Primary site that the Secondary site exists:
 
 1. Visit the **primary** site.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**. If you've [turned on the new navigation](https://docs.gitlab.com/user/interface_redesign/#turn-new-navigation-on-or-off), in the upper-right corner, select **Admin**.
 1. Select **Geo > Add site**.
 1. Add the **secondary** site. Use the full GitLab URL for the URL.
 1. Enter a Name with the `global.geo.nodeName` of the Secondary site. These values must always match exactly, character for character.
@@ -753,7 +753,7 @@ In some cases, you may want to give users control over which site they visit. Fo
 1. Update the secondary site's External URL in GitLab so that it can use the URL wherever it's needed:
    - Using the Admin UI:
      1. Visit the **primary** site.
-     1. On the left sidebar, at the bottom, select **Admin Area**.
+     1. On the left sidebar, at the bottom, select **Admin**. If you've [turned on the new navigation](https://docs.gitlab.com/user/interface_redesign/#turn-new-navigation-on-or-off), in the upper-right corner, select **Admin**.
      1. Select **Geo > Sites**.
      1. Select the pencil icon to **Edit the secondary site**.
      1. Edit the External URL, for example `https://shanghai.gitlab.example.com`.

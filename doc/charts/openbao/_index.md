@@ -54,7 +54,7 @@ OpenBao, which is required to enable the [GitLab secrets manager](https://docs.g
      install: true
    ```
 
-1. In GitLab, on the left sidebar, select **Search or go to** and find your project.
+1. In GitLab, on the left sidebar, select **Search or go to** and find your project. If you've [turned on the new navigation](https://docs.gitlab.com/user/interface_redesign/#turn-new-navigation-on-or-off), this field is on the top bar.
 1. Select **Settings > General**.
 1. Expand **Visibility, project features, permissions**.
 1. Turn on the **Secrets Manager** toggle, and wait for the Secrets Manager to be provisioned.
