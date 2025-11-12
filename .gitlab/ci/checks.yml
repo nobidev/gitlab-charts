@@ -35,20 +35,6 @@ check_docs_content:
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
 
-# Perform content linting on i18n documentation Markdown files
-check_docs_i18n_content:
-  image: ${DOCS_LINT_IMAGE}
-  stage: prepare
-  cache: {}
-  dependencies: []
-  before_script: []
-  script:
-    # Lint prose
-    - vale --minAlertLevel error --filter='.Name matches "gitlab_docs"' doc-locale
-  rules:
-    - !reference [.rule:skip_if_dev]
-    - if: '$PIPELINE_TYPE == "DOCS_PIPELINE_LOCALIZATION"'
-
 # Perform linting on documentation Markdown files
 check_docs_markdown:
   image: ${DOCS_LINT_IMAGE}
@@ -65,20 +51,6 @@ check_docs_markdown:
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
 
-# Perform linting on i18n documentation Markdown files
-check_docs_i18n_markdown:
-  image: ${DOCS_LINT_IMAGE}
-  stage: prepare
-  cache: {}
-  dependencies: []
-  before_script: []
-  script:
-    # Lint Markdown
-    - cd doc-locale && markdownlint-cli2 --config .markdownlint/.markdownlint-cli2.yaml '**/*.md'
-  rules:
-    - !reference [.rule:skip_if_dev]
-    - if: '$PIPELINE_TYPE == "DOCS_PIPELINE_LOCALIZATION"'
-
 # Perform link checking on documentation Markdown files
 check_docs_links:
   image: ${DOCS_LINT_IMAGE}
@@ -94,6 +66,35 @@ check_docs_links:
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
+
+
+# Perform content linting on i18n documentation Markdown files
+check_docs_i18n_content:
+  image: ${DOCS_LINT_IMAGE}
+  stage: prepare
+  cache: {}
+  dependencies: []
+  before_script: []
+  script:
+    # Lint prose
+    - vale --minAlertLevel error --filter='.Name matches "gitlab_docs"' doc-locale
+  rules:
+    - !reference [.rule:skip_if_dev]
+    - if: '$PIPELINE_TYPE == "DOCS_PIPELINE_LOCALIZATION"'
+
+# Perform linting on i18n documentation Markdown files
+check_docs_i18n_markdown:
+  image: ${DOCS_LINT_IMAGE}
+  stage: prepare
+  cache: {}
+  dependencies: []
+  before_script: []
+  script:
+    # Lint Markdown
+    - cd doc-locale && markdownlint-cli2 --config .markdownlint/.markdownlint-cli2.yaml '**/*.md'
+  rules:
+    - !reference [.rule:skip_if_dev]
+    - if: '$PIPELINE_TYPE == "DOCS_PIPELINE_LOCALIZATION"'
   
 # Verify localized documentation files have corresponding English versions
 docs-i18n-lint paths:
