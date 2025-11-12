@@ -67,7 +67,6 @@ check_docs_links:
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
 
-
 # Perform content linting on i18n documentation Markdown files
 check_docs_i18n_content:
   image: ${DOCS_LINT_IMAGE}
@@ -95,7 +94,23 @@ check_docs_i18n_markdown:
   rules:
     - !reference [.rule:skip_if_dev]
     - if: '$PIPELINE_TYPE == "DOCS_PIPELINE_LOCALIZATION"'
-  
+
+# Perform link checking on i18n documentation Markdown files
+check_i18n_docs_links:
+  image: ${DOCS_LINT_IMAGE}
+  stage: prepare
+  cache: {}
+  dependencies: []
+  before_script: []
+  when: manual
+  allow_failure: true
+  script:
+    # Check Markdown links
+    - lychee --offline --include-fragments doc-locale
+  rules:
+    - !reference [.rule:skip_if_dev]
+    - if: '$PIPELINE_TYPE == "DOCS_PIPELINE_LOCALIZATION"'
+
 # Verify localized documentation files have corresponding English versions
 docs-i18n-lint paths:
   image: ${DOCS_LINT_IMAGE}
