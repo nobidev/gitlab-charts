@@ -711,6 +711,26 @@ Return the Topology Service TLS Secret name
 {{- end -}}
 
 {{/*
+Check if registry database is enabled (handles both boolean and string values).
+Returns "true" if database.enabled is true (boolean) or "true"/"prefer" (string).
+Returns "false" if database.enabled is false (boolean) or "false" (string) otherwise.
+Returns anyString otherwise.
+
+This helper provides backward compatibility for the transition from boolean to string type.
+Supports:
+- Boolean: true/false
+- String: "true"/"false"/"prefer"
+*/}}
+{{- define "gitlab.registry.database.isEnabled" -}}
+{{- $enabledStr := toString .Values.registry.database.enabled -}}
+{{- if eq $enabledStr "prefer" -}}
+true
+{{- else -}}
+{{- $enabledStr -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Mount topology service TLS secrets in projected volume sources
 Usage: {{ include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
 */}}

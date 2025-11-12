@@ -1,4 +1,3 @@
-{{- if .Values.postgresql.install }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,5 +10,4 @@ data:
   # Indicates whether the PostgreSQL subchart is installed
   # This allows subcharts to determine if they're using the embedded PostgreSQL
   # or an external database without relying on global values
-  postgresql-subchart-enabled: "true"
-{{- end }}
+  postgresql-subchart-enabled: {{ .Values.postgresql.install | quote }}

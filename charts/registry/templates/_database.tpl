@@ -3,9 +3,21 @@ Return database configuration, if settings available.
 */}}
 {{- define "registry.database.config" -}}
 {{/*Need to use enabled or configure flags for backwards compatibility*/}}
-{{- if or .Values.database.enabled .Values.database.configure }}
+{{- if eq (include "registry.database.shouldConfigure" .) "true" }}
 database:
-  enabled: {{ .Values.database.enabled }}
+  {{- if eq (.Values.database.enabled | toString) "prefer" }}
+  {%- $psqlSubchart := "false" %}
+  {%- if file.Exists "/config/shared-data/postgresql-subchart-enabled" %}
+  {%-   $psqlSubchart = file.Read "/config/shared-data/postgresql-subchart-enabled" | strings.TrimSpace %}
+  {%- end %}
+  {%- if eq $psqlSubchart "true" %}
+  enabled: "prefer"
+  {%- else %}
+  enabled: "false"
+  {%- end %}
+  {{- else }}
+  enabled: {{ .Values.database.enabled | quote }}
+  {{- end }}
   host: {{ default (include "gitlab.psql.host" .) .Values.database.host | quote }}
   port: {{ default (include "gitlab.psql.port" .) .Values.database.port }}
   user: {{ include "registry.database.username" . }}

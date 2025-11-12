@@ -228,3 +228,37 @@ matched by the registry PDB and Deployment selectors.
 {{- $_ := set $labels "app" "registry-migrations" }}
 {{- toYaml $labels }}
 {{- end -}}
+
+{{/*
+Check if database is enabled (handles both boolean and string values).
+Returns "true" if database.enabled is true (boolean) or "true"/"prefer" (string).
+Returns "false" if database.enabled is false (boolean) or "false" (string).
+Returns anyString otherwise.
+
+This helper provides backward compatibility for the transition from boolean to string type.
+Supports:
+- Boolean: true/false
+- String: "true"/"false"/"prefer"
+*/}}
+{{- define "registry.database.isEnabled" -}}
+{{- $enabledStr := toString .Values.database.enabled -}}
+{{- if eq $enabledStr "prefer" -}}
+true
+{{- else -}}
+{{- $enabledStr -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Check if database should be configured (enabled or configure flag set).
+Returns "true" if database should be configured, "false" otherwise.
+
+This is used in conditionals to determine if database-related resources should be created.
+*/}}
+{{- define "registry.database.shouldConfigure" -}}
+{{- if or (eq (include "registry.database.isEnabled" .) "true") .Values.database.configure -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
