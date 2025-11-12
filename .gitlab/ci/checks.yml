@@ -107,9 +107,7 @@ docs-i18n-lint paths:
     - scripts/docs_i18n_verify_paths
   rules:
     - !reference [.rule:skip_if_dev]
-    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
-    - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
-    - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
+    - if: '$PIPELINE_TYPE == "DOCS_PIPELINE_LOCALIZATION"'
 
 docs-test hugo:
   image: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/docs-gitlab-com-builder:hugo-0.150.1
