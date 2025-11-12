@@ -1,0 +1,15 @@
+{{- if .Values.postgresql.install }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-shared-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+data:
+  # Indicates whether the PostgreSQL subchart is installed
+  # This allows subcharts to determine if they're using the embedded PostgreSQL
+  # or an external database without relying on global values
+  postgresql-subchart-enabled: "true"
+{{- end }}

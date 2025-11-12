@@ -81,12 +81,34 @@ spec:
         {{- else }}
         {{- include "gitlab.image.pullPolicy" $imageCfg | indent 8 }}
         {{- end }}
-        args:
-        - /scripts/wait-for-deps
-        - /scripts/db-migrate
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Check if we should run migrations based on database.enabled and PostgreSQL source
+          DB_ENABLED="{{ .Values.database.enabled }}"
+          PSQL_SUBCHART="false"
+          
+          if [ -f /config/shared-data/postgresql-subchart-enabled ]; then
+            PSQL_SUBCHART=$(cat /config/shared-data/postgresql-subchart-enabled)
+          fi
+          
+          # Skip migrations if database.enabled is "prefer" but PostgreSQL subchart is not installed
+          # In this case, the database may not exist (external PostgreSQL without manual setup)
+          if [ "$DB_ENABLED" = "prefer" ] && [ "$PSQL_SUBCHART" != "true" ]; then
+            echo "Skipping migrations: database.enabled=prefer but PostgreSQL subchart not installed"
+            echo "For external PostgreSQL, please set registry.database.enabled=true or registry.database.configure=true after creating the database manually"
+            exit 0
+          fi
+          
+          # Run migrations
+          /scripts/wait-for-deps && /scripts/db-migrate
         volumeMounts:
           - name: registry-server-config
             mountPath: /etc/docker/registry/
+            readOnly: true
+          - name: registry-secrets
+            mountPath: /config
             readOnly: true
         {{- include "gitlab.certificates.volumeMount" . | nindent 10 }}
         resources:
@@ -118,5 +140,12 @@ spec:
                 path: configure
           {{- include "gitlab.registry.database.password.projectedVolume" . | nindent 10 }}
           {{- include "gitlab.registry.psql.ssl" . | nindent 10 }}
+          # Shared data ConfigMap for detecting PostgreSQL subchart usage
+          - configMap:
+              name: {{ .Release.Name }}-shared-data
+              optional: true
+              items:
+                - key: postgresql-subchart-enabled
+                  path: shared-data/postgresql-subchart-enabled
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
 {{- end }}

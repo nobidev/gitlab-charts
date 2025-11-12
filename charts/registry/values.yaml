@@ -152,6 +152,27 @@ init:
         sed -i -e 's@'"${filename}"'@'"$(cat $i)"'@' /registry/config.yml;
       done
     fi
+    # Handle database.enabled based on PostgreSQL source (subchart vs external)
+    # When database.enabled is set to "prefer", we need to determine if we should
+    # actually enable the database or fall back to filesystem metadata.
+    # We can only safely enable the database if:
+    # 1. The PostgreSQL subchart is installed (database is auto-created), OR
+    # 2. The user explicitly set database.configure=true (they created the database manually)
+    if grep -q 'enabled: prefer' /registry/config.yml; then
+      PSQL_SUBCHART_ENABLED="false"
+      if [ -f /config/shared-data/postgresql-subchart-enabled ]; then
+        PSQL_SUBCHART_ENABLED=$(cat /config/shared-data/postgresql-subchart-enabled)
+      fi
+      
+      if [ "$PSQL_SUBCHART_ENABLED" = "true" ]; then
+        # Using PostgreSQL subchart - database is auto-created, keep prefer mode
+        echo "PostgreSQL subchart detected, keeping database.enabled: prefer"
+      else
+        # External PostgreSQL - database may not exist, disable database
+        echo "External PostgreSQL detected, setting database.enabled: false"
+        sed -i 's/enabled: prefer/enabled: false/' /registry/config.yml
+      fi
+    fi
     # Insert any provided `storage` block from kubernetes secret
     if [ -d /config/storage ]; then
       # Copy contents of storage secret(s)

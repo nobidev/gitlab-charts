@@ -250,5 +250,12 @@ spec:
           {{- include "gitlab.registry.redisSentinelSecret.mount" $ | nindent 10 }}
           {{- include "gitlab.registry.redisRateLimitingSecret.mount" $ | nindent 10 }}
           {{- include "gitlab.registry.redisLoadBalancingSecret.mount" $ | nindent 10 }}
+          # Shared data ConfigMap for detecting PostgreSQL subchart usage
+          - configMap:
+              name: {{ .Release.Name }}-shared-data
+              optional: true
+              items:
+                - key: postgresql-subchart-enabled
+                  path: shared-data/postgresql-subchart-enabled
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
 {{- end -}}
