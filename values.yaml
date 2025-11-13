@@ -514,14 +514,13 @@ global:
     workspaces: {}
 
     ## Configure Database Traffic Capture. This is a Gitlab internal-use experiment.
-    databaseTrafficCapture:
-      config:
-        storage:
-          connector:
-            provider: ""
-            projectId: ""
-            credentials: ""
-            bucket: ""
+    #databaseTrafficCapture:
+    #  config:
+    #    storage:
+    #      connector:
+    #        provider: ""
+    #        projectId: ""
+    #        bucket: ""
 
     ## Configure GitLab Cells. Cells is a GitLab internal-use experiment.
     ## https://docs.gitlab.com/administration/cells/

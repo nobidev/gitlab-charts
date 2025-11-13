@@ -66,9 +66,8 @@ describe 'database traffic capture configuration' do
           'storage' => {
             'connector' => {
               'provider' => 'provider',
-              'project_id' => '',
-              'credentials' => '',
-              'bucket' => ''
+              'project_id' => nil,
+              'bucket' => nil
             }
           }
         }
@@ -92,7 +91,6 @@ describe 'database traffic capture configuration' do
                   'connector' => {
                     'provider' => 'provider-name',
                     'projectId' => 'project-id',
-                    'credentials' => 'path/to/credentials.json',
                     'bucket' => 'bucket-name'
                   }
                 }
@@ -110,7 +108,6 @@ describe 'database traffic capture configuration' do
             'connector' => {
               'provider' => 'provider-name',
               'project_id' => 'project-id',
-              'credentials' => 'path/to/credentials.json',
               'bucket' => 'bucket-name'
             }
           }

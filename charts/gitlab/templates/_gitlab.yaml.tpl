@@ -72,7 +72,6 @@ database_traffic_capture:
       connector:
         provider: {{ $connector.provider | quote }}
         project_id: {{ $connector.projectId | quote }}
-        credentials: {{ $connector.credentials | quote }}
         bucket: {{ $connector.bucket | quote }}
 {{- end -}}
 {{- end -}}
