@@ -75,6 +75,13 @@ global:
     openbao: {}
     workspaces: {}
 
+  gatewayApi:
+    class: "gitlab-envoy"
+    enabled: false
+    createClass: false
+    installEnvoy: false
+    configureCertmanager: true
+
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
     apiVersion: ""
@@ -1560,3 +1567,9 @@ openbao:
           database: ''
           username: ''
           sslMode: ''
+
+envoy-gateway:
+  config:
+    envoyGateway:
+      gateway:
+        controllerName: gateway.envoyproxy.io/gitlab-gatewayclass-controller

@@ -1,0 +1,15 @@
+nginx-ingress:
+  enabled: false
+
+certmanager:
+  config:
+    apiVersion: controller.config.cert-manager.io/v1alpha1
+    kind: ControllerConfiguration
+    enableGatewayAPI: true
+
+global:
+  ingress:
+    enabled: false
+  gatewayApi:
+    enabled: true
+    installEnvoy: true

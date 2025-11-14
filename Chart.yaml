@@ -67,3 +67,8 @@ dependencies:
   version: 1.39.4
   condition: haproxy.install
   repository: https://haproxytech.github.io/helm-charts
+- name: gateway-helm
+  alias: envoy-gateway
+  repository: oci://registry-1.docker.io/envoyproxy
+  version: 1.6.0
+  condition: global.gatewayApi.installEnvoy
