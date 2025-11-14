@@ -79,6 +79,15 @@ networkpolicy:
     rules: []
   annotations: {}
 
+gatewayRoute:
+  enabled: null
+  sectionName: "registry-web"
+  gatewayName: ""
+  annotations: {}
+  timeouts:
+    request: 900s
+    backendRequest: 900s
+
 ingress:
   apiVersion:
   enabled:

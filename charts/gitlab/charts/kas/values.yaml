@@ -73,6 +73,14 @@ image:
   # tag: latest
   # pullPolicy: IfNotPresent
   # pullSecrets: []
+
+gatewayRoute:
+  enabled: null
+  sectionName: "kas-web"
+  workspacesSectionName: "kas-workspaces-web"
+  gatewayName: ""
+  annotations: {}
+
 ingress:
   apiVersion:
   annotations: {}

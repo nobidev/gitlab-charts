@@ -1,0 +1,26 @@
+# Disable bundled NGINX Ingress controller.
+nginx-ingress:
+  enabled: false
+
+# Configure bundled certmanager for Gateway API support.
+certmanager:
+  config:
+    apiVersion: controller.config.cert-manager.io/v1alpha1
+    kind: ControllerConfiguration
+    enableGatewayAPI: true
+
+global:
+  # Disable rendering of Ingress resources.
+  ingress:
+    enabled: false
+  gatewayApi:
+    # Install a Gateway and Routes for each component.
+    enabled: true
+    # Install the bundled Envoy Gateway chart, a GatewayClass, a EnvoyPatchPolicy, and the EnvoyProxy resources.
+    installEnvoy: true
+    # Create a Gateway API compatible certmanager Issuer and configure the Gateway to use it.
+    configureCertmanager: true
+    # Default web protocol.
+    protocol: "HTTP" # or 'HTTP'
+    class:
+      create: true

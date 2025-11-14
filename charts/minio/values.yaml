@@ -10,6 +10,12 @@ minioMc:
   image: "minio/mc"
   tag: "RELEASE.2018-07-13T00-53-22Z"
 
+gatewayRoute:
+  enabled: null
+  sectionName: "minio-web"
+  gatewayName: ""
+  annotations: {}
+
 ingress:
   apiVersion:
   enabled:

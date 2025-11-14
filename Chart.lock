@@ -44,5 +44,8 @@ dependencies:
 - name: kubernetes-ingress
   repository: https://haproxytech.github.io/helm-charts
   version: 1.39.4
-digest: sha256:22d52ca59dc7450668a0c66ed4d8c3f07e4ff765ecc22e2218cdd4f216eb2009
-generated: "2025-12-08T13:23:46.514649333Z"
+- name: gateway-helm
+  repository: oci://registry-1.docker.io/envoyproxy
+  version: 1.6.0
+digest: sha256:f436c2d2a2dabe716f450d70bc67d08301c5ed68c8eb3a4e41cad57e9af4a3de
+generated: "2025-12-10T20:59:45.642314003+01:00"

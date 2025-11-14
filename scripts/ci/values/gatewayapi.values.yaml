@@ -1,0 +1,44 @@
+nginx-ingress:
+  enabled: false
+
+global:
+  ingress:
+    enabled: false
+    configureCertmanager: false
+  gatewayApi:
+    enabled: true
+    installEnvoy: true
+    class:
+      create: true
+    configureCertmanager: false
+    listeners:
+      gitlab-web:
+        tls:
+          certificateRefs:
+          - name: helm-charts-win-tls
+      registry-web:
+        tls:
+          certificateRefs:
+          - name: helm-charts-win-tls
+      kas-web:
+        tls:
+          certificateRefs:
+          - name: helm-charts-win-tls
+      minio-web:
+        tls:
+          certificateRefs:
+          - name: helm-charts-win-tls
+
+gitlab:
+  webservice:
+    gatewayRoute:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "gitlab${DOMAIN}"
+  kas:
+    gatewayRoute:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "kas${DOMAIN}"
+registry:
+  gatewayRoute:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: "registry${DOMAIN}"

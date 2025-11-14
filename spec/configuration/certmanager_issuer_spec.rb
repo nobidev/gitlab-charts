@@ -38,7 +38,7 @@ describe 'certmanager_issuer configuration' do
           "namespace" => "default",
           "labels" => {
             "app" => "certmanager-issuer",
-            "chart" => "certmanager-issuer-0.2.1",
+            "chart" => "certmanager-issuer-0.3.0",
             "release" => "test",
             "heritage" => "Helm"
           }
@@ -50,7 +50,7 @@ describe 'certmanager_issuer configuration' do
             "metadata" => include(
               "labels" => include(
                 "app" => "certmanager-issuer",
-                "chart" => "certmanager-issuer-0.2.1",
+                "chart" => "certmanager-issuer-0.3.0",
                 "release" => "test",
                 "heritage" => "Helm"
               )
@@ -62,7 +62,7 @@ describe 'certmanager_issuer configuration' do
               "containers" => include(
                 include(
                   "name" => "create-issuer",
-                  "command" => ["/bin/bash", "/scripts/create-issuer", "/scripts/issuer.yml"],
+                  "command" => ["/bin/bash", "/scripts/create-issuer"],
                   "image" => "registry.gitlab.com/gitlab-org/build/cng/kubectl:v42.0.0",
                   "securityContext" => {
                     "allowPrivilegeEscalation" => false,
@@ -86,7 +86,10 @@ describe 'certmanager_issuer configuration' do
   context 'when configureCertmanager is disabled' do
     it 'does not create any certmanager_issuer related resource' do
       template = HelmTemplate.new(default_values.deep_merge!(
-                                    { 'global' => { 'ingress' => { 'configureCertmanager' => false } } })
+                                    { 'global' => {
+                                      'ingress' => { 'configureCertmanager' => false },
+                                      'gatewayApi' => { 'configureCertmanager' => false }
+                                    } })
                                  )
 
       required_resources.each do |resource|

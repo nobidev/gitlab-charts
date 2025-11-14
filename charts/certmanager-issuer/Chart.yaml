@@ -1,7 +1,7 @@
 apiVersion: v2
 name: certmanager-issuer
-version: 0.2.1
-appVersion: 0.2.2
+version: 0.3.0
+appVersion: 0.3.0
 description: Configuration Job to add LetsEncrypt Issuer to cert-manager
 keywords:
 - gitlab

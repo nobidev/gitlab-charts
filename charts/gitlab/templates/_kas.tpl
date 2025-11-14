@@ -12,15 +12,6 @@
 {{- end -}}{{/* "gitlab.kas.mountSecrets" */}}
 
 {{/*
-Returns the KAS external hostname (for agentk connections)
-If the hostname is set in `global.hosts.kas.name`, that will be returned,
-otherwise the hostname will be assembed using `kas` as the prefix, and the `gitlab.assembleHost` function.
-*/}}
-{{- define "gitlab.kas.hostname" -}}
-{{- coalesce $.Values.global.hosts.kas.name (include "gitlab.assembleHost"  (dict "name" "kas" "context" . )) -}}
-{{- end -}}
-
-{{/*
 Returns the KAS external URL (for external agentk connections)
 */}}
 {{- define "gitlab.appConfig.kas.externalUrl" -}}
@@ -34,22 +25,6 @@ Returns the KAS external URL (for external agentk connections)
 {{-       printf "ws://%s" $hostname -}}
 {{-     end -}}
 {{-   end -}}
-{{- end -}}
-
-{{/*
-Returns the workspaces external hostname
-*/}}
-{{- define "gitlab.workspaces.hostname" -}}
-{{- $hostname := $.Values.global.hosts.workspaces.name | required "Missing required workspaces host. Make sure to set `.Values.global.hosts.workspaces.name`" -}}
-{{- $hostname -}}
-{{- end -}}
-
-{{/*
-Returns the workspaces wildcard hostname
-*/}}
-{{- define "gitlab.workspaces.wildcardHostname" -}}
-{{- $hostname := include "gitlab.workspaces.hostname" . -}}
-{{- print "*." $hostname -}}
 {{- end -}}
 
 {{- define "gitlab.kas.internal.scheme" -}}

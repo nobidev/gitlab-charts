@@ -114,6 +114,12 @@ ingress:
   tls: {}
   path: # /
 
+gatewayRoute:
+  enabled: null
+  sectionName: "pages-web"
+  gatewayName: ""
+  annotations: {}
+
 # Tolerations for pod scheduling
 tolerations: []
 

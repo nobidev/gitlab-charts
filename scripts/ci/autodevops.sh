@@ -149,20 +149,21 @@ CIYAML
       requests:
         cpu: 100m
 CIYAML
+  
+  DOMAIN="-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"
+  envsubst < ./scripts/ci/values/vcluster.externaldns.values.yaml > ./vcluster.externaldns.values.yaml
+  envsubst < ./scripts/ci/values/ingress.values.yaml > ./ingress.values.yaml
+  envsubst < ./scripts/ci/values/gatewayapi.values.yaml > ./gatewayapi.values.yaml
 
-  if [ -n "${ADD_NGINX_DNS_ANNOTATIONS}" ]; then
-    echo "ADD_NGINX_DNS_ANNOTATIONS detected"
-    DOMAIN="-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"
-    # configure nginx and external-dns
-    cat << CIYAML > ci.nginx.yaml
-    nginx-ingress:
-      controller:
-        service:
-          annotations:
-            external-dns.alpha.kubernetes.io/ttl: "10"
-            external-dns.alpha.kubernetes.io/hostname: "kas${DOMAIN},minio${DOMAIN},registry${DOMAIN},gitlab${DOMAIN}"
-CIYAML
-    NGINX_CONFIGURATION="-f ci.nginx.yaml"
+  NETWORKING_CONF="-f ingress.values.yaml"
+  if [ -n "${USE_GATEWAY_API}" ]; then
+    echo "USE_GATEWAY_API detected"
+    NETWORKING_CONF="-f gatewayapi.values.yaml"
+  fi
+  
+  if [ -n "${VCLUSTER_NAME}" ]; then
+    echo "VCLUSTER deployment detected"
+    NETWORKING_CONF="${NETWORKING_CONF} -f vcluster.externaldns.values.yaml"
   fi
 
   # PostgreSQL max_connection defaults to 100, which is apparently not enough to pass QA.
@@ -200,7 +201,7 @@ CIYAML
     $WAIT \
     ${SENTRY_CONFIGURATION} \
     ${ARCH_CONFIGURATION} \
-    ${NGINX_CONFIGURATION} \
+    ${NETWORKING_CONF} \
     -f ci.details.yaml \
     -f ci.scale.yaml \
     -f ci.psql.yaml \
@@ -209,13 +210,7 @@ CIYAML
     --set releaseOverride="$RELEASE_NAME" \
     --set global.hosts.hostSuffix="$HOST_SUFFIX" \
     --set global.hosts.domain="$KUBE_INGRESS_BASE_DOMAIN" \
-    --set global.ingress.annotations."external-dns\.alpha\.kubernetes\.io/ttl"="10" \
-    --set global.ingress.tls.secretName=helm-charts-win-tls \
-    --set global.ingress.configureCertmanager=false \
     --set global.appConfig.initialDefaults.signupEnabled=false \
-    --set nginx-ingress.controller.electionID="$RELEASE_NAME-nginx-election" \
-    --set nginx-ingress.controller.ingressClassByName=true \
-    --set nginx-ingress.controller.ingressClassResource.controllerValue="ci.gitlab.com/$RELEASE_NAME" \
     --set installCertmanager=false \
     --set global.extraEnv.GITLAB_LICENSE_MODE="test" \
     --set global.extraEnv.CUSTOMER_PORTAL_URL="https://customers.staging.gitlab.com" \

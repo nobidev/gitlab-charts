@@ -108,6 +108,7 @@ GKE platform only.
 | Minor version | GKE       | EKS       | vCluster  |
 | ---           | ---       | ---       | ---       |
 | 1.34          | current   | NA        | secondary |
+| 1.34 (Envoy)  | NA        | NA        | current   |
 | 1.34 ARM      | NA        | NA        | secondary |
 | 1.33          | NA        | current   | secondary |
 | 1.32          | NA        | NA        | current   |

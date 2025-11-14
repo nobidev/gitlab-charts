@@ -108,6 +108,12 @@ service:
   # loadBalancerSourceRanges:
 enabled: true
 
+gatewayRoute:
+  enabled: null
+  sectionName: "gitlab-web"
+  gatewayName: ""
+  annotations: {}
+
 ingress:
   apiVersion:
   enabled:

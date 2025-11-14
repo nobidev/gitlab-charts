@@ -196,6 +196,99 @@ Ingress object is created for each validation.
 
 `global.ingress.useNewIngressForCerts` cannot be set to `true` when used with GKE Ingress Controllers.
 
+## Gateway API
+
+{{< details >}}
+
+- Status: Beta
+
+{{< /details >}}
+
+{{< alert type="warning" >}}
+
+Gateway API support is currently under active development. Please be aware that:
+
+1. Complete validation across all deployment scenarios has not yet been fully verified.
+1. Configuration values and default settings for Gateway API features are subject to change without notice.
+1. The Gateway API resources are currently only tested with [Envoy Gateway](https://gateway.envoyproxy.io/).
+   Other Gateway API controllers might need additional configuration.
+
+Full support is planned to release before March 2026.
+
+{{< /alert >}}
+
+| Name                           |  Type   | Default        | Description |
+|:-------------------------------|:-------:|:---------------|:------------|
+| `enabled`                      | Boolean | false          | Enable deployment of GatewayAPI resources. |
+| `class.name`                   | String  | `gitlab-gw`    | Name of the Gateway class bound to the Gateway. |
+| `class.controllerName`         | String  | `gateway.envoyproxy.io/gitlab-gatewayclass-controller` | Controller name of the GatewayClass. |
+| `protocol`                     | String  | `HTTPS`        | Default protocol for all listeners. |
+| `installEnvoy`                 | Boolean | false          | Install Envoy Gateway and configure with Envoy-specific custom resources. |
+| `envoyProxySpec`               | Object  | see values     | Configuration of the default `EnvoyProxy` resource. |
+
+The Gateway listener configuration uses the following values. Each listener is only
+enabled if the underlying component is.
+
+```yaml
+listeners:
+  certmanager-http:
+    protocol: HTTP
+  gitlab-web:
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: gitlab-tls
+  gitlab-ssh:
+    protocol: "TCP"
+  registry-web:
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: registry-tls
+  pages-web:
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: pages-tls
+  kas-web:
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: kas-tls
+  kas-workspaces-web:
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: kas-workspaces-tls
+  kas-registry-web:
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: kas-workspaces-tls
+  minio-web:
+    protocol: ""
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: minio-tls
+```
+
+### Certmanager
+
+To enable certmanager with Gateway API, set `global.gatewayApi.configureCertmanager=true` and enable
+the gateway API in your certmanager release:
+
+```yaml
+certmanager:
+  config:
+    apiVersion: controller.config.cert-manager.io/v1alpha1
+    kind: ControllerConfiguration
+    enableGatewayAPI: true
+```
+
+Setting `configureCertmanager` configures the chart to render the relevant annotations to the
+Gateway manifest, and enables the creation of a HTTP01 Issuer configured for Gateway API.
+
 ## GitLab Version
 
 {{< alert type="note" >}}

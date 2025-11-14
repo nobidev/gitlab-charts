@@ -47,15 +47,6 @@ pages:
 {{- end -}}
 
 {{/*
-Returns the Pages hostname.
-If the hostname is set in `global.hosts.pages.name`, that will be returned,
-otherwise the hostname will be assembed using `pages` as the prefix, and the `gitlab.assembleHost` function.
-*/}}
-{{- define "gitlab.pages.hostname" -}}
-{{- coalesce $.Values.global.pages.host $.Values.global.hosts.pages.name (include "gitlab.assembleHost"  (dict "name" "pages" "context" . )) -}}
-{{- end -}}
-
-{{/*
 Returns consolidated `pages.https` as "true" or ""
 
 This pulls together, in this order, accounting for `false` boolean values:

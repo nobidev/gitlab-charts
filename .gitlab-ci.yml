@@ -103,9 +103,6 @@ stages:
 include:
   - local: '/.gitlab/ci/rules.gitlab-ci.yml'
   - local: '/.gitlab/ci/vcluster-review-apps.gitlab-ci.yml'
-  - local: '/.gitlab/ci/environments/gkevc134.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "gkevc134"'
   - local: '/.gitlab/ci/operator.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
@@ -121,6 +118,9 @@ include:
   - local: '/.gitlab/ci/environments/vcluster.134.arm64.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == "v134a"'
+  - local: '/.gitlab/ci/environments/vcluster.134.amd64.gatewayapi.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v134gw"'
   - local: '/.gitlab/ci/environments/gke.134.amd64.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke134"'
@@ -386,6 +386,15 @@ trigger-v134a:
   rules:
     - !reference [.trigger_review_secondary, rules]
 
+trigger-v134-envoy-gw:
+  extends: .trigger_review_job
+  needs:
+    - trigger_review_current
+  variables:
+    LIMIT_TO: v134gw
+  rules:
+    - !reference [.trigger_review_current, rules]
+
 trigger-gke134:
   extends: .trigger_review_job
   needs:
@@ -398,11 +407,12 @@ trigger-gke134:
 trigger-eks133:
   extends: .trigger_review_job
   needs:
-    - trigger_review_current
+    # TODO revert to current
+    - trigger_review_secondary
   variables:
     LIMIT_TO: eks133
   rules:
-    - !reference [.trigger_review_current, rules]
+    - !reference [.trigger_review_secondary, rules]
 # Jobs using auto_stop_in that exit with a failure will not execute the on_stop
 # action. We get frequent failures during review_* jobs. Their accompanying
 # partially deployed environments then hang around forever which may eventually

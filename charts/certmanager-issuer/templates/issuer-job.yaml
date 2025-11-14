@@ -1,4 +1,6 @@
-{{ if (pluck "configureCertmanager" .Values.global.ingress (dict "configureCertmanager" false) | first) }}
+{{- $configureIngressCertmanager := (pluck "configureCertmanager" .Values.global.ingress (dict "configureCertmanager" false) | first) }}
+{{- $configureGatewayCertmanager := .Values.global.gatewayApi.configureCertmanager }}
+{{- if or $configureGatewayCertmanager $configureIngressCertmanager }}
 {{- $imageCfg := dict "global" .Values.global.image "local" .Values.global.kubectl.image -}}
 apiVersion: batch/v1
 kind: Job
@@ -29,12 +31,17 @@ spec:
       containers:
         - name: create-issuer
           image: {{ include "gitlab.kubectl.image" . }}
-          command: ['/bin/bash', '/scripts/create-issuer', '/scripts/issuer.yml']
+          command: ['/bin/bash', '/scripts/create-issuer']
           {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
           {{- include "gitlab.containerSecurityContext" $ | indent 10 }}
           volumeMounts:
             - name: scripts
               mountPath: /scripts
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           resources:
 {{ toYaml .Values.resources | indent 12 }}
       volumes:

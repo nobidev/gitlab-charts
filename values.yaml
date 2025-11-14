@@ -75,6 +75,68 @@ global:
     openbao: {}
     workspaces: {}
 
+  gatewayApi:
+    enabled: false
+    envoyProxySpec:
+      provider:
+        type: Kubernetes
+        kubernetes:
+          envoyService:
+            type: LoadBalancer
+    class:
+      name: "gitlab-gw"
+      controllerName: "gateway.envoyproxy.io/gitlab-gatewayclass-controller"
+    installEnvoy: false
+    configureCertmanager: false
+    protocol: "HTTPS"
+    listeners:
+      certmanager-http:
+        protocol: HTTP
+      gitlab-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: gitlab-tls
+      gitlab-ssh:
+        protocol: "TCP"
+      registry-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: registry-tls
+      pages-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: pages-tls
+      kas-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: kas-tls
+      kas-workspaces-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: kas-workspaces-tls
+      kas-registry-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: kas-workspaces-tls
+      minio-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: minio-tls
+
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
     apiVersion: ""
@@ -1567,3 +1629,11 @@ openbao:
           database: ''
           username: ''
           sslMode: ''
+
+envoy-gateway:
+  config:
+    envoyGateway:
+      gateway:
+        controllerName: gateway.envoyproxy.io/gitlab-gatewayclass-controller
+      extensionApis:
+        enableEnvoyPatchPolicy: true

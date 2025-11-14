@@ -68,6 +68,12 @@ maxUnavailable: 1
 minReplicas: 2
 maxReplicas: 10
 
+gatewayRoute:
+  enabled: null
+  sectionName: "gitlab-ssh"
+  gatewayName: ""
+  annotations: {}
+
 # When using traefik ingress
 traefik:
   entrypoint: gitlab-shell
