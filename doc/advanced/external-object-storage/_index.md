@@ -8,7 +8,7 @@ title: Configure the GitLab chart with an external object storage
 GitLab relies on object storage for highly-available persistent data in Kubernetes.
 GitLab supports two types of authentication methods for major cloud object storage providers: static credentials and temporary credentials through cloud-specific services.
 
-### Static credentials
+## Static credentials
 
 These credentials are long-lived access keys and secrets for all providers:
 

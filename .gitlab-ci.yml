@@ -78,7 +78,7 @@ variables:
   KUBE_SCORE_IMAGE: "${DOCKERHUB_PREFIX}/zegl/kube-score:v1.19.0@sha256:94137f32ce139dc9fbdbbd380249025e4d378c282ff151a100b981cdeeb923b6"
   DOCKER_DIND_IMAGE: "${DOCKERHUB_PREFIX}/docker:${DOCKER_VERSION}-dind"
 
-  DOCS_LINT_IMAGE: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/lint-markdown:alpine-3.21-vale-3.11.2-markdownlint2-0.17.2-lychee-0.18.1
+  DOCS_LINT_IMAGE: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/lint-markdown:alpine-3.22-vale-3.13.0-markdownlint2-0.19.0-lychee-0.21.0
 
 stages:
   - prepare
