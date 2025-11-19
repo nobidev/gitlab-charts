@@ -16,6 +16,10 @@
      nodeName: London Office
      enabled: true
      role: primary
+     actionCableAllowedOrigins:
+       - https://gitlab.london.example.com # primary internal URL
+       - https://gitlab.shanghai.example.com # secondary internal URL
+       - https://gitlab.example.com # unified URL
  # configure Geo Nginx Controller for internal Geo site traffic
  nginx-ingress-geo:
    enabled: true

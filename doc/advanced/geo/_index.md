@@ -165,6 +165,8 @@ external_url 'http://gitlab.example.com'
 roles ['geo_primary_role']
 # The unique identifier for the Geo node.
 gitlab_rails['geo_node_name'] = 'London Office'
+# Allow cross-site origins for ActionCable requests
+gitlab_rails['geo_action_cable_allowed_origins'] = ['https://london.gitlab.example.com', 'https://shangai.gitlab.example.com', 'https://gitlab.example.com']
 gitlab_rails['auto_migrate'] = false
 ## turn off everything but the DB
 sidekiq['enable']=false
@@ -193,6 +195,9 @@ We must replace several items:
 - `gitlab_rails['geo_node_name']` must be replaced with a unique name for your
   site. See the Name field in
   [Common settings](https://docs.gitlab.com/administration/geo_sites/#common-settings).
+- `gitlab_rails['geo_action_cable_allowed_origins']` must be replaced with an array 
+  containing the URLs of all clusters: primary and secondary internal URLs as well as 
+  the external URL of all clusters.
 - `gitlab_user_password_hash` must be replaced with the hashed form of the
   `gitlab` password.
 - `postgresql['md5_auth_cidr_addresses']` can be update to be a list of
