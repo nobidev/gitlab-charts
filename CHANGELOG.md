@@ -2,6 +2,32 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.6.0 (2025-11-19)
+
+### Added (3 changes)
+
+- [Add openbao auth token secret file path](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/041ca96099925a4149ae2d569d7b63cb1308d097) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4549))
+- [Sidekiq and Webservice: Allow antiAffinity overwrites](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/1dd3fbad031c4dc8266f74125ed5c47f76a5566c) by @frnimh ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4567))
+- [Add support for Kubernetes 1.34](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/46d9756921e7d08c1ec2f85859bdbbbc5a7ac20c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4536))
+
+### Fixed (1 change)
+
+- [Disable Workhorse preStop hook if health checker listener is enabled](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/eabe331046bfa4d3aa630e7b3e225a86937fc38c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4586))
+
+### Changed (11 changes)
+
+- [Update Helm release gitlab-zoekt to v3.7.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5ca7d5346c0e35e0dd5f488cba317163a3bfae9b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4619))
+- [Update dependency container-registry to v4.31.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/1d22e3e6f6155ee892ed475be2301959a2f7b520) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4610))
+- [Update dependency container-registry to v4.30.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/49c2926c02ef15840d21a9f7c5ae2dd980ad545f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4591))
+- [Update Helm release gitlab-runner to v0.82.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4fbb431bd0d008c9936c0364855d43e6dade09b4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4576))
+- [Update Helm release gitlab-zoekt to v3.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5c50425a4a7f3dde31594283385efac03d8019e5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4589))
+- [Update dependency gitlab-exporter to v16.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/01c5d2e0dfd91e9f5766e290c77e9e26203d41d7) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4562))
+- [Update Prometheus chart from 27.23.0 to 27.39.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/cc487e1cf61e99dd7db7b80f28146f9f27f1ca42) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4585))
+- [Update Helm release gitlab-zoekt to v3.6.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fb090865cf2e8fbffc9c1c1ff7f013813c7243a6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4583))
+- [Update dependency container-registry to v4.29.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ef7b3911840c12e282ae1c1f032833ecb06214c6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4579))
+- [Update Helm release gitlab-zoekt to v3.6.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bc26720416f3bdec8e02b3772df379343293dc9d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4563))
+- [Update dependency container-registry to v4.28.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b6ad075821eb5a68056f37607c87c1d04b3e34ef) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4530))
+
 ## 9.5.2 (2025-11-11)
 
 ### Changed (1 change)
