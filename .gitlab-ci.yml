@@ -24,14 +24,14 @@
 # Note: Auto CI does not work with multiple buildpacks yet
 
 default:
-  image: "${CI_REGISTRY}/${GITLAB_NAMESPACE}/gitlab-build-images/debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}:gcloud-526-kubectl-1.33-helm-3.18-helm_kubeconform-0.1.17-vcluster-0.30-awscli-1.40.35-vault-1.19.5"
+  image: "${CI_REGISTRY}/${GITLAB_NAMESPACE}/gitlab-build-images/debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}:gcloud-526-kubectl-1.33-helm-3.18-helm_kubeconform-0.1.17-vcluster-0.25-awscli-1.40.35-vault-1.19.5"
 
 variables:
   AUTO_DEPLOY_TAG_REGEX: '^[0-9]+\.[0-9]+\.[0-9]+\+[a-z0-9]{7,}$'
   DOCKER_VERSION: "28.0.1"
   HELM_VERSION: "3.18.4"
   KUBECTL_VERSION: "1.33.1"
-  VCLUSTER_VERSION: "0.30.0"
+  VCLUSTER_VERSION: "default"
   STABLE_REPO_URL: "https://charts.helm.sh/stable"
   GOOGLE_APPLICATION_CREDENTIALS: ${CI_PROJECT_DIR}/.google_keyfile.json
   # AUTO_DEVOPS_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
@@ -68,7 +68,6 @@ variables:
             enabled: true
   GITLAB_AUTH_TOKEN: $DANGER_GITLAB_API_TOKEN
   REVIEW_APPS_AUTO_STOP_IN: "2 hours"
-  REVIEW_ARCH: amd64 # amd64 or arm64
   LIMIT_TO: ""
   PARENT_PIPELINE_ID: $CI_PIPELINE_ID
 
@@ -109,34 +108,31 @@ include:
   - local: '/.gitlab/ci/operator.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
-  - local: '/.gitlab/ci/environments/vcluster.132.amd64.gitlab-ci.yml'
+  - local: '/.gitlab/ci/environments/gke132.gitlab-ci.yml'
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v132"'
-  - local: '/.gitlab/ci/environments/vcluster.133.amd64.gitlab-ci.yml'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke132"'
+  - local: '/.gitlab/ci/environments/gke133.gitlab-ci.yml'
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v133"'
-  - local: '/.gitlab/ci/environments/vcluster.134.amd64.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v134"'
-  - local: '/.gitlab/ci/environments/vcluster.134.arm64.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v134a"'
-  - local: '/.gitlab/ci/environments/gke.134.amd64.gitlab-ci.yml'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke133"'
+  - local: '/.gitlab/ci/environments/gke134.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke134"'
-  - local: '/.gitlab/ci/environments/eks.133.amd64.gitlab-ci.yml'
+  - local: '/.gitlab/ci/environments/eks133.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "eks133"'
-  - local: /.gitlab/ci/scanners.gitlab-ci.yml
+  - local: '/.gitlab/ci/environments/gke134-arm.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke134a"'
+  - local: /.gitlab/ci/scanners.yml
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
-  - local: /.gitlab/ci/kubeconform.gitlab-ci.yml
+  - local: /.gitlab/ci/validations.yml
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
-  - local: /.gitlab/ci/checks.gitlab-ci.yml
+  - local: /.gitlab/ci/checks.yml
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
-  - local: /.gitlab/ci/review-docs.gitlab-ci.yml
+  - local: /.gitlab/ci/review-docs.yml
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   - component: ${CI_SERVER_FQDN}/gitlab-org/components/danger-review/danger-review@2.1.0
@@ -350,39 +346,39 @@ trigger_review_secondary:
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
 
-trigger-v132:
-  extends: .trigger_review_job
-  needs:
-    - trigger_review_current
-  variables:
-    LIMIT_TO: v132
-  rules:
-    - !reference [.trigger_review_current, rules]
-
-trigger-v133:
+trigger-gke134a:
   extends: .trigger_review_job
   needs:
     - trigger_review_secondary
   variables:
-    LIMIT_TO: v133
+    LIMIT_TO: gke134a
   rules:
     - !reference [.trigger_review_secondary, rules]
 
-trigger-v134:
+trigger-gke132:
   extends: .trigger_review_job
   needs:
     - trigger_review_secondary
   variables:
-    LIMIT_TO: v134
+    LIMIT_TO: gke132
   rules:
     - !reference [.trigger_review_secondary, rules]
 
-trigger-v134a:
+trigger-gkevc134:
   extends: .trigger_review_job
   needs:
     - trigger_review_secondary
   variables:
-    LIMIT_TO: v134a
+    LIMIT_TO: gkevc134
+  rules:
+    - !reference [.trigger_review_secondary, rules]
+
+trigger-gke133:
+  extends: .trigger_review_job
+  needs:
+    - trigger_review_secondary
+  variables:
+    LIMIT_TO: gke133
   rules:
     - !reference [.trigger_review_secondary, rules]
 

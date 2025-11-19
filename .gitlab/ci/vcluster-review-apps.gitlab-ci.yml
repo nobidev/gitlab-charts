@@ -1,16 +1,14 @@
-.vcluster_base:
-  variables:
-    DNS_PROVIDER: "google"
-    AGENT_NAME: "gkevc-ci-cluster"
-    KUBE_INGRESS_BASE_DOMAIN: "cloud-native-vcluster.helm-charts.win"
-    KUBE_NAMESPACE: "default"
-    NAMESPACE: "${KUBE_NAMESPACE}"
+.vcluster_review_common_vars: &vcluster_review_common_vars
+  DNS_PROVIDER: "google"
+  AGENT_NAME: "gkevc-ci-cluster"
+  KUBE_INGRESS_BASE_DOMAIN: "cloud-native-vcluster.helm-charts.win"
+  KUBE_NAMESPACE: "default"
+  NAMESPACE: "${KUBE_NAMESPACE}"
 
 .vcluster_review_template:
-  extends:
-    - .review_template
-    - .vcluster_base
+  extends: .review_template
   variables:
+    <<: *vcluster_review_common_vars
     ADD_NGINX_DNS_ANNOTATIONS: "true"
   allow_failure: true
   before_script:
@@ -34,9 +32,9 @@
     - vcluster_run ./scripts/ci/vcluster_deploy.sh
 
 .stop_vcluster_review_template:
-  extends:
-    - .stop_review_template
-    - .vcluster_base
+  extends: .stop_review_template
+  variables:
+    <<: *vcluster_review_common_vars
   before_script:
     # If the branch has already been deleted, fall back to master.
     - git checkout "${CI_COMMIT_REF_NAME}" || git checkout master
@@ -50,10 +48,9 @@
     - vcluster_delete
 
 .vcluster_specs_template:
-  extends:
-    - .specs
-    - .vcluster_base
+  extends: .specs
   variables:
+    <<: *vcluster_review_common_vars
     RSPEC_TAGS: type:feature
   allow_failure: true
   before_script:

@@ -10,23 +10,14 @@ function cluster_connect() {
 }
 
 function vcluster_install() {
-  if command -v vcluster &> /dev/null; then
-    # Get the installed version
-    INSTALLED_VERSION=$(vcluster version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-    
-    if [ "$INSTALLED_VERSION" = "$VCLUSTER_VERSION" ]; then
-        echo "vcluster is installed with the correct version"
-        return
-    else
-        echo "vcluster ${INSTALLED_VERSION} is installed but version mismatch (expected $VCLUSTER_VERSION)"
-    fi
+  if [ -z "${VCLUSTER_VERSION}" ] || [ "${VCLUSTER_VERSION,,}" == "default" ]; then
+    echo "No version specified, using default image version"
   else
-    echo "vcluster is not installed"
+    echo "Install vcluster version ${VCLUSTER_VERSION}"
+    curl -Lo /tmp/vcluster "https://github.com/loft-sh/vcluster/releases/download/v${VCLUSTER_VERSION}/vcluster-linux-amd64"
+    install -c -m 0755 /tmp/vcluster /usr/local/bin
   fi
-
-  echo "Install vcluster version ${VCLUSTER_VERSION}"
-  curl -Lo /tmp/vcluster "https://github.com/loft-sh/vcluster/releases/download/v${VCLUSTER_VERSION}/vcluster-linux-amd64"
-  install -c -m 0755 /tmp/vcluster /usr/local/bin
+  vcluster version
 }
 
 function vcluster_name() {
@@ -34,7 +25,7 @@ function vcluster_name() {
 }
 
 function vcluster_create() {
-  envsubst < ./scripts/ci/vcluster.template.yaml > ./vcluster.yaml
+  envsubst '$VCLUSTER_K8S_VERSION' < ./scripts/ci/vcluster.template.yaml > ./vcluster.yaml
   cat vcluster.yaml
 
   local vcluster_name=$(vcluster_name)
@@ -55,6 +46,22 @@ function vcluster_copy_secret() {
   kubectl get secret -n $1 $2 -o yaml \
     | sed '/^  namespace: /d; /^  uid: /d; /^  resourceVersion: /d; /^  creationTimestamp: /d; /^  selfLink: /d; /^status:$/Q;' \
     | vcluster_run kubectl apply -n $3 -f -
+}
+
+function vcluster_helm_deploy() {
+  helm dependency update
+
+  vcluster_run helm upgrade --install \
+    gitlab \
+    --wait --timeout 600s \
+    -f ./scripts/ci/vcluster_helm_values.yaml \
+    -f ci.digests.yaml \
+    .
+}
+
+function vcluster_helm_rollout_status() {
+  vcluster_run kubectl rollout status statefulset -l release=gitlab --timeout=300s
+  vcluster_run kubectl rollout status deployments -l release=gitlab --timeout=300s
 }
 
 function vcluster_delete() {

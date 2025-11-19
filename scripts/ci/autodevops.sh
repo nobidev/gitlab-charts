@@ -11,7 +11,7 @@ if [[ $CI_ENVIRONMENT_SLUG =~ ^[^-]+-review ]]; then
   # if multiarch deployment is on - we will be deploying *two*
   # charts - one for "amd64" and second for "arm64" thus the need
   # to avoid name collision:
-  if [ "${REVIEW_ARCH}" == "arm64" ]; then
+  if [ "${DEPLOY_MULTIARCH}" == "true" ]; then
     RELEASE_NAME="rvw-a-${REVIEW_REF_PREFIX}${CI_COMMIT_SHORT_SHA}"
   else
     RELEASE_NAME=rvw-${REVIEW_REF_PREFIX}${CI_COMMIT_SHORT_SHA}
@@ -23,7 +23,7 @@ if [[ $CI_ENVIRONMENT_SLUG =~ ^[^-]+-review ]]; then
   RELEASE_NAME=${RELEASE_NAME%-}
 else
   # otherwise, use CI_ENVIRONMENT_SLUG
-  if [ "${REVIEW_ARCH}" == "arm64" ]; then
+  if [ "${DEPLOY_MULTIARCH}" == "true" ]; then
     RELEASE_NAME="a-${CI_ENVIRONMENT_SLUG}"
   else
     RELEASE_NAME=$CI_ENVIRONMENT_SLUG
@@ -59,7 +59,7 @@ function deploy() {
     exit 1
   fi
 
-  echo "REVIEW_ARCH: $REVIEW_ARCH"
+  echo "DEPLOY_MULTIARCH: $DEPLOY_MULTIARCH"
   # Cleanup and previous installs, as FAILED and PENDING_UPGRADE will cause errors with `upgrade`
   if [ "$RELEASE_NAME" != "production" ] && previousDeployFailed ; then
     echo "Deployment in bad state, cleaning up $RELEASE_NAME"
@@ -186,20 +186,14 @@ CIYAML
 
     SENTRY_CONFIGURATION="-f ci.sentry.yaml"
   fi
-
-  ARCH_CONFIGURATION=""
-  if [ "${REVIEW_ARCH}" == "arm64" ]; then
-    # The bundled MinIO chart is not being updated anymore.
-    # Override the image for arm64 because the current default image is only build for amd64.
-    ARCH_CONFIGURATION="-f scripts/ci/values/arm64.values.yaml"
-    # Patch the minio chart to accomodate for CLI changes in the new minio/mc version.
-    git apply ./scripts/ci/patches/arm64.minio.patch
+  MULTIARCH_CONFIGURATION=""
+  if [ "${DEPLOY_MULTIARCH}" == "true" ]; then
+    MULTIARCH_CONFIGURATION="-f scripts/ci/arm_nodeselectors.yaml"
   fi
-
   helm upgrade --install \
     $WAIT \
     ${SENTRY_CONFIGURATION} \
-    ${ARCH_CONFIGURATION} \
+    ${MULTIARCH_CONFIGURATION} \
     ${NGINX_CONFIGURATION} \
     -f ci.details.yaml \
     -f ci.scale.yaml \

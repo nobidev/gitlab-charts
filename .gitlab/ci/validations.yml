@@ -42,6 +42,7 @@ kubeconform:
   parallel:
     matrix:
       - KUBE_VERSION:
+        - 1.30.13
         - 1.31.9
         - 1.32.5
         - 1.33.1

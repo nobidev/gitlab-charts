@@ -14,11 +14,6 @@ sync:
   toHost:
     ingresses:
       enabled: true
-  fromHost:
-    nodes:
-      selector:
-        labels:
-          kubernetes.io/arch: "$REVIEW_ARCH"
 integrations:
   metricsServer:
     enabled: true
