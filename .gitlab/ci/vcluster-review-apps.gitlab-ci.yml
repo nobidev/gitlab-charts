@@ -65,3 +65,6 @@
     - set_context
     - vcluster_run kubectl version --output=json
     - vcluster_run ./scripts/ci/run_specs.sh
+  rules:
+    - !reference [.rule:skip_if_no_cluster]
+    - !reference [.specs, rules]
