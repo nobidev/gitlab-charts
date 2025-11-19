@@ -108,7 +108,6 @@ data:
       {{- include "gitlab.appConfig.workspaces" . | nindent 6 }}
       {{- include "gitlab.appConfig.databaseTrafficCapture" . | nindent 6 }}
       {{- include "gitlab.appConfig.cell" . | nindent 6 }}
-      {{- include "gitlab.appConfig.suggested_reviewers" . | nindent 6 }}
       {{- include "gitlab.appConfig.zoekt" . | nindent 6 }}
       {{- include "gitlab.appConfig.shell" . | nindent 6 }}
         {{- include "gitlab.appConfig.shell.ssh_port" . | nindent 8 }}

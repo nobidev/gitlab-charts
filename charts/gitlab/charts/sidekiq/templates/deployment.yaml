@@ -352,7 +352,6 @@ spec:
           {{- include "gitlab.registry.notificationSecret.mount" $ | nindent 10 -}}
           {{- include "gitlab.pages.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.kas.mountSecrets" $ | nindent 10 }}
-          {{- include "gitlab.suggestedReviewers.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.zoekt.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.minio.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store) | nindent 10 }}

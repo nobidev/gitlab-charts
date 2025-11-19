@@ -151,9 +151,6 @@ generate_secret_if_needed {{ template "gitlab.kas.autoflow.temporal.workflowData
 {{ end }}
 {{ end }}
 
-# Gitlab-suggested-reviewers secret
-generate_secret_if_needed {{ template "gitlab.suggested-reviewers.secret" . }} --from-literal={{ template "gitlab.suggested-reviewers.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
-
 {{ if .Values.global.appConfig.incomingEmail.enabled -}}
 # Gitlab-mailroom incomingEmail webhook secret
 generate_secret_if_needed {{ template "gitlab.appConfig.incomingEmail.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.incomingEmail.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)

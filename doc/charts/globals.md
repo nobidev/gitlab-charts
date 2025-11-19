@@ -1531,35 +1531,6 @@ global:
       caSecretName: *internal-ca
 ```
 
-### Suggested Reviewers settings
-
-{{< alert type="note" >}}
-
-The Suggested Reviewers secret is created automatically and only used on GitLab.com.
-This secret is not needed on GitLab Self-Managed instances.
-
-{{< /alert >}}
-
-One can optionally customize the Suggested Reviewers `secret` name as well as
-`key`, either by using Helm's `--set variable` option:
-
-```shell
---set global.appConfig.suggested_reviewers.secret=custom-secret-name \
---set global.appConfig.suggested_reviewers.key=custom-secret-key \
-```
-
-or by configuring your `values.yaml`:
-
-```yaml
-global:
-  appConfig:
-    suggested_reviewers:
-      secret: "custom-secret-name"
-      key: "custom-secret-key"
-```
-
-If you'd like to customize the secret value, refer to the [secrets documentation](../installation/secrets.md#gitlab-suggested-reviewers-secret).
-
 ### LDAP
 
 The `ldap.servers` setting allows for the configuration of [LDAP](https://docs.gitlab.com/administration/auth/ldap/)

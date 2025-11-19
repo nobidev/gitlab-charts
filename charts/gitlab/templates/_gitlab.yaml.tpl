@@ -98,11 +98,6 @@ cell:
 {{- end -}}
 {{- end -}}
 
-{{- define "gitlab.appConfig.suggested_reviewers" -}}
-suggested_reviewers:
-  secret_file: /etc/gitlab/suggested_reviewers/.gitlab_suggested_reviewers_secret
-{{- end -}}
-
 {{- define "gitlab.appConfig.zoekt" -}}
 # Zoekt secrets are present, load them.
 zoekt:
