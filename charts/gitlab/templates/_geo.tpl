@@ -17,6 +17,7 @@ geo:
   registry_replication:
     enabled: {{ eq true (default false .Values.global.geo.registry.replication.enabled) }}
     primary_api_url: {{ .Values.global.geo.registry.replication.primaryApiUrl | quote }}
+  action_cable_allowed_origins: {{ .Values.global.geo.actionCableAllowedOrigins | default (list) | toJson }}
 {{- end -}}
 {{- end -}}
 

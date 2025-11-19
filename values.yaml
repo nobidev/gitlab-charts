@@ -640,6 +640,12 @@ global:
         enabled: false
         primaryApiUrl:
         ## Consumes global.registry.notificationSecret
+    # Allowed origins for websockets communication between secondary and primary
+    # Set to be the external and internal URLs of Geo sites
+    actionCableAllowedOrigins:
+      # - http://primary.com
+      # - http://secondary.com
+      # - http://unified.com
 
   ## https://docs.gitlab.com/charts/charts/gitlab/kas/
   kas:
