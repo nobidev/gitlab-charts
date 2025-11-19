@@ -1,8 +1,8 @@
 ---
 apiVersion: v2
 name: kas
-version: 9.5.2
-appVersion: master
+version: 9.6.0
+appVersion: 18.6.0
 description: GitLab Agent Server
 keywords:
 - agent
