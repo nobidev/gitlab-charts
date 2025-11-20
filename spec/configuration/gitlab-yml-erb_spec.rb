@@ -792,17 +792,12 @@ describe 'gitlab.yml.erb configuration' do
     end
   end
 
-  context 'Geo action_cable_allowed_origins' do
+  context 'ActionCable allowed origins' do
     let(:required_values) do
       YAML.safe_load(%(
       global:
-        geo:
-          enabled: true
+        appConfig:
           actionCableAllowedOrigins: #{value}
-        psql:
-          host: foo
-          password:
-            secret: bar
     )).deep_merge!(default_values)
     end
 
@@ -815,15 +810,18 @@ describe 'gitlab.yml.erb configuration' do
 
         # Test webservice
         webservice_yml = YAML.safe_load(t.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb'))
-        expect(webservice_yml['production']['geo']['action_cable_allowed_origins']).to eq(['https://primary.example.com', 'https://secondary.example.com'])
+        expect(webservice_yml.dig('production', 'gitlab', 'action_cable_allowed_origins'))
+                             .to eq(['https://primary.example.com', 'https://secondary.example.com'])
 
         # Test sidekiq
         sidekiq_yml = YAML.safe_load(t.dig('ConfigMap/test-sidekiq', 'data', 'gitlab.yml.erb'))
-        expect(sidekiq_yml['production']['geo']['action_cable_allowed_origins']).to eq(['https://primary.example.com', 'https://secondary.example.com'])
+        expect(sidekiq_yml.dig('production', 'gitlab', 'action_cable_allowed_origins'))
+          .to eq(['https://primary.example.com', 'https://secondary.example.com'])
 
         # Test toolbox
         toolbox_yml = YAML.safe_load(t.dig('ConfigMap/test-toolbox', 'data', 'gitlab.yml.erb'))
-        expect(toolbox_yml['production']['geo']['action_cable_allowed_origins']).to eq(['https://primary.example.com', 'https://secondary.example.com'])
+        expect(toolbox_yml.dig('production', 'gitlab', 'action_cable_allowed_origins'))
+          .to eq(['https://primary.example.com', 'https://secondary.example.com'])
       end
     end
 
@@ -836,11 +834,11 @@ describe 'gitlab.yml.erb configuration' do
 
         # Test webservice
         webservice_yml = YAML.safe_load(t.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb'))
-        expect(webservice_yml['production']['geo']['action_cable_allowed_origins']).to eq([])
+        expect(webservice_yml.dig('production', 'gitlab', 'action_cable_allowed_origins')).to eq([])
 
         # Test sidekiq
         sidekiq_yml = YAML.safe_load(t.dig('ConfigMap/test-sidekiq', 'data', 'gitlab.yml.erb'))
-        expect(sidekiq_yml['production']['geo']['action_cable_allowed_origins']).to eq([])
+        expect(sidekiq_yml.dig('production', 'gitlab', 'action_cable_allowed_origins')).to eq([])
       end
     end
 
