@@ -14,15 +14,15 @@
      password:
        secret: geo
        key: postgresql-password
+   actionCableAllowedOrigins:
+     - https://gitlab.london.example.com # primary internal URL
+     - https://gitlab.shanghai.example.com # secondary internal URL
+     - https://gitlab.example.com # unified URL
    # configure geo (secondary)
    geo:
      enabled: true
      role: secondary
      nodeName: Shanghai Office
-     actionCableAllowedOrigins:
-       - https://gitlab.london.example.com # primary internal URL
-       - https://gitlab.shanghai.example.com # secondary internal URL
-       - https://gitlab.example.com # unified URL
      psql:
        host: geo-2.db.example.com
        port: 5431
