@@ -273,7 +273,7 @@ describe 'registry configuration' do
                   name: global_test_db
             registry:
               database:
-                enabled: true
+                enabled: "true"
                 # user and name not specified locally
           )).deep_merge(default_values)
         end
@@ -285,7 +285,7 @@ describe 'registry configuration' do
           expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
             <<~CONFIG
             database:
-              enabled: true
+              enabled: "true"
               host: "test-postgresql.default.svc"
               port: 5432
               user: global_test_user
@@ -307,7 +307,7 @@ describe 'registry configuration' do
                   name: global_test_db
             registry:
               database:
-                enabled: true
+                enabled: "true"
                 user: local_test_user
                 name: local_test_db
           )).deep_merge(default_values)
@@ -320,7 +320,7 @@ describe 'registry configuration' do
           expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
             <<~CONFIG
             database:
-              enabled: true
+              enabled: "true"
               host: "test-postgresql.default.svc"
               port: 5432
               user: local_test_user
@@ -342,7 +342,7 @@ describe 'registry configuration' do
                   name: global_registry_db
             registry:
               database:
-                enabled: true
+                enabled: "true"
                 user: ""
                 name: ""
           )).deep_merge(default_values)
@@ -355,7 +355,7 @@ describe 'registry configuration' do
           expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
             <<~CONFIG
             database:
-              enabled: true
+              enabled: "true"
               host: "test-postgresql.default.svc"
               port: 5432
               user: global_registry_user
@@ -382,7 +382,7 @@ describe 'registry configuration' do
             registry:
               database:
                 configure: true
-                enabled: false
+                enabled: "false"
           )).deep_merge(default_values)
         end
 
@@ -393,7 +393,7 @@ describe 'registry configuration' do
           expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
             <<~CONFIG
             database:
-              enabled: false
+              enabled: "false"
               host: "test-postgresql.default.svc"
               port: 5432
               user: global_registry_user
@@ -420,7 +420,7 @@ describe 'registry configuration' do
                     name: global_registry_db
               registry:
                 database:
-                  enabled: true
+                  enabled: "true"
                   user: local_registry_user
                   name: local_registry_db
             )).deep_merge(default_values)
@@ -451,7 +451,7 @@ describe 'registry configuration' do
                     name: global_registry_name
               registry:
                 database:
-                  enabled: true
+                  enabled: "true"
             )).deep_merge(default_values)
           end
 
@@ -473,7 +473,7 @@ describe 'registry configuration' do
                  tag: 16.6.0
              registry:
                database:
-                 enabled: true
+                 enabled: "true"
            )).deep_merge(default_values)
           end
 
@@ -499,7 +499,7 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             registry:
               database:
-                enabled: true
+                enabled: "true"
                 primary: "primary.record.fqdn"
           )).deep_merge(default_values)
         end
@@ -511,7 +511,7 @@ describe 'registry configuration' do
           expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
             <<~CONFIG
             database:
-              enabled: true
+              enabled: "true"
               host: "test-postgresql.default.svc"
               port: 5432
               user: registry
@@ -529,7 +529,7 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             registry:
               database:
-                enabled: true
+                enabled: "true"
                 backgroundMigrations:
                   enabled: true
                   maxJobRetries: 3
@@ -544,7 +544,7 @@ describe 'registry configuration' do
           expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
             <<~CONFIG
             database:
-              enabled: true
+              enabled: "true"
               host: "test-postgresql.default.svc"
               port: 5432
               user: registry
@@ -578,7 +578,7 @@ describe 'registry configuration' do
           expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
             <<~CONFIG
             database:
-              enabled: true
+              enabled: "true"
               host: "test-postgresql.default.svc"
               port: 5432
               user: registry
@@ -606,7 +606,7 @@ describe 'registry configuration' do
                     name: "nameC"
             registry:
               database:
-                enabled: true
+                enabled: "true"
                 primary: "primary.record.fqdn"
           )).deep_merge(default_values)
         end
@@ -635,11 +635,11 @@ describe 'registry configuration' do
           )
 
           registry_yml = render_yaml(configmap.dig('data', 'config.yml.tpl'))
-          expect(registry_yml.dig('database', 'enabled')).to eq(true)
+          expect(registry_yml.dig('database', 'enabled')).to eq("true")
           expect(registry_yml.dig('database', 'primary')).to eq('primary.record.fqdn')
 
           migrations_yml = render_yaml(configmap.dig('data', 'migrations-config.yml.tpl'))
-          expect(migrations_yml.dig('database', 'enabled')).to eq(true)
+          expect(migrations_yml.dig('database', 'enabled')).to eq("true")
           expect(migrations_yml.dig('database', 'primary')).to eq('primary.record.fqdn')
         end
       end
@@ -647,29 +647,26 @@ describe 'registry configuration' do
       context "when database configuration is required" do
         using RSpec::Parameterized::TableSyntax
 
-        # rubocop:disable Lint/BinaryOperatorWithIdenticalOperands
         where(:enabled, :configure, :include_db_config) do
-          false | false | false
-          true  | false | true # Backwards compatibility with .registry.database.enabled.
-          false | true  | true
-          true  | true  | true
+          "false" | false | false
+          "true"  | false | true # Backwards compatibility with .registry.database.enabled.
+          "false" | true  | true
+          "true"  | true  | true
         end
-        # rubocop:enable Lint/BinaryOperatorWithIdenticalOperands
-
         with_them do
           let(:values) do
             YAML.safe_load(%(
             registry:
               database:
                 configure: #{configure}
-                enabled: #{enabled}
+                enabled: "#{enabled}"
           )).deep_merge(default_values)
           end
 
           let(:config) do
             <<~CONFIG
             database:
-              enabled: #{enabled}
+              enabled: "#{enabled}"
               host: "test-postgresql.default.svc"
               port: 5432
               user: registry
@@ -703,7 +700,7 @@ describe 'registry configuration' do
                   loadBalancing:
                     enabled: true
                 database:
-                  enabled: true
+                  enabled: "true"
                   loadBalancing:
                     enabled: true
                     record: db-replica-registry.service.consul
@@ -718,7 +715,7 @@ describe 'registry configuration' do
             expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
               <<~CONFIG
               database:
-                enabled: true
+                enabled: "true"
                 host: "test-postgresql.default.svc"
                 port: 5432
                 user: registry
@@ -742,7 +739,7 @@ describe 'registry configuration' do
                   loadBalancing:
                     enabled: true
                 database:
-                  enabled: true
+                  enabled: "true"
                   loadBalancing:
                     enabled: true
                     record: db-replica-registry.service.consul
@@ -765,7 +762,7 @@ describe 'registry configuration' do
                   loadBalancing:
                     enabled: true
                 database:
-                  enabled: true
+                  enabled: "true"
                   loadBalancing:
                     enabled: true
                     record: db-replica-registry.service.consul
@@ -782,7 +779,7 @@ describe 'registry configuration' do
             expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
               <<~CONFIG
               database:
-                enabled: true
+                enabled: "true"
                 host: "test-postgresql.default.svc"
                 port: 5432
                 user: registry
@@ -807,7 +804,7 @@ describe 'registry configuration' do
                   loadBalancing:
                     enabled: true
                 database:
-                  enabled: true
+                  enabled: "true"
                   loadBalancing:
                     enabled: true
                     record: db-replica-registry.service.consul
@@ -837,7 +834,7 @@ describe 'registry configuration' do
                   cache:
                     enabled: true
                 database:
-                  enabled: true
+                  enabled: "true"
                   metrics:
                     enabled: true
                     interval: 15s
@@ -852,7 +849,7 @@ describe 'registry configuration' do
             expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
               <<~CONFIG
               database:
-                enabled: true
+                enabled: "true"
                 host: "test-postgresql.default.svc"
                 port: 5432
                 user: registry
@@ -876,7 +873,7 @@ describe 'registry configuration' do
                   cache:
                     enabled: true
                 database:
-                  enabled: true
+                  enabled: "true"
                   metrics:
                     enabled: true
             )).deep_merge(default_values)
@@ -889,7 +886,7 @@ describe 'registry configuration' do
             expect(t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')).to include(
               <<~CONFIG
               database:
-                enabled: true
+                enabled: "true"
                 host: "test-postgresql.default.svc"
                 port: 5432
                 user: registry
@@ -910,7 +907,7 @@ describe 'registry configuration' do
             YAML.safe_load(%(
               registry:
                 database:
-                  enabled: true
+                  enabled: "true"
                   metrics:
                     enabled: false
             )).deep_merge(default_values)
@@ -936,7 +933,7 @@ describe 'registry configuration' do
                 port: 16379
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -963,7 +960,7 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1021,7 +1018,7 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1056,7 +1053,7 @@ describe 'registry configuration' do
                     port: 26379
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1083,7 +1080,7 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1124,7 +1121,7 @@ describe 'registry configuration' do
                     port: 26379
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1169,7 +1166,7 @@ describe 'registry configuration' do
                   key: password
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1221,7 +1218,7 @@ describe 'registry configuration' do
                   key: password
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1482,7 +1479,7 @@ describe 'registry configuration' do
                     port: 26379
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1543,7 +1540,7 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1617,7 +1614,7 @@ describe 'registry configuration' do
                     port: 26379
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1647,7 +1644,7 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1753,7 +1750,7 @@ describe 'registry configuration' do
                   key: password
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 rateLimiting:
                   enabled: true
@@ -1805,7 +1802,7 @@ describe 'registry configuration' do
                   key: password
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -1873,7 +1870,7 @@ describe 'registry configuration' do
                   key: password
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 rateLimiting:
                   enabled: true
@@ -2134,7 +2131,7 @@ describe 'registry configuration' do
                     port: 26379
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -2231,7 +2228,7 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             registry:
               database:
-                enabled: true
+                enabled: "true"
               redis:
                 cache:
                   enabled: true
@@ -2740,7 +2737,7 @@ describe 'registry configuration' do
           api:
             enabled: #{enabled}
           database:
-            enabled: true
+            enabled: "true"
             migrations:
               enabled: true
           networkpolicy:
