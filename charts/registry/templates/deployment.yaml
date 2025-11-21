@@ -94,10 +94,20 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}{{ include "gitlab.image.tagSuffix" . }}"
           {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
           {{- include "gitlab.init.containerSecurityContext" $ | indent 10 }}
-          command: ["/scripts/wait-for-deps"]
+          command:
+          - /bin/sh
+          - -c
+          - |
+            {{- include "registry.database.skipCheck" . | nindent 12 }}
+            
+            # Run dependency checks
+            /scripts/wait-for-deps
           volumeMounts:
             - name: registry-server-config
               mountPath: /etc/docker/registry/
+              readOnly: true
+            - name: registry-secrets
+              mountPath: /config
               readOnly: true
           resources:
             {{- toYaml .Values.init.resources | nindent 12 }}

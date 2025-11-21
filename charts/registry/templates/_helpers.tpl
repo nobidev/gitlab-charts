@@ -262,3 +262,40 @@ true
 false
 {{- end -}}
 {{- end -}}
+
+{{/*
+Shell script to check if database operations should be skipped.
+This is used in both the dependencies init container and migrations job.
+
+When database.enabled is "prefer" and PostgreSQL subchart is not installed,
+this script will skip database operations and exit successfully.
+
+Usage in command:
+  command:
+  - /bin/sh
+  - -c
+  - |
+    {{- include "registry.database.skipCheck" . | nindent 4 }}
+    # Your database command here
+    /scripts/wait-for-deps
+*/}}
+{{- define "registry.database.skipCheck" -}}
+# Check if we should skip database operations
+DB_ENABLED="{{ .Values.database.enabled }}"
+PSQL_SUBCHART="false"
+
+if [ -f /config/shared-data/postgresql-subchart-enabled ]; then
+  PSQL_SUBCHART=$(cat /config/shared-data/postgresql-subchart-enabled)
+fi
+
+# Skip if database.enabled is "prefer" but PostgreSQL subchart is not installed
+# In this case, we're using external PostgreSQL and the database may not be ready yet
+if [ "$DB_ENABLED" = "prefer" ] && [ "$PSQL_SUBCHART" != "true" ]; then
+  printf '%s\n' \
+    "Skipping database operations: database.enabled=prefer but PostgreSQL subchart not installed." \
+    "Registry will be enforced to use database.enabled=false." \
+    "If you want to use the registry metadata database with external PostgreSQL, please enable it explicitly:" \
+    "https://docs.gitlab.com/charts/charts/registry/metadata_database/"
+  exit 0
+fi
+{{- end -}}
