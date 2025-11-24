@@ -22,7 +22,7 @@ dependencies:
   version: 13.4.4
 - name: gitlab-runner
   repository: https://charts.gitlab.io/
-  version: 0.82.0
+  version: 0.83.0
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 18.19.4
@@ -44,5 +44,5 @@ dependencies:
 - name: kubernetes-ingress
   repository: https://haproxytech.github.io/helm-charts
   version: 1.39.4
-digest: sha256:caa2ede08f84022ca04655b5dad69c15d2b0bf75cc715867e656bea368abb2bc
-generated: "2025-11-11T10:32:51.554597+01:00"
+digest: sha256:4fcb166d327f8b983e8f054f2bf30957f833e0772147c46d08ff2e73bb2f9888
+generated: "2025-11-20T16:23:20.467931361Z"
