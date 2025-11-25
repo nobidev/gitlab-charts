@@ -12,6 +12,8 @@ metadata:
     {{- include "gitlab.gatewayApi.certmanager.annotations" . | nindent 4 }}
 spec:
   gatewayClassName: {{ include "gitlab.gatewayApi.class.name" . | quote }}
+  addresses:
+    {{ .Values.global.gatewayApi.addresses | toYaml | nindent 4 }}
   listeners:
   {{- $root := .Values.global.gatewayApi }}
   {{- $listeners := $root.listeners }}

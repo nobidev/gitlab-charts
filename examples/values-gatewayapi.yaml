@@ -21,6 +21,6 @@ global:
     # Create a Gateway API compatible certmanager Issuer and configure the Gateway to use it.
     configureCertmanager: true
     # Default web protocol.
-    protocol: "HTTP" # or 'HTTP'
+    protocol: "HTTPS" # or 'HTTP'
     class:
       create: true
