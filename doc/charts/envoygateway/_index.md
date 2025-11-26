@@ -93,14 +93,16 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
          create: true
    ```
 
-1. Configure the Gateway to bind the existing IP address:
+1. Optional: Configure the Gateway to bind a static IP address. By default the IP configured via `global.hosts.externalIP`
+   is reused.
 
    ```yaml
    # Depending on your cloud provider you might to migrate additional annotations.
    global:
      hosts:
-       # Unset, only used by the bundled NGINX Ingress.
-       externalIP: ""
+       # Only used by Envoy if bundled NGINX Ingress is disabled and no custom
+       # gateway addresses are defined.
+       externalIP: "127.0.0.1"
      gatewayApi:
        addresses:
         - type: IPAddress

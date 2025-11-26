@@ -18,7 +18,12 @@ describe 'Gateway API configuration' do
   describe "Gateway API is enabled" do
     let(:values) do
       HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
         global:
+          hosts:
+            externalIP: 127.0.0.1
           pages:
             enabled: true
           gatewayApi:
@@ -42,6 +47,10 @@ describe 'Gateway API configuration' do
       expect(shell_route).not_to be_nil
       expect(kas_route).not_to be_nil
       expect(webservice_route).not_to be_nil
+    end
+
+    it 'picks up the static IP' do
+      expect(gateway["spec"]["addresses"]).to eq([{ "type" => "IPAddress", "value" => "127.0.0.1" }])
     end
   end
 end
