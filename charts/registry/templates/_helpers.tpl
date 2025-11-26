@@ -292,6 +292,8 @@ fi
 # In this case, we're using external PostgreSQL and the database may not be ready yet
 if [ "$DB_ENABLED" = "prefer" ] && [ "$PSQL_SUBCHART" != "true" ]; then
   printf '%s\n' \
+    "Warning: prefer mode detected!" \
+    "The prefer mode is not a supported use path in the chart, because it requires a GitLab-managed database, which is not supported by the GitLab Helm chart." \
     "Skipping database operations: database.enabled=prefer but PostgreSQL subchart not installed." \
     "Registry will be enforced to use database.enabled=false." \
     "If you want to use the registry metadata database with external PostgreSQL, please enable it explicitly:" \
