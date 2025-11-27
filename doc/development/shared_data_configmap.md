@@ -5,26 +5,19 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Shared Data ConfigMap
 ---
 
-# Shared Data ConfigMap
-
-DETAILS:
-
-- Tier: Free, Premium, Ultimate
-- Offering: GitLab Self-Managed
-
 ## Overview
 
+{{< alert type="warning" >}}
+The `shared-data` ConfigMap is strictly for internal use by GitLab charts and should NEVER be used by external charts or applications that connect to GitLab.
+{{< /alert >}}
+
 The `shared-data` ConfigMap is an **internal implementation detail** of the GitLab Helm chart. It provides a mechanism for GitLab subcharts to share runtime configuration information without relying on Helm values.
-
-## WARNING: Internal Use Only
-
-**The `shared-data` ConfigMap is strictly for internal use by GitLab charts and should NEVER be used by external charts or applications that connect to GitLab.**
 
 Key points:
 
 - **Not a public API**: The structure, content, and availability of this ConfigMap may change at any time without notice or deprecation warnings.
 - **No stability guarantees**: Data keys may be added, modified, or removed between any GitLab releases.
-- **Internal implementation detail**: This ConfigMap exists solely to facilitate communication between GitLab's own subcharts.
+- **Internal implementation detail**: This ConfigMap exists solely to facilitate communication between GitLab subcharts.
 - **External integrations**: If you're building external applications or charts that integrate with GitLab, use the documented public APIs and configuration methods instead.
 
 ## Purpose
@@ -53,7 +46,6 @@ The shared-data ConfigMap is mounted as environment variables (using `envFrom` w
 envFrom:
 {{- include "gitlab.sharedData.envFrom" $ | nindent 10 }}
 ```
-
 
 This single template call automatically exposes all ConfigMap keys as environment variables.
 
