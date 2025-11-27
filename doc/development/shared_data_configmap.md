@@ -2,13 +2,15 @@
 stage: Systems
 group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+title: Shared Data ConfigMap
 ---
 
 # Shared Data ConfigMap
 
 DETAILS:
-**Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+
+- Tier: Free, Premium, Ultimate
+- Offering: GitLab Self-Managed
 
 ## Overview
 
@@ -29,7 +31,7 @@ Key points:
 
 The shared-data ConfigMap solves a specific problem in the GitLab Helm chart architecture:
 
-When using the GitLab chart with the embedded PostgreSQL subchart, certain components (like the Container Registry) need to know at runtime whether they're connecting to the GitLab-managed PostgreSQL instance or an external database. This information affects how features like the registry's database "prefer" mode should behave.
+When using the GitLab chart with the embedded PostgreSQL subchart, certain components (like the Container Registry) need to know at runtime whether they're connecting to the GitLab-managed PostgreSQL instance or an external database. This information affects how features like the registry database "prefer" mode should behave.
 
 Traditional Helm values are evaluated at template rendering time, but some decisions need to be made at container runtime, 
 and globals were getting too overused. The shared-data ConfigMap bridges this gap by providing runtime-accessible configuration data.
@@ -46,10 +48,12 @@ The shared-data ConfigMap is mounted as environment variables (using `envFrom` w
 - **No need to explicitly define each variable** - new keys automatically become available
 
 **Implementation:**
+
 ```yaml
 envFrom:
 {{- include "gitlab.sharedData.envFrom" $ | nindent 10 }}
 ```
+
 
 This single template call automatically exposes all ConfigMap keys as environment variables.
 
@@ -63,6 +67,7 @@ The Container Registry uses this ConfigMap to determine whether to enable the da
 This prevents migration failures when using external PostgreSQL databases that may not have the registry database pre-created.
 
 **Consider backward compatibility**
+
 - New keys should be optional
 - Consuming code should handle missing keys gracefully with defaults
 - Example in shell: `VALUE="${GL_SHARED_DATA_MY_NEW_KEY:-default_value}"`
