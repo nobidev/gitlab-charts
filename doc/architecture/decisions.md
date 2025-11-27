@@ -99,6 +99,33 @@ Related issue:
 
 - [#352](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/352)
 
+## Bundling Envoy Gateway
+
+We're packaging the official [Envoy Gateway](https://gateway.envoyproxy.io/) chart
+to assist transitions from our previously bundled NGINX Ingress chart and ensure a
+seamless installation process.
+
+### Advantages
+
+* Streamlines the transition from existing bundled Ingress controllers.
+* Simplifies adotion across GitLab-managed infrastructure (including .com,
+  Dedicated) and the GitLab Environment Toolkit.
+* Delivers a validated, pre-configured networking solution for GitLab exposure
+* Still preserves flexibility for users to deploy their preferred Gateway API
+  controller.
+* Enables adoption of Envoy, which other [GitLab functionailties](https://gitlab.com/gitlab-org/architecture/auth-architecture/design-doc/-/blob/0d779e8aae72db3f1f045c69d0e693739f2f5fc8/decisions/005_adopt_envoy.md)
+  will depend on.
+
+### Considerations
+
+* Gateway API and Envoy Gateway require specific Cluster Resource Definitions.
+  Since [Helm doesn't support CRD upgrades](https://helm.sh/docs/v3/chart_best_practices/custom_resource_definitions),
+  manual intervention may be necessary.
+* Packaging a Gateway API controller alongside an application diverges from the
+  intended [separation of user personas](https://gateway-api.sigs.k8s.io/).
+* FIPS-compliant deployments must utilize alternative images rather than official
+  upstream versions.
+
 ## Forked charts
 
 The following charts have been forked or re-created in this repository following
