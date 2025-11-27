@@ -23,11 +23,11 @@ describe 'Shared Data ConfigMap configuration' do
 
     configmap_data = t.dig('ConfigMap/test-shared-data', 'data')
     expect(configmap_data).not_to be_nil
-    expect(configmap_data['postgresql-subchart-enabled']).to eq('true')
+    expect(configmap_data['POSTGRESQL_SUBCHART_ENABLED']).to eq('true')
   end
 
   describe 'non-default data' do
-    describe 'postgresql-subchart-enabled' do
+    describe 'POSTGRESQL_SUBCHART_ENABLED' do
       context 'when PostgreSQL subchart is disabled via postgresql.install=false' do
         let(:values) do
           HelmTemplate.with_defaults(%(
@@ -36,12 +36,12 @@ describe 'Shared Data ConfigMap configuration' do
           ))
         end
 
-        it 'sets postgresql-subchart-enabled to "false"' do
+        it 'sets POSTGRESQL_SUBCHART_ENABLED to "false"' do
           t = HelmTemplate.new(values)
           expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
 
           configmap_data = t.dig('ConfigMap/test-shared-data', 'data')
-          expect(configmap_data['postgresql-subchart-enabled']).to eq('false')
+          expect(configmap_data['POSTGRESQL_SUBCHART_ENABLED']).to eq('false')
         end
       end
     end

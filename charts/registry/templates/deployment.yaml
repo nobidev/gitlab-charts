@@ -89,6 +89,8 @@ spec:
           {{- include "gitlab.extraEnv" . | nindent 12 }}
           {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 12 }}
           {{- include "gitlab.timeZone.env" . | nindent 12 }}
+          envFrom:
+          {{- include "gitlab.sharedData.envFrom" $ | nindent 10 }}
         {{- if eq (include "registry.database.shouldConfigure" .) "true" }}
         - name: dependencies
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}{{ include "gitlab.image.tagSuffix" . }}"
@@ -115,6 +117,8 @@ spec:
           {{- include "gitlab.timeZone.env" . | nindent 10 }}
           {{- include "gitlab.extraEnv" . | nindent 10 }}
           {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
+          envFrom:
+          {{- include "gitlab.sharedData.envFrom" $ | nindent 10 }}
         {{- end }}
       {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
       containers:
@@ -260,12 +264,5 @@ spec:
           {{- include "gitlab.registry.redisSentinelSecret.mount" $ | nindent 10 }}
           {{- include "gitlab.registry.redisRateLimitingSecret.mount" $ | nindent 10 }}
           {{- include "gitlab.registry.redisLoadBalancingSecret.mount" $ | nindent 10 }}
-          # Shared data ConfigMap for detecting PostgreSQL subchart usage
-          - configMap:
-              name: {{ .Release.Name }}-shared-data
-              optional: true
-              items:
-                - key: postgresql-subchart-enabled
-                  path: shared-data/postgresql-subchart-enabled
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
 {{- end -}}

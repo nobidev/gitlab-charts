@@ -282,11 +282,7 @@ Usage in command:
 {{- define "registry.database.skipCheck" -}}
 # Check if we should skip database operations
 DB_ENABLED="{{ .Values.database.enabled }}"
-PSQL_SUBCHART="false"
-
-if [ -f /config/shared-data/postgresql-subchart-enabled ]; then
-  PSQL_SUBCHART=$(cat /config/shared-data/postgresql-subchart-enabled)
-fi
+PSQL_SUBCHART="${GL_SHARED_DATA_POSTGRESQL_SUBCHART_ENABLED:-false}"
 
 # Skip if database.enabled is "prefer" but PostgreSQL subchart is not installed
 # In this case, we're using external PostgreSQL and the database may not be ready yet

@@ -174,6 +174,10 @@ can not resolve the MinIO domain name and find the correct endpoint (you can see
 1. Cells configuration (development only)
    - Cells-related settings, including TLS secret configuration for topology service clients, are currently in active development and subject to change. For details, see: [TLS Configuration for Cells Components template](cells/tls_configuration.md)
 
+## Shared ConfigMap
+
+The [Shared Data ConfigMap](shared_data_configmap.md) is an internal implementation detail for communication between GitLab subcharts. **This should never be used by external charts or applications.**
+
 ## Troubleshooting a development environment
 
 Developers may encounter unique issues while working on new chart features.

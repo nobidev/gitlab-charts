@@ -70,6 +70,8 @@ spec:
             value: /registry
         {{- include "gitlab.extraEnv" . | nindent 10 }}
         {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
+        envFrom:
+        {{- include "gitlab.sharedData.envFrom" $ | nindent 8 }}
       restartPolicy: OnFailure
       {{- include "gitlab.image.pullSecrets" (dict "global" .Values.global.image "local" .Values.image) | indent 6 }}
       containers:
@@ -106,6 +108,8 @@ spec:
           value: 'true'
         {{- include "gitlab.extraEnv" . | nindent 8 }}
         {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 8 }}
+        envFrom:
+        {{- include "gitlab.sharedData.envFrom" $ | nindent 8 }}
       volumes:
       - name: registry-server-config-templates
         configMap:
@@ -127,12 +131,5 @@ spec:
                 path: configure
           {{- include "gitlab.registry.database.password.projectedVolume" . | nindent 10 }}
           {{- include "gitlab.registry.psql.ssl" . | nindent 10 }}
-          # Shared data ConfigMap for detecting PostgreSQL subchart usage
-          - configMap:
-              name: {{ .Release.Name }}-shared-data
-              optional: true
-              items:
-                - key: postgresql-subchart-enabled
-                  path: shared-data/postgresql-subchart-enabled
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
 {{- end }}

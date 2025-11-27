@@ -1,3 +1,7 @@
+# WARNING: This ConfigMap is for internal use by GitLab charts only.
+# DO NOT use this ConfigMap in external charts that connect to GitLab.
+# External integrations should use the documented public APIs and configuration methods.
+# The data in this ConfigMap may change without notice and is not part of the public API.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -10,4 +14,5 @@ data:
   # Indicates whether the PostgreSQL subchart is installed
   # This allows subcharts to determine if they're using the embedded PostgreSQL
   # or an external database without relying on global values
-  postgresql-subchart-enabled: {{ .Values.postgresql.install | quote }}
+  # Note: Key uses underscores and uppercase to match environment variable naming convention
+  POSTGRESQL_SUBCHART_ENABLED: {{ .Values.postgresql.install | quote }}

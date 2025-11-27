@@ -6,10 +6,7 @@ Return database configuration, if settings available.
 {{- if eq (include "registry.database.shouldConfigure" .) "true" }}
 database:
   {{- if eq (.Values.database.enabled | toString) "prefer" }}
-  {%- $psqlSubchart := "false" %}
-  {%- if file.Exists "/config/shared-data/postgresql-subchart-enabled" %}
-  {%-   $psqlSubchart = file.Read "/config/shared-data/postgresql-subchart-enabled" | strings.TrimSpace %}
-  {%- end %}
+  {%- $psqlSubchart := getenv "GL_SHARED_DATA_POSTGRESQL_SUBCHART_ENABLED" "false" %}
   {%- if eq $psqlSubchart "true" %}
   enabled: "prefer"
   {%- else %}

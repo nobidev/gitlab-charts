@@ -777,3 +777,26 @@ Usage: {{ include "gitlab.topologyService.configureScript" $ | nindent 4 }}
   fi
 {{- end }}
 {{- end -}}
+
+{{/*
+Mount shared-data ConfigMap as environment variables with GL_SHARED_DATA_ prefix.
+This automatically exposes all ConfigMap keys as environment variables without
+needing to explicitly define each one.
+
+Usage: 
+  envFrom:
+  {{- include "gitlab.sharedData.envFrom" $ | nindent 10 }}
+
+Example:
+  ConfigMap key: postgresql-subchart-enabled
+  Environment variable: GL_SHARED_DATA_POSTGRESQL_SUBCHART_ENABLED
+
+Note: This is for internal GitLab chart use only. External charts should not
+depend on this ConfigMap.
+*/}}
+{{- define "gitlab.sharedData.envFrom" -}}
+- prefix: GL_SHARED_DATA_
+  configMapRef:
+    name: {{ .Release.Name }}-shared-data
+    optional: true
+{{- end -}}
