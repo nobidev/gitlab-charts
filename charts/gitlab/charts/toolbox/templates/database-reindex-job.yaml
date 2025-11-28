@@ -2,11 +2,7 @@
 {{- $imageCfg := dict "global" .Values.global.image "local" .Values.image -}}
 {{- $initImageCfg := include "gitlab.configure.config" .Values | fromYaml -}}
 {{- include "database.datamodel.prepare" . -}}
-{{ if or ($.Capabilities.APIVersions.Has "batch/v1/CronJob") (eq $.Values.global.batch.cronJob.apiVersion "batch/v1") -}}
 apiVersion: batch/v1
-{{- else -}}
-apiVersion: batch/v1beta1
-{{- end }}
 kind: CronJob
 metadata:
   name: {{ template "fullname" . }}-db-reindex
