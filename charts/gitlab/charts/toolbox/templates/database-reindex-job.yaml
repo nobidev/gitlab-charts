@@ -138,9 +138,6 @@ spec:
                   subPath: rails-secrets/secrets.yml
                 - name: toolbox-tmp
                   mountPath: '/srv/gitlab/tmp'
-                  {{- if and .Values.database_reindex.cron.persistence.enabled .Values.database_reindex.cron.persistence.subPath }}
-                  subPath: "{{ .Values.database_reindex.cron.persistence.subPath }}"
-                  {{- end }}
                   readOnly: false
                 {{- include "gitlab.certificates.volumeMount" . | nindent 16 }}
               resources:
@@ -154,18 +151,7 @@ spec:
                   - configMap:
                       name: {{ template "fullname" . }}
             - name: toolbox-tmp
-              {{- if .Values.database_reindex.cron.persistence.enabled }}
-              {{- if .Values.database_reindex.cron.persistence.useGenericEphemeralVolume }}
-              ephemeral:
-                volumeClaimTemplate:
-                  {{- include "toolbox.database_reindex.cron.persistence.persistentVolumeClaim" . | nindent 18 }}
-              {{- else }}
-              persistentVolumeClaim:
-                claimName: {{ template "fullname" . }}-backup-tmp
-              {{- end }}
-              {{- else }}
               emptyDir: {}
-              {{- end }}
             - name: init-toolbox-secrets
               projected:
                 defaultMode: 0400
