@@ -111,10 +111,6 @@ spec:
                   value: {{ .Values.global.appConfig.terraformState.bucket }}
                 - name: CI_SECURE_FILES_BUCKET_NAME
                   value: {{ .Values.global.appConfig.ciSecureFiles.bucket }}
-                - name: BACKUP_BUCKET_NAME
-                  value: {{ .Values.global.appConfig.backups.bucket }}
-                - name: BACKUP_BACKEND
-                  value: {{ .Values.backups.objectStorage.backend }}
                 - name: TMP_BUCKET_NAME
                   value: {{ .Values.global.appConfig.backups.tmpBucket }}
                 - name: PAGES_BUCKET_NAME
@@ -188,9 +184,6 @@ spec:
                       - key: registry-auth.key
                         path: registry/gitlab-registry.key
                 {{- include "gitlab.registry.notificationSecret.mount" $ | nindent 16 -}}
-                {{- if or .Values.backups.objectStorage.config (not .Values.global.minio.enabled) }}
-                {{-   include "toolbox.backups.objectStorage.config.secret" .Values.backups.objectStorage | nindent 16 }}
-                {{- end }}
                 {{- include "gitlab.kas.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.pages.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.minio.mountSecrets" $ | nindent 16 }}
