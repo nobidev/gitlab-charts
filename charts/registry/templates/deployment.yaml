@@ -108,9 +108,6 @@ spec:
             - name: registry-server-config
               mountPath: /etc/docker/registry/
               readOnly: true
-            - name: registry-secrets
-              mountPath: /config
-              readOnly: true
           resources:
             {{- toYaml .Values.init.resources | nindent 12 }}
           env:
