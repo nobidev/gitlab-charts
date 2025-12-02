@@ -289,6 +289,30 @@ certmanager:
 Setting `configureCertmanager` configures the chart to render the relevant annotations to the
 Gateway manifest, and enables the creation of a HTTP01 Issuer configured for Gateway API.
 
+### Using a external Gateway API provider
+
+The chart can be configured to use a external Gateway API provider, yet not every provider
+meets the requirements to expose GitLab.
+
+Make sure your Gateway API provider does support `HTTPRoutes`, `TCPRoute` (for SSH),
+and `GRPCRoutes` (for future KAS features).
+
+Note that we only test with the bundled Envoy Gateway chart. Support for other providers is
+offered on a best-effort basis. We welcome any contributions that document working
+configurations with other Gateway API providers.
+
+To configure GitLab chart to use an external GatewayClass, disable the bundled Envoy Gateway
+and configure your custom class:
+
+```yaml
+global:
+  gatewayApi:
+    enabled: true
+    class:
+      name: custom-class
+    installEnvoy: false
+```
+
 ## GitLab Version
 
 {{< alert type="note" >}}
