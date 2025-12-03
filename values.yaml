@@ -172,14 +172,14 @@ global:
   ## https://docs.gitlab.com/charts/charts/globals#configure-redis-settings
   redis:
     auth:
-      enabled: true
+      enabled: false
       # secret:
       # key:
     # connectTimeout: 1
     # readTimeout: 1
     # writeTimeout: 1
-    # host: redis.hostedsomewhere.else
-    # port: 6379
+    host: 10.107.255.219
+    port: 6379
     # database: 0
     # user: webservice
     # sentinels:
@@ -1290,7 +1290,7 @@ prometheus:
 ## https://docs.gitlab.com/charts/architecture/decisions#redis
 ## https://docs.gitlab.com/charts/installation/deployment.html#redis
 redis:
-  install: true
+  install: false
   image:
     repository: bitnamilegacy/redis
   auth:
