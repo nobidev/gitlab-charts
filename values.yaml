@@ -1486,8 +1486,12 @@ gitlab:
   #   migrations:
   #     enabled: false
   ## https://docs.gitlab.com/charts/charts/gitlab/webservice
-  #   webservice:
-  #     enabled: false
+  webservice:
+    enabled: false
+      resources:
+        requests:
+          cpu: 300m
+          memory: 0.5G
   ## https://docs.gitlab.com/charts/charts/gitlab/sidekiq
   #   sidekiq:
   #     enabled: false
