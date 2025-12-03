@@ -1472,6 +1472,12 @@ traefik:
 gitlab:
   ## https://docs.gitlab.com/charts/charts/gitlab/toolbox
   toolbox:
+    backups:
+      cron:
+        enabled: false
+    database_reindex:
+      cron:
+        enabled: true
     replicas: 1
     antiAffinityLabels:
       matchLabels:
