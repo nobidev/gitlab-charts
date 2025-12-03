@@ -1477,7 +1477,7 @@ gitlab:
         enabled: false
     database_reindex:
       cron:
-        enabled: true
+        enabled: false
     replicas: 1
     antiAffinityLabels:
       matchLabels:
