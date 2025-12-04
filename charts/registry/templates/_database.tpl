@@ -3,7 +3,7 @@ Return database configuration, if settings available.
 */}}
 {{- define "registry.database.config" -}}
 {{/*Need to use enabled or configure flags for backwards compatibility*/}}
-{{- if or .Values.database.enabled .Values.database.configure }}
+{{- if eq (include "registry.database.shouldConfigure" .) "true" }}
 database:
   enabled: {{ .Values.database.enabled }}
   host: {{ default (include "gitlab.psql.host" .) .Values.database.host | quote }}

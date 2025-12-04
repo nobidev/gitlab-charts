@@ -36,6 +36,34 @@ describe 'checkConfig registry' do
                      error_description: 'when postgresql.image.tag is < 15'
   end
 
+  describe 'registry.database (external db)' do
+    let(:success_values) do
+      YAML.safe_load(%(
+        registry:
+          database:
+            enabled: true
+        postgresql:
+          enabled: false
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_values) do
+      YAML.safe_load(%(
+        registry:
+          database:
+            enabled: prefer
+        postgresql:
+          install: false
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_output) { 'When using an external PostgreSQL instance, you must explicitly enable or disable the metadata database.' }
+
+    include_examples 'config validation',
+                      success_description: 'when postgresql.install is false and registry.database.enabled is true',
+                      error_description: 'when postgresql.install is false and registry.database.enabled is prefer'
+  end
+
   describe 'registry.database (sslmode)' do
     let(:success_values) do
       YAML.safe_load(%(
@@ -142,7 +170,7 @@ describe 'checkConfig registry' do
       )).deep_merge!(default_required_values)
     end
 
-    let(:error_output) { 'Enabling database load balancing requires the metadata database to be enabled.' }
+    let(:error_output) { 'Enabling database load balancing requires the metadata database to be enabled explicitly.' }
 
     include_examples 'config validation',
                      success_description: 'when database load balancing is enabled, with database enabled',
