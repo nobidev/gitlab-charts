@@ -12,3 +12,6 @@ global:
     database: mydb
     username: myusername
 
+registry:
+  database:
+    enabled: false

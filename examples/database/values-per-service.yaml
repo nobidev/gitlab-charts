@@ -10,3 +10,7 @@ gitlab:
     psql:
       host: db.sidekiq
       port: 5431
+
+registry:
+  database:
+    enabled: false

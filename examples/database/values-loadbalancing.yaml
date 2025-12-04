@@ -9,3 +9,6 @@ global:
       - secondary-2.db.example
 postgresql:
   install: false
+registry:
+  database:
+    enabled: false

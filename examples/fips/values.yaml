@@ -99,7 +99,8 @@ gitlab:
 
 # See: https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc/advanced/external-object-storage
 registry:
+  database:
+    enabled: false
   storage:
     secret: my-objectstore-registry-secret # Registry storage secret.
     key: config
-

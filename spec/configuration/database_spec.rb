@@ -130,6 +130,9 @@ describe 'Database configuration' do
                 - secondary-2
           postgresql:
             install: false
+          registry:
+            database:
+              enabled: false
         )))
       end
 
@@ -156,6 +159,9 @@ describe 'Database configuration' do
                   record: secondary.db.service
           postgresql:
             install: false
+          registry:
+            database:
+              enabled: false
         )))
       end
 
@@ -387,6 +393,9 @@ describe 'Database configuration' do
           default_values.merge(YAML.safe_load(%(
             postgresql:
               install: false
+            registry:
+              database:
+                enabled: false
             global:
               psql:
                 host: global.primary
@@ -421,6 +430,9 @@ describe 'Database configuration' do
           default_values.merge(YAML.safe_load(%(
             postgresql:
               install: false
+            registry:
+              database:
+                enabled: false
             global:
               psql:
                 host: global.primary
@@ -459,6 +471,9 @@ describe 'Database configuration' do
           default_values.merge(YAML.safe_load(%(
             postgresql:
               install: false
+            registry:
+              database:
+                enabled: false
             global:
               psql:
                 host: psql.global

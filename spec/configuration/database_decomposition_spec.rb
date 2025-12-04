@@ -155,6 +155,9 @@ describe 'Database configuration' do
                     - b.sidekiq.global
         postgresql: # must disable for load_balancing
           install: false
+        registry:
+          database:
+            enabled: false
       )))
     end
 
@@ -297,6 +300,9 @@ describe 'Database configuration' do
 
           postgresql:
             install: false
+          registry:
+            database:
+              enabled: false
         )))
       end
 

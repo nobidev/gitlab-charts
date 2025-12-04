@@ -16,6 +16,9 @@ describe 'checkConfig postgresql' do
               hosts: [a, b, c]
         postgresql:
           install: false
+        registry:
+          database:
+            enabled: false
       )).deep_merge!(default_required_values)
     end
 
@@ -51,6 +54,9 @@ describe 'checkConfig postgresql' do
                 hosts: [a, b, c]
           postgresql:
             install: false
+          registry:
+            database:
+              enabled: false
         )).deep_merge!(default_required_values)
       end
 
@@ -65,6 +71,9 @@ describe 'checkConfig postgresql' do
                 invalid: item
           postgresql:
             install: false
+          registry:
+            database:
+              enabled: false
         )).deep_merge!(default_required_values)
       end
 
@@ -87,6 +96,9 @@ describe 'checkConfig postgresql' do
                 hosts: [a, b, c]
           postgresql:
             install: false
+          registry:
+            database:
+              enabled: false
         )).deep_merge!(default_required_values)
       end
 
@@ -101,6 +113,9 @@ describe 'checkConfig postgresql' do
                 hosts: a
           postgresql:
             install: false
+          registry:
+            database:
+              enabled: false
         )).deep_merge!(default_required_values)
       end
 
@@ -124,6 +139,9 @@ describe 'checkConfig postgresql' do
                   record: secondary
           postgresql:
             install: false
+          registry:
+            database:
+              enabled: false
         )).deep_merge!(default_required_values)
       end
 
@@ -138,6 +156,9 @@ describe 'checkConfig postgresql' do
                 discover: true
           postgresql:
             install: false
+          registry:
+            database:
+              enabled: false
         )).deep_merge!(default_required_values)
       end
 
