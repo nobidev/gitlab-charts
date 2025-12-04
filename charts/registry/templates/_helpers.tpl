@@ -228,3 +228,18 @@ matched by the registry PDB and Deployment selectors.
 {{- $_ := set $labels "app" "registry-migrations" }}
 {{- toYaml $labels }}
 {{- end -}}
+
+
+{{/*
+Check if database should be configured (enabled or configure flag set).
+Returns "true" if database should be configured, "false" otherwise.
+
+This is used in conditionals to determine if database-related resources should be created.
+*/}}
+{{- define "registry.database.shouldConfigure" -}}
+{{- if and (eq (toString .Values.database.enabled) "false") (not .Values.database.configure) -}}
+false
+{{- else -}}
+true
+{{- end -}}
+{{- end -}}
