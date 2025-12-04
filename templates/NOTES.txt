@@ -29,7 +29,7 @@ If you encounter a problem with either the import or operation of the registry, 
 {{- /* if the Container Registry metadata database is in 'prefer' mode */}}
 {{- if eq (toString .Values.registry.database.enabled) "prefer" }}
 {{ $WARNING }}
-The Container Registry metadata database is set to 'prefer' mode.
+We have changed the default setting for the Container Registry metadata database to 'prefer' mode.
 This means that registry database will be enabled for new installations using the bundled PostgreSQL database.
 For external PostgreSQL databases, you must explicitly enable/disable the registry database.
 Carefully review the documentation https://docs.gitlab.com/charts/charts/registry/metadata_database.html for more details.
