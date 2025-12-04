@@ -44,7 +44,8 @@ registry:
 {{-   end -}}
 {{-   if and (eq $.Values.postgresql.install false) (eq (toString $.Values.registry.database.enabled) "prefer") -}}
 registry:
-    We detected that `registry.database.enabled` is set to `prefer`, but the bundled PostgreSQL chart is not being deployed.
+    `registry.database.enabled` is set to `prefer`, but the bundled PostgreSQL chart is not being deployed.
+    We have changed the default setting for the Container Registry metadata database to 'prefer' mode.
     When using an external PostgreSQL instance, you must explicitly enable or disable the metadata database.
 
     For production environments, we recommend enabling and migrating to the metadata database.
