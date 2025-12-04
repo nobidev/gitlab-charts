@@ -35,12 +35,22 @@ registry:
     See https://docs.gitlab.com/charts/charts/registry#database
 {{-     end -}}
 {{-     $pgVersion := semver (.Values.postgresql.image.tag | toString) -}}
-{{-     if lt $pgVersion.Major 16 -}}
+{{-     if and $.Values.postgresql.install (lt $pgVersion.Major 16) -}}
 registry:
     Invalid PostgreSQL version "{{ .Values.postgresql.image.tag }}".
     PostgreSQL 16 is the minimum required version for the registry database.
     See https://docs.gitlab.com/charts/charts/registry#database
 {{-     end -}}
+{{-   end -}}
+{{-   if and (eq $.Values.postgresql.install false) (eq (toString $.Values.registry.database.enabled) "prefer") -}}
+registry:
+    We detected that `registry.database.enabled` is set to `prefer`, but the bundled PostgreSQL chart is not being deployed.
+    When using an external PostgreSQL instance, you must explicitly enable or disable the metadata database.
+
+    For production environments, we recommend enabling and migrating to the metadata database.
+
+    To dismiss this warning, set `registry.database.enabled` to `false`.
+    See: https://docs.gitlab.com/charts/charts/registry/metadata_database.html
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.registry.database */}}
@@ -50,9 +60,9 @@ Ensure Registry database load balancing is configured properly and dependencies 
 */}}
 {{- define "gitlab.checkConfig.registry.database.loadBalancing" -}}
 {{- if $.Values.registry.database.loadBalancing.enabled }}
-  {{- if not $.Values.registry.database.enabled }}
+  {{- if not (eq (toString $.Values.registry.database.enabled) "true") }}
 registry:
-    Enabling database load balancing requires the metadata database to be enabled.
+    Enabling database load balancing requires the metadata database to be enabled explicitly.
     See https://docs.gitlab.com/charts/charts/registry#load-balancing
   {{- end }}
   {{- if not $.Values.registry.redis.loadBalancing.enabled }}
@@ -75,9 +85,9 @@ Ensure Registry database metrics is configured properly and dependencies are met
 */}}
 {{- define "gitlab.checkConfig.registry.database.metrics" -}}
 {{- if $.Values.registry.database.metrics.enabled }}
-  {{- if not $.Values.registry.database.enabled }}
+  {{- if not (eq (toString $.Values.registry.database.enabled) "true") }}
 registry:
-    Enabling database metrics requires the metadata database to be enabled.
+    Enabling database metrics requires the metadata database to be enabled explicitly.
     See https://docs.gitlab.com/charts/charts/registry#database-metrics
   {{- end }}
   {{- if not $.Values.registry.redis.cache.enabled }}
@@ -93,19 +103,19 @@ registry:
 Ensure Registry Redis cache is configured properly and dependencies are met
 */}}
 {{- define "gitlab.checkConfig.registry.redis.cache" -}}
-{{-   if and $.Values.registry.redis.cache.enabled (not $.Values.registry.database.enabled) }}
+{{-   if and $.Values.registry.redis.cache.enabled (not (eq (toString $.Values.registry.database.enabled) "true")) }}
 registry:
-    Enabling the Redis cache requires the metadata database to be enabled.
+    Enabling the Redis cache requires the metadata database to be enabled explicitly.
     See https://docs.gitlab.com/charts/charts/registry#redis-cache
 {{-   end -}}
-{{-   if and $.Values.registry.database.enabled $.Values.registry.redis.cache.enabled }}
+{{-   if and (eq (toString $.Values.registry.database.enabled) "true") $.Values.registry.redis.cache.enabled }}
 {{-     if  and (kindIs "string" $.Values.registry.redis.cache.host) (empty $.Values.registry.redis.cache.host) }}
 registry:
     Enabling the Redis cache requires the host to not be empty.
     See https://docs.gitlab.com/charts/charts/registry#redis-cache
 {{-     end -}}
 {{- end -}}
-{{-   if and $.Values.registry.database.enabled $.Values.registry.redis.cache.enabled $.Values.registry.redis.cache.sentinels}}
+{{-   if and (eq (toString $.Values.registry.database.enabled) "true") $.Values.registry.redis.cache.enabled $.Values.registry.redis.cache.sentinels}}
 {{-     if  not $.Values.registry.redis.cache.host }}
 registry:
     Enabling the Redis cache with sentinels requires the registry.redis.cache.host to be set.
