@@ -22,3 +22,6 @@ global:
       #   disconnect_timeout: 120
 postgresql:
   install: false
+registry:
+  database:
+    enabled: false

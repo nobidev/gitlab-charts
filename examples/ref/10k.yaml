@@ -146,6 +146,8 @@ nginx-ingress:
       workload: webservice
 
 registry:
+  database:
+    enabled: false
   storage:
     extraKey: gcs.json
     key: registry-config
