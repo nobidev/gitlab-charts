@@ -147,7 +147,7 @@ Ensure that `redis.install: false` if configuring multiple Redis instances
 {{- end -}}
 {{- if and .Values.installValkey ( lt 0 $x.count ) }}
 redis:
-  If configuring multiple Redis servers, you can not use the in-chart Redis/Valkey server. Please see https://docs.gitlab.com/charts/charts/globals#configure-redis-settings
+  If configuring multiple Redis servers, you can not use the in-chart Valkey/Redis server. Please see https://docs.gitlab.com/charts/charts/globals#configure-redis-settings
 {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.multipleRedis */}}
@@ -158,7 +158,7 @@ Ensure that `redis.install: false` if using redis.yml override
 {{- define "gitlab.checkConfig.redisYmlOverride" -}}
 {{- if and .Values.installValkey ( hasKey .Values.global.redis "redisYmlOverride" ) }}
 redis:
-  When you override redis.yml you can not use the in-chart Redis server. Please see https://docs.gitlab.com/charts/charts/globals#configure-redis-settings
+  When you override redis.yml you can not use the in-chart Valkey/Redis server. Please see https://docs.gitlab.com/charts/charts/globals#configure-redis-settings
 {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.redisYmlOverride */}}

@@ -36,7 +36,8 @@ describe 'global affinity configuration' do
       'Deployment/test-minio',
       'Deployment/test-nginx-ingress-controller',
       'Deployment/test-prometheus-server',
-      'Deployment/test-gitlab-exporter'
+      'Deployment/test-gitlab-exporter',
+      'Deployment/test-valkey'
     ].freeze
   end
 
@@ -116,7 +117,8 @@ describe 'local affinity configuration' do
       'Deployment/test-minio',
       'Deployment/test-nginx-ingress-controller',
       'Deployment/test-prometheus-server',
-      'Deployment/test-gitlab-exporter'
+      'Deployment/test-gitlab-exporter',
+      'Deployment/test-valkey'
     ].freeze
   end
 

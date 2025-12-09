@@ -16,18 +16,16 @@ describe 'checkConfig template' do
                      error_description: 'when unset'
   end
 
-  describe 'multipleRedis' do
+  describe 'multiple Valkey/Redis' do
     let(:success_values) do
       YAML.safe_load(%(
-        redis:
-          install: true
+        installValkey: true
       )).deep_merge!(default_required_values)
     end
 
     let(:error_values) do
       YAML.safe_load(%(
-        redis:
-          install: true
+        installValkey: true
         global:
           redis:
             cache:
@@ -35,7 +33,7 @@ describe 'checkConfig template' do
       )).deep_merge!(default_required_values)
     end
 
-    let(:error_output) { 'If configuring multiple Redis servers, you can not use the in-chart Redis server' }
+    let(:error_output) { 'If configuring multiple Redis servers, you can not use the in-chart Valkey/Redis server' }
 
     include_examples 'config validation',
                      success_description: 'when Redis is set to install with a single Redis instance',

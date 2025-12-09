@@ -26,7 +26,8 @@ describe 'Annotations configuration' do
       'Deployment/test-certmanager-webhook',
       'Deployment/test-certmanager',
       'Deployment/test-gitlab-runner',
-      'Deployment/test-prometheus-server'
+      'Deployment/test-prometheus-server',
+      'Deployment/test-valkey'
     ]
   end
 

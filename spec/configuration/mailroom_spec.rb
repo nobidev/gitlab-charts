@@ -36,7 +36,7 @@ describe 'Mailroom configuration' do
       t = HelmTemplate.new(default_values)
       expect(t.exit_code).to eq(0)
       # check the default service name & password are used
-      expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).to include("test-redis-master.default.svc:6379")
+      expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).to include("test-valkey.default.svc.cluster.local:6379")
       # check the default secret is mounted
       projected_volume = t.projected_volume_sources('Deployment/test-mailroom','init-mailroom-secrets')
       redis_mount =  projected_volume.select { |item| item['secret']['name'] == "test-redis-secret" }
@@ -428,8 +428,7 @@ describe 'Mailroom configuration' do
               password:
                 secret: redis-queues-secret
                 key: redis-queues-key
-        redis:
-          install: false
+        installValkey: false
       )).deep_merge(default_values)
     end
 

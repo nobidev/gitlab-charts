@@ -363,14 +363,14 @@ describe 'global configuration' do
       [
         'Deployment/test-gitlab-runner',
         'Deployment/test-prometheus-server',
-        'Deployment/test-minio'
+        'Deployment/test-minio',
+        'Deployment/test-valkey'
       ]
     end
 
     let(:ignored_statefulsets) do
       [
-        'StatefulSet/test-postgresql',
-        'StatefulSet/test-redis-master'
+        'StatefulSet/test-postgresql'
       ]
     end
 
@@ -438,14 +438,14 @@ describe 'global configuration' do
         'Deployment/test-minio',
         'Deployment/test-certmanager',
         'Deployment/test-certmanager-cainjector',
-        'Deployment/test-certmanager-webhook'
+        'Deployment/test-certmanager-webhook',
+        'Deployment/test-valkey'
       ]
     end
 
     let(:ignored_statefulsets) do
       [
-        'StatefulSet/test-postgresql',
-        'StatefulSet/test-redis-master'
+        'StatefulSet/test-postgresql'
       ]
     end
 

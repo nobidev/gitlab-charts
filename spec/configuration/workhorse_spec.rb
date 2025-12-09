@@ -190,8 +190,7 @@ CFG
               auth:
                 enabled: true
                 secret: global-secret
-          redis:
-            install: false
+          installValkey: false
         )).deep_merge!(default_values)
       end
 
@@ -222,8 +221,7 @@ CFG
               auth:
                 enabled: true
                 secret: global-secret
-          redis:
-            install: false
+          installValkey: false
         )).deep_merge!(default_values)
       end
 
@@ -258,8 +256,7 @@ CFG
                 password:
                   enabled: true
                   secret: workhorse
-          redis:
-            install: false
+          installValkey: false
         )).deep_merge!(default_values)
       end
 
@@ -305,8 +302,7 @@ CFG
                 enabled: true
                 secret: global-secret
               user: redis-user
-          redis:
-            install: false
+          installValkey: false
         )).deep_merge!(default_values)
 
         it "adds the username to the URL" do
@@ -342,8 +338,7 @@ CFG
                   enabled: true
                   secret: workhorse
                 user: workhorse-redis-user
-          redis:
-            install: false
+          installValkey: false
         )).deep_merge!(default_values)
       end
 
@@ -382,8 +377,7 @@ CFG
                 password:
                   enabled: true
                   secret: workhorse
-          redis:
-            install: false
+          installValkey: false
         )).deep_merge!(default_values)
       end
 
@@ -467,8 +461,7 @@ CFG
                     enabled: true
                     secret: workhorse-redis-sentinel-secret
                     key: password
-            redis:
-              install: false
+            installValkey: false
           )).deep_merge!(default_values)
         end
 

@@ -35,7 +35,7 @@ describe 'gitlab-exporter configuration' do
 
     it 'configures Redis' do
       expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-      expect(sidekiq_config['opts']['redis_url']).to eq("redis://:#{password}@test-redis-master.default.svc:6379/0")
+      expect(sidekiq_config['opts']['redis_url']).to eq("redis://:#{password}@test-valkey.default.svc.cluster.local:6379/0")
       expect(sidekiq_config['opts']).not_to include('redis_sentinels')
     end
   end
@@ -51,7 +51,7 @@ describe 'gitlab-exporter configuration' do
 
     it 'configures Redis' do
       expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-      expect(sidekiq_config['opts']['redis_url']).to eq("redis://:#{password}@test-redis-master.default.svc:6379/4")
+      expect(sidekiq_config['opts']['redis_url']).to eq("redis://:#{password}@test-valkey.default.svc.cluster.local:6379/4")
     end
   end
 
@@ -129,8 +129,7 @@ describe 'gitlab-exporter configuration' do
     context 'when Redis Sentinel is defined for the queues config' do
       let(:values) do
         YAML.safe_load(%(
-        redis:
-          install: false
+        installValkey: false
         global:
           redis:
             host: global.host

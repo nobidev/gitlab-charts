@@ -151,9 +151,8 @@ registry:
     key: registry-config
     secret: gcs-secret-example
 
-# Run Redis outside of cluster
-redis:
-  install: false
+# Run Valkey/Redis outside of cluster
+installValkey: false
 
 # Database run outside of cluster
 postgresql:

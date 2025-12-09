@@ -7,7 +7,7 @@ describe 'Certificates configuration' do
   # we're skipping anything not using this feature
   let(:skip_items) do
     [
-      'minio', 'nginx', 'postgresql', 'redis',
+      'minio', 'nginx', 'postgresql', 'valkey',
       'gitlab-runner',
       'test-kas',
       # cert-manager Pods (2)

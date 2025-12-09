@@ -21,9 +21,9 @@ Expectation: input contents has .sentinels or .cluster, which is a List of Dict
 {{- define "gitlab.registry.redisCacheSecret.mount" -}}
 {{- if .Values.redis.cache.password.enabled }}
 - secret:
-    name: {{ default (include  "redis.secretName" . ) ( .Values.redis.cache.password.secret | quote) }}
+    name: {{ default (include  "gitlab.redis.password.secret" . ) ( .Values.redis.cache.password.secret | quote) }}
     items:
-      - key: {{ default (include "redis.secretPasswordKey" . ) ( .Values.redis.cache.password.key | quote) }}
+      - key: {{ default (include "gitlab.redis.password.key" . ) ( .Values.redis.cache.password.key | quote) }}
         path: registry/redis-password
 {{- end }}
 {{- end -}}
@@ -62,9 +62,9 @@ Expectation: input contents has .sentinels or .cluster, which is a List of Dict
 {{- define "gitlab.registry.redisRateLimitingSecret.mount" -}}
 {{- if .Values.redis.rateLimiting.password.enabled }}
 - secret:
-    name: {{ default (include  "redis.secretName" . ) ( .Values.redis.rateLimiting.password.secret | quote) }}
+    name: {{ default (include  "gitlab.redis.password.secret" . ) ( .Values.redis.rateLimiting.password.secret | quote) }}
     items:
-      - key: {{ default (include "redis.secretPasswordKey" . ) ( .Values.redis.rateLimiting.password.key | quote) }}
+      - key: {{ default (include "gitlab.redis.password.key" . ) ( .Values.redis.rateLimiting.password.key | quote) }}
         path: registry/redis-rateLimiting-password
 {{- end }}
 {{- end -}}
@@ -72,9 +72,9 @@ Expectation: input contents has .sentinels or .cluster, which is a List of Dict
 {{- define "gitlab.registry.redisLoadBalancingSecret.mount" -}}
 {{- if .Values.redis.loadBalancing.password.enabled }}
 - secret:
-    name: {{ default (include  "redis.secretName" . ) ( .Values.redis.loadBalancing.password.secret | quote) }}
+    name: {{ default (include  "gitlab.redis.password.secret" . ) ( .Values.redis.loadBalancing.password.secret | quote) }}
     items:
-      - key: {{ default (include "redis.secretPasswordKey" . ) ( .Values.redis.loadBalancing.password.key | quote) }}
+      - key: {{ default (include "gitlab.redis.password.key" . ) ( .Values.redis.loadBalancing.password.key | quote) }}
         path: registry/redis-loadBalancing-password
 {{- end }}
 {{- end -}}

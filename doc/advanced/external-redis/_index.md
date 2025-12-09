@@ -14,11 +14,11 @@ For details about currently supported Redis versions, see [Installation system r
 
 ## Configure the chart
 
-Disable the `redis` chart and the Redis service it provides, and point the other services to the external service.
+Disable the `valkey` chart and the Valkey/Redis service it provides, and point the other services to the external service.
 
 You must set the following parameters:
 
-- `redis.install`: Set to `false` to disable including the Redis chart.
+- `installValkey`: Set to `false` to disable including the Redis chart.
 - `global.redis.host`: Set to the hostname of the external Redis, can be a domain or an IP address.
 - `global.redis.auth.enabled`: Set to `false` if the external Redis does not require a password.
 - `global.redis.auth.secret`: The name of the [secret which contains the token for authentication](../../installation/secrets.md#redis-password).
@@ -33,7 +33,7 @@ For example, pass these values via Helm's `--set` flag while deploying:
 
 ```shell
 helm install gitlab gitlab/gitlab  \
-  --set redis.install=false \
+  --set installValkey=false \
   --set global.redis.host=redis.example \
   --set global.redis.auth.secret=gitlab-redis \
   --set global.redis.auth.key=redis-password \
@@ -73,7 +73,7 @@ you can do so by defining values under
 key will be rendered into `redis.yml` as-is.
 
 The `global.redis.redisYmlOverride` setting is intended for use with
-external Redis services. You must set `redis.install` to `false`. See
+external Redis services. You must set `installValkey` to `false`. See
 [configure Redis settings](../../charts/globals.md#configure-redis-settings)
 for further details.
 

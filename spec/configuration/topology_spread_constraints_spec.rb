@@ -20,6 +20,7 @@ describe 'local topologySpreadConstraints configuration' do
       'Deployment/test-cert-manager-webhook',
       'Deployment/test-gitlab-runner',
       'Deployment/test-minio',
+      'Deployment/test-valkey',
       'Deployment/test-nginx-ingress-controller',
       'Deployment/test-prometheus-server',
       'Deployment/test-gitlab-exporter'

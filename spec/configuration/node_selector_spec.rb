@@ -52,8 +52,8 @@ describe 'Node Selector configuration' do
       'Job/test-certmanager-startupapicheck',
       'Deployment/test-gitlab-runner',
       'Deployment/test-prometheus-server',
-      'StatefulSet/test-postgresql',
-      'StatefulSet/test-redis-master'
+      'Deployment/test-valkey',
+      'StatefulSet/test-postgresql'
     ]
   end
 

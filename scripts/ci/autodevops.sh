@@ -209,7 +209,6 @@ CIYAML
     --set releaseOverride="$RELEASE_NAME" \
     --set global.hosts.hostSuffix="$HOST_SUFFIX" \
     --set global.hosts.domain="$KUBE_INGRESS_BASE_DOMAIN" \
-    --set valkey.auth.aclUsers.usersExistingSecret="$RELEASE_NAME-redis-secret" \
     --set global.ingress.annotations."external-dns\.alpha\.kubernetes\.io/ttl"="10" \
     --set global.ingress.tls.secretName=helm-charts-win-tls \
     --set global.ingress.configureCertmanager=false \
@@ -221,6 +220,7 @@ CIYAML
     --set global.extraEnv.GITLAB_LICENSE_MODE="test" \
     --set global.extraEnv.CUSTOMER_PORTAL_URL="https://customers.staging.gitlab.com" \
     --set global.gitlab.license.secret="$RELEASE_NAME-gitlab-license" \
+    --set valkey.auth.usersExistingSecret="$RELEASE_NAME-redis-secret" \
     --namespace="$NAMESPACE" \
     "${gitlab_version_args[@]}" \
     --version="$CI_PIPELINE_ID-$CI_JOB_ID" \

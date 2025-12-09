@@ -6,6 +6,12 @@ require 'yaml'
 require 'hash_deep_merge'
 
 describe 'global priorityClass configuration' do
+  let(:ignored_deployments) do
+    [
+      "Deployment/test-valkey"
+    ]
+  end
+
   let(:default_values) do
     HelmTemplate.with_defaults(%(
       global:
@@ -30,7 +36,7 @@ describe 'global priorityClass configuration' do
       t = HelmTemplate.new(default_values)
       expect(t.exit_code).to eq(0)
 
-      deployments = t.resources_by_kind('Deployment')
+      deployments = t.resources_by_kind('Deployment').reject { |key, _| ignored_deployments.include? key }
 
       deployments.each do |key, _|
         expect(t.dig(key, 'spec', 'template', 'spec', 'priorityClassName')).to eq('system-cluster-critical')
@@ -176,7 +182,8 @@ describe 'local priorityClass configuration' do
     [
       'Deployment/test-certmanager',
       'Deployment/test-certmanager-cainjector',
-      'Deployment/test-certmanager-webhook'
+      'Deployment/test-certmanager-webhook',
+      'Deployment/test-valkey'
     ]
   end
 

@@ -366,6 +366,8 @@ describe 'kas configuration' do
       describe 'redis config' do
         shared_examples 'mounts global redis secret' do
           it do
+            t = kas_enabled_template
+            expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
             kas_secret = kas_enabled_template.projected_volume_sources(
               'Deployment/test-kas',
               'init-etc-kas'
@@ -455,7 +457,7 @@ describe 'kas configuration' do
               expect(config_yaml_data['redis']).to include(YAML.safe_load(%(
                 database_index: 3
                 server:
-                  address: test-redis-master.default.svc:6379
+                  address: test-valkey.default.svc.cluster.local:6379
               )))
             end
           end
@@ -466,7 +468,7 @@ describe 'kas configuration' do
                 database_index: 0
                 password_file: /etc/kas/redis/redis-password
                 server:
-                  address: test-redis-master.default.svc:6379
+                  address: test-valkey.default.svc.cluster.local:6379
               )))
             end
 
@@ -477,7 +479,7 @@ describe 'kas configuration' do
             let(:kas_values) do
               vals = default_kas_values
               vals['global'].deep_merge!(sentinels)
-              vals.deep_merge!('redis' => { 'install' => false })
+              vals.deep_merge!('installValkey' => false)
             end
 
             it_behaves_like 'mounts global redis secret'
@@ -498,7 +500,7 @@ describe 'kas configuration' do
             let(:kas_values) do
               vals = default_kas_values
               vals['global'].deep_merge!(sentinels_database)
-              vals.deep_merge!('redis' => { 'install' => false })
+              vals.deep_merge!('installValkey' => false)
             end
 
             it_behaves_like 'mounts global redis secret'
@@ -519,7 +521,7 @@ describe 'kas configuration' do
             let(:kas_values) do
               vals = default_kas_values
               vals['global'].deep_merge!(sentinels)
-              vals.deep_merge!('redis' => { 'install' => false })
+              vals.deep_merge!('installValkey' => false)
 
               vals.deep_merge!(YAML.safe_load(%(
                 global:
@@ -560,7 +562,7 @@ describe 'kas configuration' do
             vals = default_kas_values
             vals['global'].deep_merge!(redis_shared_state_config)
             vals['global'].deep_merge!(redis_kas_config)
-            vals.deep_merge!('redis' => { 'install' => false })
+            vals.deep_merge!('installValkey' => false)
           end
 
           let(:redis_kas_config) { {} }

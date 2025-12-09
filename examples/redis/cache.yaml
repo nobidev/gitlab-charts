@@ -1,5 +1,4 @@
-redis:
-  install: false
+installValkey: false
 global:
   redis:
     host: redis.example
