@@ -1556,7 +1556,7 @@ openbao:
       boundIssuer: '{{ include "gitlab.gitlab.url" . }}'
     audit:
       http:
-        enabled: true
+        enabled: false
         streamingUri: '{{ include "gitlab.workhorse.url" . }}/api/v4/internal/secrets_manager/audit_logs'
     storage:
       postgresql:
