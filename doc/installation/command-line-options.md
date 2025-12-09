@@ -244,16 +244,16 @@ Prefix NGINX Ingress values with `nginx-ingress`. For example, set the controlle
 
 See [`nginx-ingress` chart](../charts/nginx/_index.md).
 
-## Advanced in-cluster Redis configuration
+## Advanced in-cluster Valkey configuration
 
-| Parameter                 | Default               | Description |
-|---------------------------|-----------------------|-------------|
-| `redis.install`           | `true`                | Install the `bitnami/redis` chart |
-| `redis.existingSecret`    | `gitlab-redis-secret` | Specify the Secret for Redis servers to use |
-| `redis.existingSecretKey` | `redis-password`      | Secret key where password is stored |
+| Parameter                          | Default               | Description |
+|------------------------------------|-----------------------|-------------|
+| `installValkey`                    | `true`                | Install the [valkey](https://github.com/valkey-io/valkey-helm) chart |
+| `valkey.auth..usersExistingSecret` | `gitlab-redis-secret` | Specify the Secret for Valkey/Redis servers to use |
+| `valkey.auth.aclUsers.passwordKey` | `redis-password`      | Secret key where the password of the default user is stored |
 
 Any additional configuration of the Redis service should use the configuration
-settings from the [Redis chart](https://github.com/bitnami/charts/tree/main/bitnami/redis).
+settings from the [Valkey chart documentation](https://github.com/valkey-io/valkey-helm).
 
 ## Advanced registry configuration
 

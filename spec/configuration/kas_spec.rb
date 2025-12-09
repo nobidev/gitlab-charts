@@ -455,7 +455,7 @@ describe 'kas configuration' do
               expect(config_yaml_data['redis']).to include(YAML.safe_load(%(
                 database_index: 3
                 server:
-                  address: test-redis-master.default.svc:6379
+                  address: test-valkey.default.svc:6379
               )))
             end
           end
@@ -466,7 +466,7 @@ describe 'kas configuration' do
                 database_index: 0
                 password_file: /etc/kas/redis/redis-password
                 server:
-                  address: test-redis-master.default.svc:6379
+                  address: test-valkey.default.svc:6379
               )))
             end
 

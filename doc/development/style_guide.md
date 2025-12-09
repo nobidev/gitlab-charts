@@ -47,11 +47,12 @@ redis:
 - `sentinels.[].host` - defines the hostname of Redis Sentinel server for a Redis HA setup.
 - `sentinels.[].port` - defines the port on which to connect to the Redis Sentinel server. Defaults to `26379`.
 
-_Note:_ The current Redis Sentinel support only supports Sentinels that have
-been deployed separately from the GitLab chart. As a result, the Redis
-deployment through the GitLab chart should be disabled with `redis.install=false`.
-The Secret containing the Redis password must be manually created
-before deploying the GitLab chart.
+_Note:_ The current Valkey/Redis Sentinel support only supports Sentinels that have
+been deployed separately from the GitLab chart. As a result, the Valkey
+deployment through the GitLab chart should be disabled with `installValkey=false`.
+The Kubernetes Secret containing the Valkey/Redis password will need to be manually
+created before deploying the GitLab chart.
+
 
 ### Sharing secrets
 

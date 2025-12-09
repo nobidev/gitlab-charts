@@ -92,6 +92,8 @@ describe 'Strategy configuration' do
         deployment:
           strategy:
             type: Recreate
+      valkey:
+        deploymentStrategy: Recreate
     )).deep_merge(default_values)
   end
 
@@ -105,7 +107,6 @@ describe 'Strategy configuration' do
       'Deployment/test-toolbox',
       'Deployment/test-minio',
       'Deployment/test-gitlab-runner',
-      'StatefulSet/test-redis-master',
       'StatefulSet/test-postgresql'
     ]
   end
