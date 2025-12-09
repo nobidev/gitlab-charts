@@ -39,10 +39,10 @@ dependencies:
   version: 0.83.3
   repository: https://charts.gitlab.io/
   condition: gitlab-runner.install
-- name: redis
-  version: 18.19.4
-  repository: https://charts.bitnami.com/bitnami
-  condition: redis.install
+- name: valkey
+  version: 0.8.1
+  repository: https://valkey.io/valkey-helm/
+  condition: installValkey
 - name: nginx-ingress
   condition: nginx-ingress.enabled
   version: "*.*.*"

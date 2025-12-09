@@ -23,9 +23,9 @@ dependencies:
 - name: gitlab-runner
   repository: https://charts.gitlab.io/
   version: 0.83.3
-- name: redis
-  repository: https://charts.bitnami.com/bitnami
-  version: 18.19.4
+- name: valkey
+  repository: https://valkey.io/valkey-helm/
+  version: 0.8.1
 - name: nginx-ingress
   repository: ""
   version: '*.*.*'
@@ -44,5 +44,5 @@ dependencies:
 - name: kubernetes-ingress
   repository: https://haproxytech.github.io/helm-charts
   version: 1.39.4
-digest: sha256:af1f675b00ae7ee20ec16b72007d9d36f0cec409981f76195b13b3cbdb8748ac
-generated: "2025-11-28T23:23:11.015894751Z"
+digest: sha256:51fa790f40b8a901d812624cd0c0e50b9662abb1aa80534ba4a76b23737ca37a
+generated: "2025-12-09T09:13:05.842029683+01:00"

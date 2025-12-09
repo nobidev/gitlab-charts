@@ -46,10 +46,7 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $removals = append $removals (include "gitlab.removal.local.kubectl" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.gitlab.gitaly.enabled" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.initContainerImage" .) -}}
-{{- $removals = append $removals (include "external.removal.initContainerImage" .) -}}
 {{- $removals = append $removals (include "external.removal.initContainerPullPolicy" .) -}}
-{{- $removals = append $removals (include "gitlab.removal.redis-ha.enabled" .) -}}
-{{- $removals = append $removals (include "gitlab.removal.redis.enabled" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.gitlab.webservice.service.configuration" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.gitlab.gitaly.serviceName" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.global.psql.pool" .) -}}
@@ -246,21 +243,6 @@ gitlab.{{ $chart }}:
 {{- end -}}
 {{/* END gitlab.removal.initContainerImage */}}
 
-{{/* Deprecation behavious for configuration of initContainer images of external charts */}}
-{{- define "external.removal.initContainerImage" -}}
-{{- range $chart:= list "minio" "registry" "redis" "redis-ha" }}
-{{-     if hasKey (index $.Values $chart) "init" -}}
-{{-         with $config := index $.Values $chart "init" -}}
-{{-             if or (and (hasKey $config "image") (kindIs "string" $config.image)) (hasKey $config "tag") }}
-{{ $chart }}:
-    Configuring image for initContainers using {{ $chart }}.init.image and {{ $chart }}.init.tag has been removed. Please use {{ $chart }}.init.image.repository and {{ $chart }}.init.image.tag for that.
-{{-             end -}}
-{{-         end -}}
-{{-     end -}}
-{{- end -}}
-{{- end -}}
-{{/* END external.removal.initContainerImage */}}
-
 {{/* Deprecation behavious for configuration of initContainer image pull policy of external charts */}}
 {{- define "external.removal.initContainerPullPolicy" -}}
 {{- range $chart:= list "minio" "registry" }}
@@ -275,24 +257,6 @@ gitlab.{{ $chart }}:
 {{- end -}}
 {{- end -}}
 {{/* END external.removal.initContainerPullPolicy*/}}
-
-{{/* Deprecation behaviors for redis-ha.enabled */}}
-{{- define "gitlab.removal.redis-ha.enabled" -}}
-{{-   if hasKey (index .Values "redis-ha") "enabled" -}}
-redis-ha:
-    The `redis-ha.enabled` has been removed. Redis HA is now implemented by the Redis chart.
-{{-   end -}}
-{{- end -}}
-{{/* END gitlab.removal.redis-ha.enabled */}}
-
-{{/* Deprecation behaviors for redis.enabled */}}
-{{- define "gitlab.removal.redis.enabled" -}}
-{{-   if hasKey .Values.redis "enabled" -}}
-redis:
-    The `redis.enabled` has been removed. Please use `redis.install` to install the Redis service.
-{{-   end -}}
-{{- end -}}
-{{/* END gitlab.removal.redis.enabled */}}
 
 {{- define "gitlab.removal.gitlab.webservice.service.configuration" -}}
 {{-   range $chart := list "gitaly" "gitlab-shell" -}}

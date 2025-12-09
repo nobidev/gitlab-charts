@@ -10,14 +10,7 @@ to the service name
 {{- if .redisMergedConfig.host -}}
 {{-   .redisMergedConfig.host -}}
 {{- else -}}
-{{-   $name := default "redis" (.Values.redis).serviceName -}}
-{{-   $redisRelease := .Release.Name -}}
-{{-   if contains $name $redisRelease -}}
-{{-     $redisRelease = .Release.Name | trunc 63 | trimSuffix "-" -}}
-{{-   else -}}
-{{-     $redisRelease = printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{-   end -}}
-{{-   printf "%s-master.%s.svc" $redisRelease .Release.Namespace -}}
+{{-   printf "%s-valkey.%s.svc.cluster.local" .Release.Name .Release.Namespace -}}
 {{- end -}}
 {{- end -}}
 

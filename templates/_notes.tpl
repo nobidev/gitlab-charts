@@ -7,8 +7,8 @@
 charts:
   - name: PostgreSQL
     enabled: {{ .Values.postgresql.install }}
-  - name: Redis
-    enabled: {{ .Values.redis.install }}
+  - name: Valkey
+    enabled: {{ .Values.installValkey }}
   - name: Gitaly
     enabled: {{ .Values.global.gitaly.enabled }}
   - name: Praefect

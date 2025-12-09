@@ -1293,40 +1293,19 @@ prometheus:
             - source_labels: [__meta_kubernetes_service_name]
               target_label: kubernetes_name
 
-## Configuration of Redis
+## Configuration of Valkey
 ## https://docs.gitlab.com/charts/architecture/decisions#redis
 ## https://docs.gitlab.com/charts/installation/deployment.html#redis
-redis:
-  install: true
-  image:
-    repository: bitnamilegacy/redis
+installValkey: true
+valkey:
   auth:
-    existingSecret: gitlab-redis-secret
-    existingSecretKey: redis-password
-    usePasswordFiles: true
-  architecture: standalone
-  cluster:
-    enabled: false
-  metrics:
     enabled: true
-    image:
-      repository: bitnamilegacy/redis-exporter
-  sentinel:
-    enabled: false
-    image:
-      repository: bitnamilegacy/redis-sentinel
-  kubectl:
-    enabled: false
-    image:
-      repository: bitnamilegacy/kubectl
-  sysctl:
-    enabled: false
-    image:
-      repository: bitnamilegacy/os-shell
-  volumePermissions:
-    enabled: false
-    image:
-      repository: bitnamilegacy/os-shell
+    # This depends on the chart release name.
+    usersExistingSecret: gitlab-redis-secret # <RELEASE>-redis-secret
+    aclUsers:
+      default:
+        permissions: "~* &* +@all"
+        passwordKey: secret
 
 ## Installation & configuration of stable/postgresql
 ## See dependencies in Chart.yaml for current version
