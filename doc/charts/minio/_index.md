@@ -12,6 +12,15 @@ title: Using MinIO for Object storage
 
 {{< /details >}}
 
+{{< alert type="note" >}}
+
+The bundled MinIO chart is not production ready. For a production-ready GitLab chart deployment, use an
+external object storage solution.
+
+To migrate from the bundled MinIO chart, check [the migration documentation](../../installation/bundled_chart_migration.md).
+
+{{< /alert >}}
+
 This chart is based on [`stable/minio`](https://github.com/helm/charts/tree/master/stable/minio)
 version [`0.4.3`](https://github.com/helm/charts/tree/aaaf98b5d25c26cc2d483925f7256f2ce06be080/stable/minio),
 and inherits most settings from there.
