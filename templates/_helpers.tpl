@@ -757,37 +757,3 @@ Usage: {{ include "gitlab.topologyService.configureScript" $ | nindent 4 }}
   fi
 {{- end }}
 {{- end -}}
-
-{{/*
-Returns the workspaces external hostname
-*/}}
-{{- define "gitlab.workspaces.hostname" -}}
-{{- $hostname := $.Values.global.hosts.workspaces.name | required "Missing required workspaces host. Make sure to set `.Values.global.hosts.workspaces.name`" -}}
-{{- $hostname -}}
-{{- end -}}
-
-{{/*
-Returns the workspaces wildcard hostname
-*/}}
-{{- define "gitlab.workspaces.wildcardHostname" -}}
-{{- $hostname := include "gitlab.workspaces.hostname" . -}}
-{{- print "*." $hostname -}}
-{{- end -}}
-
-{{/*
-Returns the KAS external hostname (for agentk connections)
-If the hostname is set in `global.hosts.kas.name`, that will be returned,
-otherwise the hostname will be assembed using `kas` as the prefix, and the `gitlab.assembleHost` function.
-*/}}
-{{- define "gitlab.kas.hostname" -}}
-{{- coalesce $.Values.global.hosts.kas.name (include "gitlab.assembleHost"  (dict "name" "kas" "context" . )) -}}
-{{- end -}}
-
-{{/*
-Returns the Pages hostname.
-If the hostname is set in `global.hosts.pages.name`, that will be returned,
-otherwise the hostname will be assembed using `pages` as the prefix, and the `gitlab.assembleHost` function.
-*/}}
-{{- define "gitlab.pages.hostname" -}}
-{{- coalesce $.Values.global.pages.host $.Values.global.hosts.pages.name (include "gitlab.assembleHost"  (dict "name" "pages" "context" . )) -}}
-{{- end -}}
