@@ -36,12 +36,14 @@ describe 'Gateway API configuration' do
       expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
     end
 
-    it 'creates Gateway and GatewayClass' do
-      expect(gatewayclass).not_to be_nil
-      expect(gateway).not_to be_nil
-    end
+    it 'creates all expected Gateway API objects' do
+      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
-    it 'creates the routes' do
+      # GatewayClass Object
+      expect(gatewayclass).not_to be_nil
+      # Gateway Object
+      expect(gateway).not_to be_nil
+      # Route objects
       expect(pages_route).not_to be_nil
       expect(registry_route).not_to be_nil
       expect(shell_route).not_to be_nil
