@@ -134,7 +134,7 @@ the `helm install` command using the `--set` flags.
 | `serviceInactive.annotations`                            | `{}`                                                    | Service annotations of the standby OpenBao pods. |
 | `resources`                                              | `{}`                                                    | Resource limits and requests. |
 | `autoscaling.minReplicas`                                | 2                                                       | Minimum OpenBao replicas. |
-| `autoscaling.maxReplicas`                                | 4                                                       | Maximum OpenBao replicas. |
+| `autoscaling.maxReplicas`                                | 2                                                       | Maximum OpenBao replicas. |
 | `autoscaling.targetCPUUtilizationPercentage`             | 80                                                      | Target CPU utilization for autoscaling. |
 | `autoscaling.targetCPUMemoryPercentage`                  |                                                         | Target memory utilization for autoscaling. |
 | `livenessProbe`                                          |                                                         | OpenBao liveness probe. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
