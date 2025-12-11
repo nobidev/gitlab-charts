@@ -20,6 +20,15 @@ Returns name of the managed Gateway resource.
 {{- end -}}
 
 {{/*
+Returns a target refs to the managed Gateway resource.
+*/}}
+{{- define "gitlab.gatewayApi.gatewayRef" }}
+group: gateway.networking.k8s.io
+kind: Gateway
+name: {{ include "gitlab.gatewayApi.gateway" . }}
+{{- end }}
+
+{{/*
 Renders a single listener configuration for the managed Gateway resource.
 
 Input parameters:
