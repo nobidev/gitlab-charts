@@ -53,9 +53,14 @@ if there is a shared tls secret for all ingresses.
 Return the formatted annotations for the PersistentVolumeClaim.
 */}}
 {{- define "minio.persistence.annotations" -}}
-{{-   if .Values.persistence.annotations -}}
-{{-     toYaml .Values.persistence.annotations -}}
-{{-   end -}}
+{{- $annotations := dict -}}
+{{- if .Values.persistence.keep -}}
+{{-   $_ := set $annotations "helm.sh/resource-policy" "keep" }}
+{{- end -}}
+{{- with .Values.persistence.annotations -}}
+{{-   $annotations := merge $annotations . -}}
+{{- end -}}
+{{- toYaml $annotations -}}
 {{- end -}}
 
 {{/*

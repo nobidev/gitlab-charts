@@ -21,21 +21,34 @@ for more information on alternatives.
 
 GitLab can only provide best-effort support for the components used in this guide.
 
-1. [Backup](../backup-restore/_index.md) all of the current data and note the backup ID.
+## Backup GitLab
 
-1. Download the backup from the backup bucket to your local machine.
+First [backup](../backup-restore/_index.md) all of the current data and note the backup ID.
+If you are migration of MinIO, you will need to download the backup archive to a local
+machine.
 
-1. Provision your external Valkey/Redis service. For example using the official [valkey Helm chart](https://github.com/valkey-io/valkey-helm):
+## Provision external services
 
-   ```shell
-   helm repo add valkey https://valkey.io/valkey-helm/
-   helm install valkey valkey/valkey \
-     --set dataStorage.enabled=true \
-     --set dataStorage.size=2Gi \
-     --set auth.enabled=true \
-     --set auth.aclUsers.default.permissions="~* &* +@all" \
-     --set auth.aclUsers.default.password=default-password
-   ```
+To replace the bundled MinIO, Redis and Valkey charts provision externally managed replacements.
+For an overview on the available options check the [recommended providers and services](https://docs.gitlab.com/administration/reference_architectures/#recommended-cloud-providers-and-services)
+and make sure they meet the [current minimum requirements](https://docs.gitlab.com/install/requirements/)
+are met.
+
+### Provision external Valkey/Redis
+
+Provision your external Valkey/Redis service. For example using the official [valkey Helm chart](https://github.com/valkey-io/valkey-helm):
+
+```shell
+helm repo add valkey https://valkey.io/valkey-helm/
+helm install valkey valkey/valkey \
+  --set dataStorage.enabled=true \
+  --set dataStorage.size=2Gi \
+  --set auth.enabled=true \
+  --set auth.aclUsers.default.permissions="~* &* +@all" \
+  --set auth.aclUsers.default.password=default-password
+```
+
+### Provision external PostgreSQL
 
 1. Provision your external PostgreSQL service. For example using [CloudNativePG](https://cloudnative-pg.io/documentation/current/installation_upgrade/):
 
@@ -69,89 +82,96 @@ GitLab can only provide best-effort support for the components used in this guid
             - CREATE EXTENSION IF NOT EXISTS amcheck;
       ```
 
-1. Provision your external object storage solution, for example [Garage](https://garagehq.deuxfleurs.fr/):
+### Provision external object storage
 
-   1. Install the Garage Helm chart.
+Provision your external object storage solution, for example [Garage](https://garagehq.deuxfleurs.fr/):
 
-      ```shell
-      helm plugin install https://github.com/aslafy-z/helm-git
-      helm repo add garage git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=main-v1
-      helm install garage garage/garage --set persistence.data.size=5Gi --set persistence.meta.size=250Mi
-      ```
+1. Install the Garage Helm chart.
 
-   1. Initialize the cluster layout:
+   ```shell
+   helm plugin install https://github.com/aslafy-z/helm-git
+   helm repo add garage git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=main-v1
+   helm install garage garage/garage --set persistence.data.size=5Gi --set persistence.meta.size=250Mi
+   ```
 
-      ```shell
-      Check node IDs
-      kubectl exec garage-0  -- /garage status
-      Assign nodes to gitlab zone
-      kubectl exec garage-0  -- /garage layout assign -z gitlab -c 5G <node IDs>
-      ```
+1. Initialize the cluster layout:
 
-   1. Create the GitLab buckets
+   ```shell
+   Check node IDs
+   kubectl exec garage-0  -- /garage status
+   Assign nodes to gitlab zone
+   kubectl exec garage-0  -- /garage layout assign -z gitlab -c 5G <node IDs>
+   ```
 
-      ```shell
-      kubectl exec garage-0  -- /garage bucket create git-lfs
-      kubectl exec garage-0  -- /garage bucket create gitlab-artifacts
-      kubectl exec garage-0  -- /garage bucket create gitlab-backups
-      kubectl exec garage-0  -- /garage bucket create gitlab-ci-secure-files
-      kubectl exec garage-0  -- /garage bucket create gitlab-dependency-proxy
-      kubectl exec garage-0  -- /garage bucket create gitlab-mr-diffs
-      kubectl exec garage-0  -- /garage bucket create gitlab-packages
-      kubectl exec garage-0  -- /garage bucket create gitlab-pages
-      kubectl exec garage-0  -- /garage bucket create gitlab-terraform-state
-      kubectl exec garage-0  -- /garage bucket create gitlab-uploads
-      kubectl exec garage-0  -- /garage bucket create registry
-      kubectl exec garage-0  -- /garage bucket create runner-cache
-      kubectl exec garage-0  -- /garage bucket create tmp
-      ```
+1. Create the GitLab buckets
 
-   1. Create a API key and grant access to the created buckets:
+   ```shell
+   kubectl exec garage-0  -- /garage bucket create git-lfs
+   kubectl exec garage-0  -- /garage bucket create gitlab-artifacts
+   kubectl exec garage-0  -- /garage bucket create gitlab-backups
+   kubectl exec garage-0  -- /garage bucket create gitlab-ci-secure-files
+   kubectl exec garage-0  -- /garage bucket create gitlab-dependency-proxy
+   kubectl exec garage-0  -- /garage bucket create gitlab-mr-diffs
+   kubectl exec garage-0  -- /garage bucket create gitlab-packages
+   kubectl exec garage-0  -- /garage bucket create gitlab-pages
+   kubectl exec garage-0  -- /garage bucket create gitlab-terraform-state
+   kubectl exec garage-0  -- /garage bucket create gitlab-uploads
+   kubectl exec garage-0  -- /garage bucket create registry
+   kubectl exec garage-0  -- /garage bucket create runner-cache
+   kubectl exec garage-0  -- /garage bucket create tmp
+   ```
 
-      ```shell
-      kubectl exec garage-0  -- /garage key create gitlab-app-key
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key git-lfs
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-artifacts
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-backups
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-ci-secure-files
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-dependency-proxy
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-mr-diffs
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-packages
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-pages
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-terraform-state
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-uploads
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key registry
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key runner-cache
-      kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key tmp
-      ```
+1. Create a API key and grant access to the created buckets:
 
-   1. Create a Secret configuring the object storage access:
+   ```shell
+   kubectl exec garage-0  -- /garage key create gitlab-app-key
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key git-lfs
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-artifacts
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-backups
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-ci-secure-files
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-dependency-proxy
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-mr-diffs
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-packages
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-pages
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-terraform-state
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-uploads
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key registry
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key runner-cache
+   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key tmp
+   ```
 
-      ```shell
-      cat <<EOF | kubectl create secret generic gitlab-object-storage --from-file=config=/dev/stdin
-      provider: AWS
-      region: garage
-      aws_access_key_id: GARAGE_ACCESS_KEY
-      aws_secret_access_key: GARAGE_SECRET_KEY
-      endpoint: "http://garage.NAMESPACE.svc.cluster.local:3900"
-      path_style: true
-      EOF
-      ```
+1. Create a Secret configuring the object storage access:
 
-   1. Create a Secret configuring access for backup/restore:
+   ```shell
+   cat <<EOF | kubectl create secret generic gitlab-object-storage --from-file=config=/dev/stdin
+   provider: AWS
+   region: garage
+   aws_access_key_id: GARAGE_ACCESS_KEY
+   aws_secret_access_key: GARAGE_SECRET_KEY
+   endpoint: "http://garage.NAMESPACE.svc.cluster.local:3900"
+   path_style: true
+   EOF
+   ```
 
-      ```shell
-      cat <<EOF | kubectl create secret generic gitlab-object-storage-s3cmd --from-file=config=/dev/stdin
-      [default]
-      access_key = GARAGE_ACCESS_KEY
-      secret_key = GARAGE_SECRET_KEY
-      host_base = garage.NAMESPACE.svc.cluster.local:3900
-      host_bucket = garage.NAMESPACE.svc.cluster.local:3900
-      use_https = False
-      EOF
-      ```
+1. Create a Secret configuring access for backup/restore:
 
-1. Configure your GitLab chart values to point to the newly provisioned services:
+   ```shell
+   cat <<EOF | kubectl create secret generic gitlab-object-storage-s3cmd --from-file=config=/dev/stdin
+   [default]
+   access_key = GARAGE_ACCESS_KEY
+   secret_key = GARAGE_SECRET_KEY
+   host_base = garage.NAMESPACE.svc.cluster.local:3900
+   host_bucket = garage.NAMESPACE.svc.cluster.local:3900
+   use_https = False
+   EOF
+   ```
+
+## Configure and upgrade GitLab
+
+With all replacements provisioned, you can now disable the bundled MinIO, Redis, and
+PostgreSQL. 
+
+1. Update your values to point to the newly provisioned services:
 
    ```yaml
    global:
@@ -206,7 +226,7 @@ GitLab can only provide best-effort support for the components used in this guid
    s3cmd put /tmp/LOCAL_BACKUP_ARCHIVE.tar s3://gitlab-backups/
    ```
 
-1. Restore the backup:
+1. [Restore the backup](../backup-restore/restore.md):
 
    ```shell
    kubectl exec -ti TOOLBOX_POD -- bash
