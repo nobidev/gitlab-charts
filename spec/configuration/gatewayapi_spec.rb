@@ -8,6 +8,8 @@ describe 'Gateway API configuration' do
   let(:template) { HelmTemplate.new(values) }
   let(:gatewayclass) { template["GatewayClass/gitlab-gw"] }
   let(:gateway) { template["Gateway/test-gw"] }
+  let(:clienttrafficpolicy) { template["ClientTrafficPolicy/test-policy"] }
+  let(:securitypolicy) { template["SecurityPolicy/test-policy"] }
 
   let(:shell_route) { template["TCPRoute/test-gitlab-shell"] }
   let(:webservice_route) { template["HTTPRoute/test-gitlab"] }
@@ -49,10 +51,42 @@ describe 'Gateway API configuration' do
       expect(shell_route).not_to be_nil
       expect(kas_route).not_to be_nil
       expect(webservice_route).not_to be_nil
+      # Optional policies
+      expect(clienttrafficpolicy).to be_nil
+      expect(securitypolicy).to be_nil
     end
 
     it 'picks up the static IP' do
       expect(gateway["spec"]["addresses"]).to eq([{ "type" => "IPAddress", "value" => "127.0.0.1" }])
+    end
+
+    describe 'with proxy protocol and IP allow/deny listing' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          global:
+            gatewayApi:
+              envoyClientTrafficPolicySpec:
+                enableProxyProtocol: true
+              envoySecurityPolicySpec:
+                  authorization:
+                    defaultAction: Deny
+                    rules:
+                    - action: Allow
+                      principal:
+                        clientCIDRs:
+                         - 10.0.1.0/24
+          )).deep_merge(super())
+      end
+
+      it 'creates the policies' do
+        expect(clienttrafficpolicy).not_to be_nil
+        expect(clienttrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
+        expect(clienttrafficpolicy["spec"]["enableProxyProtocol"]).to be(true)
+
+        expect(securitypolicy).not_to be_nil
+        expect(securitypolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
+        expect(securitypolicy["spec"]["authorization"]["defaultAction"]).to eq("Deny")
+      end
     end
   end
 end

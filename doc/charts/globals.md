@@ -225,6 +225,8 @@ Full support is planned to release before March 2026.
 | `protocol`                     | String  | `HTTPS`        | Default protocol for all listeners. |
 | `installEnvoy`                 | Boolean | false          | Install Envoy Gateway and configure with Envoy-specific custom resources. |
 | `envoyProxySpec`               | Object  | see values     | Configuration of the default `EnvoyProxy` resource. |
+| `envoyClientTrafficPolicySpec` | Object  | `{}`           | Configuration of a optional `ClientTrafficPolicy` bound to the managed `Gateway`. |
+| `envoyProxySpec`               | Object  | see values     | Configuration of a optional `SecurityPolicy` bound to the managed `Gateway`. |
 
 The Gateway listener configuration uses the following values. Each listener is only
 enabled if the underlying component is.
