@@ -1032,6 +1032,7 @@ nginx-ingress: &nginx-ingress
       Referrer-Policy: strict-origin-when-cross-origin
     config: &nginx-ingress-controller-config
       annotation-value-word-blocklist: "load_module,lua_package,_by_lua,location,root,proxy_pass,serviceaccount,{,},',\""
+      error-log-level: error
       hsts: "true"
       hsts-include-subdomains: "false"
       hsts-max-age: "63072000"
