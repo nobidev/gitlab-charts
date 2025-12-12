@@ -238,3 +238,14 @@ PostgreSQL.
    ```shell
    helm upgrade gitlab gitlab/gitlab -f your-values.yaml
    ```
+
+1. Confirm GitLab is operational.
+
+1. Confirm [backups](../backup-restore/backup.md) work as intended by doing a fresh backup.
+
+1. Delete Secrets and PersistentVolumeClaims related to the bundled PostgreSQL, MinIO, and Redis.
+
+   ```shell
+   kubectl delete pvc gitlab-minio redis-data-gitlab-redis-master-0 data-gitlab-postgresql-0
+   kubectl delete secret gitlab-postgresql-password gitlab-redis-secret gitlab-minio-secret gitlab-minio-tls
+   ```
