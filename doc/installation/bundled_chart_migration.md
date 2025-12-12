@@ -37,6 +37,8 @@ Please note that:
 - If you are only migrating Redis, you can skip the backup and restore steps.
 - If you are only migrating PostgreSQL, you can [skip](../backup-restore/backup.md#skipping-components) backing
   up all components but the `db`.
+- If you enabled the [Registry Metadata Database](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/)
+  the metadata data will not be covered by the default backup/restore process.
 
 ## Provision external services
 
