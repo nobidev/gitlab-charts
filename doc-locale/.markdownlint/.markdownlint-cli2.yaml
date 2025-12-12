@@ -4,6 +4,11 @@
 #
 #   markdownlint-cli2 --config .markdownlint/.markdownlint-cli2.yaml '**/*.md'
 # See https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md for explanations of each rule
+
+customRules:
+  - rules/no-four-asterisks.js
+  - rules/no-fullwidth-asterisks.js
+
 config:
   # First, set the default
   default: true
@@ -31,4 +36,10 @@ config:
     style: "dash"
   link-fragments: false             # MD051
   table-column-style: false         # MD060
-fix: false
+
+# CUSTOM JAPANESE RULES (warnings only)
+  MD-JA001:  # Four consecutive asterisks (****)
+    severity: "warning"
+    
+  MD-JA002:  # Fullwidth asterisks (＊ should be *)
+    severity: "warning"
