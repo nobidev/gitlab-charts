@@ -30,8 +30,13 @@ Note that GitLab can only offer best-effort support for the components covered i
 ## Backup GitLab
 
 First [backup](../backup-restore/_index.md) all of the current data and note the backup ID.
-If you are migration of MinIO, you will need to download the backup archive to a local
-machine.
+
+Please note that:
+
+- If you are migration of MinIO, you will need to download the backup archive to a local machine.
+- If you are only migrating Redis, you can skip the backup and restore steps.
+- If you are only migrating PostgreSQL, you can [skip](../backup-restore/backup.md#skipping-components) backing
+  up all components but the `db`.
 
 ## Provision external services
 
@@ -219,27 +224,31 @@ PostgreSQL.
      install: false
    ```
 
-1. Upgrade your GitLab instance with migrations disabled.
+   Check the related [Redis](../advanced/external-redis/_index.md), [PostgreSQL](../advanced/external-db/_index.md),
+   and [object storage](../advanced/external-object-storage/_index.md) documentation for more
+   information.
+
+1. If you are upgrading PostgreSQL, upgrade your GitLab instance with migrations disabled.
 
    ```shell
    helm upgrade gitlab gitlab/gitlab -f your-values.yaml --set gitlab.migrations.enabled=false
    ```
 
-1. Copy your backup to the toolbox and upload it to your new Object Storage.
+1. If you are migrating MinIO, copy your backup to the toolbox and upload it to your new object storage.
 
    ```shell
    kubectl cp LOCAL_BACKUP_ARCHIVE.tar TOOLBOX_POD:/tmp
    s3cmd put /tmp/LOCAL_BACKUP_ARCHIVE.tar s3://gitlab-backups/
    ```
 
-1. [Restore the backup](../backup-restore/restore.md):
+1. If you are migrarting PostgreSQL or MinIO, [restore the backup](../backup-restore/restore.md):
 
    ```shell
    kubectl exec -ti TOOLBOX_POD -- bash
    backup-utility --restore -t BACKUP_ID
    ```
 
-1. Upgrade your GitLab instance with migrations enabled.
+1. Upgrade your GitLab instance.
 
    ```shell
    helm upgrade gitlab gitlab/gitlab -f your-values.yaml
