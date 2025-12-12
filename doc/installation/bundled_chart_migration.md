@@ -12,14 +12,20 @@ title: Migrate from the bundled Redis, PostgreSQL and MinIO
 
 {{< /details >}}
 
-This guide explains the basic process of migrating the bundled MinIO, Redis and PostgreSQL to self-managed
-alternatives, namely Valkey, CloudNativePG, and Garage.
+This guide explains how to migrate from the bundled MinIO, Redis, and PostgreSQL to externally
+managed alternatives such as Valkey, CloudNativePG, and Garage.
 
-_Important:_ Depending on your requirements other solutions might be more appropriate, like a Omnibus-managed
-PostgreSQL/Redis or cloud-managed alternatives. Check the [reference architecture](https://docs.gitlab.com/administration/reference_architectures/)
-for more information on alternatives.
+{{< alert type="warning" >}}
 
-GitLab can only provide best-effort support for the components used in this guide.
+Depending on your requirements, existing infrastructure, and personal preferences, solutions
+other than the self-managed components described in this guide may be more suitable. 
+
+Please evaluate cloud provider services or Omnibus-managed PostgreSQL and Redis as alternatives.
+For more information, see the [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/).
+
+Note that GitLab can only offer best-effort support for the components covered in this guide.
+
+{{< /alert >}}
 
 ## Backup GitLab
 
