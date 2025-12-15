@@ -19,7 +19,7 @@ managed alternatives such as Valkey, CloudNativePG, and Garage.
 
 Before you begin migrating from the bundled MinIO, Redis or PostgreSQL:
 
-- Evaluate services that align with [GitLab's installation requirements](https://docs.gitlab.com/install/requirements/).
+- Evaluate services that align with [GitLabs installation requirements](https://docs.gitlab.com/install/requirements/).
   Consider cloud provider services or other alternatives that meet your infrastructure needs and organizational requirements.
   For general reference architecture considerations and recommended providers, see the
   [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/)
@@ -219,9 +219,8 @@ PostgreSQL.
    ```
 
    Note: The Redis and PostgreSQL persistent volumes are managed by their StatefulSet
-   instead of Helm. The default retention policy is [`Retain`]https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention.
+   instead of Helm. The default retention policy is [`Retain`](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention).
    Unless you modified this policy, the PVC will not be deleted when you remove the StatefulSet(s).
-
 
 1. Update your values to point to the newly provisioned services:
 
