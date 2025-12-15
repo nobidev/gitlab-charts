@@ -23,6 +23,8 @@ Before you begin migrating from the bundled MinIO, Redis or PostgreSQL:
   For more information, see the [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/).
   Depending on your requirements, existing infrastructure, and personal preferences, solutions
   other than the self-managed components described in this guide may be more suitable.
+- Check the current [requirements](https://docs.gitlab.com/install/requirements) for PostgreSQL
+  and Valkey/Redis.
 - Check the current size and data usage of your MinIO, Redis and PostgreSQL persistent volume claims.
   The guide configures 5Gi for PostgreSQL, 2Gi for Valkey, and 5Gi (replicated 3 times) for Garage
   which may need adjustment.
@@ -98,6 +100,9 @@ helm install valkey valkey/valkey \
             - CREATE EXTENSION IF NOT EXISTS amcheck;
             - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
       ```
+
+      Note: This will generate a secret for the `gitlab` user. Check the [Cluster API](https://cloudnative-pg.io/documentation/1.28/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Cluster)
+      to customize your cluster.
 
 ### Provision external object storage
 
