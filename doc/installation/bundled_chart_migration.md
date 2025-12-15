@@ -178,9 +178,9 @@ Provision your external object storage solution, for example [Garage](https://ga
    cat <<EOF | kubectl create secret generic gitlab-object-storage --from-file=config=/dev/stdin
    provider: AWS
    region: garage
-   aws_access_key_id: GARAGE_ACCESS_KEY
-   aws_secret_access_key: GARAGE_SECRET_KEY
-   endpoint: "http://garage.NAMESPACE.svc.cluster.local:3900"
+   aws_access_key_id: <GARAGE_ACCESS_KEY>
+   aws_secret_access_key: <GARAGE_SECRET_KEY>
+   endpoint: "http://garage.<NAMESPACE>.svc.cluster.local:3900"
    path_style: true
    EOF
    ```
@@ -190,10 +190,10 @@ Provision your external object storage solution, for example [Garage](https://ga
    ```shell
    cat <<EOF | kubectl create secret generic gitlab-object-storage-s3cmd --from-file=config=/dev/stdin
    [default]
-   access_key = GARAGE_ACCESS_KEY
-   secret_key = GARAGE_SECRET_KEY
-   host_base = garage.NAMESPACE.svc.cluster.local:3900
-   host_bucket = garage.NAMESPACE.svc.cluster.local:3900
+   access_key = <GARAGE_ACCESS_KEY>
+   secret_key = <GARAGE_SECRET_KEY>
+   host_base = garage.<NAMESPACE>.svc.cluster.local:3900
+   host_bucket = garage.<NAMESPACE>.svc.cluster.local:3900
    use_https = False
    EOF
    ```
@@ -209,13 +209,13 @@ PostgreSQL.
    global:
      # Configure DB managed by CloudNativePG.
      psql:
-       host: gitlab-rails-db-rw.NAMESPACE.svc.cluster.local
+       host: gitlab-rails-db-rw.<NAMESPACE>.svc.cluster.local
        password:
         secret: gitlab-rails-db-app
         key: password
      # Configure Valkey service.
      redis:
-       host: valkey.NAMESPACE.svc.cluster.local
+       host: valkey.<NAMESPACE>.svc.cluster.local
        auth:
         secret: valkey-auth
         key: default-password
@@ -252,7 +252,7 @@ PostgreSQL.
 1. If you are migrating PostgreSQL, upgrade your GitLab instance with migrations disabled.
 
    ```shell
-   helm upgrade gitlab gitlab/gitlab -f your-values.yaml --set gitlab.migrations.enabled=false
+   helm upgrade <RELEASE> gitlab/gitlab -f your-values.yaml --set gitlab.migrations.enabled=false
    ```
 
 1. If you are migrating MinIO, copy your backup to the toolbox and upload it to your new object storage.
@@ -267,7 +267,7 @@ PostgreSQL.
 1. Once the upgrade is complete, upgrade your GitLab instance to run any pending migrations.
 
    ```shell
-   helm upgrade gitlab gitlab/gitlab -f your-values.yaml
+   helm upgrade <RELEASE> gitlab/gitlab -f your-values.yaml
    ```
 
 1. Confirm GitLab is operational.
@@ -277,6 +277,6 @@ PostgreSQL.
 1. Delete Secrets and PersistentVolumeClaims related to the bundled PostgreSQL, MinIO, and Redis.
 
    ```shell
-   kubectl delete pvc gitlab-minio redis-data-gitlab-redis-master-0 data-gitlab-postgresql-0
-   kubectl delete secret gitlab-postgresql-password gitlab-redis-secret gitlab-minio-secret gitlab-minio-tls
+   kubectl delete pvc <RELEASE>-minio redis-data-<RELEASE>-redis-master-0 data-<RELEASE>-postgresql-0
+   kubectl delete secret <RELEASE>-postgresql-password <RELEASE>-redis-secret <RELEASE>-minio-secret <RELEASE>-minio-tls
    ```
