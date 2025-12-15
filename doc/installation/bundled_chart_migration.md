@@ -19,12 +19,14 @@ managed alternatives such as Valkey, CloudNativePG, and Garage.
 
 Before you begin migrating from the bundled MinIO, Redis or PostgreSQL:
 
-- Please evaluate cloud provider services or the GitLab Linux package to manage PostgreSQL and Redis.
-  For more information, see the [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/).
-  Depending on your requirements, existing infrastructure, and personal preferences, solutions
-  other than the self-managed components described in this guide may be more suitable.
-- Check the current [requirements](https://docs.gitlab.com/install/requirements) for PostgreSQL
-  and Valkey/Redis.
+- Evaluate services that align with [GitLab's installation requirements](https://docs.gitlab.com/install/requirements/).
+  Consider cloud provider services or other alternatives that meet your infrastructure needs and organizational requirements.
+  For general reference architecture considerations and recommended providers, see the
+  [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/)
+- As a result of this migration, upgrading the GitLab chart will no longer upgrade your Redis or
+  PostgreSQL deployments. Major GitLab upgrades may require newer versions of Valkey/Redis or PostgreSQL.
+  Before following this guide, or before doing a major GitLab upgrade, check the
+  [requirements](https://docs.gitlab.com/install/requirements) for your GitLab version.
 - Check the current size and data usage of your MinIO, Redis and PostgreSQL persistent volume claims.
   The guide configures 5Gi for PostgreSQL, 2Gi for Valkey, and 5Gi (replicated 3 times) for Garage
   which may need adjustment.
