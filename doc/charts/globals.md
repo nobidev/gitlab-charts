@@ -571,16 +571,17 @@ for different persistence classes, currently:
 
 | Instance          | Purpose |
 |:------------------|:--------|
-| `actioncable`     | Pub/Sub queue backend for ActionCable |
-| `cache`           | Store cached data |
-| `kas`             | Store KAS-specific data |
-| `queues`          | Store Sidekiq background jobs |
-| `rateLimiting`    | Store rate-limiting usage for RackAttack and Application Limits |
-| `repositoryCache` | Store repository-related data |
-| `sessions`        | Store user session data |
-| `sharedState`     | Store various persistent data such as distributed locks |
-| `traceChunks`     | Store job traces temporarily |
-| `workhorse`       | Pub/sub queue backend for Workhorse |
+| `actioncable`        | Pub/Sub queue backend for ActionCable |
+| `actionCablePrimary` | Similar to `actioncable` above, used to migrate from `actioncable` cluster |
+| `cache`              | Store cached data |
+| `kas`                | Store KAS-specific data |
+| `queues`             | Store Sidekiq background jobs |
+| `rateLimiting`       | Store rate-limiting usage for RackAttack and Application Limits |
+| `repositoryCache`    | Store repository-related data |
+| `sessions`           | Store user session data |
+| `sharedState`        | Store various persistent data such as distributed locks |
+| `traceChunks`        | Store job traces temporarily |
+| `workhorse`          | Pub/sub queue backend for Workhorse |
 
 Any number of the instances may be specified. Any instances not specified
 will be handled by the primary Redis instance specified
