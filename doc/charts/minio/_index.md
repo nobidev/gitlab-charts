@@ -17,7 +17,7 @@ title: Using MinIO for Object storage
 The bundled MinIO chart is not production ready. For a production-ready GitLab chart deployment, use an
 external object storage solution.
 
-To migrate from the bundled MinIO chart, check [the migration documentation](../../installation/bundled_chart_migration.md).
+For information on migrating away from the bundled MinIO chart, see [migrate from the bundled Redis, PostgreSQL, and MinIO](../../installation/bundled_chart_migration.md).
 
 {{< /alert >}}
 

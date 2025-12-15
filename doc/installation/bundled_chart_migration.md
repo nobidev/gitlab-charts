@@ -129,8 +129,8 @@ Provision your external object storage solution, for example [Garage](https://ga
    kubectl exec garage-0  -- /garage layout assign -z gitlab -c 5G <node IDs>
    ```
 
-1. Create the GitLab buckets
-
+1. Create the GitLab buckets:
+   
    ```shell
    kubectl exec garage-0  -- /garage bucket create git-lfs
    kubectl exec garage-0  -- /garage bucket create gitlab-artifacts
@@ -146,6 +146,9 @@ Provision your external object storage solution, for example [Garage](https://ga
    kubectl exec garage-0  -- /garage bucket create runner-cache
    kubectl exec garage-0  -- /garage bucket create tmp
    ```
+
+   Note: This uses the default bucket names from the GitLab chart. If you've customized your bucket names
+   previously, adjust them accordingly here and in the steps below.
 
 1. Create a API key, note the acess and secret key, and grant access to the created buckets:
 
@@ -259,14 +262,9 @@ PostgreSQL.
    s3cmd put /tmp/LOCAL_BACKUP_ARCHIVE.tar s3://gitlab-backups/
    ```
 
-1. If you are migrarting PostgreSQL or MinIO, [restore the backup](../backup-restore/restore.md):
+1. If you are migrating PostgreSQL or MinIO, [scale down the workloads and restore the backup](../backup-restore/restore.md#restoring-the-backup-file).
 
-   ```shell
-   kubectl exec -ti TOOLBOX_POD -- bash
-   backup-utility --restore -t BACKUP_ID
-   ```
-
-1. Upgrade your GitLab instance.
+1. Once the upgrade is complete, upgrade your GitLab instance to run any pending migrations.
 
    ```shell
    helm upgrade gitlab gitlab/gitlab -f your-values.yaml

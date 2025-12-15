@@ -10,7 +10,7 @@ title: Configure the GitLab chart with an external Redis
 The bundled bitnami Redis chart is not production ready. For a production-ready GitLab chart deployment, use an
 external Valkey or Redis.
 
-To migrate from the bundled Redis chart, check [the migration documentation](../../installation/bundled_chart_migration.md).
+For information on migrating away from the bundled Redis chart, see [migrate from the bundled Redis, PostgreSQL, and MinIO](../../installation/bundled_chart_migration.md).
 
 {{< /alert >}}
 
