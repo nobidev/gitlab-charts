@@ -2,7 +2,7 @@
 stage: GitLab Delivery
 group: Operate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
-title: Migrate from the bundled Redis, PostgreSQL and MinIO
+title: Migrate from the bundled Redis, PostgreSQL, and MinIO charts
 ---
 
 {{< details >}}
@@ -12,7 +12,7 @@ title: Migrate from the bundled Redis, PostgreSQL and MinIO
 
 {{< /details >}}
 
-This guide explains how to migrate from the bundled MinIO, Redis, and PostgreSQL to externally
+When configuring a production system, you should migrate from the bundled MinIO, Redis, and PostgreSQL to externally
 managed alternatives such as Valkey, CloudNativePG, and Garage.
 
 {{< alert type="warning" >}}
@@ -230,7 +230,7 @@ PostgreSQL.
    and [object storage](../advanced/external-object-storage/_index.md) documentation for more
    information.
 
-1. If you are upgrading PostgreSQL, upgrade your GitLab instance with migrations disabled.
+1. If you are migrating PostgreSQL, upgrade your GitLab instance with migrations disabled.
 
    ```shell
    helm upgrade gitlab gitlab/gitlab -f your-values.yaml --set gitlab.migrations.enabled=false

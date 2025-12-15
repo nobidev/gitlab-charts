@@ -74,15 +74,15 @@ to use appropriate up-to-date, patched images commensurate with their security r
 
 ## Configure the Helm chart to use external stateful data
 
-For production-gradede deployments, the chart should be configured to point
+For production-grade deployments, you should configure the chart to point
 externalized object storage, Valkey/Redis, PostgreSQL, and Gitaly services that
 match with your selected [reference architecture](https://docs.gitlab.com/administration/reference_architectures/).
 
-While GitLab chart bundles a MinIO, PostgreSQL, and Redis charts for proof-of-concept
-and testing scenarios, these components and charts have experiences several project and
+While GitLab chart bundles MinIO, PostgreSQL, and Redis charts for proof-of-concept
+and testing scenarios, these components and charts have experienced several project and
 licencing changes upstream impacting our ability to maintain these components.
 
-If you are running a production system with one of these bundled charts, please
+If you are running a production system with one of these bundled charts, you should
 [migrate](bundled_chart_migration.md) to externalized solutions.
 
 ### Use the reference architectures
