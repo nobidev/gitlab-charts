@@ -203,6 +203,26 @@ Provision your external object storage solution, for example [Garage](https://ga
 With all replacements provisioned, you can now disable the bundled MinIO, Redis, and
 PostgreSQL. 
 
+1. Ensure the MinIO persistent volume will be retained for now.
+
+   ```yaml
+   minio:
+     persistence:
+       # keep: true # Only available in GitLab chart 9.8+
+       annotations:
+         helm.sh/resource-policy: "keep"
+   ```
+
+   ```shell
+   helm upgrade <RELEASE> gitlab/gitlab -f your-values.yaml
+   kubectl annotate pvc <RELEASE>-minio --list
+   ```
+
+   Note: The Redis and PostgreSQL persistent volumes are managed by their StatefulSet
+   instead of Helm. The default retention policy is [`Retain`]https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention.
+   Unless you modified this policy, the PVC will not be deleted when you remove the StatefulSet(s).
+
+
 1. Update your values to point to the newly provisioned services:
 
    ```yaml
