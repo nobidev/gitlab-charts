@@ -15,17 +15,20 @@ title: Migrate from the bundled Redis, PostgreSQL, and MinIO charts
 When configuring a production system, you should migrate from the bundled MinIO, Redis, and PostgreSQL to externally
 managed alternatives such as Valkey, CloudNativePG, and Garage.
 
-{{< alert type="warning" >}}
+## Before you begin
 
-Depending on your requirements, existing infrastructure, and personal preferences, solutions
-other than the self-managed components described in this guide may be more suitable. 
+Before you begin migrating from the bundled MinIO, Redis or PostgreSQL:
 
-Please evaluate cloud provider services or Omnibus-managed PostgreSQL and Redis as alternatives.
-For more information, see the [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/).
-
-Note that GitLab can only offer best-effort support for the components covered in this guide.
-
-{{< /alert >}}
+- Please evaluate cloud provider services or the GitLab Linux package to manage PostgreSQL and Redis.
+  For more information, see the [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/).
+  Depending on your requirements, existing infrastructure, and personal preferences, solutions
+  other than the self-managed components described in this guide may be more suitable.
+- Check the current size and data usage of your MinIO, Redis and PostgreSQL persistent volume claims.
+  The guide configures 5Gi for PostgreSQL, 2Gi for Valkey, and 5Gi (replicated 3 times) for Garage
+  which may need adjustment.
+- Understand that GitLab can only offer best-effort support for the components covered in this guide.
+- Plan in downtime for this migration. During the import of the data into the new external services
+  GitLab won't be accesible.
 
 ## Backup GitLab
 
@@ -93,6 +96,7 @@ helm install valkey valkey/valkey \
             - CREATE EXTENSION IF NOT EXISTS btree_gist;
             - CREATE EXTENSION IF NOT EXISTS plpgsql;
             - CREATE EXTENSION IF NOT EXISTS amcheck;
+            - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
       ```
 
 ### Provision external object storage
@@ -104,7 +108,9 @@ Provision your external object storage solution, for example [Garage](https://ga
    ```shell
    helm plugin install https://github.com/aslafy-z/helm-git
    helm repo add garage git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=main-v1
-   helm install garage garage/garage --set persistence.data.size=5Gi --set persistence.meta.size=250Mi
+   helm install garage garage/garage \
+     --set persistence.data.size=5Gi \
+     --set persistence.meta.size=250Mi
    ```
 
 1. Initialize the cluster layout:
@@ -134,10 +140,12 @@ Provision your external object storage solution, for example [Garage](https://ga
    kubectl exec garage-0  -- /garage bucket create tmp
    ```
 
-1. Create a API key and grant access to the created buckets:
+1. Create a API key, note the acess and secret key, and grant access to the created buckets:
 
    ```shell
+   # Create GitLab key. Note down the access and secret key.
    kubectl exec garage-0  -- /garage key create gitlab-app-key
+   # Grant permissions to the GitLab key.
    kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key git-lfs
    kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-artifacts
    kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-backups
@@ -153,7 +161,8 @@ Provision your external object storage solution, for example [Garage](https://ga
    kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key tmp
    ```
 
-1. Create a Secret configuring the object storage access:
+1. Create a Secret configuring the object storage access. Make sure to replace the `GARAGE_ACCESS_KEY`,
+   `GARAGE_SECRET_KEY`, and `NAMESPACE` palceholders:
 
    ```shell
    cat <<EOF | kubectl create secret generic gitlab-object-storage --from-file=config=/dev/stdin
