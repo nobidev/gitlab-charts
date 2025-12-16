@@ -110,7 +110,7 @@ Provision your external PostgreSQL service. For example, by using [CloudNativePG
 
 To migrate away from the bundled MinIO, provision an external object storage solution.
 
-One option is [Garage](https://garagehq.deuxfleurs.fr/. Before installing it, review their
+One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, review their
 [deployment guide](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/) and
 [Kubernetes documentation](https://garagehq.deuxfleurs.fr/documentation/cookbook/kubernetes/).
 
