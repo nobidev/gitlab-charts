@@ -8,7 +8,7 @@ describe 'checkConfig template' do
   # acts in a similar way
   describe 'certmanager-issuer.email' do
     let(:success_values) { default_required_values }
-    let(:error_values) { {} }
+    let(:error_values) { nil }
     let(:error_output) { 'Please set certmanager-issuer.email' }
 
     include_examples 'config validation',

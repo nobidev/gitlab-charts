@@ -206,7 +206,7 @@ lint_package:
     - helm dependency update
     - echo "$HELM_DEFAULT_SETTINGS" | tee ./template_settings.yaml
     - echo "$HELM_SETTINGS" | tee -a ./template_settings.yaml
-    - helm lint -f ./template_settings.yaml
+    - helm lint -f ./template_settings.yaml .
     - mkdir -p build
     - helm package -d build .
   artifacts:

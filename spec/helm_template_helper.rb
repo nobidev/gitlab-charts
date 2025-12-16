@@ -7,14 +7,14 @@ class HelmTemplate
 
   def self.helm_major_version
     if @_helm_major_version.nil?
-      parts = `helm version -c`.match('Ver(sion)?:"v(\d)\.(\d+)(?:\.(\d+))?')
-      @_helm_major_version = parts[2].to_i
-      @_helm_minor_version = parts[3].to_i
-      @_helm_patch_version = parts[4].to_i
+      parts = `helm version --short`.match('v(\d)\.(\d+)(?:\.(\d+))?')
+      @_helm_major_version = parts[1].to_i
+      @_helm_minor_version = parts[2].to_i
+      @_helm_patch_version = parts[3].to_i
 
       # Check for Helm version below minimum supported version
-      if @_helm_major_version < 3 || (@_helm_major_version == 3 && @_helm_minor_version < 9 && @_helm_patch_version < 4)
-        puts "ERROR: Helm version needs to be greater than 3.9.4"
+      if @_helm_major_version < 3 || (@_helm_major_version == 3 && @_helm_minor_version < 18 && @_helm_patch_version < 4)
+        puts "ERROR: Helm version needs to be greater than 3.18.4"
         exit(1)
       end
     end
@@ -29,8 +29,7 @@ class HelmTemplate
   def self.helm_template_call(release_name: 'test', path: '-', namespace: nil, extra_args: nil)
     namespace_arg = namespace.nil? ? '' : "--namespace #{namespace}"
 
-    case helm_major_version
-    when 3 then
+    if helm_major_version >= 3
       "helm template #{release_name} . -f #{path} #{namespace_arg} #{extra_args}"
     else
       # If we don't know the version of Helm, use `false` command
