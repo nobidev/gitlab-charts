@@ -17,20 +17,20 @@ managed alternatives such as Valkey, CloudNativePG, and Garage.
 
 ## Before you begin
 
-Before you begin migrating from the bundled MinIO, Redis or PostgreSQL:
+Before you begin migrating from the bundled MinIO, Redis, or PostgreSQL:
 
 - Evaluate services that align with [GitLabs installation requirements](https://docs.gitlab.com/install/requirements/).
   Consider cloud provider services or other alternatives that meet your infrastructure needs and organizational requirements.
   For general reference architecture considerations and recommended providers, see the
-  [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/)
+  [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/).
 - As a result of this migration, upgrading the GitLab chart will no longer upgrade your Redis or
   PostgreSQL deployments. Major GitLab upgrades may require newer versions of Valkey/Redis or PostgreSQL.
   Before following this guide, or before doing a major GitLab upgrade, check the
   [requirements](https://docs.gitlab.com/install/requirements) for your GitLab version.
 - Check the current size and data usage of your MinIO, Redis and PostgreSQL persistent volume claims.
   The guide configures 5Gi for PostgreSQL, 2Gi for Valkey, and 5Gi (replicated 3 times) for Garage
-  which may need adjustment.
-- Understand that GitLab can only offer best-effort support for the components covered in this guide.
+  which might need adjustment.
+- Note that GitLab can only offer best-effort support for these components.
 - Plan in downtime for this migration. During the import of the data into the new external services
   GitLab won't be accesible.
 
@@ -49,14 +49,14 @@ Please note that:
 
 ## Provision external services
 
-To replace the bundled MinIO, Redis and Valkey charts provision externally managed replacements.
+To replace the bundled Redis, PostgreSQL, and MinIO charts, provision externally managed replacements.
 For an overview on the available options check the [recommended providers and services](https://docs.gitlab.com/administration/reference_architectures/#recommended-cloud-providers-and-services)
 and make sure they meet the [current minimum requirements](https://docs.gitlab.com/install/requirements/)
 are met.
 
-### Provision external Valkey/Redis
+### Provision external Valkey or Redis
 
-Provision your external Valkey/Redis service. For example using the official [valkey Helm chart](https://github.com/valkey-io/valkey-helm):
+Provision your external Valkey or Redis service. For example, by using the official [valkey Helm chart](https://github.com/valkey-io/valkey-helm):
 
 ```shell
 helm repo add valkey https://valkey.io/valkey-helm/
@@ -70,7 +70,7 @@ helm install valkey valkey/valkey \
 
 ### Provision external PostgreSQL
 
-1. Provision your external PostgreSQL service. For example using [CloudNativePG](https://cloudnative-pg.io/documentation/current/installation_upgrade/):
+Provision your external PostgreSQL service. For example, by using [CloudNativePG](https://cloudnative-pg.io/documentation/current/installation_upgrade/):
 
    1. Install the CloudNativePG Operator:
 
@@ -108,7 +108,7 @@ helm install valkey valkey/valkey \
 
 ### Provision external object storage
 
-Provision your external object storage solution, for example [Garage](https://garagehq.deuxfleurs.fr/):
+Provision your external object storage solution. For example, by using [Garage](https://garagehq.deuxfleurs.fr/):
 
 1. Install the Garage Helm chart.
 
@@ -125,7 +125,10 @@ Provision your external object storage solution, for example [Garage](https://ga
    ```shell
    Check node IDs
    kubectl exec garage-0  -- /garage status
-   Assign nodes to gitlab zone
+   # Check node IDs
+   kubectl exec garage-0  -- /garage status
+
+   # Assign nodes to gitlab zone
    kubectl exec garage-0  -- /garage layout assign -z gitlab -c 5G <node IDs>
    ```
 
