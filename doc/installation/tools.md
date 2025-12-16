@@ -25,13 +25,7 @@ of the version running in your cluster.
 
 ### Helm
 
-Install Helm v3.17.3 or later by following [the Helm documentation](https://helm.sh/docs/intro/install/).
-
-{{< alert type="warning" >}}
-
-We exceptionally don't support v3.18.0 due to [Helm issue 30878](https://github.com/helm/helm/issues/30878). You should jump from v3.17.x directly to v3.18.1 or later.
-
-{{< /alert >}}
+Install Helm v4.0 or later by following [the Helm documentation](https://helm.sh/docs/intro/install/).
 
 ### PostgreSQL
 
