@@ -80,6 +80,9 @@ Provision your external PostgreSQL service. For example, by using [CloudNativePG
 
    1. Provision a PostgreSQL cluster for GitLab:
 
+      Note: This will generate a secret for the `gitlab` user. Check the [Cluster API](https://cloudnative-pg.io/documentation/1.28/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Cluster)
+      to customize your cluster.
+
       ```yaml
       apiVersion: postgresql.cnpg.io/v1
       kind: Cluster
@@ -103,12 +106,13 @@ Provision your external PostgreSQL service. For example, by using [CloudNativePG
             - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
       ```
 
-      Note: This will generate a secret for the `gitlab` user. Check the [Cluster API](https://cloudnative-pg.io/documentation/1.28/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Cluster)
-      to customize your cluster.
-
 ### Provision external object storage
 
-Provision your external object storage solution. For example, by using [Garage](https://garagehq.deuxfleurs.fr/):
+To migrate away from the bundled MinIO, provision an external object storage solution.
+
+One option is [Garage](https://garagehq.deuxfleurs.fr/. Before installing it, review their
+[deployment guide](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/) and
+[Kubernetes documentation](https://garagehq.deuxfleurs.fr/documentation/cookbook/kubernetes/).
 
 1. Install the Garage Helm chart.
 
@@ -133,6 +137,9 @@ Provision your external object storage solution. For example, by using [Garage](
    ```
 
 1. Create the GitLab buckets:
+
+   Note: This uses the default bucket names from the GitLab chart. If you've customized your bucket names
+   previously, adjust them accordingly here and in the steps below.
    
    ```shell
    kubectl exec garage-0  -- /garage bucket create git-lfs
@@ -149,9 +156,6 @@ Provision your external object storage solution. For example, by using [Garage](
    kubectl exec garage-0  -- /garage bucket create runner-cache
    kubectl exec garage-0  -- /garage bucket create tmp
    ```
-
-   Note: This uses the default bucket names from the GitLab chart. If you've customized your bucket names
-   previously, adjust them accordingly here and in the steps below.
 
 1. Create a API key, note the acess and secret key, and grant access to the created buckets:
 
@@ -223,7 +227,8 @@ PostgreSQL.
 
    Note: The Redis and PostgreSQL persistent volumes are managed by their StatefulSet
    instead of Helm. The default retention policy is [`Retain`](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention).
-   Unless you modified this policy, the PVC will not be deleted when you remove the StatefulSet(s).
+   Unless you modified this policy, these two volumes will not be deleted when you remove
+   the StatefulSet(s).
 
 1. Update your values to point to the newly provisioned services:
 
