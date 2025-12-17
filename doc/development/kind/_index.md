@@ -214,3 +214,44 @@ kind delete cluster
 If you named your cluster upon creation, or if you are running multiple clusters, you can delete specific ones with the `--name` flag.
 
 {{< /alert >}}
+
+## Troubleshooting and Edge cases
+If you followed the steps above and you can't access your deployment on `http(s)://gitlab.(your host IP).nip.io` on MacOS there might be some issues with colima's network interface binding on `en0`.
+You can try one of the following:
+
+### Change DNS server to `8.8.8.8`(Google) or `1.1.1.1`(Cloudflare)
+{{ < alert type="note" >}}
+
+If using `curl -vk "http(s)://gitlab.(your host IP).nip.io:(80/443)" resolves to `(your host IP)` you can probably skip this, it is most-likely not DNS related.
+
+{{< /alert >}}
+
+There are 2 ways you can approach this, start by adding the DNS Servers to the `colima` comfig:
+- `colima template` (to open the colima config file in your default editor)
+    - find the `network:` block
+        - update `dns:` to `["1.1.1.1", "8.8.8.8"]`
+- `colima delete --profile docker`
+- continue with [preparation](#preparation)
+
+If that does not work either try one of the steps below or add the DNS servers to your MacBook Network settings.
+(Steps on how to update your DNS config can be found online)
+
+### Set `colima` network.mode to `bridged`
+- ensure `en0` is the primary network interface on the machine
+- `colima template` (to open the colima config file in your default editor)
+    - find the `network:` block
+        - update `mode:` to `bridged`
+        - update `interface:` to your primary network interface (default is `en0`)
+- `colima delete --profile docker`
+- continue with [preparation](#preparation)
+
+### Use `--network-address` when starting a Docker VM with `colima`
+- perform a Cleanup:
+    - `kind delete cluster` (use `--name` if a name was specified upon creating the cluster)
+    - `colima delete --profile docker`
+- create a colima Docker VM with the `network.address` set to `true`
+    - `colima start --cpu 6 --memory 16 --disk 40 --profile docker --arch aarch64 --vm-type=vz --vz-rosetta --network-address`
+- get the address set by colima to use as `your host IP`
+    - `colima status --profile docker` -> copy the `address:` field value to use as (your host IP) for the `helm` command
+- continue following the desired [Deployment Options](#deployment-options)
+- check if you can access the deployment on `http://gitlab.(your colima address).nip.io` or `https://gitlab.(your colima address).nip.io`
