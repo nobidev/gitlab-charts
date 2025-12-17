@@ -157,6 +157,29 @@ need to edit the Secret and change the keys.
 After editing the secret you _MUST_ **set `postgresql.auth.usePasswordFiles` to `true` in Helm upgrade values**. The
 default is `false`.
 
+### PostgreSQL metrics exporter limitation
+
+{{< alert type="warning" >}}
+
+If you have `postgresql.metrics.enabled: true` (the default), be aware that the metrics sidecar container (`postgres-exporter`) may not honor the `postgresql.auth.secretKeys` configuration. This can cause the metrics container to fail with `POSTGRESQL_PASSWORD environment variable is empty or not set` even when the main PostgreSQL container is working correctly.
+
+If you encounter this issue, you have several options:
+
+1. **Rename your secret keys** to use the new naming convention (`password`, `postgres-password`) as described above.
+1. **Disable metrics** if you are not using Prometheus monitoring:
+
+   ```yaml
+   postgresql:
+     metrics:
+       enabled: false
+   ```
+
+1. **Configure metrics environment variables** to explicitly reference your secret keys (advanced).
+
+{{< /alert >}}
+
+### Renaming secret keys
+
 The following script can help you to patch the secret:
 
 1. First create a backup of the existing Secret. The following command copies it into a new Secret with `-backup` name suffix:
