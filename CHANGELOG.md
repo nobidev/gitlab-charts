@@ -2,6 +2,27 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.7.0 (2025-12-17)
+
+### Added (1 change)
+
+- [Add new Geo setting to gitlab.yml](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0bcde464dbbc920f23744ed439012082717bdde9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4644))
+
+### Fixed (1 change)
+
+- [Fix: Configure registry notifications only on primary sites in Geo](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ea815ea2185832eec75e02da074e71d37a8279ca) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4691))
+
+### Changed (8 changes)
+
+- [Update Helm release prometheus to v27.50.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0fca0aa1a1659296d8494222bcf6e1d1816786bd) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4398))
+- [Update Helm release openbao to v0.10.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0d7ce33c6b1cf4859a494713807df6c508144b31) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4680))
+- [Update Helm release gitlab-runner to v0.83.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c2c7f001f465c5fe1ae10b77363216a2fbb48f70) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4668))
+- [Update Helm release gitlab-runner to v0.83.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/59ae60ef3d2a303434aaedd076795bc4c3dad5bb) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4664))
+- [Update dependency container-registry to v4.32.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/9c2e38b92fcfebbf06b20d17b684516e20e877f6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4662))
+- [Update Helm release openbao to v0.9.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e8edf9bf84403a826d34163a505697c7c6a890a5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4661))
+- [Update Helm release gitlab-runner to v0.83.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bd1bc85cf2ea47931cf3dc5363a87f8d261566e0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4659))
+- [Update Helm release gitlab-runner to v0.83.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ff93cc6c6b49b2d3a2bda5ff8d8bbdaedfa01dfb) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4654))
+
 ## 9.6.2 (2025-12-10)
 
 ### Changed (1 change)
