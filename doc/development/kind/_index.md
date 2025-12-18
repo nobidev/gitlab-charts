@@ -224,7 +224,7 @@ You can try one of the following:
 
 {{< alert type="note" >}}
 
-If using `curl -vk "http(s)://gitlab.(your host IP).nip.io:(80/443)"` resolves to `(your host IP)` you can probably skip this, it is most-likely not DNS related.
+If the output of the command `curl -vk "http(s)://gitlab.(your host IP).nip.io:(80/443)"` indicates that the Host was resolved to `(your host IP)` you can probably skip this, it is most-likely not DNS related.
 
 {{< /alert >}}
 
