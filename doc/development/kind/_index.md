@@ -239,24 +239,24 @@ There are 2 ways you can approach this, start by adding the DNS Servers to the `
 If that does not work either try one of the steps below or add the DNS servers to your MacBook Network settings.
 (Steps on how to update your DNS config can be found online)
 
-### Set `colima` network.mode to `bridged`
+### Set colima `network.mode` to `bridged`
 
-- ensure `en0` is the primary network interface on the machine
+- Ensure `en0` is the primary network interface on the machine
 - `colima template` (to open the colima config file in your default editor)
-  - find the `network:` block
-    - update `mode:` to `bridged`
-    - update `interface:` to your primary network interface (default is `en0`)
+  - Find the `network:` block
+    - Update `mode:` to `bridged`
+    - Update `interface:` to your primary network interface (default is `en0`)
 - `colima delete --profile docker`
-- continue with [preparation](#preparation)
+- Continue with [preparation](#preparation)
 
 ### Use `--network-address` when starting a Docker VM with `colima`
 
-- perform a Cleanup:
+- Perform a Cleanup:
   - `kind delete cluster` (use `--name` if a name was specified upon creating the cluster)
   - `colima delete --profile docker`
-- create a colima Docker VM with the `network.address` set to `true`
+- Create a colima Docker VM with the `network.address` set to `true`
   - `colima start --cpu 6 --memory 16 --disk 40 --profile docker --arch aarch64 --vm-type=vz --vz-rosetta --network-address`
-- get the address set by colima to use as `your host IP`
+- Get the address set by colima to use as `your host IP`
   - `colima status --profile docker` -> copy the `address:` field value to use as (your host IP) for the `helm` command
-- continue following the desired [Deployment Options](#deployment-options)
-- check if you can access the deployment on `http://gitlab.(your colima address).nip.io` or `https://gitlab.(your colima address).nip.io`
+- Continue following the desired [Deployment Options](#deployment-options)
+- Check if you can access the deployment on `http://gitlab.(your colima address).nip.io` or `https://gitlab.(your colima address).nip.io`
