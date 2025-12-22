@@ -227,7 +227,7 @@ If you chose to deploy this chart as a standalone, remove the `registry` at the 
 | `profiling.stackdriver.service`                          | `RELEASE-registry` (templated Service name)                          | Name of the Stackdriver service to record profiles under |
 | `profiling.stackdriver.projectid`                        | GCP project where running                                            | GCP project to report profiles to |
 | `database.configure`                                     | `false`                                                              | Populate database configuration in the registry chart without enabling it. Required when [importing an existing registry](metadata_database.md#enable-for-and-import-existing-registries). |
-| `database.enabled`                                       | `false`                                                              | Enable metadata database. This is an experimental feature and must not be used in production environments. |
+| `database.enabled`                                       | `false`                                                              | Enable metadata database. It is recomended to migrate to this new feature. Read [Metadata Database](metadata_database.md) for migration instructions. |
 | `database.host`                                          | `global.psql.host`                                                   | The database server hostname. |
 | `database.port`                                          | `global.psql.port`                                                   | The database server port. |
 | `database.user`                                          |                                                                      | The database username. |
