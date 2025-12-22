@@ -1,0 +1,14 @@
+apiVersion: v2
+name: gitlab-base
+description: A Helm library chart providing common templates for GitLab subcharts
+type: library
+version: 0.1.0
+appVersion: "1.0"
+keywords:
+  - gitlab
+  - library
+home: https://gitlab.com/gitlab-org/charts/gitlab
+icon: https://gitlab.com/assets/favicon-yellow-018213ceb87b472388095d0264be5b4319ef47471dacea03c83ecc233ced2fd5.png
+maintainers:
+  - name: GitLab
+    email: distribution@gitlab.com

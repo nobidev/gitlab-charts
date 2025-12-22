@@ -1,0 +1,164 @@
+# GitLab Library Chart
+# This is a library chart that provides common Kubernetes resource templates.
+# Library charts are not installable and do not have default values.
+# 
+# This file documents the helper functions and templates that consuming charts
+# must provide in order to use the library templates.
+
+# =============================================================================
+# Required Helper Functions
+# =============================================================================
+# 
+# Consuming charts must define the following helper functions in their 
+# _helpers.tpl file:
+#
+# Label Functions:
+#   - gitlab.standardLabels        - Standard GitLab labels
+#   - gitlab.commonLabels          - Common labels across all resources
+#   - gitlab.selectorLabels        - Selector labels for workloads
+#   - gitlab.podLabels             - Additional pod-level labels
+#   - gitlab.serviceLabels         - Service-specific labels
+#   - gitlab.app.kubernetes.io.labels - app.kubernetes.io/* labels
+#
+# Annotation Functions:
+#   - gitlab.deploymentAnnotations - Deployment/StatefulSet/Job annotations
+#   - gitlab.serviceAnnotations    - Service annotations
+#   - gitlab.certmanager_annotations - Cert-manager annotations (if using TLS)
+#
+# Configuration Functions:
+#   - gitlab.nodeSelector          - Node selector configuration
+#   - gitlab.priorityClassName     - Priority class configuration
+#   - gitlab.podSecurityContext    - Pod security context
+#   - gitlab.containerSecurityContext - Container security context
+#   - gitlab.init.containerSecurityContext - Init container security context
+#   - gitlab.automountServiceAccountToken - Service account token configuration
+#
+# Image Functions:
+#   - gitlab.image.pullPolicy      - Image pull policy helper
+#   - gitlab.image.pullSecrets     - Image pull secrets
+#   - gitlab.configure.image       - Init configure container image
+#
+# Service Account Functions:
+#   - gitlab.serviceAccount.name   - Service account name helper
+#
+# API Version Functions:
+#   - gitlab.hpa.apiVersion        - HPA API version (v2 or v2beta2)
+#   - gitlab.pdb.apiVersion        - PDB API version (policy/v1 or policy/v1beta1)
+#   - gitlab.ingress.apiVersion    - Ingress API version
+#   - gitlab.ingress.provider      - Ingress provider (nginx, etc.)
+#
+# Ingress Functions:
+#   - ingress.class.annotation     - Ingress class annotation
+#   - ingress.class.field          - Ingress class spec field
+#
+# HPA Functions:
+#   - gitlab.hpa.metrics           - HPA metrics configuration
+#   - gitlab.hpa.behavior          - HPA behavior configuration
+#
+# KEDA Functions:
+#   - gitlab.keda.scaledobject.enabled - Whether KEDA is enabled
+#   - gitlab.keda.scaledobject.spec    - KEDA ScaledObject spec
+#
+# =============================================================================
+# Template Usage Examples
+# =============================================================================
+#
+# ConfigMap:
+#   {{- include "gitlab.lib.configMap" (dict 
+#        "root" $ 
+#        "name" "myapp-config"
+#        "data" (dict "config.yaml" (include "myapp.config" .))
+#      ) }}
+#
+# Deployment:
+#   {{- include "gitlab.lib.deployment" (dict 
+#        "root" $ 
+#        "name" "myapp"
+#        "replicas" 3
+#        "podSpec" (include "myapp.podSpec" .)
+#      ) }}
+#
+# Service:
+#   {{- include "gitlab.lib.service" (dict 
+#        "root" $ 
+#        "name" "myapp"
+#        "type" "ClusterIP"
+#        "ports" (list (dict "port" 8080 "targetPort" "http" "name" "http"))
+#        "selectorLabels" (include "myapp.selectorLabels" . | fromYaml)
+#      ) }}
+#
+# HPA:
+#   {{- $hpaCfg := (dict "global" $.Values.global.hpa "local" .Values.hpa "context" $) -}}
+#   {{- include "gitlab.lib.hpa" (dict 
+#        "root" $ 
+#        "name" "myapp"
+#        "scaleTargetRef" (dict "kind" "Deployment" "name" "myapp")
+#        "minReplicas" 2
+#        "maxReplicas" 10
+#        "hpaCfg" $hpaCfg
+#      ) }}
+#
+# Ingress:
+#   {{- $ingressCfg := dict "global" .Values.global.ingress "local" .Values.ingress "context" . -}}
+#   {{- include "gitlab.lib.ingress" (dict 
+#        "root" $ 
+#        "name" "myapp-ingress"
+#        "ingressCfg" $ingressCfg
+#        "host" "myapp.example.com"
+#        "serviceName" "myapp"
+#        "servicePort" 8080
+#        "tlsEnabled" true
+#        "tlsSecret" "myapp-tls"
+#      ) }}
+#
+# Job:
+#   {{- include "gitlab.lib.job" (dict 
+#        "root" $ 
+#        "name" "myapp-migration"
+#        "backoffLimit" 3
+#        "podSpec" (include "myapp.migration.podSpec" .)
+#      ) }}
+#
+# StatefulSet:
+#   {{- include "gitlab.lib.statefulSet" (dict 
+#        "root" $ 
+#        "name" "myapp"
+#        "serviceName" "myapp"
+#        "replicas" 3
+#        "podSpec" (include "myapp.podSpec" .)
+#        "volumeClaimTemplates" (include "myapp.volumeClaimTemplates" .)
+#      ) }}
+#
+# PodDisruptionBudget:
+#   {{- $pdbCfg := (dict "global" $.Values.global.pdb "local" .Values.pdb "context" $) -}}
+#   {{- include "gitlab.lib.pdb" (dict 
+#        "root" $ 
+#        "name" "myapp"
+#        "maxUnavailable" 1
+#        "pdbCfg" $pdbCfg
+#      ) }}
+#
+# NetworkPolicy:
+#   {{- include "gitlab.lib.networkPolicy" (dict 
+#        "root" $ 
+#        "name" "myapp-netpol"
+#        "enabled" .Values.networkpolicy.enabled
+#        "ingress" .Values.networkpolicy.ingress
+#        "egress" .Values.networkpolicy.egress
+#      ) }}
+#
+# ServiceAccount:
+#   {{- include "gitlab.lib.serviceAccount" (dict 
+#        "root" $ 
+#        "name" (include "gitlab.serviceAccount.name" .)
+#        "annotations" .Values.serviceAccount.annotations
+#      ) }}
+#
+# KEDA ScaledObject:
+#   {{- $kedaCfg := (dict "global" .Values.global "hpa" .Values.hpa "keda" .Values.keda "resources" .Values.resources) -}}
+#   {{- include "gitlab.lib.keda.scaledObject" (dict 
+#        "root" $ 
+#        "name" "myapp"
+#        "scaleTargetRef" (dict "kind" "Deployment" "name" "myapp")
+#        "kedaCfg" $kedaCfg
+#      ) }}
