@@ -50,7 +50,6 @@ Input: dict "context" $ "name" string
     {{-   end }}
     {{- end }}
     {{- if eq .name "redis.action_cable" }}
-    adapter: redis
     {{-   if index .context.Values.global.redis "actionCablePrimary" }}
     channel_prefix: {{ .context.Values.global.redis.actionCablePrimary.channelPrefix }}
     {{-   end }}

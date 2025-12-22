@@ -840,7 +840,6 @@ describe 'Redis configuration' do
       actual = YAML.safe_load(template.dig('ConfigMap/test-webservice','data','redis.action_cable.yml.erb'))
       expect(actual).to eq({
         "production" => {
-          "adapter" => "redis",
           "channel_prefix" => nil,
           "id" => nil,
           "sentinels" => [
