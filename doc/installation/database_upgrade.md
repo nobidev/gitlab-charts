@@ -161,7 +161,12 @@ default is `false`.
 
 {{< alert type="warning" >}}
 
-If you have `postgresql.metrics.enabled: true` (the default), be aware that the metrics sidecar container (`postgres-exporter`) may not honor the `postgresql.auth.secretKeys` configuration. This can cause the metrics container to fail with `POSTGRESQL_PASSWORD environment variable is empty or not set` even when the main PostgreSQL container is working correctly.
+If you have `postgresql.metrics.enabled: true`, be aware that the metrics sidecar container (`postgres-exporter`) may not honor the `postgresql.auth.secretKeys` configuration in certain scenarios, including:
+
+- When using `auth.usePasswordFiles: true`
+- When using read replicas (`architecture: replication`)
+
+This can cause the metrics container to fail with `POSTGRESQL_PASSWORD environment variable is empty or not set` even when the main PostgreSQL container is working correctly.
 
 If you encounter this issue, you have several options:
 
