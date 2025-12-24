@@ -1,0 +1,26 @@
+{{- if .Values.enabled -}}
+{{- if or .Values.database.enabled .Values.database.configure -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "registry.fullname" . }}-db-connection-config
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+data:
+  db-connection.env: |
+    REGISTRY_DATABASE_HOST={{ default (include "gitlab.psql.host" .) .Values.database.host | quote }}
+    REGISTRY_DATABASE_PORT={{ default (include "gitlab.psql.port" .) .Values.database.port }}
+    REGISTRY_DATABASE_NAME={{ include "registry.database.name" . }}
+    REGISTRY_DATABASE_SSLMODE={{ .Values.database.sslmode }}
+    {{- if .Values.database.ssl }}
+    REGISTRY_DATABASE_SSL_CERT=/etc/docker/registry/ssl/client-certificate.pem
+    REGISTRY_DATABASE_SSL_KEY=/etc/docker/registry/ssl/client-key.pem
+    REGISTRY_DATABASE_SSL_ROOTCERT=/etc/docker/registry/ssl/server-ca.pem
+    {{- end }}
+    {{- if .Values.database.connecttimeout }}
+    REGISTRY_DATABASE_CONNECTION_TIMEOUT={{ .Values.database.connecttimeout }}
+    {{- end }}
+{{- end -}}
+{{- end -}}

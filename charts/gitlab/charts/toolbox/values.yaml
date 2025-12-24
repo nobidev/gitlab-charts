@@ -17,7 +17,7 @@ init:
     allowPrivilegeEscalation: false
     runAsNonRoot: true
     capabilities:
-      drop: [ "ALL" ]
+      drop: ["ALL"]
 
 # Tolerations for pod scheduling
 tolerations: []
@@ -32,8 +32,8 @@ affinity:
   podAntiAffinity:
     topologyKey:
   nodeAffinity:
-       key:
-       values:
+    key:
+    values:
 
 common:
   labels: {}
@@ -132,8 +132,8 @@ global:
       enabled: false
       autoSignInWithProvider:
       syncProfileFromProvider: []
-      syncProfileAttributes: ['email']
-      allowSingleSignOn: ['saml']
+      syncProfileAttributes: ["email"]
+      allowSingleSignOn: ["saml"]
       blockAutoCreatedUsers: true
       autoLinkLdapUser: false
       autoLinkSamlUser: false
@@ -193,6 +193,13 @@ backups:
     #   secret: my-backup-secret
     #   key: config
     #   gcpProject: my-gcp-project-id
+  registry:
+    database: {}
+      # Username for registry metadata database connection during backups
+      # user: ""
+      # password: {}
+      #   secret: gitlab-toolbox-registry-database-password
+      #   key: password
 extra: {}
 
 rack_attack:
@@ -217,7 +224,7 @@ gitaly:
   #   key: token
 minio:
   bucket: git-lfs
-  serviceName: 'minio-svc'
+  serviceName: "minio-svc"
   port: 9000
 resources:
   # limits:
@@ -275,7 +282,7 @@ containerSecurityContext:
   allowPrivilegeEscalation: false
   runAsNonRoot: true
   capabilities:
-    drop: [ "ALL" ]
+    drop: ["ALL"]
 
 ## Enable deployment to use a serviceAccount
 serviceAccount:
@@ -295,9 +302,9 @@ deployment:
 ## Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in.
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
 topologySpreadConstraints: []
- # - labelSelector:
- #     matchLabels:
- #       app: name
- #     maxSkew: 1
- #     topologyKey: topology.kubernetes.io/zone
- #     whenUnsatisfiable: DoNotSchedule
+  # - labelSelector:
+  #     matchLabels:
+  #       app: name
+  #     maxSkew: 1
+  #     topologyKey: topology.kubernetes.io/zone
+  #     whenUnsatisfiable: DoNotSchedule

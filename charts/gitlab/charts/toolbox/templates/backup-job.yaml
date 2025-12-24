@@ -81,6 +81,14 @@ spec:
                 - name: toolbox-secrets
                   mountPath: /init-secrets
                   readOnly: false
+                - name: registry-db-connection-config
+                  mountPath: '/etc/gitlab/registry/db-connection.env'
+                  subPath: db-connection.env
+                  readOnly: true
+                - name: registry-db-user-config
+                  mountPath: '/etc/gitlab/registry/db-user.env'
+                  subPath: db-user.env
+                  readOnly: true
               resources:
                 {{- toYaml .Values.init.resources | nindent 16 }}
           {{- include "gitlab.image.pullSecrets" $imageCfg | indent 10 }}
@@ -162,6 +170,14 @@ spec:
           volumes:
             {{- include "gitlab.extraVolumes" . | nindent 12 }}
             {{- include "gitlab.psql.ssl.volume" . | nindent 12 }}
+            - name: registry-db-connection-config
+              configMap:
+                name: {{ include "gitlab.other.fullname" ( dict "context" . "chartName" "registry" ) }}-db-connection-config
+                optional: true
+            - name: registry-db-user-config
+              configMap:
+                name: {{ template "fullname" . }}-registry-db-user
+                optional: true
             - name: toolbox-config
               projected:
                 sources:
@@ -235,6 +251,7 @@ spec:
                 {{- include "gitlab.appConfig.ldap.servers.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.appConfig.microsoftGraphMailer.mountSecrets" $ | nindent 16 }}
+                {{- include "toolbox.registry.database.password.projectedVolume" $ | nindent 16 }}
             - name: toolbox-secrets
               emptyDir:
                 medium: "Memory"

@@ -73,6 +73,14 @@ spec:
           - name: toolbox-secrets
             mountPath: /init-secrets
             readOnly: false
+          - name: registry-db-connection-config
+            mountPath: '/etc/gitlab/registry/db-connection.env'
+            subPath: db-connection.env
+            readOnly: true
+          - name: registry-db-user-config
+            mountPath: '/etc/gitlab/registry/db-user.env'
+            subPath: db-user.env
+            readOnly: true
           resources:
             {{- toYaml .Values.init.resources | nindent 12 }}
       {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
@@ -176,6 +184,14 @@ spec:
       {{- include "gitlab.psql.ssl.volume" . | nindent 6 }}
       {{- include "gitlab.geo.psql.ssl.volume" . | nindent 6 }}
       {{- include "gitlab.appConfig.kerberos.volume" $ | nindent 6 }}
+      - name: registry-db-connection-config
+        configMap:
+          name: {{ include "gitlab.other.fullname" ( dict "context" . "chartName" "registry" ) }}-db-connection-config
+          optional: true
+      - name: registry-db-user-config
+        configMap:
+          name: {{ template "fullname" . }}-registry-db-user
+          optional: true
       - name: toolbox-config
         projected:
           sources:
@@ -228,6 +244,7 @@ spec:
           {{- if or .Values.backups.objectStorage.config (not (or .Values.global.minio.enabled .Values.global.appConfig.object_store.enabled)) }}
           {{-   include "toolbox.backups.objectStorage.config.secret" .Values.backups.objectStorage | nindent 10 }}
           {{- end }}
+          {{- include "gitlab.registry.psql.ssl" . | nindent 10 }}
           {{- include "gitlab.pages.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.kas.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.suggestedReviewers.mountSecrets" $ | nindent 10 }}
@@ -248,6 +265,7 @@ spec:
           {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.microsoftGraphMailer.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.smtp.mountSecrets" $ | nindent 10 }}
+          {{- include "toolbox.registry.database.password.projectedVolume" $ | nindent 10 }}
 {{- if .Values.global.email.smime.enabled }}
       - name: smime-creds
         projected:
