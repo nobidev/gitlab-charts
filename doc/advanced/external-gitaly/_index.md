@@ -59,6 +59,20 @@ global:
       enabled: false                    # optional, default shown
 ```
 
+Alternatively, you can use the `address` field to specify a full URI for Gitaly services, including DNS-based addresses:
+
+```yaml
+global:
+  gitaly:
+    enabled: false
+    external:
+      - name: default                                    # required
+        address: dns://8.8.8.8:53/gitaly.consul.internal # required (alternative to hostname/port)
+    authToken:
+      secret: *********************                      # required
+      key: token                                         # optional, default shown
+```
+
 A complete example of setting up an external Praefect service.
 
 {{< alert type="note" >}}
