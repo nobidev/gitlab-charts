@@ -72,14 +72,14 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
        apiVersion: controller.config.cert-manager.io/v1alpha1
        kind: ControllerConfiguration
        enableGatewayAPI: true
-       
+
    global:
      gatewayApi:
        configureCertmanager: true
    ```
 
 1. Enable Envoy and Gateway API resources:
-    
+
    ```yaml
    global:
      # Disable rendering of Ingress resources.
