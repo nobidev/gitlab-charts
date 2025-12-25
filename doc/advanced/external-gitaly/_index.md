@@ -56,6 +56,59 @@ global:
       enabled: false                    # optional, default shown
 ```
 
+Alternatively, you can use the `address` field to specify a full URI for Gitaly services, including DNS-based addresses:
+
+```yaml
+global:
+  gitaly:
+    enabled: false
+    external:
+      - name: default                                    # required
+        address: dns://8.8.8.8:53/gitaly.consul.internal # required (alternative to hostname/port)
+    authToken:
+      secret: *********************                      # required
+      key: token                                         # optional, default shown
+```
+
+### DNS address format
+
+{{< history >}}
+
+- DNS address support [introduced](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4716) in GitLab 18.8.
+
+{{< /history >}}
+
+When using the `address` field with DNS-based URIs, the format follows the [gRPC DNS resolver specification](https://gitlab.com/gitlab-org/gitaly/-/blob/master/doc/grpc_load_balancing.md):
+
+```plaintext
+dns:[//authority/]host[:port]
+dns+tls:[//authority/]host[:port]
+```
+
+Use `dns+tls` to enable TLS for the connection. This scheme combines DNS-based service discovery with TLS encryption.
+
+`authority` is in the form of `IP address[:port]`. Specifying a hostname
+in `authority` does not work. Port 53 is used by default.
+
+For example:
+
+- `dns:///gitaly.example.com`: Note the triple slashes `///` when the default authority is used.
+- `dns://8.8.8.8:53/gitaly.consul.internal`: Custom DNS resolver with port.
+- `dns://10.0.1.50:8600/praefect.service.consul.:2305`: Custom DNS resolver with Praefect service and port. Note the trailing `.` to avoid appending Kubernetes DNS suffix.
+- `dns+tls:///gitaly.example.com`: DNS with TLS enabled using default authority.
+- `dns+tls://10.0.1.50:8600/praefect.service.consul.:2305`: DNS server with TLS enabled.
+
+The trailing `.` is important when the service is not running in the
+Kubernetes cluster. The gRPC client needs this to avoid appending the
+default DNS suffix for Kubernetes (commonly `.svc.cluster.local`). A pod
+typically has `options ndots:5` defined in `/etc/resolv.conf`,
+which [causes the DNS query to be expanded](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
+for service names with fewer than 5 dots.
+
+In the example `dns://10.0.1.50:8600/praefect.service.consul:2305`, the `8600` is the DNS server port and `2305` is the Praefect service port.
+
+For more information on service discovery with Praefect, see the [Praefect service discovery documentation](https://docs.gitlab.com/administration/gitaly/praefect/configure/#service-discovery).
+
 A complete example of setting up an external Praefect service.
 
 > [!note]
