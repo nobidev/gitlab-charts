@@ -193,6 +193,13 @@ backups:
     #   secret: my-backup-secret
     #   key: config
     #   gcpProject: my-gcp-project-id
+  registry:
+    database: {}
+      # Username for registry metadata database connection during backups
+      # user: ""
+      # password: {}
+      #   secret: gitlab-toolbox-registry-database-password
+      #   key: password
 extra: {}
 
 ## Automatic database reindexing
