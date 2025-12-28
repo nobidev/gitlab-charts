@@ -66,3 +66,19 @@ Usage:
         path: objectstorage/.s3cfg
 {{-   end -}}
 {{- end -}}
+
+{{/*
+Return the secret name for toolbox registry database password
+*/}}
+{{- define "toolbox.registry.database.password.secret" -}}
+{{- $database := default (dict) .Values.backups.registry.database -}}
+{{- dig "password" "secret" "" $database | default (printf "%s-toolbox-registry-database-password" .Release.Name) -}}
+{{- end -}}
+
+{{/*
+Return the secret key for toolbox registry database password
+*/}}
+{{- define "toolbox.registry.database.password.key" -}}
+{{- $database := default (dict) .Values.backups.registry.database -}}
+{{- dig "password" "key" "password" $database | default "password" -}}
+{{- end -}}

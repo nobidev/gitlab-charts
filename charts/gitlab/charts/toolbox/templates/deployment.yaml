@@ -156,6 +156,9 @@ spec:
             - name: toolbox-secrets
               mountPath: /srv/gitlab/config/secrets.yml
               subPath: rails-secrets/secrets.yml
+            - name: registry-db-config
+              mountPath: /srv/gitlab/registry-db/
+              readOnly: true
             {{- include "gitlab.topologyService.volumeMounts" (dict "context" $ "secretsVolumeName" "toolbox-secrets") | nindent 12 }}
             - name: toolbox-tmp
               mountPath: '/srv/gitlab/tmp'
@@ -176,6 +179,28 @@ spec:
       {{- include "gitlab.psql.ssl.volume" . | nindent 6 }}
       {{- include "gitlab.geo.psql.ssl.volume" . | nindent 6 }}
       {{- include "gitlab.appConfig.kerberos.volume" $ | nindent 6 }}
+      - name: registry-db-config
+        projected:
+          defaultMode: 0440
+          sources:
+            - configMap:
+                name: {{ include "gitlab.other.fullname" ( dict "context" . "chartName" "registry" ) }}-db-connection-config
+                items:
+                - key: db-connection.env
+                  path: connection.env
+                optional: true
+            - configMap:
+                name: {{ template "fullname" . }}-registry-db-user
+                items:
+                - key: db-user
+                  path: user.env
+                optional: true
+            - secret:
+                name: {{ include "toolbox.registry.database.password.secret" . }}
+                items:
+                - key: {{ template "toolbox.registry.database.password.key" . }}
+                  path: pass
+                optional: true
       - name: toolbox-config
         projected:
           sources:
