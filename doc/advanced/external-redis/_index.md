@@ -73,6 +73,36 @@ To connect to Redis using SSL, use the `rediss` (note the double `s`) scheme par
 --set global.redis.scheme=rediss
 ```
 
+### Configure Redis TLS certificates
+
+When using the `rediss` scheme, you can optionally configure client certificates and CA certificates for Redis connections:
+
+```yaml
+redis:
+  install: false
+global:
+  redis:
+    scheme: rediss
+    redisTLS:
+      cert:
+        secret: redis-client-cert
+        key: cert
+      key:
+        secret: redis-client-key
+        key: key
+      caFile:
+        secret: redis-ca
+        key: ca.crt
+```
+
+The `redisTLS` configuration supports:
+
+- `cert.secret` and `cert.key`: The Kubernetes secret name and key containing the client certificate
+- `key.secret` and `key.key`: The Kubernetes secret name and key containing the client private key
+- `caFile.secret` and `caFile.key`: The Kubernetes secret name and key containing the CA certificate
+
+All three are optional. If not specified, the system will use the default CA certificates.
+
 ## `redis.yml` override
 
 If you want to override the contents of the [`redis.yml` config file introduced in GitLab 15.8](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/106854)

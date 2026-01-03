@@ -337,6 +337,32 @@ global:
   redis:
     # host: '0.0.0.0'
     auth: {}
+    # sentinels:
+    #   - host: sentinel1.example.com
+    #     port: 26379
+    #   - host: sentinel2.example.com
+    #     port: 26379
+    # sentinelTLS:
+    #   enabled: false
+    #   cert:
+    #     secret: redis-sentinel
+    #     key: cert
+    #   key:
+    #     secret: redis-sentinel
+    #     key: key
+    #   caFile:
+    #     secret: sentinel-ca
+    #     key: ca.crt
+    # redisTLS:
+    #   cert:
+    #     secret: redis-client-cert
+    #     key: cert
+    #   key:
+    #     secret: redis-client-key
+    #     key: key
+    #   caFile:
+    #     secret: redis-ca
+    #     key: ca.crt
   gitaly:
     internal:
       names: ["default"]

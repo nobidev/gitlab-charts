@@ -11,3 +11,25 @@ webservice.workhorse:
   to disable TLS for the monitoring exporter.
 {{-   end -}}
 {{- end -}}
+
+{{/*
+Ensure Redis Sentinel SSL configuration is consistent
+*/}}
+{{- define "gitlab.checkConfig.redis.sentinel.ssl" -}}
+{{-   if $.Values.global.redis.sentinels -}}
+{{-     $sslValues := list -}}
+{{-     range $sentinel := $.Values.global.redis.sentinels -}}
+{{-       $ssl := dig "ssl" false $sentinel -}}
+{{-       $sslValues = append $sslValues $ssl -}}
+{{-     end -}}
+{{-     $firstSsl := index $sslValues 0 -}}
+{{-     range $ssl := $sslValues -}}
+{{-       if ne $ssl $firstSsl }}
+redis:
+  All Sentinel entries must have the same SSL setting. Cannot mix ssl: true and ssl: false.
+  Either set ssl: true on all sentinels or ssl: false on all sentinels.
+{{-         break -}}
+{{-       end -}}
+{{-     end -}}
+{{-   end -}}
+{{- end -}}

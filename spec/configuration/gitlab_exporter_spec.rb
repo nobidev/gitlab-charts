@@ -25,6 +25,10 @@ describe 'gitlab-exporter configuration' do
   def render_erb(raw_template)
     files = RuntimeTemplate.mock_files
     files['/etc/gitlab/redis/queues-password'] = RuntimeTemplate::JUNK_PASSWORD
+    files['/etc/gitlab/redis-sentinel/redis-sentinel-password'] = RuntimeTemplate::JUNK_PASSWORD
+    files['/etc/gitlab/redis-sentinel/ca.crt'] = 'sentinel-ca-cert'
+    files['/etc/gitlab/redis-sentinel/cert'] = 'sentinel-cert'
+    files['/etc/gitlab/redis-sentinel/key'] = 'sentinel-key'
 
     yaml = RuntimeTemplate.erb(raw_template: raw_template, files: files)
     YAML.safe_load(yaml, aliases: true)
@@ -40,7 +44,7 @@ describe 'gitlab-exporter configuration' do
     end
   end
 
-  context 'with custom redis database value' do
+  context 'with custom Redis database value' do
     let(:values) do
       YAML.safe_load(%(
         global:
@@ -102,7 +106,7 @@ describe 'gitlab-exporter configuration' do
     end
   end
 
-  context 'with redis sentinel' do
+  context 'with Redis Sentinel' do
     let(:values) do
       YAML.safe_load(%(
         global:
@@ -139,8 +143,10 @@ describe 'gitlab-exporter configuration' do
               sentinels:
               - host: sentinel1.example.com
                 port: 26379
+                ssl: false
               - host: sentinel2.example.com
                 port: 26379
+                ssl: false
       )).deep_merge(default_values)
       end
 
@@ -221,6 +227,120 @@ describe 'gitlab-exporter configuration' do
     it 'should configure TLS usage' do
       config = template.dig('ConfigMap/test-gitlab-exporter', 'data', 'gitlab-exporter.yml.erb')
       expect(config).to include 'tls_enabled: true'
+    end
+  end
+
+  context 'with Redis TLS' do
+    context 'when Redis scheme is rediss with TLS certificates' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              scheme: rediss
+              redisTLS:
+                caFile:
+                  secret: redis-ca
+                  key: ca.crt
+                cert:
+                  secret: redis-cert
+                  key: cert
+                key:
+                  secret: redis-key
+                  key: key
+        )).deep_merge(default_values)
+      end
+
+      it 'should render the template without error' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'should mount Redis TLS secrets' do
+        volumes = template.dig('Deployment/test-gitlab-exporter', 'spec', 'template', 'spec', 'volumes')
+        init_secrets = volumes.find { |v| v["name"] == "init-gitlab-exporter-secrets" }
+        sources = init_secrets.dig("projected", "sources")
+
+        ca_secret = sources.find { |s| s.dig("secret", "name") == "redis-ca" }
+        expect(ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis/ca.crt" }])
+
+        cert_secret = sources.find { |s| s.dig("secret", "name") == "redis-cert" }
+        expect(cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis/cert" }])
+
+        key_secret = sources.find { |s| s.dig("secret", "name") == "redis-key" }
+        expect(key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis/key" }])
+      end
+
+      it 'should configure Redis TLS parameters in config' do
+        config = template.dig('ConfigMap/test-gitlab-exporter', 'data', 'gitlab-exporter.yml.erb')
+        expect(config).to include('redis_ssl_params')
+        expect(config).to include('ca_file: /etc/gitlab/redis/ca.crt')
+        expect(config).to include('cert: /etc/gitlab/redis/cert')
+        expect(config).to include('key: /etc/gitlab/redis/key')
+      end
+    end
+  end
+
+  context 'with Sentinel TLS' do
+    context 'when Sentinel TLS is enabled with mutual TLS' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: global.host
+              sentinels:
+              - host: sentinel1.example.com
+                port: 26379
+              - host: sentinel2.example.com
+                port: 26379
+              sentinelTLS:
+                enabled: true
+                caFile:
+                  secret: sentinel-ca
+                  key: ca.crt
+                cert:
+                  secret: sentinel-cert
+                  key: cert
+                key:
+                  secret: sentinel-key
+                  key: key
+        )).deep_merge(default_values)
+      end
+
+      it 'renders the template without error' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'mounts Sentinel TLS secrets' do
+        volumes = template.dig('Deployment/test-gitlab-exporter', 'spec', 'template', 'spec', 'volumes')
+        init_secrets = volumes.find { |v| v["name"] == "init-gitlab-exporter-secrets" }
+        sources = init_secrets.dig("projected", "sources")
+
+        ca_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-ca" }
+        expect(ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis-sentinel/ca.crt" }])
+
+        cert_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-cert" }
+        expect(cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis-sentinel/cert" }])
+
+        key_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-key" }
+        expect(key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis-sentinel/key" }])
+      end
+
+      it 'configures Sentinel TLS in Redis Sentinels' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        sentinels = sidekiq_config['opts']['redis_sentinels']
+        expect(sentinels.length).to eq(2)
+
+        sentinels.each do |sentinel|
+          expect(sentinel['ssl']).to be(true)
+          expect(sentinel['ssl_params']).to include('ca_file')
+          expect(sentinel['ssl_params']).to include('cert')
+          expect(sentinel['ssl_params']).to include('key')
+        end
+
+        expect(sentinels[0]['host']).to eq('sentinel1.example.com')
+        expect(sentinels[0]['port']).to eq(26379)
+        expect(sentinels[1]['host']).to eq('sentinel2.example.com')
+        expect(sentinels[1]['port']).to eq(26379)
+      end
     end
   end
 end
