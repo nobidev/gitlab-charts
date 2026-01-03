@@ -327,6 +327,13 @@ global:
   redis:
     # host: '0.0.0.0'
     auth: {}
+    # sentinels:
+    #   - host: sentinel1.example.com
+    #     port: 26379
+    #     ssl: false
+    #   - host: sentinel2.example.com
+    #     port: 26379
+    #     ssl: false
   gitaly:
     internal:
       names: ["default"]

@@ -777,4 +777,67 @@ CFG
       end
     end
   end
+
+  context 'sentinel TLS support' do
+    context 'with sentinel TLS enabled via ssl flag' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: global.redis
+              auth:
+                enabled: true
+                secret: redis-password
+              sentinels:
+              - host: s1.global.redis
+                port: 26379
+                ssl: true
+              - host: s2.global.redis
+                port: 26379
+                ssl: true
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+
+      it 'uses rediss scheme for sentinels in workhorse config' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        toml = render_toml(raw_toml)
+        redis_config = toml['redis']
+        expect(redis_config['Sentinel']).to match_array(%w[rediss://s1.global.redis:26379 rediss://s2.global.redis:26379])
+      end
+    end
+
+    context 'with mixed sentinel SSL settings' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: global.redis
+              auth:
+                enabled: true
+                secret: redis-password
+              sentinels:
+              - host: s1.global.redis
+                port: 26379
+                ssl: true
+              - host: s2.global.redis
+                port: 26379
+                ssl: false
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+
+      it 'fails validation' do
+        expect(template.exit_code).not_to eq(0)
+        expect(template.stderr).to include('All Sentinel entries must have the same SSL setting')
+      end
+    end
+  end
 end

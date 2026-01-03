@@ -347,6 +347,7 @@ redis:
   sentinels:
     - host: sentinel1.example.com
       port: 26379
+      ssl: false
   password:
     secret: gitlab-redis
     key: redis-password

@@ -122,6 +122,7 @@ Build the structure describing sentinels
 {{- range $i, $entry := .redisMergedConfig.sentinels }}
 - host: {{ $entry.host }}
   port: {{ default 26379 $entry.port }}
+  ssl: {{ default false $entry.ssl }}
 {{- end }}
 {{- end -}}
 {{- end -}}
@@ -132,6 +133,9 @@ Build the structure describing sentinels
 sentinels:
 {{- include "gitlab.redis.sentinelsList" . | nindent 2 }}
 {{- end }}
+{{- end -}}
+
+{{- define "gitlab.redis.sentinel.tls" -}}
 {{- end -}}
 
 {{/*Set redisMergedConfig*/}}
@@ -164,7 +168,11 @@ Return Sentinel list in format for Workhorse
 {{- $sentinelList := list }}
 {{- $scheme := default "redis" .redisMergedConfig.scheme }}
 {{- range $i, $entry := .redisMergedConfig.sentinels }}
-  {{- $sentinel := printf "%s://%s:%d" $scheme (trim $entry.host) ($entry.port | default 26379 | int) }}
+  {{- $entryScheme := $scheme }}
+  {{- if (dig "ssl" false $entry) }}
+    {{- $entryScheme = "rediss" }}
+  {{- end }}
+  {{- $sentinel := printf "%s://%s:%d" $entryScheme (trim $entry.host) ($entry.port | default 26379 | int) }}
   {{- $sentinelList = append $sentinelList ($sentinel | quote) }}
 {{- end }}
 {{- $sentinelList | join "," }}
