@@ -1,0 +1,41 @@
+name: Build
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+jobs:
+  build:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/configure-pages@v5
+      - run: |
+          set -euo pipefail
+          VERSION=$(awk '/^version/ {print $2}' Chart.yaml)
+          APP_VERSION=$(cat doc/installation/version_mappings.md | grep -oP "(?<=^\| ${VERSION} \| ).+?(?= |$)")
+          if [ -z "${VERSION}" ] || [ -z "${APP_VERSION}" ]; then
+            echo "Failed to determine application version for chart version ${VERSION}"
+            exit 1
+          fi
+          echo "Packaging chart version ${VERSION} for application version ${APP_VERSION} ..."
+          find . -name Chart.yaml -exec sed -i -E "s/^(appVersion): master\$/\1: v${APP_VERSION}/" {} \+
+          sed -i -E "s/# (gitlabVersion):$/\1: ${APP_VERSION}/" values.yaml
+          helm dependency update
+          helm package -d dist/ .
+          helm repo index dist/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4
