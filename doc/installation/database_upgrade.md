@@ -179,8 +179,6 @@ If you encounter this issue, you have several options:
 
 1. **Configure metrics environment variables** to explicitly reference your secret keys (advanced).
 
-{{< /alert >}}
-
 ### Renaming secret keys
 
 The following script can help you to patch the secret:
