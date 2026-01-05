@@ -159,8 +159,6 @@ default is `false`.
 
 ### PostgreSQL metrics exporter limitation
 
-{{< alert type="warning" >}}
-
 If you have `postgresql.metrics.enabled: true`, be aware that the metrics sidecar container (`postgres-exporter`) may not honor the `postgresql.auth.secretKeys` configuration in certain scenarios, including:
 
 - When using `auth.usePasswordFiles: true`
