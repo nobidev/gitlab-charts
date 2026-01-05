@@ -166,18 +166,16 @@ If you have `postgresql.metrics.enabled: true`, be aware that the metrics sideca
 
 This can cause the metrics container to fail with `POSTGRESQL_PASSWORD environment variable is empty or not set` even when the main PostgreSQL container is working correctly.
 
-If you encounter this issue, you have several options:
+- Rename your secret keys to use the new naming convention (`password`, `postgres-password`) as described above.
+- Disable metrics** if you are not using Prometheus monitoring:
 
-1. **Rename your secret keys** to use the new naming convention (`password`, `postgres-password`) as described above.
-1. **Disable metrics** if you are not using Prometheus monitoring:
+  ```yaml
+  postgresql:
+    metrics:
+      enabled: false
+  ```
 
-   ```yaml
-   postgresql:
-     metrics:
-       enabled: false
-   ```
-
-1. **Configure metrics environment variables** to explicitly reference your secret keys (advanced).
+- Configure metrics environment variables to explicitly reference your secret keys (advanced).
 
 ### Renaming secret keys
 
