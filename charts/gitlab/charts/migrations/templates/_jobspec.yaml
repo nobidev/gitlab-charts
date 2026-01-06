@@ -69,6 +69,30 @@ spec:
             readOnly: false
           resources:
             {{- toYaml .Values.init.resources | nindent 12 }}
+        - name: dependencies
+          command:
+            - /scripts/entrypoint.sh
+            - /scripts/wait-for-deps
+          image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}{{ include "gitlab.image.tagSuffix" . }}"
+          {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
+          {{- include "gitlab.init.containerSecurityContext" $ | indent 10 }}
+          env:
+          - name: CONFIG_TEMPLATE_DIRECTORY
+            value: /var/opt/gitlab/templates
+          - name: CONFIG_DIRECTORY
+            value: '/srv/gitlab/config'
+          - name: BYPASS_SCHEMA_VERSION
+            value: 'true'
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
+          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
+          volumeMounts:
+            - name: migrations-config
+              mountPath: '/var/opt/gitlab/templates'
+            - name: migrations-secrets
+              mountPath: '/etc/gitlab'
+              readOnly: true
+          resources:
+            {{- toYaml .Values.init.resources | nindent 12 }}
       restartPolicy: OnFailure
       {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
       containers:
