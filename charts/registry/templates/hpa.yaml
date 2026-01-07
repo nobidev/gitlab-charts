@@ -1,5 +1,6 @@
 {{- if and .Values.enabled .Values.api.enabled (not (default $.Values.global.keda.enabled .Values.keda.enabled)) -}}
 {{- $hpaCfg := (dict "global" $.Values.global.hpa "local" .Values.hpa "context" $) -}}
+{{- if or $hpaCfg.local.enabled $hpaCfg.global.enabled -}}
 ---
 apiVersion: {{ template "gitlab.hpa.apiVersion" $hpaCfg }}
 kind: HorizontalPodAutoscaler
@@ -18,4 +19,5 @@ spec:
   maxReplicas: {{ .Values.hpa.maxReplicas }}
   {{- include "gitlab.hpa.metrics" $hpaCfg | nindent 2 }}
   {{- include "gitlab.hpa.behavior" $hpaCfg | nindent 2 }}
+{{- end -}}
 {{- end -}}

@@ -3,10 +3,11 @@ diff --git a/charts/nginx-ingress/templates/controller-hpa.yaml b/charts/nginx-i
 index 7d435c6b7..f1380f726 100644
 --- a/charts/nginx-ingress/templates/controller-hpa.yaml
 +++ b/charts/nginx-ingress/templates/controller-hpa.yaml
-@@ -1,5 +1,6 @@
+@@ -1,5 +1,8 @@
  {{- if and (eq .Values.controller.kind "Deployment") .Values.controller.autoscaling.enabled (not .Values.controller.keda.enabled) -}}
 -apiVersion: {{ ternary "autoscaling/v2" "autoscaling/v2beta2" (.Capabilities.APIVersions.Has "autoscaling/v2") }}
 +{{- $hpaCfg := (dict "global" $.Values.global.hpa "local" .Values.controller.autoscaling "context" $) -}}
++{{- if $hpaCfg.enabled -}}
 +apiVersion: {{ template "gitlab.hpa.apiVersion" $hpaCfg }}
  kind: HorizontalPodAutoscaler
  metadata:
@@ -44,14 +45,16 @@ index 7d435c6b7..f1380f726 100644
 -  {{- end }}
 +  {{- include "gitlab.hpa.behavior" $hpaCfg | nindent 2 }}
  {{- end }}
++{{- end }}
 diff --git a/charts/nginx-ingress/templates/default-backend-hpa.yaml b/charts/nginx-ingress/templates/default-backend-hpa.yaml
 index b2eff1b31..48375f08c 100644
 --- a/charts/nginx-ingress/templates/default-backend-hpa.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-hpa.yaml
-@@ -1,5 +1,6 @@
+@@ -1,5 +1,8 @@
  {{- if and .Values.defaultBackend.enabled .Values.defaultBackend.autoscaling.enabled }}
 -apiVersion: {{ ternary "autoscaling/v2" "autoscaling/v2beta2" (.Capabilities.APIVersions.Has "autoscaling/v2") }}
 +{{- $hpaCfg := (dict "global" $.Values.global.hpa "local" .Values.backendConfig.autoscaling "context" $) -}}
++{{- if $hpaCfg.enabled -}}
 +apiVersion: {{ template "gitlab.hpa.apiVersion" $hpaCfg }}
  kind: HorizontalPodAutoscaler
  metadata:
@@ -82,6 +85,7 @@ index b2eff1b31..48375f08c 100644
    {{- end }}
 +  {{- include "gitlab.hpa.behavior" $hpaCfg | nindent 2 }}
  {{- end }}
++{{- end }}
 diff --git a/charts/nginx-ingress/values.yaml b/charts/nginx-ingress/values.yaml
 index dd2e41d04..15aaf2ca1 100644
 --- a/charts/nginx-ingress/values.yaml
