@@ -1,8 +1,8 @@
 ---
 apiVersion: v2
 name: gitlab
-version: 9.5.4
-appVersion: v18.5.4
+version: 9.5.5
+appVersion: v18.5.5
 description: GitLab is the most comprehensive AI-powered DevSecOps Platform.
 keywords:
 - gitlab
