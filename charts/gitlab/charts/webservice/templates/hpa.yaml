@@ -9,6 +9,7 @@ From here on:
 - `.` is `.deployments.xyz` value
 - `.name` is the key (xyz)
 */}}
+{{- if or $hpaCfg.local.enabled $hpaCfg.global.enabled -}}
 ---
 apiVersion: {{ template "gitlab.hpa.apiVersion" $hpaCfg }}
 kind: HorizontalPodAutoscaler
@@ -32,3 +33,4 @@ spec:
 {{- end -}}
 {{/* END range deployments */}}
 {{- end }}
+{{- end -}}

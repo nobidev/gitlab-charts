@@ -1,5 +1,6 @@
 {{- if and .Values.defaultBackend.enabled .Values.defaultBackend.autoscaling.enabled }}
 {{- $hpaCfg := (dict "global" $.Values.global.hpa "local" .Values.backendConfig.autoscaling "context" $) -}}
+{{- if or $hpaCfg.local.enabled $hpaCfg.global.enabled -}}
 apiVersion: {{ template "gitlab.hpa.apiVersion" $hpaCfg }}
 kind: HorizontalPodAutoscaler
 metadata:
@@ -51,3 +52,4 @@ spec:
   {{- end }}
   {{- include "gitlab.hpa.behavior" $hpaCfg | nindent 2 }}
 {{- end }}
+{{- end -}}

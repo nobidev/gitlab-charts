@@ -9,6 +9,7 @@
 {{-   $hpaCfg := (dict "global" $.Values.global.hpa "local" $hpa "context" $) }}
 {{-   include "sidekiq.pod.common.labels" . }}
 {{-   if not (default $.Values.global.keda.enabled $keda.enabled) }}
+{{- if or $hpaCfg.local.enabled $hpaCfg.global.enabled -}}
 ---
 apiVersion: {{ template "gitlab.hpa.apiVersion" $hpaCfg }}
 kind: HorizontalPodAutoscaler
@@ -28,5 +29,6 @@ spec:
   {{- include "gitlab.hpa.metrics" $hpaCfg | nindent 2 }}
   {{- include "gitlab.hpa.behavior" $hpaCfg | nindent 2 }}
 {{-   end -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}
