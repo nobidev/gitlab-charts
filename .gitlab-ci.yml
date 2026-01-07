@@ -55,6 +55,7 @@ variables:
   CI_TOOLS_NAMESPACE: "gitlab-org"
   GITLAB_NAMESPACE: "gitlab-org"
   GITLAB_QA_VERSION: "15.7.0"
+  VALKEY_CHART_VERSION: "0.9.2"
   # STRICT_VERSIONS is used in RSpecs to ensure exact version match for tools like "helm" and "kubectl"
   STRICT_VERSIONS: "true"
   KUBE_CRD_SCHEMA_URL: "https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/v3/apis__apiextensions.k8s.io__v1_openapi.json"
@@ -220,6 +221,7 @@ pin_image_versions:
   script:
     - ensure_namespace
     - create_secret
+    - deploy_external_components
     - deploy
     - wait_for_deploy
 
@@ -439,6 +441,7 @@ trigger-eks133:
     - source scripts/ci/autodevops.sh
     - set_context
     - delete
+    - remove_external_dependencies
     - cleanup
   when: manual
   allow_failure: true

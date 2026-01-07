@@ -23,6 +23,7 @@ include:
     VARIABLES_FILE: "variables/review_v134gw"
     DOMAIN: "-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"
     USE_GATEWAY_API: "true"
+    USE_EXTERNAL_VALKEY: "true"
   environment:
     name: gkevc_134/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: "https://gitlab${DOMAIN}"

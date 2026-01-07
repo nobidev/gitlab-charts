@@ -53,6 +53,44 @@ function previousDeployFailed() {
   return $status
 }
 
+# Deploy Valkey using the official Valkey helm chart into the same namespace
+# as the GitLab namespace.
+# Should currently only be used for vcluster-based review envionments because
+# native review envionments are all deployed into the namespace potentially
+# causing conflicts.
+function deploy_external_valkey() {
+  VERSION_FLAG=""
+  if [ -n "${VALKEY_CHART_VERSION}" ]; then
+    VERSION_FLAG="--version ${VALKEY_CHART_VERSION}"
+  fi
+
+  helm repo add valkey https://valkey.io/valkey-helm/
+  helm upgrade --install valkey valkey/valkey \
+    -n "${NAMESPACE}" \
+    ${VERSION_FLAG} \
+    --set dataStorage.enabled=true \
+    --set dataStorage.size=100Mi \
+    --set metrics.enabled=true \
+    --set auth.enabled=true \
+    --set auth.aclUsers.default.permissions="~* &* +@all" \
+    --set auth.aclUsers.default.password=default-password
+}
+
+function remove_external_components() {
+  helm uninstall valkey -n "${NAMESPACE}" --ignore-not-found
+}
+
+function deploy_external_components() {
+  if [ -n "${USE_EXTERNAL_VALKEY}" ]; then
+    echo "Installing external Valkey"
+    deploy_external_valkey
+  fi
+}
+
+function remove_external_components() {
+    helm uninstall valkey -n "${NAMESPACE}" --ignore-not-found
+}
+
 function deploy() {
   if [ -z "${NAMESPACE}" ]; then
     echo "Error: NAMESPACE is not set"
@@ -197,11 +235,18 @@ CIYAML
     git apply ./scripts/ci/patches/arm64.minio.patch
   fi
 
+  VALKEY_CONFIGURATION=""
+  if [ -n "${USE_EXTERNAL_VALKEY}" ]; then
+    echo "Valkey deployment detected"
+    VALKEY_CONFIGURATION="-f scripts/ci/values/external-valkey.values.yaml"
+  fi
+
   helm upgrade --install \
     $WAIT \
     ${SENTRY_CONFIGURATION} \
     ${ARCH_CONFIGURATION} \
     ${NETWORKING_CONF} \
+    ${VALKEY_CONFIGURATION} \
     -f ci.details.yaml \
     -f ci.scale.yaml \
     -f ci.psql.yaml \

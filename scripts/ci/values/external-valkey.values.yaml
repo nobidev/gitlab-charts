@@ -1,0 +1,9 @@
+redis:
+  install: false
+
+global:
+  redis:
+    host: valkey
+    auth:
+      secret: valkey-auth
+      key: default-password

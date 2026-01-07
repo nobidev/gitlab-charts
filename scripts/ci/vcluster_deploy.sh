@@ -15,6 +15,7 @@ echo "VCLUSTER_NAME=${VCLUSTER_NAME}"
 echo "VCLUSTER_K8S_VERSION=${VCLUSTER_K8S_VERSION}"
 
 create_secret
+deploy_external_components
 deploy
 wait_for_deploy
 check_domain_ip
