@@ -666,7 +666,19 @@ supported:
 
 ### Gitaly
 
-Gitaly is configured by [global settings](../../globals.md). Please see the
+```yaml
+gitaly:
+  client:
+    maxAttempts: 4
+    maxBackoff: '1.4s'
+```
+
+| Name          |  Type   | Default     | Description |
+|:--------------|:-------:|:------------|:------------|
+| `maxAttempts`        | Integer | `4`      | The maximum number of time, upon failure, the Gitaly client of the webservice will attempt to re-send a request before returning an error to the client. |
+| `serviceName` | String  | `'1.4s'` | The maximum amount of time, in seconds, the Gitaly client will retry request before returning an error to the client. |
+
+Other Gitaly settings are configured by [global settings](../../globals.md). Please see the
 [Gitaly configuration documentation](../../globals.md#configure-gitaly-settings).
 
 ### MinIO

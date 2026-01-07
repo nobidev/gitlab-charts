@@ -436,6 +436,9 @@ gitaly:
   # host: '0.0.0.0'
   # port: 8075
   # serviceName: 'gitaly'
+  client:
+    maxAttempts: 6
+    maxBackoff: '5.4s'
   authToken: {}
   #   secret: gitaly-secret
   #   key: token
