@@ -1,6 +1,12 @@
 {{- define "gitlab.appConfig.gitaly" -}}
 gitaly:
   client_path: /home/git/gitaly/bin
+  {{- if dig "client" "maxAttempts" false .Values.global.gitaly }}
+  client_max_attempts: {{ .Values.global.gitaly.client.maxAttempts }}
+  {{- end }}
+  {{- if dig "client" "maxBackoff" false .Values.global.gitaly }}
+  client_max_backoff: {{ .Values.global.gitaly.client.maxBackoff | quote }}
+  {{- end }}
   token: <%= File.read('/etc/gitlab/gitaly/gitaly_token').strip.to_json %>
 {{- end -}}
 

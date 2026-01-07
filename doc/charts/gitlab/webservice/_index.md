@@ -666,7 +666,21 @@ supported:
 
 ### Gitaly
 
-Gitaly is configured by [global settings](../../globals.md). Please see the
+```yaml
+global:
+  gitaly:
+    ## These settings are used by Gitaly clients: GitLab Rails, GitLab Shell, Workhorse.
+    client:
+      maxAttempts: 4
+      maxBackoff: '1.4s'
+```
+
+| Name             |  Type   | Default  | Description                                                                                                                         |
+|:-----------------|:-------:|:---------|:------------------------------------------------------------------------------------------------------------------------------------|
+| `maxAttempts`    | Integer | `4`      | The maximum number of time, upon failure, Gitaly clients will attempt to re-send a request before returning an error to the client. |
+| `maxBackoff`     | String  | `'1.4s'` | The maximum amount of time, in seconds, Gitaly clients will retry request before returning an error to the client.                  |
+
+Other Gitaly settings are configured by [global settings](../../globals.md). Please see the
 [Gitaly configuration documentation](../../globals.md#configure-gitaly-settings).
 
 ### MinIO

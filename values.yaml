@@ -282,6 +282,10 @@ global:
     tls:
       enabled: false
       # secretName:
+    client:
+      maxAttempts: 4
+      initialBackoff: '0.4s'
+      maxBackoff: '1.4s'
 
   praefect:
     enabled: false
