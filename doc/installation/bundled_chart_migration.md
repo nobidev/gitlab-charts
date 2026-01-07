@@ -45,7 +45,7 @@ Please note that:
 - If you are only migrating PostgreSQL, you can [skip](../backup-restore/backup.md#skipping-components) backing
   up all components but the `db`.
 - If you enabled the [Registry Metadata Database](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/)
-  the metadata data will not be covered by the default backup/restore process.
+  the metadata data will not be covered by the [default backup/restore process](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/#backup-with-metadata-database).
 
 ## Provision external services
 
@@ -63,6 +63,7 @@ helm repo add valkey https://valkey.io/valkey-helm/
 helm install valkey valkey/valkey \
   --set dataStorage.enabled=true \
   --set dataStorage.size=2Gi \
+  --set metrics.enabled=true \
   --set auth.enabled=true \
   --set auth.aclUsers.default.permissions="~* &* +@all" \
   --set auth.aclUsers.default.password=default-password
@@ -70,7 +71,7 @@ helm install valkey valkey/valkey \
 
 ### Provision external PostgreSQL
 
-Provision your external PostgreSQL service. For example, by using [CloudNativePG](https://cloudnative-pg.io/documentation/current/installation_upgrade/):
+Provision your external PostgreSQL service. For example, by using [CloudNativePG](https://cloudnative-pg.io/docs/1.28/installation_upgrade):
 
    1. Install the CloudNativePG Operator:
 
@@ -80,7 +81,7 @@ Provision your external PostgreSQL service. For example, by using [CloudNativePG
 
    1. Provision a PostgreSQL cluster for GitLab:
 
-      Note: This will generate a secret for the `gitlab` user. Check the [Cluster API](https://cloudnative-pg.io/documentation/1.28/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Cluster)
+      Note: This will generate a secret for the `gitlab` user. Check the [Cluster API](https://cloudnative-pg.io/docs/1.28/cloudnative-pg.v1/#postgresqlcnpgiov1)
       to customize your cluster.
 
       ```yaml
@@ -88,23 +89,25 @@ Provision your external PostgreSQL service. For example, by using [CloudNativePG
       kind: Cluster
       metadata:
         name: gitlab-rails-db
-        namespace: gitlab
+        namespace: <NAMESPACE>
       spec:
         instances: 1
         imageName: ghcr.io/cloudnative-pg/postgresql:17
-      storage:
-        size: 5Gi
-      bootstrap:
-        initdb:
-          database: gitlabhq_production
-          owner: gitlab
-          postInitSQL:
-            - CREATE EXTENSION IF NOT EXISTS pg_trgm;
-            - CREATE EXTENSION IF NOT EXISTS btree_gist;
-            - CREATE EXTENSION IF NOT EXISTS plpgsql;
-            - CREATE EXTENSION IF NOT EXISTS amcheck;
-            - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+        storage:
+          size: 5Gi
+        bootstrap:
+          initdb:
+            database: gitlabhq_production
+            owner: gitlab
+            postInitSQL:
+              - CREATE EXTENSION IF NOT EXISTS pg_trgm;
+              - CREATE EXTENSION IF NOT EXISTS btree_gist;
+              - CREATE EXTENSION IF NOT EXISTS plpgsql;
+              - CREATE EXTENSION IF NOT EXISTS amcheck;
+              - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
       ```
+
+      Note: This does not cover the creation of the [Registry Metadata Database](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/).
 
 ### Provision external object storage
 
@@ -118,7 +121,7 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
 
    ```shell
    helm plugin install https://github.com/aslafy-z/helm-git
-   helm repo add garage git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=main-v1
+   helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=main-v1"
    helm install garage garage/garage \
      --set persistence.data.size=5Gi \
      --set persistence.meta.size=250Mi
@@ -127,13 +130,14 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
 1. Initialize the cluster layout:
 
    ```shell
-   Check node IDs
-   kubectl exec garage-0  -- /garage status
    # Check node IDs
    kubectl exec garage-0  -- /garage status
 
    # Assign nodes to gitlab zone
    kubectl exec garage-0  -- /garage layout assign -z gitlab -c 5G <node IDs>
+
+   # Apply the layout
+   kubectl exec garage-0  -- /garage layout apply --version 1
    ```
 
 1. Create the GitLab buckets:
