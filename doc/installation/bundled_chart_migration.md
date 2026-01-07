@@ -257,9 +257,9 @@ PostgreSQL.
          connection:
            secret: gitlab-object-storage
            key: config
-      # Disable bundled MinIO.
-      minio:
-        enabled: false
+     # Disable bundled MinIO.
+     minio:
+       enabled: false
    # Configure backup/restore to use Garage backend.
    gitlab:
      toolbox:
