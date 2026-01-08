@@ -30,7 +30,9 @@ Before you begin migrating from the bundled MinIO, Redis, or PostgreSQL:
 - Check the current size and data usage of your MinIO, Redis and PostgreSQL persistent volume claims.
   The guide configures 5Gi for PostgreSQL, 2Gi for Valkey, and 5Gi (replicated 3 times) for Garage
   which might need adjustment.
-- Note that GitLab can only offer best-effort support for these components.
+- Note that GitLab cannot assist with the configuration or troubleshooting of third party applications
+  mentioned in this document. We can ensure that GitLab itself is sending properly formatted data to a
+  third party in the bare-minimum configuration.
 - Plan in downtime for this migration. During the import of the data into the new external services
   GitLab won't be accesible.
 
