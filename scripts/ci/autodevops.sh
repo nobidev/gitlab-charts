@@ -55,9 +55,9 @@ function previousDeployFailed() {
 
 # Deploy Valkey using the official Valkey helm chart into the same namespace
 # as the GitLab namespace.
-# Should currently only be used for vcluster-based review envionments because
-# native review envionments are all deployed into the namespace potentially
-# causing conflicts.
+# Should currently only be used for vcluster-based review environments
+# because native review environments are all deployed into the namespace
+# potentially causing conflicts.
 function deploy_external_valkey() {
   VERSION_FLAG=""
   if [ -n "${VALKEY_CHART_VERSION}" ]; then
@@ -73,11 +73,11 @@ function deploy_external_valkey() {
     --set metrics.enabled=true \
     --set auth.enabled=true \
     --set auth.aclUsers.default.permissions="~* &* +@all" \
-    --set auth.aclUsers.default.password=default-password
+    --set auth.aclUsers.default.password="$(random_password)"
 }
 
-function remove_external_components() {
-  helm uninstall valkey -n "${NAMESPACE}" --ignore-not-found
+function random_password() {
+  tr -dc A-Za-z0-9 </dev/urandom | head -c 10
 }
 
 function deploy_external_components() {

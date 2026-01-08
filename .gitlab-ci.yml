@@ -441,7 +441,7 @@ trigger-eks133:
     - source scripts/ci/autodevops.sh
     - set_context
     - delete
-    - remove_external_dependencies
+    - remove_external_components
     - cleanup
   when: manual
   allow_failure: true
