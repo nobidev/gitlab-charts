@@ -60,7 +60,7 @@ Provision your external Valkey or Redis service. For example, by using the offic
 
 ```shell
 helm repo add valkey https://valkey.io/valkey-helm/
-helm install valkey valkey/valkey \
+helm install valkey valkey/valkey -n <NAMSPACE> \
   --set dataStorage.enabled=true \
   --set dataStorage.size=2Gi \
   --set metrics.enabled=true \
@@ -122,7 +122,7 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
    ```shell
    helm plugin install https://github.com/aslafy-z/helm-git
    helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=main-v1"
-   helm install garage garage/garage \
+   helm install garage garage/garage -n <NAMESPACE> \
      --set persistence.data.size=5Gi \
      --set persistence.meta.size=250Mi
    ```
@@ -134,7 +134,7 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
    kubectl exec garage-0  -- /garage status
 
    # Assign nodes to gitlab zone
-   kubectl exec garage-0  -- /garage layout assign -z gitlab -c 5G <node IDs>
+   kubectl exec garage-0  -- /garage layout assign -z gitlab -c 5G <Node ID 1> <Node ID 2> <Node ID 3>
 
    # Apply the layout
    kubectl exec garage-0  -- /garage layout apply --version 1
@@ -146,40 +146,23 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
    previously, adjust them accordingly here and in the steps below.
    
    ```shell
-   kubectl exec garage-0  -- /garage bucket create git-lfs
-   kubectl exec garage-0  -- /garage bucket create gitlab-artifacts
-   kubectl exec garage-0  -- /garage bucket create gitlab-backups
-   kubectl exec garage-0  -- /garage bucket create gitlab-ci-secure-files
-   kubectl exec garage-0  -- /garage bucket create gitlab-dependency-proxy
-   kubectl exec garage-0  -- /garage bucket create gitlab-mr-diffs
-   kubectl exec garage-0  -- /garage bucket create gitlab-packages
-   kubectl exec garage-0  -- /garage bucket create gitlab-pages
-   kubectl exec garage-0  -- /garage bucket create gitlab-terraform-state
-   kubectl exec garage-0  -- /garage bucket create gitlab-uploads
-   kubectl exec garage-0  -- /garage bucket create registry
-   kubectl exec garage-0  -- /garage bucket create runner-cache
-   kubectl exec garage-0  -- /garage bucket create tmp
+   buckets=("git-lfs" "gitlab-artifacts" "gitlab-backups" "gitlab-ci-secure-files" \
+            "gitlab-dependency-proxy" "gitlab-mr-diffs" "gitlab-packages" "gitlab-pages" \
+            "gitlab-terraform-state" "gitlab-uploads" "registry" "runner-cache" "tmp" )
+   for bucket in "${buckets[@]}"; do
+     kubectl exec -n <NAMESPACE> garage-0  -- /garage bucket create "${bucket}";
+   done
    ```
 
 1. Create a API key, note the acess and secret key, and grant access to the created buckets:
 
    ```shell
    # Create GitLab key. Note down the access and secret key.
-   kubectl exec garage-0  -- /garage key create gitlab-app-key
+   kubectl exec -n <NAMESPACE> garage-0  -- /garage key create gitlab-app-key
    # Grant permissions to the GitLab key.
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key git-lfs
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-artifacts
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-backups
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-ci-secure-files
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-dependency-proxy
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-mr-diffs
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-packages
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-pages
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-terraform-state
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key gitlab-uploads
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key registry
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key runner-cache
-   kubectl exec garage-0  -- /garage bucket allow --read --write --key gitlab-app-key tmp
+   for bucket in "${buckets[@]}"; do
+     kubectl exec -n <NAMESPACE> garage-0  -- /garage bucket allow --read --write --key gitlab-app-key "${bucket}";
+   done
    ```
 
 1. Create a Secret configuring the object storage access. Make sure to replace the `GARAGE_ACCESS_KEY`,
