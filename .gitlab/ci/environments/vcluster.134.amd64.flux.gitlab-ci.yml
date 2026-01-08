@@ -1,7 +1,7 @@
 include:
   - component: "gitlab.com/gitlab-org/quality/pipeline-common/allure-report@9.6.3"
     inputs:
-      job_name: "e2e-test-v134gw"
+      job_name: "e2e-test-flux"
       job_stage: "qa-report"
       gitlab_auth_token_variable_name: "DANGER_GITLAB_API_TOKEN"
       aws_access_key_id_variable_name: "QA_ALLURE_AWS_ACCESS_KEY_ID"
@@ -12,15 +12,15 @@ include:
         when: never
       - if: '$CI_PIPELINE_SOURCE == "pipeline" || $CI_PIPELINE_SOURCE == "parent_pipeline"'
 
-.v134gw_base:
+.flux_base:
   extends:
   - .vcluster_base
   variables:
-    VCLUSTER_K8S_VERSION: "v1.34.0"
-    VCLUSTER_NAME: "v134gw-${REVIEW_REF_PREFIX}${CI_COMMIT_SHORT_SHA}"
-    HOST_SUFFIX: "${CI_ENVIRONMENT_SLUG}-vc134gw"
+    VCLUSTER_K8S_VERSION: "v1.34.3"
+    VCLUSTER_NAME: "flux-${REVIEW_REF_PREFIX}${CI_COMMIT_SHORT_SHA}"
+    HOST_SUFFIX: "${CI_ENVIRONMENT_SLUG}-flux"
     # the VARIABLES_FILE value is from the CI_JOB_NAME of the review job
-    VARIABLES_FILE: "variables/review_v134gw"
+    VARIABLES_FILE: "variables/review_flux"
     DOMAIN: "-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"
     USE_GATEWAY_API: "true"
     USE_EXTERNAL_VALKEY: "true"
@@ -28,65 +28,65 @@ include:
     name: gkevc_134/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: "https://gitlab${DOMAIN}"
 
-create_review_v134gw:
+create_review_flux:
   stage: review
   image: ${BUSYBOX_IMAGE}
-  extends: .v134gw_base
+  extends: .flux_base
   variables:
     GIT_STRATEGY: none
   script:
     - echo "Configuring gkevc_134/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA to automatically stop in $REVIEW_APPS_AUTO_STOP_IN."
   environment:
-    on_stop: stop_review_v134gw
+    on_stop: stop_review_flux
     auto_stop_in: $REVIEW_APPS_AUTO_STOP_IN
     action: start
 
-review_v134gw:
+review_flux:
   extends:
     - .vcluster_review_template
-    - .v134gw_base
+    - .flux_base
   environment:
     action: access
 
-stop_review_v134gw:
+stop_review_flux:
   extends:
     - .stop_vcluster_review_template
-    - .v134gw_base
+    - .flux_base
   environment:
     action: stop
 
-review_specs_v134gw:
+review_specs_flux:
   extends:
     - .vcluster_specs_template
-    - .v134gw_base
+    - .flux_base
   environment:
     action: access
-  needs: ['review_v134gw']
+  needs: ['review_flux']
 
-qa_v134gw:
+qa_flux:
   extends:
     - .qa_branch
-    - .v134gw_base
+    - .flux_base
   variables:
     TEST_SUITE: $QA_SANITY_SUITE_OPTIONS
   environment:
     action: access
   needs:
-    - review_v134gw
-    - job: review_specs_v134gw
+    - review_flux
+    - job: review_specs_flux
       artifacts: false
 
-qa_v134gw_full_suite_manual_trigger:
+qa_flux_full_suite_manual_trigger:
   extends: .qa_full_suite_manual_trigger
   script: echo 'The job will trigger Full E2E suite against GKE134 vcluster'
 
-qa_v134gw_manual_full_suite:
+qa_flux_manual_full_suite:
   extends:
     - .qa_branch
-    - .v134gw_base
+    - .flux_base
   parallel: 7
   variables:
     TEST_SUITE: $QA_FULL_SUITE_OPTIONS
   environment:
     action: access
-  needs: ["qa_v134gw_full_suite_manual_trigger"]
+  needs: ["qa_flux_full_suite_manual_trigger"]

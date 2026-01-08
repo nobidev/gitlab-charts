@@ -119,9 +119,9 @@ include:
   - local: '/.gitlab/ci/environments/vcluster.134.arm64.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == "v134a"'
-  - local: '/.gitlab/ci/environments/vcluster.134.amd64.gatewayapi.gitlab-ci.yml'
+  - local: '/.gitlab/ci/environments/vcluster.134.amd64.flux.gitlab-ci.yml'
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v134gw"'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == "flux"'
   - local: '/.gitlab/ci/environments/gke.134.amd64.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke134"'
@@ -388,12 +388,12 @@ trigger-v134a:
   rules:
     - !reference [.trigger_review_secondary, rules]
 
-trigger-v134-envoy-gw:
+trigger-flux:
   extends: .trigger_review_job
   needs:
     - trigger_review_current
   variables:
-    LIMIT_TO: v134gw
+    LIMIT_TO: flux
   rules:
     - !reference [.trigger_review_current, rules]
 
