@@ -134,7 +134,9 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
    kubectl exec garage-0  -- /garage status
 
    # Assign nodes to gitlab zone
-   kubectl exec garage-0  -- /garage layout assign -z gitlab -c 5G <Node ID 1> <Node ID 2> <Node ID 3>
+   kubectl exec garage-0  -- /garage layout assign -z gitlab1 -c 5G <Node ID 1>
+   kubectl exec garage-0  -- /garage layout assign -z gitlab2 -c 5G <Node ID 2>
+   kubectl exec garage-0  -- /garage layout assign -z gitlab3 -c 5G <Node ID 3>
 
    # Apply the layout
    kubectl exec garage-0  -- /garage layout apply --version 1
