@@ -68,7 +68,7 @@ helm install valkey valkey/valkey -n <NAMSPACE> \
   --set metrics.enabled=true \
   --set auth.enabled=true \
   --set auth.aclUsers.default.permissions="~* &* +@all" \
-  --set auth.aclUsers.default.password=default-password
+  --set auth.aclUsers.default.password="<RANDOM PASSWORD>"
 ```
 
 ### Provision external PostgreSQL
@@ -130,6 +130,15 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
    ```
 
 1. Initialize the cluster layout:
+
+   Note: This example provisions a Garage layout with three zones, one node per zone, and uses the default replication
+   factor of three. Review the [Garage production recommendations](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/)
+   and adjust these settings to suit your requirements.
+
+   Since GitLab stores both primary object data and backups in the same storage backend (Garage in this case), any
+   failures at the object storage or persistence layer could affect both datasets. Therefore, in addition to
+   [backing up GitLab](../backup-restore/_index.md) regularly, you should also familiarize yourself with
+   [recovering from Garage failures](https://garagehq.deuxfleurs.fr/documentation/operations/recovering/).
 
    ```shell
    # Check node IDs
