@@ -44,7 +44,8 @@ First [back up](../backup-restore/_index.md) all of the current data and note th
 
 Please note that:
 
-- If you are migration of MinIO, you will need to download the backup archive to a local machine.
+- If you are migrating of MinIO, you will need to download the backup archive to a local machine.
+- If you are only migrating MinIO, you will need to backup the object storage buckets only.
 - If you are only migrating Redis, you can skip the backup and restore steps.
 - If you are only migrating PostgreSQL, you can [skip](../backup-restore/backup.md#skipping-components) backing
   up all components but the `db`.
