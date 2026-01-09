@@ -12,33 +12,35 @@ title: Migrate from the bundled Redis, PostgreSQL, and MinIO charts
 
 {{< /details >}}
 
-When configuring a production system, you should migrate from the bundled MinIO, Redis, and PostgreSQL to externally
-managed alternatives such as Valkey, CloudNativePG, and Garage.
+When configuring a production system, you should migrate from the bundled Redis, MinIO, and PostgreSQL to externally
+managed alternatives.
+
+This guide assumes you're migrating to Cloud Native alternatives such as [Valkey](https://valkey.io/), [Garage](https://garagehq.deuxfleurs.fr/), and [CloudNativePG](https://cloudnative-pg.io/) respectively.
 
 ## Before you begin
 
-Before you begin migrating from the bundled MinIO, Redis, or PostgreSQL:
+Before you begin migrating from the bundled Redis, MinIO, or PostgreSQL:
 
-- Evaluate services that align with [GitLabs installation requirements](https://docs.gitlab.com/install/requirements/).
+- Evaluate services that align with the [installation requirements](https://docs.gitlab.com/install/requirements/).
   Consider cloud provider services or other alternatives that meet your infrastructure needs and organizational requirements.
   For general reference architecture considerations and recommended providers, see the
-  [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/).
+  [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/#recommended-cloud-providers-and-services).
 - As a result of this migration, upgrading the GitLab chart will no longer upgrade your Redis or
   PostgreSQL deployments. Major GitLab upgrades may require newer versions of Valkey/Redis or PostgreSQL.
   Before following this guide, or before doing a major GitLab upgrade, check the
   [requirements](https://docs.gitlab.com/install/requirements) for your GitLab version.
-- Check the current size and data usage of your MinIO, Redis and PostgreSQL persistent volume claims.
-  The guide configures 5Gi for PostgreSQL, 2Gi for Valkey, and 5Gi (replicated 3 times) for Garage
+- Check the current size and data usage of your MinIO, Redis, and PostgreSQL persistent volume claims.
+  The guide configures 5 GiB for PostgreSQL, 2 GiB for Valkey, and 5 GiB (replicated 3 times) for Garage
   which might need adjustment.
-- Note that GitLab cannot assist with the configuration or troubleshooting of third party applications
+- Note that GitLab cannot assist with the configuration or troubleshooting of third-party applications
   mentioned in this document. We can ensure that GitLab itself is sending properly formatted data to a
   third party in the bare-minimum configuration.
-- Plan in downtime for this migration. During the import of the data into the new external services
+- Plan in downtime for this migration. During the import of the data into the new external services,
   GitLab won't be accesible.
 
 ## Backup GitLab
 
-First [backup](../backup-restore/_index.md) all of the current data and note the backup ID.
+First [back up](../backup-restore/_index.md) all of the current data and note the backup ID.
 
 Please note that:
 
@@ -53,8 +55,7 @@ Please note that:
 
 To replace the bundled Redis, PostgreSQL, and MinIO charts, provision externally managed replacements.
 For an overview on the available options check the [recommended providers and services](https://docs.gitlab.com/administration/reference_architectures/#recommended-cloud-providers-and-services)
-and make sure they meet the [current minimum requirements](https://docs.gitlab.com/install/requirements/)
-are met.
+and make sure they meet the [current minimum requirements](https://docs.gitlab.com/install/requirements/).
 
 ### Provision external Valkey or Redis
 
@@ -75,41 +76,41 @@ helm install valkey valkey/valkey -n <NAMSPACE> \
 
 Provision your external PostgreSQL service. For example, by using [CloudNativePG](https://cloudnative-pg.io/docs/1.28/installation_upgrade):
 
-   1. Install the CloudNativePG Operator:
+1. Install the CloudNativePG Operator:
 
-      ```shell
-      kubectl apply --server-side -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.28/releases/cnpg-1.28.0.yaml
-      ```
+   ```shell
+   kubectl apply --server-side -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.28/releases/cnpg-1.28.0.yaml
+   ```
 
-   1. Provision a PostgreSQL cluster for GitLab:
+1. Provision a PostgreSQL cluster for GitLab (the [Registry Metadata Database](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/) is not covered):
 
-      Note: This will generate a secret for the `gitlab` user. Check the [Cluster API](https://cloudnative-pg.io/docs/1.28/cloudnative-pg.v1/#postgresqlcnpgiov1)
-      to customize your cluster.
+   > [!note]
+   > This will generate a secret for the `gitlab` user.
+   > Check the [Cluster API](https://cloudnative-pg.io/docs/1.28/cloudnative-pg.v1/#postgresqlcnpgiov1)
+   > to customize your cluster.
 
-      ```yaml
-      apiVersion: postgresql.cnpg.io/v1
-      kind: Cluster
-      metadata:
-        name: gitlab-rails-db
-        namespace: <NAMESPACE>
-      spec:
-        instances: 1
-        imageName: ghcr.io/cloudnative-pg/postgresql:17
-        storage:
-          size: 5Gi
-        bootstrap:
-          initdb:
-            database: gitlabhq_production
-            owner: gitlab
-            postInitSQL:
-              - CREATE EXTENSION IF NOT EXISTS pg_trgm;
-              - CREATE EXTENSION IF NOT EXISTS btree_gist;
-              - CREATE EXTENSION IF NOT EXISTS plpgsql;
-              - CREATE EXTENSION IF NOT EXISTS amcheck;
-              - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
-      ```
-
-      Note: This does not cover the creation of the [Registry Metadata Database](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/).
+   ```yaml
+   apiVersion: postgresql.cnpg.io/v1
+   kind: Cluster
+   metadata:
+     name: gitlab-rails-db
+     namespace: <NAMESPACE>
+   spec:
+     instances: 1
+     imageName: ghcr.io/cloudnative-pg/postgresql:17
+     storage:
+       size: 5Gi
+     bootstrap:
+       initdb:
+         database: gitlabhq_production
+         owner: gitlab
+         postInitSQL:
+           - CREATE EXTENSION IF NOT EXISTS pg_trgm;
+           - CREATE EXTENSION IF NOT EXISTS btree_gist;
+           - CREATE EXTENSION IF NOT EXISTS plpgsql;
+           - CREATE EXTENSION IF NOT EXISTS amcheck;
+           - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+   ```
 
 ### Provision external object storage
 
@@ -119,7 +120,7 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
 [deployment guide](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/) and
 [Kubernetes documentation](https://garagehq.deuxfleurs.fr/documentation/cookbook/kubernetes/).
 
-1. Install the Garage Helm chart.
+1. Install the Garage Helm chart:
 
    ```shell
    helm plugin install https://github.com/aslafy-z/helm-git
@@ -129,11 +130,12 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
      --set persistence.meta.size=250Mi
    ```
 
-1. Initialize the cluster layout:
+1. Initialize the cluster layout.
 
-   Note: This example provisions a Garage layout with three zones, one node per zone, and uses the default replication
-   factor of three. Review the [Garage production recommendations](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/)
-   and adjust these settings to suit your requirements.
+   > [!note]
+   > This example provisions a Garage layout with three zones, one node per zone, and uses the default replication
+   > factor of three. Review the [Garage production recommendations](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/)
+   > and adjust these settings to suit your requirements.
 
    Since GitLab stores both primary object data and backups in the same storage backend (Garage in this case), any
    failures at the object storage or persistence layer could affect both datasets. Therefore, in addition to
@@ -155,8 +157,9 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
 
 1. Create the GitLab buckets:
 
-   Note: This uses the default bucket names from the GitLab chart. If you've customized your bucket names
-   previously, adjust them accordingly here and in the steps below.
+   > [!note]
+   > The following command uses the default bucket names from the GitLab chart. If you've customized your bucket names
+   > previously, adjust them accordingly here and in the steps below.
    
    ```shell
    buckets=("git-lfs" "gitlab-artifacts" "gitlab-backups" "gitlab-ci-secure-files" \
@@ -225,10 +228,11 @@ PostgreSQL.
    kubectl annotate pvc <RELEASE>-minio --list
    ```
 
-   Note: The Redis and PostgreSQL persistent volumes are managed by their StatefulSet
-   instead of Helm. The default retention policy is [`Retain`](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention).
-   Unless you modified this policy, these two volumes will not be deleted when you remove
-   the StatefulSet(s).
+   > [!note]
+   > The Redis and PostgreSQL persistent volumes are managed by their StatefulSet
+   > instead of Helm. The default retention policy is [`Retain`](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention).
+   > Unless you modified this policy, these two volumes will not be deleted when you remove
+   > their StatefulSet.
 
 1. Update your values to point to the newly provisioned services:
 
@@ -276,13 +280,13 @@ PostgreSQL.
    and [object storage](../advanced/external-object-storage/_index.md) documentation for more
    information.
 
-1. If you are migrating PostgreSQL, upgrade your GitLab instance with migrations disabled.
+1. If you are migrating PostgreSQL, upgrade your GitLab instance with migrations disabled:
 
    ```shell
    helm upgrade <RELEASE> gitlab/gitlab -f your-values.yaml --set gitlab.migrations.enabled=false
    ```
 
-1. If you are migrating MinIO, copy your backup to the toolbox and upload it to your new object storage.
+1. If you are migrating MinIO, copy your backup to the toolbox and upload it to your new object storage:
 
    ```shell
    kubectl cp LOCAL_BACKUP_ARCHIVE.tar TOOLBOX_POD:/tmp
@@ -290,8 +294,7 @@ PostgreSQL.
    ```
 
 1. If you are migrating PostgreSQL or MinIO, [scale down the workloads and restore the backup](../backup-restore/restore.md#restoring-the-backup-file).
-
-1. Once the upgrade is complete, upgrade your GitLab instance to run any pending migrations.
+1. After the upgrade is complete, upgrade your GitLab instance to run any pending migrations.
 
    ```shell
    helm upgrade <RELEASE> gitlab/gitlab -f your-values.yaml
