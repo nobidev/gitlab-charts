@@ -36,7 +36,7 @@ Before you begin migrating from the bundled Redis, MinIO, or PostgreSQL:
   mentioned in this document. We can ensure that GitLab itself is sending properly formatted data to a
   third party in the bare-minimum configuration.
 - Plan in downtime for this migration. During the import of the data into the new external services,
-  GitLab won't be accesible.
+  GitLab won't be accessible.
 
 ## Backup GitLab
 
@@ -64,7 +64,7 @@ Provision your external Valkey or Redis service. For example, by using the offic
 
 ```shell
 helm repo add valkey https://valkey.io/valkey-helm/
-helm install valkey valkey/valkey -n <NAMSPACE> \
+helm install valkey valkey/valkey -n <NAMESPACE> \
   --set dataStorage.enabled=true \
   --set dataStorage.size=2Gi \
   --set metrics.enabled=true \
@@ -178,7 +178,7 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
    done
    ```
 
-1. Create a API key, note the acess and secret key, and grant access to the created buckets:
+1. Create a API key, note the access and secret key, and grant access to the created buckets:
 
    ```shell
    # Create GitLab key. Note down the access and secret key.
@@ -190,7 +190,7 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
    ```
 
 1. Create a Secret configuring the object storage access. Make sure to replace the `GARAGE_ACCESS_KEY`,
-   `GARAGE_SECRET_KEY`, and `NAMESPACE` palceholders:
+   `GARAGE_SECRET_KEY`, and `NAMESPACE` placeholders:
 
    ```shell
    cat <<EOF | kubectl create secret generic gitlab-object-storage --from-file=config=/dev/stdin
