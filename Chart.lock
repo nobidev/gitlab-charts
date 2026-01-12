@@ -22,7 +22,7 @@ dependencies:
   version: 13.4.4
 - name: gitlab-runner
   repository: https://charts.gitlab.io/
-  version: 0.84.1
+  version: 0.84.2
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 18.19.4
@@ -47,5 +47,5 @@ dependencies:
 - name: gateway-helm
   repository: oci://registry-1.docker.io/envoyproxy
   version: 1.6.0
-digest: sha256:9629bc34c040d60b2a4b17ca7ae8beb18b44f742484a3cad37955bb46df0c12c
-generated: "2026-01-07T12:00:54.491948087+01:00"
+digest: sha256:4c759c15b776fb65aaa38be6c8f73c24e259200bdb9af514d76f06485cca4cec
+generated: "2026-01-12T10:17:28.167254818+01:00"
