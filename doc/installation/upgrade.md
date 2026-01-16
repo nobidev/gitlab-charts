@@ -53,9 +53,9 @@ Zero-downtime upgrades let you upgrade a live GitLab environment without taking 
 
 The zero-downtime upgrade process requires:
 
- - A multi-node GitLab Helm chart deployment with multiple replicas configured for Webservice and Sidekiq.
- - For any external services (PostgreSQL, Redis, Gitaly), HA mechanisms must be configured. Any services that are not deployed in an HA fashion must be upgraded separately with downtime.
- - Upgrade one minor release at a time. So from 18.0 to 18.1, not to 18.2. If you skip releases, database modifications might be run in the wrong sequence and leave the database schema in a broken state.
+- A multi-node GitLab Helm chart deployment with multiple replicas configured for Webservice and Sidekiq.
+- For any external services (PostgreSQL, Redis, Gitaly), HA mechanisms must be configured. Any services that are not deployed in an HA fashion must be upgraded separately with downtime.
+- Upgrade one minor release at a time. So from 18.0 to 18.1, not to 18.2. If you skip releases, database modifications might be run in the wrong sequence and leave the database schema in a broken state.
 
 #### Considerations
 
@@ -70,7 +70,6 @@ When considering a zero-downtime upgrade, be aware that:
 To ensure smooth rolling updates, the settings below are required to control the upgrade process and achieve zero downtime.
 
 These settings are baseline recommendations. You may need to adjust them based on your deployment's resource availability, replica counts, and performance requirements. Ensure you have sufficient cluster resources to support the `maxSurge` setting, which temporarily creates additional pods during an upgrade.
-
 
 ```yaml
 gitlab:
@@ -143,14 +142,14 @@ future upgrades can be performed with zero downtime.
 
 1. Pause deployments
 
-```
+```shell
 kubectl patch deployment gitlab-webservice-default -p '{"spec":{"paused":true}}'
 kubectl patch deployment gitlab-sidekiq-all-in-1 -p '{"spec":{"paused":true}}'
 ```
 
-1.Begin Helm upgrade to new version
+1. Begin Helm upgrade to new version
    
-```
+```shell
 helm upgrade gitlab gitlab/gitlab \
   --version 9.1.6 \
   -f values.yaml \
@@ -159,35 +158,35 @@ helm upgrade gitlab gitlab/gitlab \
 
 1. Wait for pre-migrations and upgrades to complete
 
-```
+```shell
 kubectl get jobs -n default | grep migrations
 kubectl wait --for=condition=complete job/<job name> --timeout=600s
 ```
 
 1. Run post-migrations
 
-```
+```shell
 helm upgrade gitlab gitlab/gitlab \
   -f values values.yaml 
 ```
 
 1. Wait for post-migrations to complete
 
-```
+```shell
 kubectl get jobs -n default | grep migrations
 kubectl wait --for=condition=complete job/<job name> --timeout=600s
 ```
 
 1. Unpause deployments for Sidekiq
 
-```
+```shell
 kubectl patch deployment gitlab-sidekiq-all-in-1 -p '{"spec":{"paused":false}}'
 kubectl rollout status deployment/gitlab-sidekiq-all-in-1-v2 --timeout=15m
 ```
 
 1. Unpause deployments for Webservice
 
-```
+```shell
 kubectl patch deployment gitlab-webservice-default -p '{"spec":{"paused":false}}'
 kubectl rollout status deployment/gitlab-webservice-default --timeout=15m
 ```
