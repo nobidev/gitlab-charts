@@ -67,7 +67,10 @@ When considering a zero-downtime upgrade, be aware that:
 
 #### Recommended deployment settings
 
-To ensure smooth rolling updates during zero-downtime upgrades, configure the following settings in your values.yaml:
+To ensure smooth rolling updates, the settings below are required to control the upgrade process and achieve zero downtime.
+
+These settings are baseline recommendations. You may need to adjust them based on your deployment's resource availability, replica counts, and performance requirements. Ensure you have sufficient cluster resources to support the `maxSurge` setting, which temporarily creates additional pods during an upgrade.
+
 
 ```yaml
 gitlab:
