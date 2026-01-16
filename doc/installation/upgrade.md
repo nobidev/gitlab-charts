@@ -14,13 +14,6 @@ title: Upgrade GitLab Helm chart instances
 
 Upgrade a GitLab Helm chart instance to a later version of GitLab.
 
-{{< alert type="note" >}}
-
-**Zero-downtime upgrades** are only available for cloud-native GitLab instances by using
-[GitLab Operator](https://docs.gitlab.com/operator/gitlab_upgrades/).
-
-{{< /alert >}}
-
 ## Prerequisites
 
 Before upgrading a GitLab Helm chart instance:
@@ -51,6 +44,153 @@ To upgrade a GitLab Helm chart instance:
 1. Decide on all the values you need to carry through as you upgrade. You should only keep a minimal set of values that
    you want to explicitly set and pass those during the upgrade process. You should otherwise rely on GitLab default
    values.
+
+### Upgrade with Zero Downtime
+
+Zero-downtime upgrades let you upgrade a live GitLab environment without taking it offline.
+
+#### Requirements
+
+The zero-downtime upgrade process requires:
+
+ - A multi-node GitLab Helm chart deployment with multiple replicas configured for Webservice and Sidekiq.
+ - For any external services (PostgreSQL, Redis, Gitaly), HA mechanisms must be configured. Any services that are not deployed in an HA fashion must be upgraded separately with downtime.
+ - Upgrade one minor release at a time. So from 18.0 to 18.1, not to 18.2. If you skip releases, database modifications might be run in the wrong sequence and leave the database schema in a broken state.
+
+#### Considerations
+
+When considering a zero-downtime upgrade, be aware that:
+
+- [Gitaly in Kubernetes does not currently support zero-downtime upgrades](https://gitlab.com/gitlab-org/gitaly/-/work_items/6934) and will require downtime.
+- Most of the time, you can safely upgrade from a patch release to the next minor release if the patch release is not the latest. For example, upgrading from 18.0.5 to 18.1.0 should be safe even if 18.0.6 exists. We do recommend you check the version-specific upgrade notes for the version you are upgrading to.
+- Ensure your deployment has sufficient resources to run both old and new pods simultaneously during the rolling update.
+
+#### Recommended deployment settings
+
+To ensure smooth rolling updates during zero-downtime upgrades, configure the following settings in your values.yaml:
+
+```yaml
+gitlab:
+  webservice:
+    deployment:
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: "10%"
+          maxUnavailable: 0
+    terminationGracePeriodSeconds: 60
+    minReadySeconds: 10
+  sidekiq:
+    deployment:
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: "10%"
+          maxUnavailable: 0
+    terminationGracePeriodSeconds: 60
+    minReadySeconds: 10
+  gitlab-shell:
+    deployment:
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: "10%"
+          maxUnavailable: 0
+    terminationGracePeriodSeconds: 60
+  registry:
+    deployment:
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: "10%"
+          maxUnavailable: 0
+    terminationGracePeriodSeconds: 60
+
+nginx-ingress:
+  controller:
+    deployment:
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 0
+    terminationGracePeriodSeconds: 300
+    minReadySeconds: 10
+```
+
+These settings ensure:
+
+- At least one pod is always available during updates.
+- New pods are brought up before old ones are terminated.
+- Pods have time to gracefully shut down and drain connections.
+- Pods are stable before being considered ready.
+
+{{< alert type="note" >}}
+
+If you have an existing GitLab deployment without these rolling update settings configured, you must apply them
+before attempting a zero-downtime upgrade. Applying these settings for the first time will trigger a rolling
+restart of your pods, which may cause brief service interruptions.
+
+To minimize impact, apply these settings during a maintenance window before your planned upgrade. Once configured,
+future upgrades can be performed with zero downtime.
+
+{{< /alert >}}
+
+#### Upgrade process
+
+1. Pause deployments
+
+```
+kubectl patch deployment gitlab-webservice-default -p '{"spec":{"paused":true}}'
+kubectl patch deployment gitlab-sidekiq-all-in-1 -p '{"spec":{"paused":true}}'
+```
+
+1.Begin Helm upgrade to new version
+   
+```
+helm upgrade gitlab gitlab/gitlab \
+  --version 9.1.6 \
+  -f values.yaml \
+  --set global.extraEnv.SKIP_POST_DEPLOYMENT_MIGRATIONS=true
+```
+
+1. Wait for pre-migrations and upgrades to complete
+
+```
+kubectl get jobs -n default | grep migrations
+kubectl wait --for=condition=complete job/<job name> --timeout=600s
+```
+
+1. Run post-migrations
+
+```
+helm upgrade gitlab gitlab/gitlab \
+  -f values values.yaml 
+```
+
+1. Wait for post-migrations to complete
+
+```
+kubectl get jobs -n default | grep migrations
+kubectl wait --for=condition=complete job/<job name> --timeout=600s
+```
+
+1. Unpause deployments for Sidekiq
+
+```
+kubectl patch deployment gitlab-sidekiq-all-in-1 -p '{"spec":{"paused":false}}'
+kubectl rollout status deployment/gitlab-sidekiq-all-in-1-v2 --timeout=15m
+```
+
+1. Unpause deployments for Webservice
+
+```
+kubectl patch deployment gitlab-webservice-default -p '{"spec":{"paused":false}}'
+kubectl rollout status deployment/gitlab-webservice-default --timeout=15m
+```
+
+### Upgrade with Downtime
+
 1. Perform the upgrade, with values extracted and reviewed in previous steps:
 
    ```shell
@@ -64,12 +204,7 @@ To upgrade a GitLab Helm chart instance:
    During a major database upgrade, you should set `gitlab.migrations.enabled` to `false`.
    Ensure that you explicitly set it back to `true` for future updates.
 
-After you upgrade:
-
-1. If enabled, [turn off maintenance mode](https://docs.gitlab.com/administration/maintenance_mode/#disable-maintenance-mode).
-1. Run [upgrade health checks](https://docs.gitlab.com/update/plan_your_upgrade/#run-upgrade-health-checks).
-
-## Upgrade the bundled PostgreSQL
+#### Upgrade the bundled PostgreSQL
 
 Only perform these steps if you are using the bundled PostgreSQL chart (`postgresql.install` is `true`).
 
@@ -81,3 +216,14 @@ To upgrade the bundled PostgreSQL:
 1. Update the `postgresql.image.tag` value to the required version of PostgreSQL and
    [reinstall the chart](database_upgrade.md#upgrade-gitlab) to create a new PostgreSQL database.
 1. [Restore the database](database_upgrade.md#restore-the-database).
+
+## After you upgrade
+
+1. If enabled, [turn off maintenance mode](https://docs.gitlab.com/administration/maintenance_mode/#disable-maintenance-mode).
+1. Run [upgrade health checks](https://docs.gitlab.com/update/plan_your_upgrade/#run-upgrade-health-checks).
+
+## Related Topics 
+
+1. [Zero downtime upgrades for Linux package installations](https://docs.gitlab.com/update/zero_downtime/)
+1. [Upgrade paths](https://docs.gitlab.com/update/upgrade_paths/)
+1. [GitLab upgrade notes](https://docs.gitlab.com/update/versions/)
