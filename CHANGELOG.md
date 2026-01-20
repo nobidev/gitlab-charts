@@ -2,6 +2,13 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.7.2 (2026-01-20)
+
+### Changed (2 changes)
+
+- [Update Helm release gitlab-runner to v0.84.2](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/83744322de78670f02f608482c98d9421deda49c)
+- [Update Helm release gitlab-runner to v0.84.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/4ae726651288d55e8f76f7b26ca75508a3fda7f4)
+
 ## 9.7.1 (2026-01-07)
 
 No changes.
