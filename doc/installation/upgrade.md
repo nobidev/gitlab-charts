@@ -144,7 +144,7 @@ future upgrades can be performed with zero downtime.
 
 ```shell
 kubectl patch deployment gitlab-webservice-default -p '{"spec":{"paused":true}}'
-kubectl patch deployment gitlab-sidekiq-all-in-1 -p '{"spec":{"paused":true}}'
+kubectl patch deployment gitlab-sidekiq-all-in-1-v2 -p '{"spec":{"paused":true}}'
 ```
 
 1. Begin Helm upgrade to new version
@@ -159,7 +159,7 @@ helm upgrade gitlab gitlab/gitlab \
 1. Wait for pre-migrations and upgrades to complete
 
 ```shell
-kubectl get jobs -n default | grep migrations
+kubectl get jobs -n <namespace> | grep migrations
 kubectl wait --for=condition=complete job/<job name> --timeout=600s
 ```
 
@@ -167,7 +167,7 @@ kubectl wait --for=condition=complete job/<job name> --timeout=600s
 
 ```shell
 helm upgrade gitlab gitlab/gitlab \
-  -f values values.yaml 
+  -f values.yaml 
 ```
 
 1. Wait for post-migrations to complete
