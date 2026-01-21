@@ -69,7 +69,18 @@ When considering a zero-downtime upgrade, be aware that:
 
 To ensure smooth rolling updates, the settings below are required to control the upgrade process and achieve zero downtime.
 
-These settings are baseline recommendations. You may need to adjust them based on your deployment's resource availability, replica counts, and performance requirements. Ensure you have sufficient cluster resources to support the `maxSurge` setting, which temporarily creates additional pods during an upgrade.
+These settings are baseline recommendations. You will need to adjust them based on your deployment's resource availability, replica counts, and performance requirements. Ensure you have sufficient cluster resources to support the `maxSurge` setting, which temporarily creates additional pods during an upgrade.
+
+{{< alert type="warning" >}}
+
+If you have an existing GitLab deployment without these rolling update settings configured, you must apply them
+before attempting a zero-downtime upgrade. Applying these settings for the first time will trigger a rolling
+restart of your pods, which may cause brief service interruptions.
+
+To minimize impact, apply these settings during a maintenance window before your planned upgrade. Once configured,
+future upgrades can be performed with zero downtime.
+
+{{< /alert >}}
 
 ```yaml
 gitlab:
@@ -88,7 +99,7 @@ gitlab:
         rollingUpdate:
           maxSurge: "10%"
           maxUnavailable: 0
-    terminationGracePeriodSeconds: 60
+    terminationGracePeriodSeconds: 600
   gitlab-shell:
     deployment:
       strategy:
@@ -118,23 +129,18 @@ nginx-ingress:
     minReadySeconds: 10
 ```
 
+{{< alert type="note" >}}
+
+When configuring the `terminationGracePeriodSeconds` for Sidekiq, you will need to consider your longest running jobs to ensure that they have enough time to complete before the grave period expires.
+
+{{< /alert >}}
+
 These settings ensure:
 
 - At least one pod is always available during updates.
 - New pods are brought up before old ones are terminated.
 - Pods have time to gracefully shut down and drain connections.
 - Pods are stable before being considered ready.
-
-{{< alert type="note" >}}
-
-If you have an existing GitLab deployment without these rolling update settings configured, you must apply them
-before attempting a zero-downtime upgrade. Applying these settings for the first time will trigger a rolling
-restart of your pods, which may cause brief service interruptions.
-
-To minimize impact, apply these settings during a maintenance window before your planned upgrade. Once configured,
-future upgrades can be performed with zero downtime.
-
-{{< /alert >}}
 
 #### Upgrade process
 
@@ -187,6 +193,12 @@ kubectl get jobs -n default | grep migrations
 kubectl wait --for=condition=complete job/<job name> --timeout=600s
 ```
 
+{{< alert type="note" >}}
+
+Depending on your deployment, a 600s wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodicly check up on the job to ensure it is complete before moving onto the next step.
+
+{{< /alert >}}
+
 1. Unpause deployments for Sidekiq
 
 ```shell
@@ -215,19 +227,6 @@ kubectl rollout status deployment/gitlab-webservice-default --timeout=15m
 
    During a major database upgrade, you should set `gitlab.migrations.enabled` to `false`.
    Ensure that you explicitly set it back to `true` for future updates.
-
-#### Upgrade the bundled PostgreSQL
-
-Only perform these steps if you are using the bundled PostgreSQL chart (`postgresql.install` is `true`).
-
-To upgrade the bundled PostgreSQL:
-
-1. Decide [which version of PostgreSQL](https://docs.gitlab.com/install/requirements/#postgresql) to upgrade to.
-1. [Prepare the existing database](database_upgrade.md#prepare-the-existing-database).
-1. [Delete existing PostgreSQL data](database_upgrade.md#delete-existing-postgresql-data).
-1. Update the `postgresql.image.tag` value to the required version of PostgreSQL and
-   [reinstall the chart](database_upgrade.md#upgrade-gitlab) to create a new PostgreSQL database.
-1. [Restore the database](database_upgrade.md#restore-the-database).
 
 ## After you upgrade
 
