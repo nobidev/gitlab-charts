@@ -1,0 +1,10 @@
+# Customize webhook config to workaround issue where CNPG isn't fully
+# ready while Pod is readiness probe already passes.
+# https://github.com/cloudnative-pg/charts/issues/674
+webhook:
+  mutating:
+    timeoutSeconds: 30
+  validating:
+    timeoutSeconds: 30
+  readinessProbe:
+    initialDelaySeconds: 10

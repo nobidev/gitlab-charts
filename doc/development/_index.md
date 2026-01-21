@@ -108,7 +108,7 @@ GKE platform only.
 | Minor version | GKE       | EKS       | vCluster  | Note |
 | ---           | ---       | ---       | ---       | ---  |
 | 1.35          | current   | NA        | secondary |      |
-| 1.35 Flux     | NA        | NA        | current   | Flux review envionment which deploys non-default components like Envoy Gateway and a externally managed Valkey. |
+| 1.35 Flux     | NA        | NA        | current   | Deploys non-default components like Envoy Gateway, a externally managed Valkey, and a externally managed PostgreSQL with CloudNativePG. |
 | 1.35 ARM      | NA        | NA        | secondary | Virtual arm64 cluster by only syncing arm nodes to the vcluster. |
 | 1.34          | NA        | current   | secondary |      |
 | 1.33          | NA        | NA        | current   |      |

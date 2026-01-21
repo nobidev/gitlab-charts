@@ -1,0 +1,9 @@
+global:
+  psql:
+    host: gitlab-cluster-rw
+    password:
+      secret: gitlab-cluster-app
+      key: password
+
+postgresql:
+  install: false

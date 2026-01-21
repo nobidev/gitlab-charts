@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e # Exit on first failure.
+
 # Auto DevOps variables and functions
 [[ "$TRACE" ]] && set -x
 export CI_APPLICATION_REPOSITORY=$CI_REGISTRY_IMAGE/$CI_COMMIT_SHORT_SHA
@@ -31,6 +33,10 @@ else
 fi
 export RELEASE_NAME
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/autodevops_valkey.sh"
+source "$SCRIPT_DIR/autodevops_cnpg.sh"
+
 function previousDeployFailed() {
   set +e
   echo "Checking for previous deployment of $RELEASE_NAME"
@@ -53,42 +59,24 @@ function previousDeployFailed() {
   return $status
 }
 
-# Deploy Valkey using the official Valkey helm chart into the same namespace
-# as the GitLab namespace.
-# Should currently only be used for vcluster-based review environments
-# because native review environments are all deployed into the namespace
-# potentially causing conflicts.
-function deploy_external_valkey() {
-  VERSION_FLAG=""
-  if [ -n "${VALKEY_CHART_VERSION}" ]; then
-    VERSION_FLAG="--version ${VALKEY_CHART_VERSION}"
-  fi
-
-  helm repo add valkey https://valkey.io/valkey-helm/
-  helm upgrade --install valkey valkey/valkey \
-    -n "${NAMESPACE}" \
-    ${VERSION_FLAG} \
-    --set dataStorage.enabled=true \
-    --set dataStorage.size=100Mi \
-    --set metrics.enabled=true \
-    --set auth.enabled=true \
-    --set auth.aclUsers.default.permissions="~* &* +@all" \
-    --set auth.aclUsers.default.password="$(random_password)"
-}
-
-function random_password() {
-  tr -dc A-Za-z0-9 </dev/urandom | head -c 10
-}
-
 function deploy_external_components() {
   if [ -n "${USE_EXTERNAL_VALKEY}" ]; then
-    echo "Installing external Valkey"
     deploy_external_valkey
+  fi
+
+  if [ -n "${USE_EXTERNAL_POSTGRESQL}" ]; then
+    deploy_external_postgresql
   fi
 }
 
 function remove_external_components() {
-    helm uninstall valkey -n "${NAMESPACE}" --ignore-not-found
+  if [ -n "${USE_EXTERNAL_VALKEY}" ]; then
+    remove_external_valkey
+  fi
+
+  if [ -n "${USE_EXTERNAL_POSTGRESQL}" ]; then
+    remove_external_postgres
+  fi
 }
 
 function deploy() {
@@ -241,12 +229,19 @@ CIYAML
     VALKEY_CONFIGURATION="-f scripts/ci/values/external-valkey.values.yaml"
   fi
 
+  POSTGRESQL_CONFIGURATION=""
+  if [ -n "${USE_EXTERNAL_POSTGRESQL}" ]; then
+    echo "PostgreSQL deployment detected"
+    POSTGRESQL_CONFIGURATION="-f scripts/ci/values/external-postgresql.values.yaml"
+  fi
+
   helm upgrade --install \
     $WAIT \
     ${SENTRY_CONFIGURATION} \
     ${ARCH_CONFIGURATION} \
     ${NETWORKING_CONF} \
     ${VALKEY_CONFIGURATION} \
+    ${POSTGRESQL_CONFIGURATION} \
     -f ci.details.yaml \
     -f ci.scale.yaml \
     -f ci.psql.yaml \

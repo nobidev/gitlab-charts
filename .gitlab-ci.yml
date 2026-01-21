@@ -56,6 +56,8 @@ variables:
   GITLAB_NAMESPACE: "gitlab-org"
   GITLAB_QA_VERSION: "15.7.0"
   VALKEY_CHART_VERSION: "0.9.2"
+  CN_PG_VERSION: "0.27.0"
+  CN_PG_POSTGRESQL_TAG: "17"
   # STRICT_VERSIONS is used in RSpecs to ensure exact version match for tools like "helm" and "kubectl"
   STRICT_VERSIONS: "true"
   KUBE_CRD_SCHEMA_URL: "https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/v3/apis__apiextensions.k8s.io__v1_openapi.json"

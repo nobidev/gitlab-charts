@@ -24,6 +24,7 @@ include:
     DOMAIN: "-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"
     USE_GATEWAY_API: "true"
     USE_EXTERNAL_VALKEY: "true"
+    USE_EXTERNAL_POSTGRESQL: "true"
   environment:
     name: gkevc_135/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: "https://gitlab${DOMAIN}"
