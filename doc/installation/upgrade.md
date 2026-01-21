@@ -138,6 +138,18 @@ future upgrades can be performed with zero downtime.
 
 #### Upgrade process
 
+{{< alert type="note" >}}
+
+The deployment names used below are examples based on a default GitLab Helm chart installation. Deployment names may vary depending on your configuration, such as when deploying multiple Sidekiq queues.
+
+To find the correct deployment names for your installation, run:
+
+```shell
+kubectl get deployments -n <namespace>
+```
+
+{{< /alert >}}
+
 1. Pause deployments
 
 ```shell
