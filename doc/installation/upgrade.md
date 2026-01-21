@@ -81,7 +81,6 @@ gitlab:
           maxSurge: "10%"
           maxUnavailable: 0
     terminationGracePeriodSeconds: 60
-    minReadySeconds: 10
   sidekiq:
     deployment:
       strategy:
@@ -90,7 +89,6 @@ gitlab:
           maxSurge: "10%"
           maxUnavailable: 0
     terminationGracePeriodSeconds: 60
-    minReadySeconds: 10
   gitlab-shell:
     deployment:
       strategy:
