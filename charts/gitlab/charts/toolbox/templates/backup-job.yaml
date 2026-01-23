@@ -176,7 +176,7 @@ spec:
                         path: connection.env
                       optional: true
                   - configMap:
-                      name: {{ template "fullname" . }}-registry-db-user
+                      name: {{ template "fullname" . }}-registry-db-backup_restore-users
                       items:
                       - key: db-user
                         path: user.env
