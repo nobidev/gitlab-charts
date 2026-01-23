@@ -35,7 +35,7 @@ describe 'registry database connection configuration' do
     end
   end
 
-  context 'when registry database is configured' do
+  context 'when registry database is configured, and not enabled' do
     let(:values) do
       YAML.safe_load(%(
         registry:
