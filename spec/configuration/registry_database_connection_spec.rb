@@ -138,7 +138,7 @@ describe 'registry database connection configuration' do
     it 'includes connection timeout in connection config' do
       config_data = template.dig('ConfigMap/test-registry-db-connection-config', 'data', 'db-connection.env')
 
-      expect(config_data).to include('REGISTRY_DATABASE_CONNECTION_TIMEOUT=30')
+      expect(config_data).to include('REGISTRY_DATABASE_CONNECTION_TIMEOUT="30"')
     end
   end
 
