@@ -157,7 +157,7 @@ spec:
               mountPath: /srv/gitlab/config/secrets.yml
               subPath: rails-secrets/secrets.yml
             - name: registry-db-config
-              mountPath: /srv/gitlab/registry-db/
+              mountPath: /etc/gitlab/registry-db/
               readOnly: true
             {{- include "gitlab.topologyService.volumeMounts" (dict "context" $ "secretsVolumeName" "toolbox-secrets") | nindent 12 }}
             - name: toolbox-tmp

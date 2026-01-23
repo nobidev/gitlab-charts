@@ -102,7 +102,7 @@ describe 'toolbox registry database configuration' do
       registry_db_mount = container['volumeMounts'].find { |vm| vm['name'] == 'registry-db-config' }
 
       expect(registry_db_mount).not_to be_nil
-      expect(registry_db_mount['mountPath']).to eq('/srv/gitlab/registry-db/')
+      expect(registry_db_mount['mountPath']).to eq('/etc/gitlab/registry-db/')
       expect(registry_db_mount['readOnly']).to be true
     end
 
@@ -112,7 +112,7 @@ describe 'toolbox registry database configuration' do
       registry_db_mount = container['volumeMounts'].find { |vm| vm['name'] == 'registry-db-config' }
 
       expect(registry_db_mount).not_to be_nil
-      expect(registry_db_mount['mountPath']).to eq('/srv/gitlab/registry-db/')
+      expect(registry_db_mount['mountPath']).to eq('/etc/gitlab/registry-db/')
       expect(registry_db_mount['readOnly']).to be true
     end
   end
