@@ -117,7 +117,7 @@ Files:
             path: connection.env
           optional: true
       - configMap:
-          name: {{ template "fullname" . }}-registry-db-backup_restore-users
+          name: {{ template "fullname" . }}-registry-db-backuprestore-users
           items:
           - key: db-user
             path: user.env

@@ -41,8 +41,8 @@ describe 'toolbox registry database configuration' do
 
     it 'creates the registry database user ConfigMap' do
       expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-      expect(template.resource_exists?('ConfigMap/test-toolbox-registry-db-backup_restore-users')).to be true
-      expect(template.dig('ConfigMap/test-toolbox-registry-db-backup_restore-users', 'data', 'db-user')).to include('REGISTRY_DATABASE_USER=registry_backup_user')
+      expect(template.resource_exists?('ConfigMap/test-toolbox-registry-db-backuprestore-users')).to be true
+      expect(template.dig('ConfigMap/test-toolbox-registry-db-backuprestore-users', 'data', 'db-user')).to include('REGISTRY_DATABASE_USER=registry_backup_user')
     end
 
     it 'mounts registry-db-config volume in deployment' do
@@ -63,7 +63,7 @@ describe 'toolbox registry database configuration' do
       expect(connection_config['configMap']['items']).to eq([{ 'key' => 'db-connection.env', 'path' => 'connection.env' }])
 
       # Check ConfigMap for user
-      user_config = sources.find { |s| s['configMap'] && s['configMap']['name'] == 'test-toolbox-registry-db-backup_restore-users' }
+      user_config = sources.find { |s| s['configMap'] && s['configMap']['name'] == 'test-toolbox-registry-db-backuprestore-users' }
       expect(user_config).not_to be_nil
       expect(user_config['configMap']['optional']).to be true
       expect(user_config['configMap']['items']).to eq([{ 'key' => 'db-user', 'path' => 'user.env' }])
@@ -123,7 +123,7 @@ describe 'toolbox registry database configuration' do
 
     it 'does not create the registry database user ConfigMap' do
       expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-      expect(template.resource_exists?('ConfigMap/test-toolbox-registry-db-backup_restore-users')).to be false
+      expect(template.resource_exists?('ConfigMap/test-toolbox-registry-db-backuprestore-users')).to be false
     end
 
     it 'still mounts registry-db-config volume with optional sources' do
