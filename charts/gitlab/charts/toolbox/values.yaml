@@ -196,10 +196,12 @@ backups:
   registry:
     database: {}
       # Username for registry metadata database connection during backups
-      # user: ""
+      # backupUser: ""
+      # restoreUser: ""
       # password: {}
       #   secret: gitlab-toolbox-registry-database-password
-      #   key: password
+      #   backupPasswordKey: backupPassword
+      #   restorePasswordKey: restorePassword
 extra: {}
 
 ## Automatic database reindexing

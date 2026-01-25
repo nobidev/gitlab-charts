@@ -76,11 +76,19 @@ Return the secret name for toolbox registry database password
 {{- end -}}
 
 {{/*
-Return the secret key for toolbox registry database password
+Return the secret key for toolbox registry database backup password
 */}}
-{{- define "toolbox.registry.database.password.key" -}}
+{{- define "toolbox.registry.database.password.backupKey" -}}
 {{- $database := default (dict) .Values.backups.registry.database -}}
-{{- dig "password" "key" "password" $database | default "password" -}}
+{{- dig "password" "backupPasswordKey" "backupPassword" $database | default "backupPassword" -}}
+{{- end -}}
+
+{{/*
+Return the secret key for toolbox registry database restore password
+*/}}
+{{- define "toolbox.registry.database.password.restoreKey" -}}
+{{- $database := default (dict) .Values.backups.registry.database -}}
+{{- dig "password" "restorePasswordKey" "restorePassword" $database | default "restorePassword" -}}
 {{- end -}}
 
 {{/*
@@ -119,14 +127,18 @@ Files:
       - configMap:
           name: {{ template "fullname" . }}-registry-db-backuprestore-users
           items:
-          - key: db-user
-            path: user.env
+          - key: backup-user
+            path: backup-user.env
+          - key: restore-user
+            path: restore-user.env
           optional: true
       - secret:
           name: {{ include "toolbox.registry.database.password.secret" . }}
           items:
-          - key: {{ template "toolbox.registry.database.password.key" . }}
-            path: pass
+          - key: {{ template "toolbox.registry.database.password.backupKey" . }}
+            path: backup-pass
+          - key: {{ template "toolbox.registry.database.password.restoreKey" . }}
+            path: restore-pass
           optional: true
 {{- end -}}
 
