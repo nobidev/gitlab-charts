@@ -82,3 +82,64 @@ Return the secret key for toolbox registry database password
 {{- $database := default (dict) .Values.backups.registry.database -}}
 {{- dig "password" "key" "password" $database | default "password" -}}
 {{- end -}}
+
+{{/*
+Registry database configuration volume for toolbox pods.
+
+This projected volume mounts registry metadata database credentials and connection
+configuration to toolbox pods for backup/restore operations.
+
+The volume includes three optional sources:
+1. Connection parameters (host, port, database, SSL config) from registry chart ConfigMap
+2. Database username from toolbox ConfigMap
+3. Database password from Secret
+
+All sources use optional: true to maintain backward compatibility when registry
+database is not configured.
+
+Usage:
+  {{- include "toolbox.registry.database.volume" . | nindent ... }}
+
+Files:
+  - connection.env: Database connection parameters
+  - user.env: Database username
+  - pass: Database password
+*/}}
+{{- define "toolbox.registry.databaseBackupCredentialsVolume" -}}
+- name: registry-db-config
+  projected:
+    defaultMode: 0440
+    sources:
+      - configMap:
+          name: {{ include "gitlab.other.fullname" ( dict "context" . "chartName" "registry" ) }}-db-connection-config
+          items:
+          - key: db-connection.env
+            path: connection.env
+          optional: true
+      - configMap:
+          name: {{ template "fullname" . }}-registry-db-backup_restore-users
+          items:
+          - key: db-user
+            path: user.env
+          optional: true
+      - secret:
+          name: {{ include "toolbox.registry.database.password.secret" . }}
+          items:
+          - key: {{ template "toolbox.registry.database.password.key" . }}
+            path: pass
+          optional: true
+{{- end -}}
+
+{{/*
+Registry database configuration volume mount for toolbox containers.
+
+Mounts the registry database configuration volume to the container.
+
+Usage:
+  {{- include "toolbox.registry.database.volumeMount" . | nindent 12 }}
+*/}}
+{{- define "toolbox.registry.database.databaseBackupCredentialsMount" -}}
+- name: registry-db-config
+  mountPath: /etc/gitlab/registry-db/
+  readOnly: true
+{{- end -}}
