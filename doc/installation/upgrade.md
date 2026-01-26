@@ -175,7 +175,7 @@ helm upgrade gitlab gitlab/gitlab \
 1. Wait for pre-migrations and upgrades to complete
 
 ```shell
-kubectl get jobs -n <namespace> | grep migrations
+kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
 kubectl wait --for=condition=complete job/<job name> --timeout=600s
 ```
 
@@ -189,7 +189,7 @@ helm upgrade gitlab gitlab/gitlab \
 1. Wait for post-migrations to complete
 
 ```shell
-kubectl get jobs -n default | grep migrations
+kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
 kubectl wait --for=condition=complete job/<job name> --timeout=600s
 ```
 
