@@ -159,8 +159,8 @@ kubectl get deployments -lapp=sidekiq -n <namespace>
 1. Pause deployments
 
 ```shell
-kubectl patch deployment gitlab-webservice-default -p '{"spec":{"paused":true}}'
-kubectl patch deployment gitlab-sidekiq-all-in-1-v2 -p '{"spec":{"paused":true}}'
+kubectl rollout pause deployment/gitlab-webservice-default
+kubectl rollout pause deployment/gitlab-sidekiq-all-in-1-v2
 ```
 
 1. Begin Helm upgrade to new version
@@ -202,14 +202,14 @@ Depending on your deployment, a 600s wait time for the migrations to complete mi
 1. Unpause deployments for Sidekiq
 
 ```shell
-kubectl patch deployment gitlab-sidekiq-all-in-1 -p '{"spec":{"paused":false}}'
+kubectl rollout resume deployment/gitlab-sidekiq-all-in-1-v2
 kubectl rollout status deployment/gitlab-sidekiq-all-in-1-v2 --timeout=15m
 ```
 
 1. Unpause deployments for Webservice
 
 ```shell
-kubectl patch deployment gitlab-webservice-default -p '{"spec":{"paused":false}}'
+kubectl rollout resume deployment/gitlab-webservice-default
 kubectl rollout status deployment/gitlab-webservice-default --timeout=15m
 ```
 
