@@ -54,7 +54,6 @@ Zero-downtime upgrades let you upgrade a live GitLab environment without taking 
 The zero-downtime upgrade process requires:
 
 - A multi-node GitLab Helm chart deployment with multiple replicas configured for Webservice and Sidekiq.
-- For any external services (PostgreSQL, Redis, Gitaly), HA mechanisms must be configured. Any services that are not deployed in an HA fashion must be upgraded separately with downtime.
 - Upgrade one minor release at a time. So from 18.0 to 18.1, not to 18.2. If you skip releases, database modifications might be run in the wrong sequence and leave the database schema in a broken state.
 
 #### Considerations
