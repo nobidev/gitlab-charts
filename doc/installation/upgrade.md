@@ -149,10 +149,10 @@ The deployment names used below are examples based on a default GitLab Helm char
 
 To find the correct deployment names for your installation:
 
-```shell
-kubectl get deployments -lapp=webservice -n <namespace>
-kubectl get deployments -lapp=sidekiq -n <namespace>
-```
+   ```shell
+   kubectl get deployments -lapp=webservice -n <namespace>
+   kubectl get deployments -lapp=sidekiq -n <namespace>
+   ```
 
 {{< /alert >}}
 
