@@ -122,7 +122,7 @@ nginx-ingress:
       strategy:
         type: RollingUpdate
         rollingUpdate:
-          maxSurge: 1
+          maxSurge: "10%"
           maxUnavailable: 0
     terminationGracePeriodSeconds: 300
     minReadySeconds: 10
