@@ -167,7 +167,7 @@ kubectl rollout pause deployment/gitlab-sidekiq-all-in-1-v2
    
 ```shell
 helm upgrade gitlab gitlab/gitlab \
-  --version 9.1.6 \
+  --version <GitLab Helm chart version> \
   -f values.yaml \
   --set global.extraEnv.SKIP_POST_DEPLOYMENT_MIGRATIONS=true
 ```
@@ -183,6 +183,7 @@ kubectl wait --for=condition=complete job/<job name> --timeout=600s
 
 ```shell
 helm upgrade gitlab gitlab/gitlab \
+  --version <GitLab Helm chart version> \
   -f values.yaml 
 ```
 
