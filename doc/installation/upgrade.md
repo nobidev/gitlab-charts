@@ -81,52 +81,52 @@ future upgrades can be performed with zero downtime.
 
 {{< /alert >}}
 
-```yaml
-gitlab:
-  webservice:
-    deployment:
-      strategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxSurge: "10%"
-          maxUnavailable: 0
-    terminationGracePeriodSeconds: 60
-  sidekiq:
-    deployment:
-      strategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxSurge: "10%"
-          maxUnavailable: 0
-    terminationGracePeriodSeconds: 600
-  gitlab-shell:
-    deployment:
-      strategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxSurge: "10%"
-          maxUnavailable: 0
-    terminationGracePeriodSeconds: 60
-  registry:
-    deployment:
-      strategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxSurge: "10%"
-          maxUnavailable: 0
-    terminationGracePeriodSeconds: 60
+   ```yaml
+   gitlab:
+   webservice:
+      deployment:
+         strategy:
+         type: RollingUpdate
+         rollingUpdate:
+            maxSurge: "10%"
+            maxUnavailable: 0
+      terminationGracePeriodSeconds: 60
+   sidekiq:
+      deployment:
+         strategy:
+         type: RollingUpdate
+         rollingUpdate:
+            maxSurge: "10%"
+            maxUnavailable: 0
+      terminationGracePeriodSeconds: 600
+   gitlab-shell:
+      deployment:
+         strategy:
+         type: RollingUpdate
+         rollingUpdate:
+            maxSurge: "10%"
+            maxUnavailable: 0
+      terminationGracePeriodSeconds: 60
+   registry:
+      deployment:
+         strategy:
+         type: RollingUpdate
+         rollingUpdate:
+            maxSurge: "10%"
+            maxUnavailable: 0
+      terminationGracePeriodSeconds: 60
 
-nginx-ingress:
-  controller:
-    deployment:
-      strategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxSurge: "10%"
-          maxUnavailable: 0
-    terminationGracePeriodSeconds: 300
-    minReadySeconds: 10
-```
+   nginx-ingress:
+   controller:
+      deployment:
+         strategy:
+         type: RollingUpdate
+         rollingUpdate:
+            maxSurge: "10%"
+            maxUnavailable: 0
+      terminationGracePeriodSeconds: 300
+      minReadySeconds: 10
+   ```
 
 {{< alert type="note" >}}
 
@@ -160,41 +160,41 @@ To upgrade GitLab:
 
 1. Pause deployments:
 
-```shell
-kubectl rollout pause deployment/gitlab-webservice-default
-kubectl rollout pause deployment/gitlab-sidekiq-all-in-1-v2
-```
+   ```shell
+   kubectl rollout pause deployment/gitlab-webservice-default
+   kubectl rollout pause deployment/gitlab-sidekiq-all-in-1-v2
+   ```
 
 1. Begin the upgrade to the new version:
    
-```shell
-helm upgrade gitlab gitlab/gitlab \
-  --version <GitLab Helm chart version> \
-  -f values.yaml \
-  --set global.extraEnv.SKIP_POST_DEPLOYMENT_MIGRATIONS=true
-```
+   ```shell
+   helm upgrade gitlab gitlab/gitlab \
+   --version <GitLab Helm chart version> \
+   -f values.yaml \
+   --set global.extraEnv.SKIP_POST_DEPLOYMENT_MIGRATIONS=true
+   ```
 
 1. Wait for pre-migrations and upgrades to complete:
 
-```shell
-kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
-kubectl wait --for=condition=complete job/<job name> --timeout=600s
-```
+   ```shell
+   kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
+   kubectl wait --for=condition=complete job/<job name> --timeout=600s
+   ```
 
 1. Run post-migrations:
 
-```shell
-helm upgrade gitlab gitlab/gitlab \
-  --version <GitLab Helm chart version> \
-  -f values.yaml 
-```
+   ```shell
+   helm upgrade gitlab gitlab/gitlab \
+   --version <GitLab Helm chart version> \
+   -f values.yaml 
+   ```
 
 1. Wait for post-migrations to complete:
 
-```shell
-kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
-kubectl wait --for=condition=complete job/<job name> --timeout=600s
-```
+   ```shell
+   kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
+   kubectl wait --for=condition=complete job/<job name> --timeout=600s
+   ```
 
 {{< alert type="note" >}}
 
@@ -204,17 +204,17 @@ Depending on your deployment, a `600s` wait time for the migrations to complete 
 
 1. Unpause deployments for Sidekiq:
 
-```shell
-kubectl rollout resume deployment/gitlab-sidekiq-all-in-1-v2
-kubectl rollout status deployment/gitlab-sidekiq-all-in-1-v2 --timeout=15m
-```
+   ```shell
+   kubectl rollout resume deployment/gitlab-sidekiq-all-in-1-v2
+   kubectl rollout status deployment/gitlab-sidekiq-all-in-1-v2 --timeout=15m
+   ```
 
 1. Unpause deployments for Webservice:
 
-```shell
-kubectl rollout resume deployment/gitlab-webservice-default
-kubectl rollout status deployment/gitlab-webservice-default --timeout=15m
-```
+   ```shell
+   kubectl rollout resume deployment/gitlab-webservice-default
+   kubectl rollout status deployment/gitlab-webservice-default --timeout=15m
+   ```
 
 ### Upgrade with Downtime
 
