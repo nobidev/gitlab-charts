@@ -45,9 +45,9 @@ To upgrade a GitLab Helm chart instance:
    you want to explicitly set and pass those during the upgrade process. You should otherwise rely on GitLab default
    values.
 
-### Upgrade with Zero Downtime
+### Upgrade with zero downtime
 
-Zero-downtime upgrades let you upgrade a live GitLab environment without taking it offline.
+Upgrade a live GitLab environment without taking it offline.
 
 #### Requirements
 
@@ -60,7 +60,7 @@ The zero-downtime upgrade process requires:
 
 When considering a zero-downtime upgrade, be aware that:
 
-- [Gitaly in Kubernetes does not currently support zero-downtime upgrades](https://gitlab.com/gitlab-org/gitaly/-/work_items/6934) and will require downtime.
+- [Gitaly in Kubernetes does not support zero-downtime upgrades](https://gitlab.com/gitlab-org/gitaly/-/work_items/6934) and requires downtime.
 - Most of the time, you can safely upgrade from a patch release to the next minor release if the patch release is not the latest. For example, upgrading from 18.0.5 to 18.1.0 should be safe even if 18.0.6 exists. We do recommend you check the version-specific upgrade notes for the version you are upgrading to.
 - Ensure your deployment has sufficient resources to run both old and new pods simultaneously during the rolling update. The amount of additional resources required depends on your maxSurge settings. For example, with maxSurge: 10%, you need 10% additional capacity for the new pods to use.
 
@@ -73,10 +73,10 @@ These settings are baseline recommendations. You will need to adjust them based 
 {{< alert type="warning" >}}
 
 If you have an existing GitLab deployment without these rolling update settings configured, you must apply them
-before attempting a zero-downtime upgrade. Applying these settings for the first time will trigger a rolling
+before attempting a zero-downtime upgrade. Applying these settings for the first time triggers a rolling
 restart of your pods, which may cause brief service interruptions.
 
-To minimize impact, apply these settings during a maintenance window before your planned upgrade. Once configured,
+To minimize impact, apply these settings during a maintenance window before your planned upgrade. After configured,
 future upgrades can be performed with zero downtime.
 
 {{< /alert >}}
@@ -147,7 +147,7 @@ These settings ensure:
 
 The deployment names used below are examples based on a default GitLab Helm chart installation. Deployment names may vary depending on your configuration, such as when deploying multiple Sidekiq queues.
 
-To find the correct deployment names for your installation, run:
+To find the correct deployment names for your installation:
 
 ```shell
 kubectl get deployments -lapp=webservice -n <namespace>
@@ -156,14 +156,16 @@ kubectl get deployments -lapp=sidekiq -n <namespace>
 
 {{< /alert >}}
 
-1. Pause deployments
+To upgrade GitLab:
+
+1. Pause deployments:
 
 ```shell
 kubectl rollout pause deployment/gitlab-webservice-default
 kubectl rollout pause deployment/gitlab-sidekiq-all-in-1-v2
 ```
 
-1. Begin Helm upgrade to new version
+1. Begin the upgrade to the new version
    
 ```shell
 helm upgrade gitlab gitlab/gitlab \
@@ -172,14 +174,14 @@ helm upgrade gitlab gitlab/gitlab \
   --set global.extraEnv.SKIP_POST_DEPLOYMENT_MIGRATIONS=true
 ```
 
-1. Wait for pre-migrations and upgrades to complete
+1. Wait for pre-migrations and upgrades to complete:
 
 ```shell
 kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
 kubectl wait --for=condition=complete job/<job name> --timeout=600s
 ```
 
-1. Run post-migrations
+1. Run post-migrations:
 
 ```shell
 helm upgrade gitlab gitlab/gitlab \
@@ -187,7 +189,7 @@ helm upgrade gitlab gitlab/gitlab \
   -f values.yaml 
 ```
 
-1. Wait for post-migrations to complete
+1. Wait for post-migrations to complete:
 
 ```shell
 kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
@@ -196,18 +198,18 @@ kubectl wait --for=condition=complete job/<job name> --timeout=600s
 
 {{< alert type="note" >}}
 
-Depending on your deployment, a 600s wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodicly check up on the job to ensure it is complete before moving onto the next step.
+Depending on your deployment, a `600s` wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodically check up on the job to ensure it is complete before moving onto the next step.
 
 {{< /alert >}}
 
-1. Unpause deployments for Sidekiq
+1. Unpause deployments for Sidekiq:
 
 ```shell
 kubectl rollout resume deployment/gitlab-sidekiq-all-in-1-v2
 kubectl rollout status deployment/gitlab-sidekiq-all-in-1-v2 --timeout=15m
 ```
 
-1. Unpause deployments for Webservice
+1. Unpause deployments for Webservice:
 
 ```shell
 kubectl rollout resume deployment/gitlab-webservice-default
