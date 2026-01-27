@@ -9,8 +9,8 @@ function deploy_external_postgresql() {
   echo "Installing external PostgreSQL"
 
   VERSION_FLAG=""
-  if [ -n "${CN_PG_VERSION}" ]; then
-    VERSION_FLAG="--version ${CN_PG_VERSION}"
+  if [ -n "${CNPG_CHART_VERSION}" ]; then
+    VERSION_FLAG="--version ${CNPG_CHART_VERSION}"
   fi
 
   helm repo add cnpg https://cloudnative-pg.github.io/charts
@@ -23,7 +23,7 @@ function deploy_external_postgresql() {
     --hide-notes \
     -f scripts/ci/values/cnpg.values.yaml
 
-  local image="ghcr.io/cloudnative-pg/postgresql:${CN_PG_POSTGRESQL_TAG}"
+  local image="ghcr.io/cloudnative-pg/postgresql:${CNPG_POSTGRESQL_TAG}"
 
 cat <<EOF | kubectl apply -n "${NAMESPACE}" -f -
 apiVersion: postgresql.cnpg.io/v1
