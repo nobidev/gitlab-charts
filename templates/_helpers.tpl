@@ -109,6 +109,23 @@ Returns the minio url.
 
 {{/* ######### cert-manager templates */}}
 
+{{/*
+Returns the TLS secret name with release prefix.
+Used by both Ingress and Gateway API for consistent secret naming when cert-manager is enabled.
+
+Usage:
+  {{ include "gitlab.tls.secretName" (dict "context" $ "name" "gitlab-tls") }}
+
+Input: dict with:
+  - "context": root context ($) for accessing .Release.Name
+  - "name": base secret name (e.g., "gitlab-tls", "registry-tls")
+
+Returns: <release-name>-<name> (e.g., "gitlab-gitlab-tls")
+*/}}
+{{- define "gitlab.tls.secretName" -}}
+{{- printf "%s-%s" .context.Release.Name .name -}}
+{{- end -}}
+
 {{- define "gitlab.certmanager_annotations" -}}
 {{- if (pluck "configureCertmanager" .Values.ingress .Values.global.ingress (dict "configureCertmanager" false) | first) -}}
 cert-manager.io/issuer: "{{ .Release.Name }}-issuer"

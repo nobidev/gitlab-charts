@@ -112,6 +112,9 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.kas.autoflowTemporalNamespace" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.kas.autoflowTemporalWorkerMtls" .) -}}
 
+{{/* _checkConfig_gateway.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.gatewayApi.certmanager" .) -}}
+
 {{/* other checks */}}
 {{- $messages = append $messages (include "gitlab.checkConfig.multipleRedis" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.redisYmlOverride" .) -}}
@@ -246,3 +249,26 @@ serviceAccount:
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.globalServiceAccount */}}
+
+{{/*
+Ensure that cert-manager has Gateway API support enabled when using Gateway API with cert-manager.
+*/}}
+{{- define "gitlab.checkConfig.gatewayApi.certmanager" -}}
+{{-   if .Values.global.gatewayApi.configureCertmanager -}}
+{{-     $enableGatewayAPI := dig "config" "enableGatewayAPI" false .Values.certmanager -}}
+{{-     if not $enableGatewayAPI }}
+gatewayApi:
+    When using Gateway API with cert-manager (global.gatewayApi.configureCertmanager=true),
+    you must enable Gateway API support in cert-manager. Add the following to your values:
+
+    certmanager:
+      config:
+        apiVersion: controller.config.cert-manager.io/v1alpha1
+        kind: ControllerConfiguration
+        enableGatewayAPI: true
+
+    See https://cert-manager.io/docs/usage/gateway/ for more information.
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.gatewayApi.certmanager */}}
