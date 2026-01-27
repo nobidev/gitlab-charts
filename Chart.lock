@@ -12,8 +12,8 @@ dependencies:
   repository: ""
   version: '*.*.*'
 - name: cert-manager
-  repository: https://charts.jetstack.io/
-  version: v1.17.4
+  repository: oci://quay.io/jetstack/charts
+  version: v1.19.4
 - name: prometheus
   repository: https://prometheus-community.github.io/helm-charts
   version: 27.52.0
@@ -47,5 +47,5 @@ dependencies:
 - name: gateway-helm
   repository: oci://registry-1.docker.io/envoyproxy
   version: 1.7.0
-digest: sha256:7e8f3db7000db2d3d06e93a077f6124a5b48e5ffe3be1a26429ed0b2c30b5c75
-generated: "2026-02-24T16:14:50.30046833Z"
+digest: sha256:8a1024d9fc34ef4c494e8fb5f20114cbf2757019e53d55cf9ef640cf5023c652
+generated: "2026-03-02T15:00:45.418021458+01:00"
