@@ -186,8 +186,8 @@ To upgrade GitLab:
    kubectl wait --for=condition=complete job/<job name> --timeout=600s
    ```
 
-> [!note]
-> Depending on your deployment, a `600s` wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodically check up on the job to ensure it is complete before moving onto the next step.
+   > [!note]
+   > Depending on your deployment, a `600s` wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodically check up on the job to ensure it is complete before moving onto the next step.
 
 1. Unpause deployments for Sidekiq:
 
