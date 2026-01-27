@@ -23,7 +23,8 @@ It expects a dictionary with two entries:
 {{- $defaultName := (dict "secretName" "") -}}
 {{- if .root.Values.global.ingress.configureCertmanager -}}
 {{-   $postfix := .certmanagerPostfix | default "" }}
-{{-   $_ := set $defaultName "secretName" (printf "%s-gitlab-tls%s" .root.Release.Name $postfix) -}}
+{{-   $baseName := printf "gitlab-tls%s" $postfix -}}
+{{-   $_ := set $defaultName "secretName" (include "gitlab.tls.secretName" (dict "context" .root "name" $baseName)) -}}
 {{- else -}}
 {{-   $_ := set $defaultName "secretName" (include "gitlab.wildcard-self-signed-cert-name" .root) -}}
 {{- end -}}
@@ -39,7 +40,7 @@ if there is a shared tls secret for all ingresses.
 {{- define "smartcard.tlsSecret" -}}
 {{- $defaultName := (dict "secretName" "") -}}
 {{- if $.Values.global.ingress.configureCertmanager -}}
-{{- $_ := set $defaultName "secretName" (printf "%s-gitlab-tls-smartcard" $.Release.Name) -}}
+{{- $_ := set $defaultName "secretName" (include "gitlab.tls.secretName" (dict "context" $ "name" "gitlab-tls-smartcard")) -}}
 {{- else -}}
 {{- $_ := set $defaultName "secretName" (include "gitlab.wildcard-self-signed-cert-name" .) -}}
 {{- end -}}

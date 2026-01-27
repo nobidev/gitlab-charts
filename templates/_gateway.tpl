@@ -41,12 +41,18 @@ local:
     certificateRefs: List of certificate references
 root:
   protocol: Default protocol (HTTPS or HTTP)
+context:
+  The root context ($) for accessing .Release.Name
 
 The root protocol serves as a default when no local protocol is specified,
 enabling centralized protocol configuration for all HTTP(S) workloads and
 listeners through a single setting.
 
 Port assignment is automatically determined based on the selected protocol.
+
+Certificate secret names are automatically prefixed with the release name
+when global.gatewayApi.configureCertmanager is enabled, to match the secret
+names created by cert-manager.
 */}}
 {{- define "gitlab.gatewayApi.gateway.listener" -}}
 {{- $name := .local.name }}
@@ -67,10 +73,36 @@ Port assignment is automatically determined based on the selected protocol.
 {{- with .local.hostname }}
   hostname: {{ . | quote }}
 {{- end }}
-{{- with .local.tls }} 
+{{- if .local.tls }}
   tls:
-{{- toYaml . | nindent 4 }}
+    mode: {{ .local.tls.mode }}
+    certificateRefs:
+    {{- range .local.tls.certificateRefs }}
+      - name: {{ include "gitlab.gatewayApi.tls.secretName" (dict "name" .name "context" $.context) }}
+        {{- if .kind }}
+        kind: {{ .kind }}
+        {{- end }}
+        {{- if .group }}
+        group: {{ .group }}
+        {{- end }}
+    {{- end }}
 {{- end }}
+{{- end -}}
+
+{{/*
+Returns the TLS secret name for Gateway API listeners.
+When configureCertmanager is enabled, uses the shared gitlab.tls.secretName helper
+to prefix the secret name with the release name, matching the secrets created by cert-manager.
+When configureCertmanager is disabled, returns the name as-is from values.yaml.
+
+Input: dict with "name" (the base secret name) and "context" (root context for .Release.Name)
+*/}}
+{{- define "gitlab.gatewayApi.tls.secretName" -}}
+{{- if .context.Values.global.gatewayApi.configureCertmanager -}}
+{{-   include "gitlab.tls.secretName" . -}}
+{{- else -}}
+{{-   .name -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
