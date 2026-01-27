@@ -70,16 +70,13 @@ To ensure smooth rolling updates, the settings below are required to control the
 
 These settings are baseline recommendations. You will need to adjust them based on your deployment's resource availability, replica counts, and performance requirements. Ensure you have sufficient cluster resources to support the `maxSurge` setting, which temporarily creates additional pods during an upgrade.
 
-{{< alert type="warning" >}}
-
-If you have an existing GitLab deployment without these rolling update settings configured, you must apply them
-before attempting a zero-downtime upgrade. Applying these settings for the first time triggers a rolling
-restart of your pods, which may cause brief service interruptions.
-
-To minimize impact, apply these settings during a maintenance window before your planned upgrade. After configured,
-future upgrades can be performed with zero downtime.
-
-{{< /alert >}}
+> [!warning]
+> If you have an existing GitLab deployment without these rolling update settings configured, you must apply them
+> before attempting a zero-downtime upgrade. Applying these settings for the first time triggers a rolling
+> restart of your pods, which may cause brief service interruptions.
+>
+> To minimize impact, apply these settings during a maintenance window before your planned upgrade. After configured,
+> future upgrades can be performed with zero downtime.
 
    ```yaml
    gitlab:
@@ -128,11 +125,8 @@ future upgrades can be performed with zero downtime.
       minReadySeconds: 10
    ```
 
-{{< alert type="note" >}}
-
-When configuring the `terminationGracePeriodSeconds` for Sidekiq, you will need to consider your longest running jobs to ensure that they have enough time to complete before the grave period expires.
-
-{{< /alert >}}
+> [!note]
+> When configuring the `terminationGracePeriodSeconds` for Sidekiq, you will need to consider your longest running jobs to ensure that they have enough time to complete before the grave period expires.
 
 These settings ensure:
 
@@ -143,18 +137,15 @@ These settings ensure:
 
 #### Upgrade process
 
-{{< alert type="note" >}}
-
-The deployment names used below are examples based on a default GitLab Helm chart installation. Deployment names may vary depending on your configuration, such as when deploying multiple Sidekiq queues.
-
-To find the correct deployment names for your installation:
-
-   ```shell
-   kubectl get deployments -lapp=webservice -n <namespace>
-   kubectl get deployments -lapp=sidekiq -n <namespace>
-   ```
-
-{{< /alert >}}
+> [!note]
+> The deployment names used below are examples based on a default GitLab Helm chart installation. Deployment names may vary depending on your configuration, such as when deploying multiple Sidekiq queues.
+>
+> To find the correct deployment names for your installation:
+>
+> ```shell
+> kubectl get deployments -lapp=webservice -n <namespace>
+> kubectl get deployments -lapp=sidekiq -n <namespace>
+> ```
 
 To upgrade GitLab:
 
@@ -196,11 +187,8 @@ To upgrade GitLab:
    kubectl wait --for=condition=complete job/<job name> --timeout=600s
    ```
 
-{{< alert type="note" >}}
-
-Depending on your deployment, a `600s` wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodically check up on the job to ensure it is complete before moving onto the next step.
-
-{{< /alert >}}
+> [!note]
+> Depending on your deployment, a `600s` wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodically check up on the job to ensure it is complete before moving onto the next step.
 
 1. Unpause deployments for Sidekiq:
 
@@ -216,7 +204,7 @@ Depending on your deployment, a `600s` wait time for the migrations to complete 
    kubectl rollout status deployment/gitlab-webservice-default --timeout=15m
    ```
 
-### Upgrade with Downtime
+### Upgrade with downtime
 
 1. Perform the upgrade, with values extracted and reviewed in previous steps:
 
@@ -236,7 +224,7 @@ Depending on your deployment, a `600s` wait time for the migrations to complete 
 1. If enabled, [turn off maintenance mode](https://docs.gitlab.com/administration/maintenance_mode/#disable-maintenance-mode).
 1. Run [upgrade health checks](https://docs.gitlab.com/update/plan_your_upgrade/#run-upgrade-health-checks).
 
-## Related Topics 
+## Related topics 
 
 1. [Zero downtime upgrades for Linux package installations](https://docs.gitlab.com/update/zero_downtime/)
 1. [Upgrade paths](https://docs.gitlab.com/update/upgrade_paths/)
