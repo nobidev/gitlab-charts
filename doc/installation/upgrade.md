@@ -34,7 +34,6 @@ To upgrade a GitLab Helm chart instance:
 1. Consider [turning on maintenance mode](https://docs.gitlab.com/administration/maintenance_mode/) during the upgrade
    to restrict users from write operations to help not disturb any workflows.
 1. [Upgrade GitLab Runner](https://docs.gitlab.com/runner/install/) to the same version as your target GitLab version.
-1. Follow the [deployment documentation](deployment.md) step by step.
 1. Extract your previously provided values:
 
    ```shell
