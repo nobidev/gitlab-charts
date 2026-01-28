@@ -36,9 +36,9 @@ To upgrade a GitLab Helm chart instance:
 1. [Upgrade GitLab Runner](https://docs.gitlab.com/runner/install/) to the same version as your target GitLab version.
 1. Extract your previously provided values:
 
-   ```shell
-   helm get values gitlab > gitlab.yaml
-   ```
+  ```shell
+  helm get values gitlab > gitlab.yaml
+  ```
 
 1. Decide on all the values you need to carry through as you upgrade. You should only keep a minimal set of values that
    you want to explicitly set and pass those during the upgrade process. You should otherwise rely on GitLab default
@@ -77,52 +77,52 @@ These settings are baseline recommendations. You will need to adjust them based 
 > To minimize impact, apply these settings during a maintenance window before your planned upgrade. After configured,
 > future upgrades can be performed with zero downtime.
 
-   ```yaml
-   gitlab:
-      webservice:
-         deployment:
-            strategy:
-            type: RollingUpdate
-            rollingUpdate:
-               maxSurge: "10%"
-               maxUnavailable: 0
-         terminationGracePeriodSeconds: 60
-      sidekiq:
-         deployment:
-            strategy:
-            type: RollingUpdate
-            rollingUpdate:
-               maxSurge: "10%"
-               maxUnavailable: 0
-         terminationGracePeriodSeconds: 600
-      gitlab-shell:
-         deployment:
-            strategy:
-            type: RollingUpdate
-            rollingUpdate:
-               maxSurge: "10%"
-               maxUnavailable: 0
-         terminationGracePeriodSeconds: 60
-      registry:
-         deployment:
-            strategy:
-            type: RollingUpdate
-            rollingUpdate:
-               maxSurge: "10%"
-               maxUnavailable: 0
-         terminationGracePeriodSeconds: 60
+  ```yaml
+  gitlab:
+    webservice:
+      deployment:
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: "10%"
+            maxUnavailable: 0
+      terminationGracePeriodSeconds: 60
+    sidekiq:
+      deployment:
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: "10%"
+            maxUnavailable: 0
+      terminationGracePeriodSeconds: 600
+    gitlab-shell:
+      deployment:
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: "10%"
+            maxUnavailable: 0
+      terminationGracePeriodSeconds: 60
+    registry:
+      deployment:
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: "10%"
+            maxUnavailable: 0
+      terminationGracePeriodSeconds: 60
 
-      nginx-ingress:
-         controller:
-            deployment:
-               strategy:
-               type: RollingUpdate
-               rollingUpdate:
-                  maxSurge: "10%"
-                  maxUnavailable: 0
-            terminationGracePeriodSeconds: 300
-            minReadySeconds: 10
-   ```
+  nginx-ingress:
+    controller:
+      deployment:
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: "10%"
+            maxUnavailable: 0
+      terminationGracePeriodSeconds: 300
+      minReadySeconds: 10
+  ```
 
 > [!note]
 > When configuring the `terminationGracePeriodSeconds` for Sidekiq, you will need to consider your longest running jobs to ensure that they have enough time to complete before the grave period expires.
@@ -150,73 +150,73 @@ To upgrade GitLab:
 
 1. Pause deployments:
 
-   ```shell
-   kubectl rollout pause deployment/gitlab-webservice-default
-   kubectl rollout pause deployment/gitlab-sidekiq-all-in-1-v2
-   ```
+    ```shell
+    kubectl rollout pause deployment/gitlab-webservice-default
+    kubectl rollout pause deployment/gitlab-sidekiq-all-in-1-v2
+    ```
 
 1. Begin the upgrade to the new version:
    
-   ```shell
-   helm upgrade gitlab gitlab/gitlab \
-   --version <GitLab Helm chart version> \
-   -f values.yaml \
-   --set global.extraEnv.SKIP_POST_DEPLOYMENT_MIGRATIONS=true
-   ```
+    ```shell
+    helm upgrade gitlab gitlab/gitlab \
+    --version <GitLab Helm chart version> \
+    -f values.yaml \
+    --set global.extraEnv.SKIP_POST_DEPLOYMENT_MIGRATIONS=true
+    ```
 
 1. Wait for pre-migrations and upgrades to complete:
 
-   ```shell
-   kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
-   kubectl wait --for=condition=complete job/<job name> --timeout=600s
-   ```
+    ```shell
+    kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
+    kubectl wait --for=condition=complete job/<job name> --timeout=600s
+    ```
 
 1. Run post-migrations:
 
-   ```shell
-   helm upgrade gitlab gitlab/gitlab \
-   --version <GitLab Helm chart version> \
-   -f values.yaml 
-   ```
+    ```shell
+    helm upgrade gitlab gitlab/gitlab \
+    --version <GitLab Helm chart version> \
+    -f values.yaml 
+    ```
 
 1. Wait for post-migrations to complete:
 
-   ```shell
-   kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
-   kubectl wait --for=condition=complete job/<job name> --timeout=600s
-   ```
+    ```shell
+    kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
+    kubectl wait --for=condition=complete job/<job name> --timeout=600s
+    ```
 
-   > [!note]
-   > Depending on your deployment, a `600s` wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodically check up on the job to ensure it is complete before moving onto the next step.
+    > [!note]
+    > Depending on your deployment, a `600s` wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodically check up on the job to ensure it is complete before moving onto the next step.
 
 1. Unpause deployments for Sidekiq:
 
-   ```shell
-   kubectl rollout resume deployment/gitlab-sidekiq-all-in-1-v2
-   kubectl rollout status deployment/gitlab-sidekiq-all-in-1-v2 --timeout=15m
-   ```
+    ```shell
+    kubectl rollout resume deployment/gitlab-sidekiq-all-in-1-v2
+    kubectl rollout status deployment/gitlab-sidekiq-all-in-1-v2 --timeout=15m
+    ```
 
 1. Unpause deployments for Webservice:
 
-   ```shell
-   kubectl rollout resume deployment/gitlab-webservice-default
-   kubectl rollout status deployment/gitlab-webservice-default --timeout=15m
-   ```
+    ```shell
+    kubectl rollout resume deployment/gitlab-webservice-default
+    kubectl rollout status deployment/gitlab-webservice-default --timeout=15m
+    ```
 
 ### Upgrade with downtime
 
 1. Perform the upgrade, with values extracted and reviewed in previous steps:
 
-   ```shell
-   helm upgrade gitlab gitlab/gitlab \
-     --version <new version> \
-     -f gitlab.yaml \
-     --set gitlab.migrations.enabled=true \
-     --set ...
-   ```
+    ```shell
+    helm upgrade gitlab gitlab/gitlab \
+      --version <new version> \
+      -f gitlab.yaml \
+      --set gitlab.migrations.enabled=true \
+      --set ...
+    ```
 
-   During a major database upgrade, you should set `gitlab.migrations.enabled` to `false`.
-   Ensure that you explicitly set it back to `true` for future updates.
+    During a major database upgrade, you should set `gitlab.migrations.enabled` to `false`.
+    Ensure that you explicitly set it back to `true` for future updates.
 
 ## After you upgrade
 
