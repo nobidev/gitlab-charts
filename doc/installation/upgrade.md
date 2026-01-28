@@ -79,49 +79,49 @@ These settings are baseline recommendations. You will need to adjust them based 
 
    ```yaml
    gitlab:
-   webservice:
-      deployment:
-         strategy:
-         type: RollingUpdate
-         rollingUpdate:
-            maxSurge: "10%"
-            maxUnavailable: 0
-      terminationGracePeriodSeconds: 60
-   sidekiq:
-      deployment:
-         strategy:
-         type: RollingUpdate
-         rollingUpdate:
-            maxSurge: "10%"
-            maxUnavailable: 0
-      terminationGracePeriodSeconds: 600
-   gitlab-shell:
-      deployment:
-         strategy:
-         type: RollingUpdate
-         rollingUpdate:
-            maxSurge: "10%"
-            maxUnavailable: 0
-      terminationGracePeriodSeconds: 60
-   registry:
-      deployment:
-         strategy:
-         type: RollingUpdate
-         rollingUpdate:
-            maxSurge: "10%"
-            maxUnavailable: 0
-      terminationGracePeriodSeconds: 60
+      webservice:
+         deployment:
+            strategy:
+            type: RollingUpdate
+            rollingUpdate:
+               maxSurge: "10%"
+               maxUnavailable: 0
+         terminationGracePeriodSeconds: 60
+      sidekiq:
+         deployment:
+            strategy:
+            type: RollingUpdate
+            rollingUpdate:
+               maxSurge: "10%"
+               maxUnavailable: 0
+         terminationGracePeriodSeconds: 600
+      gitlab-shell:
+         deployment:
+            strategy:
+            type: RollingUpdate
+            rollingUpdate:
+               maxSurge: "10%"
+               maxUnavailable: 0
+         terminationGracePeriodSeconds: 60
+      registry:
+         deployment:
+            strategy:
+            type: RollingUpdate
+            rollingUpdate:
+               maxSurge: "10%"
+               maxUnavailable: 0
+         terminationGracePeriodSeconds: 60
 
-   nginx-ingress:
-   controller:
-      deployment:
-         strategy:
-         type: RollingUpdate
-         rollingUpdate:
-            maxSurge: "10%"
-            maxUnavailable: 0
-      terminationGracePeriodSeconds: 300
-      minReadySeconds: 10
+      nginx-ingress:
+      controller:
+         deployment:
+            strategy:
+            type: RollingUpdate
+            rollingUpdate:
+               maxSurge: "10%"
+               maxUnavailable: 0
+         terminationGracePeriodSeconds: 300
+         minReadySeconds: 10
    ```
 
 > [!note]
