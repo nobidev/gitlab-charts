@@ -113,15 +113,15 @@ These settings are baseline recommendations. You will need to adjust them based 
          terminationGracePeriodSeconds: 60
 
       nginx-ingress:
-      controller:
-         deployment:
-            strategy:
-            type: RollingUpdate
-            rollingUpdate:
-               maxSurge: "10%"
-               maxUnavailable: 0
-         terminationGracePeriodSeconds: 300
-         minReadySeconds: 10
+         controller:
+            deployment:
+               strategy:
+               type: RollingUpdate
+               rollingUpdate:
+                  maxSurge: "10%"
+                  maxUnavailable: 0
+            terminationGracePeriodSeconds: 300
+            minReadySeconds: 10
    ```
 
 > [!note]
