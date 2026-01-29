@@ -265,7 +265,33 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
        nodeName: London Office
        enabled: true
        role: primary
-   # configure Geo Nginx Controller for internal Geo site traffic
+   # External DB, disable
+   postgresql:
+     install: false
+   ```
+
+   <!-- markdownlint-disable MD044 -->
+   - [`global.hosts.domain`](../../charts/globals.md#configure-host-settings)
+   - [`global.psql.host`](../../charts/globals.md#configure-postgresql-settings)
+   - `global.geo.nodeName` must match
+     [the Name field of a Geo site in the Admin Area](https://docs.gitlab.com/administration/geo_sites/#common-settings)
+   - Also configure any additional settings, such as:
+     - [Configuring SSL/TLS](../../installation/tools.md#tls-certificates)
+     - [Using external Redis](../external-redis/_index.md)
+     - [using external Object Storage](../external-object-storage/_index.md)
+   <!-- markdownlint-enable MD044 -->
+
+1. Add the neccecary Ingress or Gateway API configuration to your `primary.yaml`.
+
+   {{< tabs >}}
+
+   {{< tab title="NGINX Ingress" >}}
+
+   Configure a extra NGINX controller and an extra webservice Ingress for internal
+   Geo traffic:
+
+   ```yaml
+   # Configure Geo Nginx Controller for internal Geo site traffic
    nginx-ingress-geo:
      enabled: true
    gitlab:
@@ -278,24 +304,27 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
          enabled: true
          hostname: gitlab.london.example.com
          useGeoClass: true
-   # External DB, disable
-   postgresql:
-     install: false
    ```
 
-   <!-- markdownlint-disable MD044 -->
-   - [`global.hosts.domain`](../../charts/globals.md#configure-host-settings)
-   - [`global.psql.host`](../../charts/globals.md#configure-postgresql-settings)
-   - `global.geo.nodeName` must match
-     [the Name field of a Geo site in the Admin Area](https://docs.gitlab.com/administration/geo_sites/#common-settings)
-   - Set [`nginx-ingress-geo.enabled`](../../charts/nginx/_index.md#gitlab-geo) to enable an Ingress controller
-     for Geo traffic forwarded from secondaries.
-   - Configure the primary Geo site's [`gitlab.webservice`](../../charts/gitlab/webservice/_index.md#ingress-settings) Ingresses for Geo traffic.
-   - Also configure any additional settings, such as:
-     - [Configuring SSL/TLS](../../installation/tools.md#tls-certificates)
-     - [Using external Redis](../external-redis/_index.md)
-     - [using external Object Storage](../external-object-storage/_index.md)
-   <!-- markdownlint-enable MD044 -->
+   {{< /tab >}}
+
+   {{< tab title="Gateway API" >}}
+
+   Alternatively to the NGINX Ingress based approach, you can expose Geo by [configuring Gateway API](../../charts/globals.md#gateway-api)
+   and the bundled [Envoy Gateway](../../charts/envoygateway/_index.md).
+
+   After enabling Gateway API, configure the hostname for internal Geo traffic:
+
+   ```yaml
+   global:
+     geo:
+       gatewayApi:
+         internalHostname: gitlab.london.example.com
+   ```
+
+   {{< /tab >}}
+
+   {{< /tabs >}}
 
 1. Deploy the chart using this configuration:
 
@@ -611,15 +640,6 @@ To deploy this chart as a Geo Secondary site, start [from this example configura
          password:
            secret: geo
            key: geo-postgresql-password
-   # Optional for secondary sites: Configure Geo Nginx Controller for internal Geo site traffic.
-   # nginx-ingress-geo:
-   #   enabled: true
-   gitlab:
-     webservice:
-       # Configure a Ingress for internal Geo traffic
-       extraIngress:
-         enabled: true
-         hostname: shanghai.gitlab.example.com
    # External DB, disable
    postgresql:
      install: false
@@ -633,14 +653,54 @@ To deploy this chart as a Geo Secondary site, start [from this example configura
      [the Name field of a Geo site in the Admin Area](https://docs.gitlab.com/administration/geo_sites/#common-settings)
    - Optionally set `nginx-ingress-geo.enabled` to enable an ingress controller pre-configured for internal Geo traffic.
      [This makes it easier to promote the site to a primary.](../../charts/nginx/_index.md#gitlab-geo).
-   - Configure an extra Ingress for [gitlab.webservice](../../charts/gitlab/webservice/_index.md#ingress-settings) to handle
-     traffic sent to the secondary site's internal URL.
    - Also configure any additional settings, such as:
      - [Configuring SSL/TLS](../../installation/tools.md#tls-certificates)
      - [Using external Redis](../external-redis/_index.md)
      - [using external Object Storage](../external-object-storage/_index.md)
    - For external databases, `global.psql.host` is the secondary, read-only replica database, while `global.geo.psql.host` is the Geo tracking database
    <!-- markdownlint-enable MD044 -->
+
+1. Add the neccecary Ingress or Gateway API configuration to your `secondary.yaml`.
+
+   {{< tabs >}}
+
+   {{< tab title="NGINX Ingress" >}}
+
+   Optionally enable a extra NGINX controller and configure a extra webservice Ingress for internal
+   Geo traffic:
+
+   ```yaml
+   # Optional for secondary sites: Configure Geo Nginx Controller for internal Geo site traffic.
+   # nginx-ingress-geo:
+   #   enabled: true
+   gitlab:
+     webservice:
+       # Configure an Ingress for internal Geo traffic
+       extraIngress:
+         enabled: true
+         hostname: shanghai.gitlab.example.com
+         useGeoClass: false # Set to true if Geo NGINX Ingress is enabled.
+   ```
+
+   {{< /tab >}}
+
+   {{< tab title="Gateway API" >}}
+
+   Alternatively to the NGINX Ingress based approach, you can expose Geo by [configuring Gateway API](../../charts/globals.md#gateway-api)
+   and the bundled [Envoy Gateway](../../charts/envoygateway/_index.md).
+
+   After enabling Gateway API, configure the hostname for internal Geo traffic:
+
+   ```yaml
+   global:
+     geo:
+       gatewayApi:
+         internalHostname: shanghai.gitlab.example.com
+   ```
+
+   {{< /tab >}}
+
+   {{< /tabs >}}
 
 1. Deploy the chart using this configuration:
 

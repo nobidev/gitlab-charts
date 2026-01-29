@@ -242,6 +242,12 @@ listeners:
       mode: Terminate
       certificateRefs:
         - name: gitlab-tls
+  gitlab-geo-internal:
+    protocol: ""
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: gitlab-geo-internal
   gitlab-ssh:
     protocol: "TCP"
   registry-web:
@@ -260,11 +266,6 @@ listeners:
       certificateRefs:
         - name: kas-tls
   kas-workspaces-web:
-    tls:
-      mode: Terminate
-      certificateRefs:
-        - name: kas-workspaces-tls
-  kas-registry-web:
     tls:
       mode: Terminate
       certificateRefs:

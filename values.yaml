@@ -104,6 +104,12 @@ global:
           mode: Terminate
           certificateRefs:
             - name: gitlab-tls
+      gitlab-geo-internal:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: gitlab-geo-internal
       gitlab-ssh:
         protocol: "TCP"
       registry-web:
@@ -125,12 +131,6 @@ global:
           certificateRefs:
             - name: kas-tls
       kas-workspaces-web:
-        protocol: ""
-        tls:
-          mode: Terminate
-          certificateRefs:
-            - name: kas-workspaces-tls
-      kas-registry-web:
         protocol: ""
         tls:
           mode: Terminate
@@ -694,6 +694,8 @@ global:
     # nodeName allows multiple instances behind a load balancer.
     nodeName: # defaults to `gitlab.gitlab.host`
     # ingressClass:
+    gatewayApi:
+      internalHostname: ""
     # PostgreSQL connection details only needed for `secondary`
     psql:
       password: {}

@@ -35,6 +35,12 @@ spec:
     {{- $_ := set $listener "hostname" (include "gitlab.gitlab.hostname" .) }}
     {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
   {{- end }}
+  {{- if eq "true" (include "gitlab.gatewayApi.gateway.geo.configure" .) -}}
+    {{- $listener = index $listeners "gitlab-geo-internal" }}
+    {{- $_ := set $listener "name" "gitlab-geo-internal" }}
+    {{- $_ := set $listener "hostname" .Values.global.geo.gatewayApi.internalHostname }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
+  {{- end }}
   {{- if .Values.global.pages.enabled }}
     {{- $listener = index $listeners "pages-web" }}
     {{- $_ := set $listener "name" "pages-web" }}

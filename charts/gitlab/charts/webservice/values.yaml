@@ -111,6 +111,7 @@ enabled: true
 gatewayRoute:
   enabled: null
   sectionName: "gitlab-web"
+  geoSectionName: "gitlab-geo-internal"
   gatewayName: ""
   gatewayNamespace: ""
   annotations: {}
