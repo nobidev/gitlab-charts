@@ -171,7 +171,7 @@ The OpenBao chart defaults to Ingress-terminated TLS encryption.
 
 | Parameter                                                | Default                                                 | Description |
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
-| `global.openbao.host`                                    | openbao.<GitLab Domain>                                 | OpenBao host. Used to configure GitLab webservice and the OpenBao chart. |
+| `global.openbao.host`                                    | `openbao.<GitLab Domain>`                                 | OpenBao host. Used to configure GitLab webservice and the OpenBao chart. |
 | `ingress.enabled`                                        | true                                                    | Enable the OpenBao Ingress to allow Runner to reach OpenBao. |
 | `ingress.hostname`                                       | External OpenBao host based on global hosts config.     | Hostname the Ingress should match. |
 | `ingress.tls.enabled`                                    | true                                                    | Enable Ingress TLS. |
