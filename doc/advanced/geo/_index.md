@@ -319,7 +319,7 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
    global:
      geo:
        gatewayApi:
-         internalHostname: gitlab.london.example.com
+         additionalHostname: gitlab.london.example.com
    ```
 
    {{< /tab >}}
@@ -695,7 +695,7 @@ To deploy this chart as a Geo Secondary site, start [from this example configura
    global:
      geo:
        gatewayApi:
-         internalHostname: shanghai.gitlab.example.com
+         additionalHostname: shanghai.gitlab.example.com
    ```
 
    {{< /tab >}}

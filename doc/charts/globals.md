@@ -242,12 +242,12 @@ listeners:
       mode: Terminate
       certificateRefs:
         - name: gitlab-tls
-  gitlab-geo-internal:
+  gitlab-web-geo:
     protocol: ""
     tls:
       mode: Terminate
       certificateRefs:
-        - name: gitlab-geo-internal
+        - name: gitlab-web-geo
   gitlab-ssh:
     protocol: "TCP"
   registry-web:
@@ -299,6 +299,15 @@ certmanager:
 
 Setting `configureCertmanager` configures the chart to render the relevant annotations to the
 Gateway manifest, and enables the creation of a HTTP01 Issuer configured for Gateway API.
+
+### GitLab Geo
+
+To configure [GitLab Geo](https://docs.gitlab.com/administration/geo/) using Gateway API a
+addional hostname can be configured by setting `global.geo.gatewayApi.addionalHostname`.
+
+The flag should be set to the internal URL on primary sites and to the external/unified
+URL on secondary sites. Check the [Geo setup guide](../advanced/geo/_index.md) for more
+information.
 
 ### Using a external Gateway API provider
 

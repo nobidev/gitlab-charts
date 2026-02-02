@@ -104,12 +104,12 @@ global:
           mode: Terminate
           certificateRefs:
             - name: gitlab-tls
-      gitlab-geo-internal:
+      gitlab-web-geo:
         protocol: ""
         tls:
           mode: Terminate
           certificateRefs:
-            - name: gitlab-geo-internal
+            - name: gitlab-web-geo-tls
       gitlab-ssh:
         protocol: "TCP"
       registry-web:
@@ -695,7 +695,10 @@ global:
     nodeName: # defaults to `gitlab.gitlab.host`
     # ingressClass:
     gatewayApi:
-      internalHostname: ""
+      # Addional hostname for GitLab Geo.
+      # Should be set to the internal site's URL on primaries and
+      # to the external/unified URL on secondaries.
+      additionalHostname: ""
     # PostgreSQL connection details only needed for `secondary`
     psql:
       password: {}

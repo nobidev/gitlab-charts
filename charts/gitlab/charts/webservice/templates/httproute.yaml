@@ -19,7 +19,7 @@ spec:
     {{- end }}
   hostnames:
     - {{ include "gitlab.gitlab.hostname" . | quote }}
-    {{- with .Values.global.geo.gatewayApi.internalHostname }}
+    {{- with .Values.global.geo.gatewayApi.additionalHostname }}
     - {{ . | quote }}
     {{- end }}
   rules:
