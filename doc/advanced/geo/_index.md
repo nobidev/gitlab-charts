@@ -308,7 +308,7 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
 
    {{< /tab >}}
 
-   {{< tab title="Gateway API" >}}
+   {{< tab title="Envoy Gateway" >}}
 
    Alternatively to the NGINX Ingress based approach, you can expose Geo by [configuring Gateway API](../../charts/globals.md#gateway-api)
    and the bundled [Envoy Gateway](../../charts/envoygateway/_index.md).
@@ -684,7 +684,7 @@ To deploy this chart as a Geo Secondary site, start [from this example configura
 
    {{< /tab >}}
 
-   {{< tab title="Gateway API" >}}
+   {{< tab title="Envoy Gateway" >}}
 
    Alternatively to the NGINX Ingress based approach, you can expose Geo by [configuring Gateway API](../../charts/globals.md#gateway-api)
    and the bundled [Envoy Gateway](../../charts/envoygateway/_index.md).
