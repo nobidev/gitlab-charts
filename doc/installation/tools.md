@@ -298,19 +298,19 @@ In the documentation links below, if the component mentions adding SAN entries,
 make sure that you also add the SAN that you decided on using for the
 Prometheus `tls_config.server_name`.
 
-| Service | Metrics Port(default) | Supports TLS? | Notes/Docs/Issue |
-| ---     | ---                   | ---           | ---              |
-| [Gitaly](../charts/gitlab/gitaly/_index.md)                   | 9236  | YES | Enabled using `global.gitaly.tls.enabled=true` <br>Default Secret: `RELEASE-gitaly-tls` <br>[Docs: Running Gitaly over TLS](../charts/gitlab/gitaly/_index.md#running-gitaly-over-tls) |
-| [GitLab Exporter](../charts/gitlab/gitlab-exporter/_index.md) | 9168  | YES | Enabled using `gitlab.gitlab-exporter.tls.enabled=true` <br>Default Secret: `RELEASE-gitlab-exporter-tls` |
-| [GitLab Pages](../charts/gitlab/gitlab-pages/_index.md)       | 9235  | YES | Enabled using `gitlab.gitlab-pages.metrics.tls.enabled=true` <br>Default Secret: `RELEASE-pages-metrics-tls` <br>[Docs: General settings](../charts/gitlab/gitlab-pages/_index.md#general-settings) |
-| [GitLab Runner](../charts/gitlab/gitlab-runner/_index.md)     | 9252  | NO  | [Issue - Add TLS Support for Metrics Endpoint](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/29176) |
-| [GitLab Shell](../charts/gitlab/gitlab-shell/_index.md)       | 9122  | NO  | The GitLab Shell metrics exporter is only enabled when using [`gitlab-sshd`](https://docs.gitlab.com/administration/operations/gitlab_sshd/). OpenSSH is recommended for environments that require TLS |
-| [KAS](../charts/gitlab/kas/_index.md)                         | 8151  | YES | Can be configured using `global.kas.customConfig.observability.listen.certificate_file` and `global.kas.customConfig.observability.listen.key_file` options |
-| [Praefect](../charts/gitlab/praefect/_index.md)               | 9236  | YES | Enabled using `global.praefect.tls.enabled=true` <br>Default Secret: `RELEASE-praefect-tls` <br>[Docs: Running Praefect over TLS](../charts/gitlab/praefect/_index.md#running-praefect-over-tls) |
-| [Registry](../charts/registry/_index.md)                      | 5100  | YES | Enabled using `registry.debug.tls.enabled=true` <br>[Docs: Registry - Configuring TLS for the debug port](../charts/registry/_index.md#configuring-tls-for-the-debug-port) |
-| [Sidekiq](../charts/gitlab/sidekiq/_index.md)                 | 3807  | YES | Enabled using `gitlab.sidekiq.metrics.tls.enabled=true` <br>Default Secret: `RELEASE-sidekiq-metrics-tls` <br>[Docs: Installation command line options](../charts/gitlab/sidekiq/_index.md#installation-command-line-options) |
-| [Webservice](../charts/gitlab/sidekiq/_index.md)              | 8083  | YES | Enabled using `gitlab.webservice.metrics.tls.enabled=true` <br>Default Secret: `RELEASE-webservice-metrics-tls` <br>[Docs: Installation command line options](../charts/gitlab/webservice/_index.md#installation-command-line-options) |
-| [Ingress-NGINX](../charts/nginx/_index.md)                    | 10254 | NO  | Does not support TLS on metrics/healthcheck port |
+| Service                                                       | Metrics Port(default) | Supports TLS? | Additional information |
+|:--------------------------------------------------------------|:----------------------|:--------------|:-----------------------|
+| [Gitaly](../charts/gitlab/gitaly/_index.md)                   | `9236`                | {{< yes >}}   | Enabled using `global.gitaly.tls.enabled=true`<br><br>Default Secret: `RELEASE-gitaly-tls`<br><br>[Docs: Running Gitaly over TLS](../charts/gitlab/gitaly/_index.md#running-gitaly-over-tls) |
+| [GitLab Exporter](../charts/gitlab/gitlab-exporter/_index.md) | `9168`                | {{< yes >}}   | Enabled using `gitlab.gitlab-exporter.tls.enabled=true`<br><br>Default Secret: `RELEASE-gitlab-exporter-tls` |
+| [GitLab Pages](../charts/gitlab/gitlab-pages/_index.md)       | `9235`                | {{< yes >}}   | Enabled using `gitlab.gitlab-pages.metrics.tls.enabled=true`<br><br>Default Secret: `RELEASE-pages-metrics-tls`<br><br>[Docs: General settings](../charts/gitlab/gitlab-pages/_index.md#general-settings) |
+| [GitLab Runner](../charts/gitlab/gitlab-runner/_index.md)     | `9252`                | {{< no >}}    | [Issue - Add TLS Support for Metrics Endpoint](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/29176) |
+| [GitLab Shell](../charts/gitlab/gitlab-shell/_index.md)       | `9122`                | {{< no >}}    | The GitLab Shell metrics exporter is only enabled when using [`gitlab-sshd`](https://docs.gitlab.com/administration/operations/gitlab_sshd/). OpenSSH is recommended for environments that require TLS |
+| [KAS](../charts/gitlab/kas/_index.md)                         | `8151`                | {{< yes >}}   | Can be configured using `global.kas.customConfig.observability.listen.certificate_file` and `global.kas.customConfig.observability.listen.key_file` options |
+| [Praefect](../charts/gitlab/praefect/_index.md)               | `9236`                | {{< yes >}}   | Enabled using `global.praefect.tls.enabled=true`<br><br>Default Secret: `RELEASE-praefect-tls`<br><br>[Docs: Running Praefect over TLS](../charts/gitlab/praefect/_index.md#running-praefect-over-tls) |
+| [Registry](../charts/registry/_index.md)                      | `5100`                | {{< yes >}}   | Enabled using `registry.debug.tls.enabled=true`<br><br>[Docs: Registry - Configuring TLS for the debug port](../charts/registry/_index.md#configuring-tls-for-the-debug-port) |
+| [Sidekiq](../charts/gitlab/sidekiq/_index.md)                 | `3807`                | {{< yes >}}   | Enabled using `gitlab.sidekiq.metrics.tls.enabled=true`<br><br>Default Secret: `RELEASE-sidekiq-metrics-tls`<br><br>[Docs: Installation command line options](../charts/gitlab/sidekiq/_index.md#installation-command-line-options) |
+| [Webservice](../charts/gitlab/sidekiq/_index.md)              | `8083`                | {{< yes >}}   | Enabled using `gitlab.webservice.metrics.tls.enabled=true`<br><br>Default Secret: `RELEASE-webservice-metrics-tls`<br><br>[Docs: Installation command line options](../charts/gitlab/webservice/_index.md#installation-command-line-options) |
+| [Ingress-NGINX](../charts/nginx/_index.md)                    | `10254`               | {{< no >}}    | Does not support TLS on metrics/healthcheck port |
 
 For the webservice pod, the exposed port is the standalone webrick exporter in
 the webservice container. The workhorse container port is not scraped. See the
