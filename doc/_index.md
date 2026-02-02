@@ -16,7 +16,7 @@ To install a cloud-native version of GitLab, use the GitLab Helm chart.
 This chart contains all the required components to get started and can scale to large deployments.
 
 For OpenShift-based installations, use [GitLab Operator](https://docs.gitlab.com/operator/),
-otherwise you must update the [security context constraints](https://docs.gitlab.com/operator/security_context_constraints.html)
+otherwise you must update the [security context constraints](https://docs.gitlab.com/operator/security_context_constraints/)
 yourself.
 
 {{< alert type="warning" >}}

@@ -44,7 +44,7 @@ Use these charts for optional dependencies:
 Use these charts as optional additions:
 
 - [Prometheus](https://artifacthub.io/packages/helm/prometheus-community/prometheus)
-- [_Unprivileged_](https://docs.gitlab.com/runner/install/kubernetes.html#running-docker-in-docker-containers-with-gitlab-runner) [GitLab Runner](https://docs.gitlab.com/runner/) that uses the Kubernetes executor
+- [_Unprivileged_](https://docs.gitlab.com/runner/install/kubernetes/#running-docker-in-docker-containers-with-gitlab-runner) [GitLab Runner](https://docs.gitlab.com/runner/) that uses the Kubernetes executor
 - Automatically provisioned SSL from [Let's Encrypt](https://letsencrypt.org/), which uses [Jetstack](https://venafi.com/jetstack-consult/)'s [cert-manager](https://cert-manager.io/docs/) with [certmanager-issuer](../certmanager-issuer/_index.md)
 
 ## GitLab Helm subchart optional parameters
