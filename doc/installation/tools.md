@@ -298,7 +298,7 @@ In the documentation links below, if the component mentions adding SAN entries,
 make sure that you also add the SAN that you decided on using for the
 Prometheus `tls_config.server_name`.
 
-| Service                                                       | Metrics Port(default) | Supports TLS? | Additional information |
+| Service                                                       | Metrics port (default) | Supports TLS? | Additional information |
 |:--------------------------------------------------------------|:----------------------|:--------------|:-----------------------|
 | [Gitaly](../charts/gitlab/gitaly/_index.md)                   | `9236`                | {{< yes >}}   | Enabled using `global.gitaly.tls.enabled=true`<br><br>Default Secret: `RELEASE-gitaly-tls`<br><br>[Docs: Running Gitaly over TLS](../charts/gitlab/gitaly/_index.md#running-gitaly-over-tls) |
 | [GitLab Exporter](../charts/gitlab/gitlab-exporter/_index.md) | `9168`                | {{< yes >}}   | Enabled using `gitlab.gitlab-exporter.tls.enabled=true`<br><br>Default Secret: `RELEASE-gitlab-exporter-tls` |
