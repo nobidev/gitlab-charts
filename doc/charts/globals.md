@@ -2499,6 +2499,33 @@ global:
     SOME_OTHER_KEY: some_other_value
 ```
 
+### Product Usage Data Environment Variable Override
+
+When set, the `GITLAB_PRODUCT_USAGE_DATA_ENABLED` environment variable takes precedence over the database setting for event-level data collection and cannot be changed via the Admin UI. This is useful for:
+
+- Air-gapped environments requiring automated configuration
+- Deployments that need consistent settings across upgrades
+
+Valid values: `'true'` or `'false'`
+
+Example configuration:
+
+```yaml
+global:
+  extraEnv:
+    GITLAB_PRODUCT_USAGE_DATA_ENABLED: 'false'
+```
+
+Or via command line:
+
+```shell
+--set global.extraEnv.GITLAB_PRODUCT_USAGE_DATA_ENABLED='false'
+```
+
+This is different from `global.appConfig.initialDefaults.gitlabProductUsageData` which only applies during initial installation. The environment variable override applies at runtime and takes precedence over both the initial default and the database setting.
+
+For more information, see the [Event data documentation](https://docs.gitlab.com/administration/settings/event_data/).
+
 ## `extraEnvFrom`
 
 `extraEnvFrom` allows to expose additional environment variables from other data sources in all
