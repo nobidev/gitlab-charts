@@ -1095,8 +1095,8 @@ nginx-ingress: &nginx-ingress
     image:
       registry: registry.gitlab.com
       image: gitlab-org/cloud-native/mirror/images/ingress-nginx/controller
-      tag: "v1.11.8"
-      digest: "sha256:695d79381ee6af00c7f5c9fd434f50851d7d32838ad5b2c507e416cf2084fc79"
+      tag: v1.14.3
+      digest: "sha256:82917be97c0939f6ada1717bb39aa7e66c229d6cfb10dcfc8f1bd42f9efe0f81"
     addHeaders:
       Referrer-Policy: strict-origin-when-cross-origin
     config: &nginx-ingress-controller-config
