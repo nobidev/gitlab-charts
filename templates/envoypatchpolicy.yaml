@@ -1,4 +1,4 @@
-{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy }}
+{{- if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
 {{- $gitlabWebProtocol := (index .Values.global.gatewayApi.listeners "gitlab-web").protocol | default .Values.global.gatewayApi.protocol }}
 {{- $patchPathPrefix := "/default_filter_chain" }}
 {{- if eq (upper $gitlabWebProtocol) "HTTPS" }}
@@ -14,7 +14,7 @@ metadata:
     {{- include "gitlab.commonLabels" . | nindent 4 }}
 spec:
   targetRef:
-    {{ $gatewayRef := (include "gitlab.gatewayApi.gatewayRef" .) | fromYamlArray | first }}
+    {{ $gatewayRef := (include "gitlab.gatewayApi.gatewayRef.local" .) | fromYamlArray | first }}
     {{ $gatewayRef | toYaml | nindent 4 }}
   type: JSONPatch
   jsonPatches:

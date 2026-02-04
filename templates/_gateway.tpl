@@ -32,6 +32,32 @@ Returns a target refs to the Gateway resource.
 {{- end -}}
 
 {{/*
+Returns true if envoy policies should be installed. Policies are installed if bundled envoy is installed
+and if Gateway is in same namespace.
+*/}}
+{{- define "gitlab.gatewayApi.envoy.installPolicies" -}}
+{{- $installEnvoy := and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy -}}
+{{- $gatewayNamespace := (include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray | first).namespace -}}
+{{- $gatewayInSameNamespace := eq .Release.Namespace $gatewayNamespace -}}
+{{- if and $installEnvoy $gatewayInSameNamespace -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
+Returns a target ref to the Gateway resource without namespace and sectionName
+for usage in Envoy policy custom resources.
+*/}}
+{{- define "gitlab.gatewayApi.gatewayRef.local" -}}
+{{- $gatewayRef := (include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray) -}}
+{{- $_ := unset ($gatewayRef | first) "namespace" }}
+{{- $_ := unset ($gatewayRef | first) "sectionName" }}
+{{- $gatewayRef | toYaml }}
+{{- end }}
+
+{{/*
 Renders a single listener configuration for the managed Gateway resource.
 
 Input parameters:

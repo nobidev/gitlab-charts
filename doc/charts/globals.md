@@ -225,7 +225,7 @@ For more information, see [work item 5](https://gitlab.com/groups/gitlab-com/gl-
 | `gatewayRef.name`              | String  |                | Gateway name rendered to all Gateway API resources. Use this to reference an externally managed Gateway and to disable the in Gateway provided my the chart. |
 | `gatewayRef.namespace`         | String  |                | Gateway namespace rendered to all Gateway API resources. Use this to reference an externally managed Gateway in another namespace and to disable the Gateway provided by the chart. |
 | `protocol`                     | String  | `HTTPS`        | Default protocol for all listeners. |
-| `installEnvoy`                 | Boolean | false          | Install Envoy Gateway subchart and configure a `GatewayClass` and Envoy Gateway API extensions like `EnvoyProxy`, `EnvoyPatchPolicy`, `ClientTrafficPolicy`, and `SecurityPolicy`. |
+| `installEnvoy`                 | Boolean | false          | Install Envoy Gateway subchart and configure a `GatewayClass` and Envoy Gateway API extensions like `EnvoyProxy`, `EnvoyPatchPolicy`, `ClientTrafficPolicy`, and `SecurityPolicy`. Policies are only installed if managed Gateway is used or if external Gateway is in GitLab namespace. |
 | `envoyProxySpec`               | Object  | see values     | Configuration of the default `EnvoyProxy` resource bound to the managed `Gateway`. |
 | `envoyClientTrafficPolicySpec` | Object  | `{}`           | Configuration of a optional `ClientTrafficPolicy` bound to the managed `Gateway`. |
 | `envoySecurityPolicySpec`      | Object  | see values     | Configuration of a optional `SecurityPolicy` bound to the managed `Gateway`. |
