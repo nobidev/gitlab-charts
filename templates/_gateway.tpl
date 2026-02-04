@@ -17,18 +17,13 @@ Returns the name of the EnvoyProxy resource.
 {{- end -}}
 
 {{/*
-Returns a target refs to the Gateway resource.
+Returns a target ref to the Gateway resource without namespace and sectionName
+for usage in Envoy policy custom resources.
 */}}
-{{- define "gitlab.gatewayApi.gatewayRef" -}}
+{{- define "gitlab.gatewayApi.gatewayRef.local" -}}
 - group: gateway.networking.k8s.io
   kind: Gateway
   name: {{ coalesce (.Values.gatewayRoute).gatewayName .Values.global.gatewayApi.gatewayRef.name (include "gitlab.gatewayApi.gateway.name.default" .) | quote }}
-  namespace: {{ coalesce (.Values.gatewayRoute).gatewayNamespace .Values.global.gatewayApi.gatewayRef.namespace .Release.Namespace | quote }}
-{{- with .Values.gatewayRoute }}
-{{-   with .sectionName }}
-  sectionName: {{ . | quote }}
-{{-   end }}
-{{- end }}
 {{- end -}}
 
 {{/*
@@ -47,14 +42,16 @@ false
 {{- end -}}
 
 {{/*
-Returns a target ref to the Gateway resource without namespace and sectionName
-for usage in Envoy policy custom resources.
+Returns a target refs to the Gateway resource with a namespace and optionally a section name.
 */}}
-{{- define "gitlab.gatewayApi.gatewayRef.local" -}}
-{{- $gatewayRef := (include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray) -}}
-{{- $_ := unset ($gatewayRef | first) "namespace" }}
-{{- $_ := unset ($gatewayRef | first) "sectionName" }}
-{{- $gatewayRef | toYaml }}
+{{- define "gitlab.gatewayApi.gatewayRef" -}}
+{{- template "gitlab.gatewayApi.gatewayRef.local" . }}
+  namespace: {{ coalesce (.Values.gatewayRoute).gatewayNamespace .Values.global.gatewayApi.gatewayRef.namespace .Release.Namespace | quote }}
+{{- with .Values.gatewayRoute }}
+{{-   with .sectionName }}
+  sectionName: {{ . | quote }}
+{{-   end }}
+{{- end }}
 {{- end }}
 
 {{/*
