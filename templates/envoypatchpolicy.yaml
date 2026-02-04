@@ -20,7 +20,7 @@ spec:
   jsonPatches:
     # Keep paths with escaped slashed unchanged. Escaped slashes are commonly used in GitLab API calls to identify projects.
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
-      name: {{ printf "$s/%s/gitlab-web" .Release.Namespace $gatewayRef.name }}
+      name: {{ printf "%s/%s/gitlab-web" .Release.Namespace $gatewayRef.name }}
       operation:
         op: add
         path: {{ printf "%s/filters/0/typed_config/path_with_escaped_slashes_action" $patchPathPrefix | quote }}
