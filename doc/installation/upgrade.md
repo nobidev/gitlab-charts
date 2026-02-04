@@ -161,7 +161,8 @@ To upgrade GitLab:
    helm upgrade gitlab gitlab/gitlab \
    --version <GitLab Helm chart version> \
    -f values.yaml \
-   --set global.extraEnv.SKIP_POST_DEPLOYMENT_MIGRATIONS=true
+   --set gitlab.migrations.extraEnv.SKIP_POST_DEPLOYMENT_MIGRATIONS=true \
+   --set global.extraEnv.BYPASS_SCHEMA_VERSION=true
    ```
 
 1. Wait for pre-migrations and upgrades to complete:
@@ -170,24 +171,6 @@ To upgrade GitLab:
    kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
    kubectl wait --for=condition=complete job/<job name> --timeout=600s
    ```
-
-1. Run post-migrations:
-
-   ```shell
-   helm upgrade gitlab gitlab/gitlab \
-   --version <GitLab Helm chart version> \
-   -f values.yaml 
-   ```
-
-1. Wait for post-migrations to complete:
-
-   ```shell
-   kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
-   kubectl wait --for=condition=complete job/<job name> --timeout=600s
-   ```
-
-   > [!note]
-   > Depending on your deployment, a `600s` wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodically check up on the job to ensure it is complete before moving onto the next step.
 
 1. Unpause deployments for Sidekiq:
 
@@ -202,6 +185,25 @@ To upgrade GitLab:
    kubectl rollout resume deployment/gitlab-webservice-default
    kubectl rollout status deployment/gitlab-webservice-default --timeout=15m
    ```
+
+1. Run post-migrations:
+
+   ```shell
+   helm upgrade gitlab gitlab/gitlab \
+   --version <GitLab Helm chart version> \
+   -f values.yaml \
+   --set global.extraEnv.BYPASS_SCHEMA_VERSION=true
+   ```
+
+1. Wait for post-migrations to complete:
+
+   ```shell
+   kubectl get jobs -lrelease=gitlab,chart=migrations-<GitLab version> -n <namespace>
+   kubectl wait --for=condition=complete job/<job name> --timeout=600s
+   ```
+
+   > [!note]
+   > Depending on your deployment, a `600s` wait time for the migrations to complete might not be enough. You can increase this timeout to fit your needs or periodically check up on the job to ensure it is complete before moving onto the next step.
 
 ### Upgrade with downtime
 
