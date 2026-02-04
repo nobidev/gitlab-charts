@@ -479,7 +479,7 @@ By default, the Sidekiq chart enables Horizontal Pod Autoscaling (HPA) to automa
 gitlab:
   sidekiq:
     minReplicas: 3
-    maxReplicas: 3  # Same as minReplicas = no scaling
+    maxReplicas: 3  # Setting equal to minReplicas disables HPA scaling
     concurrency: 25
     pods:
       - name: default
