@@ -11,12 +11,12 @@ metadata:
     {{ .Values.gatewayRoute.annotations | toYaml | nindent 4 }}
 spec:
   parentRefs:
-    {{- $gatewayRef := (include "gitlab.gatewayApi.gatewayRef" . ) | fromYamlArray }}
-    {{- $gatewayRef | toYaml | nindent 4 }}
-    {{- if .Values.global.geo.gatewayApi.additionalHostname }}
-    {{-   $_ := set ($gatewayRef | first) "sectionName" .Values.gatewayRoute.geoSectionName }}
-    {{-   $gatewayRef | toYaml | nindent 4 }}
-    {{- end }}
+  {{- $gatewayRef := (include "gitlab.gatewayApi.gatewayRef" . ) | fromYamlArray }}
+  {{- $gatewayRef | toYaml | nindent 4 }}
+  {{- if .Values.global.geo.gatewayApi.additionalHostname }}
+  {{-   $_ := set ($gatewayRef | first) "sectionName" .Values.gatewayRoute.geoSectionName }}
+  {{-   $gatewayRef | toYaml | nindent 4 }}
+  {{- end }}
   hostnames:
     - {{ include "gitlab.gitlab.hostname" . | quote }}
     {{- with .Values.global.geo.gatewayApi.additionalHostname }}

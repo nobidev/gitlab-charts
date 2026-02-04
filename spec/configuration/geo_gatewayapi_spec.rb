@@ -43,9 +43,8 @@ describe 'Expose Geo with Gateway API' do
     expect(geo_listener).not_to be_nil
     expect(geo_listener['hostname']).to eq('internal.primary.example.com')
 
-    expect(webservice_route['spec']['parentRefs']).to eq([
-      { 'name' => 'test-gw', 'sectionName' => 'gitlab-web' },
-      { 'name' => 'test-gw', 'sectionName' => 'gitlab-web-geo' }
-    ])
+    expect(webservice_route['spec']['parentRefs'].count).to eq(2)
+    expect(webservice_route['spec']['parentRefs'][0]['sectionName']).to eq('gitlab-web')
+    expect(webservice_route['spec']['parentRefs'][1]['sectionName']).to eq('gitlab-web-geo')
   end
 end

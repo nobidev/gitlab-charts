@@ -309,6 +309,12 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
    {{< /tab >}}
 
    {{< tab title="Envoy Gateway" >}}
+   
+   {{< alert type="warning" >}}
+
+   GitLab Geo with Envoy Gateway and Gateway API is not fully validated yet.
+   
+   {{< /alert >}}
 
    Alternatively to the NGINX Ingress based approach, you can expose Geo by [configuring Gateway API](../../charts/globals.md#gateway-api)
    and the bundled [Envoy Gateway](../../charts/envoygateway/_index.md).
@@ -685,6 +691,12 @@ To deploy this chart as a Geo Secondary site, start [from this example configura
    {{< /tab >}}
 
    {{< tab title="Envoy Gateway" >}}
+
+   {{< alert type="warning" >}}
+
+   GitLab Geo with Envoy Gateway and Gateway API is not fully validated yet.
+
+   {{< /alert >}}
 
    Alternatively to the NGINX Ingress based approach, you can expose Geo by [configuring Gateway API](../../charts/globals.md#gateway-api)
    and the bundled [Envoy Gateway](../../charts/envoygateway/_index.md).
