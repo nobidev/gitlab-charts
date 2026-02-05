@@ -1,13 +1,5 @@
 {{/* ######### Zoekt related templates */}}
 
 {{- define "gitlab.zoekt.mountSecrets" -}}
-# mount secret for zoekt
-- secret:
-    name: {{ template "gitlab.zoekt.gateway.basicAuth.secretName" . }}
-    optional: true
-    items:
-      - key: gitlab_username
-        path: zoekt/.gitlab_zoekt_username
-      - key: gitlab_password
-        path: zoekt/.gitlab_zoekt_password
+{{/* Basic auth has been removed. This template is kept for backward compatibility but mounts nothing. */}}
 {{- end -}}{{/* "gitlab.zoekt.mountSecrets" */}}
