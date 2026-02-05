@@ -97,13 +97,6 @@ cell:
 {{- end -}}
 {{- end -}}
 
-{{- define "gitlab.appConfig.zoekt" -}}
-# Zoekt secrets are present, load them.
-zoekt:
-  username_file: /etc/gitlab/zoekt/.gitlab_zoekt_username
-  password_file: /etc/gitlab/zoekt/.gitlab_zoekt_password
-{{- end -}}
-
 {{- define "gitlab.appConfig.shell" -}}
 gitlab_shell:
   path: /home/git/gitlab-shell/
