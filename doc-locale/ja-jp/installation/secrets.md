@@ -66,7 +66,6 @@ GitLabコンポーネント:
   - [GitLab Pagesシークレット](#gitlab-pages-secret)
   - [GitLab受信メール認証トークン](#gitlab-incoming-email-auth-token)
   - [GitLabサービスデスクメール認証トークン](#gitlab-service-desk-email-auth-token)
-  - [Zoekt基本認証パスワード](#zoekt-basic-auth-password)
 - [外部サービス](#external-services)
   - [OmniAuth](#omniauth)
   - [LDAPパスワード](#ldap-password)
@@ -479,17 +478,6 @@ kubectl create secret generic <name>-service-desk-email-auth-token --from-litera
 ```
 
 このシークレットは、`global.serviceDeskEmail.authToken`設定によって参照されます。
-
-### Zoekt基本認証パスワード {#zoekt-basic-auth-password}
-
-このシークレットの自動生成をチャートに任せるか、手動で作成できます（`<name>`をリリースの名前に置き換えます）:
-
-```shell
-password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
-kubectl create secret generic <name>-zoekt-basicauth --from-literal=gitlab_username=gitlab --from-literal=gitlab_password="$password"
-```
-
-このシークレットは、`gitlab.zoekt.gateway.basicAuth.secretName`設定によって参照されます。
 
 ### 受信メールのMicrosoft Graphクライアントのシークレットキー {#microsoft-graph-client-secret-for-incoming-emails}
 
