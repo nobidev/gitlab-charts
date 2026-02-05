@@ -987,7 +987,6 @@ global:
     urlTemplate: ""
 
   zoekt:
-    gateway: {}
     indexer:
       internalApi: {}
 
@@ -1575,7 +1574,6 @@ gitlab:
 ## Installation & configuration of gitlab/gitlab-zoekt
 gitlab-zoekt:
   install: false
-  gateway: {}
   indexer:
     internalApi:
       enabled: true
