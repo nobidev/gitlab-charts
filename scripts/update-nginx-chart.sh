@@ -2,7 +2,7 @@
 set -e
 
 STOP_PATCH="$1"
-VERSION="helm-chart-4.12.2"
+VERSION="helm-chart-4.14.3"
 
 project_root="$(realpath $(dirname -- "${BASH_SOURCE[0]}")/..)"
 cd $project_root
@@ -21,7 +21,8 @@ rm -r $nginx_chart_dir
 echo "Copying new NGINX chart sources"
 mkdir $nginx_chart_dir
 cp -r $source_chart_dir/charts/ingress-nginx/templates \
-      $source_chart_dir/charts/ingress-nginx/*.yaml \
+      $source_chart_dir/charts/ingress-nginx/Chart.yaml \
+      $source_chart_dir/charts/ingress-nginx/values.yaml \
       $nginx_chart_dir
 
 echo -e "This is a modified fork of https://github.com/kubernetes/ingress-nginx. Do not edit this chart manually." > $nginx_chart_dir/README.md

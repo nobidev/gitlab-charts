@@ -14,10 +14,10 @@ index a9b38f24f..90fbe86c5 100644
      {{- if .Values.controller.tolerations }}
        tolerations: {{ toYaml .Values.controller.tolerations | nindent 8 }}
 diff --git a/charts/nginx-ingress/templates/default-backend-deployment.yaml b/charts/nginx-ingress/templates/default-backend-deployment.yaml
-index 8c0943aa4..a403b57ca 100644
+index a25dd4e24..1c444f29a 100644
 --- a/charts/nginx-ingress/templates/default-backend-deployment.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-deployment.yaml
-@@ -107,6 +107,8 @@ spec:
+@@ -104,6 +104,8 @@ spec:
          {{- end }}
      {{- if .Values.defaultBackend.nodeSelector }}
        nodeSelector: {{ toYaml .Values.defaultBackend.nodeSelector | nindent 8 }}
@@ -25,7 +25,7 @@ index 8c0943aa4..a403b57ca 100644
 +      {{- include "gitlab.nodeSelector" . | nindent 6 }}
      {{- end }}
        serviceAccountName: {{ include "ingress-nginx.defaultBackend.serviceAccountName" . }}
-     {{- if .Values.defaultBackend.tolerations }}
+       automountServiceAccountToken: {{ .Values.defaultBackend.serviceAccount.automountServiceAccountToken }}
 diff --git a/charts/nginx-ingress/values.yaml b/charts/nginx-ingress/values.yaml
 index 76ace60b3..c31dce2b0 100644
 --- a/charts/nginx-ingress/values.yaml
