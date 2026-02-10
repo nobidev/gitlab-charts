@@ -95,7 +95,9 @@ kubectl get secret <name>-gitlab-initial-root-password -ojsonpath='{.data.passwo
 
 ## Deploy the Community Edition
 
-By default, the Helm charts use the Enterprise Edition of GitLab. The Enterprise Edition is a free, open core version of GitLab with the option of upgrading to a paid tier to unlock additional features. If desired, you can instead use the Community Edition which is licensed under the MIT Expat license. Learn more about the [difference between the two](https://about.gitlab.com/install/ce-or-ee/).
+By default, the Helm charts use the Enterprise Edition of GitLab. The Enterprise Edition is a free, open core version of
+GitLab with the option of upgrading to a paid tier to unlock additional features. If desired, you can instead use the
+Community Edition which is licensed under the MIT Expat license.
 
 *To deploy the Community Edition, include this option in your Helm install command:*
 

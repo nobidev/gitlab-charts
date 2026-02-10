@@ -23,7 +23,7 @@ These commands **can alter or break** your Kubernetes components so use these at
 {{< /alert >}}
 
 If you are on a [paid tier](https://about.gitlab.com/pricing/) and are not sure how
-to use these commands, it is best to [contact Support](https://about.gitlab.com/support/)
+to use these commands, it is best to [contact Support](https://support.gitlab.com/hc/en-us/articles/11626483177756-GitLab-Support)
 and they will assist you with any issues you are having.
 
 ## Generic Kubernetes commands
@@ -321,7 +321,8 @@ To patch the source code in the `toolbox` pod:
 
 1. Fetch the desired `.patch` file to be applied:
 
-   - Either download the diff of a merge request directly as a [patch file](https://docs.gitlab.com/user/project/merge_requests/reviews/#download-merge-request-changes-as-a-patch-file).
+   - Either download the diff of a merge request directly as a
+     [patch file](https://docs.gitlab.com/user/project/merge_requests/changes/#as-a-patch-file).
    - Or, fetch the diff directly using `curl`. Replace `<mr_iid>` below with the IID of the merge request, or change the URL to point to a raw snippet:
 
      ```shell
