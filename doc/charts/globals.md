@@ -302,13 +302,10 @@ Gateway manifest, and enables the creation of a HTTP01 Issuer configured for Gat
 
 ### GitLab Geo
 
-{{< alert type="warning" >}}
+   > [!note]
+   > GitLab Geo with Envoy Gateway and Gateway API is not fully validated yet.
 
-GitLab Geo with Envoy Gateway and Gateway API is not fully validated yet.
-
-{{< /alert >}}
-
-To configure [GitLab Geo](https://docs.gitlab.com/administration/geo/) using Gateway API a
+To configure [GitLab Geo](https://docs.gitlab.com/administration/geo/) using the Gateway API, an
 additional hostname can be configured by setting `global.geo.gatewayApi.additionalHostname`.
 
 The flag should be set to the internal URL on primary sites and to the external/unified
