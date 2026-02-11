@@ -201,8 +201,11 @@ spec:
               value: '/srv/gitlab/config'
             - name: SIDEKIQ_CONCURRENCY
               value: {{ default $concurrency .concurrency | quote }}
-            - name: SIDEKIQ_MAX_REPLICAS
+            {{- $gitlabSidekiqMaxReplicasIsDuplicate := include "checkDuplicateKeyFromEnv" (dict "rootScope" $ "keyToFind" "GITLAB_SIDEKIQ_MAX_REPLICAS" "deploymentScope" .) }}
+            {{- if eq $gitlabSidekiqMaxReplicasIsDuplicate "false" }}
+            - name: GITLAB_SIDEKIQ_MAX_REPLICAS
               value: {{ int $maxReplicasPerPod | quote }}
+            {{- end }}
             - name: SIDEKIQ_TIMEOUT
               value: {{ default $timeout .timeout | quote }}
             - name: SIDEKIQ_QUEUES

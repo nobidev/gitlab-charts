@@ -758,4 +758,36 @@ describe 'Sidekiq configuration' do
       end
     end
   end
+
+  describe 'GITLAB_SIDEKIQ_MAX_REPLICAS environment variable' do
+    def container_name(pod)
+      "Deployment/test-sidekiq-#{pod}-v2"
+    end
+
+    let(:default_values) do
+      HelmTemplate.defaults
+    end
+
+    context 'with default chart-level maxReplicas' do
+      let(:chart_values) do
+        YAML.safe_load(%(
+          gitlab:
+            sidekiq:
+              maxReplicas: 15
+              pods:
+              - name: test-pod
+        ))
+      end
+
+      it 'sets GITLAB_SIDEKIQ_MAX_REPLICAS to chart-level value' do
+        t = HelmTemplate.new(default_values.deep_merge(chart_values))
+        expect(t.exit_code).to eq(0)
+
+        env = t.env(container_name('test-pod'), 'sidekiq')
+        expect(env).to include(
+          { 'name' => 'GITLAB_SIDEKIQ_MAX_REPLICAS', 'value' => '15' }
+        )
+      end
+    end
+  end
 end
