@@ -27,9 +27,9 @@ describe 'Expose Geo with Gateway API' do
           enabled: true
           role: primary
           gatewayApi:
-            additionalHostname: internal.primary.example.com
+            additionalHostname: shanghai.example.com
         hosts:
-          domain: primary.example.com
+          domain: london.example.com
     ))
   end
 
@@ -41,7 +41,7 @@ describe 'Expose Geo with Gateway API' do
 
     geo_listener = gateway['spec']['listeners'].find { |l| l['name'] == 'gitlab-web-geo' }
     expect(geo_listener).not_to be_nil
-    expect(geo_listener['hostname']).to eq('internal.primary.example.com')
+    expect(geo_listener['hostname']).to eq('shanghai.example.com')
 
     expect(webservice_route['spec']['parentRefs'].count).to eq(2)
     expect(webservice_route['spec']['parentRefs'][0]['sectionName']).to eq('gitlab-web')
