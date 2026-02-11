@@ -281,14 +281,14 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
      - [using external Object Storage](../external-object-storage/_index.md)
    <!-- markdownlint-enable MD044 -->
 
-1. Add the neccecary Ingress or Gateway API configuration to your `primary.yaml`.
+1. Add the necessary Ingress or Gateway API configuration to your `primary.yaml`.
 
    {{< tabs >}}
 
    {{< tab title="NGINX Ingress" >}}
 
    Configure a extra NGINX controller and an extra webservice Ingress for internal
-   Geo traffic:
+   (inter-site) Geo traffic:
 
    ```yaml
    # Configure Geo Nginx Controller for internal Geo site traffic
@@ -666,7 +666,7 @@ To deploy this chart as a Geo Secondary site, start [from this example configura
    - For external databases, `global.psql.host` is the secondary, read-only replica database, while `global.geo.psql.host` is the Geo tracking database
    <!-- markdownlint-enable MD044 -->
 
-1. Add the neccecary Ingress or Gateway API configuration to your `secondary.yaml`.
+1. Add the necessary Ingress or Gateway API configuration to your `secondary.yaml`.
 
    {{< tabs >}}
 

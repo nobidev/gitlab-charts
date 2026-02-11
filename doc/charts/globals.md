@@ -247,7 +247,7 @@ listeners:
     tls:
       mode: Terminate
       certificateRefs:
-        - name: gitlab-web-geo
+        - name: gitlab-web-geo-tls
   gitlab-ssh:
     protocol: "TCP"
   registry-web:
@@ -309,7 +309,7 @@ GitLab Geo with Envoy Gateway and Gateway API is not fully validated yet.
 {{< /alert >}}
 
 To configure [GitLab Geo](https://docs.gitlab.com/administration/geo/) using Gateway API a
-addional hostname can be configured by setting `global.geo.gatewayApi.addionalHostname`.
+additional hostname can be configured by setting `global.geo.gatewayApi.additionalHostname`.
 
 The flag should be set to the internal URL on primary sites and to the external/unified
 URL on secondary sites. Check the [Geo setup guide](../advanced/geo/_index.md) for more
