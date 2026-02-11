@@ -140,12 +140,12 @@ describe 'Gitaly configuration' do
       with_them do
         let(:values) do
           YAML.safe_load(%(
-            gitlab:
-              gitaly:
-                securityContext:
-                  #{"fsGroup: #{fsGroup}" unless fsGroup.nil?}
-                  #{"fsGroupChangePolicy: #{fsGroupChangePolicy}" unless fsGroupChangePolicy.nil?}
-                  #{"runAsUser: #{runAsUser}" unless runAsUser.nil?}
+              gitlab:
+                gitaly:
+                  securityContext:
+                    #{"fsGroup: #{fsGroup}" unless fsGroup.nil?}
+                    #{"fsGroupChangePolicy: #{fsGroupChangePolicy}" unless fsGroupChangePolicy.nil?}
+                    #{"runAsUser: #{runAsUser}" unless runAsUser.nil?}
           )).deep_merge(default_values)
         end
 
@@ -908,6 +908,247 @@ describe 'Gitaly configuration' do
       it 'it does not set a clusterIP' do
         expect(service['spec']).to include('type' => 'NodePort')
         expect(service['spec']).not_to have_key('clusterIP')
+      end
+    end
+  end
+
+  context 'initContainers' do
+    context 'when custom initContainers are provided' do
+      let(:values) do
+        YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                extraInitContainers: |
+                  - name: init-custom
+                    image: alpine:latest
+                    imagePullPolicy: Always
+                    command:
+                      - sh
+                      - -c
+                      - echo "Initializing Gitaly"
+                    env:
+                      - name: INIT_ENV_VAR
+                        value: "test_value"
+                    securityContext:
+                      runAsUser: 1000
+                      runAsGroup: 1000
+                  - name: init-another
+                    image: busybox:1.35
+                    imagePullPolicy: IfNotPresent
+                    command:
+                      - sh
+                      - -c
+                      - echo "Another init container"
+        )).deep_merge(default_values)
+      end
+
+      it 'renders the template successfully' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'adds custom initContainers to the StatefulSet' do
+        init_containers = statefulset['spec']['template']['spec']['initContainers']
+        expect(init_containers.length).to be >= 2
+        expect(init_containers.map { |c| c['name'] }).to include('init-custom', 'init-another')
+      end
+
+      it 'sets custom initContainer image and pull policy' do
+        custom_init = statefulset['spec']['template']['spec']['initContainers'].find { |c| c['name'] == 'init-custom' }
+        expect(custom_init['image']).to eq('alpine:latest')
+        expect(custom_init['imagePullPolicy']).to eq('Always')
+      end
+
+      it 'sets custom initContainer command' do
+        custom_init = statefulset['spec']['template']['spec']['initContainers'].find { |c| c['name'] == 'init-custom' }
+        expect(custom_init['command']).to eq(['sh', '-c', 'echo "Initializing Gitaly"'])
+      end
+
+      it 'sets custom initContainer environment variables' do
+        custom_init = statefulset['spec']['template']['spec']['initContainers'].find { |c| c['name'] == 'init-custom' }
+        env_names = custom_init['env'].map { |e| e['name'] }
+        expect(env_names).to include('INIT_ENV_VAR')
+        expect(custom_init['env'].find { |e| e['name'] == 'INIT_ENV_VAR' }['value']).to eq('test_value')
+      end
+
+      it 'sets custom initContainer security context' do
+        custom_init = statefulset['spec']['template']['spec']['initContainers'].find { |c| c['name'] == 'init-custom' }
+        expect(custom_init['securityContext']).to include('runAsUser' => 1000, 'runAsGroup' => 1000)
+      end
+    end
+
+    context 'when initContainers list is empty' do
+      let(:values) do
+        YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                extraInitContainers: ""
+        )).deep_merge(default_values)
+      end
+
+      it 'does not add custom initContainers' do
+        init_containers = statefulset['spec']['template']['spec']['initContainers']
+        # Only system initContainers (if any, like init-cgroups) should remain
+        custom_init_names = init_containers.map { |c| c['name'] }.select { |n| n.start_with?('init-custom', 'init-another') }
+        expect(custom_init_names).to be_empty
+      end
+    end
+
+    context 'when initContainers are not specified' do
+      let(:values) { default_values }
+
+      it 'renders the template successfully' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'StatefulSet contains initContainers' do
+        init_containers = statefulset['spec']['template']['spec']['initContainers']
+        expect(init_containers).to be_present
+      end
+    end
+
+    context 'when initContainers with resources are provided' do
+      let(:values) do
+        YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                extraInitContainers: |
+                  - name: init-with-resources
+                    image: alpine:latest
+                    resources:
+                      requests:
+                        cpu: 100m
+                        memory: 128Mi
+                      limits:
+                        cpu: 500m
+                        memory: 512Mi
+        )).deep_merge(default_values)
+      end
+
+      it 'sets resource requests and limits' do
+        custom_init = statefulset['spec']['template']['spec']['initContainers'].find { |c| c['name'] == 'init-with-resources' }
+        expect(custom_init['resources']).to include(
+          'requests' => { 'cpu' => '100m', 'memory' => '128Mi' },
+          'limits' => { 'cpu' => '500m', 'memory' => '512Mi' }
+        )
+      end
+    end
+
+    context 'when initContainers with volumeMounts are provided' do
+      let(:values) do
+        YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                extraInitContainers: |
+                  - name: init-with-volumes
+                    image: alpine:latest
+                    volumeMounts:
+                      - name: init-volume
+                        mountPath: /tmp/init
+        )).deep_merge(default_values)
+      end
+
+      it 'sets volumeMounts' do
+        custom_init = statefulset['spec']['template']['spec']['initContainers'].find { |c| c['name'] == 'init-with-volumes' }
+        expect(custom_init['volumeMounts']).to include(
+          'name' => 'init-volume',
+          'mountPath' => '/tmp/init'
+        )
+      end
+    end
+
+    context 'when initContainers with securityContext (privileged, allowPrivilegeEscalation, runAsNonRoot)' do
+      let(:values) do
+        YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                extraInitContainers: |
+                  - name: init-privileged
+                    image: alpine:latest
+                    securityContext:
+                      privileged: true
+                      allowPrivilegeEscalation: true
+                      runAsNonRoot: false
+                  - name: init-restricted
+                    image: busybox:1.35
+                    securityContext:
+                      privileged: false
+                      allowPrivilegeEscalation: false
+                      runAsNonRoot: true
+                      runAsUser: 1000
+        )).deep_merge(default_values)
+      end
+
+      it 'renders the template successfully' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'sets privileged securityContext security context for privileged initContainer' do
+        privileged_init = statefulset['spec']['template']['spec']['initContainers'].find { |c| c['name'] == 'init-privileged' }
+        expect(privileged_init['securityContext']).to include(
+          'privileged' => true,
+          'allowPrivilegeEscalation' => true,
+          'runAsNonRoot' => false
+        )
+      end
+
+      it 'sets restricted securityContext for restricted initContainer' do
+        restricted_init = statefulset['spec']['template']['spec']['initContainers'].find { |c| c['name'] == 'init-restricted' }
+        expect(restricted_init['securityContext']).to include(
+          'privileged' => false,
+          'allowPrivilegeEscalation' => false,
+          'runAsNonRoot' => true,
+          'runAsUser' => 1000
+        )
+      end
+    end
+
+    context 'when pod securityContext includes new properties (privileged, allowPrivilegeEscalation, runAsNonRoot)' do
+      let(:values) do
+        YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                securityContext:
+                  privileged: false
+                  allowPrivilegeEscalation: false
+                  runAsNonRoot: true
+                  fsGroup: 1000
+                  runAsUser: 1000
+        )).deep_merge(default_values)
+      end
+
+      it 'renders the template successfully' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'sets pod-level securityContext with new properties' do
+        security_context = statefulset['spec']['template']['spec']['securityContext']
+        expect(security_context).to include(
+          'privileged' => false,
+          'allowPrivilegeEscalation' => false,
+          'runAsNonRoot' => true,
+          'fsGroup' => 1000,
+          'runAsUser' => 1000
+        )
+      end
+    end
+
+    context 'when securityContext properties are nil (not specified)' do
+      let(:values) do
+        YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                securityContext:
+                  fsGroup: 1000
+                  runAsUser: 1000
+        )).deep_merge(default_values)
+      end
+
+      it 'does not include privileged, allowPrivilegeEscalation, or runAsNonRoot' do
+        security_context = statefulset['spec']['template']['spec']['securityContext']
+        expect(security_context).to include('fsGroup' => 1000, 'runAsUser' => 1000)
+        expect(security_context).not_to have_key('privileged')
+        expect(security_context).not_to have_key('allowPrivilegeEscalation')
+        expect(security_context).not_to have_key('runAsNonRoot')
       end
     end
   end

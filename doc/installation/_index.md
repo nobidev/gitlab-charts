@@ -101,3 +101,16 @@ GitLab develops Infrastructure as Code that is capable of configuring the combin
 - [Implementation pattern: Provision GitLab cloud native hybrid on AWS EKS](https://docs.gitlab.com/solutions/cloud/aws/gitlab_instance_on_aws/):
   This resource provides a Bill of Materials tested with the GitLab Performance Toolkit,
   and uses the AWS Cost Calculator for budgeting.
+
+## Zero downtime upgrades
+
+Zero-downtime upgrades allow you to upgrade GitLab without service interruptions. To enable this capability, you must configure rolling update strategies during your initial installation. If you add these settings to an existing deployment later, it will trigger pod restarts and may cause brief downtime.
+
+> [!warning]
+> Achieving zero downtime as part of an upgrade is notably difficult for any distributed application. The documentation has been tested as given against our HA reference architectures and resulted in effectively no observable downtime. However, be aware your mileage may vary dependent on the specific system makeup.
+>
+> During the upgrade, users may temporarily experience UI inconsistencies or HTTP 404 errors for assets as requests route between pods running different versions, these issues typically resolve with a page refresh.
+
+To configure your deployment for zero-downtime upgrades, be sure to include the rolling update settings from the [Recommended deployment settings](upgrade.md#recommended-deployment-settings).
+
+For complete upgrade procedures, see the [Upgrade with zero downtime](upgrade.md#upgrade-with-zero-downtime) documentation.

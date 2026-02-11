@@ -314,7 +314,7 @@ Defaults to nil
 
 {{/*
 Return the registry database username
-Checks both main chart context (.Values.registry.database.user) and 
+Checks both main chart context (.Values.registry.database.user) and
 subchart context (.Values.database.user) for maximum compatibility.
 Priority: local > global > default ("registry")
 */}}
@@ -330,7 +330,7 @@ Priority: local > global > default ("registry")
 
 {{/*
 Return the registry database name
-Checks both main chart context (.Values.registry.database.name) and 
+Checks both main chart context (.Values.registry.database.name) and
 subchart context (.Values.database.name) for maximum compatibility.
 Priority: local > global > default ("registry")
 */}}
@@ -604,6 +604,15 @@ securityContext:
 {{-   if not (empty $psc.fsGroup) }}
   fsGroup: {{ $psc.fsGroup }}
 {{-   end }}
+{{-   if not (eq $psc.privileged nil) }}
+  privileged: {{ $psc.privileged }}
+{{-   end }}
+{{-   if not (eq $psc.allowPrivilegeEscalation nil) }}
+  allowPrivilegeEscalation: {{ $psc.allowPrivilegeEscalation }}
+{{-   end }}
+{{-   if not (eq $psc.runAsNonRoot nil) }}
+  runAsNonRoot: {{ $psc.runAsNonRoot }}
+{{-   end }}
 {{-   if not (empty $psc.fsGroupChangePolicy) }}
   fsGroupChangePolicy: {{ $psc.fsGroupChangePolicy }}
 {{-   end }}
@@ -614,9 +623,9 @@ securityContext:
 {{- end }}
 {{- end -}}
 
+
 {{/*
 Return a PodSecurityContext definition that allows to it to run as root.
-
 Usage:
   {{ include "gitlab.podSecurityContextRoot" .Values.securityContext }}
 */}}
@@ -633,8 +642,21 @@ securityContext:
 {{-   if not (eq $psc.fsGroup nil) }}
   fsGroup: {{ $psc.fsGroup }}
 {{-   end }}
+{{-   if not (eq $psc.privileged nil) }}
+  privileged: {{ $psc.privileged }}
+{{-   end }}
+{{-   if not (eq $psc.allowPrivilegeEscalation nil) }}
+  allowPrivilegeEscalation: {{ $psc.allowPrivilegeEscalation }}
+{{-   end }}
+{{-   if not (eq $psc.runAsNonRoot nil) }}
+  runAsNonRoot: {{ $psc.runAsNonRoot }}
+{{-   end }}
 {{-   if not (eq $psc.fsGroupChangePolicy nil) }}
   fsGroupChangePolicy: {{ $psc.fsGroupChangePolicy }}
+{{-   end }}
+{{-   if $psc.seccompProfile }}
+  seccompProfile:
+    {{- toYaml $psc.seccompProfile | nindent 4 }}
 {{-   end }}
 {{- end }}
 {{- end -}}

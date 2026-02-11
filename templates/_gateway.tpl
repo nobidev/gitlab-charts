@@ -17,19 +17,42 @@ Returns the name of the EnvoyProxy resource.
 {{- end -}}
 
 {{/*
-Returns a target refs to the Gateway resource.
+Returns a target ref to the Gateway resource without namespace and sectionName
+for usage in Envoy policy custom resources.
 */}}
-{{- define "gitlab.gatewayApi.gatewayRef" -}}
+{{- define "gitlab.gatewayApi.gatewayRef.local" -}}
 - group: gateway.networking.k8s.io
   kind: Gateway
   name: {{ coalesce (.Values.gatewayRoute).gatewayName .Values.global.gatewayApi.gatewayRef.name (include "gitlab.gatewayApi.gateway.name.default" .) | quote }}
+{{- end -}}
+
+{{/*
+Returns true if envoy policies should be installed. Policies are installed if bundled envoy is installed
+and if Gateway is in same namespace.
+*/}}
+{{- define "gitlab.gatewayApi.envoy.installPolicies" -}}
+{{- $installEnvoy := and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy -}}
+{{- $gatewayNamespace := (include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray | first).namespace -}}
+{{- $gatewayInSameNamespace := eq .Release.Namespace $gatewayNamespace -}}
+{{- if and $installEnvoy $gatewayInSameNamespace -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
+Returns a target refs to the Gateway resource with a namespace and optionally a section name.
+*/}}
+{{- define "gitlab.gatewayApi.gatewayRef" -}}
+{{- template "gitlab.gatewayApi.gatewayRef.local" . }}
   namespace: {{ coalesce (.Values.gatewayRoute).gatewayNamespace .Values.global.gatewayApi.gatewayRef.namespace .Release.Namespace | quote }}
 {{- with .Values.gatewayRoute }}
 {{-   with .sectionName }}
   sectionName: {{ . | quote }}
 {{-   end }}
 {{- end }}
-{{- end -}}
+{{- end }}
 
 {{/*
 Renders a single listener configuration for the managed Gateway resource.

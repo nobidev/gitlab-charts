@@ -2,6 +2,10 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.8.4 (2026-02-09)
+
+No changes.
+
 ## 9.8.3 (2026-02-04)
 
 ### Changed (1 change)
@@ -39,6 +43,10 @@ No changes.
 
 - [Remove suggested reviewers secret and config](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bcdce46616a5f76a12514615497e7d290b22a11b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4643))
 
+## 9.7.4 (2026-02-09)
+
+No changes.
+
 ## 9.7.3 (2026-02-04)
 
 No changes.
@@ -74,6 +82,10 @@ No changes.
 - [Update Helm release openbao to v0.9.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e8edf9bf84403a826d34163a505697c7c6a890a5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4661))
 - [Update Helm release gitlab-runner to v0.83.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bd1bc85cf2ea47931cf3dc5363a87f8d261566e0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4659))
 - [Update Helm release gitlab-runner to v0.83.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ff93cc6c6b49b2d3a2bda5ff8d8bbdaedfa01dfb) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4654))
+
+## 9.6.6 (2026-02-09)
+
+No changes.
 
 ## 9.6.5 (2026-02-04)
 

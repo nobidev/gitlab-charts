@@ -1,4 +1,4 @@
-{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy }}
+{{- if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
 {{- $gitlabWebProtocol := (index .Values.global.gatewayApi.listeners "gitlab-web").protocol | default .Values.global.gatewayApi.protocol }}
 {{- $patchPathPrefix := "/default_filter_chain" }}
 {{- if eq (upper $gitlabWebProtocol) "HTTPS" }}
@@ -14,13 +14,13 @@ metadata:
     {{- include "gitlab.commonLabels" . | nindent 4 }}
 spec:
   targetRef:
-    {{ $gatewayRef := (include "gitlab.gatewayApi.gatewayRef" .) | fromYamlArray | first }}
+    {{ $gatewayRef := (include "gitlab.gatewayApi.gatewayRef.local" .) | fromYamlArray | first }}
     {{ $gatewayRef | toYaml | nindent 4 }}
   type: JSONPatch
   jsonPatches:
     # Keep paths with escaped slashed unchanged. Escaped slashes are commonly used in GitLab API calls to identify projects.
     - type: "type.googleapis.com/envoy.config.listener.v3.Listener"
-      name: {{ printf "$s/%s/gitlab-web" .Release.Namespace $gatewayRef.name }}
+      name: {{ printf "%s/%s/gitlab-web" .Release.Namespace $gatewayRef.name }}
       operation:
         op: add
         path: {{ printf "%s/filters/0/typed_config/path_with_escaped_slashes_action" $patchPathPrefix | quote }}

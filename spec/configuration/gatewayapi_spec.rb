@@ -80,10 +80,12 @@ describe 'Gateway API configuration' do
       it 'creates the policies' do
         expect(clienttrafficpolicy).not_to be_nil
         expect(clienttrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
+        expect(clienttrafficpolicy["spec"]["targetRefs"][0]).not_to have_key("namespace")
         expect(clienttrafficpolicy["spec"]["enableProxyProtocol"]).to be(true)
 
         expect(securitypolicy).not_to be_nil
         expect(securitypolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
+        expect(securitypolicy["spec"]["targetRefs"][0]).not_to have_key("namespace")
         expect(securitypolicy["spec"]["authorization"]["defaultAction"]).to eq("Deny")
       end
     end

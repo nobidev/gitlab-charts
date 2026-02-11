@@ -469,6 +469,21 @@ in the Linux package documentation.
 
 {{< /alert >}}
 
+## Disable HPA scaling
+
+By default, the Sidekiq chart enables Horizontal Pod Autoscaling (HPA) to automatically scale pods based on CPU utilization. To disable HPA scaling and
+use fixed replica counts instead, set `minReplicas` equal to `maxReplicas` at the chart level to disable HPA for all pods:
+
+```yaml
+gitlab:
+  sidekiq:
+    minReplicas: 3
+    maxReplicas: 3  # Setting equal to minReplicas disables HPA scaling
+    concurrency: 25
+    pods:
+      - name: default
+```
+
 ## Per-pod Settings
 
 The `pods` declaration provides for the declaration of all attributes for a worker
