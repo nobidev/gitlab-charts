@@ -535,6 +535,13 @@ deployments: {}
   # default:
   #   ingress:
   #     path: /
+  #   gatewayRoute:
+  #     rule:
+  #       enabled: true
+  #       matches:
+  #       - path:
+  #           type: PathPrefix
+  #           value: /
 
 antiAffinity: "" # options: "hard", "soft"
 

@@ -1,4 +1,5 @@
 {{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
+{{- include "webservice.datamodel.prepare" $ -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -23,13 +24,16 @@ spec:
     - {{ . | quote }}
     {{- end }}
   rules:
-  - backendRefs:
+  {{- range $.Values.deployments }}
+    {{- if .gatewayRoute.rule.enabled }}
+  - name: {{ printf "%s-deployment" .name }}
+    backendRefs:
     - kind: Service
-      name: {{ .Release.Name }}-webservice-default
-      port: {{ .Values.service.workhorseExternalPort }}
+      name: {{ template "webservice.fullname.withSuffix" . }}
+      port: {{ $.Values.service.workhorseExternalPort }}
       weight: 1
     matches:
-    - path:
-        type: PathPrefix
-        value: /
+      {{- .gatewayRoute.rule.matches | toYaml | nindent 6 }}
+    {{- end }}
+  {{- end }}
 {{- end }}

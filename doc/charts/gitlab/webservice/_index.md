@@ -603,6 +603,37 @@ An extra Ingress can be deployed by setting `extraIngress.enabled=true`. The Ing
 is named as the default Ingress with the `-extra` suffix and supports the same
 settings as the default Ingress.
 
+## Gateway API
+
+If GitLab chart is configured to be exposed [through Gateway API](../../globals.md#gateway-api), each
+deployment will be added as a rule to the `HTTPRoute` of the webservice chart.
+
+You can disable a given deployment from having an rule in the `HTTPRoute` by setting
+`.rule.enabled=false` to the deployment.
+
+```yaml
+webservice:
+  deployments:
+    default:
+      gatewayRoute:
+        rule:
+          matches:
+          - path:
+              type: PathPrefix
+              value: /
+    api:
+      gatewayRoute:
+        rule:
+          matches:
+          - path:
+              type: PathPrefix
+              value: /api
+    internal-api:
+      gatewayRoute:
+        rule:
+          enabled: false
+```
+
 ## Resources
 
 ### Memory requests/limits

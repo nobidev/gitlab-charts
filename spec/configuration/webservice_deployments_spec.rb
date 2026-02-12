@@ -958,4 +958,63 @@ describe 'Webservice Deployments configuration' do
       expect(webservice).not_to have_key('readinessProbe')
     end
   end
+
+  context "Gateway API" do
+    let(:deployment_values) do
+      YAML.safe_load(%(
+        global:
+          gatewayApi:
+            enabled: true
+          ingress:
+            enabled: false
+      )).deep_merge(default_values)
+    end
+
+    let(:template) { HelmTemplate.new(deployment_values) }
+    let(:webservice_route) { template["HTTPRoute/test-gitlab"] }
+
+    context "only default deployment" do
+      it 'configures the default backend ref' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        expect(webservice_route["spec"]["rules"].count).to eq(1)
+        expect(webservice_route["spec"]["rules"][0]["backendRefs"].count).to eq(1)
+        expect(webservice_route["spec"]["rules"][0]["backendRefs"][0]["name"]).to eq("test-webservice-default")
+        expect(webservice_route["spec"]["rules"][0]["backendRefs"][0]["port"]).to eq(8181)
+        expect(webservice_route["spec"]["rules"][0]["matches"][0]["path"]["value"]).to eq("/")
+      end
+    end
+
+    context "multiple deployments" do
+      let(:deployment_values) do
+        HelmTemplate.with_defaults(%(
+        gitlab:
+          webservice:
+            deployments:
+              a:
+                gatewayRoute:
+                  rule:
+                    matches:
+                    - { path: { value: '/a' } }
+              b:
+                gatewayRoute:
+                  rule:
+                    matches:
+                    - { path: { value: '/b' } }
+              c: {}
+              d:
+                gatewayRoute:
+                  rule:
+                    enabled: false
+        )).deep_merge(super())
+      end
+
+      it 'configures the default backend ref' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        expect(webservice_route["spec"]["rules"].count).to eq(3)
+        expect(webservice_route["spec"]["rules"][0]["matches"][0]["path"]["value"]).to eq("/a")
+        expect(webservice_route["spec"]["rules"][1]["matches"][0]["path"]["value"]).to eq("/b")
+        expect(webservice_route["spec"]["rules"][2]["matches"][0]["path"]["value"]).to eq("/")
+      end
+    end
+  end
 end
