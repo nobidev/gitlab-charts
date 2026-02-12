@@ -55,7 +55,7 @@ dependencies:
   repository: https://charts.gitlab.io/
   condition: gitlab-zoekt.install
 - name: openbao
-  version: 0.12.1
+  version: 0.12.2
   repository: https://charts.gitlab.io/
   condition: openbao.install
 - name: traefik
