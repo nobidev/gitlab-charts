@@ -1,0 +1,186 @@
+# Cloud Native First - Large (L) - ≤500 RPS
+# https://docs.gitlab.com/administration/reference_architectures/cloud_native_first.html
+
+gitlab:
+  webservice:
+    maxReplicas: 84
+    minReplicas: 56
+    maxUnavailable: 42
+    hpa:
+      cpu:
+        targetAverageValue: 1600m
+    resources:
+      limits:
+        memory: 4G
+      requests:
+        cpu: 2
+        memory: 3G
+    workerProcesses: 2
+    ingress:
+      proxyBodySize: 0
+    nodeSelector:
+      workload: webservice
+
+  sidekiq:
+    maxReplicas: 48
+    minReplicas: 32
+    maxUnavailable: 24
+    hpa:
+      cpu:
+        targetAverageValue: 700m
+    resources:
+      limits:
+        memory: 4G
+      requests:
+        cpu: 900m
+        memory: 2G
+    nodeSelector:
+      workload: sidekiq
+
+  gitaly:
+    nodeSelector:
+      workload: gitaly
+    resources:
+      limits:
+        cpu: 31
+        memory: 126G
+      requests:
+        cpu: 31
+        memory: 126G
+    persistence:
+      storageClass: "standard"
+      size: "1Ti"
+    packObjectsCache:
+      enabled: true
+    cgroups:
+      enabled: true
+      memoryBytes: 120000000000
+      cpuShares: '1024'
+      repositories:
+        count: 1
+    antiAffinity: hard
+    securityContext:
+      fsGroupChangePolicy: OnRootMismatch
+    gracefulRestartTimeout: 1
+
+  toolbox:
+    backups:
+      objectStorage:
+        backend: gcs
+        config:
+          secret: gitlab-object-storage
+          key: config
+
+  migrations:
+    psql:
+      host: postgresql.example.com
+      port: 5432
+      password:
+        secret: gitlab-postgres-password
+        key: password
+
+global:
+  nodeSelector:
+    workload: support
+
+  hosts:
+    domain: example.com
+    https: true
+
+  appConfig:
+    object_store:
+      enabled: true
+      connection:
+        secret: gitlab-object-storage
+        key: connection
+    artifacts:
+      bucket: gitlab-artifacts
+      proxy_download: false
+    lfs:
+      bucket: gitlab-lfs
+      proxy_download: false
+    packages:
+      bucket: gitlab-packages
+      proxy_download: false
+    uploads:
+      bucket: gitlab-uploads
+      proxy_download: false
+    externalDiffs:
+      enabled: true
+      bucket: gitlab-external-diffs
+      when: outdated
+      proxy_download: false
+    dependencyProxy:
+      enabled: true
+      bucket: gitlab-dependency-proxy
+      proxy_download: false
+    terraformState:
+      enabled: true
+      bucket: gitlab-terraform-state
+      proxy_download: false
+    ciSecureFiles:
+      bucket: gitlab-ci-secure-files
+      enabled: true
+    backups:
+      bucket: gitlab-backups
+
+  psql:
+    host: postgresql.example.com
+    port: 5432
+    password:
+      secret: gitlab-postgres-password
+      key: password
+    # Read replicas optional but recommended for improved stability
+    # load_balancing:
+    #   hosts:
+    #     - postgresql-replica-1.example.com
+    #     - postgresql-replica-2.example.com
+
+  redis:
+    cache:
+      host: redis-cache.example.com
+      port: 6379
+      password:
+        secret: gitlab-redis-cache-password
+        key: password
+    host: redis-persistent.example.com
+    port: 6379
+    auth:
+      secret: gitlab-redis-persistent-password
+      key: password
+
+  gitaly:
+    enabled: true
+    internal:
+      names:
+        - default
+        - storage1
+        - storage2
+
+  registry:
+    bucket: gitlab-registry
+
+  minio:
+    enabled: false
+
+nginx-ingress:
+  controller:
+    kind: DaemonSet
+    nodeSelector:
+      workload: webservice
+    scope:
+      enabled: false
+
+registry:
+  storage:
+    secret: gitlab-registry-storage
+    key: config
+
+redis:
+  install: false
+
+postgresql:
+  install: false
+
+gitlab-runner:
+  install: false
