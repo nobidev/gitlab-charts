@@ -83,6 +83,12 @@ global:
         kubernetes:
           envoyService:
             type: LoadBalancer
+          envoyDeployment:
+            pod:
+              annotations:
+                gitlab.com/prometheus_scrape: "true"
+                gitlab.com/prometheus_port: "19001"
+                gitlab.com/prometheus_path: "/stats/prometheus"
     envoyClientTrafficPolicySpec: {}
     envoySecurityPolicySpec: {}
     gatewayRef: {}
@@ -1642,6 +1648,11 @@ openbao:
           sslMode: ''
 
 envoy-gateway:
+  deployment:
+    pod:
+      annotations:
+        gitlab.com/prometheus_scrape: "true"
+        gitlab.com/prometheus_port: "19001"
   config:
     envoyGateway:
       gateway:
