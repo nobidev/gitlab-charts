@@ -608,7 +608,7 @@ settings as the default Ingress.
 If GitLab chart is configured to be exposed [through Gateway API](../../globals.md#gateway-api), each
 deployment will be added as a rule to the `HTTPRoute` of the webservice chart.
 
-You can disable a given deployment from having an rule in the `HTTPRoute` by setting
+You can disable a given deployment from having a rule in the `HTTPRoute` by setting
 `.rule.enabled=false` to the deployment.
 
 ```yaml
