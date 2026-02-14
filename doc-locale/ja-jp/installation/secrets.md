@@ -66,6 +66,7 @@ GitLabコンポーネント:
   - [GitLab Pagesシークレット](#gitlab-pages-secret)
   - [GitLab受信メール認証トークン](#gitlab-incoming-email-auth-token)
   - [GitLabサービスデスクメール認証トークン](#gitlab-service-desk-email-auth-token)
+  - [Zoektインデクサー内部APIシークレット](#zoekt-indexer-internal-api-secret)
 - [外部サービス](#external-services)
   - [OmniAuth](#omniauth)
   - [LDAPパスワード](#ldap-password)
@@ -478,6 +479,25 @@ kubectl create secret generic <name>-service-desk-email-auth-token --from-litera
 ```
 
 このシークレットは、`global.serviceDeskEmail.authToken`設定によって参照されます。
+
+### Zoektインデクサー内部APIシークレット {#zoekt-indexer-internal-api-secret}
+
+[gitlab-zoektサブチャート](https://docs.gitlab.com/charts/charts/gitlab/zoekt/)がインストールされている場合、ZoektインデクサーはJWTを使用してGitLab内部APIに認証します。デフォルトでは、このシークレットは[GitLab Shellシークレット](#gitlab-shell-secret)を再利用し、自動生成されます。
+
+Zoekt用に別のシークレットを使用する場合は、手動で作成できます（`<name>`をリリースの名前に置き換えます）:
+
+```shell
+kubectl create secret generic <name>-zoekt-internal-api --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
+```
+
+次に、チャートで使用するように設定します:
+
+```shell
+--set global.zoekt.indexer.internalApi.secretName=<name>-zoekt-internal-api \
+--set global.zoekt.indexer.internalApi.secretKey=secret
+```
+
+指定しない場合、`global.zoekt.indexer.internalApi.secretName`はGitLab Shell認証トークンシークレット（`global.shell.authToken.secret`）をデフォルトとして使用します。
 
 ### 受信メールのMicrosoft Graphクライアントのシークレットキー {#microsoft-graph-client-secret-for-incoming-emails}
 

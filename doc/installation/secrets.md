@@ -67,6 +67,7 @@ documentation.
   - [GitLab Pages secret](#gitlab-pages-secret)
   - [GitLab incoming email auth token](#gitlab-incoming-email-auth-token)
   - [GitLab Service Desk email auth token](#gitlab-service-desk-email-auth-token)
+  - [Zoekt indexer internal API secret](#zoekt-indexer-internal-api-secret)
 - [External Services](#external-services)
   - [OmniAuth](#omniauth)
   - [LDAP Password](#ldap-password)
@@ -528,6 +529,25 @@ kubectl create secret generic <name>-service-desk-email-auth-token --from-litera
 ```
 
 This secret is referenced by the `global.serviceDeskEmail.authToken` setting.
+
+### Zoekt indexer internal API secret
+
+When the [gitlab-zoekt subchart](https://docs.gitlab.com/charts/charts/gitlab/zoekt/) is installed, the Zoekt indexer authenticates to the GitLab internal API using JWT. By default, this secret reuses the [GitLab Shell secret](#gitlab-shell-secret), which is auto-generated.
+
+If you want to use a separate secret for Zoekt, you can create one manually (replace `<name>` with the name of the release):
+
+```shell
+kubectl create secret generic <name>-zoekt-internal-api --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
+```
+
+Then configure the chart to use it:
+
+```shell
+--set global.zoekt.indexer.internalApi.secretName=<name>-zoekt-internal-api \
+--set global.zoekt.indexer.internalApi.secretKey=secret
+```
+
+If not specified, `global.zoekt.indexer.internalApi.secretName` defaults to the GitLab Shell auth token secret (`global.shell.authToken.secret`).
 
 ### Microsoft Graph client secret for incoming emails
 
