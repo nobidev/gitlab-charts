@@ -532,7 +532,7 @@ This secret is referenced by the `global.serviceDeskEmail.authToken` setting.
 
 ### Zoekt indexer internal API secret
 
-When the [gitlab-zoekt subchart](../charts/gitlab/gitlab-zoekt/_index.md) is installed, the Zoekt indexer authenticates to the GitLab internal API using JWT. By default, this secret reuses the [GitLab Shell secret](#gitlab-shell-secret), which is auto-generated.
+When the [GitLab-zoekt subchart](../charts/gitlab/gitlab-zoekt/_index.md) is installed, the Zoekt indexer authenticates to the GitLab internal API using JWT. By default, this secret reuses the [GitLab Shell secret](#gitlab-shell-secret), which is auto-generated.
 
 If you want to use a separate secret for Zoekt, you can create one manually (replace `<name>` with the name of the release):
 
