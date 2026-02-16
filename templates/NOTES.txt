@@ -4,7 +4,7 @@
 
 {{- /* ===== CRITICAL NOTIFICATIONS ===== */}}
 {{- /* Warn users about MinIO and Bitnami Redis/PostgreSQL removal */}}
-{{- if or .Values.postgresql.install .Values.redis.install .Values.global.minio.enabled }}
+{{- if or (eq .Values.postgresql.install true) (eq .Values.redis.install true) (eq .Values.global.minio.enabled true) }}
 {{ $CRITICAL }}
 The bundled PostgreSQL, Redis and MinIO will be removed in GitLab 19.0. Please review
 the deprecation announcement at https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart
