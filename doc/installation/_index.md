@@ -57,20 +57,22 @@ use external services.
 1. [External Redis](../advanced/external-redis/_index.md)
 1. [External Object Storage](../advanced/external-object-storage/_index.md)
 
-{{< alert type="note" >}}
-
-Starting in December 2024, [Bitnami changed its build policy](https://github.com/bitnami/containers/issues/75671)
-to update only the latest stable major version of each application in the free catalog. The GitLab chart
-will continue to default to publicly available images.
-
-In July 2025, [Bitnami announced](https://github.com/bitnami/containers/issues/75671) it will require
-a subscription to Bitnami Secure Images, a paid offering, for users to get access to secure and
-versioned charts and images.
-
-As a result, the versions of these Bitnami charts configured by GitLab will fall out of date. Teams that deploy these Bitnami charts for non-production use should take care
-to use appropriate up-to-date, patched images commensurate with their security requirements.
-
-{{< /alert >}}
+> [!note]
+> Starting in December 2024, [Bitnami changed its build policy](https://github.com/bitnami/containers/issues/75671)
+> to update only the latest stable major version of each application in the free catalog. The GitLab chart
+> will continue to default to publicly available images.
+>
+> In July 2025, [Bitnami announced](https://github.com/bitnami/containers/issues/75671) it will require
+> a subscription to Bitnami Secure Images, a paid offering, for users to get access to secure and
+> versioned charts and images.
+>
+> As a result, the versions of these Bitnami charts configured by GitLab will fall out of date.
+> Teams that deploy these Bitnami charts for non-production use should take care to use appropriate
+> up-to-date, patched images commensurate with their security requirements.
+>
+> Starting with GitLab 19.0 the chart will stop bundling the Bitnami charts. Please review the
+> [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
+> and [migrate](migration/bundled_chart_migration.md) to external alternatives.
 
 ## Configure the Helm chart to use external stateful data
 
@@ -78,12 +80,12 @@ For production-grade deployments, you should configure the chart to point
 to external object storage, Valkey/Redis, PostgreSQL, and Gitaly services that
 match with your selected [reference architecture](https://docs.gitlab.com/administration/reference_architectures/).
 
-While the GitLab chart bundles MinIO, PostgreSQL, and Redis charts for proof-of-concept
-and testing scenarios, these components and charts have experienced several project and
-licencing changes upstream impacting our ability to maintain them.
+For proof-of-concept and testing purposes, the GitLab chart bundles MinIO, PostgreSQL,
+and Redis charts. However, these charts have been deprecated and are scheduled for removal
+in GitLab 19.0 because of several project and licensing changes.
 
-If you are running a production system with one of these bundled charts, you should
-[migrate](migration/bundled_chart_migration.md) to external solutions.
+Please review the [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
+and [migrate](migration/bundled_chart_migration.md) to external alternatives.
 
 ### Use the reference architectures
 

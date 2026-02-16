@@ -5,14 +5,13 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Configure the GitLab chart with an external Redis
 ---
 
-{{< alert type="warning" >}}
-
-The bundled bitnami Redis chart is not production ready. For a production-ready GitLab chart deployment, use an
-external Valkey or Redis.
-
-For information on migrating away from the bundled Redis chart, see [migrate from the bundled Redis, PostgreSQL, and MinIO](../../installation/migration/bundled_chart_migration.md).
-
-{{< /alert >}}
+> [!warning]
+> The bundled bitnami Redis chart is not production ready. For a production-ready GitLab chart deployment, use an
+> external Valkey or Redis.
+> 
+> Starting with GitLab 19.0, GitLab chart will stop bundling the Bitnami Redis. Please review the
+> [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
+> and [migrate](../../installation/migration/bundled_chart_migration.md) to an external alternative.
 
 This document intends to provide documentation on how to configure this Helm chart with an external Redis service.
 
