@@ -1605,6 +1605,15 @@ gatewayApiResources:
           additionalLabels: {}
           endpointConfig: {}
 
+## Installation & configuration of ai-gateway
+## The ai-gateway chart deploys a single pod serving both the HTTP API
+## (for AI features like code suggestions) and the gRPC duo-workflow-service.
+## Service discovery settings are under global.ai-gateway above.
+ai-gateway:
+  install: false
+  ingress:
+    enabled: false
+
 envoy-gateway:
   deployment:
     pod:

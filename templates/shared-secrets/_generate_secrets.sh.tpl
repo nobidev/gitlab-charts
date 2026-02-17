@@ -246,3 +246,15 @@ generate_secret_if_needed {{ template "gitlab.openbao.authenticationTokenSecretF
 # Service token used by GitLab to authenticate internal API requests to the iam-auth service
 generate_secret_if_needed {{ template "gitlab.appConfig.iamAuthService.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.iamAuthService.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
 {{ end }}
+
+{{ if index .Values "ai-gateway" "install" -}}
+# AI Gateway JWT signing keys
+
+# Duo workflow signing key
+openssl genrsa -out duo_workflow_signing.key 4096
+generate_secret_if_needed {{ template "ai-gateway.duoWorkflowSigningKey.secret" . }} --from-file={{ template "ai-gateway.duoWorkflowSigningKey.key" . }}=duo_workflow_signing.key
+
+# Duo workflow validation key
+openssl genrsa -out duo_workflow_validation.key 4096
+generate_secret_if_needed {{ template "ai-gateway.duoWorkflowValidationKey.secret" . }} --from-file={{ template "ai-gateway.duoWorkflowValidationKey.key" . }}=duo_workflow_validation.key
+{{ end }}
