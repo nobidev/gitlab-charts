@@ -102,11 +102,10 @@ check_i18n_docs_links:
   cache: {}
   dependencies: []
   before_script: []
-  when: manual
   allow_failure: true
   script:
     # Check Markdown links
-    - lychee --offline --include-fragments --exclude ".*\.(png|jpg|gif|svg)$" --exclude-path "doc-locale/ja-jp/development" doc-locale
+    - lychee --offline --include-fragments --exclude ".*\.(png|jpg|gif|svg)$" --exclude "ja-jp/development" doc-locale
   rules:
     - !reference [.rule:skip_if_dev]
     - if: '$PIPELINE_TYPE == "DOCS_PIPELINE_LOCALIZATION"'
