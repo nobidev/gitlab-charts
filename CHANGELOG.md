@@ -2,6 +2,35 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.9.0 (2026-02-18)
+
+### Added (4 changes)
+
+- [Gateway API: Enable support for multiple webservice deployments](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c564e4038757a0321f8141215c86ab47057c5b2c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4790))
+- [gitaly-client: Configure client retries for Gitaly clients](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/9d9d7c42fbf8fef33d819177f259473e8073c7ce) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4725))
+- [Expose more Pod level securityContext fields](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/1d428360f97b052044fec4aed4196ed0912c8c39) by @toybas ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4683))
+- [feat: Enable automatic DB reindexing using CronJob](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ee7a74d0f031080f3506df7cf7192939ba7bb3ff) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4665))
+
+### Fixed (2 changes)
+
+- [Fix Envoy policies using namespace in target ref](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/8a21c58a8e40fb5a384e6f5a58656b13025803b2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4778))
+- [Remove duplicate nodeSelector from spamcheck deployment template](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/db92fdc667356bdd503a6604555a3be1d8a9eca2) by @alanrichman ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4759))
+
+### Changed (12 changes)
+
+- [Update gateway-helm to v1.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a08524858edf97a06a99e16b9b65c2cc2c6058dd) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4785))
+- [Update prometheus to v27.52.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/efaa5028d607a99dde14e5afe13089b27b60b8ea) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4796))
+- [Update NGINX Ingress to 1.14.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2a329c0f0507486aa09fa0073f70d4ae5bc00138) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4780))
+- [Update dependency container-registry to v4.36.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/3445ebc881dd0bc6f17e8081635e6461946cffd4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4772))
+- [Update gateway-helm Docker tag to v1.6.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fe1f0459e93a4c9047315dfbdacd792fdfacfaf4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4753))
+- [Update Helm release openbao to v0.12.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/9d6106db67134e69a561af8f3de8b0534ccc86aa) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4761))
+- [Update dependency container-registry to v4.35.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/84b2c9b47255f1487a1aace7332b9caed1fee479) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4756))
+- [CI: Update helm to 4.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2b379143ffc6e3c9425359258195a64b48d8c1ff) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4696))
+- [Update Helm release gitlab-runner to v0.85.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/606621afb77fd6caf1460f4f57cc8e72eeec2fe8) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4746))
+- [Update Helm release gitlab-zoekt to v3.8.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4c706d5c202d86d4d91f76ddaaf2ba0a833c2f1d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4733))
+- [Add support for Kubernetes 1.35](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c56c1f65688a13b350c7b70600a768ca37255ea4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4742))
+- [Update dependency container-registry to v4.34.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6a38e5c3e8926cd3ee20926e95b6d85123666fed) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4743))
+
 ## 9.8.4 (2026-02-09)
 
 No changes.
