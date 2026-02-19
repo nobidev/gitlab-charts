@@ -27,6 +27,28 @@ routes for each component.
 
 For more information check the [global Gateway API documentation](../globals.md#gateway-api).
 
+## Metrics
+
+The bundled Prometheus is set up to collect metrics from both Envoy Gateway and the managed
+Envoy Proxy. If you have Prometheus Operator custom resource definitions (CRDs) enabled,
+a ServiceMonitor will be created for Envoy Gateway and a PodMonitor will be created for Envoy Proxy.
+
+```yaml
+global:
+  gatewayApi:
+    metrics:
+      envoyGateway:
+        serviceMonitor:
+          enabled: false
+          additionalLabels: {}
+          endpointConfig: {}
+      envoyProxy:
+        podMonitor:
+          enabled: false
+          additionalLabels: {}
+          endpointConfig: {}
+```
+
 ## Migrating from the bundled NGINX Ingress
 
 > [!warning]

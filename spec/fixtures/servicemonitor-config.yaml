@@ -1,3 +1,11 @@
+global:
+  gatewayApi:
+    installEnvoy: true
+    metrics:
+      envoyGateway:
+        serviceMonitor:
+          enabled: true
+
 registry:
   metrics:
     enabled: true
