@@ -58,6 +58,7 @@ variables:
   GITLAB_QA_VERSION: "15.7.0"
   # Valkey deployed to CI review envionments
   VALKEY_CHART_VERSION: "0.9.2"
+  GARAGE_APP_VERSION: "2.2.0"
   # CloudNativePg (PostgreSQL) deployed to CI envionments
   CNPG_CHART_VERSION: "0.27.1"
   CNPG_POSTGRESQL_TAG: "17"
@@ -594,7 +595,7 @@ publish_devel_package:
       aud: https://vault.gitlab.net
 
   rules:
-    - if: $CI_PIPELINE_SOURCE == "parent_pipeline" 
+    - if: $CI_PIPELINE_SOURCE == "parent_pipeline"
       when: never
     - if: $CI_PIPELINE_SOURCE == "trigger"
       when: never

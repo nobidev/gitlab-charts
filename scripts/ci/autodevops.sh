@@ -36,6 +36,7 @@ export RELEASE_NAME
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/autodevops_valkey.sh"
 source "$SCRIPT_DIR/autodevops_cnpg.sh"
+source "$SCRIPT_DIR/autodevops_garage.sh"
 
 function previousDeployFailed() {
   set +e
@@ -67,6 +68,10 @@ function deploy_external_components() {
   if [ -n "${USE_EXTERNAL_POSTGRESQL}" ]; then
     deploy_external_postgresql
   fi
+
+  if [ -n "${USE_EXTERNAL_GARAGE}" ]; then
+      deploy_external_garage
+  fi
 }
 
 function remove_external_components() {
@@ -76,6 +81,10 @@ function remove_external_components() {
 
   if [ -n "${USE_EXTERNAL_POSTGRESQL}" ]; then
     remove_external_postgres
+  fi
+
+  if [ -n "${USE_EXTERNAL_GARAGE}" ]; then
+      remove_external_garage
   fi
 }
 
@@ -175,7 +184,7 @@ CIYAML
       requests:
         cpu: 100m
 CIYAML
-  
+
   DOMAIN="-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"
   envsubst < ./scripts/ci/values/vcluster.externaldns.values.yaml > ./vcluster.externaldns.values.yaml
   envsubst < ./scripts/ci/values/ingress.values.yaml > ./ingress.values.yaml
@@ -186,7 +195,7 @@ CIYAML
     echo "USE_GATEWAY_API detected"
     NETWORKING_CONF="-f gatewayapi.values.yaml"
   fi
-  
+
   if [ -n "${VCLUSTER_NAME}" ]; then
     echo "VCLUSTER deployment detected"
     NETWORKING_CONF="${NETWORKING_CONF} -f vcluster.externaldns.values.yaml"
@@ -235,6 +244,12 @@ CIYAML
     POSTGRESQL_CONFIGURATION="-f scripts/ci/values/external-postgresql.values.yaml"
   fi
 
+  GARAGE_CONFIGURATION=""
+  if [ -n "${USE_EXTERNAL_GARAGE}" ]; then
+      echo "Garage deployment detected"
+      GARAGE_CONFIGURATION="-f scripts/ci/values/external-garage.values.yaml"
+  fi
+
   helm upgrade --install \
     $WAIT \
     ${SENTRY_CONFIGURATION} \
@@ -242,6 +257,7 @@ CIYAML
     ${NETWORKING_CONF} \
     ${VALKEY_CONFIGURATION} \
     ${POSTGRESQL_CONFIGURATION} \
+    ${GARAGE_CONFIGURATION} \
     -f ci.details.yaml \
     -f ci.scale.yaml \
     -f ci.psql.yaml \

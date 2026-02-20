@@ -1,0 +1,46 @@
+# Disable bundled MinIO
+global:
+  minio:
+    enabled: false
+  appConfig:
+    object_store:
+      enabled: true
+      proxy_download: false
+      connection:
+        secret: gitlab-object-storage
+        key: config
+    artifacts:
+      bucket: gitlab-artifacts
+    lfs:
+      bucket: git-lfs
+    uploads:
+      bucket: gitlab-uploads
+    packages:
+      bucket: gitlab-packages
+    externalDiffs:
+      enabled: true
+      bucket: gitlab-mr-diffs
+    terraformState:
+      enabled: true
+      bucket: gitlab-terraform-state
+    ciSecureFiles:
+      enabled: true
+      bucket: gitlab-ci-secure-files
+    dependencyProxy:
+      enabled: true
+      bucket: gitlab-dependency-proxy
+
+gitlab:
+  toolbox:
+    backups:
+      objectStorage:
+        config:
+          secret: gitlab-object-storage-s3cmd
+          key: config
+
+registry:
+  storage:
+    secret: gitlab-registry-storage
+    key: config
+    redirect:
+      disable: true
