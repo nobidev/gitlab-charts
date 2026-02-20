@@ -630,7 +630,7 @@ webservice:
               value: /
             timeouts:
               request: "20s"
-              backendReqeust: "20s"
+              backendRequest: "20s"
     api:
       gatewayRoute:
         rules:

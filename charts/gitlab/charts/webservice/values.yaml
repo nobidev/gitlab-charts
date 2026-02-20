@@ -550,8 +550,8 @@ deployments: {}
   #            type: PathPrefix
   #             value: /
   #        timeouts:
-  #          requests: 15s
-  #          backendRequests: 15s
+  #          request: 15s
+  #          backendRequest: 15s
 
 antiAffinity: "" # options: "hard", "soft"
 
