@@ -21,6 +21,14 @@ managed alternatives.
 
 This guide assumes you're migrating to Cloud Native alternatives such as [Valkey](https://valkey.io/), [Garage](https://garagehq.deuxfleurs.fr/), and [CloudNativePG](https://cloudnative-pg.io/) respectively.
 
+This migration process requires you to perform the following steps:
+
+- **Provision external services**: Deploy and configure your chosen external services in your cluster.
+- **Back up your data**: Create a backup of all data from the bundled PostgreSQL, and MinIO services.
+- **Reconfigure GitLab**: Update GitLab configuration to use the external services instead of bundled ones.
+- **Restore to new services**: Restore your backup data to the newly provisioned external services.
+- **Clean up old services**: Manually delete the old bundled services and their persistent volumes when you're confident the migration is complete.
+
 ## Before you begin
 
 Before you begin migrating from the bundled Redis, MinIO, or PostgreSQL:
@@ -251,7 +259,7 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
    EOF
    ```
 
-## Configure and upgrade GitLab
+## Migrate to external services
 
 With all replacements provisioned, you can now disable the bundled MinIO, Redis, and
 PostgreSQL.
