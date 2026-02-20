@@ -1039,16 +1039,15 @@ describe 'Webservice Deployments configuration' do
 
       it 'configures the default backend ref' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-        expect(webservice_route["spec"]["rules"].count).to eq(4)
-        # a deployment
+        # a deployment: creating matching /a only 
         expect(webservice_route["spec"]["rules"][0]["matches"][0]["path"]["value"]).to eq("/a")
-        # b deployment
+        # b deployment: created matching /b only
         expect(webservice_route["spec"]["rules"][1]["matches"][0]["path"]["value"]).to eq("/b")
-        # c deployment
+        # c deployment: created with default rules (root and long running)
         expect(webservice_route["spec"]["rules"][2]["name"]).to eq("c-root")
         expect(webservice_route["spec"]["rules"][3]["name"]).to eq("c-long-running")
-        # d deployment
-        expect(webservice_route["spec"]["rules"][2]["matches"][0]["path"]["value"]).to eq("/")
+        # d deployment: only 4 rules created, none for d deployment
+        expect(webservice_route["spec"]["rules"].count).to eq(4)
       end
     end
   end
