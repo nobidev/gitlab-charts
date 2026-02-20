@@ -976,11 +976,41 @@ describe 'Webservice Deployments configuration' do
     context "only default deployment" do
       it 'configures the default backend ref' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-        expect(webservice_route["spec"]["rules"].count).to eq(1)
-        expect(webservice_route["spec"]["rules"][0]["backendRefs"].count).to eq(1)
-        expect(webservice_route["spec"]["rules"][0]["backendRefs"][0]["name"]).to eq("test-webservice-default")
-        expect(webservice_route["spec"]["rules"][0]["backendRefs"][0]["port"]).to eq(8181)
-        expect(webservice_route["spec"]["rules"][0]["matches"][0]["path"]["value"]).to eq("/")
+        expect(webservice_route["spec"]["rules"]).to eq(
+          [
+            {
+              "backendRefs" => [
+                {
+                  "kind" => "Service",
+                  "name" => "test-webservice-default",
+                  "port" => 8181,
+                  "weight" => 1
+                }
+              ],
+              "matches" => [
+                {
+                  "path" => { "type" => "PathPrefix", "value" => "/" }
+                }
+              ],
+              "name" => "default-root",
+              "timeouts" => { "backendRequest" => "15s", "request" => "15s" }
+            },
+            {
+              "backendRefs" => [{
+                "kind" => "Service",
+                "name" => "test-webservice-default",
+                "port" => 8181,
+                "weight" => 1
+              }],
+              "matches" => [
+                { "path" => { "type" => "RegularExpression", "value" => "^/.*/ssh-receive-pack$" } },
+                { "path" => { "type" => "RegularExpression", "value" => "^/.*/ssh-upload-pack$" } }
+              ],
+              "name" => "default-long-running",
+              "timeouts" => { "backendRequest" => "0s", "request" => "0s" }
+            }
+          ]
+        )
       end
     end
 
@@ -992,27 +1022,32 @@ describe 'Webservice Deployments configuration' do
             deployments:
               a:
                 gatewayRoute:
-                  rule:
-                    matches:
+                  rules:
+                  - matches:
                     - { path: { value: '/a' } }
               b:
                 gatewayRoute:
-                  rule:
-                    matches:
+                  rules:
+                  - matches:
                     - { path: { value: '/b' } }
               c: {}
               d:
                 gatewayRoute:
-                  rule:
-                    enabled: false
+                  rules: []
         )).deep_merge(super())
       end
 
       it 'configures the default backend ref' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-        expect(webservice_route["spec"]["rules"].count).to eq(3)
+        expect(webservice_route["spec"]["rules"].count).to eq(4)
+        # a deployment
         expect(webservice_route["spec"]["rules"][0]["matches"][0]["path"]["value"]).to eq("/a")
+        # b deployment
         expect(webservice_route["spec"]["rules"][1]["matches"][0]["path"]["value"]).to eq("/b")
+        # c deployment
+        expect(webservice_route["spec"]["rules"][2]["name"]).to eq("c-root")
+        expect(webservice_route["spec"]["rules"][3]["name"]).to eq("c-long-running")
+        # d deployment
         expect(webservice_route["spec"]["rules"][2]["matches"][0]["path"]["value"]).to eq("/")
       end
     end

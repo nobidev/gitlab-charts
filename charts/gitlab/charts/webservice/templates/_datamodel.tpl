@@ -63,12 +63,26 @@ This is output as YAML, it can be read back in as a dict via `toYaml`.
   useGeoClass: {{ $v.useGeoClass }}
 {{- end }}
 gatewayRoute:
-  rule:
-    enabled: true
+  rules:
+  - name: root
     matches:
     - path:
         type: PathPrefix
         value: /
+    timeouts:
+      request: 15s
+      backendRequest: 15s
+  - name: long-running
+    matches:
+    - path:
+        type: RegularExpression
+        value: ^/.*/ssh-receive-pack$
+    - path:
+        type: RegularExpression
+        value: ^/.*/ssh-upload-pack$
+    timeouts:
+      request: 0s
+      backendRequest: 0s
 common:
   labels: {{ mergeOverwrite (deepCopy .Values.global.common.labels) (deepCopy .Values.common.labels) | toYaml | nindent 4 }}
 deployment:

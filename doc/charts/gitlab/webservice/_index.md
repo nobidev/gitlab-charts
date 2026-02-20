@@ -616,29 +616,31 @@ If GitLab chart is configured to be exposed [through Gateway API](../../globals.
 deployment will be added as a rule to the `HTTPRoute` of the webservice chart.
 
 You can disable a given deployment from having a rule in the `HTTPRoute` by setting
-`.rule.enabled=false` to the deployment.
+`.rules=[]` to the deployment.
 
 ```yaml
 webservice:
   deployments:
     default:
       gatewayRoute:
-        rule:
-          matches:
+        rules:
+        - matches:
           - path:
               type: PathPrefix
               value: /
+            timeouts:
+              request: "20s"
+              backendReqeust: "20s"
     api:
       gatewayRoute:
-        rule:
-          matches:
+        rules:
+        - matches:
           - path:
               type: PathPrefix
               value: /api
     internal-api:
       gatewayRoute:
-        rule:
-          enabled: false
+        rules: []
 ```
 
 ## Resources

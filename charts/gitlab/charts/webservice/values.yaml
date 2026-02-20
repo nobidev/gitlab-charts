@@ -544,12 +544,14 @@ deployments: {}
   #   ingress:
   #     path: /
   #   gatewayRoute:
-  #     rule:
-  #       enabled: true
-  #       matches:
-  #       - path:
-  #           type: PathPrefix
-  #           value: /
+  #     rules:
+  #      - matches:
+  #        - path:
+  #            type: PathPrefix
+  #             value: /
+  #        timeouts:
+  #          requests: 15s
+  #          backendRequests: 15s
 
 antiAffinity: "" # options: "hard", "soft"
 

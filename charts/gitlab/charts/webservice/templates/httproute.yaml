@@ -25,15 +25,19 @@ spec:
     {{- end }}
   rules:
   {{- range $.Values.deployments }}
-    {{- if .gatewayRoute.rule.enabled }}
-  - name: {{ printf "%s-deployment" .name }}
+  {{ $port := $.Values.service.workhorseExternalPort }}
+  {{ $deployment := . }}
+      {{- range $deployment.gatewayRoute.rules }}
+  - name: {{ printf "%s-%s" $deployment.name .name }}
     backendRefs:
     - kind: Service
-      name: {{ template "webservice.fullname.withSuffix" . }}
-      port: {{ $.Values.service.workhorseExternalPort }}
+      name: {{ template "webservice.fullname.withSuffix" $deployment }}
+      port: {{ $port }}
       weight: 1
     matches:
-      {{- .gatewayRoute.rule.matches | toYaml | nindent 6 }}
-    {{- end }}
+      {{- .matches | toYaml | nindent 6 }}
+    timeouts:
+      {{- .timeouts | toYaml | nindent 6 }}
+      {{- end }}
   {{- end }}
 {{- end }}

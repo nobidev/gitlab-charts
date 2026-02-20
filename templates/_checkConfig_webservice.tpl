@@ -61,3 +61,15 @@ gitlab: relativeUrlRoot has unexpected pattern
 {{- end }}
 {{- end }}
 {{/* END gitlab.checkConfig.appConfig.relativeUrlRoot */}}
+
+{{- define "gitlab.checkConfig.webservice.gatewayApi.ruleSyntax" -}}
+{{-   if and .Values.global.gatewayApi.enabled .Values.gitlab.webservice.enabled -}}
+{{-     range $name, $deployment := .Values.gitlab.webservice.deployments -}}
+{{-       if hasKey $deployment.gatewayRoute "rule" }}
+webservice:
+  Deployment {{ $name }} uses deprecated rule syntax. Please migrate to rules as documented
+  in https://docs.gitlab.com/charts/charts/gitlab/webservice/#gateway-api.
+{{-       end -}}
+{{-     end -}}
+{{-   end -}}
+{{- end }}
