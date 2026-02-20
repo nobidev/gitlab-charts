@@ -24,7 +24,7 @@ This guide assumes you're migrating to Cloud Native alternatives such as [Valkey
 This migration process requires you to perform the following steps:
 
 - **Provision external services**: Deploy and configure your chosen external services in your cluster.
-- **Back up your data**: Create a backup of all data from the bundled PostgreSQL, and MinIO services.
+- **Back up your data**: Create a backup of all data from the bundled PostgreSQL and MinIO services.
 - **Reconfigure GitLab**: Update GitLab configuration to use the external services instead of bundled ones.
 - **Restore to new services**: Restore your backup data to the newly provisioned external services.
 - **Clean up old services**: Manually delete the old bundled services and their persistent volumes when you're confident the migration is complete.
