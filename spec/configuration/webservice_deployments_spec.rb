@@ -1024,7 +1024,8 @@ describe 'Webservice Deployments configuration' do
               b:
                 gatewayRoute:
                   rules:
-                  - matches:
+                  - name: custom-rule
+                    matches:
                     - { path: { value: '/b' } }
               c: {}
               d:
@@ -1037,8 +1038,10 @@ describe 'Webservice Deployments configuration' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
         # a deployment: creating matching /a only
         expect(webservice_route["spec"]["rules"][0]["matches"][0]["path"]["value"]).to eq("/a")
+        expect(webservice_route["spec"]["rules"][0].keys).not_to include('name')
         # b deployment: created matching /b only
         expect(webservice_route["spec"]["rules"][1]["matches"][0]["path"]["value"]).to eq("/b")
+        expect(webservice_route["spec"]["rules"][1]["name"]).to eq("b-custom-rule")
         # c deployment: created with default rules (root and long running)
         expect(webservice_route["spec"]["rules"][2]["name"]).to eq("c-root")
         expect(webservice_route["spec"]["rules"][3]["name"]).to eq("c-long-running")

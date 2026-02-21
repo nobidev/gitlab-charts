@@ -28,12 +28,14 @@ spec:
   {{ $port := $.Values.service.workhorseExternalPort }}
   {{ $deployment := . }}
       {{- range $deployment.gatewayRoute.rules }}
-  - name: {{ printf "%s-%s" $deployment.name .name }}
-    backendRefs:
+  - backendRefs:
     - kind: Service
       name: {{ template "webservice.fullname.withSuffix" $deployment }}
       port: {{ $port }}
       weight: 1
+    {{ with .name }}
+    name: {{ printf "%s-%s" $deployment.name . }}
+    {{- end }}
     matches:
       {{- .matches | toYaml | nindent 6 }}
     timeouts:
