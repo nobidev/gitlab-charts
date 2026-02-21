@@ -976,41 +976,37 @@ describe 'Webservice Deployments configuration' do
     context "only default deployment" do
       it 'configures the default backend ref' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-        expect(webservice_route["spec"]["rules"]).to eq(
-          [
-            {
-              "backendRefs" => [
-                {
-                  "kind" => "Service",
-                  "name" => "test-webservice-default",
-                  "port" => 8181,
-                  "weight" => 1
-                }
-              ],
-              "matches" => [
-                {
-                  "path" => { "type" => "PathPrefix", "value" => "/" }
-                }
-              ],
-              "name" => "default-root",
-              "timeouts" => { "backendRequest" => "15s", "request" => "15s" }
-            },
-            {
-              "backendRefs" => [{
-                "kind" => "Service",
-                "name" => "test-webservice-default",
-                "port" => 8181,
-                "weight" => 1
-              }],
-              "matches" => [
-                { "path" => { "type" => "RegularExpression", "value" => "^/.*/ssh-receive-pack$" } },
-                { "path" => { "type" => "RegularExpression", "value" => "^/.*/ssh-upload-pack$" } }
-              ],
-              "name" => "default-long-running",
-              "timeouts" => { "backendRequest" => "0s", "request" => "0s" }
-            }
-          ]
-        )
+        expect(webservice_route["spec"]["rules"]).to eq(YAML.safe_load(%(
+          - backendRefs:
+            - kind: Service
+              name: test-webservice-default
+              port: 8181
+              weight: 1
+            matches:
+            - path:
+                type: PathPrefix
+                value: "/"
+            name: default-root
+            timeouts:
+              backendRequest: 15s
+              request: 15s
+          - backendRefs:
+            - kind: Service
+              name: test-webservice-default
+              port: 8181
+              weight: 1
+            matches:
+            - path:
+                type: RegularExpression
+                value: "^/.*/ssh-receive-pack$"
+            - path:
+                type: RegularExpression
+                value: "^/.*/ssh-upload-pack$"
+            name: default-long-running
+            timeouts:
+              backendRequest: 0s
+              request: 0s
+        )))
       end
     end
 
