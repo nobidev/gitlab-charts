@@ -410,68 +410,6 @@ If you wish to set a custom time zone for all the GitLab containers, you can use
 --set global.time_zone="America/Chicago"
 ```
 
-## Configure PostgreSQL settings
-
-The GitLab global PostgreSQL settings are located under the `global.psql` key.
-GitLab is using two database connections: one for `main` database and one for
-`ci`. By default, they point to the same PostgreSQL database.
-
-The values under `global.psql` are defaults and are applied to both database
-configurations. If you want to use two databases,
-you can specify the connection details in `global.psql.main` and `global.psql.ci`.
-
-```yaml
-global:
-  psql:
-    host: psql.example.com
-    # serviceName: pgbouncer
-    port: 5432
-    database: gitlabhq_production
-    username: gitlab
-    applicationName:
-    preparedStatements: false
-    databaseTasks: true
-    connectTimeout:
-    keepalives:
-    keepalivesIdle:
-    keepalivesInterval:
-    keepalivesCount:
-    tcpUserTimeout:
-    password:
-      useSecret: true
-      secret: gitlab-postgres
-      key: psql-password
-      file:
-    main: {}
-      # host: postgresql-main.hostedsomewhere.else
-      # ...
-    ci: {}
-      # host: postgresql-ci.hostedsomewhere.else
-      # ...
-```
-
-| Name                 |  Type   | Default               | Description |
-|:---------------------|:-------:|:----------------------|:------------|
-| `host`               | String  |                       | The hostname of the PostgreSQL server with the database to use. This can be omitted if using PostgreSQL deployed by this chart. |
-| `serviceName`        | String  |                       | The name of the `service` which is operating the PostgreSQL database. If this is present, and `host` is not, the chart will template the hostname of the service in place of the `host` value. |
-| `database`           | String  | `gitlabhq_production` | The name of the database to use on the PostgreSQL server. |
-| `password.useSecret` | Boolean | `true`                | Controls whether the password for PostgreSQL is read from a secret or file. |
-| `password.file`      | String  |                       | Defines the path to the file that contains the password for PostgreSQL. Ignored if `password.useSecret` is true |
-| `password.key`       | String  |                       | The `password.key` attribute for PostgreSQL defines the name of the key in the secret (below) that contains the password. Ignored if `password.useSecret` is false. |
-| `password.secret`    | String  |                       | The `password.secret` attribute for PostgreSQL defines the name of the Kubernetes `Secret` to pull from. Ignored if `password.useSecret` is false. |
-| `port`               | Integer | `5432`                | The port on which to connect to the PostgreSQL server. |
-| `username`           | String  | `gitlab`              | The username with which to authenticate to the database. |
-| `preparedStatements` | Boolean | `false`               | If prepared statements should be used when communicating with the PostgreSQL server. |
-| `databaseTasks`      | Boolean | `true`                | If GitLab should perform database tasks for a given database. Automatically disabled when sharing host/port/database match `main`. |
-| `connectTimeout`     | Integer |                       | The number of seconds to wait for a database connection. |
-| `keepalives`         | Integer |                       | Controls whether client-side TCP `keepalives` are used (`1`, meaning on, `0`, meaning off). |
-| `keepalivesIdle`     | Integer |                       | The number of seconds of inactivity after which TCP should send a keepalive message to the server. A value of zero uses the system default. |
-| `keepalivesInterval` | Integer |                       | The number of seconds after which a TCP keepalive message that is not acknowledged by the server should be retransmitted. A value of zero uses the system default. |
-| `keepalivesCount`    | Integer |                       | The number of TCP `keepalives` that can be lost before the client's connection to the server is considered dead. A value of zero uses the system default. |
-| `tcpUserTimeout`     | Integer |                       | The number of milliseconds that transmitted data may remain unacknowledged before a connection is forcibly closed. A value of zero uses the system default. |
-| `applicationName`    | String  |                       | The name of the application connecting to the database. Set to a blank string (`""`) to disable. By default, this will be set to the name of the running process (e.g. `sidekiq`, `puma`). |
-| `ci.enabled`         | Boolean | `true`                | Enables [two database connections](#configure-multiple-database-connections). |
-
 ### PostgreSQL per chart
 
 In some complex deployments, it may be desired to configure different parts of
@@ -1321,7 +1259,7 @@ application are described below:
 | `defaultColorMode`                  | Integer |         | [Default color mode for the GitLab instance](https://gitlab.com/gitlab-org/gitlab/-/blob/66788a1de8c3dd3c5566d0f30fe1c2a1bae64bf9/lib/gitlab/color_modes.rb#L17-19). It takes a number, denoting the ID of the color mode. |
 | `defaultSyntaxHighlightingTheme`    | Integer |         | [Default syntax highlighting theme for the GitLab instance](https://gitlab.com/gitlab-org/gitlab/-/blob/66788a1de8c3dd3c5566d0f30fe1c2a1bae64bf9/lib/gitlab/color_schemes.rb#L12-17). It takes a number, denoting the ID of the syntax highlighting theme. |
 | `defaultProjectsFeatures.*feature*` | Boolean | `true`  | [See below](#defaultprojectsfeatures). |
-| `webhookTimeout`                    | Integer | (empty) | Waiting time in seconds before a hook is deemed to have failed. |
+| `webhookTimeout`                    | Integer | (empty) | Waiting time in seconds before a [hook is deemed to have failed](https://docs.gitlab.com/user/project/integrations/webhooks/#auto-disabled-webhooks). |
 | `graphQlTimeout`                    | Integer | (empty) | Time in seconds the Rails has to [complete a GraphQL request](https://docs.gitlab.com/api/graphql/#limits). |
 
 #### Content Security Policy
