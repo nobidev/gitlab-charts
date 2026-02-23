@@ -410,6 +410,55 @@ If you wish to set a custom time zone for all the GitLab containers, you can use
 --set global.time_zone="America/Chicago"
 ```
 
+## Configure PostgreSQL settings
+
+The GitLab global PostgreSQL settings are located under the `global.psql` key.
+
+```yaml
+global:
+  psql:
+    host: psql.example.com
+    # serviceName: pgbouncer
+    port: 5432
+    database: gitlabhq_production
+    username: gitlab
+    applicationName:
+    preparedStatements: false
+    databaseTasks: true
+    connectTimeout:
+    keepalives:
+    keepalivesIdle:
+    keepalivesInterval:
+    keepalivesCount:
+    tcpUserTimeout:
+    password:
+      useSecret: true
+      secret: gitlab-postgres
+      key: psql-password
+      file:
+```
+
+| Name                 |  Type   | Default               | Description |
+|:---------------------|:-------:|:----------------------|:------------|
+| `host`               | String  |                       | The hostname of the PostgreSQL server with the database to use. This can be omitted if using PostgreSQL deployed by this chart. |
+| `serviceName`        | String  |                       | The name of the `service` which is operating the PostgreSQL database. If this is present, and `host` is not, the chart will template the hostname of the service in place of the `host` value. |
+| `database`           | String  | `gitlabhq_production` | The name of the database to use on the PostgreSQL server. |
+| `password.useSecret` | Boolean | `true`                | Controls whether the password for PostgreSQL is read from a secret or file. |
+| `password.file`      | String  |                       | Defines the path to the file that contains the password for PostgreSQL. Ignored if `password.useSecret` is true |
+| `password.key`       | String  |                       | The `password.key` attribute for PostgreSQL defines the name of the key in the secret (below) that contains the password. Ignored if `password.useSecret` is false. |
+| `password.secret`    | String  |                       | The `password.secret` attribute for PostgreSQL defines the name of the Kubernetes `Secret` to pull from. Ignored if `password.useSecret` is false. |
+| `port`               | Integer | `5432`                | The port on which to connect to the PostgreSQL server. |
+| `username`           | String  | `gitlab`              | The username with which to authenticate to the database. |
+| `preparedStatements` | Boolean | `false`               | If prepared statements should be used when communicating with the PostgreSQL server. |
+| `databaseTasks`      | Boolean | `true`                | If GitLab should perform database tasks for a given database. Automatically disabled when sharing host/port/database match `main`. |
+| `connectTimeout`     | Integer |                       | The number of seconds to wait for a database connection. |
+| `keepalives`         | Integer |                       | Controls whether client-side TCP `keepalives` are used (`1`, meaning on, `0`, meaning off). |
+| `keepalivesIdle`     | Integer |                       | The number of seconds of inactivity after which TCP should send a keepalive message to the server. A value of zero uses the system default. |
+| `keepalivesInterval` | Integer |                       | The number of seconds after which a TCP keepalive message that is not acknowledged by the server should be retransmitted. A value of zero uses the system default. |
+| `keepalivesCount`    | Integer |                       | The number of TCP `keepalives` that can be lost before the client's connection to the server is considered dead. A value of zero uses the system default. |
+| `tcpUserTimeout`     | Integer |                       | The number of milliseconds that transmitted data may remain unacknowledged before a connection is forcibly closed. A value of zero uses the system default. |
+| `applicationName`    | String  |                       | The name of the application connecting to the database. Set to a blank string (`""`) to disable. By default, this will be set to the name of the running process (e.g. `sidekiq`, `puma`). |
+
 ### PostgreSQL per chart
 
 In some complex deployments, it may be desired to configure different parts of
@@ -523,17 +572,6 @@ global:
       max_replication_lag_time:   # See documentation
       replica_check_interval:     # See documentation
 ```
-
-### Configure multiple database connections
-
-{{< history >}}
-
-- The `gitlab:db:decomposition:connection_status` Rake task was [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/111927) in GitLab 15.11.
-
-{{< /history >}}
-
-In GitLab 16.0, GitLab defaults to using two database connections
-that point to the same PostgreSQL database.
 
 ## Configure Redis settings
 
