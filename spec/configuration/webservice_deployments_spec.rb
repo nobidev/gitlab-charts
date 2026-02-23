@@ -998,10 +998,22 @@ describe 'Webservice Deployments configuration' do
             matches:
             - path:
                 type: RegularExpression
-                value: "^/.*/ssh-receive-pack$"
+                value: '^/.*\\.git/ssh-receive-pack$'
             - path:
                 type: RegularExpression
-                value: "^/.*/ssh-upload-pack$"
+                value: '^/.*\\.git/ssh-upload-pack$'
+            - path:
+                type: RegularExpression
+                value: '^/.*\\.git/gitlab-lfs/objects'
+            - path:
+                type: RegularExpression
+                value: '^/.*\\.git/gitlab-lfs/objects/batch$'
+            - path:
+                type: Exact
+                value: '/import/gitlab_project'
+            - path:
+                type: RegularExpression
+                value: '^/api/v[0-9]/jobs/[0-9]+/artifacts$'
             name: default-long-running
             timeouts:
               backendRequest: 0s

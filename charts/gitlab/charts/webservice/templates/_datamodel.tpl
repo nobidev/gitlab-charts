@@ -74,12 +74,28 @@ gatewayRoute:
       backendRequest: 15s
   - name: long-running
     matches:
+    {{/* Git via SSH: requests procies from secondary to primary */}}
     - path:
         type: RegularExpression
-        value: ^/.*/ssh-receive-pack$
+        value: '^/.*\.git/ssh-receive-pack$'
     - path:
         type: RegularExpression
-        value: ^/.*/ssh-upload-pack$
+        value: '^/.*\.git/ssh-upload-pack$'
+    {{/* Git LFS */}}
+    - path:
+        type: RegularExpression
+        value: '^/.*\.git/gitlab-lfs/objects'
+    - path:
+        type: RegularExpression
+        value: '^/.*\.git/gitlab-lfs/objects/batch$'
+    {{/* Project imports */}}
+    - path:
+        type: Exact
+        value: /import/gitlab_project
+    {{/* Job artifact downloads */}}
+    - path:
+        type: RegularExpression
+        value: '^/api/v[0-9]/jobs/[0-9]+/artifacts$'
     timeouts:
       request: 0s
       backendRequest: 0s
