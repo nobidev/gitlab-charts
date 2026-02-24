@@ -25,6 +25,7 @@
 .gitlab-ci.yml
 .markdownlint.json
 .helmignore
+.values
 argo_translation.yml
 Dangerfile
 Rakefile

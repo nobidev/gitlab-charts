@@ -1,8 +1,8 @@
 global:
   psql:
-    host: gitlab-cluster-rw
+    host: ${CNPG_CLUSTER_HOST}
     password:
-      secret: gitlab-cluster-app
+      secret: ${CNPG_CLUSTER_SECRET}
       key: password
 
 postgresql:

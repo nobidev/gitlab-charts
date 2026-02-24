@@ -12,3 +12,4 @@ Chart.*.yaml
 ci.digests.test.yaml
 scripts/debug/chart-info
 .idea
+.values
