@@ -324,10 +324,12 @@ PostgreSQL.
      appConfig:
        object_store:
          enabled: true
+         # Proxy object store downloads if not exposing Garage via Ingress/Gateway API
+         proxy_download: true
          connection:
            secret: gitlab-object-storage
            key: config
-       # set buckets used by garage
+       # Set to buckets created in Garage. Can be omitted if you used the default bucket names.
        artifacts:
          bucket: gitlab-artifacts
        lfs:
@@ -359,7 +361,7 @@ PostgreSQL.
            config:
              secret: gitlab-object-storage-s3cmd
              key: config
-   # Disable registry redirect if not exposing garage via Ingress
+   # Disable Registry redirect if not exposing Garage via Ingress/Gateway API
    registry:
      storage:
        secret: gitlab-registry-storage
