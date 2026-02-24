@@ -136,11 +136,8 @@ This can happen when you have TLS termination before the NGINX Ingress, and the 
 
 1. Apply the change.
 
-{{< alert type="note" >}}
-
-When using an external service for SSL termination, that service is responsible for redirecting to https (if so desired).
-
-{{< /alert >}}
+> [!note]
+> When using an external service for SSL termination, that service is responsible for redirecting to https (if so desired).
 
 ## Upgrades fail with Immutable Field Error
 

@@ -16,11 +16,8 @@ This is a list of useful information regarding Kubernetes that the GitLab Suppor
 Team sometimes uses while troubleshooting. GitLab is making this public, so that anyone
 can make use of the Support team's collected knowledge
 
-{{< alert type="warning" >}}
-
-These commands **can alter or break** your Kubernetes components so use these at your own risk.
-
-{{< /alert >}}
+> [!warning]
+> These commands **can alter or break** your Kubernetes components so use these at your own risk.
 
 If you are on a [paid tier](https://about.gitlab.com/pricing/) and are not sure how
 to use these commands, it is best to [contact Support](https://about.gitlab.com/support/)
@@ -302,20 +299,14 @@ but commented out to help encourage others to add to it in the future. -->
 
 ## Patching the Rails code in the `toolbox` pod
 
-{{< alert type="warning" >}}
-
-This task is not something that should be regularly performed. Use it at your own risk.
-
-{{< /alert >}}
+> [!warning]
+> This task is not something that should be regularly performed. Use it at your own risk.
 
 Patching operational GitLab service pods requires building new images, with the modified source code inside. These can _not_ be directly patched.
 The [`toolbox` / `task-runner` pod](../charts/gitlab/toolbox/_index.md) has everything needed to operate as a Rails-based pod, without interfering with other normal service operations. You can use it to run independent tasks, and to modify the source code temporarily to perform some tasks.
 
-{{< alert type="note" >}}
-
-If you make any changes using the `toolbox` pod, those will not be persisted if the pod is restarted. They're only present for the life of the container's operation.
-
-{{< /alert >}}
+> [!note]
+> If you make any changes using the `toolbox` pod, those will not be persisted if the pod is restarted. They're only present for the life of the container's operation.
 
 To patch the source code in the `toolbox` pod:
 

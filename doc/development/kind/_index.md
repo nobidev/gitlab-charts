@@ -10,11 +10,8 @@ In this guide, we'll be using [KinD](https://kind.sigs.k8s.io). It creates a Kub
 
 We will also make use of [nip.io](https://nip.io), which lets us map any IP address to a hostname using a format like this: `192.168.1.250.nip.io`, which maps to `192.168.1.250`. No installation is required.
 
-{{< alert type="note" >}}
-
-With the SSL-enabled installation options below, if you want to clone repositories and push changes, you will have to do so over HTTPS instead of SSH. We are planning to address this with an update to GitLab Shell's service exposure via NodePorts.
-
-{{< /alert >}}
+> [!note]
+> With the SSL-enabled installation options below, if you want to clone repositories and push changes, you will have to do so over HTTPS instead of SSH. We are planning to address this with an update to GitLab Shell's service exposure via NodePorts.
 
 ## Apple silicon (M1/M2)
 
@@ -69,11 +66,8 @@ All of the following installation options require knowing your host IP. Here are
 - Linux: `hostname -i`
 - MacOS: `ipconfig getifaddr en0`
 
-{{< alert type="note" >}}
-
-Most MacOS systems use `en0` as the primary interface. If using a system with a different primary interface, please substitute that interface name for `en0`.
-
-{{< /alert >}}
+> [!note]
+> Most MacOS systems use `en0` as the primary interface. If using a system with a different primary interface, please substitute that interface name for `en0`.
 
 ### Using namespaces
 
@@ -126,11 +120,8 @@ helm repo update
 
 Select from one of the following deployment options based on your needs.
 
-{{< alert type="note" >}}
-
-The first full deployment process may take around 10 minutes depending on network and system resources while the cloud-native GitLab images are downloaded. Confirm GitLab is running with the following command:
-
-{{< /alert >}}
+> [!note]
+> The first full deployment process may take around 10 minutes depending on network and system resources while the cloud-native GitLab images are downloaded. Confirm GitLab is running with the following command:
 
 ```shell
 kubectl --namespace YOUR_NAMESPACE get pods
@@ -162,11 +153,8 @@ kubectl get secret gitlab-wildcard-tls-ca -ojsonpath='{.data.cfssl_ca}' | base64
 
 Now that the root CA is downloaded, you can add it to your local chain (instructions vary per platform and are readily available online).
 
-{{< alert type="note" >}}
-
-If you need to log into the registry with `docker login`, you will need to take additional steps to configure the registry to work with your self-signed certificates. More instructions can be found in:
-
-{{< /alert >}}
+> [!note]
+> If you need to log into the registry with `docker login`, you will need to take additional steps to configure the registry to work with your self-signed certificates. More instructions can be found in:
 
 - [Run an externally-accessible registry](https://distribution.github.io/distribution/about/deploying/#run-an-externally-accessible-registry)
 - [Adding self-signed registry certificates to Docker and Docker for macOS](https://blog.container-solutions.com/adding-self-signed-registry-certs-docker-mac).
@@ -185,21 +173,15 @@ helm upgrade --install gitlab gitlab/gitlab \
 
 Access GitLab at `http://gitlab.(your host IP).nip.io`.
 
-{{< alert type="note" >}}
-
-If you need to log into the registry with `docker login`, you will need to tell Docker to [trust your insecure registry](https://distribution.github.io/distribution/about/insecure/#deploy-a-plain-http-registry).
-
-{{< /alert >}}
+> [!note]
+> If you need to log into the registry with `docker login`, you will need to tell Docker to [trust your insecure registry](https://distribution.github.io/distribution/about/insecure/#deploy-a-plain-http-registry).
 
 ### Handling DNS
 
 This guide assumes you have network access to [nip.io](https://nip.io). If this is not available to you, please refer to the [handling DNS](../minikube/_index.md#handling-dns) section in the minikube documentation which will also work for KinD.
 
-{{< alert type="note" >}}
-
-When editing **/etc/hosts**, remember to use the [host computer's IP address](#required-information) rather than the output of `$(minikube ip)`.
-
-{{< /alert >}}
+> [!note]
+> When editing **/etc/hosts**, remember to use the [host computer's IP address](#required-information) rather than the output of `$(minikube ip)`.
 
 ## Cleaning up
 
@@ -209,8 +191,5 @@ When you're ready to clean up your local system, run this command:
 kind delete cluster
 ```
 
-{{< alert type="note" >}}
-
-If you named your cluster upon creation, or if you are running multiple clusters, you can delete specific ones with the `--name` flag.
-
-{{< /alert >}}
+> [!note]
+> If you named your cluster upon creation, or if you are running multiple clusters, you can delete specific ones with the `--name` flag.

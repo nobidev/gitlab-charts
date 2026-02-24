@@ -105,12 +105,9 @@ See also ["Invalid Word" errors in the `nginx-controller` logs and `404` errors 
 
 ## Adjustments to the NGINX fork
 
-{{< alert type="note" >}}
-
-Our [fork](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/nginx-ingress) of the NGINX chart was pulled from
-[GitHub](https://github.com/kubernetes/ingress-nginx).
-
-{{< /alert >}}
+> [!note]
+> Our [fork](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/nginx-ingress) of the NGINX chart was pulled from
+> [GitHub](https://github.com/kubernetes/ingress-nginx).
 
 The following adjustments were made to the NGINX fork:
 

@@ -9,11 +9,8 @@ GitLab offers [Red Hat UBI](https://www.redhat.com/en/blog/introducing-red-hat-u
 versions of its images, allowing you to replace standard images with UBI-based
 images. These images use the same tag as standard images with `-ubi` extension.
 
-{{< alert type="note" >}}
-
-The UBI-based images prior to GitLab 17.3 use the `-ubi8` extension.
-
-{{< /alert >}}
+> [!note]
+> The UBI-based images prior to GitLab 17.3 use the `-ubi8` extension.
 
 The GitLab chart uses third-party images that are not based on UBI. These images
 are mostly offer external services to GitLab, such as Redis, PostgreSQL, and so on.

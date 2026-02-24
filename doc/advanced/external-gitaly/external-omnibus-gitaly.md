@@ -19,12 +19,9 @@ Be sure firewall policies are in place to allow traffic.
 
 Follow the installation instructions for the [Linux package](https://docs.gitlab.com/install/package/ubuntu/).
 
-{{< alert type="note" >}}
-
-When you perform the Linux package installation, do not provide the `EXTERNAL_URL=` value.
-We do not want automatic configuration to occur, as we'll provide a very specific configuration in the next step.
-
-{{< /alert >}}
+> [!note]
+> When you perform the Linux package installation, do not provide the `EXTERNAL_URL=` value.
+> We do not want automatic configuration to occur, as we'll provide a very specific configuration in the next step.
 
 ## Configure Linux package installation
 

@@ -84,11 +84,8 @@ All options have defaults, so no options are required.
 | `LOG_LEVEL`                      | `info`                                       | Verbosity of `openshift-install` output |
 | `INSTALL_DIR`                    | `install-$CLUSTER_NAME`                      | Directory for install assets, useful for launching multiple clusters |
 
-{{< alert type="note" >}}
-
-The variables `CLUSTER_NAME` and `BASE_DOMAIN` are combined to build the domain name for the cluster.
-
-{{< /alert >}}
+> [!note]
+> The variables `CLUSTER_NAME` and `BASE_DOMAIN` are combined to build the domain name for the cluster.
 
 ## Destroy your OpenShift cluster
 

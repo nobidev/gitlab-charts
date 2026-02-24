@@ -88,12 +88,9 @@ After you set up the external PostgreSQL server:
 
 ## Create a built-in metadata database
 
-{{< alert type="warning" >}}
-
-You can use the built-in cloud native metadata database for trial purposes only.
-You should not use it in production.
-
-{{< /alert >}}
+> [!warning]
+> You can use the built-in cloud native metadata database for trial purposes only.
+> You should not use it in production.
 
 ### Create the database automatically
 
@@ -190,11 +187,8 @@ Prerequisites:
 Also read the [before you start](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/#before-you-start)
 section of the Registry administration guide.
 
-{{< alert type="note" >}}
-
-For a list of import times for various test and user registries, see [this table in issue 423459](https://gitlab.com/gitlab-org/gitlab/-/issues/423459#completed-tests-and-user-reports). Your registry deployment is unique, and your import times might be longer than those reported in the issue.
-
-{{< /alert >}}
+> [!note]
+> For a list of import times for various test and user registries, see [this table in issue 423459](https://gitlab.com/gitlab-org/gitlab/-/issues/423459#completed-tests-and-user-reports). Your registry deployment is unique, and your import times might be longer than those reported in the issue.
 
 ### Enable for new registries
 
@@ -260,11 +254,8 @@ A few factors affect the duration of the migration:
 - The number of registry pods running in your cluster.
 - Network latency between the registry, PostgresSQL and your configured Object Storage.
 
-{{< alert type="note" >}}
-
-Work to automate the import process is being tracked in [issue 5293](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/5293).
-
-{{< /alert >}}
+> [!note]
+> Work to automate the import process is being tracked in [issue 5293](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/5293).
 
 Before attempting the one-step or three-step import, get the current Helm values for your release and save them into a file.
 For example, for a release named `gitlab` and a file named `values.yml`:
@@ -377,12 +368,9 @@ To import in three steps, you must:
 1. Import all repository data
 1. Import common blobs
 
-{{< alert type="note" >}}
-
-Users have reported step one import completed at [rates of 2 to 4 TB per hour](https://gitlab.com/gitlab-org/gitlab/-/issues/423459).
-At the slower speed, registries with over 100 TB of data could take longer than 48 hours.
-
-{{< /alert >}}
+> [!note]
+> Users have reported step one import completed at [rates of 2 to 4 TB per hour](https://gitlab.com/gitlab-org/gitlab/-/issues/423459).
+> At the slower speed, registries with over 100 TB of data could take longer than 48 hours.
 
 ##### Step 1. Pre-import repositories
 
@@ -584,12 +572,9 @@ To reduce downtime during upgrades, you can skip post-deployment migrations and 
    registry database migrate up /etc/docker/registry/config.yml
    ```
 
-{{< alert type="note" >}}
-
-The `migrate up` command offers some extra flags that can be used to control how the migrations are applied.
-Run `registry database migrate up --help` for details.
-
-{{< /alert >}}
+> [!note]
+> The `migrate up` command offers some extra flags that can be used to control how the migrations are applied.
+> Run `registry database migrate up --help` for details.
 
 ## Troubleshooting
 

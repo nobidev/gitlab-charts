@@ -10,12 +10,9 @@ This document intends to provide documentation on how to configure this Helm cha
 If you don't have Gitaly configured, for on-premise or deployment to VM,
 consider using our [Linux package](external-omnibus-gitaly.md).
 
-{{< alert type="note" >}}
-
-External Gitaly _services_ can be provided by Gitaly nodes, or
-[Praefect](https://docs.gitlab.com/administration/gitaly/praefect/) clusters.
-
-{{< /alert >}}
+> [!note]
+> External Gitaly _services_ can be provided by Gitaly nodes, or
+> [Praefect](https://docs.gitlab.com/administration/gitaly/praefect/) clusters.
 
 ## Configure the chart
 
@@ -61,11 +58,8 @@ global:
 
 A complete example of setting up an external Praefect service.
 
-{{< alert type="note" >}}
-
-The Praefect service name [must be `default`](../../charts/globals.md#external).
-
-{{< /alert >}}
+> [!note]
+> The Praefect service name [must be `default`](../../charts/globals.md#external).
 
 ```yaml
 global:

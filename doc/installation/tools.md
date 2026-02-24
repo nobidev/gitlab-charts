@@ -151,12 +151,9 @@ dynamic provisioner creates the underlying persistent volumes. If you would like
 to customize the `storageClass` or manually create and assign volumes, review
 the [storage documentation](storage.md).
 
-{{< alert type="note" >}}
-
-After the initial deployment, making changes to your storage settings requires manually editing Kubernetes
-objects. Therefore, it's best to plan ahead before deploying your production instance to avoid extra storage migration work.
-
-{{< /alert >}}
+> [!note]
+> After the initial deployment, making changes to your storage settings requires manually editing Kubernetes
+> objects. Therefore, it's best to plan ahead before deploying your production instance to avoid extra storage migration work.
 
 ### TLS certificates
 

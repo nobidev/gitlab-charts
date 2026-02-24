@@ -15,11 +15,8 @@ The GitLab chart can be configured to set up GitLab with an external ClickHouse 
 | `global.clickhouse.main.password.key`    | Which key to use as the password within the secret |
 | `global.clickhouse.main.database`        | Database name |
 
-{{< alert type="warning" >}}
-
-Using ClickHouse is intended for experimenting and testing purposes only at the moment.
-
-{{< /alert >}}
+> [!warning]
+> Using ClickHouse is intended for experimenting and testing purposes only at the moment.
 
 ## Configuring the password
 

@@ -29,11 +29,8 @@ For more information check the [global Gateway API documentation](../globals.md#
 
 ## Migrating from the bundled NGINX Ingress
 
-{{< alert type="warning" >}}
-
-This migration results in downtime.
-
-{{< /alert >}}
+> [!warning]
+> This migration results in downtime.
 
 To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
 

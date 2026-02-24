@@ -65,12 +65,9 @@ has been provided in the [examples](https://gitlab.com/gitlab-org/charts/gitlab/
 Direct support for Azure Blob storage is available for
 [uploaded attachments, CI job artifacts, LFS, and other object types supported via the consolidated settings](https://docs.gitlab.com/administration/object_storage/#storage-specific-configuration). In previous GitLab versions, an [Azure MinIO gateway](azure-minio-gateway.md) was needed.
 
-{{< alert type="note" >}}
-
-GitLab [does not support](https://github.com/minio/minio/issues/9978) the Azure MinIO gateway as the storage for the Docker Registry.
-Please refer to the [corresponding Azure example](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.azure.yaml) when [setting up the Docker Registry](#docker-registry-images).
-
-{{< /alert >}}
+> [!note]
+> GitLab [does not support](https://github.com/minio/minio/issues/9978) the Azure MinIO gateway as the storage for the Docker Registry.
+> Please refer to the [corresponding Azure example](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.azure.yaml) when [setting up the Docker Registry](#docker-registry-images).
 
 Although Azure uses the word container to denote a collection of blobs,
 GitLab standardizes on the term bucket.
@@ -100,12 +97,9 @@ Then, disable MinIO and set these global settings:
 
 Be sure to create Azure containers for the [default names or set the container names in the bucket configuration](../../charts/globals.md#specify-buckets).
 
-{{< alert type="note" >}}
-
-If you experience requests failing with `Requests to the local network are not allowed`,
-see the [Troubleshooting section](#troubleshooting).
-
-{{< /alert >}}
+> [!note]
+> If you experience requests failing with `Requests to the local network are not allowed`,
+> see the [Troubleshooting section](#troubleshooting).
 
 ## Docker Registry images
 
@@ -117,12 +111,9 @@ Configuration of object storage for the `registry` chart is done via the `regist
 --set global.registry.bucket=bucket-name
 ```
 
-{{< alert type="note" >}}
-
-The bucket name needs to be set both in the secret, and in `global.registry.bucket`. The secret is used in the registry server, and
-the global is used by GitLab backups.
-
-{{< /alert >}}
+> [!note]
+> The bucket name needs to be set both in the secret, and in `global.registry.bucket`. The secret is used in the registry server, and
+> the global is used by GitLab backups.
 
 Create the secret per [registry chart documentation on storage](../../charts/registry/_index.md#storage), then configure the chart to make use of this secret.
 
@@ -295,12 +286,9 @@ For Azure Blob Storage:
 
 See the [backup/restore object storage documentation](../../backup-restore/_index.md#object-storage) for full details.
 
-{{< alert type="note" >}}
-
-To backup or restore files from the other object storage locations, the configuration file needs to be
-configured to authenticate as a user with sufficient access to read/write to all GitLab buckets.
-
-{{< /alert >}}
+> [!note]
+> To backup or restore files from the other object storage locations, the configuration file needs to be
+> configured to authenticate as a user with sufficient access to read/write to all GitLab buckets.
 
 ### Backups storage example
 

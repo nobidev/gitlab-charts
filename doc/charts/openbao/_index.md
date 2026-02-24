@@ -21,12 +21,9 @@ title: OpenBao chart
 
 {{< /history >}}
 
-{{< alert type="flag" >}}
-
-The availability of this feature is controlled by a feature flag.
-For more information, see the history.
-
-{{< /alert >}}
+> [!flag]
+> The availability of this feature is controlled by a feature flag.
+> For more information, see the history.
 
 You can use the [OpenBao chart](https://gitlab.com/gitlab-org/cloud-native/charts/openbao) to install
 OpenBao, which is required to enable the [GitLab secrets manager](https://docs.gitlab.com/ci/secrets/secrets_manager/).

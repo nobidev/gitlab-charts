@@ -29,12 +29,9 @@ claims.
 kubectl delete secrets,pvc -lrelease=RELEASE_NAME
 ```
 
-{{< alert type="note" >}}
-
-This deletes all Kubernetes secrets including TLS certificates and all data
-in the database. This should not be performed in a production instance.
-
-{{< /alert >}}
+> [!note]
+> This deletes all Kubernetes secrets including TLS certificates and all data
+> in the database. This should not be performed in a production instance.
 
 ## Database is broken and needs reset
 
@@ -44,12 +41,9 @@ The database environment can be reset in a development environment by:
 1. Delete the PostgreSQL PersistentVolumeClaim
 1. Deploy GitLab again with `helm upgrade --install`
 
-{{< alert type="note" >}}
-
-This will delete all data in the databases and should not be run in
-production.
-
-{{< /alert >}}
+> [!note]
+> This will delete all data in the databases and should not be run in
+> production.
 
 ## CI clusters are low on available resources
 

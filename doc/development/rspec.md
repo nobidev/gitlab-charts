@@ -51,12 +51,9 @@ obj.dig('ConfigMap/test-gitaly', 'data', 'config.toml.tpl')
 This will return the contents of the `config.toml.tpl` file contained in the
 `test-gitaly` ConfigMap.
 
-{{< alert type="note" >}}
-
-Using the `HelmTemplate` class will always use the release name of "test"
-when executing the `helm template` command.
-
-{{< /alert >}}
+> [!note]
+> Using the `HelmTemplate` class will always use the release name of "test"
+> when executing the `helm template` command.
 
 ## Chart inputs
 
@@ -359,12 +356,9 @@ Tests that do not need cluster access are parallelized using knapsack.
 For knapsack to evenly distribute the tests between nodes, it needs a
 report that can only be generated when all specs run on a single node.
 
-{{< alert type="note" >}}
-
-Generating the report is not a (manual) CI job because the specs run
-for 3h+ on a single node, which exceeds the default runner timeout.
-
-{{< /alert >}}
+> [!note]
+> Generating the report is not a (manual) CI job because the specs run
+> for 3h+ on a single node, which exceeds the default runner timeout.
 
 To generate such a report on demand:
 

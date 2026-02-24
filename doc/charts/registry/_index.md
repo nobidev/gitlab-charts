@@ -1051,11 +1051,8 @@ Various vendors use different field names for the same construct:
 | Google CDN | `keyname`  |
 | CloudFront | `keypairid` |
 
-{{< alert type="note" >}}
-
-Only configuration of `middleware.storage` section is supported at this time.
-
-{{< /alert >}}
+> [!note]
+> Only configuration of `middleware.storage` section is supported at this time.
 
 ### `debug`
 
@@ -1125,11 +1122,8 @@ The `database` property is optional and enables the [metadata database](https://
 See the [administration documentation](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/)
 before enabling this feature.
 
-{{< alert type="note" >}}
-
-This feature requires PostgreSQL 13 or newer.
-
-{{< /alert >}}
+> [!note]
+> This feature requires PostgreSQL 13 or newer.
 
 ```yaml
 database:
@@ -1168,11 +1162,8 @@ database:
 
 #### Load balancing
 
-{{< alert type="warning" >}}
-
-This is an experimental feature under active development and must not be used in production.
-
-{{< /alert >}}
+> [!warning]
+> This is an experimental feature under active development and must not be used in production.
 
 The `loadBalancing` section allows configuring [database load balancing](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#loadbalancing). The corresponding [Redis connection](#redis-for-database-load-balancing) must be enabled for this feature to work.
 
@@ -1307,12 +1298,9 @@ redis:
 
 ### Redis rate-limiter
 
-{{< alert type="warning" >}}
-
-The Redis rate-limiting is [under development](https://gitlab.com/groups/gitlab-org/-/epics/13237).
-More functionality details will be added to this section as they become available.
-
-{{< /alert >}}
+> [!warning]
+> The Redis rate-limiting is [under development](https://gitlab.com/groups/gitlab-org/-/epics/13237).
+> More functionality details will be added to this section as they become available.
 
 The `redis.rateLimiting` property is optional and provides options related to the
 [Redis rate-limiter](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#ratelimiter).
@@ -1356,11 +1344,8 @@ Status: Experiment
 
 {{< /history >}}
 
-{{< alert type="warning" >}}
-
-[Database Load Balancing](#load-balancing) is an experimental feature under active development and must not be used in production. Use [epic 8591](https://gitlab.com/groups/gitlab-org/-/epics/8591) to follow progress and share feedback.
-
-{{< /alert >}}
+> [!warning]
+> [Database Load Balancing](#load-balancing) is an experimental feature under active development and must not be used in production. Use [epic 8591](https://gitlab.com/groups/gitlab-org/-/epics/8591) to follow progress and share feedback.
 
 The `redis.loadBalancing` property is optional and provides options related to the
 [Redis connection for database load balancing](https://gitlab.com/gitlab-org/container-registry/-/blob/b4d71f24a9ae31288401a3459228aa7f8d3dd8f0/docs/configuration.md#loadbalancing-1).

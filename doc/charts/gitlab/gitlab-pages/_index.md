@@ -339,11 +339,8 @@ To have TLS access to the GitLab Pages feature you must:
 
 {{< /history >}}
 
-{{< alert type="warning" >}}
-
-GitLab Pages supports only one URL scheme at a time: Either with wildcard DNS, or without wildcard DNS. If you enable `namespaceInPath`, existing GitLab Pages websites are accessible only on domains without wildcard DNS.
-
-{{< /alert >}}
+> [!warning]
+> GitLab Pages supports only one URL scheme at a time: Either with wildcard DNS, or without wildcard DNS. If you enable `namespaceInPath`, existing GitLab Pages websites are accessible only on domains without wildcard DNS.
 
 1. Enable `namespaceInPath` in the global Pages settings.
 
@@ -388,11 +385,8 @@ GitLab Pages supports only one URL scheme at a time: Either with wildcard DNS, o
    [System OAuth application](https://docs.gitlab.com/integration/oauth_provider/#create-an-instance-wide-application)
    to use the HTTPS protocol.
 
-{{< alert type="warning" >}}
-
-GitLab Pages does not update the OAuth application, and the default `authRedirectUri` is updated to `https://pages.<yourdomaindomain>/projects/auth`. While accessing a private Pages site, if you encounter an error 'The redirect URI included is not valid', update the redirect URI in the GitLab Pages [System OAuth application](https://docs.gitlab.com/integration/oauth_provider/#create-an-instance-wide-application) to `https://pages.<yourdomaindomain>/projects/auth`.
-
-{{< /alert >}}
+> [!warning]
+> GitLab Pages does not update the OAuth application, and the default `authRedirectUri` is updated to `https://pages.<yourdomaindomain>/projects/auth`. While accessing a private Pages site, if you encounter an error 'The redirect URI included is not valid', update the redirect URI in the GitLab Pages [System OAuth application](https://docs.gitlab.com/integration/oauth_provider/#create-an-instance-wide-application) to `https://pages.<yourdomaindomain>/projects/auth`.
 
 ### Rate limits
 

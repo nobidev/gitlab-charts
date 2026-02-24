@@ -1368,12 +1368,9 @@ test the configuration.
 
 {{< /details >}}
 
-{{< alert type="warning" >}}
-
-Configuring a relative URL for GitLab has [known issues with Geo](https://gitlab.com/gitlab-org/gitlab/-/issues/456427) and
-[testing limitations](https://gitlab.com/gitlab-org/gitlab/-/issues/439943).
-
-{{< /alert >}}
+> [!warning]
+> Configuring a relative URL for GitLab has [known issues with Geo](https://gitlab.com/gitlab-org/gitlab/-/issues/456427) and
+> [testing limitations](https://gitlab.com/gitlab-org/gitlab/-/issues/439943).
 
 Though you should install GitLab on its own domain or subdomain, you can install under a relative URL if required. For example,
 `https://example.com/gitlab`.
@@ -2293,11 +2290,8 @@ gitlab:
 
 ## Custom Certificate Authorities
 
-{{< alert type="note" >}}
-
-These settings do not affect bundled third-party charts.
-
-{{< /alert >}}
+> [!note]
+> These settings do not affect bundled third-party charts.
 
 Some users may need to add custom certificate authorities, such as when using internally
 issued SSL certificates for TLS services. To provide this functionality, we provide
@@ -2585,11 +2579,8 @@ gitlab:
           # optional: boolean
 ```
 
-{{< alert type="note" >}}
-
-The implementation does not support reusing a value name with different content types. You can override the same name with similar content, but no not mix sources like `secretKeyRef`, `configMapKeyRef`, etc.
-
-{{< /alert >}}
+> [!note]
+> The implementation does not support reusing a value name with different content types. You can override the same name with similar content, but no not mix sources like `secretKeyRef`, `configMapKeyRef`, etc.
 
 ## Configure OAuth settings
 
@@ -2678,11 +2669,8 @@ global:
 
 This enables an additional clone URL in the GitLab UI that is dedicated for Kerberos negotiation. The `https: true` setting is for URL generation only, and doesn't expose any additional TLS configuration. TLS is terminated and configured in the Ingress for GitLab.
 
-{{< alert type="note" >}}
-
-Due to a current limitation with [our fork of the `nginx-ingress` Helm chart](nginx/_index.md) - specifying a `dedicatedPort` will not currently expose the port for use in the chart's `nginx-ingress` controller. Cluster operators will need to expose this port themselves. Follow [this charts issue](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3531) for more details and potential workarounds.
-
-{{< /alert >}}
+> [!note]
+> Due to a current limitation with [our fork of the `nginx-ingress` Helm chart](nginx/_index.md) - specifying a `dedicatedPort` will not currently expose the port for use in the chart's `nginx-ingress` controller. Cluster operators will need to expose this port themselves. Follow [this charts issue](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3531) for more details and potential workarounds.
 
 ### LDAP custom allowed realms
 

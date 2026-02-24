@@ -19,22 +19,16 @@ Be sure firewall policies are in place to allow traffic.
 
 Follow the installation instructions for the [Linux package](https://docs.gitlab.com/install/package/ubuntu/).
 
-{{< alert type="note" >}}
-
-When you perform the package installation, do not provide the `EXTERNAL_URL=` value.
-We do not want automatic configuration to occur, as we'll provide a very specific configuration in the next step.
-
-{{< /alert >}}
+> [!note]
+> When you perform the package installation, do not provide the `EXTERNAL_URL=` value.
+> We do not want automatic configuration to occur, as we'll provide a very specific configuration in the next step.
 
 ## Configure Linux package installation
 
 Create a minimal `gitlab.rb` file to be placed at `/etc/gitlab/gitlab.rb`. Be _very_ explicit about what is enabled on this node, use the contents below.
 
-{{< alert type="note" >}}
-
-This example is not intended to provide [Redis for scaling](https://docs.gitlab.com/administration/redis/).
-
-{{< /alert >}}
+> [!note]
+> This example is not intended to provide [Redis for scaling](https://docs.gitlab.com/administration/redis/).
 
 - `REDIS_PASSWORD` should be replaced with the value in the [`gitlab-redis` secret](../../installation/secrets.md#redis-password).
 

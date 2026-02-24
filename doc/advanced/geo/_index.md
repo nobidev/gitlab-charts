@@ -17,12 +17,9 @@ since version 7.3. See [Set up a Unified URL for Geo sites](https://docs.gitlab.
 
 For known issues, see the [Geo documentation](https://docs.gitlab.com/administration/geo/#known-issues).
 
-{{< alert type="note" >}}
-
-See the [defined terms](https://docs.gitlab.com/administration/geo/glossary/)
-to describe all aspects of Geo (mainly the distinction between `site` and `node`).
-
-{{< /alert >}}
+> [!note]
+> See the [defined terms](https://docs.gitlab.com/administration/geo/glossary/)
+> to describe all aspects of Geo (mainly the distinction between `site` and `node`).
 
 ## Requirements
 

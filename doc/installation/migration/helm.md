@@ -56,12 +56,9 @@ on some Deployments and StatefulSets are immutable and can not be changed from `
 
 To work around this use the following instructions:
 
-{{< alert type="note" >}}
-
-These instructions forcefully replace resources, notably Redis StatefulSet.
-You need to ensure that the attached data volume to this StatefulSet is safe and remains intact.
-
-{{< /alert >}}
+> [!note]
+> These instructions forcefully replace resources, notably Redis StatefulSet.
+> You need to ensure that the attached data volume to this StatefulSet is safe and remains intact.
 
 1. Replace cert-manager Deployments (when enabled).
 

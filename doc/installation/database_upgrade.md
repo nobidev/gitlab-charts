@@ -12,19 +12,13 @@ title: Upgrade the bundled PostgreSQL version
 
 {{< /details >}}
 
-{{< alert type="note" >}}
+> [!note]
+> These steps are if you are using the bundled PostgreSQL chart (`postgresql.install` is not false), and not for external
+> PostgreSQL setups.
 
-These steps are if you are using the bundled PostgreSQL chart (`postgresql.install` is not false), and not for external
-PostgreSQL setups.
-
-{{< /alert >}}
-
-{{< alert type="warning" >}}
-
-The bundled bitnami PostgreSQL chart is not production ready. For a production-ready GitLab chart deployment, use an
-external database.
-
-{{< /alert >}}
+> [!warning]
+> The bundled bitnami PostgreSQL chart is not production ready. For a production-ready GitLab chart deployment, use an
+> external database.
 
 Changing to a new major version of PostgreSQL using the bundled PostgreSQL chart is done through a backup on the existing
 database, then restoring to the new database.
@@ -72,19 +66,13 @@ curl -s "https://gitlab.com/gitlab-org/charts/gitlab/-/raw/${GITLAB_RELEASE}/scr
 
 ### Delete existing PostgreSQL data
 
-{{< alert type="note" >}}
+> [!note]
+> Since the PostgreSQL data format has changed, upgrading requires removing the existing PostgreSQL StatefulSet before
+> upgrading the release. The StatefulSet will be recreated in the next step.
 
-Since the PostgreSQL data format has changed, upgrading requires removing the existing PostgreSQL StatefulSet before
-upgrading the release. The StatefulSet will be recreated in the next step.
-
-{{< /alert >}}
-
-{{< alert type="warning" >}}
-
-Ensure that you have created a database backup in the previous step. Without a backup, GitLab data
-will be lost.
-
-{{< /alert >}}
+> [!warning]
+> Ensure that you have created a database backup in the previous step. Without a backup, GitLab data
+> will be lost.
 
 ```shell
 kubectl delete statefulset RELEASE-NAME-postgresql
@@ -139,12 +127,9 @@ Note the following:
 
 ## Edit the existing PostgreSQL passwords Secret
 
-{{< alert type="note" >}}
-
-This is only for `7.0.0` upgrade, and only when you want enforce the use password files inside the
-PostgreSQL service containers.
-
-{{< /alert >}}
+> [!note]
+> This is only for `7.0.0` upgrade, and only when you want enforce the use password files inside the
+> PostgreSQL service containers.
 
 The new version of [PostgreSQL chart](https://github.com/bitnami/charts/tree/main/bitnami/postgresql) uses different
 keys to reference passwords in a Secrets. Instead of `postgresql-password` and `postgresql-postgres-password` it now

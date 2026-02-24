@@ -17,12 +17,9 @@ settings required to ensure that appropriate configuration.
 
 ### Generating certificates for internal use
 
-{{< alert type="note" >}}
-
-GitLab does not purport to provide high-grade PKI infrastructure, or certificate
-authorities.
-
-{{< /alert >}}
+> [!note]
+> GitLab does not purport to provide high-grade PKI infrastructure, or certificate
+> authorities.
 
 For the purposes of this documentation, we provide a **Proof of Concept** script
 below, which makes use of [Cloudflare's CFSSL](https://github.com/cloudflare/cfssl/)
@@ -87,12 +84,9 @@ kubectl -n ${NAMESPACE} create secret generic ${RELEASE}-internal-tls-ca \
   --from-file=ca.crt=ca.pem
 ```
 
-{{< alert type="note" >}}
-
-This script _does not_ preserve the CA's private key. It is a Proof-of-Concept
-helper, and _is not intended for production use_.
-
-{{< /alert >}}
+> [!note]
+> This script _does not_ preserve the CA's private key. It is a Proof-of-Concept
+> helper, and _is not intended for production use_.
 
 The script expects two environment variables to be set:
 

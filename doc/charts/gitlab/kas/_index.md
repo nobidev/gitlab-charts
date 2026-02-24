@@ -67,11 +67,8 @@ specified in `global.hosts.domain`.
 
 The KAS service supports gRPC traffic through the same port as WebSocket traffic, using path-based routing with regex matching to distinguish between the two protocols.
 
-{{< alert type="warning" >}}
-
-gRPC Ingress is not supported when [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root) is set to a non-empty value.
-
-{{< /alert >}}
+> [!warning]
+> gRPC Ingress is not supported when [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root) is set to a non-empty value.
 
 #### Controller Support
 

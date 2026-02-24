@@ -16,11 +16,8 @@ refer to the [Mattermost Helm configuration guide](https://github.com/mattermost
 - A running Kubernetes cluster.
 - [Helm v3](https://helm.sh/docs/intro/install/)
 
-{{< alert type="note" >}}
-
-For the Team Edition you can have just one replica running.
-
-{{< /alert >}}
+> [!note]
+> For the Team Edition you can have just one replica running.
 
 ## Deploy the Mattermost Team Edition Helm chart
 

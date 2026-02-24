@@ -13,12 +13,9 @@ title: Using the Praefect chart
 
 {{< /details >}}
 
-{{< alert type="warning" >}}
-
-The Praefect chart is still under development. This experimental version is not yet suitable for production use. Upgrades may require significant manual intervention.
-See our [Praefect GA release Epic](https://gitlab.com/groups/gitlab-org/charts/-/epics/33) for more information.
-
-{{< /alert >}}
+> [!warning]
+> The Praefect chart is still under development. This experimental version is not yet suitable for production use. Upgrades may require significant manual intervention.
+> See our [Praefect GA release Epic](https://gitlab.com/groups/gitlab-org/charts/-/epics/33) for more information.
 
 The Praefect chart is used to manage [Gitaly Cluster (Praefect)](https://docs.gitlab.com/administration/gitaly/praefect/)
 inside a GitLab installment deployed with the Helm charts.
@@ -125,11 +122,8 @@ global:
 
 ### Migrating to Praefect
 
-{{< alert type="note" >}}
-
-Group wikis [cannot be moved by using the API](https://docs.gitlab.com/api/project_repository_storage_moves/).
-
-{{< /alert >}}
+> [!note]
+> Group wikis [cannot be moved by using the API](https://docs.gitlab.com/api/project_repository_storage_moves/).
 
 When migrating from standalone Gitaly instances to a Praefect setup, `global.praefect.replaceInternalGitaly` can be set to `false`.
 This ensures that the existing Gitaly instances are preserved while the new Praefect-managed Gitaly instances are created.
@@ -184,12 +178,9 @@ to configure where new repositories are stored.
 
 Praefect uses its own database to track its state. This has to be manually created in order for Praefect to be functional.
 
-{{< alert type="note" >}}
-
-These instructions assume you are using the bundled PostgreSQL server. If you are using your own server,
-there will be some variation in how you connect.
-
-{{< /alert >}}
+> [!note]
+> These instructions assume you are using the bundled PostgreSQL server. If you are using your own server,
+> there will be some variation in how you connect.
 
 1. Log into your database instance:
 

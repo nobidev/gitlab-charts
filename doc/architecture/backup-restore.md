@@ -94,9 +94,6 @@ After fetching the backup tar the sequence of execution is:
    - clean up the corresponding bucket
    - restore the backup content into the corresponding bucket
 
-{{< alert type="note" >}}
-
-If the restore fails, the user will need to revert to a previous backup using data in `tmp` directory of the backup
-bucket, which is a manual process.
-
-{{< /alert >}}
+> [!note]
+> If the restore fails, the user will need to revert to a previous backup using data in `tmp` directory of the backup
+> bucket, which is a manual process.

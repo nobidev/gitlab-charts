@@ -182,11 +182,8 @@ The script:
 1. Pushes the specified Helm chart package to the OCI registry
 1. Provides detailed feedback about each operation's success or failure
 
-{{< alert type="note" >}}
-
-This script is designed to run in CI/CD environments with proper Vault access and permissions.
-
-{{< /alert >}}
+> [!note]
+> This script is designed to run in CI/CD environments with proper Vault access and permissions.
 
 ### Manually releasing the chart
 

@@ -462,12 +462,9 @@ on a per-pod basis.
 | `maxReplicas`                | Integer | `10`      | Maximum number of replicas |
 | `maxUnavailable`             | Integer | `1`       | Limit of maximum number of Pods to be unavailable |
 
-{{< alert type="note" >}}
-
-[Detailed documentation of the Sidekiq memory killer is available](https://docs.gitlab.com/administration/sidekiq/sidekiq_memory_killer/)
-in the Linux package documentation.
-
-{{< /alert >}}
+> [!note]
+> [Detailed documentation of the Sidekiq memory killer is available](https://docs.gitlab.com/administration/sidekiq/sidekiq_memory_killer/)
+> in the Linux package documentation.
 
 ## Disable HPA scaling
 

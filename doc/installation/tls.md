@@ -113,11 +113,8 @@ helm install gitlab gitlab/gitlab \
   --set gitlab.kas.ingress.tls.secretName=RELEASE-kas-tls
 ```
 
-{{< alert type="note" >}}
-
-If you are configuring your GitLab instance to talk with other services, it may be necessary to [provide the certificate chains](../charts/globals.md#custom-certificate-authorities) for those services to GitLab through the Helm chart as well.
-
-{{< /alert >}}
+> [!note]
+> If you are configuring your GitLab instance to talk with other services, it may be necessary to [provide the certificate chains](../charts/globals.md#custom-certificate-authorities) for those services to GitLab through the Helm chart as well.
 
 ## Option 4: Use auto-generated self-signed wildcard certificate
 
@@ -125,18 +122,12 @@ These charts also provide the capability to provide a auto-generated self-signed
 This can be useful in environments where Let's Encrypt is not an option, but security via SSL is still
 desired. This functionality is provided by the [shared-secrets](../charts/shared-secrets.md) job.
 
-{{< alert type="note" >}}
+> [!note]
+> The `gitlab-runner` chart does not function properly with self-signed certificates. We recommend
+> disabling it, as shown below.
 
-The `gitlab-runner` chart does not function properly with self-signed certificates. We recommend
-disabling it, as shown below.
-
-{{< /alert >}}
-
-{{< alert type="note" >}}
-
-If you're disabling TLS globally, with something like `--set global.ingress.tls.enabled=false`, the self-signed certificates won't be generated.
-
-{{< /alert >}}
+> [!note]
+> If you're disabling TLS globally, with something like `--set global.ingress.tls.enabled=false`, the self-signed certificates won't be generated.
 
 ```shell
 helm install gitlab gitlab/gitlab \
