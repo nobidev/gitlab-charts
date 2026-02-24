@@ -55,6 +55,8 @@ data:
           {{- if $sentinel_password }}
           :sentinel_password: "{{ $sentinel_password }}"
           {{- end }}
+          {{- include "gitlab.mailroom.redis.tls" $ | nindent 10 }}
+          {{- include "gitlab.mailroom.sentinel.tls" $ | nindent 10 }}
         {{- else if eq .deliveryMethod "webhook" }}
         :delivery_method: postback
         :delivery_options:
@@ -74,6 +76,8 @@ data:
           {{- if $sentinel_password }}
           :sentinel_password: "{{ $sentinel_password }}"
           {{- end }}
+          {{- include "gitlab.mailroom.redis.tls" . | nindent 10 }}
+          {{- include "gitlab.mailroom.sentinel.tls" . | nindent 10 }}
       {{- if .Values.global.appConfig.serviceDeskEmail.enabled }}
       -
         {{- with .Values.global.appConfig.serviceDeskEmail }}
@@ -116,6 +120,8 @@ data:
           {{- if $sentinel_password }}
           :sentinel_password: "{{ $sentinel_password }}"
           {{- end }}
+          {{- include "gitlab.mailroom.redis.tls" $ | nindent 10 }}
+          {{- include "gitlab.mailroom.sentinel.tls" $ | nindent 10 }}
         {{- else if eq .deliveryMethod "webhook" }}
         :delivery_method: postback
         :delivery_options:
@@ -135,6 +141,8 @@ data:
           {{- if $sentinel_password }}
           :sentinel_password: "{{ $sentinel_password }}"
           {{- end }}
+          {{- include "gitlab.mailroom.redis.tls" . | nindent 10 }}
+          {{- include "gitlab.mailroom.sentinel.tls" . | nindent 10 }}
       {{- end }}
 
   configure: |
