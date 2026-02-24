@@ -161,7 +161,7 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
 
    ```shell
    helm plugin install https://github.com/aslafy-z/helm-git
-   helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=main-v1"
+   helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v2.2.0"
    helm install garage garage/garage -n <NAMESPACE> \
      --set persistence.data.size=5Gi \
      --set persistence.meta.size=250Mi
@@ -259,6 +259,22 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
    EOF
    ```
 
+1. Create a Secret configuring access for registry:
+
+   ```shell
+   cat <<EOF | kubectl create secret generic gitlab-registry-storage --from-file=config=/dev/stdin
+   s3:
+     accesskey: ${GARAGE_ACCESS_KEY}
+     secretkey: ${GARAGE_SECRET_KEY}
+     bucket: registry
+     region: garage
+     regionendpoint: http://garage.${NAMESPACE}.svc.cluster.local:3900
+     secure: false
+     v4auth: true
+     pathstyle: true
+   EOF
+   ```
+
 ## Migrate to external services
 
 With all replacements provisioned, you can now disable the bundled MinIO, Redis, and
@@ -311,6 +327,27 @@ PostgreSQL.
          connection:
            secret: gitlab-object-storage
            key: config
+       # set buckets used by garage
+       artifacts:
+         bucket: gitlab-artifacts
+       lfs:
+         bucket: git-lfs
+       uploads:
+         bucket: gitlab-uploads
+       packages:
+         bucket: gitlab-packages
+       externalDiffs:
+         enabled: true
+         bucket: gitlab-mr-diffs
+       terraformState:
+         enabled: true
+         bucket: gitlab-terraform-state
+       ciSecureFiles:
+         enabled: true
+         bucket: gitlab-ci-secure-files
+       dependencyProxy:
+         enabled: true
+         bucket: gitlab-dependency-proxy
      # Disable bundled MinIO.
      minio:
        enabled: false
@@ -322,7 +359,13 @@ PostgreSQL.
            config:
              secret: gitlab-object-storage-s3cmd
              key: config
-
+   # Disable registry redirect if not exposing garage via Ingress
+   registry:
+     storage:
+       secret: gitlab-registry-storage
+         key: config
+         redirect:
+           disable: true
    # Disable bundled PostgreSQL and Redis.
    postgresql:
      install: false
