@@ -903,7 +903,46 @@ The `redisTLS` configuration supports:
 | `caFile.secret`     | String |         | The Kubernetes secret name containing the CA certificate |
 | `caFile.key`        | String |         | The key in the secret containing the CA certificate |
 
-All three (`cert`, `key`, and `caFile`) are optional. If not specified, the system will use the default CA certificates.
+All three (`cert`, `key`, and `caFile`) are optional. If not specified, the system uses the default CA certificates.
+
+#### Sentinel TLS configuration
+
+When using Redis Sentinel with TLS, you can configure client certificates and CA certificates for Sentinel connections using the `sentinelTLS` setting:
+
+```yaml
+global:
+  redis:
+    sentinels:
+      - host: sentinel1.example.com
+        port: 26379
+      - host: sentinel2.example.com
+        port: 26379
+    sentinelTLS:
+      enabled: true
+      cert:
+        secret: sentinel-client-cert
+        key: cert
+      key:
+        secret: sentinel-client-key
+        key: key
+      caFile:
+        secret: sentinel-ca
+        key: ca.crt
+```
+
+The `sentinelTLS` configuration supports:
+
+| Name                |  Type   | Default | Description |
+|:--------------------|:-------:|:--------|:------------|
+| `enabled`           | Boolean | `false` | Set to `true` to enable TLS for Sentinel connections |
+| `cert.secret`       | String  |         | The Kubernetes secret name containing the client certificate |
+| `cert.key`          | String  |         | The key in the secret containing the client certificate |
+| `key.secret`        | String  |         | The Kubernetes secret name containing the client private key |
+| `key.key`           | String  |         | The key in the secret containing the client private key |
+| `caFile.secret`     | String  |         | The Kubernetes secret name containing the CA certificate |
+| `caFile.key`        | String  |         | The key in the secret containing the CA certificate |
+
+All certificate options are optional. If not specified, the system uses the default CA certificates.
 
 ### Password-less Redis Servers
 
