@@ -365,9 +365,9 @@ PostgreSQL.
    registry:
      storage:
        secret: gitlab-registry-storage
-         key: config
-         redirect:
-           disable: true
+       key: config
+       redirect:
+         disable: true
    # Disable bundled PostgreSQL and Redis.
    postgresql:
      install: false

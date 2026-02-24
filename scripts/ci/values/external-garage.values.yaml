@@ -5,7 +5,7 @@ global:
   appConfig:
     object_store:
       enabled: true
-      proxy_download: false
+      proxy_download: true
       connection:
         secret: gitlab-object-storage
         key: config
