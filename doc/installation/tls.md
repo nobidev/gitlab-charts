@@ -123,11 +123,10 @@ This can be useful in environments where Let's Encrypt is not an option, but sec
 desired. This functionality is provided by the [shared-secrets](../charts/shared-secrets.md) job.
 
 > [!note]
-> The `gitlab-runner` chart does not function properly with self-signed certificates. We recommend
-> disabling it, as shown below.
-
-> [!note]
-> If you're disabling TLS globally, with something like `--set global.ingress.tls.enabled=false`, the self-signed certificates won't be generated.
+>
+> - The `gitlab-runner` chart does not function properly with self-signed certificates. We recommend
+>   disabling it, as shown below.
+> - If you're disabling TLS globally, with something like `--set global.ingress.tls.enabled=false`, the self-signed certificates won't be generated.
 
 ```shell
 helm install gitlab gitlab/gitlab \

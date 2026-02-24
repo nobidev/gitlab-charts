@@ -12,9 +12,8 @@ title: Upgrade the bundled PostgreSQL version
 
 {{< /details >}}
 
-> [!note]
-> These steps are if you are using the bundled PostgreSQL chart (`postgresql.install` is not false), and not for external
-> PostgreSQL setups.
+These steps are if you are using the bundled PostgreSQL chart (`postgresql.install` is not false), and not for external
+PostgreSQL setups.
 
 > [!warning]
 > The bundled bitnami PostgreSQL chart is not production ready. For a production-ready GitLab chart deployment, use an
@@ -66,9 +65,8 @@ curl -s "https://gitlab.com/gitlab-org/charts/gitlab/-/raw/${GITLAB_RELEASE}/scr
 
 ### Delete existing PostgreSQL data
 
-> [!note]
-> Since the PostgreSQL data format has changed, upgrading requires removing the existing PostgreSQL StatefulSet before
-> upgrading the release. The StatefulSet will be recreated in the next step.
+Since the PostgreSQL data format has changed, upgrading requires removing the existing PostgreSQL StatefulSet before
+upgrading the release. The StatefulSet will be recreated in the next step.
 
 > [!warning]
 > Ensure that you have created a database backup in the previous step. Without a backup, GitLab data
