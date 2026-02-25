@@ -29,32 +29,32 @@ Install Helm v4.0 or later by following [the Helm documentation](https://helm.sh
 
 ### PostgreSQL
 
-By default, the GitLab chart includes an in-cluster PostgreSQL deployment that
-is provided by [`bitnami/PostgreSQL`](https://artifacthub.io/packages/helm/bitnami/postgresql).
-This deployment is for trial purposes only and **not recommended for use in production**.
-
-You should set up an
-[external, production-ready PostgreSQL instance](../advanced/external-db/_index.md).
+For production deployments, set up an [external PostgreSQL instance](../advanced/external-db/_index.md).
 
 Check [the GitLab requirements](https://docs.gitlab.com/install/requirements/#postgresql) for
 the supported PostgreSQL versions.
 
-As of GitLab chart 4.0.0, replication is available internally, but not enabled by default.
-Such functionality has not been load tested by GitLab.
+{{< alert type="note" >}}
+
+The GitLab chart includes a bundled PostgreSQL deployment provided by
+[`bitnami/PostgreSQL`](https://artifacthub.io/packages/helm/bitnami/postgresql)
+for evaluation purposes only.
+
+{{< /alert >}}
 
 ### Redis
 
-By default, the GitLab chart includes an in-cluster Redis deployment that
-is provided by [`bitnami/Redis`](https://artifacthub.io/packages/helm/bitnami/redis).
-This deployment is for trial purposes only and **not recommended for use in production**.
-
-You should set up an
-[external, production-ready Redis instance](../advanced/external-redis/_index.md).
+For production deployments, set up an [external Redis instance](../advanced/external-redis/_index.md).
 For all the available configuration settings, see the
 [Redis globals documentation](../charts/globals.md#configure-redis-settings).
 
-As of GitLab chart 4.0.0, replication is available internally, but
-not enabled by default. Such functionality has not been load tested by GitLab.
+{{< alert type="note" >}}
+
+The GitLab chart includes a bundled Redis deployment provided by
+[`bitnami/Redis`](https://artifacthub.io/packages/helm/bitnami/redis)
+for evaluation purposes only.
+
+{{< /alert >}}
 
 ### Gitaly
 
