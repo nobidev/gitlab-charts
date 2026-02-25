@@ -62,7 +62,7 @@ OpenBao, which is required to enable the [GitLab secrets manager](https://docs.g
 
 ## Geo configuration
 
-In [GitLab Geo](https://docs.gitlab.com/ee/administration/geo/) deployments, secondary sites may use different URLs to reach OpenBao than the primary site. The JWT audience claim in GitLab's OpenBao authentication must match OpenBao's configured `bound_audiences`. When each site has a different OpenBao URL, set `jwt_audience` to the shared value (typically the primary site's OpenBao URL) so that JWTs are accepted by OpenBao regardless of which site generated them.
+In [GitLab Geo](https://docs.gitlab.com/ee/administration/geo/) deployments, secondary sites may use different URLs to reach OpenBao than the primary site. The JWT audience claim in the GitLab OpenBao authentication must match the `bound_audiences` configured in OpenBao. When each site has a different OpenBao URL, set `jwt_audience` to the shared value (typically the primary site's OpenBao URL) so that JWTs are accepted by OpenBao regardless of which site generated them.
 
 Configure the secondary site:
 
