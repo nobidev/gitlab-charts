@@ -76,7 +76,9 @@ global:
     jwt_audience: https://openbao.shared.example.com:8200
 ```
 
-Ensure OpenBao's `config.initialize.boundAudiences` includes the `jwt_audience` value. When using the bundled OpenBao chart, `boundAudiences` defaults to the external OpenBao hostname; for Geo you may need to override it to include the shared URL used as `jwt_audience`.
+Ensure OpenBao `config.initialize.boundAudiences` includes the `jwt_audience` value. When using the bundled OpenBao chart, `boundAudiences` defaults to the external OpenBao hostname; for Geo you may need to override it to include the shared URL used as `jwt_audience`.
+
+In failover scenarios, when a secondary site is promoted to primary, omit `jwt_audience` from the configuration. The promoted primary uses its own URL, and the audience defaults to that URL.
 
 ## Rolling back OpenBao upgrades
 
