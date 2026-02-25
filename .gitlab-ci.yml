@@ -86,6 +86,11 @@ variables:
 
   DOCS_LINT_IMAGE: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/lint-markdown:alpine-3.22-vale-3.13.0-markdownlint2-0.19.0-lychee-0.21.0
 
+  # Feature flag for authenticated CI calls:
+  # https://gitlab.com/gitlab-org/gitlab/-/issues/591004
+  # https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/6444
+  FF_USE_GIT_PROACTIVE_AUTH: "1"
+
 stages:
   - prepare
   - test
