@@ -1012,6 +1012,7 @@ global:
     host:
     https:
     url: # If present, must be a complete URI
+    # jwt_audience: # For Geo: JWT audience claim. Must match OpenBao bound_audiences when sites use different URLs.
     httpAudit:
       secret: ""
       key: "token"

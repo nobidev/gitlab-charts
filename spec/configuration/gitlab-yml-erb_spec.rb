@@ -634,6 +634,50 @@ describe 'gitlab.yml.erb configuration' do
           )
         )['production']['openbao']).not_to have_key('internal_url')
       end
+
+      it 'populates openbao.jwt_audience when specified for Geo deployments' do
+        t = HelmTemplate.new(HelmTemplate.with_defaults(%(
+          global:
+            openbao:
+              enabled: true
+              host: 'openbao.secondary.internal'
+              jwt_audience: 'https://openbao.shared.example.com:8200'
+        )))
+
+        expect(t.exit_code).to eq(0)
+
+        expect(YAML.safe_load(
+          t.dig(
+            'ConfigMap/test-webservice',
+            'data',
+            'gitlab.yml.erb'
+          )
+        )['production']).to include(
+          'openbao' => hash_including(
+            'url' => 'https://openbao.secondary.internal',
+            'jwt_audience' => 'https://openbao.shared.example.com:8200',
+            'authentication_token_secret_file_path' => '/etc/gitlab/openbao/.gitlab_openbao_authentication_token_secret'
+          )
+        )
+      end
+
+      it 'does not populate openbao.jwt_audience when not configured' do
+        t = HelmTemplate.new(HelmTemplate.with_defaults(%(
+          global:
+            openbao:
+              enabled: true
+        )))
+
+        expect(t.exit_code).to eq(0)
+
+        expect(YAML.safe_load(
+          t.dig(
+            'ConfigMap/test-webservice',
+            'data',
+            'gitlab.yml.erb'
+          )
+        )['production']['openbao']).not_to have_key('jwt_audience')
+      end
     end
   end
 

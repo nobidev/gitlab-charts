@@ -54,6 +54,21 @@ Populated from one of:
 {{- end -}}
 
 {{/*
+Returns the OpenBao JWT audience for Geo deployments.
+
+When secondary Geo sites use different URLs to reach OpenBao, the JWT audience claim
+must match OpenBao's bound_audiences. Set this to the shared audience value (e.g.
+the primary site's OpenBao URL) when url differs per site.
+
+Populated from:
+- Direct setting of global.openbao.jwt_audience
+- Empty when not set (GitLab defaults to url)
+*/}}
+{{- define "gitlab.openbao.jwt_audience" -}}
+{{- $.Values.global.openbao.jwt_audience | default "" -}}
+{{- end -}}
+
+{{/*
 Render the OpenBao postgresql configuration yaml.
 
 * Takes the rails main DB as base, and merges OpenBao custom storage
