@@ -90,6 +90,7 @@ logging:
 
 git: {}
   # catFileCacheSize:
+  # useBundledBinaries:
   ## Amend the default configuration Gitaly is using when spawning Git
   ## commands. Accepts configuration as documented in git-config(1).
   # config:

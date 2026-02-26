@@ -409,6 +409,52 @@ describe 'Gitaly configuration' do
     end
   end
 
+  context 'use_bundled_binaries' do
+    context 'when not set' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              git: {}
+        )).deep_merge(default_values)
+      end
+
+      it 'does not populate a use_bundled_binaries field in config.toml.tpl' do
+        expect(config_toml).not_to match(/^    use_bundled_binaries = /)
+      end
+    end
+
+    context 'when set to true' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              git:
+                useBundledBinaries: true
+        )).deep_merge(default_values)
+      end
+
+      it 'populates use_bundled_binaries = true in config.toml.tpl' do
+        expect(config_toml).to include "use_bundled_binaries = true"
+      end
+    end
+
+    context 'when set to false' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              git:
+                useBundledBinaries: false
+        )).deep_merge(default_values)
+      end
+
+      it 'populates use_bundled_binaries = false in config.toml.tpl' do
+        expect(config_toml).to include "use_bundled_binaries = false"
+      end
+    end
+  end
+
   context 'with extraVolumes' do
     let(:values) do
       YAML.safe_load(%(

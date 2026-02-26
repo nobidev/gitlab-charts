@@ -117,6 +117,7 @@ the `helm install` command using the `--set` flags.
 | `packObjectsCache.min_occurrences`                       | `1`                                                     | Minimum count requiredto create a cache entry |
 | `git.catFileCacheSize`                                   |                                                         | Cache size used by Git cat-file process |
 | `git.config[]`                                           | `[]`                                                    | Git configuration that Gitaly should set when spawning Git commands |
+| `git.useBundledBinaries`                                 |                                                         | Controls whether Gitaly uses its bundled Git binaries instead of any system Git binaries. When not set, the configuration option is omitted and Gitaly uses its default behavior. |
 | `prometheus.grpcLatencyBuckets`                          |                                                         | Buckets corresponding to histogram latencies on GRPC method calls to be recorded by Gitaly. A string form of the array (for example, `"[1.0, 1.5, 2.0]"`) is required as input |
 | `statefulset.strategy`                                   | `{}`                                                    | Allows one to configure the update strategy utilized by the StatefulSet |
 | `statefulset.livenessProbe.initialDelaySeconds`          | `0`                                                     | Delay before liveness probe is initiated. If startupProbe is enabled, this will be set to 0. |
