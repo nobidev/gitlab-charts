@@ -12,20 +12,24 @@ title: Using NGINX
 
 {{< /details >}}
 
+> [!warning]
+> NGINX Ingress was deprecated and won't receive security patches after March 2026.
+> In GitLab 19.0 the bundled NGINX Ingress will be disabled by default and a full removal is planned for 20.0.
+> Please check the relevant [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress)
+> and migrate to the [bundled Envoy Gateway](../envoygateway/_index.md) or an [external Ingress controller](../../advanced/external-ingress/_index.md).
+
 We provide a complete NGINX deployment to be used as an Ingress Controller. Not all
 Kubernetes providers natively support the NGINX [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls),
 to ensure compatibility.
 
-{{< alert type="note" >}}
-
-- The GitLab NGINX chart is a fork of the upstream NGINX Helm chart.
-  See [Adjustments to the NGINX fork](#adjustments-to-the-nginx-fork)
-  for details on what was modified in our fork.
-- Only one `global.hosts.domain` value is possible. Support for multiple
-  domains is being tracked in
-  [issue 3147](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3147).
-
-{{< /alert >}}
+> [!note]
+>
+> - The GitLab NGINX chart is a fork of the upstream NGINX Helm chart.
+>   See [Adjustments to the NGINX fork](#adjustments-to-the-nginx-fork)
+>   for details on what was modified in our fork.
+> - Only one `global.hosts.domain` value is possible. Support for multiple
+>   domains is being tracked in
+>   [issue 3147](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3147).
 
 ## Configuring NGINX
 

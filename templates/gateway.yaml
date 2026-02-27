@@ -9,6 +9,9 @@ metadata:
     {{- include "gitlab.commonLabels" . | nindent 4 }}
   annotations:
     {{- include "gitlab.gatewayApi.certmanager.annotations" . | nindent 4 }}
+    {{- with .Values.global.gatewayApi.gateway.annotations }}
+      {{- . | toYaml | nindent 4 }}
+    {{- end }}
 spec:
   gatewayClassName: {{ include "gitlab.gatewayApi.class.name" . | quote }}
   {{- $nginxEnabled := (index .Values "nginx-ingress" "enabled")}}
@@ -19,6 +22,10 @@ spec:
   addresses:
     - type: IPAddress
       value: {{ .Values.global.hosts.externalIP }}
+  {{- end }}
+  {{- with .Values.global.gatewayApi.gateway.infrastructure }}
+  infrastructure:
+    {{- . | toYaml | nindent 4 }}
   {{- end }}
   listeners:
   {{- $root := .Values.global.gatewayApi }}

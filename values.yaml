@@ -91,6 +91,9 @@ global:
                 gitlab.com/prometheus_path: "/stats/prometheus"
     envoyClientTrafficPolicySpec: {}
     envoySecurityPolicySpec: {}
+    gateway:
+      annotations: {}
+      infrastructure: {}
     gatewayRef: {}
       # name: ""
       # namespace: ""
