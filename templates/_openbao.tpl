@@ -89,12 +89,19 @@ Render the OpenBao postgresql configuration yaml.
 * When host is empty and bundled PostgreSQL is used, defaults to the postgresql service.
 */}}
 {{- define "openbao.postgresql.configuration" -}}
-{{- $globalPsql := index (index ($.Values.global | default dict) "openbao" | default dict) "psql" | default dict -}}
-{{- $conn := deepCopy (index (index (index ($.Values.config | default dict) "storage" | default dict) "postgresql" | default dict) "connection" | default dict) -}}
-{{- $connection := merge $globalPsql $conn -}}
+{{- $globalPsql := index (.Values.global | default dict) "psql" | default dict -}}
+{{- $globalObaPsql := index (index (.Values.global | default dict) "openbao" | default dict) "psql" | default dict -}}
+{{- $obaPsql := .Values.psql | default dict -}}
+{{- $conn := deepCopy (index (index (index (.Values.config | default dict) "storage" | default dict) "postgresql" | default dict) "connection" | default dict) -}}
+{{- $connection := merge $globalPsql $globalObaPsql $obaPsql $conn -}}
+{{- range $k, $v := $conn -}}
+{{-   if and (ne (printf "%v" $v) "") (has $k (list "keepalives" "keepalivesIdle" "keepalivesInterval" "keepalivesCount" "tcpUserTimeout" "connectTimeout" "sslMode")) -}}
+{{-     $_ := set $connection $k $v -}}
+{{-   end -}}
+{{- end -}}
 {{- $host := index $connection "host" | default "" -}}
 {{- if eq (printf "%s" $host) "" -}}
-{{-   if eq true (index $.Values "postgresqlInstall" | default true) -}}
+{{-   if eq true (index .Values "postgresqlInstall" | default true) -}}
 {{-     $_ := set $connection "host" (printf "%s.%s.svc" (include "postgresql.v1.primary.fullname" $) $.Release.Namespace) -}}
 {{-     $_ := set $connection "username" (include "gitlab.psql.username" $) -}}
 {{-   end -}}
