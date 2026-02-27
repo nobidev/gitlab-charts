@@ -952,6 +952,10 @@ global:
     httpAudit:
       secret: ""
       key: "token"
+    psql:
+      # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password.
+      database: openbao
+      username: openbao
 
   ## https://docs.gitlab.com/charts/charts/globals
   extraEnv: {}
@@ -1558,7 +1562,6 @@ openbao:
       mountPath: /srv/openbao/audit/gitlab-auth
       subPath: '{{ template "gitlab.openbao.authenticationTokenSecretFilePath.key" . }}'
       readOnly: true
-  psql: {}
   config:
     unseal:
       static:
@@ -1575,12 +1578,10 @@ openbao:
         streamingUri: '{{ include "gitlab.workhorse.url" . }}/api/v4/internal/secrets_manager/audit_logs'
     storage:
       postgresql:
-        # Set predefined keys to empty values to enable us merging these keys
-        # with the main DB settings.
         connection:
           host: ''
-          database: ''
-          username: ''
+          database: ''  # Empty allows global.openbao.psql.database. Set explicitly to override.
+          username: ''  # Empty allows global.openbao.psql.username. Set explicitly to override.
           sslMode: ''
 
 gatewayApiResources:

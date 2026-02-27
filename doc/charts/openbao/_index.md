@@ -196,6 +196,7 @@ The OpenBao chart defaults to Ingress-terminated TLS encryption.
 | `global.openbao.host`                                    | `openbao.<GitLab Domain>`                                 | OpenBao host. Used to configure GitLab webservice and the OpenBao chart. |
 | `global.openbao.url`                                     | Derived from host                                       | OpenBao URL for GitLab. If present, must be a complete URI. |
 | `global.openbao.jwt_audience`                            | Same as `url`                                           | JWT audience claim for OpenBao authentication. Set for [Geo deployments](#geo-configuration) when sites use different URLs. Must match OpenBao `bound_audiences`. |
+| `global.openbao.psql`                                    | `{}`                                                    | OpenBao database config (host, database, username, password). |
 | `ingress.enabled`                                        | true                                                    | Enable the OpenBao Ingress to allow Runner to reach OpenBao. |
 | `ingress.hostname`                                       | External OpenBao host based on global hosts config.     | Hostname the Ingress should match. |
 | `ingress.tls.enabled`                                    | true                                                    | Enable Ingress TLS. |
@@ -292,9 +293,12 @@ The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/)
 | `httpAuditSecret.generate`                               | false                                                   | Generate a secret to be shared with GitLab for authenticated auditing. Defaults to false as managed by GitLab charts shared-secret chart. |
 | `initializeTpl`                                          |                                                         | Template passed to configure OpenBao auditing. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
 
-## Configure an external database
+## Database configuration
 
-By default, OpenBao connects to the main GitLab database with the same credentials and configuration.
+OpenBao uses a **separate logical database** (`openbao` by default)
+for data isolation from the Rails backend.
+
+Configure `global.openbao.psql` or `openbao.config.storage.postgresql.connection` with host, database, username, and password. You must create the database manually. **Password is required** and is not inherited from the main GitLab database.
 
 To configure an external database:
 
@@ -317,25 +321,21 @@ To configure an external database:
 1. Configure OpenBao to connect to your external database:
 
    ```yaml
-   openbao:
-     config:
-       storage:
-         postgresql:
-           connection:
-             host: "psql.openbao.example.com"
-             port: 5432
-             database: openbao
-             username: openbao
-             # connectTimeout:
-             # keepalives:
-             # keepalivesIdle:
-             # keepalivesInterval:
-             # keepalivesCount:
-             # tcpUserTimeout:
-             # sslMode: "disable"
-             password:
-               secret: openbao-db-password
-               key: password
+   global:
+     openbao:
+       psql:
+         host: "psql.openbao.example.com"
+         port: 5432
+         database: openbao
+         username: openbao
+         password:
+           secret: openbao-db-password
+           key: password
    ```
+
+   This uses `global.openbao.psql`, which is the preferred location because it is also
+   accessible by Toolbox for backup and restore operations. To set advanced connection
+   options (such as `sslMode`, `connectTimeout`, or keepalive tuning), use
+   `openbao.config.storage.postgresql.connection` alongside the global settings.
 
 1. Deploy or upgrade OpenBao. When starting, OpenBao automatically creates its database schema in the specified database.
