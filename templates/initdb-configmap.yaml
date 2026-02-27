@@ -41,4 +41,12 @@ data:
     echo "Granting privileges..."
     PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE \"{{ include "registry.database.name" .}}\" TO \"{{ include "registry.database.username" .}}\";"
     # Leave this here - This line denotes end of block to the parser.
+{{- if .Values.openbao.install }}
+  init_openbao.sh: |
+    [[ -n "${POSTGRES_POSTGRES_PASSWORD_FILE:-}" ]] && POSTGRES_POSTGRES_PASSWORD=$(cat ${POSTGRES_POSTGRES_PASSWORD_FILE})
+
+    # Create openbao database if it doesn't exist (uses gitlab user, same as main DB).
+    PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -U postgres -lqt | cut -d \| -f 1 | grep -qw "{{ include "gitlab.openbao.database" . }}" || \
+    (echo "Creating openbao database..." && PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -U postgres -c "CREATE DATABASE \"{{ include "gitlab.openbao.database" . }}\" WITH OWNER \"{{ template "gitlab.psql.username" . }}\";")
+{{- end }}
 {{- end -}}

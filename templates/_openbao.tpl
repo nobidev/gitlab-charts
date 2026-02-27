@@ -60,35 +60,49 @@ When secondary Geo sites use different URLs to reach OpenBao, the JWT audience c
 must match OpenBao's bound_audiences. Set this to the shared audience value (e.g.
 the primary site's OpenBao URL) when url differs per site.
 
+OpenBao uses a separate
+logical database for isolation from the Rails main database. This avoids
+database seeding issues when OpenBao is enabled during fresh installation.
+
 Populated from:
 - Direct setting of global.openbao.jwt_audience
 - Empty when not set (GitLab defaults to url)
 */}}
 {{- define "gitlab.openbao.jwt_audience" -}}
 {{- $.Values.global.openbao.jwt_audience | default "" -}}
+{{- define "gitlab.openbao.database" -}}
+{{- $values := .Values | mustToJson | fromJson -}}
+{{- $oba := index $values "openbao" | default dict -}}
+{{- $psql := index $oba "psql" | default dict -}}
+{{- $globalOba := index (index $values "global" | default dict) "openbao" | default dict -}}
+{{- $globalPsql := index $globalOba "psql" | default dict -}}
+{{- $conn := index (index (index (index $values "config" | default dict) "storage" | default dict) "postgresql" | default dict) "connection" | default dict -}}
+{{- coalesce (index $psql "database") (index (index $values "psql" | default dict) "database") (index $conn "database") (index $globalPsql "database") "openbao" -}}
 {{- end -}}
 
 {{/*
 Render the OpenBao postgresql configuration yaml.
 
 * Takes the rails main DB as base, and merges OpenBao custom storage
-  configuration in.
+  configuration in. Uses a separate logical database (default: openbao)
 * This needs special handling for <no value> objects because these are not
   considered empty: https://github.com/helm/helm/issues/13487.
 
 */}}
 {{- define "openbao.postgresql.configuration" -}}
-{{- $main := (fromYaml (include "gitlab.database.yml" .)).production.main -}}
+{{- $main := (fromYaml (include "gitlab.database.yml" $)).production.main -}}
 {{- $_ := (include "gitlab.keysToCamelCase" $main) -}}
 {{- range $k, $v := $main -}}
 {{-   if and (kindIs "string" $v) (eq $v "<no value>") }}
 {{      $_ := unset $main $k }}
 {{-   end }}
 {{- end -}}
-{{- $psqlSecret := dict "secret" (include "gitlab.psql.password.secret" .Values.local.psql.main) -}}
-{{- $_ := set $psqlSecret "key" (include "gitlab.psql.password.key" .Values.local.psql.main) -}}
+{{- $psqlSecret := dict "secret" (include "gitlab.psql.password.secret" $.Values.local.psql.main) -}}
+{{- $_ := set $psqlSecret "key" (include "gitlab.psql.password.key" $.Values.local.psql.main) -}}
 {{- $_ := set $main "password" $psqlSecret -}}
-{{ merge .Values.config.storage.postgresql.connection $main | toYaml }}
+{{- $connection := deepCopy (.Values.config.storage.postgresql.connection | default dict) -}}
+{{- $_ := set $connection "database" (include "gitlab.openbao.database" .) -}}
+{{ merge $connection $main | toYaml }}
 {{- end -}}
 
 {{- define "gitlab.openbao.configureCertmanager" -}}

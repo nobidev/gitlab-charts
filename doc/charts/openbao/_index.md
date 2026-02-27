@@ -293,9 +293,17 @@ The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/)
 | `httpAuditSecret.generate`                               | false                                                   | Generate a secret to be shared with GitLab for authenticated auditing. Defaults to false as managed by GitLab charts shared-secret chart. |
 | `initializeTpl`                                          |                                                         | Template passed to configure OpenBao auditing. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
 
+## Database configuration
+
+OpenBao uses a **separate logical database** (`openbao` by default) on the same PostgreSQL server as the main GitLab database.
+This provides isolation and avoids database seeding issues when OpenBao is enabled during fresh GitLab installation.
+
+- **In-chart PostgreSQL**: The OpenBao database is created automatically during initialization. You can customize the database name via `openbao.psql.database`.
+- **External PostgreSQL**: You must explicitly configure the database. Configure `openbao.config.storage.postgresql.connection` with host, database, username, and password. Upgrades fail if OpenBao is enabled with external PostgreSQL but no database is configured.
+
 ## Configure an external database
 
-By default, OpenBao connects to the main GitLab database with the same credentials and configuration.
+When using an external PostgreSQL (or to override the default separate database), OpenBao connects with the credentials and configuration you specify.
 
 To configure an external database:
 
