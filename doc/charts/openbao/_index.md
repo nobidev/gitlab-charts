@@ -299,6 +299,7 @@ The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/)
 
 OpenBao uses a **separate logical database** (`openbao` by default) on the same PostgreSQL server as the main GitLab database.
 This provides data isolation from the Rails backend.
+
 - **In-chart PostgreSQL**: Configure `global.openbao.psql` or `openbao.config.storage.postgresql.connection`. When `openbao.postgresqlInstall` is true (default) and host is empty, the chart uses the bundled PostgreSQL service with the `gitlab` user. You must create the OpenBao database manually before deployment. See [ADR-013](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/secret_manager/decisions/013_openbao_separate_database).
 - **External PostgreSQL**: Set `openbao.postgresqlInstall: false` and configure `openbao.config.storage.postgresql.connection` with host, database, username, and password. You must create the database and user manually. Upgrades fail if OpenBao is enabled with external PostgreSQL but no database is configured.
 
