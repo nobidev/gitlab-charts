@@ -102,8 +102,8 @@ Render the OpenBao postgresql configuration yaml.
 {{- $host := index $connection "host" | default "" -}}
 {{- if eq (printf "%s" $host) "" -}}
 {{-   if eq true (index .Values "postgresqlInstall" | default true) -}}
-{{-     $_ := set $connection "host" (printf "%s.%s.svc" (include "postgresql.v1.primary.fullname" $) $.Release.Namespace) -}}
-{{-     $_ := set $connection "username" (include "gitlab.psql.username" $) -}}
+{{-     $_ := set $connection "host" (printf "%s-postgresql.%s.svc" .Release.Name .Release.Namespace) -}}
+{{-     $_ := set $connection "username" "gitlab" -}}
 {{-   end -}}
 {{- end -}}
 {{- if not (index $connection "port") -}}
