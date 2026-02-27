@@ -157,7 +157,13 @@ data:
     [[concurrency]]
         {{- range $key, $value := . }}
           {{- if kindIs "float64" $value }}
-    {{ $key }} = {{ $value | int64 }}
+            {{- $intValue := $value | int64 }}
+            {{- $floatValue := $intValue | float64 }}
+            {{- if eq $floatValue $value }}
+    {{ $key }} = {{ $intValue }}
+            {{- else }}
+    {{ $key }} = {{ $value | toJson }}
+            {{- end }}
           {{- else }}
     {{ $key }} = {{ $value | toJson }}
           {{- end }}

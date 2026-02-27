@@ -621,6 +621,30 @@ describe 'Gitaly configuration' do
       end
     end
 
+    context 'when concurrency has fractional numeric values' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              shell:
+                concurrency:
+                - rpc: TestRPC
+                  imaginaryConcurrencyFloatSetting: 1.2
+                  anotherImaginaryValue: 1.24
+        )).deep_merge(default_values)
+      end
+
+      it 'preserves fractional values as floats' do
+        expect(config_toml).to include('imaginary_concurrency_float_setting = 1.2')
+        expect(config_toml).to include('another_imaginary_value = 1.24')
+      end
+
+      it 'parses fractional values correctly in TOML' do
+        expect(toml['concurrency'][0]['imaginary_concurrency_float_setting']).to eq(1.2)
+        expect(toml['concurrency'][0]['another_imaginary_value']).to eq(1.24)
+      end
+    end
+
     context 'when concurrency has string values with special characters' do
       let(:values) do
         YAML.safe_load(%(
