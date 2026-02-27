@@ -684,8 +684,8 @@ describe 'Gitaly configuration' do
       end
 
       it 'parses boolean values correctly in TOML' do
-        expect(toml['concurrency'][0]['enabled']).to eq(true)
-        expect(toml['concurrency'][1]['enabled']).to eq(false)
+        expect(toml['concurrency'][0]['enabled']).to be(true)
+        expect(toml['concurrency'][1]['enabled']).to be(false)
       end
     end
 
