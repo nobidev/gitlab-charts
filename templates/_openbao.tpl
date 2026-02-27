@@ -70,6 +70,7 @@ Populated from:
 */}}
 {{- define "gitlab.openbao.jwt_audience" -}}
 {{- $.Values.global.openbao.jwt_audience | default "" -}}
+{{- end -}}
 {{- define "gitlab.openbao.database" -}}
 {{- $values := .Values | mustToJson | fromJson -}}
 {{- $oba := index $values "openbao" | default dict -}}
@@ -83,26 +84,36 @@ Populated from:
 {{/*
 Render the OpenBao postgresql configuration yaml.
 
-* Takes the rails main DB as base, and merges OpenBao custom storage
-  configuration in. Uses a separate logical database (default: openbao)
-* This needs special handling for <no value> objects because these are not
-  considered empty: https://github.com/helm/helm/issues/13487.
-
+* Uses global.openbao.psql and openbao.config.storage.postgresql.connection.
+* global.openbao.psql is the preferred source so toolbox can access it for backup/restore.
+* When host is empty and bundled PostgreSQL is used, defaults to the postgresql service.
 */}}
 {{- define "openbao.postgresql.configuration" -}}
-{{- $main := (fromYaml (include "gitlab.database.yml" $)).production.main -}}
-{{- $_ := (include "gitlab.keysToCamelCase" $main) -}}
-{{- range $k, $v := $main -}}
-{{-   if and (kindIs "string" $v) (eq $v "<no value>") }}
-{{      $_ := unset $main $k }}
-{{-   end }}
+{{- $globalPsql := index (index ($.Values.global | default dict) "openbao" | default dict) "psql" | default dict -}}
+{{- $conn := deepCopy (index (index (index ($.Values.config | default dict) "storage" | default dict) "postgresql" | default dict) "connection" | default dict) -}}
+{{- $connection := merge $globalPsql $conn -}}
+{{- $host := index $connection "host" | default "" -}}
+{{- if eq (printf "%s" $host) "" -}}
+{{-   if eq true (index $.Values "postgresqlInstall" | default true) -}}
+{{-     $_ := set $connection "host" (printf "%s.%s.svc" (include "postgresql.v1.primary.fullname" $) $.Release.Namespace) -}}
+{{-     $_ := set $connection "username" (include "gitlab.psql.username" $) -}}
+{{-   end -}}
 {{- end -}}
-{{- $psqlSecret := dict "secret" (include "gitlab.psql.password.secret" $.Values.local.psql.main) -}}
-{{- $_ := set $psqlSecret "key" (include "gitlab.psql.password.key" $.Values.local.psql.main) -}}
-{{- $_ := set $main "password" $psqlSecret -}}
-{{- $connection := deepCopy (.Values.config.storage.postgresql.connection | default dict) -}}
-{{- $_ := set $connection "database" (include "gitlab.openbao.database" .) -}}
-{{ merge $connection $main | toYaml }}
+{{- if not (index $connection "port") -}}
+{{-   $_ := set $connection "port" 5432 -}}
+{{- end -}}
+{{- if not (index $connection "database") -}}
+{{-   $_ := set $connection "database" (include "gitlab.openbao.database" .) -}}
+{{- end -}}
+{{- if not (index $connection "username") -}}
+{{-   $_ := set $connection "username" "openbao" -}}
+{{- end -}}
+{{- if not (index $connection "password") -}}
+{{-   include "database.datamodel.prepare" $ -}}
+{{-   $psqlSecret := dict "secret" (include "gitlab.psql.password.secret" $.Values.local.psql.main) "key" (include "gitlab.psql.password.key" $.Values.local.psql.main) -}}
+{{-   $_ := set $connection "password" $psqlSecret -}}
+{{- end -}}
+{{ $connection | toYaml }}
 {{- end -}}
 
 {{- define "gitlab.openbao.configureCertmanager" -}}

@@ -80,37 +80,16 @@ describe 'OpenBao installation' do
   end
 
   describe 'PostgreSQL init script' do
-    let(:values) do
-      HelmTemplate.with_defaults(%(
-      postgresql:
-        install: true
-      openbao:
-        install: true
-      ))
-    end
-
-    it 'creates init_openbao.sh when openbao is installed' do
-      init_script = template.dig('ConfigMap/test-postgresql-init-db', 'data', 'init_openbao.sh')
-      expect(init_script).not_to be_nil
-      expect(init_script).to include('CREATE DATABASE')
-      expect(init_script).to include('openbao')
-      expect(init_script).to include('OWNER')
-    end
-
-    context 'when openbao is not installed' do
-      let(:values) do
-        HelmTemplate.with_defaults(%(
+    it 'does not create init_openbao.sh' do
+      values = HelmTemplate.with_defaults(%(
         postgresql:
           install: true
         openbao:
-          install: false
-        ))
-      end
-
-      it 'does not create init_openbao.sh' do
-        init_script = template.dig('ConfigMap/test-postgresql-init-db', 'data', 'init_openbao.sh')
-        expect(init_script).to be_nil
-      end
+          install: true
+      ))
+      t = HelmTemplate.new(values)
+      init_script = t.dig('ConfigMap/test-postgresql-init-db', 'data', 'init_openbao.sh')
+      expect(init_script).to be_nil
     end
   end
 

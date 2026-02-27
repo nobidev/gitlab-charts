@@ -1016,6 +1016,7 @@ global:
     httpAudit:
       secret: ""
       key: "token"
+    # psql: {}  # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password when using external PostgreSQL.
 
   ## https://docs.gitlab.com/charts/charts/globals
   extraEnv: {}
@@ -1600,6 +1601,7 @@ gitlab-zoekt:
 ## Installation & configuration of OpenBao
 openbao:
   install: false
+  # postgresqlInstall: true  # When true and host empty, uses bundled PostgreSQL service. Set to false when using external PostgreSQL.
   workhorse: {}
   # Disable Openbao managed unseal and audting secret and mount secret managed by shared secrets.
   staticUnsealSecret:
@@ -1639,8 +1641,8 @@ openbao:
         streamingUri: '{{ include "gitlab.workhorse.url" . }}/api/v4/internal/secrets_manager/audit_logs'
     storage:
       postgresql:
-        # Set predefined keys to empty values to enable merging with main DB settings.
-        # database defaults to 'openbao' when not specified (see gitlab.openbao.database).
+        # Configure via global.openbao.psql or here. Connection is not inherited from main DB (ADR-013).
+        # When host is empty and postgresqlInstall is true, uses bundled PostgreSQL service.
         connection:
           host: ''
           database: 'openbao'

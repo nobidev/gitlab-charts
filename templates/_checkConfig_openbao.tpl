@@ -1,9 +1,9 @@
 {{/*
 Ensure a database is configured when OpenBao is installed.
 
-When using in-chart PostgreSQL, the OpenBao database is created automatically during
-initialization. When using external PostgreSQL, the database must be configured
-explicitly via openbao.config.storage.postgresql.connection.
+When using bundled PostgreSQL (postgresql.install true), the chart uses the bundled
+service when host is empty. When using external PostgreSQL, the database must be
+configured explicitly via openbao.config.storage.postgresql.connection.
 */}}
 {{- define "gitlab.checkConfig.openbao.database" -}}
 {{- $openbao := .Values.openbao | default dict -}}

@@ -31,6 +31,7 @@ describe 'checkConfig openbao' do
         YAML.safe_load(%(
           openbao:
             install: true
+            postgresqlInstall: false
             config:
               storage:
                 postgresql:
@@ -67,6 +68,7 @@ describe 'checkConfig openbao' do
         YAML.safe_load(%(
           openbao:
             install: true
+            postgresqlInstall: false
           postgresql:
             install: false
           global:
