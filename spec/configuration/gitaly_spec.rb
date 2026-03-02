@@ -595,6 +595,138 @@ describe 'Gitaly configuration' do
                                              'rpc' => 'CamelCaseTest' }])
       end
     end
+
+    context 'when concurrency has numeric values' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              shell:
+                concurrency:
+                - rpc: TestRPC
+                  maxQueueSize: 100
+                  maxQueueWait: 5
+        )).deep_merge(default_values)
+      end
+
+      it 'renders numeric values without decimal points' do
+        expect(config_toml).to include('max_queue_size = 100')
+        expect(config_toml).to include('max_queue_wait = 5')
+        expect(config_toml).not_to match(/max_queue_size = 100\.0/)
+      end
+
+      it 'renders numeric values as integers in parsed TOML' do
+        expect(toml['concurrency'][0]['max_queue_size']).to eq(100)
+        expect(toml['concurrency'][0]['max_queue_wait']).to eq(5)
+      end
+    end
+
+    context 'when concurrency has fractional numeric values' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              shell:
+                concurrency:
+                - rpc: TestRPC
+                  imaginaryConcurrencyFloatSetting: 1.2
+                  anotherImaginaryValue: 1.24
+        )).deep_merge(default_values)
+      end
+
+      it 'preserves fractional values as floats' do
+        expect(config_toml).to include('imaginary_concurrency_float_setting = 1.2')
+        expect(config_toml).to include('another_imaginary_value = 1.24')
+      end
+
+      it 'parses fractional values correctly in TOML' do
+        expect(toml['concurrency'][0]['imaginary_concurrency_float_setting']).to eq(1.2)
+        expect(toml['concurrency'][0]['another_imaginary_value']).to eq(1.24)
+      end
+    end
+
+    context 'when concurrency has string values with special characters' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              shell:
+                concurrency:
+                - rpc: TestRPC
+                  rpcTimeout: "30s"
+                  description: "handles git-upload-pack"
+        )).deep_merge(default_values)
+      end
+
+      it 'properly quotes string values' do
+        expect(config_toml).to include('rpc_timeout = "30s"')
+        expect(config_toml).to include('description = "handles git-upload-pack"')
+      end
+    end
+
+    context 'when concurrency has boolean values' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              shell:
+                concurrency:
+                - rpc: TestRPC
+                  enabled: true
+                - rpc: AnotherRPC
+                  enabled: false
+        )).deep_merge(default_values)
+      end
+
+      it 'renders boolean values correctly' do
+        expect(config_toml).to include('enabled = true')
+        expect(config_toml).to include('enabled = false')
+      end
+
+      it 'parses boolean values correctly in TOML' do
+        expect(toml['concurrency'][0]['enabled']).to be(true)
+        expect(toml['concurrency'][1]['enabled']).to be(false)
+      end
+    end
+
+    context 'when concurrency array is empty' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              shell:
+                concurrency: []
+        )).deep_merge(default_values)
+      end
+
+      it 'does not render concurrency sections' do
+        expect(config_toml).not_to match(/^\[\[concurrency\]\]/)
+      end
+    end
+
+    context 'when concurrency has multiple entries with mixed types' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              shell:
+                concurrency:
+                - rpc: FirstRPC
+                  maxQueueSize: 50
+                  maxPerRepo: 3
+                  rpcTimeout: "10s"
+                - rpc: SecondRPC
+                  maxQueueSize: 100
+                  maxQueueWait: 1
+        )).deep_merge(default_values)
+      end
+
+      it 'renders all entries with correct TOML array syntax' do
+        expect(toml['concurrency'].length).to eq(2)
+        expect(toml['concurrency'][0]).to include('rpc' => 'FirstRPC', 'max_queue_size' => 50, 'max_per_repo' => 3, 'rpc_timeout' => '10s')
+        expect(toml['concurrency'][1]).to include('rpc' => 'SecondRPC', 'max_queue_size' => 100, 'max_queue_wait' => 1)
+      end
+    end
   end
 
   context 'bundleUri' do
