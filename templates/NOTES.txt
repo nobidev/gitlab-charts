@@ -155,6 +155,15 @@ upstream changelogs for impact on your usage:
 - https://github.com/kubernetes/ingress-nginx/blob/main/changelog/controller-1.14.0.md
 {{- end }}
 
+{{- /* Certmanager update */}}
+{{- if .Values.installCertmanager }}
+{{ $WARNING }}
+The bundled certmanager was upgraded from 1.17.4 to 1.19.2. Please check the
+upstream changelog if your usage is impacted by the potentially breaking changes:
+- https://cert-manager.io/docs/releases/upgrading/upgrading-1.17-1.18
+- https://cert-manager.io/docs/releases/upgrading/upgrading-1.18-1.19
+{{- end }}
+
 {{- /* ===== INFORMATIONAL NOTIFICATIONS ===== */}}
 {{- /* Notifications endpoint threshold should use maxretries instead */ -}}
 {{- $usesThreshold := false }}
