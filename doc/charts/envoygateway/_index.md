@@ -30,8 +30,9 @@ For more information check the [global Gateway API documentation](../globals.md#
 ## Migrating from the bundled NGINX Ingress
 
 > [!warning]
-> This migration results in downtime. Check the [zero downtime documentation](#zero-downtime-migration)
-> to migrate without downtime.
+> Expect approximately 5 minutes of downtime during migration - The actual time may differ
+> depending on your deployment, infrastructure and configuration. For a zero-downtime approach,
+> see [zero downtime migration](#zero-downtime-migration).
 
 To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
 
