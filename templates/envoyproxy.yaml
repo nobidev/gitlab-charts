@@ -1,6 +1,6 @@
 {{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy }}
 {{- $spec := .Values.global.gatewayApi.envoyProxySpec }}
-{{- if hasKey (($spec.provider).kubernetes) "envoyDaemonSet" }}
+{{- if and $spec.provider $spec.provider.kubernetes (hasKey $spec.provider.kubernetes "envoyDaemonSet") }}
 {{-   $_ := unset $spec.provider.kubernetes "envoyDeployment" }}
 {{- end }}
 apiVersion: gateway.envoyproxy.io/v1alpha1
