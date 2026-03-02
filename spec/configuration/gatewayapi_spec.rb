@@ -168,5 +168,26 @@ describe 'Gateway API configuration' do
         end
       end
     end
+
+    describe 'Deploy as DaemonSet' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        global:
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+            envoyProxySpec:
+              provider:
+                kubernetes:
+                  envoyDaemonSet: {}
+        ))
+      end
+
+      it 'disabled the default Deployment' do
+        expect(envoyproxy).not_to be_nil
+        expect(envoyproxy['spec']['provider']['kubernetes'].keys).not_to include('envoyDeployment')
+        expect(envoyproxy['spec']['provider']['kubernetes'].keys).to include('envoyDaemonSet')
+      end
+    end
   end
 end
