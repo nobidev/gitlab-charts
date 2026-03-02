@@ -4,7 +4,7 @@ minikube = "1.29.0"
 helm = "4.1.1"
 stern = "1.23.0"
 yq = "4.52.4"
-gomplate = "4.3.3"
+gomplate = "5.0.0"
 
 # For linting documentation
 markdownlint-cli2 = "0.19.0"

@@ -3,7 +3,7 @@ set -e
 
 export DEBIAN_FRONTEND=noninteractive
 HELM_VERSION=${HELM_VERSION:-4.0.5}
-GOMPLATE_VERSION=${GOMPLATE_VERSION:-v4.3.2}
+GOMPLATE_VERSION=${GOMPLATE_VERSION:-v5.0.0}
 DOCKER_VERSION="24.0.9-1"
 DEBIAN_VERSION_NUMBER=${DEBIAN_VERSION_NUMBER:-12}
 # Strip "-slim" suffix from DEBIAN_VERSION if present
@@ -30,7 +30,7 @@ if [ "${STRICT_VERSIONS:-false}" == "true" ] && [ "${DOCKER_INSTALLED_VERSION}" 
     mkdir -p /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
     chmod a+r /etc/apt/keyrings/docker.gpg
-    
+
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | \
         tee /etc/apt/sources.list.d/docker.list > /dev/null
 
