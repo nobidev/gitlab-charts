@@ -149,10 +149,27 @@ data:
     # directory containing custom hooks
     custom_hooks_dir = "/home/git/custom_hooks"
 
-    {{ with .Values.shell.concurrency }}
-    {{-  include "gitlab.keysToSnakeCase" . }}
-    {% `{{ dict "concurrency" . | toJson }}` | data.JSON | data.ToTOML | strings.TrimSpace %}
-    {{ end }}
+    {{- with .Values.shell.concurrency }}
+      {{- $concurrency := deepCopy . }}
+      {{- include "gitlab.keysToSnakeCase" $concurrency }}
+      {{- range $concurrency }}
+
+    [[concurrency]]
+        {{- range $key, $value := . }}
+          {{- if kindIs "float64" $value }}
+            {{- $intValue := $value | int64 }}
+            {{- $floatValue := $intValue | float64 }}
+            {{- if eq $floatValue $value }}
+    {{ $key }} = {{ $intValue }}
+            {{- else }}
+    {{ $key }} = {{ $value | toJson }}
+            {{- end }}
+          {{- else }}
+    {{ $key }} = {{ $value | toJson }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
 
     {{- if .Values.packObjectsCache.enabled }}
     [pack_objects_cache]
