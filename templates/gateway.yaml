@@ -48,6 +48,12 @@ spec:
     {{- $_ := set $listener "hostname" .Values.global.geo.gatewayApi.additionalHostname }}
     {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
   {{- end }}
+  {{- if .Values.global.appConfig.smartcard.enabled -}}
+    {{- $listener = index $listeners "gitlab-smartcard-web" }}
+    {{- $_ := set $listener "name" "gitlab-smartcard-web" }}
+    {{- $_ := set $listener "hostname" (include "gitlab.smartcard.hostname" .) }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
+  {{- end }}
   {{- if .Values.global.pages.enabled }}
     {{- $listener = index $listeners "pages-web" }}
     {{- $_ := set $listener "name" "pages-web" }}

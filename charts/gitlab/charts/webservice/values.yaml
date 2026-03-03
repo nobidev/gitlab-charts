@@ -112,6 +112,7 @@ gatewayRoute:
   enabled: null
   sectionName: "gitlab-web"
   geoSectionName: "gitlab-web-geo"
+  smartcardSectionName: "gitlab-smartcard-web"
   gatewayName: ""
   gatewayNamespace: ""
   annotations: {}

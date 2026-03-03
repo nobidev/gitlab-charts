@@ -252,6 +252,12 @@ listeners:
       mode: Terminate
       certificateRefs:
         - name: gitlab-web-geo-tls
+  gitlab-smartcard-web:
+    protocol: ""
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: gitlab-smartcard-tls
   gitlab-ssh:
     protocol: "TCP"
   registry-web:
