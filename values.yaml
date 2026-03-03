@@ -208,6 +208,7 @@ global:
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-postgresql-settings
   psql:
+    enableDevelopmentDatabase: false
     # This exists to support template handling
     knownDecompositions:
       - main

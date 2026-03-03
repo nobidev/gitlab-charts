@@ -175,7 +175,14 @@ Return the db database name
 */}}
 {{- define "gitlab.psql.database" -}}
 {{- $local := pluck "psql" $.Values | first -}}
-{{- coalesce (pluck "database" $local .Values.global.psql | first) "gitlabhq_production" -}}
+{{- $explicitDB := pluck "database" $local .Values.global.psql | first -}}
+{{- if $explicitDB -}}
+{{-   $explicitDB -}}
+{{- else if $.Values.developmentDatabase -}}
+{{-   "gitlabhq_development" -}}
+{{- else -}}
+{{-   "gitlabhq_production" -}}
+{{- end -}}
 {{- end -}}
 
 {{/*

@@ -551,6 +551,144 @@ describe 'Database configuration' do
     end
   end
 
+  describe 'enableDevelopmentDatabase' do
+    context 'when disabled (default)' do
+      it 'does not include a development block' do
+        t = HelmTemplate.new(default_values)
+        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+        db_yml = database_yml(t, 'webservice')
+        expect(db_yml).not_to include('development:')
+      end
+    end
+
+    context 'when enabled with default configuration' do
+      let(:dev_values) do
+        default_values.deep_merge(YAML.safe_load(%(
+          global:
+            psql:
+              enableDevelopmentDatabase: true
+        )))
+      end
+
+      it 'includes both production and development blocks with main and ci stanzas' do
+        t = HelmTemplate.new(dev_values)
+        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+        db_config = database_config(t, 'webservice')
+        expect(db_config['production'].keys).to contain_exactly('main', 'ci')
+        expect(db_config['development'].keys).to contain_exactly('main', 'ci')
+      end
+
+      it 'uses gitlabhq_production for production and gitlabhq_development for development' do
+        t = HelmTemplate.new(dev_values)
+        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+        db_config = database_config(t, 'webservice')
+        expect(db_config['production'].dig('main', 'database')).to eq('gitlabhq_production')
+        expect(db_config['production'].dig('ci', 'database')).to eq('gitlabhq_production')
+        expect(db_config['development'].dig('main', 'database')).to eq('gitlabhq_development')
+        expect(db_config['development'].dig('ci', 'database')).to eq('gitlabhq_development')
+      end
+    end
+
+    context 'when enabled with explicit database name' do
+      let(:dev_values_explicit) do
+        default_values.deep_merge(YAML.safe_load(%(
+          global:
+            psql:
+              enableDevelopmentDatabase: true
+              database: my_custom_db
+        )))
+      end
+
+      it 'uses the explicit database name in both production and development' do
+        t = HelmTemplate.new(dev_values_explicit)
+        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+        db_config = database_config(t, 'webservice')
+        expect(db_config['production'].dig('main', 'database')).to eq('my_custom_db')
+        expect(db_config['development'].dig('main', 'database')).to eq('my_custom_db')
+      end
+    end
+
+    context 'when enabled with decomposed ci on separate host' do
+      let(:dev_values_decomposed) do
+        default_values.deep_merge(YAML.safe_load(%(
+          global:
+            psql:
+              enableDevelopmentDatabase: true
+              ci:
+                host: ci-db.example.com
+        )))
+      end
+
+      it 'uses gitlabhq_development for both stanzas in development' do
+        t = HelmTemplate.new(dev_values_decomposed)
+        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+        db_config = database_config(t, 'webservice')
+        expect(db_config['development'].keys).to contain_exactly('main', 'ci')
+        expect(db_config['development'].dig('main', 'database')).to eq('gitlabhq_development')
+        expect(db_config['development'].dig('ci', 'database')).to eq('gitlabhq_development')
+        expect(db_config['production'].dig('main', 'database')).to eq('gitlabhq_production')
+        expect(db_config['production'].dig('ci', 'database')).to eq('gitlabhq_production')
+      end
+    end
+
+    context 'when enabled with full decomposition' do
+      let(:dev_values_full) do
+        default_values.deep_merge(YAML.safe_load(%(
+          global:
+            psql:
+              enableDevelopmentDatabase: true
+              host: db.example.com
+              password:
+                secret: sekrit
+              main:
+                username: main-user
+              ci:
+                username: ci-user
+              embedding:
+                username: embedding-user
+              sec:
+                username: sec-user
+          postgresql:
+            install: false
+        )))
+      end
+
+      it 'includes all stanzas in both environments with correct database names' do
+        t = HelmTemplate.new(dev_values_full)
+        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+        db_config = database_config(t, 'webservice')
+        expect(db_config['production'].keys).to contain_exactly('main', 'ci', 'embedding', 'sec')
+        expect(db_config['development'].keys).to contain_exactly('main', 'ci', 'embedding', 'sec')
+
+        %w[main ci embedding sec].each do |schema|
+          expect(db_config['production'].dig(schema, 'database')).to eq('gitlabhq_production')
+          expect(db_config['development'].dig(schema, 'database')).to eq('gitlabhq_development')
+        end
+      end
+    end
+
+    context 'when enabled with ci disabled' do
+      let(:dev_values_ci_disabled) do
+        default_values.deep_merge(YAML.safe_load(%(
+          global:
+            psql:
+              enableDevelopmentDatabase: true
+              ci:
+                enabled: false
+        )))
+      end
+
+      it 'only has main stanza in both environments' do
+        t = HelmTemplate.new(dev_values_ci_disabled)
+        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+        db_config = database_config(t, 'webservice')
+        expect(db_config['production'].keys).to contain_exactly('main')
+        expect(db_config['development'].keys).to contain_exactly('main')
+        expect(db_config['development'].dig('main', 'database')).to eq('gitlabhq_development')
+      end
+    end
+  end
+
   describe 'Geo primary role' do
     let(:geo_values) do
       default_values.deep_merge(YAML.safe_load(%(

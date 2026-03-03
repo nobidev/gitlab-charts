@@ -2,15 +2,7 @@
 {{/*
 Returns the contents of the `database.yml` blob for Rails pods
 */}}
-{{- define "gitlab.database.yml" -}}
-{{- include "database.datamodel.prepare" . -}}
-{{- include "gitlab.database.setDefaultForDatabaseTasks" . -}}
-{{- if .Values.global.debugDatabaseDatamodel }}
-# global.debugDatabaseDatamodel=true
-# helm template . -f test_values.yml | yq -r '.data."database.yml.erb" | select(. != null)'
-datamodel: {{ .Values.local | toYaml | nindent 4 }}
-{{- end }}
-production:
+{{- define "gitlab.database.yml.stanzas" -}}
 {{- range $database := without (keys .Values.local.psql) "main" | sortAlpha | concat (list "main") }}
 {{-   $context := get $.Values.local.psql $database }}
 {{-   if eq (include "gitlab.psql.database.enabled" $context) "true" }}
@@ -35,8 +27,32 @@ production:
     {{- include "gitlab.psql.ssl.config" $context | nindent 4 }}
 {{-   end -}}
 {{- end }}
+{{- end -}}
+
+{{- define "gitlab.database.yml" -}}
+{{- include "database.datamodel.prepare" . -}}
+{{- include "gitlab.database.setDefaultForDatabaseTasks" . -}}
+{{- if .Values.global.debugDatabaseDatamodel }}
+# global.debugDatabaseDatamodel=true
+# helm template . -f test_values.yml | yq -r '.data."database.yml.erb" | select(. != null)'
+datamodel: {{ .Values.local | toYaml | nindent 4 }}
+{{- end }}
+production:
+{{- include "gitlab.database.yml.stanzas" . }}
 {{- if include "gitlab.geo.secondary" . }}
 {{-   include "gitlab.geo.database.yml" . | nindent 2 }}
+{{- end }}
+{{- if .Values.global.psql.enableDevelopmentDatabase }}
+{{- range $database := keys .Values.local.psql }}
+{{-   $ctx := get $.Values.local.psql $database }}
+{{-   $_ := set $ctx.Values "developmentDatabase" true }}
+{{- end }}
+development:
+{{- include "gitlab.database.yml.stanzas" . }}
+{{- range $database := keys .Values.local.psql }}
+{{-   $ctx := get $.Values.local.psql $database }}
+{{-   $_ := unset $ctx.Values "developmentDatabase" }}
+{{- end }}
 {{- end }}
 {{- end -}}
 
