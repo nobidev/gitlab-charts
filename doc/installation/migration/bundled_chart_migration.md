@@ -157,6 +157,13 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
 [deployment guide](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/) and
 [Kubernetes documentation](https://garagehq.deuxfleurs.fr/documentation/cookbook/kubernetes/).
 
+{{< alert type="note" >}}
+
+The following steps are based on version 2.2.0 of the Garage App. We used the App release version as at the time of
+creating these docs Garage did not release Helm Charts separately. Please follow the Garage docs for more information.
+
+{{< /alert > }}
+
 1. Install the Garage Helm chart:
 
    ```shell
@@ -192,15 +199,15 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
 
    ```shell
    # Check node IDs
-   kubectl exec garage-0  -- /garage status
+   kubectl exec <GARAGE_POD>  -- /garage status
 
    # Assign nodes to gitlab zone
-   kubectl exec garage-0  -- /garage layout assign -z gitlab1 -c 5G <Node ID 1>
-   kubectl exec garage-0  -- /garage layout assign -z gitlab2 -c 5G <Node ID 2>
-   kubectl exec garage-0  -- /garage layout assign -z gitlab3 -c 5G <Node ID 3>
+   kubectl exec <GARAGE_POD>  -- /garage layout assign -z gitlab1 -c 5G <Node ID 1>
+   kubectl exec <GARAGE_POD>  -- /garage layout assign -z gitlab2 -c 5G <Node ID 2>
+   kubectl exec <GARAGE_POD>  -- /garage layout assign -z gitlab3 -c 5G <Node ID 3>
 
    # Apply the layout
-   kubectl exec garage-0  -- /garage layout apply --version 1
+   kubectl exec <GARAGE_POD>  -- /garage layout apply --version 1
    ```
 
 1. Create the GitLab buckets:
@@ -217,18 +224,35 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
             "gitlab-dependency-proxy" "gitlab-mr-diffs" "gitlab-packages" "gitlab-pages" \
             "gitlab-terraform-state" "gitlab-uploads" "registry" "runner-cache" "tmp" )
    for bucket in "${buckets[@]}"; do
-     kubectl exec -n <NAMESPACE> garage-0  -- /garage bucket create "${bucket}";
+     kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage bucket create "${bucket}";
    done
    ```
 
 1. Create a API key, note the access and secret key, and grant access to the created buckets:
 
+  {{< alert type="note" >}}
+
+  The way we store the values for 'GARAGE_SECRET_KEY' and 'GARAGE_ACCESS_KEY' is based on the format of
+  the output of the 'garage key create' command. If you use a version other than 2.2.0 this might change!
+
+  {{< /alert >}}
+
    ```shell
    # Create GitLab key. Note down the access and secret key.
-   kubectl exec -n <NAMESPACE> garage-0  -- /garage key create gitlab-app-key
+   # For ease of access we can create a variable 'KEY_OUTPUT' and store
+   # the output of 'kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage key create gitlab-app-key'
+   # and then parse the values for 'GARAGE_ACCESS_KEY' and 'GARAGE_SECRET_KEY'
+   local KEY_OUTPUT
+   KEY_OUTPUT=$(kubectl exec -n <NAMESPACE> <GARAGE_POD> -- \
+       /garage key create gitlab-app-key)
+
+   local GARAGE_ACCESS_KEY GARAGE_SECRET_KEY
+   GARAGE_ACCESS_KEY=$(echo "${KEY_OUTPUT}" | grep 'Key ID:' | awk '{print $3}')
+   GARAGE_SECRET_KEY=$(echo "${KEY_OUTPUT}" | grep 'Secret key:' | awk '{print $3}')
+
    # Grant permissions to the GitLab key.
    for bucket in "${buckets[@]}"; do
-     kubectl exec -n <NAMESPACE> garage-0  -- /garage bucket allow --read --write --key gitlab-app-key "${bucket}";
+     kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage bucket allow --read --write --key gitlab-app-key "${bucket}";
    done
    ```
 
