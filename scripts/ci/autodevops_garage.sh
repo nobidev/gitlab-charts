@@ -28,11 +28,6 @@ function deploy_external_garage() {
         --set resources.limits.cpu="500m" \
         --wait --timeout=300s
 
-    kubectl wait --for=condition=ready pod \
-        -l app.kubernetes.io/name=garage \
-        --namespace="${NAMESPACE}" \
-        --timeout=300s
-
     GARAGE_POD=$(kubectl get pod -n "${NAMESPACE}" \
     -l app.kubernetes.io/name=garage \
     -o jsonpath='{.items[0].metadata.name}')
