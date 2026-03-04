@@ -13,7 +13,8 @@ function deploy_external_garage() {
     # default to v2.2.0 as that is the first version we tested with
     # garage charts are not tagged, we use the garage app release versions to get the charts
     helm plugin install https://github.com/aslafy-z/helm-git --verify=false
-    helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v${GARAGE_APP_VERSION:-2.2.0}"
+    GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.2.0}"
+    helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v${GARAGE_APP_VERSION}"
     helm repo update
 
     helm upgrade --install garage garage/garage \
