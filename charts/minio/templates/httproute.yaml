@@ -1,4 +1,4 @@
-
+{{- if .Values.global.minio.enabled -}}
 {{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -25,4 +25,5 @@ spec:
     - path:
         type: PathPrefix
         value: /
+{{- end }}
 {{- end }}
