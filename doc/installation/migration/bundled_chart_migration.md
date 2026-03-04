@@ -324,7 +324,7 @@ PostgreSQL.
      appConfig:
        object_store:
          enabled: true
-         # Proxy object store downloads if not exposing Garage via Ingress/Gateway API
+         # Proxy object storage downloads if not exposing Garage via Ingress/Gateway API
          proxy_download: true
          connection:
            secret: gitlab-object-storage
