@@ -82,7 +82,7 @@ If consolidated object storage is in use, read the connection YAML
   If provider is AWS, render enabled as true.
 */}}
 {{- define "workhorse.object_storage.config" -}}
-{%- $supported_providers := slice "AWS" "AzureRM" "Google" -%}
+{%- $supported_providers := coll.Slice "AWS" "AzureRM" "Google" -%}
 {%- $connection := coll.Dict "provider" "" -%}
 {%- if file.Exists "/etc/gitlab/minio/accesskey" %}
   {%- $aws_access_key_id := file.Read "/etc/gitlab/minio/accesskey" | strings.TrimSpace -%}
