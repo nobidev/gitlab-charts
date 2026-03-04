@@ -162,7 +162,7 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
 The following steps are based on version 2.2.0 of the Garage App. We used the App release version as at the time of
 creating these docs Garage did not release Helm Charts separately. Please follow the Garage docs for more information.
 
-{{< /alert > }}
+{{< /alert >}}
 
 1. Install the Garage Helm chart:
 
