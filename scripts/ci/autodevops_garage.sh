@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Sourced from scripts/ci/autodevops.sh. So we should not set flags, like `set -eo...`, as it impacts the caller shell.
+
 function deploy_external_garage() {
     if [ -z "${NAMESPACE}" ]; then
         echo "Error: NAMESPACE environment variable is not set"
