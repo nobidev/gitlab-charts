@@ -127,7 +127,7 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
              networking.gke.io/load-balancer-type: External
              networking.gke.io/load-balancer-ip-addresses: gitlab-ip-address
              cloud.google.com/l4-rbs: enabled
-     ```
+   ```
 
    {{< /tab >}}
    
