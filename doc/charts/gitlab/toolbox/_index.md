@@ -190,12 +190,9 @@ background. This CronJob's schedule can be set using the `databaseReindex.cron.s
 recommended time to run this reindexing is during low traffic periods. (For instance, database
 reindexing runs for GitLab.com on Saturday and Sunday.)
 
-{{< alert type="note" >}}
-
-Omnibus installations of GitLab can enable periodic database reindexing by following instructions in
-[this document](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing)
-
-{{< /alert >}}
+> [!note]
+> Omnibus installations of GitLab can enable periodic database reindexing by following instructions in
+> [this document](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing)
 
 ## Persistence configuration
 
