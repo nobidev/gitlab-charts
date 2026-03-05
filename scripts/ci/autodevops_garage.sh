@@ -66,8 +66,11 @@ function deploy_external_garage() {
     )
 
     for bucket in "${buckets[@]}"; do
-        kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- \
-            /bin/bash -c "/garage bucket create '${bucket}' || echo 'Bucket ${bucket} might already exist'"
+        if kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage bucket create "${bucket}"; then
+            echo "Bucket ${bucket} created"
+        else
+            echo "Bucket ${bucket} might already exist"
+        fi
     done
 
     # create API key and capture credentials, or should we use create_password instead?
