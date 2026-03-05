@@ -183,9 +183,10 @@ update the GitLab DNS records to point to the Envoy Gateway-managed LoadBalancer
 
 1. Configure your TLS certificates or a certmanager issuer for the managed Gateway.
 
-   Note: You can't use the Issuer provided by GitLab chart for this purpose. The issuer
-   uses [HTTP01](https://cert-manager.io/docs/configuration/acme/http01/) which won't be
-   able to retrieve certificates until your DNS records have been updated.
+   > [!note]
+   > You can't use the Issuer provided by GitLab chart for this purpose. The issuer
+   > uses [HTTP01](https://cert-manager.io/docs/configuration/acme/http01/) which won't
+   > be able to retrieve certificates until your DNS records have been updated.
 
    1. Configure a [DNS01 Issuer](https://cert-manager.io/docs/configuration/acme/dns01/) or
       customize the [listeners](../globals.md#gateway-api) to use already existing certificates.
