@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.9.2 (2026-03-05)
+
+### Fixed (1 change)
+
+- [Backport gomplate 5.x compatibility](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/355f21be8525178b54423802df7a0285afef8316) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4846))
+
 ## 9.9.1 (2026-02-24)
 
 No changes.
