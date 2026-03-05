@@ -3,7 +3,7 @@ redis:
 
 global:
   redis:
-    host: valkey
+    host: "${VALKEY_RELEASE_NAME}"
     auth:
-      secret: valkey-auth
+      secret: "${VALKEY_RELEASE_NAME}-auth"
       key: default-password
