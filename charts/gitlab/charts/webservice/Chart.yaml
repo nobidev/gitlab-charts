@@ -1,7 +1,7 @@
 ---
 apiVersion: v2
 name: webservice
-version: 9.9.1
+version: 9.9.2
 appVersion: master
 description: HTTP server for Gitlab
 keywords:
