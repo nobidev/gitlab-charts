@@ -278,6 +278,7 @@ workhorse:
     backlogThreshold: 50
     backlogHysteresis: 0.8
     retryAfterSeconds: 0
+    statusCode: 503
     strategy: "max"
     checkInterval: "1s"
     timeout: "5s"
