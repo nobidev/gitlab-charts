@@ -115,7 +115,7 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
 
    {{< tab title="GKE" >}}
 
-   Instead of using `global.hosts.externalIP` or `global.hosts.gatewayApi.addresses` configure the
+   Instead of using `global.hosts.externalIP` or `global.hosts.gatewayApi.addresses`, configure the
    annotations for the provisioned LoadBalancer:
 
    ```yaml
@@ -157,7 +157,7 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
 
 To perform a zero-downtime migration, you can run NGINX Ingress and Envoy Gateway side by side, allowing
 two LoadBalancers to operate simultaneously. Once Envoy Gateway is fully configured to handle GitLab traffic,
-simply update the GitLab DNS records to point to the Envoy Gateway-managed LoadBalancer.
+update the GitLab DNS records to point to the Envoy Gateway-managed LoadBalancer.
 
 1. Enable Envoy Gateway and Gateway API resources without disabling NGINX Ingress.
 
@@ -191,7 +191,7 @@ simply update the GitLab DNS records to point to the Envoy Gateway-managed LoadB
       customize the [listeners](../globals.md#gateway-api) to use already existing certificates.
 
    1. If you created a custom Issuer, enable certmanager's Gateway API support and annotate
-      the managed Gateway.
+      the managed Gateway:
 
       ```yaml
       # Enable Gateway API support for bundled certmanager.
@@ -211,7 +211,7 @@ simply update the GitLab DNS records to point to the Envoy Gateway-managed LoadB
               cert-manager.io/issuer: gitlab-dns01
       ```
 
-1. Ensure GitLab is reachable if the domain would resolve to the IP of the Envoy Gateway LoadBalancer.
+1. Ensure GitLab is reachable if the domain would resolve to the IP of the Envoy Gateway LoadBalancer:
 
    ```script
    $ curl -Lso /dev/null \
@@ -223,7 +223,7 @@ simply update the GitLab DNS records to point to the Envoy Gateway-managed LoadB
 
 1. Update your DNS entries to resolve to the Envoy Gateway LoadBalancer.
 1. Wait for the DNS entries to propagate to all clients.
-1. Disable NGINX Ingress and Ingress objects.
+1. Disable NGINX Ingress and Ingress objects:
 
    ```yaml
    nginx-ingress:

@@ -13,10 +13,12 @@ title: Using NGINX
 {{< /details >}}
 
 > [!warning]
-> NGINX Ingress was deprecated and won't receive security patches after March 2026.
+> NGINX Ingress is deprecated and won't receive security patches after March 2026.
 > In GitLab 19.0 the bundled NGINX Ingress will be disabled by default and a full removal is planned for 20.0.
-> Please check the relevant [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress)
-> and migrate to the [bundled Envoy Gateway](../envoygateway/_index.md) or an [external Ingress controller](../../advanced/external-ingress/_index.md).
+>
+> For more information, see the [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress).
+> You should migrate to the [bundled Envoy Gateway](../envoygateway/_index.md) or an
+> [external Ingress controller](../../advanced/external-ingress/_index.md) as soon as possible.
 
 We provide a complete NGINX deployment to be used as an Ingress Controller. Not all
 Kubernetes providers natively support the NGINX [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls),
