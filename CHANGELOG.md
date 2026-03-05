@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.8.6 (2026-03-05)
+
+### Fixed (1 change)
+
+- [Fix: Fixup Gomplate rendering for 5.0.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/caf765bb38f556724aa9ff2adb28e14719cd8482) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4854))
+
 ## 9.8.5 (2026-02-24)
 
 No changes.
