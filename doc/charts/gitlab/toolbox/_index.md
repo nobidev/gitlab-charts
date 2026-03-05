@@ -177,6 +177,9 @@ performed can be found in the
 
 ## Configuring periodic database reindexing
 
+> [!warning]
+> This is an experimental feature that isn't enabled by default.
+
 [Database reindexing](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing) may be
 executed periodically to create and delete indexes asynchronously, run PostgreSQL constraint
 validation in the background, and reindex PostgreSQL indexes to reduce [index bloat](https://wiki.postgresql.org/wiki/Index_Maintenance#Index_Bloat). Reindexing is performed by
