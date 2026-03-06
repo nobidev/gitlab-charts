@@ -1,10 +1,12 @@
 #!/bin/bash
 
+export VALKEY_RELEASE_NAME="valkey"
+if [[ -n "${CI_PIPELINE_ID}}" ]]; then
+  export VALKEY_RELEASE_NAME="valkey-${CI_PIPELINE_ID}"
+fi
+
 # Deploy Valkey using the official Valkey helm chart into the same namespace
 # as the GitLab namespace.
-# Should currently only be used for vcluster-based review environments
-# because native review environments are all deployed into the namespace
-# potentially causing conflicts.
 function deploy_external_valkey() {
   echo "Installing external Valkey"
 
@@ -14,11 +16,12 @@ function deploy_external_valkey() {
   fi
 
   helm repo add valkey https://valkey.io/valkey-helm/
-  helm upgrade --install valkey valkey/valkey \
+  helm upgrade --install "${VALKEY_RELEASE_NAME}" valkey/valkey \
     -n "${NAMESPACE}" \
     ${VERSION_FLAG} \
     --set dataStorage.enabled=true \
     --set dataStorage.size=100Mi \
+    --set dataStorage.keepPvc=false \
     --set metrics.enabled=true \
     --set auth.enabled=true \
     --set auth.aclUsers.default.permissions="~* &* +@all" \
@@ -28,7 +31,7 @@ function deploy_external_valkey() {
 
 function remove_external_valkey() {
     echo "Removing external Valkey"
-    helm uninstall valkey -n "${NAMESPACE}" --wait --ignore-not-found
+    helm uninstall "${VALKEY_RELEASE_NAME}" -n "${NAMESPACE}" --wait --ignore-not-found
 }
 
 function valkey_password() {
