@@ -61,6 +61,7 @@ data:
       {{- include "gitlab.appConfig.cell" . | nindent 6 }}
       {{- include "gitlab.appConfig.gravatar" $.Values.global.appConfig | nindent 6 }}
       {{- include "gitlab.geo.config" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.knowledgeGraph" . | nindent 6 }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "rails-secrets migrations gitaly") | nindent 4 }}
     {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
