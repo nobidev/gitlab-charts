@@ -175,27 +175,34 @@ information about the technical implementation of how the backups are
 performed can be found in the
 [backup and restore architecture documentation](../../../architecture/backup-restore.md).]
 
-## Configuring periodic database reindexing
+## Configure periodic database reindexing
 
-> [!warning]
-> This is an experimental feature that isn't enabled by default.
+{{< details >}}
 
-[Database reindexing](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing) may be
-executed periodically to create and delete indexes asynchronously, run PostgreSQL constraint
-validation in the background, and reindex PostgreSQL indexes to reduce [index bloat](https://wiki.postgresql.org/wiki/Index_Maintenance#Index_Bloat). Reindexing is performed by
-the
-[`gitlab:db:reindex`](https://gitlab.com/gitlab-org/gitlab/blob/9a05e533daeb1013d4c974dd6b3ba066f68585ba/lib/tasks/gitlab/db.rake#L393-402)
-Rake task and this chart provides a `CronJob` to run that Rake task periodically.
+Status: Experiment
 
-This CronJob can be enabled by setting the value `databaseReindex.cron.enabled` to `true`. The job
-will automatically select 2 indexes with the most [index bloat](https://wiki.postgresql.org/wiki/Index_Maintenance#Index_Bloat), and reindex them in the
-background. This CronJob's schedule can be set using the `databaseReindex.cron.schedule` value. The
-recommended time to run this reindexing is during low traffic periods. (For instance, database
-reindexing runs for GitLab.com on Saturday and Sunday.)
+{{< /details >}}
+
+[Database reindexing](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing) can be executed periodically to:
+
+- Create and delete indexes asynchronously.
+- Run PostgreSQL constraint validation in the background.
+- Reindex PostgreSQL indexes to reduce [index bloat](https://wiki.postgresql.org/wiki/Index_Maintenance#Index_Bloat).
+ 
+Reindexing is performed by the [`gitlab:db:reindex`](https://gitlab.com/gitlab-org/gitlab/blob/9a05e533daeb1013d4c974dd6b3ba066f68585ba/lib/tasks/gitlab/db.rake#L393-402)
+Rake task. The Toolbox chart provides a CronJob to run the Rake task periodically.
+
+Enable this CronJob by setting the value `databaseReindex.cron.enabled` to `true`. The job will automatically:
+
+1. Select two indexes with the most [index bloat](https://wiki.postgresql.org/wiki/Index_Maintenance#Index_Bloat).
+1. Reindex those indexes in the background.
+ 
+Set the schedule for the CronJob using the `databaseReindex.cron.schedule` value. You should run the reindexing during low traffic periods. For example,
+database reindexing runs for GitLab.com on Saturday and Sunday.
 
 > [!note]
-> Omnibus installations of GitLab can enable periodic database reindexing by following instructions in
-> [this document](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing)
+> If you are a Linux package instance administrator, you can enable periodic database reindexing by
+> [following relevant instructions](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing).
 
 ## Persistence configuration
 
