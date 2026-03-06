@@ -60,7 +60,7 @@ function previousDeployFailed() {
 }
 
 function deploy_external_components() {
-  if [ -n "${USE_EXTERNAL_VALKEY}" ]; then
+  if [ "${SKIP_EXTERNAL_VALKEY}" != "true" ]; then
     deploy_external_valkey
   fi
 
@@ -70,7 +70,7 @@ function deploy_external_components() {
 }
 
 function remove_external_components() {
-  if [ -n "${USE_EXTERNAL_VALKEY}" ]; then
+  if [ "${SKIP_EXTERNAL_VALKEY}" != "true" ]; then
     remove_external_valkey
   fi
 
@@ -180,6 +180,7 @@ CIYAML
   envsubst < ./scripts/ci/values/vcluster.externaldns.values.yaml > ./vcluster.externaldns.values.yaml
   envsubst < ./scripts/ci/values/ingress.values.yaml > ./ingress.values.yaml
   envsubst < ./scripts/ci/values/gatewayapi.values.yaml > ./gatewayapi.values.yaml
+  envsubst < ./scripts/ci/values/external-valkey.values.yaml > ./external-valkey.values.yaml
 
   NETWORKING_CONF="-f ingress.values.yaml"
   if [ -n "${USE_GATEWAY_API}" ]; then
@@ -224,9 +225,9 @@ CIYAML
   fi
 
   VALKEY_CONFIGURATION=""
-  if [ -n "${USE_EXTERNAL_VALKEY}" ]; then
+  if [ "${SKIP_EXTERNAL_VALKEY}" != "true" ]; then
     echo "Valkey deployment detected"
-    VALKEY_CONFIGURATION="-f scripts/ci/values/external-valkey.values.yaml"
+    VALKEY_CONFIGURATION="-f external-valkey.values.yaml"
   fi
 
   POSTGRESQL_CONFIGURATION=""
