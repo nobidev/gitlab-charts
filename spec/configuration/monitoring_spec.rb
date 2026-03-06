@@ -30,6 +30,8 @@ describe 'monitoring object configuration' do
       global:
         gatewayApi:
           installEnvoy: true
+      gatewayApiProvider:
+        envoy:
           metrics:
             envoyProxy:
               podMonitor:

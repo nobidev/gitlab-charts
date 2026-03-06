@@ -124,6 +124,7 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.globalServiceAccount" .) -}}
 {{- $messages = append $messages (include "gitlab.duoAuth.checkConfig" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.prometheus" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.gatewayApi.envoy.global" .) -}}
 
 {{- /* prepare output */}}
 {{- $messages = without $messages "" -}}

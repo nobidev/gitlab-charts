@@ -8,26 +8,28 @@ global:
   gatewayApi:
     enabled: true
     installEnvoy: true
-    class:
-      create: true
     configureCertmanager: false
-    listeners:
-      gitlab-web:
-        tls:
-          certificateRefs:
-          - name: helm-charts-win-tls
-      registry-web:
-        tls:
-          certificateRefs:
-          - name: helm-charts-win-tls
-      kas-web:
-        tls:
-          certificateRefs:
-          - name: helm-charts-win-tls
-      minio-web:
-        tls:
-          certificateRefs:
-          - name: helm-charts-win-tls
+
+gatewayApiProvider:
+  standard:
+    gateway:
+      listeners:
+        gitlab-web:
+          tls:
+            certificateRefs:
+            - name: helm-charts-win-tls
+        registry-web:
+          tls:
+            certificateRefs:
+            - name: helm-charts-win-tls
+        kas-web:
+          tls:
+            certificateRefs:
+            - name: helm-charts-win-tls
+        minio-web:
+          tls:
+            certificateRefs:
+            - name: helm-charts-win-tls
 
 gitlab:
   webservice:
