@@ -110,7 +110,7 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
          infrastructure:
            annotations: {}
    ```
-   
+
    {{< tabs >}}
 
    {{< tab title="GKE" >}}
@@ -130,11 +130,11 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
    ```
 
    {{< /tab >}}
-   
+
    {{< tab title="EKS" >}}
 
    To migrate a EKS LoadBalancer, migrate your annotations from the NGINX controller service to
-   the Envoy Gateway configuration:   
+   the Envoy Gateway configuration:
 
    ```yaml
    global:
@@ -146,7 +146,7 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
              service.beta.kubernetes.io/aws-load-balancer-eip-allocations: "gitlab-allocation-id"
              service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
    ```
-   
+
    {{< /tab >}}
 
    {{< /tabs >}}
