@@ -25,6 +25,7 @@ include:
     USE_GATEWAY_API: "true"
     USE_EXTERNAL_VALKEY: "true"
     USE_EXTERNAL_POSTGRESQL: "true"
+    HELM_VERSION: "3.19.5"
   environment:
     name: gkevc_135/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: "https://gitlab${DOMAIN}"

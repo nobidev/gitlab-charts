@@ -27,6 +27,9 @@ of the version running in your cluster.
 
 Install Helm v4.0 or later by following [the Helm documentation](https://helm.sh/docs/intro/install/).
 
+GitLab chart continues to support Helm 3 until its official EOL which is [estimated in July 2026](https://helm.sh/community/hips/hip-0012/#the-process--timelines).
+[July 2026](https://helm.sh/community/hips/hip-0012/#the-process--timelines).
+
 ### PostgreSQL
 
 For production deployments, set up an [external PostgreSQL instance](../advanced/external-db/_index.md).
