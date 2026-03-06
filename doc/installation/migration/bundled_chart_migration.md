@@ -149,20 +149,18 @@ Provision your external PostgreSQL service. For example, by using [CloudNativePG
    gitlab-rails-db      20m   1           1       Cluster in healthy state   gitlab-rails-db-1
    ```
 
-### Provision external object storage
+### Provision Garage for external object storage
 
-To migrate away from the bundled MinIO, provision an external object storage solution.
+To migrate away from the bundled MinIO, you must provision your own external object storage solution.
 
-One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, review their
-[deployment guide](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/) and
-[Kubernetes documentation](https://garagehq.deuxfleurs.fr/documentation/cookbook/kubernetes/).
+One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing Garage, review the Garage documentation for:
 
-{{< alert type="note" >}}
+- [Deployment on a cluster](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/).
+- [Deploying on Kubernetes](https://garagehq.deuxfleurs.fr/documentation/cookbook/kubernetes/).
 
-The following steps are based on version 2.2.0 of the Garage App. We used the App release version as at the time of
-creating these docs Garage did not release Helm Charts separately. Please follow the Garage docs for more information.
+Prerequisites:
 
-{{< /alert >}}
+- Version 2.2.0 of the Garage App.
 
 1. Install the Garage Helm chart:
 
@@ -229,13 +227,6 @@ creating these docs Garage did not release Helm Charts separately. Please follow
    ```
 
 1. Create a API key, note the access and secret key, and grant access to the created buckets:
-
-  {{< alert type="note" >}}
-
-  The way we store the values for 'GARAGE_SECRET_KEY' and 'GARAGE_ACCESS_KEY' is based on the format of
-  the output of the 'garage key create' command. If you use a version other than 2.2.0 this might change!
-
-  {{< /alert >}}
 
    ```shell
    # Create GitLab key. Note down the access and secret key.
@@ -348,7 +339,7 @@ PostgreSQL.
      appConfig:
        object_store:
          enabled: true
-         # Proxy object storage downloads if not exposing Garage via Ingress/Gateway API
+         # If you aren't exposing Garage through the Ingress Gateway API, set object storage download proxying to...
          proxy_download: true
          connection:
            secret: gitlab-object-storage
