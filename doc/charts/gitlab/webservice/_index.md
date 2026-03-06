@@ -192,6 +192,7 @@ to the `helm install` command using the `--set` flags.
 | `workhorse.loadShedding.backlogThreshold`                     | `50`                                                            | Backlog threshold at which to start shedding load. |
 | `workhorse.loadShedding.backlogHysteresis`                    | `0.8`                                                           | Hysteresis factor for deactivation (0.0 to 1.0). Load shedding deactivates when backlog drops below threshold * hysteresis. |
 | `workhorse.loadShedding.retryAfterSeconds`                    | `0`                                                             | Retry-After header value in seconds when shedding load. Use 0 for immediate retry (recommended for Kubernetes). |
+| `workhorse.loadShedding.statusCode`                           | `503`                                                           | HTTP status code to return when shedding load. Use a custom code such as `529` to distinguish load shedding from other `503` errors. |
 | `workhorse.loadShedding.strategy`                             | `max`                                                           | Strategy for calculating effective backlog: "max" (default) or "sum". |
 | `workhorse.loadShedding.checkInterval`                        | `1s`                                                            | How often to sample Puma's backlog metrics. Independent of health check interval. |
 | `workhorse.loadShedding.timeout`                              | `5s`                                                            | Timeout for control server requests. |
@@ -825,12 +826,12 @@ Puma unique options:
 {{< history >}}
 
 - [Introduced](https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/work_items/28055) in GitLab 18.9.
+- `statusCode` parameter [added](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/225993) in GitLab 18.10.
 
 {{< /history >}}
 
-Load shedding protects Puma from being overwhelmed by returning `503
-Service Unavailable` responses when the request backlog exceeds a
-configured threshold to allow the reverse proxy to retry requests to
+Load shedding protects Puma from being overwhelmed by returning a configured HTTP status code
+when the request backlog exceeds a configured threshold to allow the reverse proxy to retry requests to
 other instances.
 
 To enable load shedding, configure the `loadShedding` parameters:
@@ -843,11 +844,13 @@ gitlab:
         enabled: true
         backlogThreshold: 50
         retryAfterSeconds: 0
+        statusCode: 503
         strategy: max
 ```
 
 - `backlogThreshold` specifies the number of backlogged requests that trigger load shedding.
-- `retryAfterSeconds` sets the value for the `Retry-After` header in the `503` response.
+- `retryAfterSeconds` sets the value for the `Retry-After` header in the response.
+- `statusCode` sets the HTTP status code to return when shedding load (default: `503`). Use a custom code such as `529` to distinguish load shedding responses from other `503` errors caused by database timeouts or Gitaly issues.
 - `strategy` determines how the effective backlog is calculated:
   - `max`: Use the maximum backlog across all Puma workers (default).
   - `sum`: Use the sum of all backlogs across Puma workers.

@@ -823,7 +823,35 @@ CFG
         expect(load_shedding['enabled']).to eq(true)
         expect(load_shedding['backlog_threshold']).to eq(100)
         expect(load_shedding['retry_after_seconds']).to eq(5)
+        expect(load_shedding['status_code']).to eq(503)
         expect(load_shedding['strategy']).to eq('sum')
+      end
+    end
+
+    context 'with load shedding using custom status code' do
+      let(:custom_values) do
+        HelmTemplate.with_defaults(%(
+          gitlab:
+            webservice:
+              workhorse:
+                loadShedding:
+                  enabled: true
+                  backlogThreshold: 50
+                  retryAfterSeconds: 0
+                  statusCode: 529
+                  strategy: max
+        ))
+      end
+
+      it 'renders a valid TOML configuration file with custom status code' do
+        toml = render_toml(raw_toml)
+
+        load_shedding = toml['load_shedding']
+        expect(load_shedding['enabled']).to eq(true)
+        expect(load_shedding['backlog_threshold']).to eq(50)
+        expect(load_shedding['retry_after_seconds']).to eq(0)
+        expect(load_shedding['status_code']).to eq(529)
+        expect(load_shedding['strategy']).to eq('max')
       end
     end
   end
