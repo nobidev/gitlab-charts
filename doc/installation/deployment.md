@@ -17,12 +17,11 @@ Options can be specified using Helm's `--set option.name=value` command-line opt
 This guide will cover required values and common options.
 For a complete list of options, read [Installation command line options](command-line-options.md).
 
-{{< alert type="warning" >}}
+{{< alert type="note" >}}
 
-The default Helm chart configuration is **not intended for production**.
-The default chart creates a proof of concept (PoC) implementation where all GitLab
-services are deployed in the cluster. For production deployments, you must follow the
-[Cloud Native Hybrid reference architecture](_index.md#use-the-reference-architectures).
+The GitLab Helm chart requires external PostgreSQL, Redis, and object storage for production deployments.
+Bundled versions of these services are included for evaluation purposes only.
+For production, follow the [Cloud Native Hybrid reference architecture](_index.md#use-the-reference-architectures).
 
 {{< /alert >}}
 

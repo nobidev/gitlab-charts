@@ -336,9 +336,9 @@ This secret is referenced by the `global.psql.password.secret` setting.
 
 #### Changing the PostgreSQL password for the bundled PostgreSQL subchart
 
-> [!warning]
-> The default Helm chart configuration is **not intended for production**, which includes the bundled PostgreSQL
-> subchart.
+> [!note]
+> The bundled PostgreSQL subchart is provided for evaluation purposes only.
+> For production, use an [external PostgreSQL instance](../advanced/external-db/_index.md).
 
 The bundled PostgreSQL subchart only configures the database with the passwords from the secret when the database is initially created.
 Additional steps need to be taken to change the passwords in an existing database.
