@@ -78,7 +78,8 @@ Populated from:
 {{- $globalOba := index (index $values "global" | default dict) "openbao" | default dict -}}
 {{- $globalPsql := index $globalOba "psql" | default dict -}}
 {{- $conn := index (index (index (index $values "config" | default dict) "storage" | default dict) "postgresql" | default dict) "connection" | default dict -}}
-{{- coalesce (index $psql "database") (index (index $values "psql" | default dict) "database") (index $conn "database") (index $globalPsql "database") "openbao" -}}
+{{/* connection.database wins when set; else openbao.psql, global.openbao.psql, default */}}
+{{- coalesce (index $conn "database") (index $psql "database") (index (index $values "psql" | default dict) "database") (index $globalPsql "database") "openbao" -}}
 {{- end -}}
 
 {{/*
@@ -101,7 +102,14 @@ Render the OpenBao postgresql configuration yaml.
 {{- end -}}
 {{- $host := index $connection "host" | default "" -}}
 {{- if eq (printf "%s" $host) "" -}}
-{{-   if eq true (index .Values "postgresqlInstall" | default true) -}}
+{{-   $globalOba := index (index (.Values.global | default dict) "openbao" | default dict) -}}
+{{-   $share := true -}}
+{{-   if hasKey .Values "sharePostgresqlServer" -}}
+{{-     $share = index .Values "sharePostgresqlServer" -}}
+{{-   else if hasKey $globalOba "sharePostgresqlServer" -}}
+{{-     $share = index $globalOba "sharePostgresqlServer" -}}
+{{-   end -}}
+{{-   if $share -}}
 {{-     $_ := set $connection "host" (printf "%s-postgresql.%s.svc" .Release.Name .Release.Namespace) -}}
 {{-     $_ := set $connection "username" "gitlab" -}}
 {{-   end -}}
@@ -109,9 +117,8 @@ Render the OpenBao postgresql configuration yaml.
 {{- if not (index $connection "port") -}}
 {{-   $_ := set $connection "port" 5432 -}}
 {{- end -}}
-{{- if not (index $connection "database") -}}
-{{-   $_ := set $connection "database" (include "gitlab.openbao.database" .) -}}
-{{- end -}}
+{{/* Database: connection.database wins when set; else gitlab.openbao.database (openbao.psql, global.openbao.psql, etc.) */}}
+{{- $_ := set $connection "database" (include "gitlab.openbao.database" .) -}}
 {{- if not (index $connection "username") -}}
 {{-   $_ := set $connection "username" "openbao" -}}
 {{- end -}}

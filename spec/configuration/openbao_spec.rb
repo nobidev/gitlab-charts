@@ -70,7 +70,7 @@ describe 'OpenBao installation' do
         install: true
         psql:
           database: custom_openbao_db
-      ))
+    ))
     end
 
     it 'uses the custom database' do
@@ -79,17 +79,52 @@ describe 'OpenBao installation' do
     end
   end
 
-  describe 'PostgreSQL init script' do
-    it 'does not create init_openbao.sh' do
-      values = HelmTemplate.with_defaults(%(
-        postgresql:
-          install: true
-        openbao:
-          install: true
+  describe 'when both connection.database and openbao.psql.database are set' do
+    let(:values) do
+      HelmTemplate.with_defaults(%(
+      openbao:
+        install: true
+        psql:
+          database: should_be_ignored
+        config:
+          storage:
+            postgresql:
+              connection:
+                host: psql.openbao.example.com
+                port: 5555
+                database: connection_wins
+                username: baouser
       ))
-      t = HelmTemplate.new(values)
-      init_script = t.dig('ConfigMap/test-postgresql-init-db', 'data', 'init_openbao.sh')
-      expect(init_script).to be_nil
+    end
+
+    it 'connection.database takes precedence over openbao.psql.database' do
+      expect(openbao_psql_config['connection_url'])
+        .to start_with('postgres://baouser@psql.openbao.example.com:5555/connection_wins')
+    end
+  end
+
+  describe 'when both connection.database and global.openbao.psql.database are set' do
+    let(:values) do
+      HelmTemplate.with_defaults(%(
+      global:
+        openbao:
+          psql:
+            database: should_be_ignored
+      openbao:
+        install: true
+        config:
+          storage:
+            postgresql:
+              connection:
+                host: psql.openbao.example.com
+                database: connection_wins
+                username: baouser
+      ))
+    end
+
+    it 'connection.database takes precedence over global.openbao.psql.database' do
+      expect(openbao_psql_config['connection_url'])
+        .to start_with('postgres://baouser@psql.openbao.example.com:5432/connection_wins')
     end
   end
 
