@@ -3,13 +3,22 @@
 {{- $CRITICAL := "\n=== CRITICAL" -}}
 
 {{- /* ===== CRITICAL NOTIFICATIONS ===== */}}
+{{- /* Warn users about Ingress controller changes */}}
+{{- if or (index .Values "nginx-ingress").enabled .Values.traefik.install (index .Values "kubernetes-ingress").enabled }}
+{{ $CRITICAL }}
+The bundled Ingress controllers including NGINX Ingress are deprecated. Starting with GitLab 19.0, GitLab chart will
+disable NGINX Ingress and will default to Gateway API and Envoy Gateway. Please migrate to Gateway API or an externally
+managed Ingress controller and review the deprecation announcements at https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress
+and https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haproxy-and-traefik-charts.
+{{- end }}
+
 {{- /* Warn users about MinIO and Bitnami Redis/PostgreSQL removal */}}
 {{- if or (eq .Values.postgresql.install true) (eq .Values.redis.install true) (eq .Values.global.minio.enabled true) }}
 {{ $CRITICAL }}
 The bundled PostgreSQL, Redis and MinIO will be removed in GitLab 19.0. Please review
 the deprecation announcement at https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart
 and plan to migrate to externally managed alternatives by following https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
-{{- end}}
+{{- end }}
 
 {{- /* If any development subchart is enabled, note it is not production ready */}}
 {{- $enabledNonProdCharts := fromJsonArray (include "gitlab.nonProdCharts.enabledNames" .) -}}
