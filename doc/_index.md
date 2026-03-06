@@ -19,12 +19,11 @@ For OpenShift-based installations, use [GitLab Operator](https://docs.gitlab.com
 otherwise you must update the [security context constraints](https://docs.gitlab.com/operator/security_context_constraints/)
 yourself.
 
-{{< alert type="warning" >}}
+{{< alert type="note" >}}
 
-The default Helm chart configuration is **not intended for production**.
-The default values create an implementation where _all_ GitLab services are
-deployed in the cluster, which is **not suitable for production workloads**.
-For production deployments, you **must** follow the [Cloud Native Hybrid reference architectures](installation/_index.md#use-the-reference-architectures).
+The GitLab Helm chart requires external PostgreSQL, Redis, and object storage for production deployments.
+Bundled versions of these services are included for evaluation purposes only.
+For production, follow the [Cloud Native Hybrid reference architectures](installation/_index.md#use-the-reference-architectures).
 
 {{< /alert >}}
 
