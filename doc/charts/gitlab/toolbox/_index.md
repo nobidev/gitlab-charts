@@ -12,9 +12,8 @@ title: Toolbox
 
 {{< /details >}}
 
-The Toolbox Pod is used to execute periodic housekeeping tasks within
-the GitLab application. These tasks include backups, Sidekiq maintenance,
-and Rake tasks.
+The Toolbox chart is used to execute periodic housekeeping tasks within the GitLab
+application. These tasks include backups, database reindexing, Sidekiq maintenance, and Rake tasks.
 
 ## Configuration
 
@@ -50,6 +49,21 @@ gitlab:
       objectStorage:
         backend: s3
         config: {}
+    databaseReindex:
+      cron:
+        enabled: false
+        concurrencyPolicy: Replace
+        failedJobsHistoryLimit: 1
+        schedule: "12 * * * 0,6"
+        successfulJobsHistoryLimit: 3
+        suspend: false
+        backoffLimit: 6
+        safeToEvict: false
+        restartPolicy: "OnFailure"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 400M
     persistence:
       enabled: false
       accessMode: 'ReadWriteOnce'
@@ -104,6 +118,7 @@ gitlab:
 | `backups.objectStorage.config.gcpProject`                | `""`                                                         | GCP Project to use when backend is `gcs` |
 | `backups.objectStorage.config.key`                       | `""`                                                         | Key containing credentials in secret |
 | `backups.objectStorage.config.secret`                    | `""`                                                         | Object storage credentials secret |
+| `databaseReindex.cron.enabled`                           | `false`                                                      | Indicates whether the database reindexing CronJob is enabled |
 | `common.labels`                                          | `{}`                                                         | Supplemental labels that are applied to all objects created by this chart. |
 | `deployment.strategy`                                    | `{ type: 'Recreate' }`                                       | Allows one to configure the update strategy utilized by the deployment |
 | `enabled`                                                | `true`                                                       | Toolbox enablement flag |
@@ -159,6 +174,35 @@ Information concerning configuring backups in the
 information about the technical implementation of how the backups are
 performed can be found in the
 [backup and restore architecture documentation](../../../architecture/backup-restore.md).]
+
+## Configure periodic database reindexing
+
+{{< details >}}
+
+Status: Experiment
+
+{{< /details >}}
+
+[Database reindexing](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing) can be executed periodically to:
+
+- Create and delete indexes asynchronously.
+- Run PostgreSQL constraint validation in the background.
+- Reindex PostgreSQL indexes to reduce [index bloat](https://wiki.postgresql.org/wiki/Index_Maintenance#Index_Bloat).
+ 
+Reindexing is performed by the [`gitlab:db:reindex`](https://gitlab.com/gitlab-org/gitlab/blob/9a05e533daeb1013d4c974dd6b3ba066f68585ba/lib/tasks/gitlab/db.rake#L393-402)
+Rake task. The Toolbox chart provides a CronJob to run the Rake task periodically.
+
+Enable this CronJob by setting the value `databaseReindex.cron.enabled` to `true`. The job will automatically:
+
+1. Select two indexes with the most [index bloat](https://wiki.postgresql.org/wiki/Index_Maintenance#Index_Bloat).
+1. Reindex those indexes in the background.
+ 
+Set the schedule for the CronJob using the `databaseReindex.cron.schedule` value. You should run the reindexing during low traffic periods. For example,
+database reindexing runs for GitLab.com on Saturday and Sunday.
+
+> [!note]
+> If you are a Linux package instance administrator, you can enable periodic database reindexing by
+> [following relevant instructions](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing).
 
 ## Persistence configuration
 
