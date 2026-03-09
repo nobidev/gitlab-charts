@@ -149,19 +149,24 @@ Provision your external PostgreSQL service. For example, by using [CloudNativePG
    gitlab-rails-db      20m   1           1       Cluster in healthy state   gitlab-rails-db-1
    ```
 
-### Provision external object storage
+### Provision Garage for external object storage
 
-To migrate away from the bundled MinIO, provision an external object storage solution.
+To migrate away from the bundled MinIO, you must provision your own external object storage solution.
 
-One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, review their
-[deployment guide](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/) and
-[Kubernetes documentation](https://garagehq.deuxfleurs.fr/documentation/cookbook/kubernetes/).
+One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing Garage, review the Garage documentation for:
+
+- [Deployment on a cluster](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/).
+- [Deploying on Kubernetes](https://garagehq.deuxfleurs.fr/documentation/cookbook/kubernetes/).
+
+Prerequisites:
+
+- Version 2.2.0 of the Garage App.
 
 1. Install the Garage Helm chart:
 
    ```shell
    helm plugin install https://github.com/aslafy-z/helm-git
-   helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=main-v1"
+   helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v2.2.0"
    helm install garage garage/garage -n <NAMESPACE> \
      --set persistence.data.size=5Gi \
      --set persistence.meta.size=250Mi
@@ -192,15 +197,15 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
 
    ```shell
    # Check node IDs
-   kubectl exec garage-0  -- /garage status
+   kubectl exec <GARAGE_POD>  -- /garage status
 
    # Assign nodes to gitlab zone
-   kubectl exec garage-0  -- /garage layout assign -z gitlab1 -c 5G <Node ID 1>
-   kubectl exec garage-0  -- /garage layout assign -z gitlab2 -c 5G <Node ID 2>
-   kubectl exec garage-0  -- /garage layout assign -z gitlab3 -c 5G <Node ID 3>
+   kubectl exec <GARAGE_POD>  -- /garage layout assign -z gitlab1 -c 5G <Node ID 1>
+   kubectl exec <GARAGE_POD>  -- /garage layout assign -z gitlab2 -c 5G <Node ID 2>
+   kubectl exec <GARAGE_POD>  -- /garage layout assign -z gitlab3 -c 5G <Node ID 3>
 
    # Apply the layout
-   kubectl exec garage-0  -- /garage layout apply --version 1
+   kubectl exec <GARAGE_POD>  -- /garage layout apply --version 1
    ```
 
 1. Create the GitLab buckets:
@@ -217,7 +222,7 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
             "gitlab-dependency-proxy" "gitlab-mr-diffs" "gitlab-packages" "gitlab-pages" \
             "gitlab-terraform-state" "gitlab-uploads" "registry" "runner-cache" "tmp" )
    for bucket in "${buckets[@]}"; do
-     kubectl exec -n <NAMESPACE> garage-0  -- /garage bucket create "${bucket}";
+     kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage bucket create "${bucket}";
    done
    ```
 
@@ -225,10 +230,20 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
 
    ```shell
    # Create GitLab key. Note down the access and secret key.
-   kubectl exec -n <NAMESPACE> garage-0  -- /garage key create gitlab-app-key
+   # For ease of access we can create a variable 'KEY_OUTPUT' and store
+   # the output of 'kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage key create gitlab-app-key'
+   # and then parse the values for 'GARAGE_ACCESS_KEY' and 'GARAGE_SECRET_KEY'
+   local KEY_OUTPUT
+   KEY_OUTPUT=$(kubectl exec -n <NAMESPACE> <GARAGE_POD> -- \
+       /garage key create gitlab-app-key)
+
+   local GARAGE_ACCESS_KEY GARAGE_SECRET_KEY
+   GARAGE_ACCESS_KEY=$(echo "${KEY_OUTPUT}" | grep 'Key ID:' | awk '{print $3}')
+   GARAGE_SECRET_KEY=$(echo "${KEY_OUTPUT}" | grep 'Secret key:' | awk '{print $3}')
+
    # Grant permissions to the GitLab key.
    for bucket in "${buckets[@]}"; do
-     kubectl exec -n <NAMESPACE> garage-0  -- /garage bucket allow --read --write --key gitlab-app-key "${bucket}";
+     kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage bucket allow --read --write --key gitlab-app-key "${bucket}";
    done
    ```
 
@@ -256,6 +271,22 @@ One option is [Garage](https://garagehq.deuxfleurs.fr/). Before installing it, r
    host_base = garage.<NAMESPACE>.svc.cluster.local:3900
    host_bucket = garage.<NAMESPACE>.svc.cluster.local:3900
    use_https = False
+   EOF
+   ```
+
+1. Create a Secret configuring access for registry:
+
+   ```shell
+   cat <<EOF | kubectl create secret generic gitlab-registry-storage --from-file=config=/dev/stdin
+   s3:
+     accesskey: ${GARAGE_ACCESS_KEY}
+     secretkey: ${GARAGE_SECRET_KEY}
+     bucket: registry
+     region: garage
+     regionendpoint: http://garage.${NAMESPACE}.svc.cluster.local:3900
+     secure: false
+     v4auth: true
+     pathstyle: true
    EOF
    ```
 
@@ -308,9 +339,32 @@ PostgreSQL.
      appConfig:
        object_store:
          enabled: true
+         # If you aren't exposing Garage through the Ingress Gateway API, set object storage download proxying to true
+         proxy_download: true
          connection:
            secret: gitlab-object-storage
            key: config
+       # Set to buckets created in Garage. Can be omitted if you used the default bucket names.
+       artifacts:
+         bucket: gitlab-artifacts
+       lfs:
+         bucket: git-lfs
+       uploads:
+         bucket: gitlab-uploads
+       packages:
+         bucket: gitlab-packages
+       externalDiffs:
+         enabled: true
+         bucket: gitlab-mr-diffs
+       terraformState:
+         enabled: true
+         bucket: gitlab-terraform-state
+       ciSecureFiles:
+         enabled: true
+         bucket: gitlab-ci-secure-files
+       dependencyProxy:
+         enabled: true
+         bucket: gitlab-dependency-proxy
      # Disable bundled MinIO.
      minio:
        enabled: false
@@ -322,7 +376,13 @@ PostgreSQL.
            config:
              secret: gitlab-object-storage-s3cmd
              key: config
-
+   # Disable Registry redirect if not exposing Garage via Ingress/Gateway API
+   registry:
+     storage:
+       secret: gitlab-registry-storage
+       key: config
+       redirect:
+         disable: true
    # Disable bundled PostgreSQL and Redis.
    postgresql:
      install: false
