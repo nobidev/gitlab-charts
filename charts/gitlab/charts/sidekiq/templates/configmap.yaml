@@ -154,6 +154,9 @@ data:
           address: {{ .Values.health_checks.listenAddr | quote }}
           port: {{ .Values.health_checks.port }}
       {{- include "gitlab.appConfig.openbao.configuration" . | nindent 6 }}
+{{- if $.Values.global.devMode.enabled }}
+    development: *base
+{{- end }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "gitaly registry rails-secrets") | nindent 4 }}
     {{- if $.Values.metrics.tls.enabled }}

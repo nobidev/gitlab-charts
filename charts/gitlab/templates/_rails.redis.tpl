@@ -24,6 +24,22 @@ Input: dict "context" $ "name" string
     write_timeout: {{ $write_timeout }}
     {{- end }}
     id:
+{{- if .context.Values.global.devMode.enabled }}
+  development:
+    {{- include "gitlab.redis.cluster.user" .context | nindent 4 }}
+    {{- include "gitlab.redis.cluster.password" .context | nindent 4 }}
+    {{- $cluster | nindent 4 }}
+    {{- if $connect_timeout }}
+    connect_timeout: {{ $connect_timeout }}
+    {{- end }}
+    {{- if $read_timeout }}
+    read_timeout: {{ $read_timeout }}
+    {{- end }}
+    {{- if $write_timeout }}
+    write_timeout: {{ $write_timeout }}
+    {{- end }}
+    id:
+{{- end }}
 {{- else -}}
 {{ .name }}.yml.erb: |
   production:
@@ -49,6 +65,31 @@ Input: dict "context" $ "name" string
     channel_prefix: {{ .context.Values.global.redis.actioncable.channelPrefix }}
     {{-   end }}
     {{- end }}
+{{- if .context.Values.global.devMode.enabled }}
+  development:
+    url: {{ template "gitlab.redis.url" .context }}
+    {{- if $connect_timeout }}
+    connect_timeout: {{ $connect_timeout }}
+    {{- end }}
+    {{- if $read_timeout }}
+    read_timeout: {{ $read_timeout }}
+    {{- end }}
+    {{- if $write_timeout }}
+    write_timeout: {{ $write_timeout }}
+    {{- end }}
+    {{- include "gitlab.redis.sentinels" .context | nindent 4 }}
+    {{- $password := include "gitlab.redis.sentinel.password" .context }}
+    {{- if $password }}
+    sentinel_password: "{{- include "gitlab.redis.sentinel.password" .context }}"
+    {{- end }}
+    id:
+    {{- if eq .name "cable" }}
+    adapter: redis
+    {{-   if index .context.Values.global.redis "actioncable" }}
+    channel_prefix: {{ .context.Values.global.redis.actioncable.channelPrefix }}
+    {{-   end }}
+    {{- end }}
+{{- end }}
 {{- end -}}
 {{- $_ := set .context "redisConfigName" "" }}
 {{- end -}}
@@ -172,6 +213,9 @@ Used to migrate from the cluster specified in cable.yml
 {{-   end -}}
 redis.yml.erb: |
   production: {{ toYaml $redisYmlOverride | nindent 4 }}
+{{- if .Values.global.devMode.enabled }}
+  development: {{ toYaml $redisYmlOverride | nindent 4 }}
+{{- end }}
 {{- end -}}
 {{- end -}}
 

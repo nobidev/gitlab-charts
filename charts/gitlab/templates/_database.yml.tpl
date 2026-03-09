@@ -42,7 +42,7 @@ production:
 {{- if include "gitlab.geo.secondary" . }}
 {{-   include "gitlab.geo.database.yml" . | nindent 2 }}
 {{- end }}
-{{- if .Values.global.psql.enableDevelopmentDatabase }}
+{{- if .Values.global.devMode.enabled }}
 {{- range $database := keys .Values.local.psql }}
 {{-   $ctx := get $.Values.local.psql $database }}
 {{-   $_ := set $ctx.Values "developmentDatabase" true }}

@@ -95,6 +95,9 @@ data:
           - "0.0.0.0/0"
           - "::/0"
         sidekiq_exporter:
+{{- if $.Values.global.devMode.enabled }}
+    development: *base
+{{- end }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "rails-secrets" "optional" "postgres redis redis-sentinel") | nindent 4 }}
     {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}

@@ -206,9 +206,11 @@ global:
     # secret: RELEASE-gitlab-initial-root-password
     # key: password
 
+  devMode:
+    enabled: false
+
   ## https://docs.gitlab.com/charts/charts/globals#configure-postgresql-settings
   psql:
-    enableDevelopmentDatabase: false
     # This exists to support template handling
     knownDecompositions:
       - main

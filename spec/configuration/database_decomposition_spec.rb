@@ -551,7 +551,7 @@ describe 'Database configuration' do
     end
   end
 
-  describe 'enableDevelopmentDatabase' do
+  describe 'devMode' do
     context 'when disabled (default)' do
       it 'does not include a development block' do
         t = HelmTemplate.new(default_values)
@@ -565,8 +565,8 @@ describe 'Database configuration' do
       let(:dev_values) do
         default_values.deep_merge(YAML.safe_load(%(
           global:
-            psql:
-              enableDevelopmentDatabase: true
+            devMode:
+              enabled: true
         )))
       end
 
@@ -593,8 +593,9 @@ describe 'Database configuration' do
       let(:dev_values_explicit) do
         default_values.deep_merge(YAML.safe_load(%(
           global:
+            devMode:
+              enabled: true
             psql:
-              enableDevelopmentDatabase: true
               database: my_custom_db
         )))
       end
@@ -612,8 +613,9 @@ describe 'Database configuration' do
       let(:dev_values_decomposed) do
         default_values.deep_merge(YAML.safe_load(%(
           global:
+            devMode:
+              enabled: true
             psql:
-              enableDevelopmentDatabase: true
               ci:
                 host: ci-db.example.com
         )))
@@ -635,8 +637,9 @@ describe 'Database configuration' do
       let(:dev_values_full) do
         default_values.deep_merge(YAML.safe_load(%(
           global:
+            devMode:
+              enabled: true
             psql:
-              enableDevelopmentDatabase: true
               host: db.example.com
               password:
                 secret: sekrit
@@ -671,8 +674,9 @@ describe 'Database configuration' do
       let(:dev_values_ci_disabled) do
         default_values.deep_merge(YAML.safe_load(%(
           global:
+            devMode:
+              enabled: true
             psql:
-              enableDevelopmentDatabase: true
               ci:
                 enabled: false
         )))

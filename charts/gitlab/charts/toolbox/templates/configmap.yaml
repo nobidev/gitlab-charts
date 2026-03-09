@@ -125,6 +125,9 @@ data:
         {{- toYaml .Values.extra | nindent 8 }}
         {{- end }}
       {{- include "gitlab.appConfig.openbao.configuration" . | nindent 6 }}
+{{- if $.Values.global.devMode.enabled }}
+    development: *base
+{{- end }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "shell gitaly registry rails-secrets") | nindent 4 }}
     {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}

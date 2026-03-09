@@ -171,6 +171,9 @@ data:
       {{- include "gitlab.appConfig.registry.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.smartcard.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.openbao.configuration" . | nindent 6 }}
+{{- if $.Values.global.devMode.enabled }}
+    development: *base
+{{- end }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict) | nindent 4 }}
     {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}

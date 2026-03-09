@@ -2,7 +2,8 @@
 
 namespace={{ .Release.Namespace }}
 release={{ .Release.Name }}
-env={{ index .Values "shared-secrets" "env" }}
+IFS=',' read -ra envs <<< "{{ index .Values "shared-secrets" "env" }}{{ if $.Values.global.devMode.enabled }},development{{ end }}"
+env=${envs[0]}
 
 pushd $(mktemp -d)
 
@@ -204,16 +205,11 @@ if [ -n "$env" ]; then
   active_record_encryption_deterministic_keys=${active_record_encryption_deterministic_keys:-"- $(gen_random 'a-zA-Z0-9' 32)"}
   active_record_encryption_key_derivation_salt=${active_record_encryption_key_derivation_salt:-$(gen_random 'a-zA-Z0-9' 32)}
 
-  # Update the existing secret
-  cat << EOF > rails-secrets.yml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: $rails_secret
-type: Opaque
-stringData:
-  secrets.yml: |-
-    $env:
+  # Render a secrets block for a given environment name
+  render_env_block() {
+    local env_name=$1
+    cat << BLOCK
+    ${env_name}:
       secret_key_base: $secret_key_base
       otp_key_base: $otp_key_base
       db_key_base: $db_key_base
@@ -225,6 +221,28 @@ $(echo "${openid_connect_signing_key}" | awk '{print "        " $0}')
       active_record_encryption_deterministic_key:
         $active_record_encryption_deterministic_keys
       active_record_encryption_key_derivation_salt: $active_record_encryption_key_derivation_salt
+BLOCK
+  }
+
+  # Build env blocks for all environments
+  env_blocks=""
+  for current_env in "${envs[@]}"; do
+    current_env=$(echo "$current_env" | xargs)
+    if [ -n "$current_env" ]; then
+      env_blocks="${env_blocks}
+$(render_env_block "$current_env")"
+    fi
+  done
+
+  # Update the existing secret
+  cat << EOF > rails-secrets.yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: $rails_secret
+type: Opaque
+stringData:
+  secrets.yml: |-${env_blocks}
 EOF
   kubectl --validate=false --namespace=$namespace apply -f rails-secrets.yml
   label_secret $rails_secret
