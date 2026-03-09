@@ -24,6 +24,7 @@ include:
     DOMAIN: "-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"
     USE_GATEWAY_API: "true"
     USE_EXTERNAL_POSTGRESQL: "true"
+    USE_EXTERNAL_GARAGE: "true"
     HELM_VERSION: "3.19.5"
   environment:
     name: gkevc_135/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
