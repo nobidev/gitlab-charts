@@ -90,7 +90,6 @@ data:
           {"default":{"path":"/srv/gitlab/git-data/repositories","gitaly_address":"unix:/srv/gitlab/gitaly/gitaly.socket"}}
       backup:
         path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
-      {{- include "gitlab.appConfig.knowledgeGraph" . | nindent 6 }}
       monitoring:
         ip_whitelist:
           - "0.0.0.0/0"
