@@ -52,7 +52,7 @@ spec:
     {{- $listener = index $listeners "pages-web" }}
     {{- $_ := set $listener "name" "pages-web" }}
     {{- $hostname := (include "gitlab.pages.hostname" .) }}
-    {{- if $.Values.global.pages.namespaceInPath }}
+    {{- if not $.Values.global.pages.namespaceInPath }}
     {{-   $hostname = (printf "*.%s" $hostname) }}
     {{- end }}
     {{- $_ := set $listener "hostname" $hostname }}
