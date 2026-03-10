@@ -541,6 +541,42 @@ gitaly:
   token: <%= File.read('gitaly_token').strip.to_json %>
 ```
 
+## Adding new GitLab YAML configurations
+
+When adding new GitLab Rails configurations to the chart, follow these guidelines to ensure consistency across all Rails-initializing components.
+
+### Default components
+
+New GitLab YAML configurations should be added to the following components by default:
+
+- **webservice** - The primary Rails application server
+- **toolbox** - Utility pod for administrative tasks and backups
+- **Sidekiq** - Background job processor
+
+These three components always initialize Rails and require access to the full configuration.
+
+### Optional components
+
+Only add configurations to the following components if known to be necessary:
+
+- **Geo** - Geo-specific secondary site configuration
+- **migrations** - Database migration jobs
+
+Adding configurations to these components should be justified by specific requirements, as they may not always need the full Rails configuration.
+
+### Implementation approach
+
+When adding a new configuration:
+
+1. Add the configuration to the appropriate shared template file in `charts/gitlab/templates/`:
+   - Use `_gitlab.yaml.tpl` for general GitLab YAML configurations
+   - Use feature-specific files like `_sidekiq.tpl`, `_geo.tpl`, etc. if the configuration is specific to that feature
+   - Create a new `_featurename.tpl` file if no suitable template exists
+1. Include the template in the webservice, toolbox, and Sidekiq ConfigMaps using `{{ include "gitlab.appConfig.featurename" . | nindent 6 }}`
+1. Document in the merge request why the configuration is or is not needed in Geo and migrations
+
+This approach ensures that all Rails-initializing components have consistent configurations while avoiding unnecessary duplication in components that may not require them.
+
 ## Templating chart notes (NOTES.txt)
 
 Helm's [chart notes feature](https://helm.sh/docs/chart_template_guide/notes_files/) provides
