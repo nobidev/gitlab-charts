@@ -93,4 +93,12 @@ spec:
     {{- $_ := set $listener "hostname" (include "gitlab.openbao.hostname" .) }}
     {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
   {{- end }}
+  {{- if (include "gitlab.gatewayApi.httpRedirect.listener" .) }}
+  - name: http-redirect
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: Same
+  {{- end }}
 {{ end }}

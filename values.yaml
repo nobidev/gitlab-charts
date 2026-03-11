@@ -114,6 +114,7 @@ global:
           endpointConfig: {}
     configureCertmanager: false
     protocol: "HTTPS"
+    httpToHttpsRedirect: true
     addresses: []
     listeners:
       certmanager-http:
