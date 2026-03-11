@@ -16,7 +16,7 @@ global:
   gatewayApi:
     # Install a Gateway and Routes for each component.
     enabled: true
-    # Install the bundled Envoy Gateway chart, a GatewayClass, a EnvoyPatchPolicy, and the EnvoyProxy resources.
+    # Install the bundled Envoy Gateway chart, a GatewayClass, and the EnvoyProxy resources.
     installEnvoy: true
     # Create a Gateway API compatible certmanager Issuer and configure the Gateway to use it.
     configureCertmanager: true

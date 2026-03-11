@@ -55,8 +55,12 @@ describe 'Gateway API configuration' do
       # Route objects
       expect(routes).not_to include(nil)
       # Optional policies
-      expect(clienttrafficpolicy).to be_nil
       expect(securitypolicy).to be_nil
+      # ClientTrafficPolicy with default escaped slashes handling
+      expect(clienttrafficpolicy).not_to be_nil
+      expect(clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("KeepUnchanged")
+      expect(clienttrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
+      expect(clienttrafficpolicy["spec"]["targetRefs"][0]).not_to have_key("namespace")
     end
 
     it 'picks up the static IP' do
@@ -86,6 +90,7 @@ describe 'Gateway API configuration' do
         expect(clienttrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
         expect(clienttrafficpolicy["spec"]["targetRefs"][0]).not_to have_key("namespace")
         expect(clienttrafficpolicy["spec"]["enableProxyProtocol"]).to be(true)
+        expect(clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("KeepUnchanged")
 
         expect(securitypolicy).not_to be_nil
         expect(securitypolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
@@ -98,6 +103,23 @@ describe 'Gateway API configuration' do
 
         # Additional policy for webservice must only be created if smartcard is enabled
         expect(webservice_smartcard_clienttrafficpolicy).to be_nil
+      end
+    end
+
+    describe 'with custom escaped slashes action' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          gatewayApiResources:
+            envoy:
+              clientTrafficPolicySpec:
+                path:
+                  escapedSlashesAction: UnescapeAndForward
+          )).deep_merge(super())
+      end
+
+      it 'respects the user-provided escaped slashes action' do
+        expect(clienttrafficpolicy).not_to be_nil
+        expect(clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("UnescapeAndForward")
       end
     end
 

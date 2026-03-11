@@ -1664,7 +1664,9 @@ gatewayApiResources:
                 gitlab.com/prometheus_scrape: "true"
                 gitlab.com/prometheus_port: "19001"
                 gitlab.com/prometheus_path: "/stats/prometheus"
-    clientTrafficPolicySpec: {}
+    clientTrafficPolicySpec:
+      path:
+        escapedSlashesAction: KeepUnchanged
     securityPolicySpec: {}
     metrics:
       envoyGateway:
@@ -1688,5 +1690,3 @@ envoy-gateway:
     envoyGateway:
       gateway:
         controllerName: gateway.envoyproxy.io/gitlab-gatewayclass-controller
-      extensionApis:
-        enableEnvoyPatchPolicy: true
