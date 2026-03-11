@@ -264,3 +264,10 @@ generate_secret_if_needed {{ template "gitlab.openbao.unseal.secret" . }} --from
 # Authentication token secret for Openbao Rails requests
 generate_secret_if_needed {{ template "gitlab.openbao.authenticationTokenSecretFilePath.secret" . }} --from-literal={{ template "gitlab.openbao.authenticationTokenSecretFilePath.key" . }}="$(gen_random 'a-zA-Z0-9' 32)"
 {{ end -}}
+
+{{ if .Values.ai_gateway.install -}}
+# AI Gateway JWT signing key
+trap 'shred --remove duo-workflow-jwt.key' EXIT
+openssl genrsa -out duo-workflow-jwt.key 2048
+generate_secret_if_needed {{ template "gitlab.ai-gateway.duoWorkflowJwt.secret" . }} --from-file={{ template "gitlab.ai-gateway.duoWorkflowJwt.key" . }}=duo-workflow-jwt.key
+{{ end }}
