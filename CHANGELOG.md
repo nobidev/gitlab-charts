@@ -2,6 +2,10 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.9.3 (2026-03-10)
+
+No changes.
+
 ## 9.9.2 (2026-03-05)
 
 ### Fixed (1 change)
@@ -40,6 +44,10 @@ No changes.
 - [Update Helm release gitlab-zoekt to v3.8.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4c706d5c202d86d4d91f76ddaaf2ba0a833c2f1d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4733))
 - [Add support for Kubernetes 1.35](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c56c1f65688a13b350c7b70600a768ca37255ea4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4742))
 - [Update dependency container-registry to v4.34.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6a38e5c3e8926cd3ee20926e95b6d85123666fed) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4743))
+
+## 9.8.7 (2026-03-10)
+
+No changes.
 
 ## 9.8.6 (2026-03-05)
 
@@ -91,6 +99,10 @@ No changes.
 ### Removed (1 change)
 
 - [Remove suggested reviewers secret and config](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bcdce46616a5f76a12514615497e7d290b22a11b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4643))
+
+## 9.7.6 (2026-03-10)
+
+No changes.
 
 ## 9.7.5 (2026-02-24)
 
