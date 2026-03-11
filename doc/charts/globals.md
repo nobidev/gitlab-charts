@@ -1682,6 +1682,28 @@ global:
       caSecretName: *internal-ca
 ```
 
+### Knowledge Graph settings
+
+Use these settings to configure the [GitLab Knowledge Graph](https://gitlab.com/gitlab-org/orbit/knowledge-graph) integration.
+
+```yaml
+global:
+  appConfig:
+    knowledgeGraph:
+      enabled: false
+      jwtSecret:
+        secret:
+        key:
+      grpcEndpoint:
+```
+
+| Name                | Type    | Default | Description |
+|:--------------------|:-------:|:--------|:------------|
+| `enabled`           | Boolean | `false` | Enable or disable the Knowledge Graph integration. |
+| `jwtSecret.secret`  | String  |         | Name of the Kubernetes secret containing the shared JWT key. |
+| `jwtSecret.key`     | String  |         | Key within the secret that holds the JWT shared key value. |
+| `grpcEndpoint`      | String  |         | gRPC endpoint for the Knowledge Graph service (e.g. `gkg.example.com:50054`). |
+
 ### LDAP
 
 The `ldap.servers` setting allows for the configuration of [LDAP](https://docs.gitlab.com/administration/auth/ldap/)

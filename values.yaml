@@ -589,6 +589,13 @@ global:
       #   secret:
       #   key:
 
+    knowledgeGraph:
+      enabled: false
+      # jwtSecret:
+      #   secret:
+      #   key:
+      # grpcEndpoint:
+
     ## https://docs.gitlab.com/charts/charts/globals#kas-settings
     gitlab_kas: {}
       # secret:
