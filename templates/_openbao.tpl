@@ -93,7 +93,7 @@ Render the OpenBao postgresql configuration yaml.
 {{- $globalPsql := index (.Values.global | default dict) "psql" | default dict -}}
 {{- $globalObaPsql := index (index (.Values.global | default dict) "openbao" | default dict) "psql" | default dict -}}
 {{- $obaPsql := .Values.psql | default dict -}}
-{{- $conn := (((.Values.config).storage).postgresql).connection | default dict | deepCopy) -}}
+{{- $conn := (((.Values.config).storage).postgresql).connection | default dict | deepCopy -}}
 {{- $connection := merge $globalPsql $globalObaPsql $obaPsql $conn -}}
 {{- range $k, $v := $conn -}}
 {{-   if and (ne (printf "%v" $v) "") (has $k (list "keepalives" "keepalivesIdle" "keepalivesInterval" "keepalivesCount" "tcpUserTimeout" "connectTimeout" "sslMode")) -}}
