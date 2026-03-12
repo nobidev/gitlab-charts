@@ -2810,8 +2810,9 @@ describe 'registry configuration' do
 
         # Verify only resources required for executing migrations are created
         resources = t.resources('test-registry')
-        expect(resources.length).to eq(3)
+        expect(resources.length).to eq(4)
         expect(resources).to include('ConfigMap/test-registry')
+        expect(resources).to include('ConfigMap/test-registry-db-connection-config')
         expect(resources).to include('ServiceAccount/test-registry')
         expect(resources).to include(a_string_including('Job/test-registry-migrations-'))
       end
