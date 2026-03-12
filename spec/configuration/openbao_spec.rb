@@ -8,6 +8,11 @@ require 'yaml'
 describe 'OpenBao installation' do
   let(:values) do
     HelmTemplate.with_defaults(%(
+    global:
+      openbao:
+        psql:
+          host: test-postgresql.default.svc
+          username: gitlab
     openbao:
       install: true
     ))
@@ -66,6 +71,11 @@ describe 'OpenBao installation' do
   describe 'with custom database name' do
     let(:values) do
       HelmTemplate.with_defaults(%(
+      global:
+        openbao:
+          psql:
+            host: test-postgresql.default.svc
+            username: gitlab
       openbao:
         install: true
         psql:
@@ -137,6 +147,9 @@ describe 'OpenBao installation' do
           httpAudit:
             secret: audit-secret
             key: audit-key
+          psql:
+            host: test-postgresql.default.svc
+            username: gitlab
       openbao:
         install: true
       ))
