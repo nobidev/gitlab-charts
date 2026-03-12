@@ -1016,8 +1016,7 @@ global:
     httpAudit:
       secret: ""
       key: "token"
-    # sharePostgresqlServer: true  # When true and host empty, OpenBao shares the PostgreSQL server with main GitLab databases. Set to false for external PostgreSQL.
-    # psql: {}  # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password when using external PostgreSQL.
+    # psql: {}  # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password.
 
   ## https://docs.gitlab.com/charts/charts/globals
   extraEnv: {}
@@ -1602,7 +1601,6 @@ gitlab-zoekt:
 ## Installation & configuration of OpenBao
 openbao:
   install: false
-  # sharePostgresqlServer: true  # Prefer global.openbao.sharePostgresqlServer. When true and host empty, uses bundled PostgreSQL. Set to false for external PostgreSQL.
   workhorse: {}
   # Disable Openbao managed unseal and audting secret and mount secret managed by shared secrets.
   staticUnsealSecret:
@@ -1643,7 +1641,6 @@ openbao:
     storage:
       postgresql:
         # Configure via global.openbao.psql or here. Connection is not inherited from main DB (ADR-013).
-        # When host is empty and sharePostgresqlServer is true, uses bundled PostgreSQL service.
         connection:
           host: ''
           database: ''  # Empty allows openbao.psql.database / global.openbao.psql.database. Set explicitly to override.

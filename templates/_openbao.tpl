@@ -87,7 +87,7 @@ Render the OpenBao postgresql configuration yaml.
 
 * Uses global.openbao.psql and openbao.config.storage.postgresql.connection.
 * global.openbao.psql is the preferred source so toolbox can access it for backup/restore.
-* When host is empty and bundled PostgreSQL is used, defaults to the postgresql service.
+* When host is empty, no default is applied. Configure global.openbao.psql or openbao.config.storage.postgresql.connection explicitly.
 */}}
 {{- define "openbao.postgresql.configuration" -}}
 {{- $globalPsql := index (.Values.global | default dict) "psql" | default dict -}}
@@ -101,19 +101,6 @@ Render the OpenBao postgresql configuration yaml.
 {{-   end -}}
 {{- end -}}
 {{- $host := index $connection "host" | default "" -}}
-{{- if eq (printf "%s" $host) "" -}}
-{{-   $globalOba := index (index (.Values.global | default dict) "openbao" | default dict) -}}
-{{-   $share := true -}}
-{{-   if hasKey .Values "sharePostgresqlServer" -}}
-{{-     $share = index .Values "sharePostgresqlServer" -}}
-{{-   else if hasKey $globalOba "sharePostgresqlServer" -}}
-{{-     $share = index $globalOba "sharePostgresqlServer" -}}
-{{-   end -}}
-{{-   if $share -}}
-{{-     $_ := set $connection "host" (printf "%s-postgresql.%s.svc" .Release.Name .Release.Namespace) -}}
-{{-     $_ := set $connection "username" "gitlab" -}}
-{{-   end -}}
-{{- end -}}
 {{- if not (index $connection "port") -}}
 {{-   $_ := set $connection "port" 5432 -}}
 {{- end -}}

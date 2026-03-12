@@ -7,11 +7,16 @@ require 'hash_deep_merge'
 
 describe 'checkConfig openbao' do
   describe 'openbao.database' do
-    context 'when OpenBao is enabled with in-chart PostgreSQL' do
+    context 'when OpenBao is enabled with database configured' do
       let(:success_values) do
         YAML.safe_load(%(
           openbao:
             install: true
+          global:
+            openbao:
+              psql:
+                host: gitlab-checkconfig-test-postgresql.default.svc
+                username: gitlab
         )).deep_merge!(default_required_values)
       end
 
@@ -31,7 +36,6 @@ describe 'checkConfig openbao' do
         YAML.safe_load(%(
           openbao:
             install: true
-            sharePostgresqlServer: false
             config:
               storage:
                 postgresql:
@@ -63,12 +67,11 @@ describe 'checkConfig openbao' do
       end
     end
 
-    context 'when OpenBao is enabled with external PostgreSQL but no database configured' do
+    context 'when OpenBao is enabled but no database configured' do
       let(:error_values) do
         YAML.safe_load(%(
           openbao:
             install: true
-            sharePostgresqlServer: false
           postgresql:
             install: false
           global:
@@ -83,7 +86,7 @@ describe 'checkConfig openbao' do
 
       include_examples 'config validation',
                        success_description: nil,
-                       error_description: 'when OpenBao is enabled with external PostgreSQL but no database configured'
+                       error_description: 'when OpenBao is enabled but no database configured'
     end
   end
 end
