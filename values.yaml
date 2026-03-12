@@ -101,6 +101,17 @@ global:
       name: "gitlab-gw"
       controllerName: "gateway.envoyproxy.io/gitlab-gatewayclass-controller"
     installEnvoy: false
+    metrics:
+      envoyGateway:
+        serviceMonitor:
+          enabled: false
+          additionalLabels: {}
+          endpointConfig: {}
+      envoyProxy:
+        podMonitor:
+          enabled: false
+          additionalLabels: {}
+          endpointConfig: {}
     configureCertmanager: false
     protocol: "HTTPS"
     addresses: []

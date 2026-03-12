@@ -18,21 +18,28 @@ describe 'monitoring object configuration' do
   let(:servicemonitor_enabled_values) do
     YAML.safe_load(
       open('spec/fixtures/servicemonitor-config.yaml', 'r').read
-    ).merge(default_values)
+    ).deep_merge(default_values)
   end
 
   let(:servicemonitor_components) do
-    servicemonitor_enabled_values['gitlab'].keys
+    servicemonitor_enabled_values['gitlab'].keys << 'envoy-gateway'
   end
 
   let(:podmonitor_enabled_values) do
     YAML.safe_load(%(
+      global:
+        gatewayApi:
+          installEnvoy: true
+          metrics:
+            envoyProxy:
+              podMonitor:
+                enabled: true
       gitlab:
         sidekiq:
           metrics:
             podMonitor:
               enabled: true
-    )).merge(default_values)
+    )).deep_merge(default_values)
   end
 
   let(:global_monitoring_enabled) do
@@ -67,11 +74,12 @@ describe 'monitoring object configuration' do
       end
     end
 
-    it 'creates PodMonitor for Sidekiq' do
+    it 'creates PodMonitor for Sidekiq and Envoy Proxy' do
       template = HelmTemplate.new(podmonitor_enabled_values.deep_merge(global_monitoring_enabled))
       expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
       expect(template['PodMonitor/test-sidekiq']).not_to be_nil, "missing PodMonitor for Sidekiq"
+      expect(template['PodMonitor/test-envoy-proxy']).not_to be_nil, "missing PodMonitor for Envoy Proxy"
     end
   end
 
@@ -85,11 +93,12 @@ describe 'monitoring object configuration' do
       end
     end
 
-    it 'creates PodMonitor for Sidekiq' do
+    it 'creates PodMonitor for Sidekiq and Envoy Proxy' do
       template = HelmTemplate.new(podmonitor_enabled_values, 'test', api_versions_args)
       expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
       expect(template['PodMonitor/test-sidekiq']).not_to be_nil, "missing PodMonitor for Sidekiq"
+      expect(template['PodMonitor/test-envoy-proxy']).not_to be_nil, "missing PodMonitor for Envoy Proxy"
     end
   end
 end
