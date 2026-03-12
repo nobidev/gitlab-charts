@@ -199,7 +199,6 @@ The OpenBao chart defaults to Ingress-terminated TLS encryption.
 | `global.openbao.url`                                     | Derived from host                                       | OpenBao URL for GitLab. If present, must be a complete URI. |
 | `global.openbao.jwt_audience`                            | Same as `url`                                           | JWT audience claim for OpenBao authentication. Set for [Geo deployments](#geo-configuration) when sites use different URLs. Must match OpenBao `bound_audiences`. |
 | `global.openbao.psql`                                    | `{}`                                                    | OpenBao database config (host, database, username, password). |
-| `global.openbao.sharePostgresqlServer`                   | true                                                    | When `true` and `host` is empty, OpenBao shares the PostgreSQL server with the main GitLab databases (same host, username, password). Set to `false` when using external PostgreSQL server. |
 | `ingress.enabled`                                        | true                                                    | Enable the OpenBao Ingress to allow Runner to reach OpenBao. |
 | `ingress.hostname`                                       | External OpenBao host based on global hosts config.     | Hostname the Ingress should match. |
 | `ingress.tls.enabled`                                    | true                                                    | Enable Ingress TLS. |
@@ -294,32 +293,20 @@ The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/)
 | `config.audit.http.authTokenPath`                        | `/srv/openbao/audit/gitlab-auth`                        | Path the token shared with GitLab is mounted at. |
 | `httpAuditSecret.generate`                               | false                                                   | Generate a secret to be shared with GitLab for authenticated auditing. Defaults to false as managed by GitLab charts shared-secret chart. |
 | `initializeTpl`                                          |                                                         | Template passed to configure OpenBao auditing. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
-| `sharePostgresqlServer`                                  | true                                                    | When `true` and `host` is empty, use the bundled PostgreSQL service. Set to `false` when using external PostgreSQL server. |
 
 ## Database configuration
 
 OpenBao uses a **separate logical database** (`openbao` by default)
 for data isolation from the Rails backend.
 
-- **In-chart PostgreSQL service**: When `global.openbao.sharePostgresqlServer` or `openbao.sharePostgresqlServer` is `true` (default) and `host` is empty, the chart uses the bundled PostgreSQL service with the `gitlab` user.
-- **External PostgreSQL service**: Set `global.openbao.sharePostgresqlServer: false` (or `openbao.sharePostgresqlServer: false`) and configure `openbao.config.storage.postgresql.connection` with host, database, username, and password.
+Configure `global.openbao.psql` or `openbao.config.storage.postgresql.connection` with host, database, username, and password. You must create the database and user manually.
 
-You must create the database and user manually.
-
-## Create the OpenBao database (in-chart PostgreSQL)
-
-When using bundled PostgreSQL, create the OpenBao database before deploying:
-
-```sql
--- Connect as postgres or another superuser
-CREATE DATABASE openbao OWNER gitlab;
-```
-
-The chart uses the `gitlab` user by default when `sharePostgresqlServer` is true.
+> [!warning]
+> Bundled PostgreSQL is [deprecated](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) and will be removed in GitLab 19.0. Until then, to use OpenBao with the bundled PostgreSQL, configure `global.openbao.psql` with `host` set to `<release>-postgresql.<namespace>.svc` and `username` set to `gitlab`.
 
 ## Configure an external database
 
-When using an external PostgreSQL (or to override the default separate database), OpenBao connects with the credentials and configuration you specify.
+When using an external PostgreSQL, OpenBao connects with the credentials and configuration you specify.
 
 To configure an external database:
 
