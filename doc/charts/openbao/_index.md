@@ -301,9 +301,6 @@ for data isolation from the Rails backend.
 
 Configure `global.openbao.psql` or `openbao.config.storage.postgresql.connection` with host, database, username, and password. You must create the database and user manually.
 
-> [!warning]
-> Bundled PostgreSQL is [deprecated](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) and will be removed in GitLab 19.0. Until then, to use OpenBao with the bundled PostgreSQL, configure `global.openbao.psql` with `host` set to `<release>-postgresql.<namespace>.svc` and `username` set to `gitlab`.
-
 ## Configure an external database
 
 When using an external PostgreSQL, OpenBao connects with the credentials and configuration you specify.
