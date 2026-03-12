@@ -60,6 +60,10 @@ gitlab_kas:
 {{- end -}}
 {{- end -}}
 
+{{- define "gitlab.appConfig.iam_auth_service" -}}
+{{- include "gitlab.appConfig.iam_auth_service" . -}}
+{{- end -}}
+
 {{- define "gitlab.appConfig.workspaces" -}}
 {{- if .Values.global.workspaces.enabled -}}
 workspaces:

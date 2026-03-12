@@ -605,6 +605,13 @@ global:
       # internalUrl:
       # clientTimeoutSeconds:
 
+    ## IAM-Auth service configuration
+    ## Shared secret for authenticating calls from GitLab Rails to the iam-auth service
+    iam_auth_service:
+      enabled: false
+      # secret: # Kubernetes secret name (auto-generated if not provided)
+      # key: # Secret key name (defaults to "iam_auth_service_token")
+
     workspaces: {}
 
     ## Configure Database Traffic Capture. This is a Gitlab internal-use experiment.
