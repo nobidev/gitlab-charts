@@ -17,7 +17,7 @@ If global.redis.queues is present, use this. If not present, use global.redis
 {{- $_ := set $ "redisConfigName" "queues" }}
 {{- end -}}
 {{- $sentinels := include "gitlab.redis.sentinels" . }}
-{{- if $sentinels }}
+{{- if $sentinels -}}
 :{{- $sentinels | replace " port:" " :port:" | replace " host:" " :host:" | replace " ssl:" " :ssl:" | replace " ssl_params:" " :ssl_params:" -}}
 {{- end -}}
 {{- end -}}
