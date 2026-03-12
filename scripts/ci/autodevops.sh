@@ -248,5 +248,5 @@ function wait_for_toolbox() {
 function get_qa_revision() {
   wait_for_toolbox >/dev/null
   toolbox_pod=$(kubectl get pods -lrelease="$(gitlab_release_name)",app=toolbox -o custom-columns=":metadata.name")
-  kubectl exec -n "$(NAMESPACE)" "$(toolbox_pod)" -ic toolbox -- cat /srv/gitlab/REVISION
+  kubectl exec -n "${NAMESPACE}" "${toolbox_pod}" -ic toolbox -- cat /srv/gitlab/REVISION
 }
