@@ -142,6 +142,7 @@ spec:
                 {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 16 }}
               volumeMounts:
                 {{- include "gitlab.extraVolumeMounts" . | nindent 16 }}
+                {{- include "toolbox.registry.database.databaseBackupCredentialsMount" . | nindent 16 }}
                 - name: toolbox-config
                   mountPath: '/var/opt/gitlab/templates'
                 - name: toolbox-secrets
@@ -162,6 +163,7 @@ spec:
           volumes:
             {{- include "gitlab.extraVolumes" . | nindent 12 }}
             {{- include "gitlab.psql.ssl.volume" . | nindent 12 }}
+            {{- include "toolbox.registry.databaseBackupCredentialsVolume" . | nindent 12 }}
             - name: toolbox-config
               projected:
                 sources:

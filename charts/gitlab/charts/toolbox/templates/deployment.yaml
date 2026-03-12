@@ -141,6 +141,7 @@ spec:
             {{- include "gitlab.timeZone.env" . | nindent 12 }}
           volumeMounts:
             {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
+            {{- include "toolbox.registry.database.databaseBackupCredentialsMount" . | nindent 12 }}
             - name: toolbox-config
               mountPath: '/var/opt/gitlab/templates'
             - name: toolbox-config
@@ -176,6 +177,7 @@ spec:
       {{- include "gitlab.psql.ssl.volume" . | nindent 6 }}
       {{- include "gitlab.geo.psql.ssl.volume" . | nindent 6 }}
       {{- include "gitlab.appConfig.kerberos.volume" $ | nindent 6 }}
+      {{- include "toolbox.registry.databaseBackupCredentialsVolume" . | nindent 6 }}
       - name: toolbox-config
         projected:
           sources:
