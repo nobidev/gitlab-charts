@@ -52,7 +52,7 @@ function validate_tools(){
 
     # Additional check if validating Helm
     if [ "$tool" == 'helm' ]; then
-      if ! helm version --short --client | grep -q '^v3\.[0-9]\{1,\}'; then
+      if ! helm version --short | grep -q '^v[34]\.[0-9]\{1,\}'; then
         echo "Helm 3+ is required.";
         exit 1
       fi
