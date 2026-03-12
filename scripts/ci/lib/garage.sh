@@ -8,6 +8,13 @@ function deploy_external_garage() {
         exit 1
     fi
 
+    if helm status "$(garage_release_name)" -n "${NAMESPACE}" > /dev/null 2>&1; then
+        echo "Release exists"
+        return
+    else
+        echo "Release does not exist"
+    fi
+
     echo "Installing external Garage"
 
     # default to v2.2.0 as that is the first version we tested with
@@ -17,7 +24,7 @@ function deploy_external_garage() {
     helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v${GARAGE_APP_VERSION}"
     helm repo update
 
-    helm upgrade --install garage garage/garage \
+    helm upgrade --install "$(garage_release_name)" garage/garage \
         -n "${NAMESPACE}" \
         --set garage.replicationFactor=1 \
         --set deployment.replicaCount=1 \
@@ -29,8 +36,9 @@ function deploy_external_garage() {
         --wait --timeout=300s
 
     GARAGE_POD=$(kubectl get pod -n "${NAMESPACE}" \
-    -l app.kubernetes.io/name=garage \
-    -o jsonpath='{.items[0].metadata.name}')
+        -l app.kubernetes.io/instance=$(garage_release_name) \
+        --field-selector=status.phase=Running \
+        -o jsonpath='{.items[0].metadata.name}')
 
     echo "Using Garage pod: ${GARAGE_POD}"
 
@@ -94,31 +102,31 @@ function deploy_external_garage() {
     done
 
     # https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/
-    kubectl create secret generic gitlab-object-storage \
+    kubectl create secret generic "$(garage_release_name)-gitlab-object-storage" \
         --namespace "${NAMESPACE}" \
         --from-literal=config="$(cat <<EOF
 provider: AWS
 region: garage
 aws_access_key_id: ${GARAGE_ACCESS_KEY}
 aws_secret_access_key: ${GARAGE_SECRET_KEY}
-endpoint: "http://garage.${NAMESPACE}.svc.cluster.local:3900"
+endpoint: "http://$(garage_release_name).${NAMESPACE}.svc.cluster.local:3900"
 path_style: true
 EOF
 )" --dry-run=client -o yaml | kubectl apply -f -
 
-    kubectl create secret generic gitlab-object-storage-s3cmd \
+    kubectl create secret generic "$(garage_release_name)-gitlab-object-storage-s3cmd" \
         --namespace "${NAMESPACE}" \
         --from-literal=config="$(cat <<EOF
 [default]
 access_key = ${GARAGE_ACCESS_KEY}
 secret_key = ${GARAGE_SECRET_KEY}
-host_base = garage.${NAMESPACE}.svc.cluster.local:3900
-host_bucket = garage.${NAMESPACE}.svc.cluster.local:3900
+host_base = $(garage_release_name).${NAMESPACE}.svc.cluster.local:3900
+host_bucket = $(garage_release_name).${NAMESPACE}.svc.cluster.local:3900
 use_https = False
 EOF
 )" --dry-run=client -o yaml | kubectl apply -f -
 
-    kubectl create secret generic gitlab-registry-storage \
+    kubectl create secret generic "$(garage_release_name)-gitlab-registry-storage" \
         --namespace "${NAMESPACE}" \
         --from-literal=config="$(cat <<EOF
 s3:
@@ -126,7 +134,7 @@ s3:
   secretkey: ${GARAGE_SECRET_KEY}
   bucket: registry
   region: garage
-  regionendpoint: http://garage.${NAMESPACE}.svc.cluster.local:3900
+  regionendpoint: http://$(garage_release_name).${NAMESPACE}.svc.cluster.local:3900
   secure: false
   v4auth: true
   pathstyle: true
@@ -138,10 +146,22 @@ EOF
 
 function remove_external_garage() {
     echo "Removing external Garage"
-    helm uninstall garage -n "${NAMESPACE}" --ignore-not-found
+    helm uninstall "$(garage_release_name)" -n "${NAMESPACE}" --ignore-not-found
+
     kubectl delete secret \
-        gitlab-object-storage \
-        gitlab-object-storage-s3cmd \
-        gitlab-registry-storage \
+        "$(garage_release_name)-gitlab-object-storage" \
+        "$(garage_release_name)-gitlab-object-storage-s3cmd" \
+        "$(garage_release_name)-gitlab-registry-storage" \
         -n "${NAMESPACE}" --ignore-not-found
+
+    # Delete PVCs that are not covered by out cleanup script
+    kubectl delete pvc -n "${NAMESPACE}" \
+        -l app.kubernetes.io/instance=$(garage_release_name) \
+        --ignore-not-found
+
+    # Wait for PVCs to be deleted
+    kubectl wait --for=delete pvc \
+        -n "${NAMESPACE}" \
+        -l app.kubernetes.io/instance=$(garage_release_name) \
+        --timeout=60s 2>/dev/null || true
 }

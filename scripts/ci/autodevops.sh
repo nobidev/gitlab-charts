@@ -24,7 +24,7 @@ function deploy_external_components() {
     deploy_external_postgresql
   fi
 
-  if [ -n "${USE_EXTERNAL_GARAGE}" ]; then
+  if use_external_garage; then
       deploy_external_garage
   fi
 }
@@ -38,7 +38,7 @@ function remove_external_components() {
     remove_external_postgres
   fi
 
-  if [ -n "${USE_EXTERNAL_GARAGE}" ]; then
+  if use_external_garage; then
       remove_external_garage
   fi
 }
@@ -106,9 +106,9 @@ function deploy() {
   fi
 
   GARAGE_CONFIGURATION=""
-  if [ -n "${USE_EXTERNAL_GARAGE}" ]; then
+  if use_external_garage; then
       echo "External object storage (Garage) deployment detected"
-      GARAGE_CONFIGURATION="-f scripts/ci/values/external-garage.values.yaml"
+      GARAGE_CONFIGURATION="-f ${VALUES_DIR}/external-garage.values.yaml"
   fi
 
   helm upgrade --install \
@@ -135,6 +135,7 @@ function prepare_values() {
       VALKEY_RELEASE_NAME="$(valkey_release_name)" \
       CNPG_CLUSTER_HOST="$(cnpg_cluster_host)" \
       CNPG_CLUSTER_SECRET="$(cnpg_cluster_secret)" \
+      GARAGE_RELEASE_NAME="$(garage_release_name)" \
         envsubst < "$f" > "${VALUES_DIR}/$(basename $f)"
   done
 }

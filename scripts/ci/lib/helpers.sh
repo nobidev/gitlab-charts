@@ -49,3 +49,11 @@ function use_external_valkey() {
 function use_external_postgresql() {
   [[ "${SKIP_EXTERNAL_POSTGRESQL}" != "true" ]]
 }
+
+function garage_release_name() {
+  echo -n "$(release_name_base)-garage"
+}
+
+function use_external_garage() {
+  [[ "${SKIP_EXTERNAL_GARAGE}" != "true" ]]
+}
