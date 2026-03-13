@@ -2,7 +2,8 @@ nginx-ingress:
   controller:
     electionID: "$RELEASE_NAME-nginx-election"
     ingressClassByName: true
-    controllerValue: "ci.gitlab.com/$RELEASE_NAME"
+    ingressClassResource:
+      controllerValue: "ci.gitlab.com/$RELEASE_NAME"
 
 global:
   ingress:
