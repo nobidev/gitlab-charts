@@ -38,8 +38,6 @@ OpenBao, which is required to enable the [GitLab secrets manager](https://docs.g
 - You can't deploy OpenBao with [GitLab Operator](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator).
 - A FIPS variant of the OpenBao image is already being build, but OpenBao is not FIPS validated.
   FIPS validation is tracked in [GitLab issue 574875](https://gitlab.com/gitlab-org/gitlab/-/issues/574875).
-- The OpenBao chart and streaming of OpenBao auditing events to GitLab cannot be enabled at the same time.
-  For more information, see [issue 582828](https://gitlab.com/gitlab-org/gitlab/-/issues/582828).
 
 ## Setup GitLab secret manager and OpenBao
 
@@ -287,7 +285,7 @@ The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/)
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
 | `global.openbao.httpAudit.secret`                        | `<release>-openbao-audit-secret`                        | Name of the secret storing the token shared between OpenBao and GitLab. |
 | `global.openbao.httpAudit.key`                           | `token`                                                 | Secret key storing the shared token. |
-| `config.audit.http.enabled`                              | false                                                   | Enable streaming of auditing events by using HTTP to GitLab. Must be disabled when enabling the OpenBao chart. For more information, see [issue 582828](https://gitlab.com/gitlab-org/gitlab/-/issues/582828). |
+| `config.audit.http.enabled`                              | true                                                    | Enable streaming of auditing events by using HTTP to GitLab. |
 | `config.audit.http.streamingUri`                         | Internal workhorse URL                                  | Endpoint to stream auditing events to. |
 | `config.audit.http.authTokenPath`                        | `/srv/openbao/audit/gitlab-auth`                        | Path the token shared with GitLab is mounted at. |
 | `httpAuditSecret.generate`                               | false                                                   | Generate a secret to be shared with GitLab for authenticated auditing. Defaults to false as managed by GitLab charts shared-secret chart. |
