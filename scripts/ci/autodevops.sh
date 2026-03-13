@@ -252,7 +252,7 @@ CIYAML
   fi
   
   # Temporary workaround to stabilize failing CI envionments because of https://gitlab.com/gitlab-org/gitlab/-/work_items/586582.
-  $HELM_EXTRA_ARGS="${HELM_EXTRA_ARGS} --set gitlab.sidekiq.livenessProbe.failureThreshhold=30"
+  HELM_EXTRA_ARGS="${HELM_EXTRA_ARGS} --set gitlab.sidekiq.livenessProbe.failureThreshold=30"
 
   helm upgrade --install \
     $WAIT \
