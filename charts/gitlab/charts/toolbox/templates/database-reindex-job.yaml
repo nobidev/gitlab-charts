@@ -8,7 +8,7 @@ metadata:
   name: {{ template "fullname" . }}-db-reindex
   namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
 spec:
   concurrencyPolicy: {{ .Values.databaseReindex.cron.concurrencyPolicy }}
@@ -32,7 +32,7 @@ spec:
       template:
         metadata:
           labels:
-            {{- include "gitlab.standardLabels" . | nindent 12 }}
+            {{- include "gitlab.common.legacyStandardLabels" . | nindent 12 }}
             {{- include "gitlab.commonLabels" . | nindent 12 }}
             {{- include "gitlab.podLabels" . | nindent 12 }}
           annotations:

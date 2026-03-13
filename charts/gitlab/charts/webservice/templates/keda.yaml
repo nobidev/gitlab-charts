@@ -17,7 +17,7 @@ metadata:
   name: {{ template "webservice.fullname.withSuffix" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "gitlab.common.legacyStandardLabels" $ | nindent 4 }}
     {{- include "webservice.labels" . | nindent 4 }}
     {{- include "webservice.commonLabels" . | nindent 4 }}
 spec:

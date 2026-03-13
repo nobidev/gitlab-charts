@@ -7,7 +7,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 {{- end }}
   labels:
-    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
 spec:
   accessModes:

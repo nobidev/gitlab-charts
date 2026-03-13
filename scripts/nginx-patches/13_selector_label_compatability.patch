@@ -28,7 +28,7 @@ index d60bd7067..8874a80d7 100644
 --- a/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-createSecret.yaml
 +++ b/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-createSecret.yaml
 @@ -14,6 +14,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -40,7 +40,7 @@ index ab4ab64a7..23ef23203 100644
 --- a/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
 +++ b/charts/nginx-ingress/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
 @@ -14,6 +14,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -52,7 +52,7 @@ index 14adb527d..dc9cb6ed1 100644
 --- a/charts/nginx-ingress/templates/controller-configmap-addheaders.yaml
 +++ b/charts/nginx-ingress/templates/controller-configmap-addheaders.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -64,7 +64,7 @@ index b49bb0c25..69c625d00 100644
 --- a/charts/nginx-ingress/templates/controller-configmap-proxyheaders.yaml
 +++ b/charts/nginx-ingress/templates/controller-configmap-proxyheaders.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -76,7 +76,7 @@ index d1b99866d..4c1e094f8 100644
 --- a/charts/nginx-ingress/templates/controller-configmap-tcp.yaml
 +++ b/charts/nginx-ingress/templates/controller-configmap-tcp.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -88,7 +88,7 @@ index 713667553..cf43aed33 100644
 --- a/charts/nginx-ingress/templates/controller-configmap-udp.yaml
 +++ b/charts/nginx-ingress/templates/controller-configmap-udp.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -100,7 +100,7 @@ index c82dc2034..04191db31 100644
 --- a/charts/nginx-ingress/templates/controller-configmap.yaml
 +++ b/charts/nginx-ingress/templates/controller-configmap.yaml
 @@ -5,6 +5,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -112,7 +112,7 @@ index 86db28d9b..ce85c9870 100644
 --- a/charts/nginx-ingress/templates/controller-daemonset.yaml
 +++ b/charts/nginx-ingress/templates/controller-daemonset.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -132,7 +132,7 @@ index 86db28d9b..ce85c9870 100644
        {{- end }}
      {{- end }}
        labels:
-+        {{- include "gitlab.standardLabels" . | nindent 8 }}
++        {{- include "gitlab.common.legacyStandardLabels" . | nindent 8 }}
 +        {{- include "gitlab.commonLabels" . | nindent 8 }}
          {{- include "ingress-nginx.labels" . | nindent 8 }}
 +        component: "{{ .Values.controller.name }}"
@@ -144,7 +144,7 @@ index 3a903c3b5..0e10ddcbd 100644
 --- a/charts/nginx-ingress/templates/controller-deployment.yaml
 +++ b/charts/nginx-ingress/templates/controller-deployment.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -164,7 +164,7 @@ index 3a903c3b5..0e10ddcbd 100644
        {{- end }}
      {{- end }}
        labels:
-+        {{- include "gitlab.standardLabels" . | nindent 8 }}
++        {{- include "gitlab.common.legacyStandardLabels" . | nindent 8 }}
 +        {{- include "gitlab.commonLabels" . | nindent 8 }}
          {{- include "ingress-nginx.labels" . | nindent 8 }}
 +        component: "{{ .Values.controller.name }}"
@@ -176,7 +176,7 @@ index f1380f726..4608a68ec 100644
 --- a/charts/nginx-ingress/templates/controller-hpa.yaml
 +++ b/charts/nginx-ingress/templates/controller-hpa.yaml
 @@ -10,6 +10,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -188,7 +188,7 @@ index ac8f2a67f..2db5ef8f9 100644
 --- a/charts/nginx-ingress/templates/controller-ingressclass-aliases.yaml
 +++ b/charts/nginx-ingress/templates/controller-ingressclass-aliases.yaml
 @@ -8,6 +8,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" $ | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -200,7 +200,7 @@ index 971c30214..ba6b9b51a 100644
 --- a/charts/nginx-ingress/templates/controller-ingressclass.yaml
 +++ b/charts/nginx-ingress/templates/controller-ingressclass.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -212,7 +212,7 @@ index 0a319e5c0..2e7458fce 100644
 --- a/charts/nginx-ingress/templates/controller-keda.yaml
 +++ b/charts/nginx-ingress/templates/controller-keda.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -224,7 +224,7 @@ index 1ac8b6e5e..077cc6132 100644
 --- a/charts/nginx-ingress/templates/controller-networkpolicy.yaml
 +++ b/charts/nginx-ingress/templates/controller-networkpolicy.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -245,7 +245,7 @@ index 4cf5423f4..49b9342ed 100644
 --- a/charts/nginx-ingress/templates/controller-poddisruptionbudget.yaml
 +++ b/charts/nginx-ingress/templates/controller-poddisruptionbudget.yaml
 @@ -16,6 +16,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -266,7 +266,7 @@ index d8551a37a..fabe9343b 100644
 --- a/charts/nginx-ingress/templates/controller-prometheusrule.yaml
 +++ b/charts/nginx-ingress/templates/controller-prometheusrule.yaml
 @@ -12,6 +12,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -278,7 +278,7 @@ index a8522e912..bce1d54a2 100644
 --- a/charts/nginx-ingress/templates/controller-role.yaml
 +++ b/charts/nginx-ingress/templates/controller-role.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -290,7 +290,7 @@ index 7c692ee50..2bc3fcc54 100644
 --- a/charts/nginx-ingress/templates/controller-rolebinding.yaml
 +++ b/charts/nginx-ingress/templates/controller-rolebinding.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -302,7 +302,7 @@ index b891f8461..951b8ea84 100644
 --- a/charts/nginx-ingress/templates/controller-secret.yaml
 +++ b/charts/nginx-ingress/templates/controller-secret.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -314,7 +314,7 @@ index c2a631fa3..80295f6fc 100644
 --- a/charts/nginx-ingress/templates/controller-service-internal.yaml
 +++ b/charts/nginx-ingress/templates/controller-service-internal.yaml
 @@ -10,6 +10,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -333,7 +333,7 @@ index e5eeb750d..d530a5ca2 100644
 --- a/charts/nginx-ingress/templates/controller-service-metrics.yaml
 +++ b/charts/nginx-ingress/templates/controller-service-metrics.yaml
 @@ -9,6 +9,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -352,7 +352,7 @@ index da1384b20..130612468 100644
 --- a/charts/nginx-ingress/templates/controller-service-webhook.yaml
 +++ b/charts/nginx-ingress/templates/controller-service-webhook.yaml
 @@ -9,6 +9,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -371,7 +371,7 @@ index 3c0707733..5e2a1bf0c 100644
 --- a/charts/nginx-ingress/templates/controller-service.yaml
 +++ b/charts/nginx-ingress/templates/controller-service.yaml
 @@ -10,6 +10,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -390,7 +390,7 @@ index 46e120e00..76439fe3c 100644
 --- a/charts/nginx-ingress/templates/controller-serviceaccount.yaml
 +++ b/charts/nginx-ingress/templates/controller-serviceaccount.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -402,7 +402,7 @@ index d7f967713..0339d4370 100644
 --- a/charts/nginx-ingress/templates/controller-servicemonitor.yaml
 +++ b/charts/nginx-ingress/templates/controller-servicemonitor.yaml
 @@ -12,6 +12,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.controller.name }}"
@@ -423,7 +423,7 @@ index a403b57ca..6114db2d1 100644
 --- a/charts/nginx-ingress/templates/default-backend-deployment.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-deployment.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.defaultBackend.name }}"
@@ -442,7 +442,7 @@ index a403b57ca..6114db2d1 100644
 @@ -37,6 +38,7 @@ spec:
      {{- end }}
        labels:
-         {{- include "gitlab.standardLabels" . | nindent 8 }}
+         {{- include "gitlab.common.legacyStandardLabels" . | nindent 8 }}
          {{- include "gitlab.commonLabels" . | nindent 8 }}
          {{- include "ingress-nginx.labels" . | nindent 8 }}
 +        component: "{{ .Values.defaultBackend.name }}"
@@ -454,7 +454,7 @@ index 5c9c39beb..a23f130b2 100644
 --- a/charts/nginx-ingress/templates/default-backend-extra-configmaps.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-extra-configmaps.yaml
 @@ -8,6 +8,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" $ | nindent 4 }}
 +    component: "{{ .Values.defaultBackend.name }}"
@@ -466,7 +466,7 @@ index 48375f08c..8a2bb6e46 100644
 --- a/charts/nginx-ingress/templates/default-backend-hpa.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-hpa.yaml
 @@ -10,6 +10,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.defaultBackend.name }}"
@@ -478,7 +478,7 @@ index bb2e5440e..859f273f5 100644
 --- a/charts/nginx-ingress/templates/default-backend-networkpolicy.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-networkpolicy.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.defaultBackend.name }}"
@@ -499,7 +499,7 @@ index 6e5425880..2719849e5 100644
 --- a/charts/nginx-ingress/templates/default-backend-poddisruptionbudget.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-poddisruptionbudget.yaml
 @@ -12,6 +12,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.defaultBackend.name }}"
@@ -520,7 +520,7 @@ index 3be36c95a..b88e93c58 100644
 --- a/charts/nginx-ingress/templates/default-backend-service.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-service.yaml
 @@ -9,6 +9,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.defaultBackend.name }}"
@@ -539,7 +539,7 @@ index f023c054e..c12ea8617 100644
 --- a/charts/nginx-ingress/templates/default-backend-serviceaccount.yaml
 +++ b/charts/nginx-ingress/templates/default-backend-serviceaccount.yaml
 @@ -6,6 +6,7 @@ metadata:
-     {{- include "gitlab.standardLabels" . | nindent 4 }}
+     {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
      {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
 +    component: "{{ .Values.defaultBackend.name }}"

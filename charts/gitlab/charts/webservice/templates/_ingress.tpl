@@ -18,7 +18,7 @@ metadata:
   name: {{ .name }}
   namespace: {{ .root.Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" .root | nindent 4 }}
+    {{- include "gitlab.common.legacyStandardLabels" .root | nindent 4 }}
     {{- include "webservice.labels" .deployment | nindent 4 }}
     {{- include "webservice.commonLabels" .deployment | nindent 4 }}
   annotations:

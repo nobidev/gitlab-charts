@@ -7,7 +7,7 @@ index af3ea12a3..474e68a62 100644
      {{- toYaml . | nindent 4 }}
      {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: admission-webhook
@@ -20,7 +20,7 @@ index 87dd2c251..5e3950f68 100644
      {{- toYaml . | nindent 4 }}
      {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: admission-webhook
@@ -33,7 +33,7 @@ index 51bc5002c..235eaf102 100644
  kind: ClusterRole
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      {{- with .Values.controller.labels }}
@@ -46,7 +46,7 @@ index 8f91aac80..00bc22f09 100644
  kind: ClusterRoleBinding
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      {{- with .Values.controller.labels }}
@@ -59,7 +59,7 @@ index 4e4bd1310..14adb527d 100644
  kind: ConfigMap
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -72,7 +72,7 @@ index 0a22600db..b49bb0c25 100644
  kind: ConfigMap
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -85,7 +85,7 @@ index 34a2bce13..d1b99866d 100644
  kind: ConfigMap
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -98,7 +98,7 @@ index 7137da9ad..713667553 100644
  kind: ConfigMap
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -111,7 +111,7 @@ index b73cdc2d0..c82dc2034 100644
  kind: ConfigMap
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -124,7 +124,7 @@ index f7bef39e8..63cee2890 100644
  kind: DaemonSet
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -137,7 +137,7 @@ index cec18108b..94b30700a 100644
  kind: Deployment
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -172,7 +172,7 @@ index ec9ad7380..7d435c6b7 100644
    annotations: {{ toYaml . | nindent 4 }}
    {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -185,7 +185,7 @@ index ffe22310c..ac8f2a67f 100644
  kind: IngressClass
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" $ | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -198,7 +198,7 @@ index 4f90d8711..971c30214 100644
  kind: IngressClass
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -211,7 +211,7 @@ index 24d30fa0a..0a319e5c0 100644
  kind: ScaledObject
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -224,7 +224,7 @@ index e68f9916d..1ac8b6e5e 100644
  kind: NetworkPolicy
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -237,7 +237,7 @@ index a1f5fbba2..842b74b7e 100644
  kind: PodDisruptionBudget
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -250,7 +250,7 @@ index 4a9357f71..d8551a37a 100644
    namespace: {{ include "ingress-nginx.namespace" . }}
  {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -263,7 +263,7 @@ index 127b368c4..a8522e912 100644
  kind: Role
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -276,7 +276,7 @@ index 153430aa2..7c692ee50 100644
  kind: RoleBinding
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -289,7 +289,7 @@ index f20f53469..b891f8461 100644
  kind: Secret
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -302,7 +302,7 @@ index 0f43d9703..c2a631fa3 100644
      {{ $key }}: {{ tpl ($value | toString) $ | quote }}
    {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -315,7 +315,7 @@ index 4b25a840e..e5eeb750d 100644
    annotations: {{ toYaml .Values.controller.metrics.service.annotations | nindent 4 }}
  {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -328,7 +328,7 @@ index 67aac0d9a..da1384b20 100644
    annotations: {{ toYaml .Values.controller.admissionWebhooks.service.annotations | nindent 4 }}
  {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -341,7 +341,7 @@ index 6ed62d8b7..3c0707733 100644
      {{ $key }}: {{ tpl ($value | toString) $ | quote }}
    {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -354,7 +354,7 @@ index df83de3d0..48668374c 100644
  kind: ServiceAccount
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -367,7 +367,7 @@ index 93ab4d242..d7f967713 100644
    namespace: {{ include "ingress-nginx.namespace" . }}
    {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: controller
@@ -380,7 +380,7 @@ index e035cd599..866cd8a90 100644
  kind: Deployment
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: default-backend
@@ -400,7 +400,7 @@ index e035cd599..866cd8a90 100644
        annotations: {{ toYaml .Values.defaultBackend.podAnnotations | nindent 8 }}
      {{- end }}
        labels:
-+        {{- include "gitlab.standardLabels" . | nindent 8 }}
++        {{- include "gitlab.common.legacyStandardLabels" . | nindent 8 }}
 +        {{- include "gitlab.commonLabels" . | nindent 8 }}
          {{- include "ingress-nginx.labels" . | nindent 8 }}
          app.kubernetes.io/component: default-backend
@@ -419,7 +419,7 @@ index 9af56cf38..5c9c39beb 100644
  kind: ConfigMap
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" $ | nindent 4 }}
      app.kubernetes.io/component: default-backend
@@ -432,7 +432,7 @@ index 49bcdcfdc..b2eff1b31 100644
    annotations: {{ toYaml . | nindent 4 }}
    {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: default-backend
@@ -445,7 +445,7 @@ index 90b3c2ba0..bb2e5440e 100644
  kind: NetworkPolicy
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: default-backend
@@ -458,7 +458,7 @@ index e399ea8a4..f2dd66906 100644
  kind: PodDisruptionBudget
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: default-backend
@@ -471,7 +471,7 @@ index 65b6b8362..3be36c95a 100644
    annotations: {{ toYaml .Values.defaultBackend.service.annotations | nindent 4 }}
  {{- end }}
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: default-backend
@@ -484,7 +484,7 @@ index 6fd2d6234..30170aa81 100644
  kind: ServiceAccount
  metadata:
    labels:
-+    {{- include "gitlab.standardLabels" . | nindent 4 }}
++    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
 +    {{- include "gitlab.commonLabels" . | nindent 4 }}
      {{- include "ingress-nginx.labels" . | nindent 4 }}
      app.kubernetes.io/component: default-backend

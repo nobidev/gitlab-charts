@@ -5,7 +5,7 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
 data:
   # See https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent/-/blob/master/pkg/kascfg/kascfg_proto_docs.md#gitlab-agent-kascfg-ConfigurationFile

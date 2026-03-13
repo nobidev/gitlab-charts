@@ -5,7 +5,7 @@ metadata:
   name: {{ include "gitlab.gatewayApi.gateway.name.default" . }}
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.common.legacyStandardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
   annotations:
     {{- include "gitlab.gatewayApi.certmanager.annotations" . | nindent 4 }}

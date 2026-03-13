@@ -41,7 +41,7 @@ function label_secret(){
 {{ end }}
   kubectl --namespace=$namespace label \
     --overwrite \
-    secret $secret_name {{ include "gitlab.standardLabels" . | replace ": " "=" | replace "\r\n" " " | replace "\n" " " }} {{ include "gitlab.commonLabels" . | replace ": " "=" | replace "\r\n" " " | replace "\n" " " }}
+    secret $secret_name {{ include "gitlab.common.legacyStandardLabels" . | replace ": " "=" | replace "\r\n" " " | replace "\n" " " }} {{ include "gitlab.commonLabels" . | replace ": " "=" | replace "\r\n" " " | replace "\n" " " }}
 }
 
 # Args: secretname, args
