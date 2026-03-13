@@ -36,7 +36,7 @@ spec:
   # replicas: {{ .hpa.minReplicas }}
   selector:
     matchLabels:
-      {{- include "gitlab.selectorLabels" $ | nindent 6 }}
+      {{- include "gitlab.common.legacySelectorLabels" $ | nindent 6 }}
       {{ include "webservice.labels" . | nindent 6 }}
   {{- if .deployment.strategy }}
   strategy:
@@ -93,7 +93,7 @@ spec:
             - topologyKey: {{ $topologyKey | quote }}
               labelSelector:
                 matchLabels:
-                  {{- include "gitlab.selectorLabels" $ | nindent 18 }}
+                  {{- include "gitlab.common.legacySelectorLabels" $ | nindent 18 }}
                   {{- include "webservice.labels" . | nindent 18}}
       {{- else if eq $affinityMode "soft" }}
       affinity:
@@ -104,7 +104,7 @@ spec:
               topologyKey: {{ $topologyKey | quote }}
               labelSelector:
                 matchLabels:
-                  {{- include "gitlab.selectorLabels" $ | nindent 18 }}
+                  {{- include "gitlab.common.legacySelectorLabels" $ | nindent 18 }}
                   {{- include "webservice.labels" . | nindent 18}}
       {{- end }}
       {{- if or $.Values.serviceAccount.enabled $.Values.global.serviceAccount.enabled }}

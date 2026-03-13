@@ -17,7 +17,7 @@ spec:
       - {{ $.Release.Namespace }}
   selector:
     matchLabels:
-      {{- include "gitlab.selectorLabels" . | nindent 6 }}
+      {{- include "gitlab.common.legacySelectorLabels" . | nindent 6 }}
   endpoints:
     - port: http-metrics
       path: {{ .Values.metrics.path }}

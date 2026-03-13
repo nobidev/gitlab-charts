@@ -19,7 +19,7 @@ spec:
   maxUnavailable: {{ default $.Values.maxUnavailable .maxUnavailable }}
   selector:
     matchLabels:
-      {{- include "gitlab.selectorLabels" $ | nindent 6 }}
+      {{- include "gitlab.common.legacySelectorLabels" $ | nindent 6 }}
       queue-pod-name: {{ .name }}
 {{- end -}}
 {{- end -}}

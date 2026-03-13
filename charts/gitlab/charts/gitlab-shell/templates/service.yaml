@@ -46,5 +46,5 @@ spec:
     {{- toYaml .Values.service.externalIPs | nindent 4  }}
 {{- end }}
   selector:
-    {{- include "gitlab.selectorLabels" . | nindent 4 }}
+    {{- include "gitlab.common.legacySelectorLabels" . | nindent 4 }}
 {{- end }}

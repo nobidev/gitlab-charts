@@ -18,7 +18,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "gitlab.selectorLabels" . | nindent 6 }}
+      {{- include "gitlab.common.legacySelectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:

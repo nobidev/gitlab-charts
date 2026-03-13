@@ -60,7 +60,7 @@ affinity:
           labelSelector:
             matchLabels:
               {{- if ne .Chart.Name "toolbox" }}
-                {{- include "gitlab.selectorLabels" . | nindent 18 }}
+                {{- include "gitlab.common.legacySelectorLabels" . | nindent 18 }}
               {{- end -}}
               {{- include "gitlab.affinity.selectorLabelsBySubchart" . | nindent 18 }}
   {{- else if eq (default .Values.global.antiAffinity .Values.antiAffinity) "soft" }}
@@ -72,7 +72,7 @@ affinity:
             labelSelector:
               matchLabels:
                 {{- if ne .Chart.Name "toolbox" }}
-                  {{- include "gitlab.selectorLabels" . | nindent 18 }}
+                  {{- include "gitlab.common.legacySelectorLabels" . | nindent 18 }}
                 {{- end -}}
                 {{- include "gitlab.affinity.selectorLabelsBySubchart" . | nindent 18 }}
   {{- end -}}

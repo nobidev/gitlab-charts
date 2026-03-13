@@ -4,7 +4,7 @@
 spec:
   selector:
     matchLabels:
-      {{- include "gitlab.selectorLabels" . | nindent 6 }}
+      {{- include "gitlab.common.legacySelectorLabels" . | nindent 6 }}
       {{- if .storage }}
       storage: {{ .storage.name }}
       {{- end }}

@@ -17,7 +17,7 @@ spec:
   replicas: {{ .Values.replicas | int }}
   selector:
     matchLabels:
-      {{- include "gitlab.selectorLabels" . | nindent 6 }}
+      {{- include "gitlab.common.legacySelectorLabels" . | nindent 6 }}
   {{- if .Values.deployment.strategy }}
   strategy: {{ .Values.deployment.strategy | toYaml | nindent 4 }}
   {{- end }}

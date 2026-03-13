@@ -18,5 +18,5 @@ spec:
       protocol: TCP
       name: {{ .Values.tls.enabled | ternary "https" "http" }}-metrics
   selector:
-    {{- include "gitlab.selectorLabels" . | nindent 4 }}
+    {{- include "gitlab.common.legacySelectorLabels" . | nindent 4 }}
 {{- end }}

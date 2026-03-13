@@ -11,4 +11,4 @@ spec:
   maxUnavailable: {{ .Values.maxUnavailable }}
   selector:
     matchLabels:
-      {{- include "gitlab.selectorLabels" . | nindent 6 }}
+      {{- include "gitlab.common.legacySelectorLabels" . | nindent 6 }}

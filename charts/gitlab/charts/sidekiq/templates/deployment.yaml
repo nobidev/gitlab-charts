@@ -46,7 +46,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      {{- include "gitlab.selectorLabels" $ | nindent 6 }}
+      {{- include "gitlab.common.legacySelectorLabels" $ | nindent 6 }}
       queue-pod-name: {{ .name }}
   {{- if or $.Values.deployment.strategy .strategy}}
   strategy: {{ default $.Values.deployment.strategy .strategy | toYaml | nindent 4 }}
@@ -99,7 +99,7 @@ spec:
             - topologyKey: {{ $topologyKey | quote }}
               labelSelector:
                 matchLabels:
-                  {{- include "gitlab.selectorLabels" $ | nindent 18 }}
+                  {{- include "gitlab.common.legacySelectorLabels" $ | nindent 18 }}
                   queue-pod-name: {{ .name }}
       {{- else if eq $affinityMode "soft" }}
       affinity:
@@ -110,7 +110,7 @@ spec:
                 topologyKey: {{ $topologyKey | quote }}
                 labelSelector:
                   matchLabels:
-                    {{- include "gitlab.selectorLabels" $ | nindent 20 }}
+                    {{- include "gitlab.common.legacySelectorLabels" $ | nindent 20 }}
       {{- end }}
       {{- if or $.Values.serviceAccount.enabled $.Values.global.serviceAccount.enabled }}
       serviceAccountName: {{ include "gitlab.serviceAccount.name" $ }}
