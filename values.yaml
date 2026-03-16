@@ -608,9 +608,9 @@ global:
     ## IAM-Auth service configuration
     ## Shared secret for authenticating calls from GitLab Rails to the iam-auth service
     iamAuthService:
-      enabled: false
+      enabled: false # Eventually this will be mandatory
       # secret: # Kubernetes secret name (auto-generated if not provided)
-      # key: # Secret key name (defaults to "iamAuthService_token")
+      # key: # Secret key name (defaults to "iam_auth_service_token")
 
     workspaces: {}
 
