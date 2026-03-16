@@ -18,9 +18,7 @@ Technical details for how the utility works can be found in the [architecture do
 ## Prerequisites
 
 - Backup and Restore procedures described here have only been tested with S3 compatible APIs. Support for other object storage services, like Google Cloud Storage, will be tested in future revisions.
-
 - During restoration, the backup tarball needs to be extracted to disk. This means the Toolbox pod should have disk of [necessary size available](../charts/gitlab/toolbox/_index.md#restore-considerations).
-
 - This chart relies on the use of [object storage](#object-storage) for `artifacts`, `uploads`, `packages`, `registry` and `lfs` objects, and does not currently migrate these for you during restore. If you are restoring a backup taken from another instance, you must migrate your existing instance to using object storage before taking the backup. See [issue 646](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/646).
 
 ## Backup and Restoring procedures

@@ -21,7 +21,7 @@ in [issue 638](https://gitlab.com/gitlab-org/build/CNG/-/issues/638).
 
 {{< /alert >}}
 
-1. Download the public key used for signing from [https://charts.gitlab.io/cosign.pub](https://charts.gitlab.io/cosign.pub):
+1. Download the public key used for signing from <https://charts.gitlab.io/cosign.pub>:
 
    ```shell
    wget https://charts.gitlab.io/cosign.pub

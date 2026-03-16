@@ -352,7 +352,6 @@ Schedule the move by following the steps indicated in [moving repositories](http
 #### Step 5: Final configuration and validation
 
 1. If you have multiple Gitaly storages, [configure where new repositories are stored](https://docs.gitlab.com/administration/repository_storage_paths/#configure-where-new-repositories-are-stored).
-
 1. Consider generating a consolidated `gitlab.yml` for the future that includes the external Gitaly configuration:
 
    ```shell
@@ -411,7 +410,6 @@ Schedule the move by following the steps indicated in [moving repositories](http
    ```
 
 1. Optional. Remove the changes made to each external Gitaly `/etc/hosts` file after following the [get the Gitaly pod IP and hostnames](#step-3-get-the-gitaly-pod-ip-and-hostnames) step.
-
 1. After you have confirmed everything is working as expected, you can delete the Gitaly PVC:
 
    WARNING: Do not delete the Gitaly PVC until you have double checked that everything is working as expected.
@@ -425,7 +423,7 @@ Schedule the move by following the steps indicated in [moving repositories](http
 This method:
 
 - Backs up your repositories from the Gitaly chart PersistentVolumeClaim (PVC) and then restore them to the
-external Gitaly service.
+  external Gitaly service.
 - Does incur downtime to all users.
 - Has not been tested with the [Praefect chart](../../charts/gitlab/praefect/_index.md) and is not supported.
 
@@ -738,7 +736,6 @@ kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure
    ```
 
 1. If you have multiple Gitaly storages, [configure where new repositories are stored](https://docs.gitlab.com/administration/repository_storage_paths/#configure-where-new-repositories-are-stored).
-
 1. Enable Sidekiq cron jobs:
 
    ```shell

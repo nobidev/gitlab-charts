@@ -37,7 +37,6 @@ Follow these steps for backing up a GitLab Helm chart based installation.
    ```
 
 1. Visit the `gitlab-backups` bucket in the object storage service and ensure a tarball has been added. It will be named in `<backup_ID>_gitlab_backup.tar` format. Read what the [backup ID](https://docs.gitlab.com/administration/backup_restore/backup_archive_process/#backup-id) is about.
-
 1. This tarball is required for restoration.
 
 ## Cron based backup

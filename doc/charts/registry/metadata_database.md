@@ -43,7 +43,7 @@ After you set up the external PostgreSQL server:
 
    ```shell
    kubectl create secret generic RELEASE_NAME-registry-database-password --from-literal=password=<your_registry_password>
-    ```
+   ```
 
 1. Log in to your database server.
 1. Use the following SQL commands to create the user and the database:
@@ -547,7 +547,6 @@ After the command completes successfully, the registry is now fully migrated to 
 The container registry supports two types of migrations:
 
 - **Regular schema migrations**: Changes to the database structure that must run before deploying new application code. These should be fast to avoid deployment delays.
-
 - **Post-deployment migrations**: Changes to the database structure that can run while the application is running. Used for longer operations like creating indexes on large tables, avoiding startup delays and extended upgrade downtime.
 
 ### Apply database migrations
@@ -565,7 +564,6 @@ To reduce downtime during upgrades, you can skip post-deployment migrations and 
    ```
 
 1. After upgrading, [connect to a registry pod](_index.md#running-administrative-commands-against-the-container-registry).
-
 1. Apply pending post-deployment migrations:
 
    ```shell

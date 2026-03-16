@@ -188,7 +188,7 @@ Status: Experiment
 - Create and delete indexes asynchronously.
 - Run PostgreSQL constraint validation in the background.
 - Reindex PostgreSQL indexes to reduce [index bloat](https://wiki.postgresql.org/wiki/Index_Maintenance#Index_Bloat).
- 
+
 Reindexing is performed by the [`gitlab:db:reindex`](https://gitlab.com/gitlab-org/gitlab/blob/9a05e533daeb1013d4c974dd6b3ba066f68585ba/lib/tasks/gitlab/db.rake#L393-402)
 Rake task. The Toolbox chart provides a CronJob to run the Rake task periodically.
 
@@ -196,7 +196,7 @@ Enable this CronJob by setting the value `databaseReindex.cron.enabled` to `true
 
 1. Select two indexes with the most [index bloat](https://wiki.postgresql.org/wiki/Index_Maintenance#Index_Bloat).
 1. Reindex those indexes in the background.
- 
+
 Set the schedule for the CronJob using the `databaseReindex.cron.schedule` value. You should run the reindexing during low traffic periods. For example,
 database reindexing runs for GitLab.com on Saturday and Sunday.
 
