@@ -60,26 +60,12 @@ When secondary Geo sites use different URLs to reach OpenBao, the JWT audience c
 must match OpenBao's bound_audiences. Set this to the shared audience value (e.g.
 the primary site's OpenBao URL) when url differs per site.
 
-OpenBao uses a separate
-logical database for isolation from the Rails main database. This avoids
-database seeding issues when OpenBao is enabled during fresh installation.
-
 Populated from:
 - Direct setting of global.openbao.jwt_audience
 - Empty when not set (GitLab defaults to url)
 */}}
 {{- define "gitlab.openbao.jwt_audience" -}}
 {{- $.Values.global.openbao.jwt_audience | default "" -}}
-{{- end -}}
-{{- define "gitlab.openbao.database" -}}
-{{- $values := .Values | mustToJson | fromJson -}}
-{{- $oba := index $values "openbao" | default dict -}}
-{{- $psql := index $oba "psql" | default dict -}}
-{{- $globalOba := index (index $values "global" | default dict) "openbao" | default dict -}}
-{{- $globalPsql := index $globalOba "psql" | default dict -}}
-{{- $conn := index (index (index (index $values "config" | default dict) "storage" | default dict) "postgresql" | default dict) "connection" | default dict -}}
-{{/* connection.database wins when set; else openbao.psql, global.openbao.psql, default */}}
-{{- coalesce (index $conn "database") (index $psql "database") (index (index $values "psql" | default dict) "database") (index $globalPsql "database") "openbao" -}}
 {{- end -}}
 
 {{/*
@@ -92,9 +78,8 @@ Render the OpenBao postgresql configuration yaml.
 {{- define "openbao.postgresql.configuration" -}}
 {{- $globalPsql := index (.Values.global | default dict) "psql" | default dict -}}
 {{- $globalObaPsql := ((.Values.global).openbao).psql | default dict -}}
-{{- $obaPsql := .Values.psql | default dict -}}
 {{- $conn := (((.Values.config).storage).postgresql).connection | default dict | deepCopy -}}
-{{- $connection := merge $globalPsql $globalObaPsql $obaPsql $conn -}}
+{{- $connection := merge $globalPsql $globalObaPsql $conn -}}
 {{- range $k, $v := $conn -}}
 {{-   if and (ne (printf "%v" $v) "") (has $k (list "keepalives" "keepalivesIdle" "keepalivesInterval" "keepalivesCount" "tcpUserTimeout" "connectTimeout" "sslMode")) -}}
 {{-     $_ := set $connection $k $v -}}
@@ -104,8 +89,8 @@ Render the OpenBao postgresql configuration yaml.
 {{- if not (index $connection "port") -}}
 {{-   $_ := set $connection "port" 5432 -}}
 {{- end -}}
-{{/* Database: connection.database wins when set; else gitlab.openbao.database (openbao.psql, global.openbao.psql, etc.) */}}
-{{- $_ := set $connection "database" (include "gitlab.openbao.database" .) -}}
+{{/* Database: connection.database wins when set; else global.openbao.psql.database (default openbao) */}}
+{{- $_ := set $connection "database" (coalesce (index $conn "database") (index $globalObaPsql "database") "openbao") -}}
 {{- if not (index $connection "username") -}}
 {{-   $_ := set $connection "username" "openbao" -}}
 {{- end -}}

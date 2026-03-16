@@ -76,40 +76,15 @@ describe 'OpenBao installation' do
           psql:
             host: test-postgresql.default.svc
             username: gitlab
+            database: custom_openbao_db
       openbao:
         install: true
-        psql:
-          database: custom_openbao_db
     ))
     end
 
     it 'uses the custom database' do
       expect(openbao_psql_config['connection_url'])
         .to start_with('postgres://gitlab@test-postgresql.default.svc:5432/custom_openbao_db')
-    end
-  end
-
-  describe 'when both connection.database and openbao.psql.database are set' do
-    let(:values) do
-      HelmTemplate.with_defaults(%(
-      openbao:
-        install: true
-        psql:
-          database: should_be_ignored
-        config:
-          storage:
-            postgresql:
-              connection:
-                host: psql.openbao.example.com
-                port: 5555
-                database: connection_wins
-                username: baouser
-      ))
-    end
-
-    it 'connection.database takes precedence over openbao.psql.database' do
-      expect(openbao_psql_config['connection_url'])
-        .to start_with('postgres://baouser@psql.openbao.example.com:5555/connection_wins')
     end
   end
 

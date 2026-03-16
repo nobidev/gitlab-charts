@@ -1016,7 +1016,8 @@ global:
     httpAudit:
       secret: ""
       key: "token"
-    # psql: {}  # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password.
+    psql:
+      database: openbao  # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password.
 
   ## https://docs.gitlab.com/charts/charts/globals
   extraEnv: {}
@@ -1623,7 +1624,6 @@ openbao:
       mountPath: /srv/openbao/audit/gitlab-auth
       subPath: '{{ template "gitlab.openbao.authenticationTokenSecretFilePath.key" . }}'
       readOnly: true
-  psql: {}
   config:
     unseal:
       static:
@@ -1643,7 +1643,7 @@ openbao:
         # Configure via global.openbao.psql or here. Connection is not inherited from main DB (ADR-013).
         connection:
           host: ''
-          database: ''  # Empty allows openbao.psql.database / global.openbao.psql.database. Set explicitly to override.
+          database: ''  # Empty allows global.openbao.psql.database. Set explicitly to override.
           username: 'openbao'
           sslMode: ''
 
