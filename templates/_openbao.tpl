@@ -85,7 +85,6 @@ Render the OpenBao postgresql configuration yaml.
 {{-     $_ := set $connection $k $v -}}
 {{-   end -}}
 {{- end -}}
-{{- $host := index $connection "host" | default "" -}}
 {{- if not (index $connection "port") -}}
 {{-   $_ := set $connection "port" 5432 -}}
 {{- end -}}
