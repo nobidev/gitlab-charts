@@ -5,18 +5,18 @@ Return the iam-auth service token secret
 */}}
 
 {{- define "gitlab.iamAuth.secret" -}}
-{{- default (printf "%s-iam-auth-secret" .Release.Name) .Values.global.appConfig.iam_auth_service.secret | quote -}}
+{{- default (printf "%s-iam-auth-secret" .Release.Name) .Values.global.appConfig.iamAuthService.secret | quote -}}
 {{- end -}}
 
 {{- define "gitlab.iamAuth.key" -}}
-{{- default "iam_auth_service_token" .Values.global.appConfig.iam_auth_service.key | quote -}}
+{{- default "iamAuthService_token" .Values.global.appConfig.iamAuthService.key | quote -}}
 {{- end -}}
 
 {{/*
 Mount secret for iam-auth service token
 */}}
 {{- define "gitlab.iamAuth.mountSecrets" -}}
-{{- if .Values.global.appConfig.iam_auth_service.enabled -}}
+{{- if .Values.global.appConfig.iamAuthService.enabled -}}
 # mount secret for iam-auth service token
 - secret:
     name: {{ template "gitlab.iamAuth.secret" . }}
@@ -29,9 +29,9 @@ Mount secret for iam-auth service token
 {{/*
 Configuration for iam-auth service in gitlab.yml
 */}}
-{{- define "gitlab.appConfig.iam_auth_service" -}}
-{{- if .Values.global.appConfig.iam_auth_service.enabled -}}
-iam_auth_service:
+{{- define "gitlab.appConfig.iamAuthService" -}}
+{{- if .Values.global.appConfig.iamAuthService.enabled -}}
+iamAuthService:
   enabled: true
   secret_file: /etc/gitlab/iam-auth/.gitlab_iam_auth_secret
 {{- end -}}
