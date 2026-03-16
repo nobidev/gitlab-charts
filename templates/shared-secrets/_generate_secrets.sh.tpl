@@ -267,5 +267,5 @@ generate_secret_if_needed {{ template "gitlab.openbao.authenticationTokenSecretF
 
 {{ if .Values.global.appConfig.iam_auth_service.enabled -}}
 # IAM-Auth service token
-generate_secret_if_needed {{ template "gitlab.iam-auth.secret" . }} --from-literal={{ template "gitlab.iam-auth.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
+generate_secret_if_needed {{ template "gitlab.iamAuth.secret" . }} --from-literal={{ template "gitlab.iamAuth.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
 {{ end }}
