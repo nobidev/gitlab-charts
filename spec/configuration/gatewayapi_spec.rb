@@ -189,5 +189,133 @@ describe 'Gateway API configuration' do
         expect(envoyproxy['spec']['provider']['kubernetes'].keys).to include('envoyDaemonSet')
       end
     end
+
+    context 'HTTP to HTTPS redirect' do
+      let(:redirect_route) { template["HTTPRoute/test-http-redirect"] }
+
+      context 'when httpToHttpsRedirect is enabled (default)' do
+        it 'creates an http-default listener and redirect HTTPRoute' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          http_listener = gateway['spec']['listeners'].find { |l| l['name'] == 'http-default' }
+          expect(http_listener).not_to be_nil
+          expect(http_listener['protocol']).to eq('HTTP')
+          expect(http_listener['port']).to eq(80)
+          expect(http_listener).not_to have_key('tls')
+          expect(http_listener).not_to have_key('hostname')
+
+          expect(redirect_route).not_to be_nil
+          expect(redirect_route['spec']['parentRefs'].length).to eq(1)
+          expect(redirect_route['spec']['parentRefs'][0]['name']).to eq('test-gw')
+          expect(redirect_route['spec']['parentRefs'][0]['sectionName']).to eq('http-default')
+          expect(redirect_route['spec']['rules'][0]['filters'][0]['type']).to eq('RequestRedirect')
+          expect(redirect_route['spec']['rules'][0]['filters'][0]['requestRedirect']['scheme']).to eq('https')
+          expect(redirect_route['spec']['rules'][0]['filters'][0]['requestRedirect']['statusCode']).to eq(301)
+        end
+      end
+
+      context 'when configureCertmanager is also enabled' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+            global:
+              gatewayApi:
+                configureCertmanager: true
+            )).deep_merge(super())
+        end
+
+        it 'shares a single http-default listener for both certmanager and redirect' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          listener_names = gateway['spec']['listeners'].map { |l| l['name'] }
+          expect(listener_names.count('http-default')).to eq(1)
+          expect(redirect_route).not_to be_nil
+          expect(redirect_route['spec']['parentRefs'][0]['sectionName']).to eq('http-default')
+        end
+      end
+
+      context 'when httpToHttpsRedirect is disabled' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+            global:
+              gatewayApi:
+                httpToHttpsRedirect: false
+            )).deep_merge(super())
+        end
+
+        it 'does not create http-default listener or redirect route' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(gateway['spec']['listeners'].map { |l| l['name'] }).not_to include('http-default')
+          expect(redirect_route).to be_nil
+        end
+      end
+
+      context 'when httpToHttpsRedirect is disabled but configureCertmanager is enabled' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+            global:
+              gatewayApi:
+                httpToHttpsRedirect: false
+                configureCertmanager: true
+            )).deep_merge(super())
+        end
+
+        it 'creates http-default listener for certmanager but no redirect route' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(gateway['spec']['listeners'].map { |l| l['name'] }).to include('http-default')
+          expect(redirect_route).to be_nil
+        end
+      end
+
+      context 'when global protocol is HTTP' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            hosts:
+              externalIP: 127.0.0.1
+            pages:
+              enabled: true
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+              protocol: HTTP
+          ))
+        end
+
+        it 'does not create http-default listener or redirect route' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(gateway['spec']['listeners'].map { |l| l['name'] }).not_to include('http-default')
+          expect(redirect_route).to be_nil
+        end
+      end
+
+      context 'when using an external gateway' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            hosts:
+              externalIP: 127.0.0.1
+            pages:
+              enabled: true
+            gatewayApi:
+              enabled: true
+              installEnvoy: false
+              gatewayRef:
+                name: "external-gateway"
+                namespace: "external-gateway-namespace"
+          ))
+        end
+
+        it 'does not create the redirect HTTPRoute' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(redirect_route).to be_nil
+        end
+      end
+    end
   end
 end

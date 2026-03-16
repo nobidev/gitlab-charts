@@ -114,9 +114,10 @@ global:
           endpointConfig: {}
     configureCertmanager: false
     protocol: "HTTPS"
+    httpToHttpsRedirect: true
     addresses: []
     listeners:
-      certmanager-http:
+      http-default:
         protocol: HTTP
       gitlab-web:
         protocol: ""

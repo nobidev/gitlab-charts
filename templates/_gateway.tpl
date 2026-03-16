@@ -102,6 +102,34 @@ Port assignment is automatically determined based on the selected protocol.
 {{- end -}}
 
 {{/*
+Returns true if the http-default listener should be included on the managed Gateway.
+Enabled when either configureCertmanager or httpToHttpsRedirect (with HTTPS protocol)
+is active, and the Gateway is managed (no external gatewayRef).
+*/}}
+{{- define "gitlab.gatewayApi.httpDefault.enabled" -}}
+{{- $managed := and .Values.global.gatewayApi.enabled (not .Values.global.gatewayApi.gatewayRef) -}}
+{{- $certmanager := .Values.global.gatewayApi.configureCertmanager -}}
+{{- $redirect := and .Values.global.gatewayApi.httpToHttpsRedirect (eq (upper .Values.global.gatewayApi.protocol) "HTTPS") -}}
+{{- if and $managed (or $certmanager $redirect) -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Returns true if the HTTP-to-HTTPS redirect HTTPRoute should be rendered.
+Enabled when gatewayApi is enabled, httpToHttpsRedirect is true, protocol
+is HTTPS, and the Gateway is managed (no external gatewayRef).
+*/}}
+{{- define "gitlab.gatewayApi.httpRedirect.enabled" -}}
+{{- $enabled := and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.httpToHttpsRedirect -}}
+{{- $httpsProtocol := eq (upper .Values.global.gatewayApi.protocol) "HTTPS" -}}
+{{- $managedGateway := not .Values.global.gatewayApi.gatewayRef -}}
+{{- if and $enabled $httpsProtocol $managedGateway -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
 Checks if a Route should be enabled. Defaults to global GatewayAPI toggle but can be 
 configured per Route by setting true/false explicitly.
 */}}

@@ -31,9 +31,9 @@ spec:
   {{- $root := .Values.global.gatewayApi }}
   {{- $listeners := $root.listeners }}
   {{- $listener := dict }}
-  {{- if .Values.global.gatewayApi.configureCertmanager }}
-    {{- $listener = index $listeners "certmanager-http" }}
-    {{- $_ := set $listener "name" "certmanager-http" }}
+  {{- if (include "gitlab.gatewayApi.httpDefault.enabled" .) }}
+    {{- $listener = index $listeners "http-default" }}
+    {{- $_ := set $listener "name" "http-default" }}
     {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $root) | nindent 2 }}
   {{- end }}
   {{- if .Values.gitlab.webservice.enabled }}
