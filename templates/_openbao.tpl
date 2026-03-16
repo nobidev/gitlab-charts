@@ -91,7 +91,7 @@ Render the OpenBao postgresql configuration yaml.
 */}}
 {{- define "openbao.postgresql.configuration" -}}
 {{- $globalPsql := index (.Values.global | default dict) "psql" | default dict -}}
-{{- $globalObaPsql := index (index (.Values.global | default dict) "openbao" | default dict) "psql" | default dict -}}
+{{- $globalObaPsql := ((.Values.global).openbao).psql | default dict -}}
 {{- $obaPsql := .Values.psql | default dict -}}
 {{- $conn := (((.Values.config).storage).postgresql).connection | default dict | deepCopy -}}
 {{- $connection := merge $globalPsql $globalObaPsql $obaPsql $conn -}}
