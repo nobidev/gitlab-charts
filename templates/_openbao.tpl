@@ -90,6 +90,12 @@ Render the OpenBao postgresql configuration yaml.
 {{- end -}}
 {{/* Database: connection.database wins when set; else global.openbao.psql.database (default openbao) */}}
 {{- $_ := set $connection "database" (coalesce (index $conn "database") (index $globalObaPsql "database") "openbao") -}}
+{{/* Username: when connection.host is set, connection wins; else global.openbao.psql (preferred source) wins; default openbao */}}
+{{- if (index $conn "host") | toString | ne "" -}}
+{{-   $_ := set $connection "username" (coalesce (index $conn "username") (index $globalObaPsql "username") "openbao") -}}
+{{- else -}}
+{{-   $_ := set $connection "username" (coalesce (index $globalObaPsql "username") (index $conn "username") "openbao") -}}
+{{- end -}}
 {{ $connection | toYaml }}
 {{- end -}}
 
