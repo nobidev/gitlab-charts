@@ -216,7 +216,7 @@ Gateway APIのサポートは現在、活発に開発中です。次の点にご
 
 ```yaml
 listeners:
-  certmanager-http:
+  http-default:
     protocol: HTTP
   gitlab-web:
     tls:
