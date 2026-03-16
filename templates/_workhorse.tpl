@@ -59,9 +59,7 @@ Return the workhorse Redis TLS configuration section
 {{- $redisTLS := .redisMergedConfig.redisTLS | default (dict) -}}
 {{- if or $redisTLS.caFile $redisTLS.cert $redisTLS.key }}
 [redis.tls]
-{{-   if $redisTLS.certificate }}
-certificate = "/etc/gitlab/redis/{{ $redisTLS.certificate.key | default "certificate" }}"
-{{-   else if $redisTLS.cert }}
+{{-   if $redisTLS.cert }}
 certificate = "/etc/gitlab/redis/{{ $redisTLS.cert.key | default "cert" }}"
 {{-   end }}
 {{-   if $redisTLS.key }}
@@ -81,9 +79,7 @@ Return the workhorse Sentinel TLS configuration section
 {{- $sentinelTLS := .redisMergedConfig.sentinelTLS | default (dict) -}}
 {{- if and .redisMergedConfig.sentinels $sentinelTLS.enabled }}
 [Sentinel.tls]
-{{-   if $sentinelTLS.certificate }}
-certificate = "/etc/gitlab/redis-sentinel/{{ $sentinelTLS.certificate.key | default "certificate" }}"
-{{-   else if $sentinelTLS.cert }}
+{{-   if $sentinelTLS.cert }}
 certificate = "/etc/gitlab/redis-sentinel/{{ $sentinelTLS.cert.key | default "cert" }}"
 {{-   end }}
 {{-   if $sentinelTLS.key }}
