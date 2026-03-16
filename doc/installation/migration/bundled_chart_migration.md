@@ -419,9 +419,7 @@ PostgreSQL.
    ```
 
 1. Confirm GitLab is operational.
-
 1. Confirm [backups](../../backup-restore/backup.md) work as intended by doing a fresh backup.
-
 1. Delete Secrets and PersistentVolumeClaims related to the bundled PostgreSQL, MinIO, and Redis.
 
    ```shell

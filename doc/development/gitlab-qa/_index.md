@@ -93,7 +93,7 @@ GitLab QA has multiple test suites to run against the standalone environment. Su
 when end-to-end tests are grouped by various [RSpec metadata](https://docs.gitlab.com/development/testing_guide/end_to_end/rspec_metadata_tests/):
 
 - _Smoke suite_: small [subset of fast end-to-end functional tests](https://docs.gitlab.com/development/testing_guide/smoke/)
-to quickly ensure that basic functionality is working
+  to quickly ensure that basic functionality is working
   - Enable this suite via `export QA_OPTIONS="--tag smoke"`
 - _Full suite_: running all tests against the environment. Test run will take more than an hour.
   - Enable this suite via `--tag ~skip_live_env --tag ~orchestrated --tag ~requires_praefect --tag ~github --tag ~requires_git_protocol_v2 --tag ~transient`

@@ -258,25 +258,17 @@ RSpec tests. The following are a summary of the available methods.
 - `.exit_code()`. Returns the exit code of the `helm template` command used to create the YAML documents that
   instantiates the chart in the Kubernetes cluster. A successful completion of the `helm template` will return an exit
   code of 0.
-
 - `.dig(key, ...)`. Walk down the YAML document returned by the `HelmTemplate` instance and return the value residing at
   the last key. If no value is found, then `nil` is returned.
-
 - `.labels(item)`. Return a hash of the labels for the specified object.
-
 - `.template_labels(item)`. Return a hash of the labels used in the template structure for the specified object. The
   specified object should be a Deployment, StatefulSet or a CronJob object.
-
 - `.annotations(item)`. Return a has of the annotations for the specified object.
-
 - `.template_annotations(item)`. Return a hash of the annotations used in the template structure for the specified
   object. The specified object should be a Deployment, StatefulSet or a CronJob object.
-
 - `.volumes(item)`. Return an array of all the volumes for the specified deployment object. The returned array is a
   direct copy of the `volumes` key from the deployment object.
-
 - `.find_volume(item, volume_name)`. Return a dictionary of the specified volume from the specified deployment object.
-
 - `.projected_volume_sources(item, mount_name)`. Return an array of sources for the specified projected volume. The
   returned array has the following structure:
 
@@ -289,7 +281,6 @@ RSpec tests. The following are a summary of the available methods.
   ```
 
 - `.stderr()`. Return the STDERR output from the execution of `helm template` command.
-
 - `.values()`. Return a dictionary of all values that were used in the execution of the `helm template` command.
 
 ## Tests that require a Kubernetes cluster

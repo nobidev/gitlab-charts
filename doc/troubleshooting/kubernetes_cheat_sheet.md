@@ -43,11 +43,9 @@ and they will assist you with any issues you are having.
 
 - How to SSH to a Kubernetes node and enter the container as root
   <https://github.com/kubernetes/kubernetes/issues/30656>:
-
   - For GCP, you may find the node name and run `gcloud compute ssh node-name`.
   - List containers using `docker ps`.
   - Enter container using `docker exec --user root -ti container-id bash`.
-
 - How to copy a file from local machine to a pod:
 
   ```shell
@@ -55,7 +53,6 @@ and they will assist you with any issues you are having.
   ```
 
 - What to do with pods in `CrashLoopBackoff` status:
-
   - Check logs via Kubernetes dashboard.
   - Check logs via Kubectl:
 
@@ -141,10 +138,8 @@ and they will assist you with any issues you are having.
   ```
 
 - Troubleshooting **Infrastructure > Kubernetes clusters** integration:
-
   - Check the output of `kubectl get events -w --all-namespaces`.
   - Check the logs of pods within `gitlab-managed-apps` namespace.
-
 - How to get your [initial administrator password](../installation/deployment.md#initial-login):
 
   ```shell
@@ -190,7 +185,7 @@ and they will assist you with any issues you are having.
     ```
 
 - How to get the manifest for a release. It can be useful because it contains the information about
-all Kubernetes resources and dependent charts:
+  all Kubernetes resources and dependent charts:
 
   ```shell
   helm get manifest <release name>
