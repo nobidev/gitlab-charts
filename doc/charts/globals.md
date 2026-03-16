@@ -2072,6 +2072,19 @@ global:
 | `sanExtensions`                 | Boolean | `false` | Enable the use of SAN extensions to match users with certificates. |
 | `requiredForGitAccess`          | Boolean | `false` | Require browser session with smartcard sign-in for Git access. |
 
+Smartcard authentication works out of the box with the [bundled Envoy Gateway](envoygateway/_index.md),
+requiring no extra setup. To use the [bundled NGINX Ingress](nginx/_index.md) instead, you must enable
+snippet annotations:
+
+```yaml
+nginx-ingress:
+  enabled: true
+  controller:
+    config:
+      allow-snippet-annotations: "true"
+      annotations-risk-level: "Critical"
+```
+
 ### Sidekiq routing rules settings
 
 GitLab supports routing a job from a worker to a desired queue before it is
