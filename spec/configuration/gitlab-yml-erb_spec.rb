@@ -681,6 +681,51 @@ describe 'gitlab.yml.erb configuration' do
     end
   end
 
+  context 'iam-auth-service configuration' do
+    context 'Not present when disabled' do
+      it 'populates gitlab.yml.erb without iam_auth_service section' do
+        t = HelmTemplate.new(default_values)
+
+        expect(t.stderr).to eq("")
+        expect(t.exit_code).to eq(0)
+
+        expect(YAML.safe_load(
+          t.dig(
+            'ConfigMap/test-webservice',
+            'data',
+            'gitlab.yml.erb'
+          )
+        )['production']).not_to have_key('iam_auth_service')
+      end
+    end
+
+    context 'When enabled' do
+      it 'populates default service config' do
+        t = HelmTemplate.new(HelmTemplate.with_defaults(%(
+          global:
+            appConfig:
+              iamAuthService:
+                enabled: true
+        )))
+
+        expect(t.exit_code).to eq(0)
+
+        expect(YAML.safe_load(
+          t.dig(
+            'ConfigMap/test-webservice',
+            'data',
+            'gitlab.yml.erb'
+          )
+        )['production']).to include(
+          'iam_auth_service' => hash_including(
+            'enabled' => true,
+            'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret'
+          )
+        )
+      end
+    end
+  end
+
   context 'CI ID token configuration' do
     let(:values) { HelmTemplate.defaults }
     let(:template) { HelmTemplate.new(values) }

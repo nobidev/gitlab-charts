@@ -61,9 +61,11 @@ gitlab_kas:
 {{- end -}}
 
 {{- define "gitlab.appConfig.iamAuthService" -}}
+{{- if .Values.global.appConfig.iamAuthService.enabled }}
 iam_auth_service:
   enabled: true
   secret_file: /etc/gitlab/iam-auth/.gitlab_iam_auth_secret
+{{- end }}
 {{- end -}}
 
 {{- define "gitlab.appConfig.workspaces" -}}
