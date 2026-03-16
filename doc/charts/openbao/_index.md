@@ -299,7 +299,7 @@ The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/)
 OpenBao uses a **separate logical database** (`openbao` by default)
 for data isolation from the Rails backend.
 
-Configure `global.openbao.psql` or `openbao.config.storage.postgresql.connection` with host, database, username, and password. You must create the database and user manually.
+Configure `global.openbao.psql` or `openbao.config.storage.postgresql.connection` with host, database, username, and password. You must create the database and user manually. **Password is required** and is not inherited from the main GitLab database.
 
 ## Configure an external database
 

@@ -13,6 +13,9 @@ describe 'OpenBao installation' do
         psql:
           host: test-postgresql.default.svc
           username: gitlab
+          password:
+            secret: gitlab-postgresql-password
+            key: postgresql-password
     openbao:
       install: true
     ))
@@ -51,6 +54,9 @@ describe 'OpenBao installation' do
                 port: 5555
                 database: baodb
                 username: baouser
+                password:
+                  secret: openbao-db-password
+                  key: password
                 keepalivesIdle: 3
       ))
     end
@@ -77,6 +83,9 @@ describe 'OpenBao installation' do
             host: test-postgresql.default.svc
             username: gitlab
             database: custom_openbao_db
+            password:
+              secret: gitlab-postgresql-password
+              key: postgresql-password
       openbao:
         install: true
     ))
@@ -104,6 +113,9 @@ describe 'OpenBao installation' do
                 host: psql.openbao.example.com
                 database: connection_wins
                 username: baouser
+                password:
+                  secret: openbao-db-password
+                  key: password
       ))
     end
 
@@ -125,6 +137,9 @@ describe 'OpenBao installation' do
           psql:
             host: test-postgresql.default.svc
             username: gitlab
+            password:
+              secret: gitlab-postgresql-password
+              key: postgresql-password
       openbao:
         install: true
       ))

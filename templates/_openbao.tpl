@@ -90,14 +90,6 @@ Render the OpenBao postgresql configuration yaml.
 {{- end -}}
 {{/* Database: connection.database wins when set; else global.openbao.psql.database (default openbao) */}}
 {{- $_ := set $connection "database" (coalesce (index $conn "database") (index $globalObaPsql "database") "openbao") -}}
-{{- if not (index $connection "username") -}}
-{{-   $_ := set $connection "username" "openbao" -}}
-{{- end -}}
-{{- if not (index $connection "password") -}}
-{{-   include "database.datamodel.prepare" $ -}}
-{{-   $psqlSecret := dict "secret" (include "gitlab.psql.password.secret" $.Values.local.psql.main) "key" (include "gitlab.psql.password.key" $.Values.local.psql.main) -}}
-{{-   $_ := set $connection "password" $psqlSecret -}}
-{{- end -}}
 {{ $connection | toYaml }}
 {{- end -}}
 

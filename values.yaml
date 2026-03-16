@@ -1017,7 +1017,8 @@ global:
       secret: ""
       key: "token"
     psql:
-      database: openbao  # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password.
+      database: openbao
+      username: openbao  # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password.
 
   ## https://docs.gitlab.com/charts/charts/globals
   extraEnv: {}

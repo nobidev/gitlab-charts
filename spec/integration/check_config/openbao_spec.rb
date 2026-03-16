@@ -17,6 +17,9 @@ describe 'checkConfig openbao' do
               psql:
                 host: gitlab-checkconfig-test-postgresql.default.svc
                 username: gitlab
+                password:
+                  secret: openbao-db-password
+                  key: password
         )).deep_merge!(default_required_values)
       end
 
@@ -87,6 +90,26 @@ describe 'checkConfig openbao' do
       include_examples 'config validation',
                        success_description: nil,
                        error_description: 'when OpenBao is enabled but no database configured'
+    end
+
+    context 'when OpenBao is enabled with database host but no password' do
+      let(:error_values) do
+        YAML.safe_load(%(
+          openbao:
+            install: true
+          global:
+            openbao:
+              psql:
+                host: gitlab-checkconfig-test-postgresql.default.svc
+                username: gitlab
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'no database password configured' }
+
+      include_examples 'config validation',
+                       success_description: nil,
+                       error_description: 'when OpenBao is enabled with database host but no password'
     end
   end
 end
