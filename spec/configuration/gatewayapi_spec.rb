@@ -62,7 +62,7 @@ describe 'Gateway API configuration' do
     describe 'with proxy protocol and IP allow/deny listing' do
       let(:values) do
         HelmTemplate.with_defaults(%(
-          gatewayApiProvider:
+          gatewayApiResources:
             envoy:
               clientTrafficPolicySpec:
                 enableProxyProtocol: true
@@ -151,15 +151,14 @@ describe 'Gateway API configuration' do
           gatewayApi:
             enabled: true
             installEnvoy: false
-        gatewayApiProvider:
-          standard:
-            gateway:
-              protocol: HTTP
-              listeners:
-                gitlab-web:
-                  protocol: HTTPS
-                registry-web:
-                  protocol: HTTP
+        gatewayApiResources:
+          gateway:
+            protocol: HTTP
+            listeners:
+              gitlab-web:
+                protocol: HTTPS
+              registry-web:
+                protocol: HTTP
         ))
       end
 
@@ -180,7 +179,7 @@ describe 'Gateway API configuration' do
             enabled: true
             installEnvoy: true
 
-        gatewayApiProvider:
+        gatewayApiResources:
           envoy:
             proxySpec:
               provider:
@@ -287,10 +286,9 @@ describe 'Gateway API configuration' do
               enabled: true
               installEnvoy: true
 
-          gatewayApiProvider:
-            standard:
-              gateway:
-                protocol: HTTP
+          gatewayApiResources:
+            gateway:
+              protocol: HTTP
           ))
         end
 

@@ -2,7 +2,7 @@
 # for external DNS. Allows the host cluster to create the DNS entries without
 # access to the Ingress or Gateway Routes.
 
-gatewayApiProvider:
+gatewayApiResources:
   envoy:
     proxySpec:
       provider:

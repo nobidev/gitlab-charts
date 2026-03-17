@@ -30,7 +30,7 @@ describe 'monitoring object configuration' do
       global:
         gatewayApi:
           installEnvoy: true
-      gatewayApiProvider:
+      gatewayApiResources:
         envoy:
           metrics:
             envoyProxy:

@@ -1583,69 +1583,68 @@ openbao:
           username: ''
           sslMode: ''
 
-gatewayApiProvider:
-  standard:
-    class:
-      name: "gitlab-gw"
-      controllerName: "gateway.envoyproxy.io/gitlab-gatewayclass-controller"
-    gateway:
-      annotations: {}
-      infrastructure: {}
-      addresses: []
-      protocol: "HTTPS"
-      listeners:
-        http-default:
-          protocol: HTTP
-        gitlab-web:
-          protocol: ""
-          tls:
-            mode: Terminate
-            certificateRefs:
-              - name: gitlab-tls
-        gitlab-web-geo:
-          protocol: ""
-          tls:
-            mode: Terminate
-            certificateRefs:
-              - name: gitlab-web-geo-tls
-        gitlab-ssh:
-          protocol: "TCP"
-        registry-web:
-          protocol: ""
-          tls:
-            mode: Terminate
-            certificateRefs:
-              - name: registry-tls
-        pages-web:
-          protocol: ""
-          tls:
-            mode: Terminate
-            certificateRefs:
-            - name: pages-tls
-        kas-web:
-          protocol: ""
-          tls:
-            mode: Terminate
-            certificateRefs:
-              - name: kas-tls
-        kas-workspaces-web:
-          protocol: ""
-          tls:
-            mode: Terminate
-            certificateRefs:
-              - name: kas-workspaces-tls
-        minio-web:
-          protocol: ""
-          tls:
-            mode: Terminate
-            certificateRefs:
-              - name: minio-tls
-        openbao-web:
-          protocol: ""
-          tls:
-            mode: Terminate
-            certificateRefs:
-              - name: openbao-tls
+gatewayApiResources:
+  class:
+    name: "gitlab-gw"
+    controllerName: "gateway.envoyproxy.io/gitlab-gatewayclass-controller"
+  gateway:
+    annotations: {}
+    infrastructure: {}
+    addresses: []
+    protocol: "HTTPS"
+    listeners:
+      http-default:
+        protocol: HTTP
+      gitlab-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: gitlab-tls
+      gitlab-web-geo:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: gitlab-web-geo-tls
+      gitlab-ssh:
+        protocol: "TCP"
+      registry-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: registry-tls
+      pages-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+          - name: pages-tls
+      kas-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: kas-tls
+      kas-workspaces-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: kas-workspaces-tls
+      minio-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: minio-tls
+      openbao-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: openbao-tls
   envoy:
     proxySpec:
       provider:

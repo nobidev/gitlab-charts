@@ -22,10 +22,17 @@ for configuration details.
 
 ## Configuring Gateway API resources
 
-GitLab chart supports deploying a pre-configured `Gateway`, `EnvoyProxy`, `EnvoyPatchPolicy`, and
-routes for each component.
-
+GitLab chart supports deploying a pre-configured `GatewayClass`, `Gateway`, and routes for each component.
 For more information check the [global Gateway API documentation](../globals.md#gateway-api).
+
+Besites the standard Gateway API resources, the following Envoy Gateway API extensions can be configured
+directly from the root chart:
+
+| Name                                            |  Type   | Default        | Description |
+|:------------------------------------------------|:-------:|:---------------|:------------|
+| `gatewayApiResources.envoy.proxySpec`           | Object  | see values     | `EnvoyProxy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
+| `gatewayApiResources.envoy.clientTrafficPolicy` | Object  | see values     | Envoy's `ClientTrafficPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
+| `gatewayApiResources.envoy.securityPolicy`      | Object  | see values     | Envoy's `SecurityPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
 
 ## Metrics
 
@@ -34,8 +41,8 @@ Envoy Proxy. If you have Prometheus Operator custom resource definitions (CRDs) 
 a ServiceMonitor will be created for Envoy Gateway and a PodMonitor will be created for Envoy Proxy.
 
 ```yaml
-global:
-  gatewayApi:
+gatewayApiResources:
+  envoy:
     metrics:
       envoyGateway:
         serviceMonitor:
