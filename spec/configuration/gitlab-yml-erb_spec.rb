@@ -695,13 +695,13 @@ describe 'gitlab.yml.erb configuration' do
           'gitlab.yml.erb'
         )
       )['production']).to include(
-        'iam_auth_service' => eq(
+        'iam_auth_service' => {
           'enabled' => false,
           'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
           'host' => '',
           'port' => 443,
           'audience' => 'gitlab-rails'
-        )
+        }
       )
     end
 
@@ -726,13 +726,13 @@ describe 'gitlab.yml.erb configuration' do
           'gitlab.yml.erb'
         )
       )['production']).to include(
-        'iam_auth_service' => eq(
+        'iam_auth_service' => {
           'enabled' => true,
           'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
           'host' => 'localhost',
           'port' => 8084,
           'audience' => 'custom-aud'
-        )
+        }
       )
     end
   end

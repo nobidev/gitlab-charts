@@ -38,14 +38,14 @@ global:
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `enabled` | boolean | `false` | Enable or disable IAM Auth Service integration |
-| `host` | string | - | Hostname of the IAM Auth Service |
-| `port` | integer | - | Port number of the IAM Auth Service |
-| `authToken.secret` | string | `gitlab-iam-auth-token` | Kubernetes secret name containing the authentication token |
-| `authToken.key` | string | `authToken` | Key within the secret containing the authentication token |
+| `host` | string | "" | Hostname of the IAM Auth Service |
+| `port` | integer | 443 | Port number of the IAM Auth Service |
+| `authToken.secret` | string | "gitlab-iam-auth-secret" | Kubernetes secret name containing the authentication token |
+| `authToken.key` | string | "iam_auth_service_token" | Key within the secret containing the authentication token |
 
 ## Secret generation
 
-When IAM Auth Service is enabled, the Helm chart automatically generates a service authentication token and stores it in a Kubernetes secret. The token is generated using cryptographically secure random bytes and is base64-encoded.
+When IAM Auth Service is enabled, the Helm chart automatically generates a service authentication token and stores it in a Kubernetes secret. The token is generated using cryptographically secure random bytes and converted to alpha-numeric text.
 
 The secret is created during the initial deployment and persists across upgrades. If the secret already exists, it will not be regenerated.
 
