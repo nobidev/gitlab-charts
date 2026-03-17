@@ -18,6 +18,15 @@ describe 'OpenBao installation' do
             key: postgresql-password
     openbao:
       install: true
+      config:
+        storage:
+          postgresql:
+            connection:
+              host: test-postgresql.default.svc
+              username: gitlab
+              password:
+                secret: gitlab-postgresql-password
+                key: postgresql-password
     ))
   end
 
@@ -88,6 +97,16 @@ describe 'OpenBao installation' do
               key: postgresql-password
       openbao:
         install: true
+        config:
+          storage:
+            postgresql:
+              connection:
+                host: test-postgresql.default.svc
+                username: gitlab
+                database: custom_openbao_db
+                password:
+                  secret: gitlab-postgresql-password
+                  key: postgresql-password
     ))
     end
 
