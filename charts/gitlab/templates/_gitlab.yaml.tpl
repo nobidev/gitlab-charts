@@ -65,6 +65,15 @@ gitlab_kas:
 iam_auth_service:
   enabled: true
   secret_file: /etc/gitlab/iam-auth/.gitlab_iam_auth_secret
+  {{- if .Values.global.appConfig.iamAuthService.host }}
+  host: {{ .Values.global.appConfig.iamAuthService.host | quote }}
+  {{- end }}
+  {{- if .Values.global.appConfig.iamAuthService.port }}
+  port: {{ .Values.global.appConfig.iamAuthService.port }}
+  {{- end }}
+  {{- if .Values.global.appConfig.iamAuthService.audience }}
+  audience: {{ .Values.global.appConfig.iamAuthService.audience | quote }}
+  {{- end }}
 {{- end }}
 {{- end -}}
 

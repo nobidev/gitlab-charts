@@ -700,12 +700,15 @@ describe 'gitlab.yml.erb configuration' do
     end
 
     context 'When enabled' do
-      it 'populates default service config' do
+      it 'populates service config' do
         t = HelmTemplate.new(HelmTemplate.with_defaults(%(
           global:
             appConfig:
               iamAuthService:
                 enabled: true
+                host: localhost
+                port: 8084
+                audience: gitlab-rails
         )))
 
         expect(t.exit_code).to eq(0)
@@ -717,9 +720,12 @@ describe 'gitlab.yml.erb configuration' do
             'gitlab.yml.erb'
           )
         )['production']).to include(
-          'iam_auth_service' => hash_including(
+          'iam_auth_service' => eq(
             'enabled' => true,
-            'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret'
+            'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
+            'host' => 'localhost',
+            'port' => 8084,
+            'audience' => 'gitlab-rails'
           )
         )
       end
