@@ -682,53 +682,58 @@ describe 'gitlab.yml.erb configuration' do
   end
 
   context 'iam-auth-service configuration' do
-    context 'Not present when disabled' do
-      it 'populates gitlab.yml.erb without iam_auth_service section' do
-        t = HelmTemplate.new(default_values)
+    it 'populates gitlab.yml.erb with defaults' do
+      t = HelmTemplate.new(default_values)
 
-        expect(t.stderr).to eq("")
-        expect(t.exit_code).to eq(0)
+      expect(t.stderr).to eq("")
+      expect(t.exit_code).to eq(0)
 
-        expect(YAML.safe_load(
-          t.dig(
-            'ConfigMap/test-webservice',
-            'data',
-            'gitlab.yml.erb'
-          )
-        )['production']).not_to have_key('iam_auth_service')
-      end
+      expect(YAML.safe_load(
+        t.dig(
+          'ConfigMap/test-webservice',
+          'data',
+          'gitlab.yml.erb'
+        )
+      )['production']).to include(
+        'iam_auth_service' => eq(
+          'enabled' => false,
+          'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
+          'host' => '',
+          'port' => 443,
+          'audience' => 'gitlab-rails'
+        )
+      )
     end
 
-    context 'When enabled' do
-      it 'populates service config' do
-        t = HelmTemplate.new(HelmTemplate.with_defaults(%(
-          global:
-            appConfig:
-              iamAuthService:
-                enabled: true
-                host: localhost
-                port: 8084
-                audience: gitlab-rails
-        )))
+    it 'populates gitlab.yml.erb from custom config' do
+      t = HelmTemplate.new(HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            iamAuthService:
+              enabled: true
+              host: localhost
+              port: 8084
+              audience: custom-aud
+      )))
 
-        expect(t.exit_code).to eq(0)
+      expect(t.stderr).to eq("")
+      expect(t.exit_code).to eq(0)
 
-        expect(YAML.safe_load(
-          t.dig(
-            'ConfigMap/test-webservice',
-            'data',
-            'gitlab.yml.erb'
-          )
-        )['production']).to include(
-          'iam_auth_service' => eq(
-            'enabled' => true,
-            'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
-            'host' => 'localhost',
-            'port' => 8084,
-            'audience' => 'gitlab-rails'
-          )
+      expect(YAML.safe_load(
+        t.dig(
+          'ConfigMap/test-webservice',
+          'data',
+          'gitlab.yml.erb'
         )
-      end
+      )['production']).to include(
+        'iam_auth_service' => eq(
+          'enabled' => true,
+          'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
+          'host' => 'localhost',
+          'port' => 8084,
+          'audience' => 'custom-aud'
+        )
+      )
     end
   end
 
