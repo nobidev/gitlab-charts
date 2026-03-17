@@ -228,7 +228,7 @@ For more information, see [work item 5](https://gitlab.com/groups/gitlab-com/gl-
 ### Managed Gateway configuration
 
 The Gateway managed Gateway and Gatewayclass can be customized
-by configuring `gatewayApiResourcess` at the root of the chart:
+by configuring `gatewayApiResources` at the root of the chart:
 
 | Name                           |  Type   | Default        | Description |
 |:-------------------------------|:-------:|:---------------|:------------|

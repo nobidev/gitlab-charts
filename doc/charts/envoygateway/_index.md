@@ -116,9 +116,6 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
        enabled: true
        # Install the bundled Envoy Gateway chart, a GatewayClass, a EnvoyPatchPolicy, and the EnvoyProxy resources.
        installEnvoy: true
-       # Create a Gateway API compatible certmanager Issuer and configure the Gateway to use it.
-       class:
-         create: true
    ```
 
 1. Configure the Gateway to bind a static IP address. By default the IP configured via `global.hosts.externalIP`
@@ -131,13 +128,13 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
        # Only used by Envoy if bundled NGINX Ingress is disabled and no custom
        # gateway addresses are defined.
        externalIP: "10.10.0.1"
-     gatewayApi:
+   gatewayApiResources:
+     gateway:
        addresses:
-        - type: IPAddress
-          value: "10.10.0.2"
-       gateway:
-         infrastructure:
-           annotations: {}
+       - type: IPAddress
+         value: "10.10.0.2"
+       infrastructure:
+         annotations: {}
    ```
 
    {{< tabs >}}
@@ -148,14 +145,13 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
    annotations for the provisioned LoadBalancer:
 
    ```yaml
-   global:
-     gatewayApi:
-       gateway:
-         infrastructure:
-           annotations:
-             networking.gke.io/load-balancer-type: External
-             networking.gke.io/load-balancer-ip-addresses: gitlab-ip-address
-             cloud.google.com/l4-rbs: enabled
+   gatewayApiResources:
+     gateway:
+       infrastructure:
+         annotations:
+           networking.gke.io/load-balancer-type: External
+           networking.gke.io/load-balancer-ip-addresses: gitlab-ip-address
+           cloud.google.com/l4-rbs: enabled
    ```
 
    {{< /tab >}}
@@ -166,14 +162,13 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
    the Envoy Gateway configuration:
 
    ```yaml
-   global:
-     gatewayApi:
-       gateway:
-         infrastructure:
-           annotations:
-             service.beta.kubernetes.io/aws-load-balancer-type: nlb
-             service.beta.kubernetes.io/aws-load-balancer-eip-allocations: "gitlab-allocation-id"
-             service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+   gatewayApiResources:
+     gateway:
+       infrastructure:
+         annotations:
+           service.beta.kubernetes.io/aws-load-balancer-type: nlb
+           service.beta.kubernetes.io/aws-load-balancer-eip-allocations: "gitlab-allocation-id"
+           service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
    ```
 
    {{< /tab >}}
@@ -202,12 +197,13 @@ update the GitLab DNS records to point to the Envoy Gateway-managed LoadBalancer
      gatewayApi:
        enabled: true
        installEnvoy: true
+   gatewayApiResources:
+     gateway:
        addresses:
         - type: IPAddress
           value: "10.10.0.2"
-       gateway:
-         infrastructure:
-           annotations: {}
+       infrastructure:
+         annotations: {}
    ```
 
 1. Configure your TLS certificates or a certmanager issuer for the managed Gateway:
@@ -235,10 +231,11 @@ update the GitLab DNS records to point to the Envoy Gateway-managed LoadBalancer
         gatewayApi:
           # Do not configure HTTP01 issues.
           configureCertmanager: false
-          gateway:
-            # Annotate Gateway to use custom DNS01 issuer.
-            annotations:
-              cert-manager.io/issuer: gitlab-dns01
+      gatewayApiResources:
+        gateway:
+          # Annotate Gateway to use custom DNS01 issuer.
+          annotations:
+            cert-manager.io/issuer: gitlab-dns01
       ```
 
 1. Ensure GitLab is reachable if the domain would resolve to the IP of the Envoy Gateway LoadBalancer:

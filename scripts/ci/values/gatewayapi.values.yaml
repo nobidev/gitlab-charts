@@ -11,25 +11,24 @@ global:
     configureCertmanager: false
 
 gatewayApiResources:
-  standard:
-    gateway:
-      listeners:
-        gitlab-web:
-          tls:
-            certificateRefs:
+  gateway:
+    listeners:
+      gitlab-web:
+        tls:
+          certificateRefs:
+          - name: helm-charts-win-tls
+      registry-web:
+        tls:
+          certificateRefs:
+          - name: helm-charts-win-tls
+      kas-web:
+        tls:
+          certificateRefs:
             - name: helm-charts-win-tls
-        registry-web:
-          tls:
-            certificateRefs:
-            - name: helm-charts-win-tls
-        kas-web:
-          tls:
-            certificateRefs:
-            - name: helm-charts-win-tls
-        minio-web:
-          tls:
-            certificateRefs:
-            - name: helm-charts-win-tls
+      minio-web:
+        tls:
+          certificateRefs:
+          - name: helm-charts-win-tls
 
 gitlab:
   webservice:
