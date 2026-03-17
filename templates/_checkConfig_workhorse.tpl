@@ -33,3 +33,62 @@ redis:
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
+
+{{/*
+Ensure Redis TLS certificate maps have both 'secret' and 'key' fields
+*/}}
+{{- define "gitlab.checkConfig.redis.tls.certificates" -}}
+{{-   $redisInstances := list "" "cache" "clusterCache" "sharedState" "queues" "actioncable" "actionCablePrimary" "traceChunks" "rateLimiting" "clusterRateLimiting" "sessions" "repositoryCache" "workhorse" -}}
+{{-   range $instance := $redisInstances -}}
+{{-     $redisConfig := "" -}}
+{{-     if eq $instance "" -}}
+{{-       $redisConfig = $.Values.global.redis -}}
+{{-     else -}}
+{{-       $redisConfig = dig $instance (dict) $.Values.global.redis -}}
+{{-     end -}}
+{{-     if kindIs "map" $redisConfig -}}
+{{-       if hasKey $redisConfig "redisTLS" -}}
+{{-         $redisTLS := get $redisConfig "redisTLS" -}}
+{{-         if kindIs "map" $redisTLS -}}
+{{-           range $certType := list "cert" "key" "caFile" -}}
+{{-             if hasKey $redisTLS $certType -}}
+{{-               $cert := get $redisTLS $certType -}}
+{{-               if kindIs "map" $cert -}}
+{{-                 if not (hasKey $cert "secret") }}
+redis{{ if $instance }}.{{ $instance }}{{ end }}.redisTLS.{{ $certType }}:
+  Certificate configuration must have both 'secret' and 'key' fields.
+  Example: {{ $certType }}: { secret: my-secret, key: my-key }
+{{-                 else if not (hasKey $cert "key") }}
+redis{{ if $instance }}.{{ $instance }}{{ end }}.redisTLS.{{ $certType }}:
+  Certificate configuration must have both 'secret' and 'key' fields.
+  Example: {{ $certType }}: { secret: my-secret, key: my-key }
+{{-                 end -}}
+{{-               end -}}
+{{-             end -}}
+{{-           end -}}
+{{-         end -}}
+{{-       end -}}
+{{-       if hasKey $redisConfig "sentinelTLS" -}}
+{{-         $sentinelTLS := get $redisConfig "sentinelTLS" -}}
+{{-         if kindIs "map" $sentinelTLS -}}
+{{-           range $certType := list "cert" "key" "caFile" -}}
+{{-             if hasKey $sentinelTLS $certType -}}
+{{-               $cert := get $sentinelTLS $certType -}}
+{{-               if kindIs "map" $cert -}}
+{{-                 if not (hasKey $cert "secret") }}
+redis{{ if $instance }}.{{ $instance }}{{ end }}.sentinelTLS.{{ $certType }}:
+  Certificate configuration must have both 'secret' and 'key' fields.
+  Example: {{ $certType }}: { secret: my-secret, key: my-key }
+{{-                 else if not (hasKey $cert "key") }}
+redis{{ if $instance }}.{{ $instance }}{{ end }}.sentinelTLS.{{ $certType }}:
+  Certificate configuration must have both 'secret' and 'key' fields.
+  Example: {{ $certType }}: { secret: my-secret, key: my-key }
+{{-                 end -}}
+{{-               end -}}
+{{-             end -}}
+{{-           end -}}
+{{-         end -}}
+{{-       end -}}
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
