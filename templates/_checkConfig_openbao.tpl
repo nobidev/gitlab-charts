@@ -7,7 +7,7 @@ Password is required and is not inherited from the main DB.
 */}}
 {{- define "gitlab.checkConfig.openbao.database" -}}
 {{- $openbao := .Values.openbao | default dict -}}
-{{- if eq true ($openbao.install | default false) -}}
+{{- if $openbao.install -}}
 {{- $conn := ((($openbao.config).storage).postgresql).connection | default dict -}}
 {{- $globalObaPsql := ((.Values.global).openbao).psql | default dict -}}
 {{- $host := coalesce $conn.host $globalObaPsql.host "" -}}
