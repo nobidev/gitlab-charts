@@ -540,7 +540,7 @@ global.busybox:
 {{- end -}}
 
 {{- define "gitlab.removal.openbao.psql" -}}
-{{- if and (index ($.Values.openbao | default dict) "install") (hasKey ($.Values.openbao | default dict) "psql") (gt (len (keys ((index $.Values.openbao "psql") | default dict))) 0) }}
+{{- if and ($.Values.openbao).install (hasKey $.Values.openbao "psql") }}
 openbao:
     `openbao.psql` has been removed. Use `global.openbao.psql` for OpenBao database config (host, database, username, password), or `openbao.config.storage.postgresql.connection` for connection-specific overrides.
 {{- end -}}
