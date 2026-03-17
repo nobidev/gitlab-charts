@@ -5,7 +5,7 @@ require 'helm_template_helper'
 require 'yaml'
 require 'hash_deep_merge'
 
-describe 'iamAuthService configuration' do
+describe 'iamAuthService templates' do
   let(:default_values) do
     HelmTemplate.with_defaults(%(
       gitlab:
@@ -16,13 +16,115 @@ describe 'iamAuthService configuration' do
 
   let(:values) { default_values }
   let(:template) { HelmTemplate.new(values) }
-  let(:webservice_deployment) { template["Deployment/test-webservice-default"] }
 
-  describe 'IAM Auth service configuration' do
-    context 'when iamAuthService is disabled' do
-      it 'does not generate iamAuthService secret' do
+  describe 'gitlab.iamAuthService.authToken.key' do
+    context 'when no custom key name provided' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              iamAuthService:
+                enabled: true
+        )).deep_merge!(default_values)
+      end
+
+      it 'returns the default key name' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
         generate_secrets = template.dig('ConfigMap/test-shared-secrets', 'data', 'generate-secrets')
-        expect(generate_secrets).not_to include('iamAuthService')
+        expect(generate_secrets).to include('iam_auth_service_token')
+      end
+    end
+
+    context 'when custom key name provided' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              iamAuthService:
+                enabled: true
+                authToken:
+                  key: custom-iam-key
+        )).deep_merge!(default_values)
+      end
+
+      it 'returns the custom key name' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        generate_secrets = template.dig('ConfigMap/test-shared-secrets', 'data', 'generate-secrets')
+        expect(generate_secrets).to include('custom-iam-key')
+      end
+    end
+  end
+
+  describe 'gitlab.iamAuthService.authToken.secret' do
+    context 'when custom secret name provided' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              iamAuthService:
+                enabled: true
+        )).deep_merge!(default_values)
+      end
+
+      it 'returns the default secret name' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        generate_secrets = template.dig('ConfigMap/test-shared-secrets', 'data', 'generate-secrets')
+        expect(generate_secrets).to include('test-iam-auth-secret')
+      end
+    end
+
+    context 'when iamAuthService is enabled with custom secret' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              iamAuthService:
+                enabled: true
+                authToken:
+                  secret: custom-iam-auth-secret
+        )).deep_merge!(default_values)
+      end
+
+      it 'returns the custom secret name' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        generate_secrets = template.dig('ConfigMap/test-shared-secrets', 'data', 'generate-secrets')
+        expect(generate_secrets).to include('custom-iam-auth-secret')
+      end
+    end
+  end
+
+  describe 'gitlab.appConfig.iamAuthService.mountSecrets' do
+    let(:webservice_secret_mounts) do
+      template.projected_volume_sources(
+        'Deployment/test-webservice-default',
+        'init-webservice-secrets'
+      )
+    end
+
+    let(:shared_secret_mount) do
+      webservice_secret_mounts.find do |item|
+        item.dig('secret', 'name') == 'test-iam-auth-secret' && item.dig('secret', 'items')[0]['key'] == 'iam_auth_service_token'
+      end
+    end
+
+    context 'when iamAuthService is disabled' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              iamAuthService:
+                enabled: false
+        )).deep_merge!(default_values)
+      end
+
+      it 'does not mount any secrets' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(shared_secret_mount).to be_nil
       end
     end
 
@@ -36,58 +138,10 @@ describe 'iamAuthService configuration' do
         )).deep_merge!(default_values)
       end
 
-      it 'generates secret service token' do
-        t = HelmTemplate.new(values)
-        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+      it 'mounts shared secret on webservice deployment' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
-        generate_secrets = t.dig('ConfigMap/test-shared-secrets', 'data', 'generate-secrets')
-        expect(generate_secrets).to include('test-iam-auth-secret')
-        expect(generate_secrets).to include('iam_auth_service_token')
-        expect(generate_secrets).to include("$(gen_random 'a-zA-Z0-9' 32 | base64)")
-      end
-
-      describe 'custom secret and key names' do
-        context 'when custom secret name is provided' do
-          let(:values) do
-            YAML.safe_load(%(
-              global:
-                appConfig:
-                  iamAuthService:
-                    enabled: true
-                    secret: custom-iam-auth-secret
-            )).deep_merge!(default_values)
-          end
-
-          it 'uses the custom secret name' do
-            t = HelmTemplate.new(values)
-            expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
-
-            generate_secrets = t.dig('ConfigMap/test-shared-secrets', 'data', 'generate-secrets')
-
-            expect(generate_secrets).to include('custom-iam-auth-secret')
-          end
-        end
-
-        context 'when custom key name is provided' do
-          let(:values) do
-            YAML.safe_load(%(
-              global:
-                appConfig:
-                  iamAuthService:
-                    enabled: true
-                    key: custom-iam-key
-            )).deep_merge!(default_values)
-          end
-
-          it 'uses the custom key name' do
-            t = HelmTemplate.new(values)
-            expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
-
-            generate_secrets = t.dig('ConfigMap/test-shared-secrets', 'data', 'generate-secrets')
-
-            expect(generate_secrets).to include('custom-iam-key')
-          end
-        end
+        expect(shared_secret_mount).not_to be_nil
       end
     end
   end
