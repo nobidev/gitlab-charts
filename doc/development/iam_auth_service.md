@@ -7,13 +7,13 @@ title: IAM Auth Service configuration
 
 ## Overview
 
-The IAM Auth Service integration is an **experimental feature** currently available only on **gitlab.com** for testing a pre-release service. This feature is subject to change and should not be used in production environments outside of gitlab.com.
+The IAM Auth Service integration is an **experimental feature** currently available only on **GitLab.com** for testing a pre-release service. This feature is subject to change and should not be used in production environments outside of GitLab.com.
 
 ## Status
 
-- **Availability**: gitlab.com only
+- **Availability**: GitLab.com only
 - **Stability**: Experimental (subject to change)
-- **Support**: Limited to gitlab.com infrastructure team
+- **Support**: Limited to GitLab.com infrastructure team
 
 ## Configuration
 
@@ -29,7 +29,7 @@ global:
       host: iam-auth.example.com
       port: 8080
       authToken:
-        secret: gitlab-iam-auth-token
+        secret: GitLab-iam-auth-token
         key: authToken
 ```
 
@@ -51,7 +51,7 @@ The secret is created during the initial deployment and persists across upgrades
 
 ## Important notes
 
-- This feature is **not** intended for use outside of gitlab.com
+- This feature is **not** intended for use outside of GitLab.com
 - Configuration changes may occur without notice
 - The service endpoint and authentication mechanism may change
 - Do not rely on this feature for production deployments
