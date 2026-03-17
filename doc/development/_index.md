@@ -175,6 +175,9 @@ can not resolve the MinIO domain name and find the correct endpoint (you can see
 1. Cells configuration (development only)
    - Cells-related settings, including TLS secret configuration for topology service clients, are currently in active development and subject to change. For details, see: [TLS Configuration for Cells Components template](cells/tls_configuration.md)
 
+2. IAM Auth Service configuration (gitlab.com only)
+   - IAM Auth Service integration is currently experimental and available only on gitlab.com for testing a pre-release service. This feature is subject to change and should not be used in production environments. For details, see: [IAM Auth Service configuration](iam_auth_service.md)
+
 ## Troubleshooting a development environment
 
 Developers may encounter unique issues while working on new chart features.
