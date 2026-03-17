@@ -4,14 +4,18 @@ require 'spec_helper'
 require 'helm_template_helper'
 require 'yaml'
 
+# rubocop:disable RSpec/MultipleMemoizedHelpers - This spec need many memorized helpers to keep specs DRY.
 describe 'Gateway API configuration' do
   let(:template) { HelmTemplate.new(values) }
+
   let(:gatewayclass) { template["GatewayClass/gitlab-gw"] }
   let(:gateway) { template["Gateway/test-gw"] }
+
   let(:envoyproxy) { template["EnvoyProxy/test-envoy-proxy"] }
   let(:envoypatchpolicy) { template["EnvoyPatchPolicy/test-policy"] }
   let(:clienttrafficpolicy) { template["ClientTrafficPolicy/test-policy"] }
   let(:securitypolicy) { template["SecurityPolicy/test-policy"] }
+  let(:kas_backendtrafficpolicy) { template["BackendTrafficPolicy/test-kas"] }
 
   let(:shell_route) { template["TCPRoute/test-gitlab-shell"] }
   let(:webservice_route) { template["HTTPRoute/test-gitlab"] }
@@ -87,6 +91,10 @@ describe 'Gateway API configuration' do
         expect(securitypolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
         expect(securitypolicy["spec"]["targetRefs"][0]).not_to have_key("namespace")
         expect(securitypolicy["spec"]["authorization"]["defaultAction"]).to eq("Deny")
+
+        expect(kas_backendtrafficpolicy).not_to be_nil
+        expect(kas_backendtrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-kas")
+        expect(kas_backendtrafficpolicy["spec"]["targetRefs"][0]["kind"]).to eq("HTTPRoute")
       end
     end
 
@@ -126,6 +134,7 @@ describe 'Gateway API configuration' do
         expect(envoyproxy).to be_nil
         expect(clienttrafficpolicy).to be_nil
         expect(securitypolicy).to be_nil
+        expect(kas_backendtrafficpolicy).to be_nil
 
         # Route objects reference external Gateway
         expect(routes).not_to include(nil)
@@ -319,3 +328,4 @@ describe 'Gateway API configuration' do
     end
   end
 end
+# rubocop:enable RSpec/MultipleMemoizedHelpers
