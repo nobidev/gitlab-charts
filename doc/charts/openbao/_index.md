@@ -32,9 +32,13 @@ OpenBao, which is required to enable the [GitLab secrets manager](https://docs.g
 
 - You can't upgrade OpenBao without downtime. Zero downtime upgrades are proposed in
   [OpenBao chart issue 13](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/issues/13).
-- GitLab Geo is untested. Basic validation passed, but failover and recommended setups are not tested and documented yet.
-  Full validation is discussed in [GitLab issue 568357](https://gitlab.com/gitlab-org/gitlab/-/issues/568357).
+- GitLab Geo failover and recovery have been validated on AWS (EKS, external RDS).
   For Geo deployments where secondary sites use different OpenBao URLs, see [Geo configuration](#geo-configuration).
+  Prerequisites:
+  - JWT audience (GitLab 18.10+): If all sites share the same OpenBao URL, no extra configuration is needed — the audience defaults to the OpenBao URL. If secondary sites use a different OpenBao URL, set a shared `jwt_audience` on the secondary (typically the primary site's OpenBao URL); configure OpenBao `bound_audiences` to match.
+  - Unseal key: Same unseal key on both sites; generate once or sync via cloud secrets registry.
+  - Secondary DB: `openbao_database_host` must point to the read replica (`postgres_host`).
+  - See Disaster Recovery (Geo) for failover and rollback procedures.
 - You can't deploy OpenBao with [GitLab Operator](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator).
 - A FIPS variant of the OpenBao image is already being build, but OpenBao is not FIPS validated.
   FIPS validation is tracked in [GitLab issue 574875](https://gitlab.com/gitlab-org/gitlab/-/issues/574875).
