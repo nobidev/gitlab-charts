@@ -66,7 +66,7 @@ iam_auth_service:
   enabled: {{ eq .enabled true }}
   secret_file: /etc/gitlab/iam-auth/.gitlab_iam_auth_secret
   host: {{ dig "host" "" . | quote }}
-  port: {{ dig "port" 443 . | int }}
+  port: {{ dig "port" 5004 . | int }}
   audience: {{ dig "audience" "gitlab-rails" . | quote }}
   {{- end }}
 {{- end }}

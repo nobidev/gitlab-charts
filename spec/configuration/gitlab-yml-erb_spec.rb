@@ -699,7 +699,7 @@ describe 'gitlab.yml.erb configuration' do
           'enabled' => false,
           'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
           'host' => '',
-          'port' => 443,
+          'port' => 5004,
           'audience' => 'gitlab-rails'
         }
       )
