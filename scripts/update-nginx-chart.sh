@@ -2,7 +2,7 @@
 set -e
 
 STOP_PATCH="$1"
-VERSION="helm-chart-4.14.3"
+VERSION="helm-chart-4.15.1"
 
 project_root="$(realpath $(dirname -- "${BASH_SOURCE[0]}")/..)"
 cd $project_root

@@ -157,11 +157,9 @@ The minimum required version of PostgreSQL is now 16. See https://docs.gitlab.co
 {{- /* NGINX Ingress update */}}
 {{- if (index $.Values "nginx-ingress").enabled }}
 {{ $WARNING }}
-The default NGINX Ingress version was updated from 1.11.8 to 1.14.3. Please check the
+The default NGINX Ingress version was updated from to 1.15.1. Please check the
 upstream changelogs for impact on your usage:
-- https://github.com/kubernetes/ingress-nginx/blob/main/changelog/controller-1.12.0.md
-- https://github.com/kubernetes/ingress-nginx/blob/main/changelog/controller-1.13.0.md
-- https://github.com/kubernetes/ingress-nginx/blob/main/changelog/controller-1.14.0.md
+  https://github.com/kubernetes/ingress-nginx/blob/main/changelog/controller-1.15.0.md
 {{- end }}
 
 {{- /* Certmanager update */}}
