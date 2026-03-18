@@ -25,14 +25,14 @@ for configuration details.
 GitLab chart supports deploying a pre-configured `GatewayClass`, `Gateway`, and routes for each component.
 For more information check the [global Gateway API documentation](../globals.md#gateway-api).
 
-Besites the standard Gateway API resources, the following Envoy Gateway API extensions can be configured
+Besides the standard Gateway API resources, the following Envoy Gateway API extensions can be configured
 directly from the root chart:
 
 | Name                                            |  Type   | Default        | Description |
 |:------------------------------------------------|:-------:|:---------------|:------------|
 | `gatewayApiResources.envoy.proxySpec`           | Object  | see values     | `EnvoyProxy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
-| `gatewayApiResources.envoy.clientTrafficPolicy` | Object  | see values     | Envoy's `ClientTrafficPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
-| `gatewayApiResources.envoy.securityPolicy`      | Object  | see values     | Envoy's `SecurityPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
+| `gatewayApiResources.envoy.clientTrafficPolicySpec` | Object  | see values     | Envoy's `ClientTrafficPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
+| `gatewayApiResources.envoy.securityPolicySpec`      | Object  | see values     | Envoy's `SecurityPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
 
 ## Metrics
 
@@ -141,7 +141,7 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
 
    {{< tab title="GKE" >}}
 
-   Instead of using `global.hosts.externalIP` or `global.hosts.gatewayApi.addresses`, configure the
+   Instead of using `global.hosts.externalIP` or `gatewayApiResources.gateway.addresses`, configure the
    annotations for the provisioned LoadBalancer:
 
    ```yaml
