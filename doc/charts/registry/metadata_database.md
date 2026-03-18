@@ -377,13 +377,10 @@ To import in three steps, you must:
 For larger instances, this process can take hours or even days to complete, depending
 on the size of your registry. You can still use the registry during this process.
 
-{{< alert type="warning" >}}
-
-It is [not yet possible](https://gitlab.com/gitlab-org/container-registry/-/issues/1162)
-to restart the import, so it's important to let the import run to completion.
-If you must halt the operation, you have to restart this step.
-
-{{< /alert >}}
+> [!warning]
+> It is [not yet possible](https://gitlab.com/gitlab-org/container-registry/-/issues/1162)
+> to restart the import, so it's important to let the import run to completion.
+> If you must halt the operation, you have to restart this step.
 
 1. Find the `registry:` section in the `values.yml` file and add the `database` section.
    Set:
