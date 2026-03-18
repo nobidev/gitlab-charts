@@ -38,10 +38,10 @@ global:
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `enabled` | boolean | `false` | Enable or disable IAM Auth Service integration |
-| `host` | string | "" | Hostname of the IAM Auth Service |
+| `host` | string | - | Hostname of the IAM Auth Service |
 | `port` | integer | 443 | Port number of the IAM Auth Service |
-| `authToken.secret` | string | "gitlab-iam-auth-secret" | Kubernetes secret name containing the authentication token |
-| `authToken.key` | string | "iam_auth_service_token" | Key within the secret containing the authentication token |
+| `authToken.secret` | string | `gitlab-iam-auth-secret` | Kubernetes secret name containing the authentication token |
+| `authToken.key` | string | `iam_auth_service_token` | Key within the secret containing the authentication token |
 
 ## Secret generation
 
