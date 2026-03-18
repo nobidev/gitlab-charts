@@ -72,6 +72,7 @@ iam_auth_service:
   grpc:
     host: {{ dig "grpc" "host" "" . | quote }}
     port: {{ dig "grpc" "port" 5004 . | int }}
+  jwks_cache_ttl: {{ dig "jwks_cache_ttl" 3600 . | int }}
   {{- end }}
 {{- end }}
 

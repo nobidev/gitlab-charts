@@ -616,6 +616,7 @@ global:
       # grpc:
         # host:
         # port:
+      # jwks_cache_ttl:
       # authToken:
         # secret:
         # key:

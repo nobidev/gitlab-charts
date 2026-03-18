@@ -706,7 +706,8 @@ describe 'gitlab.yml.erb configuration' do
           'grpc' => {
             'host' => '',
             'port' => 5004
-          }
+          },
+          'jwks_cache_ttl' => 3600
         }
       )
     end
@@ -724,6 +725,7 @@ describe 'gitlab.yml.erb configuration' do
                 host: grpc.localhost
                 port: 5005
               audience: custom-aud
+              jwks_cache_ttl: 7200
       )))
 
       expect(t.stderr).to eq("")
@@ -747,7 +749,8 @@ describe 'gitlab.yml.erb configuration' do
           'grpc' => {
             'host' => 'grpc.localhost',
             'port' => 5005
-          }
+          },
+          'jwks_cache_ttl' => 7200
         }
       )
     end
