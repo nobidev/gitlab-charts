@@ -65,9 +65,13 @@ iam_auth_service:
   {{- with .Values.global.appConfig.iamAuthService }}
   enabled: {{ eq .enabled true }}
   secret_file: /etc/gitlab/iam-auth/.gitlab_iam_auth_secret
-  host: {{ dig "host" "" . | quote }}
-  port: {{ dig "port" 5004 . | int }}
   audience: {{ dig "audience" "gitlab-rails" . | quote }}
+  http:
+    host: {{ dig "http" "host" "" . | quote }}
+    port: {{ dig "http" "port" 443 . | int }}
+  grpc:
+    host: {{ dig "grpc" "host" "" . | quote }}
+    port: {{ dig "grpc" "port" 5004 . | int }}
   {{- end }}
 {{- end }}
 

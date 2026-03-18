@@ -698,9 +698,15 @@ describe 'gitlab.yml.erb configuration' do
         'iam_auth_service' => {
           'enabled' => false,
           'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
-          'host' => '',
-          'port' => 5004,
-          'audience' => 'gitlab-rails'
+          'audience' => 'gitlab-rails',
+          'http' => {
+            'host' => '',
+            'port' => 443
+          },
+          'grpc' => {
+            'host' => '',
+            'port' => 5004
+          }
         }
       )
     end
@@ -711,8 +717,12 @@ describe 'gitlab.yml.erb configuration' do
           appConfig:
             iamAuthService:
               enabled: true
-              host: localhost
-              port: 8084
+              http:
+                host: localhost
+                port: 8084
+              grpc:
+                host: grpc.localhost
+                port: 5005
               audience: custom-aud
       )))
 
@@ -729,9 +739,15 @@ describe 'gitlab.yml.erb configuration' do
         'iam_auth_service' => {
           'enabled' => true,
           'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
-          'host' => 'localhost',
-          'port' => 8084,
-          'audience' => 'custom-aud'
+          'audience' => 'custom-aud',
+          'http' => {
+            'host' => 'localhost',
+            'port' => 8084
+          },
+          'grpc' => {
+            'host' => 'grpc.localhost',
+            'port' => 5005
+          }
         }
       )
     end

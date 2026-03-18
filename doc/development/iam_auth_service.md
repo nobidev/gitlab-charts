@@ -26,8 +26,12 @@ global:
   appConfig:
     iamAuthService:
       enabled: true
-      host: iam-auth.example.com
-      port: 8080
+      http:
+        host: iam-auth.example.com
+        port: 443
+      grpc:
+        host: iam-auth.example.com
+        port: 5004
       authToken:
         secret: GitLab-iam-auth-token
         key: authToken
@@ -38,8 +42,10 @@ global:
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `enabled` | boolean | `false` | Enable or disable IAM Auth Service integration |
-| `host` | string | - | Hostname of the IAM Auth Service |
-| `port` | integer | 5004 | Port number of the IAM Auth Service |
+| `http.host` | string | - | Hostname of the HTTP endpoint |
+| `http.port` | integer | 443 | Port number of the HTTP endpoint |
+| `grpc.host` | string | - | Hostname of the gRPC endpoint |
+| `grpc.port` | integer | 5004 | Port number of the gRPC endpoint |
 | `authToken.secret` | string | `gitlab-iam-auth-secret` | Kubernetes secret name containing the authentication token |
 | `authToken.key` | string | `iam_auth_service_token` | Key within the secret containing the authentication token |
 
