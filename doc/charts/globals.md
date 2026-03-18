@@ -204,8 +204,6 @@ Ingress object is created for each validation.
 
 {{< /details >}}
 
-{{< alert type="warning" >}}
-
 Gateway API support is currently under active development. Please be aware that:
 
 1. Complete validation across all deployment scenarios has not yet been fully verified.
@@ -214,8 +212,6 @@ Gateway API support is currently under active development. Please be aware that:
    Other Gateway API controllers might need additional configuration.
 
 For more information, see [work item 5](https://gitlab.com/groups/gitlab-com/gl-infra/software-delivery/operate/-/work_items/5).
-
-{{< /alert >}}
 
 | Name                           |  Type   | Default        | Description |
 |:-------------------------------|:-------:|:---------------|:------------|

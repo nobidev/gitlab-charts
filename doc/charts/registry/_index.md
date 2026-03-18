@@ -1382,13 +1382,10 @@ The Docker Registry will build up extraneous data over time which can be freed u
 As of [now](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1586) there is no
 fully automated or scheduled way to run the garbage collection with this Chart.
 
-{{< alert type="warning" >}}
-
-You must use [online garbage collection](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#gc) with the
-[metadata database](#database). Using manual garbage collection with the metadata database will lead to data loss.
-Online garbage collection fully replaces the need to manually run garbage collection.
-
-{{< /alert >}}
+> [!warning]
+> You must use [online garbage collection](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#gc) with the
+> [metadata database](#database). Using manual garbage collection with the metadata database will lead to data loss.
+> Online garbage collection fully replaces the need to manually run garbage collection.
 
 ### Manual Garbage Collection
 

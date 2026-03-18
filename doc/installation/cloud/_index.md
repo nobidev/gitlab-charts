@@ -42,14 +42,10 @@ Some GitLab features might not work on deprecated releases or releases older tha
 
 For some components, like the [agent for Kubernetes](https://docs.gitlab.com/user/clusters/agent/) and [GitLab Operator](https://docs.gitlab.com/operator/installation/), GitLab might support different cluster releases.
 
-{{< alert type="warning" >}}
-
-The [GitLab container images](../_index.md#container-images) can be deployed on x86-64 and ARM64 architectures.
-
-FIPS-validated images are only available for x86-64.
-See [issue 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285) for ARM64 FIPS status.
-
-{{< /alert >}}
+> [!warning]
+> The [GitLab container images](../_index.md#container-images) can be deployed on x86-64 and ARM64 architectures.
+> FIPS-validated images are only available for x86-64.
+> See [issue 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285) for ARM64 FIPS status.
 
 - For cluster topology recommendations for an environment, see the
   [reference architectures](https://docs.gitlab.com/administration/reference_architectures/#available-reference-architectures).

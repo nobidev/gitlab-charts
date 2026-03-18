@@ -5,14 +5,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Configure the GitLab chart with an external NGINX Ingress Controller
 ---
 
-{{< alert type="warning" >}}
-
-NGINX Ingress was deprecated and won't receive security patches after March 2026.
-
-Read the [official announcement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/) for
-more information.
-
-{{< /alert >}}
+> [!warning]
+> NGINX Ingress was deprecated and won't receive security patches after March 2026.
+> Read the [official announcement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/)
+> for more information.
 
 GitLab chart currently manages and bundles a forked NGINX Ingress. This guide
 helps to configure an external NGINX Ingress to be used with GitLab chart

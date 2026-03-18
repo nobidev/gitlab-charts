@@ -25,13 +25,10 @@ title: Zoekt chart
 
 {{< /history >}}
 
-{{< alert type="warning" >}}
-
-This feature is in [limited availability](https://docs.gitlab.com/policy/development_stages_support/#limited-availability).
-For more information, see [epic 9404](https://gitlab.com/groups/gitlab-org/-/epics/9404).
-Provide feedback in [issue 420920](https://gitlab.com/gitlab-org/gitlab/-/issues/420920).
-
-{{< /alert >}}
+> [!warning]
+> This feature is in [limited availability](https://docs.gitlab.com/policy/development_stages_support/#limited-availability).
+> For more information, see [epic 9404](https://gitlab.com/groups/gitlab-org/-/epics/9404).
+> Provide feedback in [issue 420920](https://gitlab.com/gitlab-org/gitlab/-/issues/420920).
 
 ## Zoekt chart with a Linux package instance
 
