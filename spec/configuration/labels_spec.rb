@@ -112,4 +112,68 @@ describe 'Labels configuration' do
       expect(local_template.dig(target_chart, 'spec', 'template', 'metadata', 'labels')).to include(chart_values['gitlab']['webservice']['podLabels'])
     end
   end
+
+  context 'Standard labels' do
+    # These are the labels emitted by gitlab.common.legacyStandardLabels, which is the
+    # migration target for all GitLab-owned resources. This context verifies backwards
+    # compatibility: every resource must carry at minimum the four legacy Helm labels:
+    # app, release, heritage, and chart.
+    let(:t) { HelmTemplate.new(HelmTemplate.defaults) }
+
+    let(:third_party_resources) do
+      [
+        'Deployment/test-certmanager-webhook',
+        'Deployment/test-certmanager-cainjector',
+        'Deployment/test-certmanager',
+        'Deployment/test-prometheus-server',
+        'Job/test-certmanager-startupapicheck',
+        'StatefulSet/test-postgresql',
+        'StatefulSet/test-redis-master',
+      ]
+    end
+
+    let(:legacy_label_keys) do
+      %w[
+        app
+        chart
+        heritage
+        release
+      ]
+    end
+
+    %w[Deployment StatefulSet Job].each do |kind|
+      it "applies standard labels to metadata of all GitLab-owned #{kind} resources" do
+        expect(t.exit_code).to eq(0), t.stderr
+
+        resources = t.resources_by_kind(kind).reject { |key, _| third_party_resources.include?(key) }
+        skip "No #{kind} resources rendered" if resources.empty?
+
+        aggregate_failures do
+          resources.each do |key, _|
+            actual_keys = t.labels(key).keys
+            expect(actual_keys).to include(*legacy_label_keys),
+              "#{key}: expected resource labels #{actual_keys.inspect} to include #{legacy_label_keys.inspect}"
+          end
+        end
+      end
+
+      it "applies standard labels to pod template of all GitLab-owned #{kind} resources" do
+        expect(t.exit_code).to eq(0), t.stderr
+
+        resources = t.resources_by_kind(kind).reject { |key, _| third_party_resources.include?(key) }
+        skip "No #{kind} resources rendered" if resources.empty?
+
+        aggregate_failures do
+          resources.each do |key, _|
+            template_lbls = t.template_labels(key)
+            skip "No pod template found for #{key}" if template_lbls.nil?
+
+            actual_keys = template_lbls.keys
+            expect(actual_keys).to include(*legacy_label_keys),
+              "#{key}: expected pod template labels #{actual_keys.inspect} to include #{legacy_label_keys.inspect}"
+          end
+        end
+      end
+    end
+  end
 end
