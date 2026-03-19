@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-The GitLab Helm chart (`gitlab/gitlab`) deploys all GitLab components on Kubernetes. It composes sub-charts for GitLab services and bundles external dependencies (PostgreSQL, Redis, cert-manager, NGINX ingress, Prometheus).
+The GitLab Helm chart (`gitlab/gitlab`) deploys all GitLab foundational components on Kubernetes. It composes sub-charts for GitLab services and bundles external dependencies (PostgreSQL, Redis, cert-manager, NGINX ingress, Prometheus).
 
 ## Commands
 
