@@ -725,7 +725,7 @@ describe 'gitlab.yml.erb configuration' do
                 host: grpc.localhost
                 port: 5005
               audience: custom-aud
-              jwks_cache_ttl: 7200
+              jwksCacheTtl: 7200
       )))
 
       expect(t.stderr).to eq("")

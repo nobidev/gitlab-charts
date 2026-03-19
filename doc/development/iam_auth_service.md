@@ -46,7 +46,7 @@ global:
 | `http.port` | integer | 443 | Port number of the HTTP endpoint |
 | `grpc.host` | string | - | Hostname of the gRPC endpoint |
 | `grpc.port` | integer | 5004 | Port number of the gRPC endpoint |
-| `jwks_cache_ttl` | integer | 3600 | Time-to-live (TTL) in seconds for JWKS cache |
+| `jwksCacheTtl` | integer | 3600 | Time-to-live (TTL) in seconds for JWKS cache |
 | `authToken.secret` | string | `gitlab-iam-auth-secret` | Kubernetes secret name containing the authentication token |
 | `authToken.key` | string | `iam_auth_service_token` | Key within the secret containing the authentication token |
 
