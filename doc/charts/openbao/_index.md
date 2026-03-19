@@ -32,13 +32,32 @@ OpenBao, which is required to enable the [GitLab secrets manager](https://docs.g
 
 - You can't upgrade OpenBao without downtime. Zero downtime upgrades are proposed in
   [OpenBao chart issue 13](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/issues/13).
-- GitLab Geo failover and recovery have been validated on AWS (EKS, external RDS).
+- GitLab Geo failover and recovery have been validated on AWS (EKS, external RDS),
+  as described in [issue 583442](https://gitlab.com/gitlab-org/gitlab/-/work_items/583442).
   For Geo deployments where secondary sites use different OpenBao URLs, see [Geo configuration](#geo-configuration).
   Prerequisites:
-  - JWT audience (GitLab 18.10+): If all sites share the same OpenBao URL, no extra configuration is needed — the audience defaults to the OpenBao URL. If secondary sites use a different OpenBao URL, set a shared `jwt_audience` on the secondary (typically the primary site's OpenBao URL); configure OpenBao `bound_audiences` to match.
-  - Unseal key: Same unseal key on both sites; generate once or sync via cloud secrets registry.
+  - JWT audience (GitLab 18.10+): If all sites share the same OpenBao URL, no
+    extra configuration is needed — the audience defaults to the OpenBao URL.
+    If each site has its own OpenBao URL:
+    - **GitLab (secondary site):** set `global.openbao.jwt_audience` to the
+      primary site's OpenBao URL. This controls the `aud` claim in every JWT
+      GitLab sends to OpenBao.
+    - **OpenBao (secondary site):** set `config.initialize.boundAudiences` to
+      the same value. This controls what audience OpenBao requires in the JWT.
+    - **GitLab (primary site):** leave `jwt_audience` unset — it defaults to
+      the primary's own OpenBao URL, which already matches `bound_audiences`
+      configured during initialization.
+    - On failover, both values must be updated on the promoted site. See
+      [Disaster Recovery (Geo)](https://docs.gitlab.com/administration/geo/disaster_recovery/#step-4-openbao-post-failover-configuration).
+  - Unseal key: Both sites must use the same static unseal key so the secondary
+    can decrypt data replicated from the primary. Generate the key once and
+    distribute it to both sites exclusively through a secrets manager (such as
+    AWS Secrets Manager, GCP Secret Manager, or HashiCorp Vault). Avoid copying
+    the key manually or storing it in version control, as exposure of this key
+    compromises all OpenBao-encrypted data on both sites.
   - Secondary DB: `openbao_database_host` must point to the read replica (`postgres_host`).
-  - See Disaster Recovery (Geo) for failover and rollback procedures.
+  - See [Disaster Recovery (Geo)](https://docs.gitlab.com/administration/geo/disaster_recovery/#step-4-openbao-post-failover-configuration)
+    for failover and rollback procedures.
 - You can't deploy OpenBao with [GitLab Operator](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator).
 - A FIPS variant of the OpenBao image is already being build, but OpenBao is not FIPS validated.
   FIPS validation is tracked in [GitLab issue 574875](https://gitlab.com/gitlab-org/gitlab/-/issues/574875).
