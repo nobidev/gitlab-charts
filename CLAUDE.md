@@ -22,7 +22,7 @@ helm template . -f values.yaml              # Render templates locally
 ## Architecture
 
 ### Chart Structure
-- `Chart.yaml` — chart metadata; lists bundled dependencies (PostgreSQL 13, Redis 18, cert-manager, prometheus, nginx-ingress)
+- `Chart.yaml` — chart metadata; lists bundled dependencies (PostgreSQL, Redis, cert-manager, prometheus, nginx-ingress — see `Chart.yaml` for pinned versions)
 - `charts/` — GitLab sub-charts, one per service component
 - `templates/` — top-level shared templates (RBAC, secrets, etc.)
 - `values.yaml` — default configuration values
@@ -48,8 +48,8 @@ Each GitLab service is its own sub-chart:
 - **Prometheus** — `prometheus-community/prometheus`
 
 ### Key Design Decisions
-- No NFS required — object storage (S3-compatible) for all shared data
-- No root privileges required for any component
+- NFS not required by default — object storage (S3-compatible) is used for shared data where possible
+- Components are designed to run without root privileges, though some cluster configurations may require adjustments
 - All inter-service communication uses Kubernetes Services
 - Secrets managed via Kubernetes Secret objects
 - Horizontal scaling via standard Kubernetes HPA
