@@ -220,9 +220,10 @@ ingress:
   sslPassthroughNginx: true
 ```
 
-Note: Enabling SSL passthrough requires cert-manager to create another Ingress to complete HTTP01 challanges.
-If you use the bundled certmanager and `Issuer`, make sure the Issuer sets the correct `IngressClass` by
-configuring [`global.ingress.useNewIngressForCerts`](../globals.md#globalingressusenewingressforcerts).
+> [!note]
+> Enabling SSL passthrough requires cert-manager to create another Ingress to complete HTTP01 challanges.
+> If you use the bundled certmanager and `Issuer`, make sure the Issuer sets the correct `IngressClass` by
+> configuring [`global.ingress.useNewIngressForCerts`](../globals.md#globalingressusenewingressforcerts).
 
 ### Gateway API
 
