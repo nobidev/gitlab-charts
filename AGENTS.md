@@ -59,7 +59,7 @@ Each GitLab service is its own sub-chart:
 
 **Convention**: Be intentional about what goes under `global`. Values tightly bound to a single sub-chart should live at the sub-chart level, not global. The chart has existing values in `global` for historical/consistency reasons (e.g. `global.gatewayApi`) that are being progressively relocated.
 
-See the [development docs](https://docs.gitlab.com/charts/development/) for architecture details, style guide, and contribution guidelines.
+See the [development docs](doc/development/_index.md) for architecture details, style guide, and contribution guidelines.
 
 ## CI Pipeline
 
