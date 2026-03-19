@@ -64,6 +64,8 @@ priorityClassName: {{ $pcName }}
 
 {{/*
 Define a app.kubernetes.io/name: {{ .Chart.Name }} and app.kubernetes.io/version: {{ .Chart.AppVersion }} label for kiali on pods, deployments, statefulsets, and daemonsets.
+
+Deprecated: Use `gitlab.common.standardLabels` for new resources, and `gitlab.common.legacyStandardLabels` for existing resources.
 */}}
 {{- define "gitlab.app.kubernetes.io.labels" -}}
 {{ include "gitlab.application.labels" . }}
