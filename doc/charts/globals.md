@@ -318,8 +318,10 @@ meets the requirements to expose GitLab.
 
 Make sure your Gateway API provider does support:
 
-1. `HTTPRoutes`, `TCPRoute` (for SSH), and `GRPCRoutes` (for future KAS features)
-1. `RegularExpression` matches in `HTTPRoutes`
+1. `HTTPRoutes` with `RegularExpression` matches.
+1. `TCPRoutes` for exposing Git via SSH.
+1. Cross serving GRPC and other HTTP traffic via `HTTPRoutes` for KAS. This might need
+   additional provider specific configuration.
 
 Note that we only test with the bundled Envoy Gateway chart. Support for other providers is
 offered on a best-effort basis. We welcome any contributions that document working
