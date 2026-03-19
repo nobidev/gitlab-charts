@@ -36,12 +36,17 @@ describe 'certmanager_issuer configuration' do
         "kind" => "Job",
         "metadata" => include(
           "namespace" => "default",
-          "labels" => {
+          "labels" => include(
             "app" => "certmanager-issuer",
-            "chart" => "certmanager-issuer-0.3.0",
+            "chart" => a_string_starting_with("certmanager-issuer-"),
+            "helm.sh/chart" => a_string_starting_with("certmanager-issuer-"),
             "release" => "test",
-            "heritage" => "Helm"
-          }
+            "heritage" => "Helm",
+            "app.kubernetes.io/name" => "certmanager-issuer",
+            "app.kubernetes.io/instance" => "test",
+            "app.kubernetes.io/managed-by" => "Helm",
+            "app.kubernetes.io/part-of" => "GitLab"
+          )
         ),
         "spec" => include(
           "activeDeadlineSeconds" => 300,
@@ -50,9 +55,14 @@ describe 'certmanager_issuer configuration' do
             "metadata" => include(
               "labels" => include(
                 "app" => "certmanager-issuer",
-                "chart" => "certmanager-issuer-0.3.0",
+                "chart" => a_string_starting_with("certmanager-issuer-"),
+                "helm.sh/chart" => a_string_starting_with("certmanager-issuer-"),
                 "release" => "test",
-                "heritage" => "Helm"
+                "heritage" => "Helm",
+                "app.kubernetes.io/name" => "certmanager-issuer",
+                "app.kubernetes.io/instance" => "test",
+                "app.kubernetes.io/managed-by" => "Helm",
+                "app.kubernetes.io/part-of" => "GitLab"
               )
             ),
             "spec" => include(
