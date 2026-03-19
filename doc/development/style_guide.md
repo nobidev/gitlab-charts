@@ -26,6 +26,51 @@ Not acceptable:
 - `gitlab.redis-server.host`: kebab-case.
 - `registry.Minio.Url`: initial capitals.
 
+## Kubernetes labels
+
+All Kubernetes resources created by this chart must include a consistent set of labels.
+Labels serve two purposes: identifying and grouping resources for humans and tooling (`standardLabels`), and selecting resources from other resources such as `Deployment`s or `Service`s (`selectorLabels`).
+
+### Standard labels for new resources
+
+New resources must include the following two label templates under `metadata.labels`:
+
+```yaml
+metadata:
+  labels:
+    {{- include "gitlab.common.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+```
+
+`gitlab.common.standardLabels` emits the full set of recommended Kubernetes labels, including `app.kubernetes.io/name`, `app.kubernetes.io/instance`, `app.kubernetes.io/managed-by`, `app.kubernetes.io/part-of`, and `helm.sh/chart`. `gitlab.commonLabels` adds any user-defined labels from `global.common.labels`.
+
+For pod template specs inside `Deployments`, `StatefulSets`, and similar workload resources, apply the same two templates at the `spec.template.metadata.labels` level as well.
+
+### Selector labels
+
+When a resource needs to select or reference another resource — for example, a `spec.selector.matchLabels` in a `Deployment`, or a `selector` in a `Service` — use:
+
+```yaml
+spec:
+  selector:
+    matchLabels:
+      {{- include "gitlab.common.selectorLabels" . | nindent 6 }}
+```
+
+Selector labels are a stable, minimal subset of the standard labels. They must not be changed after a resource is first deployed, because selectors on Deployments and StatefulSets are immutable.
+
+### Legacy variants
+
+The templates `gitlab.standardLabels`, `gitlab.selectorLabels`, and `gitlab.app.kubernetes.io.labels` are deprecated. Their `gitlab.common.legacy*` equivalents exist only for backwards compatibility during the migration to the new templates and must not be used on new resources.
+
+| Deprecated | Replacement |
+| --- | --- |
+| `gitlab.standardLabels` | `gitlab.common.standardLabels` |
+| `gitlab.selectorLabels` | `gitlab.common.selectorLabels` |
+| `gitlab.app.kubernetes.io.labels` | included in `gitlab.common.standardLabels` |
+
+The legacy templates are provided by the [`common-templates`](https://gitlab.com/gitlab-org/cloud-native/charts/common-templates) library chart and will be removed in GitLab 20.0.
+
 ## Common structure for `values.yaml`
 
 Many charts need to be provided with the same information, for example we need to provide the Redis and PostgreSQL connection settings to multiple charts. Here we outline our standard naming and structure for those settings.
