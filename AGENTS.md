@@ -75,3 +75,5 @@ When creating MRs for this repo, always use the appropriate MR template from `.g
 - **`Documentation.md`** — for documentation-only changes (branch name must start with `docs-`/`docs/` or end with `-docs`)
 
 The templates include required author/reviewer checklists and quick actions that apply labels and assignment. Always populate the template fully rather than replacing it with a custom description.
+
+Additionally, never push anything to remote without asking for approval, unless you were directly told to do that.
