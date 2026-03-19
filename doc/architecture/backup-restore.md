@@ -58,11 +58,7 @@ Backups are made using the following steps, in order:
 
   It is also possible to specify the storage class in which the backup is stored using `--storage-class <storage-class-name>`, allowing you to save on backup storage costs. If unspecified, this will use the default of the storage backend.
 
-  {{< alert type="note" >}}
-
-This storage class name is passed through as-is to the storage class argument of your specified backend.
-
-  {{< /alert >}}
+  This storage class name is passed through as-is to the storage class argument of your specified backend.
 
 #### GitLab backup bucket
 

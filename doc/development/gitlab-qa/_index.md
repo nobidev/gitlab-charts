@@ -117,10 +117,7 @@ the following command will perform the tests against the deployed GitLab instanc
 gitlab-qa Test::Instance::Any EE:$GITLAB_VERSION $GITLAB_URL -- $QA_OPTIONS
 ```
 
-{{< alert type="note" >}}
-
-The above command runs with _nightly_ because the containers used as a
-part of this chart are currently based on nightly builds of the `master` branches
-of `gitlab-(ee|ce)` repositories.
-
-{{< /alert >}}
+> [!note]
+> The above command runs with _nightly_ because the containers used as a
+> part of this chart are currently based on nightly builds of the `master` branches
+> of `gitlab-(ee|ce)` repositories.

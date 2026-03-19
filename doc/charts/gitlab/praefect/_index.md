@@ -139,13 +139,10 @@ global:
       maxUnavailable: 2
 ```
 
-{{< alert type="note" >}}
-
-When migrating to Praefect, none of Praefect's virtual storages can be named `default`.
-This is because there must be at least one storage named `default` at all times,
-therefore the name is already taken by the non-Praefect configuration.
-
-{{< /alert >}}
+> [!note]
+> When migrating to Praefect, none of Praefect's virtual storages can be named `default`.
+> This is because there must be at least one storage named `default` at all times,
+> therefore the name is already taken by the non-Praefect configuration.
 
 The instructions to [migrate to Gitaly Cluster (Praefect)](https://docs.gitlab.com/administration/gitaly/praefect/#migrate-to-gitaly-cluster-praefect)
 can then be followed to move data from the `default` storage to `virtualStorage2`. If additional storages
@@ -239,13 +236,9 @@ To run Praefect over TLS follow these steps:
    kubectl exec -it <Toolbox Pod> -- grep gitaly_address /srv/gitlab/config/gitlab.yml
    ```
 
-{{< alert type="note" >}}
-
 A basic script for generating custom signed certificates for internal Praefect Pods
 [can be found in this repository](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/scripts/generate_certificates.sh).
 Users can use or refer that script to generate certificates with proper SAN attributes.
-
-{{< /alert >}}
 
 1. Create a TLS Secret using the certificate created.
 

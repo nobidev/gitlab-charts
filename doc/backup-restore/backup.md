@@ -41,16 +41,14 @@ Follow these steps for backing up a GitLab Helm chart based installation.
 
 ## Cron based backup
 
-{{< alert type="note" >}}
-
-The Kubernetes CronJob created by the Helm chart
-sets the `cluster-autoscaler.kubernetes.io/safe-to-evict: "false"`
-annotation on the jobTemplate. Some Kubernetes environments, such as
-GKE Autopilot, don't allow this annotation to be set and will not create
-Job Pods for the backup.
-This annotation can be changed by setting the `gitlab.toolbox.backups.cron.safeToEvict` parameter to `true`, which will allow the Jobs to be created but at the risk of being evicted and corrupting the backup.
-
-{{< /alert >}}
+> [!note]
+> The Kubernetes CronJob created by the Helm chart
+> sets the `cluster-autoscaler.kubernetes.io/safe-to-evict: "false"`
+> annotation on the jobTemplate. Some Kubernetes environments, such as
+> GKE Autopilot, don't allow this annotation to be set and will not create
+> Job Pods for the backup.
+> This annotation can be changed by setting the `gitlab.toolbox.backups.cron.safeToEvict` parameter to `true`, which
+> will allow the Jobs to be created but at the risk of being evicted and corrupting the backup.
 
 Cron based backups can be enabled in this chart to happen at regular intervals as defined by the [Kubernetes schedule](https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs).
 
@@ -125,13 +123,9 @@ gitlab:
         extraArgs: "--s3tool awscli --aws-s3-endpoint-url <MINIO-INGRESS-URL>"
 ```
 
-{{< alert type="note" >}}
-
 The S3 CLI tool `s5cmd` support is under investigation.
 See [issue 523](https://gitlab.com/gitlab-org/build/CNG/-/issues/523) to track
 the progress.
-
-{{< /alert >}}
 
 #### Data integrity protection with `awscli`
 

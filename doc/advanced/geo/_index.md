@@ -329,23 +329,15 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
    helm upgrade --install gitlab-geo gitlab/gitlab --namespace gitlab -f primary.yaml
    ```
 
-   {{< alert type="note" >}}
-
-   This assumes you are using the `gitlab` namespace. If you want to use a different namespace,
-   you should also replace it in `--namespace gitlab` throughout the rest of this document.
-
-   {{< /alert >}}
+   > [!note]
+   > This assumes you are using the `gitlab` namespace. If you want to use a different namespace,
+   > you should also replace it in `--namespace gitlab` throughout the rest of this document.
 
 1. Wait for the deployment to complete, and the application to come online. When
    the application is reachable, log in.
 
 1. Sign in to GitLab, and [activate your GitLab subscription](https://docs.gitlab.com/administration/license/).
-
-   {{< alert type="note" >}}
-
    This step is required for Geo to function.
-
-   {{< /alert >}}
 
 ## Set the Geo Primary site
 
@@ -494,15 +486,11 @@ After configuration above is prepared:
    write:errno=0
    ```
 
-   {{< alert type="note" >}}
-
    If this step fails, you may be using the wrong IP address, or a firewall may
    be preventing access to the server. Check the IP address, paying close
    attention to the difference between public and private addresses and ensure
    that, if a firewall is present, the **secondary** PostgreSQL node is
    permitted to connect to the **primary** PostgreSQL node on TCP port 5432.
-
-   {{< /alert >}}
 
 1. Place the content into `/etc/gitlab/gitlab.rb`
 1. Run `gitlab-ctl reconfigure`. If you experience any issues in regards to the

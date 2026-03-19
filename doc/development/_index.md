@@ -182,13 +182,10 @@ Developers may encounter unique issues while working on new chart features.
 If your development cluster seems to have strange issues, [refer to the troubleshooting guide](troubleshooting.md)
 for more information.
 
-{{< alert type="note" >}}
-
-The troubleshooting steps outlined in the link above are for development
-clusters only. Do not use these procedures in a production environment or
-data will be lost.
-
-{{< /alert >}}
+> [!warning]
+> The troubleshooting steps outlined in the link above are for development
+> clusters only. Do not use these procedures in a production environment or
+> data will be lost.
 
 ## Additional Helm information
 

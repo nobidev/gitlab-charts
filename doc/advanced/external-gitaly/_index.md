@@ -147,14 +147,11 @@ have to
            tlsEnabled: true
    ```
 
-{{< alert type="note" >}}
-
-You can choose any valid secret name and key for this, but make
-sure the key is unique across all the secrets specified in `customCAs` to avoid
-collision since all keys within the secrets will be mounted. You **do not**
-need to provide the key for the certificate, as this is the _client side_.
-
-{{< /alert >}}
+> [!note]
+> You can choose any valid secret name and key for this, but make
+> sure the key is unique across all the secrets specified in `customCAs` to avoid
+> collision since all keys within the secrets will be mounted. You **do not**
+> need to provide the key for the certificate, as this is the _client side_.
 
 ## Test that GitLab can connect to Gitaly
 
