@@ -356,15 +356,12 @@ workhorse:
 
 The following values are used to configure the Gitaly Pods.
 
-{{< alert type="note" >}}
-
-Gitaly uses an Auth Token to authenticate with the Workhorse and Sidekiq
-services. The Auth Token secret and key are sourced from the `global.gitaly.authToken`
-value. Additionally, the Gitaly container has a copy of GitLab Shell, which has some configuration
-that can be set. The Shell authToken is sourced from the `global.shell.authToken`
-values.
-
-{{< /alert >}}
+> [!note]
+> Gitaly uses an Auth Token to authenticate with the Workhorse and Sidekiq
+> services. The Auth Token secret and key are sourced from the `global.gitaly.authToken`
+> value. Additionally, the Gitaly container has a copy of GitLab Shell, which has some configuration
+> that can be set. The Shell authToken is sourced from the `global.shell.authToken`
+> values.
 
 ### Git Repository Persistence
 
@@ -373,20 +370,14 @@ volume for the Git repository data. You'll need physical storage available in th
 Kubernetes cluster for this to work. If you'd rather use emptyDir, disable PersistentVolumeClaim
 with: `persistence.enabled: false`.
 
-{{< alert type="note" >}}
-
 The persistence settings for Gitaly are used in a volumeClaimTemplate
 that should be valid for all your Gitaly pods. You should *not* include settings
 that are meant to reference a single specific volume (such as `volumeName`). If you want
 to reference a specific volume, you need to manually create the PersistentVolumeClaim.
 
-{{< /alert >}}
-
-{{< alert type="note" >}}
-
-You can't change these through our settings once you've deployed. In [StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/)
+You can't change these through our settings once you've deployed. In
+[StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/)
 the `VolumeClaimTemplate` is immutable.
-{{< /alert >}}
 
 ```yaml
 persistence:
@@ -413,13 +404,11 @@ persistence:
 
 ### Running Gitaly over TLS
 
-{{< alert type="note" >}}
-
-This section refers to Gitaly being run inside the cluster using
-the Helm charts. If you are using an external Gitaly instance and want to use
-TLS for communicating with it, refer [the external Gitaly documentation](../../../advanced/external-gitaly/_index.md#connecting-to-external-gitaly-over-tls)
-
-{{< /alert >}}
+> [!note]
+> This section refers to Gitaly being run inside the cluster using
+> the Helm charts. If you are using an external Gitaly instance and want to use
+> TLS for communicating with it, refer
+> [the external Gitaly documentation](../../../advanced/external-gitaly/_index.md#connecting-to-external-gitaly-over-tls).
 
 Gitaly supports communicating with other components over TLS. This is controlled
 by the settings `global.gitaly.tls.enabled` and `global.gitaly.tls.secretName`.
@@ -438,14 +427,10 @@ Follow the steps to run Gitaly over TLS:
    kubectl exec -it <Toolbox pod> -- grep gitaly_address /srv/gitlab/config/gitlab.yml
    ```
 
-{{< alert type="note" >}}
-
 A basic script for generating custom signed certificates for
 internal Gitaly pods [can be found in this repository](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/scripts/generate_certificates.sh).
 Users can use or refer that script to generate certificates with proper
 SAN attributes.
-
-{{< /alert >}}
 
 1. Create a k8s TLS secret using the certificate created.
 

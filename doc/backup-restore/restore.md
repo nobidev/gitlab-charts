@@ -155,13 +155,10 @@ The steps for restoring a GitLab installation are
    kubectl scale deploy -lapp=prometheus,release=<helm release name> -n <namespace> --replicas=<value>
    ```
 
-{{< alert type="note" >}}
-
-During restoration, the backup tarball needs to be extracted to disk.
-This means the Toolbox pod should have disk of necessary size available.
-For more details and configuration please see the [Toolbox documentation](../charts/gitlab/toolbox/_index.md#persistence-configuration).
-
-{{< /alert >}}
+> [!note]
+> During restoration, the backup tarball needs to be extracted to disk.
+> This means the Toolbox pod should have disk of necessary size available.
+> For more details and configuration please see the [Toolbox documentation](../charts/gitlab/toolbox/_index.md#persistence-configuration).
 
 ### Restore the runner registration token
 

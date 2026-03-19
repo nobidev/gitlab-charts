@@ -362,15 +362,12 @@ redis:
 | `sentinels.[].host` | String  |         | The hostname of Redis Sentinel server for a Redis HA setup. |
 | `sentinels.[].port` | Integer | `26379` | The port on which to connect to the Redis Sentinel server. |
 
-{{< alert type="note" >}}
-
-The current Redis Sentinel support only supports Sentinels that have
-been deployed separately from the GitLab chart. As a result, the Redis
-deployment through the GitLab chart should be disabled with `redis.install=false`.
-The Secret containing the Redis password needs to be manually created
-before deploying the GitLab chart.
-
-{{< /alert >}}
+> [!note]
+> The current Redis Sentinel support only supports Sentinels that have
+> been deployed separately from the GitLab chart. As a result, the Redis
+> deployment through the GitLab chart should be disabled with `redis.install=false`.
+> The Secret containing the Redis password needs to be manually created
+> before deploying the GitLab chart.
 
 ### PostgreSQL
 
@@ -487,13 +484,10 @@ The `pods` declaration provides for the declaration of all attributes for a work
 pod. These will be templated to `Deployment`s, with individual `ConfigMap`s for their
 Sidekiq instances.
 
-{{< alert type="note" >}}
-
-The settings default to including a single pod that is set up to monitor
-all queues. Making changes to the pods section will *overwrite the default pod* with
-a different pod configuration. It will not add a new pod in addition to the default.
-
-{{< /alert >}}
+[!note]
+> The settings default to including a single pod that is set up to monitor
+> all queues. Making changes to the pods section will *overwrite the default pod* with
+> a different pod configuration. It will not add a new pod in addition to the default.
 
 | Name                                  |  Type   | Default        | Description |
 |:--------------------------------------|:-------:|:---------------|:------------|

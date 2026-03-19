@@ -222,15 +222,12 @@ The sub keys describe each Sentinel connection.
 - `host` defines the hostname for the Sentinel service
 - `port` defines the port number to reach the Sentinel service, defaults to `26379`
 
-{{< alert type="note" >}}
-
-The current Redis Sentinel support only supports Sentinels that have
-been deployed separately from the GitLab chart. As a result, the Redis
-deployment through the GitLab chart should be disabled with `redis.install=false`.
-The Secret containing the Redis password will need to be manually created
-before deploying the GitLab chart.
-
-{{< /alert >}}
+> [!note]
+> The current Redis Sentinel support only supports Sentinels that have
+> been deployed separately from the GitLab chart. As a result, the Redis
+> deployment through the GitLab chart should be disabled with `redis.install=false`.
+> The Secret containing the Redis password will need to be manually created
+> before deploying the GitLab chart.
 
 ### PostgreSQL
 

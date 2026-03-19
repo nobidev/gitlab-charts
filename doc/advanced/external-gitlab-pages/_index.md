@@ -76,14 +76,11 @@ GitLab Pages using the Helm chart.
        PAGES_UPDATE_LEGACY_STORAGE: true  # Bypass automatic disabling of disk storage
    ```
 
-   {{< alert type="note" >}}
-
-By setting `PAGES_UPDATE_LEGACY_STORAGE` environment variable to true,
-   the feature flag `pages_update_legacy_storage` is enabled which deploys Pages
-   to local disk. When you migrate to object storage, do remember to remove this
-   variable.
-
-   {{< /alert >}}
+   > [!note]
+   > By setting `PAGES_UPDATE_LEGACY_STORAGE` environment variable to true,
+   > the feature flag `pages_update_legacy_storage` is enabled which deploys Pages
+   > to local disk. When you migrate to object storage, remember to remove this
+   > variable.
 
 1. [Deploy the chart](../../installation/deployment.md#deploy-using-helm)
    using this configuration.

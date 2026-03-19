@@ -12,14 +12,11 @@ and SHA256 hashes. Keys are stored in PEM-encoded PKCS8 format.
 
 These digests can be verified using `cosign verify` command as described below:
 
-{{< alert type="note" >}}
-
-The images are signed using a private key and can be only verified
-locally using the corresponding public key. Moving to a keyless
-signing/verification with GitLab.com OIDC provider is being discussed
-in [issue 638](https://gitlab.com/gitlab-org/build/CNG/-/issues/638).
-
-{{< /alert >}}
+> [!note]
+> The images are signed using a private key and can be only verified
+> locally using the corresponding public key. Moving to a keyless
+> signing/verification with GitLab.com OIDC provider is being discussed
+> in [issue 638](https://gitlab.com/gitlab-org/build/CNG/-/issues/638).
 
 1. Download the public key used for signing from <https://charts.gitlab.io/cosign.pub>:
 

@@ -430,14 +430,11 @@ on the size of your registry. You can still use the registry during this process
 
 The first step is complete when the `registry import complete` displays.
 
-{{< alert type="note" >}}
-
-You should try to schedule the following step as soon as possible
-to reduce the amount of downtime required. Ideally, less than one week
-after step one completes. Any new data written to the registry before the next step
-causes that step to take more time.
-
-{{< /alert >}}
+> [!note]
+> You should try to schedule the following step as soon as possible
+> to reduce the amount of downtime required. Ideally, less than one week
+> after step one completes. Any new data written to the registry before the next step
+> causes that step to take more time.
 
 ##### Step 2. Import all repository data
 

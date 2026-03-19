@@ -87,10 +87,7 @@ shared-secrets:
   enabled: false
 ```
 
-{{< alert type="note" >}}
-
-If you disable this job, you **must** manually create all secrets,
-and provide all necessary secret content. See [installation/secrets](../installation/secrets.md#manual-secret-creation-optional)
-for further details.
-
-{{< /alert >}}
+> [!note]
+> If you disable this job, you **must** manually create all secrets,
+> and provide all necessary secret content. See [installation/secrets](../installation/secrets.md#manual-secret-creation-optional)
+> for further details.

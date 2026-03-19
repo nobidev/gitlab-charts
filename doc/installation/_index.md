@@ -17,13 +17,10 @@ Install GitLab on Kubernetes by using the cloud native GitLab Helm chart.
 Assuming you already have the [prerequisites](tools.md) installed and configured,
 you can [deploy GitLab](deployment.md) with the `helm` command.
 
-{{< alert type="note" >}}
-
-The GitLab Helm chart requires external PostgreSQL, Redis, and object storage for production deployments.
-Bundled versions of these services are included for evaluation purposes only.
-For production, follow the [Cloud Native Hybrid reference architecture](#use-the-reference-architectures).
-
-{{< /alert >}}
+> [!note]
+> The GitLab Helm chart requires external PostgreSQL, Redis, and object storage for production deployments.
+> Bundled versions of these services are included for evaluation purposes only.
+> For production, follow the [Cloud Native Hybrid reference architecture](#use-the-reference-architectures).
 
 For a production deployment, you should have strong working knowledge of Kubernetes.
 This method of deployment has different management, observability, and concepts than traditional deployments.
