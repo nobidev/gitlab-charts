@@ -57,7 +57,7 @@ Each GitLab service is its own sub-chart:
 ### Configuration Hierarchy
 `global` values in `values.yaml` propagate to all sub-charts. Each sub-chart can override at its own level. The `gitlab.yml.erb` template in each service's ConfigMap is generated from Helm values.
 
-**Convention**: Only place values under `global` when they are genuinely consumed by multiple sub-charts. Sub-chart-specific configuration belongs at the sub-chart level, not global — even if it's convenient to centralise it.
+**Convention**: Be intentional about what goes under `global`. Values tightly bound to a single sub-chart should live at the sub-chart level, not global. The chart has existing values in `global` for historical/consistency reasons (e.g. `global.gatewayApi`) that are being progressively relocated.
 
 See the [development docs](https://docs.gitlab.com/charts/development/) for architecture details, style guide, and contribution guidelines.
 
