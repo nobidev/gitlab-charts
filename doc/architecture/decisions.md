@@ -140,7 +140,9 @@ However, bundling provides critical advantages for GitLabs use case, but also ca
   Dedicated) and the GitLab Environment Toolkit.
 - Many Cloud Provider's Gateway implementation do not support TCPRoutes, which
   are a requirement to expose GitLab for SSH traffic.
-- Giving FIPS customers, including Dedicated for Governmant, a path to migrate
+- Envoy Gateway offers powerful extensions to the standard Gateway API. These extensions
+  enable advanced configuration not available with standard Gateway API resources.
+- Provides FIPS customers, including Dedicated for Government, a migration path
   from the bundled NGINX Ingress, which GitLab currently offers FIPS builds for.
 - Enables adoption of Envoy, which other [GitLab functionalities](https://gitlab.com/gitlab-org/architecture/auth-architecture/design-doc/-/blob/0d779e8aae72db3f1f045c69d0e693739f2f5fc8/decisions/005_adopt_envoy.md)
   will depend on.
@@ -152,6 +154,11 @@ who to follow the prescribed personas of Gateway API and maintain the option to 
 Cluster Operators the choice of managing the Gateway themselves.
 Likewise, customers with special or unusual configuration requirements for their Gateways
 will be encouraged to manage and configure the Gateway themselves.
+
+GitLab chart will use standard and stable Gateway API resources where possible. Experimental
+or provider-specific resources are only used for optional features or for functionality not
+configurable with standard or with stable resources such as Git via SSH or cross serving GRPC
+traffic for KAS.
 
 ### Considerations
 
