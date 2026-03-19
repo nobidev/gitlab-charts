@@ -12,7 +12,6 @@
     - .vcluster_base
   variables:
     ADD_NGINX_DNS_ANNOTATIONS: "true"
-  allow_failure: true
   before_script:
     - source scripts/ci/autodevops.sh
     - source scripts/ci/vcluster.sh
@@ -55,7 +54,6 @@
     - .vcluster_base
   variables:
     RSPEC_TAGS: type:feature
-  allow_failure: true
   before_script:
     - source scripts/ci/autodevops.sh
     - source scripts/ci/vcluster.sh
