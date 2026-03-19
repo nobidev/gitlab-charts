@@ -62,3 +62,12 @@ Each GitLab service is its own sub-chart:
 `.gitlab-ci.yml` stages: `test → preflight → staging → review`
 
 Uses Knapsack for parallel RSpec test distribution across CI nodes.
+
+## Merge Requests
+
+When creating MRs for this repo, always use the appropriate MR template from `.gitlab/merge_request_templates/`:
+
+- **`Default.md`** — for all code changes (features, bug fixes, refactors, tooling)
+- **`Documentation.md`** — for documentation-only changes (branch name must start with `docs-`/`docs/` or end with `-docs`)
+
+The templates include required author/reviewer checklists and quick actions that apply labels and assignment. Always populate the template fully rather than replacing it with a custom description.
