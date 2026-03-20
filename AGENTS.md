@@ -75,8 +75,8 @@ See the [development docs](doc/development/_index.md) for architecture details, 
 
 ### Examples Directory
 
-There is a an `examples/` directory. This contains a mix of Helm values files, and other snippets.
-For consistency, nearly all example Values are in named with a `values-` prefix.
+There is an `examples/` directory. It contains a mix of Helm values files and other snippets.
+For consistency, nearly all example values are named with a `values-` prefix.
 This is not always the case, and not all YAML in this directory is Helm values.
 For all future additions, please suggest Values be prefixed with `values-`, and resources be named
 clearly according to their contents.
@@ -89,7 +89,7 @@ Uses Knapsack for parallel RSpec test distribution across CI nodes.
 
 This project makes use of Ruby and RSpec for extensive and adaptable output testing, largely via `helm template`.
 We also secondarily parse ERB and `gomplate`, after extracting from `helm template`.
-RSpec behavioral guidance can be found in `doc/developmment/rspec.md`.
+RSpec behavioral guidance can be found in `doc/development/rspec.md`.
 
 ## Merge Requests
 
@@ -105,9 +105,9 @@ Additionally, never push anything to remote without asking for approval, unless 
 ## Documentation
 
 Nearly all documentation lives under `doc/`.
-This is linted in several ways: vale, markdownlint.
-See `.vale.ini` in regards to Vale configuration.
-See `.markdownlint-cli2.yaml` in regards to markdownlint.
+This is linted in several ways: Vale and markdownlint.
+See `.vale.ini` for Vale configuration.
+See `.markdownlint-cli2.yaml` for markdownlint configuration.
 
 ## Development Environment
 
