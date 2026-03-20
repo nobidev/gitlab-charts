@@ -30,6 +30,7 @@ Dangerfile
 Rakefile
 Gemfile
 Gemfile.lock
+gems/
 knapsack_rspec_report.json
 mise.toml
 ci/
