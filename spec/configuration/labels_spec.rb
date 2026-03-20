@@ -122,9 +122,11 @@ describe 'Labels configuration' do
 
     let(:third_party_resources) do
       [
-        'Deployment/test-certmanager-webhook',
         'Deployment/test-certmanager-cainjector',
+        'Deployment/test-certmanager-webhook',
         'Deployment/test-certmanager',
+        'Deployment/test-gitlab-runner',
+        'Deployment/test-nginx-ingress-controller',
         'Deployment/test-prometheus-server',
         'Job/test-certmanager-startupapicheck',
         'StatefulSet/test-postgresql',
@@ -133,11 +135,18 @@ describe 'Labels configuration' do
     end
 
     let(:legacy_label_keys) do
-      %w[
-        app
-        chart
-        heritage
-        release
+      [
+        # Legacy labels
+        'app',
+        'chart',
+        'heritage',
+        'release',
+        # Application labels
+        'app.kubernetes.io/name',
+        'app.kubernetes.io/instance',
+        'app.kubernetes.io/part-of',
+        'app.kubernetes.io/managed-by',
+        'helm.sh/chart',
       ]
     end
 
