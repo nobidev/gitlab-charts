@@ -1013,13 +1013,14 @@ can be found in the examples folder.
 #### `external`
 
 The `external` key provides a configuration for Gitaly nodes external to the cluster.
-Each item of this list has 3 keys:
+Each item of this list has the following keys:
 
 - `name`: The name of the [storage](https://docs.gitlab.com/administration/repository_storage_paths/).
   An entry with [`name: default` is required](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#gitlab-requires-a-default-repository-storage).
-- `hostname`: The host of Gitaly services.
-- `port`: (optional) The port number to reach the host on. Defaults to `8075`.
-- `tlsEnabled`: (optional) Override `global.gitaly.tls.enabled` for this particular entry.
+- `address`: (optional) A full URI for the Gitaly service (for example, `dns://8.8.8.8:53/gitaly.example.com` or `dns+tls://8.8.8.8:53/gitaly.example.com` for TLS). When specified, this takes precedence over `hostname` and `port`. See the [advanced configuration guide](../advanced/external-gitaly/_index.md#dns-address-format) for more details.
+- `hostname`: The host of Gitaly services. Required if `address` is not specified.
+- `port`: (optional) The port number to reach the host on. Defaults to `8075`. Ignored if `address` is specified.
+- `tlsEnabled`: (optional) Override `global.gitaly.tls.enabled` for this particular entry. Ignored if `address` is specified.
 
 We provide an [advanced configuration](../advanced/_index.md) guide for
 [using an external Gitaly service](../advanced/external-gitaly/_index.md). You can also

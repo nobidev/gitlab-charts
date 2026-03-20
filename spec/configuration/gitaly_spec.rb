@@ -120,6 +120,64 @@ describe 'Gitaly configuration' do
         expect(storages['default']['gitaly_address']).to eq('tcp://git.example.com:8075')
       end
     end
+
+    context 'when external is configured with address' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            gitaly:
+              enabled: false
+              external:
+              - name: default
+                address: dns://8.8.8.8:53/gitaly.consul.internal
+        )).deep_merge(default_values)
+      end
+
+      it 'populates the address uri' do
+        # check that gitlab.yml.erb contains production.repositories.storages
+        storages = gitlab_yml['production']['repositories']['storages']
+        expect(storages).to have_key('default')
+        expect(storages['default']['gitaly_address']).to eq('dns://8.8.8.8:53/gitaly.consul.internal')
+      end
+    end
+
+    context 'when external is configured with address and tlsEnabled' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            gitaly:
+              enabled: false
+              external:
+              - name: default
+                address: dns://8.8.8.8:53/gitaly.consul.internal
+                tlsEnabled: true
+        )).deep_merge(default_values)
+      end
+
+      it 'populates the address uri (ignoring tlsEnabled)' do
+        # check that gitlab.yml.erb contains production.repositories.storages
+        storages = gitlab_yml['production']['repositories']['storages']
+        expect(storages).to have_key('default')
+        expect(storages['default']['gitaly_address']).to eq('dns://8.8.8.8:53/gitaly.consul.internal')
+      end
+    end
+  end
+
+  context 'When gitaly host is specified with address' do
+    let(:values) do
+      YAML.safe_load(%(
+        global:
+          gitaly:
+            host: gitaly.example.com
+            address: dns://8.8.8.8:53/gitaly.consul.internal
+      )).deep_merge(default_values)
+    end
+
+    it 'populates the address uri in gitlab.yml' do
+      storages = gitlab_yml['production']['repositories']['storages']
+      expect(storages).to have_key('default')
+      expect(storages['default']['gitaly_address']).to eq('dns://8.8.8.8:53/gitaly.consul.internal')
+    end
   end
 
   context 'when rendering gitaly securityContexts' do
