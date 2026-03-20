@@ -78,7 +78,7 @@ See the [development docs](doc/development/_index.md) for architecture details, 
 There is an `examples/` directory. It contains a mix of Helm values files and other snippets.
 For consistency, nearly all example values are named with a `values-` prefix.
 This is not always the case, and not all YAML in this directory is Helm values.
-For all future additions, please suggest Values be prefixed with `values-`, and resources be named
+For all future additions, please suggest helm values files be prefixed with `values-`, and resources be named
 clearly according to their contents.
 
 ## CI Pipeline
@@ -87,7 +87,7 @@ clearly according to their contents.
 
 Uses Knapsack for parallel RSpec test distribution across CI nodes.
 
-This project makes use of Ruby and RSpec for extensive and adaptable output testing, largely via `helm template`.
+This project makes use of Ruby and RSpec for extensive and adaptable rendered template testing via `helm template`.
 We also secondarily parse ERB and `gomplate`, after extracting from `helm template`.
 RSpec behavioral guidance can be found in `doc/development/rspec.md`.
 
@@ -114,8 +114,8 @@ See `.markdownlint-cli2.yaml` for markdownlint configuration.
 This repository makes use of mise tooling, configured via `mise.toml`.
 
 We regularly develop with several tools:
-- colima https://colima.run/docs/
-- Rancher Desktop https://docs.rancherdesktop.io/
-- kind https://kind.sigs.k8s.io/
+- [colima](https://colima.run/docs/)
+- [Rancher Desktop](https://docs.rancherdesktop.io/)
+- [kind](https://kind.sigs.k8s.io/)
 
 Further documentation is present in `doc/development/environment_setup.md`.
