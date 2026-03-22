@@ -2074,7 +2074,11 @@ global:
 
 Smartcard authentication works out of the box with the [bundled Envoy Gateway](envoygateway/_index.md),
 requiring no extra setup. To use the [bundled NGINX Ingress](nginx/_index.md) instead, you must enable
-snippet annotations:
+snippet annotations.
+
+Enabling snippet annotations allows custom NGINX configuration to be injected through annotations,
+which can pose a security risk in certain environments. Please review the [upstream documentation](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#allow-snippet-annotations)
+before enabling the annotations.
 
 ```yaml
 nginx-ingress:
