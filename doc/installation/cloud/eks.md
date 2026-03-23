@@ -78,13 +78,10 @@ Administrators may also want to consider the
 [new AWS Service Operator for Kubernetes](https://aws.amazon.com/blogs/opensource/aws-service-operator-kubernetes-available/)
 to simplify this process.
 
-{{< alert type="note" >}}
-
-Enabling the AWS Service Operator requires a method of managing roles within the cluster. The initial
-services handling that management task are provided by third party developers. Administrators should
-keep that in mind when planning for deployment.
-
-{{< /alert >}}
+> [!note]
+> Enabling the AWS Service Operator requires a method of managing roles within the cluster. The initial
+> services handling that management task are provided by third party developers. Administrators should
+> keep that in mind when planning for deployment.
 
 ## Persistent Volume Management
 
@@ -131,13 +128,10 @@ and then mapping your desired DNS name to the created ELB using a CNAME
 record. Since the ELB must be created first before its hostname can be
 retrieved, follow the next instructions to install GitLab.
 
-{{< alert type="note" >}}
-
-For environments where AWS LoadBalancers are required,
-[Amazon's Elastic Load Balancers](https://docs.aws.amazon.com/eks/latest/userguide/load-balancing.html)
-require specialized configuration. See [Cloud provider LoadBalancers](../../charts/globals.md#cloud-provider-loadbalancers)
-
-{{< /alert >}}
+> [!note]
+> For environments where AWS LoadBalancers are required,
+> [Amazon's Elastic Load Balancers](https://docs.aws.amazon.com/eks/latest/userguide/load-balancing.html)
+> require specialized configuration. See [Cloud provider LoadBalancers](../../charts/globals.md#cloud-provider-loadbalancers)
 
 ## Next Steps
 

@@ -13,14 +13,10 @@ API, you can keep using Ingresses with an external Ingress controller.
 
 ### NGINX
 
-{{< alert type="warning" >}}
-
-NGINX Ingress was deprecated and won't receive security patches after March 2026.
-
-Read the [official announcement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/) for
-more information.
-
-{{< /alert >}}
+> [!warning]
+> NGINX Ingress was deprecated and won't receive security patches after March 2026.
+> Read the [official announcement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/)
+> for more information.
 
 Check the [external NGINX Ingress documentation](nginx.md) to configure and prepare a external NGINX
 Ingress deployment to be used with GitLab.

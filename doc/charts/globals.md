@@ -204,8 +204,6 @@ Ingress object is created for each validation.
 
 {{< /details >}}
 
-{{< alert type="warning" >}}
-
 Gateway API support is currently under active development. Please be aware that:
 
 1. Complete validation across all deployment scenarios has not yet been fully verified.
@@ -214,8 +212,6 @@ Gateway API support is currently under active development. Please be aware that:
    Other Gateway API controllers might need additional configuration.
 
 For more information, see [work item 5](https://gitlab.com/groups/gitlab-com/gl-infra/software-delivery/operate/-/work_items/5).
-
-{{< /alert >}}
 
 | Name                           |  Type   | Default        | Description |
 |:-------------------------------|:-------:|:---------------|:------------|
@@ -259,6 +255,12 @@ listeners:
       mode: Terminate
       certificateRefs:
         - name: gitlab-web-geo-tls
+  gitlab-smartcard-web:
+    protocol: ""
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: gitlab-smartcard-tls
   gitlab-ssh:
     protocol: "TCP"
   registry-web:
@@ -325,8 +327,10 @@ meets the requirements to expose GitLab.
 
 Make sure your Gateway API provider does support:
 
-1. `HTTPRoutes`, `TCPRoute` (for SSH), and `GRPCRoutes` (for future KAS features)
-1. `RegularExpression` matches in `HTTPRoutes`
+1. `HTTPRoutes` with `RegularExpression` matches.
+1. `TCPRoutes` for exposing Git via SSH.
+1. Cross serving GRPC and other HTTP traffic via `HTTPRoutes` for KAS. This might need
+   additional provider specific configuration.
 
 Note that we only test with the bundled Envoy Gateway chart. Support for other providers is
 offered on a best-effort basis. We welcome any contributions that document working
@@ -381,13 +385,10 @@ global:
 
 ## GitLab Version
 
-{{< alert type="note" >}}
-
-This value should only be used for development purposes, or by explicit request of GitLab support. Please avoid using this value in the configuration file
-on production environments. Set the version as described
-in [Deploy using Helm](../installation/deployment.md#deploy-using-helm) instead.
-
-{{< /alert >}}
+> [!note]
+> This value should only be used for development purposes, or by explicit request of GitLab support. Please avoid using
+> this value in the configuration file on production environments. Set the version as described
+> in [Deploy using Helm](../installation/deployment.md#deploy-using-helm) instead.
 
 The GitLab version used in the default image tag for the charts can be changed using
 the `global.gitlabVersion` key:
@@ -481,13 +482,9 @@ from the global, by design.
 
 ### PostgreSQL SSL
 
-{{< alert type="note" >}}
-
 SSL support is mutual TLS only.
 See [issue #2034](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2034)
 and [issue #1817](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1817).
-
-{{< /alert >}}
 
 If you want to connect GitLab with a PostgreSQL database over mutual TLS, create a secret
 containing the client key, client certificate and server certificate authority as different
@@ -1025,13 +1022,14 @@ can be found in the examples folder.
 #### `external`
 
 The `external` key provides a configuration for Gitaly nodes external to the cluster.
-Each item of this list has 3 keys:
+Each item of this list has the following keys:
 
 - `name`: The name of the [storage](https://docs.gitlab.com/administration/repository_storage_paths/).
   An entry with [`name: default` is required](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#gitlab-requires-a-default-repository-storage).
-- `hostname`: The host of Gitaly services.
-- `port`: (optional) The port number to reach the host on. Defaults to `8075`.
-- `tlsEnabled`: (optional) Override `global.gitaly.tls.enabled` for this particular entry.
+- `address`: (optional) A full URI for the Gitaly service (for example, `dns://8.8.8.8:53/gitaly.example.com` or `dns+tls://8.8.8.8:53/gitaly.example.com` for TLS). When specified, this takes precedence over `hostname` and `port`. See the [advanced configuration guide](../advanced/external-gitaly/_index.md#dns-address-format) for more details.
+- `hostname`: The host of Gitaly services. Required if `address` is not specified.
+- `port`: (optional) The port number to reach the host on. Defaults to `8075`. Ignored if `address` is specified.
+- `tlsEnabled`: (optional) Override `global.gitaly.tls.enabled` for this particular entry. Ignored if `address` is specified.
 
 We provide an [advanced configuration](../advanced/_index.md) guide for
 [using an external Gitaly service](../advanced/external-gitaly/_index.md). You can also
@@ -1439,13 +1437,10 @@ object_store:
 The property structure is shared, and all properties here can be overridden by the individual
 items below. The `connection` property structure is identical.
 
-{{< alert type="note" >}}
-
-The `bucket`, `enabled`, and `proxy_download` properties are the only properties that must be
-configured on a per-item level (`global.appConfig.artifacts.bucket`, ...) if you wish to
-deviate from the default values.
-
-{{< /alert >}}
+> [!note]
+> The `bucket`, `enabled`, and `proxy_download` properties are the only properties that must be
+> configured on a per-item level (`global.appConfig.artifacts.bucket`, ...) if you wish to
+> deviate from the default values.
 
 When using the `AWS` provider for the [connection](#connection) (which is any
 S3 compatible provider such as the included MinIO), GitLab Workhorse can offload
@@ -1749,13 +1744,10 @@ Example `--set` configuration items, when using the global chart:
 --set global.appConfig.ldap.servers.main.password.key='the-key-containing-the-password'
 ```
 
-{{< alert type="note" >}}
-
-Commas are considered [special characters](https://helm.sh/docs/intro/using_helm/#the-format-and-limitations-of---set)
-within Helm `--set` items. Be sure to escape commas in values such as `bind_dn`:
-`--set global.appConfig.ldap.servers.main.bind_dn='cn=administrator\,cn=Users\,dc=domain\,dc=net'`.
-
-{{< /alert >}}
+> [!note]
+> Commas are considered [special characters](https://helm.sh/docs/intro/using_helm/#the-format-and-limitations-of---set)
+> within Helm `--set` items. Escape commas in values such as `bind_dn`:
+> `--set global.appConfig.ldap.servers.main.bind_dn='cn=administrator\,cn=Users\,dc=domain\,dc=net'`.
 
 #### Disable LDAP web sign in
 
@@ -1795,15 +1787,7 @@ If the LDAP server uses a custom CA or self-signed certificate, you must:
 
 This ensures that the CA certificate is mounted in the relevant pods at `/etc/ssl/certs/unique_name.pem` and specifies its use in the LDAP configuration.
 
-{{< alert type="note" >}}
-
-In GitLab 15.9 and later, the certificate in `/etc/ssl/certs/` is not prefixed with `ca-cert-` anymore.
-This was the old behavior due to the use of Alpine for the container that prepared the certificate secrets
-for deployed pods. The `gitlab-base` container is now used for this operation, which is based on Debian.
-
-{{< /alert >}}
-
-See [Custom Certificate Authorities](#custom-certificate-authorities) for more info.
+See [Custom Certificate Authorities](#custom-certificate-authorities) for more information.
 
 ### `duoAuth`
 
@@ -2071,6 +2055,23 @@ global:
 | `sanExtensions`                 | Boolean | `false` | Enable the use of SAN extensions to match users with certificates. |
 | `requiredForGitAccess`          | Boolean | `false` | Require browser session with smartcard sign-in for Git access. |
 
+Smartcard authentication works out of the box with the [bundled Envoy Gateway](envoygateway/_index.md),
+requiring no extra setup. To use the [bundled NGINX Ingress](nginx/_index.md) instead, you must enable
+snippet annotations.
+
+Enabling snippet annotations allows custom NGINX configuration to be injected through annotations,
+which can pose a security risk in certain environments. Please review the [upstream documentation](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#allow-snippet-annotations)
+before enabling the annotations.
+
+```yaml
+nginx-ingress:
+  enabled: true
+  controller:
+    config:
+      allow-snippet-annotations: "true"
+      annotations-risk-level: "Critical"
+```
+
 ### Sidekiq routing rules settings
 
 GitLab supports routing a job from a worker to a desired queue before it is
@@ -2332,18 +2333,15 @@ global:
           - unique_name_2.crt
 ```
 
-{{< alert type="note" >}}
-
-The `.crt` extension in the Secret's key name is important for the
-[Debian update-ca-certificates package](https://manpages.debian.org/bullseye/ca-certificates/update-ca-certificates.8.en.html).
-This step ensures that the custom CA file is mounted with that extension and is processed
-in the Certificates `initContainers`.
-Previously, when the certificates helper image was Alpine-based, the file extension was not actually required
-even though the [documentation](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)
-says that it is.
-The UBI-based `update-ca-trust` utility does not seem to have the same requirement.
-
-{{< /alert >}}
+> [!note]
+> The `.crt` extension in the Secret's key name is important for the
+> [Debian update-ca-certificates package](https://manpages.debian.org/bullseye/ca-certificates/update-ca-certificates.8.en.html).
+> This step ensures that the custom CA file is mounted with that extension and is processed
+> in the Certificates `initContainers`.
+> Previously, when the certificates helper image was Alpine-based, the file extension was not actually required
+> even though the [documentation](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)
+> says that it is.
+> The UBI-based `update-ca-trust` utility does not seem to have the same requirement.
 
 You can provide any number of Secrets or ConfigMaps, each containing any number of keys that hold
 PEM-encoded CA certificates. These are configured as entries under `global.certificates.customCAs`.
@@ -2410,13 +2408,10 @@ global:
 - Setting `global.serviceAccount.name` controls the Service Account object name and the name referenced by each component.
 - Setting `global.serviceAccount.automountServiceAccountToken` controls if the default ServiceAccount access token should be mounted in pods. You should not enable this unless it is required by certain sidecars to work properly (for example, Istio).
 
-{{< alert type="note" >}}
-
-Do not use `global.serviceAccount.create=true` with `global.serviceAccount.name`, as it instructs the charts
-to create multiple ServiceAccount objects with the same name. Instead, use `global.serviceAccount.create=false` if specifying
-a global name.
-
-{{< /alert >}}
+> [!note]
+> Do not use `global.serviceAccount.create=true` with `global.serviceAccount.name`, as it instructs the charts
+> to create multiple ServiceAccount objects with the same name. Instead, use `global.serviceAccount.create=false` if specifying
+> a global name.
 
 ## Annotations
 
@@ -2448,13 +2443,10 @@ global:
     disktype: ssd
 ```
 
-{{< alert type="note" >}}
-
-Charts that are maintained externally do not respect the `global.nodeSelector`
-at this time and may need to be configured separately based on available chart values.
-This includes Prometheus, cert-manager, Redis, etc.
-
-{{< /alert >}}
+> [!note]
+> Charts that are maintained externally do not respect the `global.nodeSelector`
+> at this time and might need to be configured separately based on available chart values.
+> This includes Prometheus, cert-manager, Redis, etc.
 
 ## Labels
 

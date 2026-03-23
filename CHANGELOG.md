@@ -2,6 +2,33 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.10.0 (2026-03-18)
+
+### Added (4 changes)
+
+- [Add HTTP-to-HTTPS redirect for Gateway API deployment](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b7a3b164f7d00cf18545a8ca2495c9aef2037c30) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4868))
+- [Add knowledge graph support](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6ada639ff0f899a6e5ece55e0bbf179d052e1a6f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4855))
+- [Add ServiceMonitor and PodMonitor for Envoy](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/56f079186510e63e6588457693cab4f98286ed28) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4811))
+- [Add statusCode configuration for Workhorse load shedding](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7db69723b7f798a970d54ab9cf552c67a5458560) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4858))
+
+### Fixed (2 changes)
+
+- [Fix inverted namespaceInPath condition for pages Gateway listener](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/886efc28b5193047c86b501ad90a6ecf53e8086e) by @weijiany ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4859))
+- [Create minio httproute only when minio is enabled](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/847caf3802cf710f3b3523c20442e808aba5934d) by @achupryn ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4838))
+
+### Changed (10 changes)
+
+- [Update Envoy Gateway to v1.7.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5a83c3fd73146e7824996e38b327f91c9bbed04f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4874))
+- [Re-enable HTTP audit logging for Secrets Manager](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/72cb9df468a56d2e6494127550669617749062c6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4875))
+- [Update container-registry to v4.38.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7aaf66bcf23fcdf30fbb1de5d9c5a1543caf75f2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4852))
+- [Update cert-manager from 1.17.4 to 1.19.4](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f9bba1afa813d5d9b3a062e5802655a0cc99050a) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4754))
+- [Update gitlab-exporter to v16.6.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/d89ea9b9f95fc4d068679c164aaaa2ba625eecf0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4601))
+- [Update gitlab-zoekt to v3.8.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6e88ff4845fda37245acfcf5a78e0f9bc4653ec3) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4832))
+- [Update GitLab exporter from 16.2 to 16.4](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/8a927a76aa0ec94632de9d1657558fbcdb626ea7) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4830))
+- [Update gitlab-runner to v0.86.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5989b6d58df3cd6333f896ac6d6186a97099b863) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4823))
+- [Update container-registry to v4.37.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f225950cc5b21f2c4dd09f30f989cb40185cd929) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4813))
+- [Remove Zoekt basic auth from main GitLab Helm chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bf6e3d48b050e0ba467d2adc98784ad123d2aa98) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4782))
+
 ## 9.9.3 (2026-03-10)
 
 No changes.

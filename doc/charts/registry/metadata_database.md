@@ -43,7 +43,7 @@ After you set up the external PostgreSQL server:
 
    ```shell
    kubectl create secret generic RELEASE_NAME-registry-database-password --from-literal=password=<your_registry_password>
-    ```
+   ```
 
 1. Log in to your database server.
 1. Use the following SQL commands to create the user and the database:
@@ -377,13 +377,10 @@ To import in three steps, you must:
 For larger instances, this process can take hours or even days to complete, depending
 on the size of your registry. You can still use the registry during this process.
 
-{{< alert type="warning" >}}
-
-It is [not yet possible](https://gitlab.com/gitlab-org/container-registry/-/issues/1162)
-to restart the import, so it's important to let the import run to completion.
-If you must halt the operation, you have to restart this step.
-
-{{< /alert >}}
+> [!warning]
+> It is [not yet possible](https://gitlab.com/gitlab-org/container-registry/-/issues/1162)
+> to restart the import, so it's important to let the import run to completion.
+> If you must halt the operation, you have to restart this step.
 
 1. Find the `registry:` section in the `values.yml` file and add the `database` section.
    Set:
@@ -433,14 +430,11 @@ If you must halt the operation, you have to restart this step.
 
 The first step is complete when the `registry import complete` displays.
 
-{{< alert type="note" >}}
-
-You should try to schedule the following step as soon as possible
-to reduce the amount of downtime required. Ideally, less than one week
-after step one completes. Any new data written to the registry before the next step
-causes that step to take more time.
-
-{{< /alert >}}
+> [!note]
+> You should try to schedule the following step as soon as possible
+> to reduce the amount of downtime required. Ideally, less than one week
+> after step one completes. Any new data written to the registry before the next step
+> causes that step to take more time.
 
 ##### Step 2. Import all repository data
 
@@ -547,7 +541,6 @@ After the command completes successfully, the registry is now fully migrated to 
 The container registry supports two types of migrations:
 
 - **Regular schema migrations**: Changes to the database structure that must run before deploying new application code. These should be fast to avoid deployment delays.
-
 - **Post-deployment migrations**: Changes to the database structure that can run while the application is running. Used for longer operations like creating indexes on large tables, avoiding startup delays and extended upgrade downtime.
 
 ### Apply database migrations
@@ -565,7 +558,6 @@ To reduce downtime during upgrades, you can skip post-deployment migrations and 
    ```
 
 1. After upgrading, [connect to a registry pod](_index.md#running-administrative-commands-against-the-container-registry).
-
 1. Apply pending post-deployment migrations:
 
    ```shell

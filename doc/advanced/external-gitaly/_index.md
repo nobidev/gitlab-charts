@@ -56,6 +56,59 @@ global:
       enabled: false                    # optional, default shown
 ```
 
+Alternatively, you can use the `address` field to specify a full URI for Gitaly services, including DNS-based addresses:
+
+```yaml
+global:
+  gitaly:
+    enabled: false
+    external:
+      - name: default                                    # required
+        address: dns://8.8.8.8:53/gitaly.consul.internal # required (alternative to hostname/port)
+    authToken:
+      secret: *********************                      # required
+      key: token                                         # optional, default shown
+```
+
+### DNS address format
+
+{{< history >}}
+
+- DNS address support [introduced](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4716) in GitLab 18.8.
+
+{{< /history >}}
+
+When using the `address` field with DNS-based URIs, the format follows the [gRPC DNS resolver specification](https://gitlab.com/gitlab-org/gitaly/-/blob/master/doc/grpc_load_balancing.md):
+
+```plaintext
+dns:[//authority/]host[:port]
+dns+tls:[//authority/]host[:port]
+```
+
+Use `dns+tls` to enable TLS for the connection. This scheme combines DNS-based service discovery with TLS encryption.
+
+`authority` is in the form of `IP address[:port]`. Specifying a hostname
+in `authority` does not work. Port 53 is used by default.
+
+For example:
+
+- `dns:///gitaly.example.com`: Note the triple slashes `///` when the default authority is used.
+- `dns://8.8.8.8:53/gitaly.consul.internal`: Custom DNS resolver with port.
+- `dns://10.0.1.50:8600/praefect.service.consul.:2305`: Custom DNS resolver with Praefect service and port. Note the trailing `.` to avoid appending Kubernetes DNS suffix.
+- `dns+tls:///gitaly.example.com`: DNS with TLS enabled using default authority.
+- `dns+tls://10.0.1.50:8600/praefect.service.consul.:2305`: DNS server with TLS enabled.
+
+The trailing `.` is important when the service is not running in the
+Kubernetes cluster. The gRPC client needs this to avoid appending the
+default DNS suffix for Kubernetes (commonly `.svc.cluster.local`). A pod
+typically has `options ndots:5` defined in `/etc/resolv.conf`,
+which [causes the DNS query to be expanded](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
+for service names with fewer than 5 dots.
+
+In the example `dns://10.0.1.50:8600/praefect.service.consul:2305`, the `8600` is the DNS server port and `2305` is the Praefect service port.
+
+For more information on service discovery with Praefect, see the [Praefect service discovery documentation](https://docs.gitlab.com/administration/gitaly/praefect/configure/#service-discovery).
+
 A complete example of setting up an external Praefect service.
 
 > [!note]
@@ -147,14 +200,11 @@ have to
            tlsEnabled: true
    ```
 
-{{< alert type="note" >}}
-
-You can choose any valid secret name and key for this, but make
-sure the key is unique across all the secrets specified in `customCAs` to avoid
-collision since all keys within the secrets will be mounted. You **do not**
-need to provide the key for the certificate, as this is the _client side_.
-
-{{< /alert >}}
+> [!note]
+> You can choose any valid secret name and key for this, but make
+> sure the key is unique across all the secrets specified in `customCAs` to avoid
+> collision since all keys within the secrets will be mounted. You **do not**
+> need to provide the key for the certificate, as this is the _client side_.
 
 ## Test that GitLab can connect to Gitaly
 
@@ -352,7 +402,6 @@ Schedule the move by following the steps indicated in [moving repositories](http
 #### Step 5: Final configuration and validation
 
 1. If you have multiple Gitaly storages, [configure where new repositories are stored](https://docs.gitlab.com/administration/repository_storage_paths/#configure-where-new-repositories-are-stored).
-
 1. Consider generating a consolidated `gitlab.yml` for the future that includes the external Gitaly configuration:
 
    ```shell
@@ -411,7 +460,6 @@ Schedule the move by following the steps indicated in [moving repositories](http
    ```
 
 1. Optional. Remove the changes made to each external Gitaly `/etc/hosts` file after following the [get the Gitaly pod IP and hostnames](#step-3-get-the-gitaly-pod-ip-and-hostnames) step.
-
 1. After you have confirmed everything is working as expected, you can delete the Gitaly PVC:
 
    WARNING: Do not delete the Gitaly PVC until you have double checked that everything is working as expected.
@@ -425,7 +473,7 @@ Schedule the move by following the steps indicated in [moving repositories](http
 This method:
 
 - Backs up your repositories from the Gitaly chart PersistentVolumeClaim (PVC) and then restore them to the
-external Gitaly service.
+  external Gitaly service.
 - Does incur downtime to all users.
 - Has not been tested with the [Praefect chart](../../charts/gitlab/praefect/_index.md) and is not supported.
 
@@ -738,7 +786,6 @@ kubectl exec <toolbox pod name> -it -- backup-utility --skip artifacts,ci_secure
    ```
 
 1. If you have multiple Gitaly storages, [configure where new repositories are stored](https://docs.gitlab.com/administration/repository_storage_paths/#configure-where-new-repositories-are-stored).
-
 1. Enable Sidekiq cron jobs:
 
    ```shell

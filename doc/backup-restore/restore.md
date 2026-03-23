@@ -48,9 +48,7 @@ The GitLab chart expects rails secrets to be provided as a Kubernetes Secret wit
 the rails secret from a Linux package instance, secrets are stored in JSON format in the `/etc/gitlab/gitlab-secrets.json` file. To convert the file and create the secret in YAML format:
 
 1. Copy the file `/etc/gitlab/gitlab-secrets.json` to the workstation where you run `kubectl` commands.
-
 1. Install the [yq](https://github.com/mikefarah/yq) tool (version 4.21.1 or later) on your workstation.
-
 1. Run the following command to convert your `gitlab-secrets.json` to YAML format:
 
    ```shell
@@ -117,7 +115,6 @@ The steps for restoring a GitLab installation are
    ```
 
 1. Get the tarball ready in any of the above locations. Make sure it is named in the `<backup_ID>_gitlab_backup.tar` format. Read what the [backup ID](https://docs.gitlab.com/administration/backup_restore/backup_archive_process/#backup-id) is about.
-
 1. Note the current number of replicas for database clients for subsequent restart:
 
    ```shell
@@ -150,7 +147,6 @@ The steps for restoring a GitLab installation are
 
 1. This process will take time depending on the size of the tarball.
 1. The restoration process will erase the existing contents of database, move existing repositories to temporary locations and extract the contents of the tarball. Repositories will be moved to their corresponding locations on the disk and other data, like artifacts, uploads, LFS etc. will be uploaded to corresponding buckets in Object Storage.
-
 1. Restart the application:
 
    ```shell
@@ -159,13 +155,10 @@ The steps for restoring a GitLab installation are
    kubectl scale deploy -lapp=prometheus,release=<helm release name> -n <namespace> --replicas=<value>
    ```
 
-{{< alert type="note" >}}
-
-During restoration, the backup tarball needs to be extracted to disk.
-This means the Toolbox pod should have disk of necessary size available.
-For more details and configuration please see the [Toolbox documentation](../charts/gitlab/toolbox/_index.md#persistence-configuration).
-
-{{< /alert >}}
+> [!note]
+> During restoration, the backup tarball needs to be extracted to disk.
+> This means the Toolbox pod should have disk of necessary size available.
+> For more details and configuration please see the [Toolbox documentation](../charts/gitlab/toolbox/_index.md#persistence-configuration).
 
 ### Restore the runner registration token
 

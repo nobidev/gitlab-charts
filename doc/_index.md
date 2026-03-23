@@ -19,13 +19,10 @@ For OpenShift-based installations, use [GitLab Operator](https://docs.gitlab.com
 otherwise you must update the [security context constraints](https://docs.gitlab.com/operator/security_context_constraints/)
 yourself.
 
-{{< alert type="note" >}}
-
-The GitLab Helm chart requires external PostgreSQL, Redis, and object storage for production deployments.
-Bundled versions of these services are included for evaluation purposes only.
-For production, follow the [Cloud Native Hybrid reference architectures](installation/_index.md#use-the-reference-architectures).
-
-{{< /alert >}}
+> [!note]
+> The GitLab Helm chart requires external PostgreSQL, Redis, and object storage for production deployments.
+> Bundled versions of these services are included for evaluation purposes only.
+> For production, follow the [Cloud Native Hybrid reference architectures](installation/_index.md#use-the-reference-architectures).
 
 For a production deployment, you should have strong working knowledge of Kubernetes.
 This method of deployment has different management, observability, and concepts than traditional deployments.

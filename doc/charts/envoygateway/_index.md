@@ -69,7 +69,7 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
 
    ```script
    helm template eg-crds oci://docker.io/envoyproxy/gateway-crds-helm \
-     --version v1.7.0 \
+     --version v1.7.1 \
      --set crds.gatewayAPI.enabled=true \
      --set crds.envoyGateway.enabled=true \
      | kubectl apply --server-side -f -

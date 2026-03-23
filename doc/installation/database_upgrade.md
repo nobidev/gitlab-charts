@@ -22,13 +22,9 @@ PostgreSQL setups.
 Changing to a new major version of PostgreSQL using the bundled PostgreSQL chart is done through a backup on the existing
 database, then restoring to the new database.
 
-{{< alert type="note" >}}
-
 As part of the `9.0.0` release of this chart, we upgraded the default PostgreSQL version from `14.8.0` to `16.6.0`. This
 is done by upgrading [PostgreSQL chart](https://github.com/bitnami/charts/tree/main/bitnami/postgresql) version from
 `12.5.2` to `13.4.4`.
-
-{{< /alert >}}
 
 This is NOT a drop in replacement. Manual steps need to be performed to upgrade the database.
 The steps have been documented in the [upgrade steps](#steps-for-upgrading-the-bundled-postgresql).

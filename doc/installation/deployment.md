@@ -17,13 +17,10 @@ Options can be specified using Helm's `--set option.name=value` command-line opt
 This guide will cover required values and common options.
 For a complete list of options, read [Installation command line options](command-line-options.md).
 
-{{< alert type="note" >}}
-
-The GitLab Helm chart requires external PostgreSQL, Redis, and object storage for production deployments.
-Bundled versions of these services are included for evaluation purposes only.
-For production, follow the [Cloud Native Hybrid reference architecture](_index.md#use-the-reference-architectures).
-
-{{< /alert >}}
+> [!note]
+> The GitLab Helm chart requires external PostgreSQL, Redis, and object storage for production deployments.
+> Bundled versions of these services are included for evaluation purposes only.
+> For production, follow the [Cloud Native Hybrid reference architecture](_index.md#use-the-reference-architectures).
 
 For a production deployment, you should have strong working knowledge of Kubernetes.
 This method of deployment has different management, observability, and concepts than traditional deployments.

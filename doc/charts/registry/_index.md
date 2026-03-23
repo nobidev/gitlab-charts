@@ -1003,14 +1003,11 @@ If you chose to use the `filesystem` driver:
 For the sake of resiliency and simplicity, it is recommended to make use of an
 external service, such as `s3`, `gcs`, `azure` or other compatible Object Storage.
 
-{{< alert type="note" >}}
-
-The chart will populate `delete.enabled: true` into this configuration
-by default if not specified by the user. This keeps expected behavior in line with
-the default use of MinIO, as well as the Linux package. Any user provided value
-will supersede this default.
-
-{{< /alert >}}
+> [!note]
+> The chart will populate `delete.enabled: true` into this configuration
+> by default if not specified by the user. This keeps expected behavior in line with
+> the default use of MinIO, as well as the Linux package. Any user provided value
+> will supersede this default.
 
 ### `middleware.storage`
 
@@ -1198,13 +1195,10 @@ gc:
 
 ### Redis cache
 
-{{< alert type="note" >}}
-
-The Redis cache is a beta feature from version 16.4 and later. Please
-review the [feedback issue](https://gitlab.com/gitlab-org/gitlab/-/issues/423459)
-and associated documentation before enabling this feature.
-
-{{< /alert >}}
+> [!note]
+> The Redis cache is a beta feature from version 16.4 and later. Please
+> review the [feedback issue](https://gitlab.com/gitlab-org/gitlab/-/issues/423459)
+> and associated documentation before enabling this feature.
 
 The `redis.cache` property is optional and provides options related to the
 [Redis cache](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#cache-1).
@@ -1382,13 +1376,10 @@ The Docker Registry will build up extraneous data over time which can be freed u
 As of [now](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1586) there is no
 fully automated or scheduled way to run the garbage collection with this Chart.
 
-{{< alert type="warning" >}}
-
-You must use [online garbage collection](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#gc) with the
-[metadata database](#database). Using manual garbage collection with the metadata database will lead to data loss.
-Online garbage collection fully replaces the need to manually run garbage collection.
-
-{{< /alert >}}
+> [!warning]
+> You must use [online garbage collection](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#gc) with the
+> [metadata database](#database). Using manual garbage collection with the metadata database will lead to data loss.
+> Online garbage collection fully replaces the need to manually run garbage collection.
 
 ### Manual Garbage Collection
 

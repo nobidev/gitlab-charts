@@ -36,13 +36,10 @@ For production deployments, set up an [external PostgreSQL instance](../advanced
 Check [the GitLab requirements](https://docs.gitlab.com/install/requirements/#postgresql) for
 the supported PostgreSQL versions.
 
-{{< alert type="note" >}}
-
-The GitLab chart includes a bundled PostgreSQL deployment provided by
-[`bitnami/PostgreSQL`](https://artifacthub.io/packages/helm/bitnami/postgresql)
-for evaluation purposes only.
-
-{{< /alert >}}
+> [!note]
+> The GitLab chart includes a bundled PostgreSQL deployment provided by
+> [`bitnami/PostgreSQL`](https://artifacthub.io/packages/helm/bitnami/postgresql)
+> for evaluation purposes only.
 
 ### Redis
 
@@ -50,13 +47,10 @@ For production deployments, set up an [external Redis instance](../advanced/exte
 For all the available configuration settings, see the
 [Redis globals documentation](../charts/globals.md#configure-redis-settings).
 
-{{< alert type="note" >}}
-
-The GitLab chart includes a bundled Redis deployment provided by
-[`bitnami/Redis`](https://artifacthub.io/packages/helm/bitnami/redis)
-for evaluation purposes only.
-
-{{< /alert >}}
+> [!note]
+> The GitLab chart includes a bundled Redis deployment provided by
+> [`bitnami/Redis`](https://artifacthub.io/packages/helm/bitnami/redis)
+> for evaluation purposes only.
 
 ### Gitaly
 
@@ -110,14 +104,11 @@ you don't need any additional DNS configuration for GitLab. However, you must de
 [has a comprehensive guide](https://github.com/kubernetes-sigs/external-dns#deploying-to-a-cluster)
 for each supported provider.
 
-{{< alert type="note" >}}
-
-If you enable custom domain support for GitLab Pages, `external-dns` no
-longer works for the Pages domain (`pages.<global.hosts.domain>` by default).
-You must manually configure the DNS entry to point the domain to the
-external IP address dedicated to Pages.
-
-{{< /alert >}}
+> [!note]
+> If you enable custom domain support for GitLab Pages, `external-dns` no
+> longer works for the Pages domain (`pages.<global.hosts.domain>` by default).
+> You must manually configure the DNS entry to point the domain to the
+> external IP address dedicated to Pages.
 
 If you provision a [GKE cluster](cloud/gke.md) by using the provided script,
 `external-dns` is automatically installed in your cluster.

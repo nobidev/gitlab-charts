@@ -9,12 +9,9 @@ This guide serves as a concise but complete documentation about how to install t
 GitLab chart with default values on Google Kubernetes Engine (GKE)
 or Amazon Elastic Kubernetes Service (EKS).
 
-{{< alert type="note" >}}
-
-The default chart includes bundled PostgreSQL, Redis, and MinIO services for evaluation purposes only.
-To deploy GitLab in production, follow the [installation guide](../installation/_index.md).
-
-{{< /alert >}}
+> [!note]
+> The default chart includes bundled PostgreSQL, Redis, and MinIO services for evaluation purposes only.
+> To deploy GitLab in production, follow the [installation guide](../installation/_index.md).
 
 ## Prerequisites
 
@@ -39,14 +36,10 @@ A cluster with a total of at least eight virtual CPUs and 30 GB of RAM is recomm
 You can either refer to your cloud providers' instructions on how to create a Kubernetes cluster,
 or use the GitLab-provided scripts to [automate the cluster creation](../installation/cloud/_index.md).
 
-{{< alert type="warning" >}}
-
-Kubernetes nodes support x86-64 and ARM64 architectures.
-
-FIPS-validated images are only available for x86-64.
-See [issue 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285) for ARM64 FIPS status.
-
-{{< /alert >}}
+> [!warning]
+> Kubernetes nodes support x86-64 and ARM64 architectures.
+> FIPS-validated images are only available for x86-64.
+> See [issue 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285) for ARM64 FIPS status.
 
 ### Install kubectl
 

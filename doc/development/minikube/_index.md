@@ -66,22 +66,14 @@ change according to the pieces being tested, and the requirements as listed:
   [database](https://docs.gitlab.com/install/requirements/#database)
   requirements.
 
-  {{< alert type="note" >}}
-
-This is created in your home directory under `~/.minikube/machines/minikube/`.
-
-  {{< /alert >}}
+  This is created in your home directory under `~/.minikube/machines/minikube/`.
 
 - `--kubernetes-version string`: The Kubernetes version that the minikube VM will use (e.g., `v1.2.3`).
 - `--registry-mirror stringSlice`: Registry mirrors to pass to the Docker daemon.
 
-{{< alert type="note" >}}
-
 Changing these values in a second `start` command, requires to first delete
 the existing instance with `minikube delete`, or manually you can alter the
 properties with VirtualBox Manager.
-
-{{< /alert >}}
 
 Once you have all the tools installed and configured, starting at stopping minikube
 can be done with:

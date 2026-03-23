@@ -2,12 +2,10 @@
 stage: GitLab Delivery
 group: Operate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
-title: Container registry post deployment migrations on gitlab.com
+title: Container registry post deployment migrations on GitLab.com
 ---
 
 ## Container Registry post deployment migrations on GitLab.com
-
-{{< alert type="warning" >}}
 
 **This procedure is ONLY for GitLab.com infrastructure and should NOT be used by external users.**
 This approach is complex, error-prone, and designed specifically for GitLab.com's unique infrastructure requirements.
@@ -17,8 +15,6 @@ Instead, use the [standard manual migration procedure](../charts/registry/metada
 - Safer
 - Fully supported and documented
 - The recommended approach for all GitLab installations
-
-{{< /alert >}}
 
 Executing Container Registry post deployment migrations after the Container Registry application starts is recommended,
 to reduce downtime during upgrades.

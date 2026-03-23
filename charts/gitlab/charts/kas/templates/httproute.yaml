@@ -33,6 +33,7 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.ingress.agentPath | quote }}
+  {{- if (.Values.autoflow).enabled }}
   - backendRefs:
     - kind: Service
       name: {{ template "gitlab.kas.serviceName" . }}
@@ -42,6 +43,7 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.ingress.autoflowCodecServerApiPath | quote }}
+  {{- end }}
   {{- if .Values.global.workspaces.enabled }}
   - backendRefs:
     - kind: Service
