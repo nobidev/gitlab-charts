@@ -252,6 +252,12 @@ listeners:
       mode: Terminate
       certificateRefs:
         - name: gitlab-web-geo-tls
+  gitlab-smartcard-web:
+    protocol: ""
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: gitlab-smartcard-tls
   gitlab-ssh:
     protocol: "TCP"
   registry-web:
@@ -2045,6 +2051,23 @@ global:
 | `clientCertificateRequiredHost` | String  |         | Hostname to use for smartcard authentication. By default, the provided or computed smartcard hostname is used. |
 | `sanExtensions`                 | Boolean | `false` | Enable the use of SAN extensions to match users with certificates. |
 | `requiredForGitAccess`          | Boolean | `false` | Require browser session with smartcard sign-in for Git access. |
+
+Smartcard authentication works out of the box with the [bundled Envoy Gateway](envoygateway/_index.md),
+requiring no extra setup. To use the [bundled NGINX Ingress](nginx/_index.md) instead, you must enable
+snippet annotations.
+
+Enabling snippet annotations allows custom NGINX configuration to be injected through annotations,
+which can pose a security risk in certain environments. Please review the [upstream documentation](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#allow-snippet-annotations)
+before enabling the annotations.
+
+```yaml
+nginx-ingress:
+  enabled: true
+  controller:
+    config:
+      allow-snippet-annotations: "true"
+      annotations-risk-level: "Critical"
+```
 
 ### Sidekiq routing rules settings
 
