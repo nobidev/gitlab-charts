@@ -33,7 +33,7 @@ global:
         host: iam-auth.example.com
         port: 5004
       authToken:
-        secret: GitLab-iam-auth-token
+        secret: gitlab-iam-auth-token
         key: authToken
 ```
 
