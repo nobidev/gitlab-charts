@@ -59,7 +59,7 @@ describe 'iamAuthService templates' do
   end
 
   describe 'gitlab.appConfig.iamAuthService.authToken.secret' do
-    context 'when custom secret name provided' do
+    context 'when no custom secret name provided' do
       let(:values) do
         YAML.safe_load(%(
           global:
