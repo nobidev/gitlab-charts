@@ -9,15 +9,16 @@ describe 'iamAuthService templates' do
   let(:default_values) do
     HelmTemplate.with_defaults(%(
       gitlab:
-        iamAuthService:
-          enabled: false
+        appConfig:
+          iamAuthService:
+            enabled: false
     ))
   end
 
   let(:values) { default_values }
   let(:template) { HelmTemplate.new(values) }
 
-  describe 'gitlab.iamAuthService.authToken.key' do
+  describe 'gitlab.appConfig.iamAuthService.authToken.key' do
     context 'when no custom key name provided' do
       let(:values) do
         YAML.safe_load(%(
@@ -57,7 +58,7 @@ describe 'iamAuthService templates' do
     end
   end
 
-  describe 'gitlab.iamAuthService.authToken.secret' do
+  describe 'gitlab.appConfig.iamAuthService.authToken.secret' do
     context 'when custom secret name provided' do
       let(:values) do
         YAML.safe_load(%(
