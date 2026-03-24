@@ -609,13 +609,13 @@ global:
     ## Shared secret for authenticating calls from GitLab Rails to the iam-auth service
     iamAuthService:
       enabled: false # Eventually this will be mandatory
-      # audience: # Audience claim for JWT tokens
       # http:
         # host:
         # port:
       # grpc:
         # host:
         # port:
+      # jwtAudience:
       # jwksCacheTtl:
       # authToken:
         # secret:

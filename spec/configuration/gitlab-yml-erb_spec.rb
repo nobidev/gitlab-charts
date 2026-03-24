@@ -698,7 +698,8 @@ describe 'gitlab.yml.erb configuration' do
         'iam_auth_service' => {
           'enabled' => false,
           'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
-          'audience' => 'gitlab-rails',
+          'jwt_audience' => 'gitlab-rails',
+          'jwks_cache_ttl' => 3600,
           'http' => {
             'host' => '',
             'port' => 443
@@ -706,8 +707,7 @@ describe 'gitlab.yml.erb configuration' do
           'grpc' => {
             'host' => '',
             'port' => 5004
-          },
-          'jwks_cache_ttl' => 3600
+          }
         }
       )
     end
@@ -724,7 +724,7 @@ describe 'gitlab.yml.erb configuration' do
               grpc:
                 host: grpc.localhost
                 port: 5005
-              audience: custom-aud
+              jwtAudience: custom-aud
               jwksCacheTtl: 7200
       )))
 
@@ -741,7 +741,8 @@ describe 'gitlab.yml.erb configuration' do
         'iam_auth_service' => {
           'enabled' => true,
           'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
-          'audience' => 'custom-aud',
+          'jwt_audience' => 'custom-aud',
+          'jwks_cache_ttl' => 7200,
           'http' => {
             'host' => 'localhost',
             'port' => 8084
@@ -749,8 +750,7 @@ describe 'gitlab.yml.erb configuration' do
           'grpc' => {
             'host' => 'grpc.localhost',
             'port' => 5005
-          },
-          'jwks_cache_ttl' => 7200
+          }
         }
       )
     end

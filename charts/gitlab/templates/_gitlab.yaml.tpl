@@ -65,13 +65,13 @@ iam_auth_service:
   {{- with .Values.global.appConfig.iamAuthService }}
   enabled: {{ eq .enabled true }}
   secret_file: /etc/gitlab/iam-auth/.gitlab_iam_auth_secret
-  audience: {{ dig "audience" "gitlab-rails" . | quote }}
   http:
     host: {{ dig "http" "host" "" . | quote }}
     port: {{ dig "http" "port" 443 . | int }}
   grpc:
     host: {{ dig "grpc" "host" "" . | quote }}
     port: {{ dig "grpc" "port" 5004 . | int }}
+  jwt_audience: {{ dig "jwtAudience" "gitlab-rails" . | quote }}
   jwks_cache_ttl: {{ dig "jwksCacheTtl" 3600 . | int }}
   {{- end }}
 {{- end }}
