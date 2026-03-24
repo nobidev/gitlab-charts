@@ -1350,6 +1350,8 @@ test the configuration.
 > [!warning]
 > Configuring a relative URL for GitLab has [known issues with Geo](https://gitlab.com/gitlab-org/gitlab/-/issues/456427) and
 > [testing limitations](https://gitlab.com/gitlab-org/gitlab/-/issues/439943).
+> If you are already using a relative URL and want to migrate to a subdomain, see the
+> [migration guide](https://docs.gitlab.com/administration/operations/migrate_to_subdomain).
 
 Though you should install GitLab on its own domain or subdomain, you can install under a relative URL if required. For example,
 `https://example.com/gitlab`.
