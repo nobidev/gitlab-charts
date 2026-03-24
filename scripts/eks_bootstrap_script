@@ -19,7 +19,7 @@ source "${SCRIPT_PATH}/common.sh"
 # Documentation: doc/installation/cloud/eks.md
 cluster_name=${CLUSTER_NAME-gitlab-cluster}
 nodes=${NUM_NODES-2}
-kubernetes_version=${CLUSTER_VERSION-1.29}
+kubernetes_version=${CLUSTER_VERSION-1.30}
 ebs_csi_required_min_version="1.23"
 ebs_csi_role_name="AmazonEKS_EBS_CSI_DriverRole"
 region="${REGION-us-east-2}"
