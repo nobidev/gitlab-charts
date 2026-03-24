@@ -42,4 +42,153 @@ describe 'checkConfig workhorse' do
                      success_description: 'when main and exporter TLS is enabled',
                      error_description: 'when main TLS is not enabled but exporter TLS is'
   end
+
+  describe 'Redis TLS certificates' do
+    describe 'no TLS configured' do
+      let(:success_values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: redis.example.com
+          redis:
+            install: false
+        )).deep_merge!(default_required_values)
+      end
+
+      include_examples 'config validation',
+                       success_description: 'when no redisTLS or sentinelTLS is configured'
+    end
+
+    describe 'redisTLS certificate validation' do
+      let(:success_values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: redis.example.com
+              redisTLS:
+                cert:
+                  secret: redis-cert
+                  key: cert
+                key:
+                  secret: redis-key
+                  key: key
+                caFile:
+                  secret: redis-ca
+                  key: ca.crt
+          redis:
+            install: false
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: redis.example.com
+              redisTLS:
+                cert:
+                  secret: redis-cert
+          redis:
+            install: false
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'Certificate configuration must have both \'secret\' and \'key\' fields.' }
+
+      include_examples 'config validation',
+                       success_description: 'when redisTLS cert references have both secret and key sub-fields',
+                       error_description: 'when a redisTLS cert reference is missing the key sub-field'
+    end
+
+    describe 'sentinelTLS certificate validation' do
+      let(:success_values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: redis.example.com
+              sentinels:
+                - host: sentinel1.example.com
+                  port: 26379
+              sentinelTLS:
+                enabled: true
+                cert:
+                  secret: sentinel-cert
+                  key: cert
+                key:
+                  secret: sentinel-key
+                  key: key
+                caFile:
+                  secret: sentinel-ca
+                  key: ca.crt
+          redis:
+            install: false
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: redis.example.com
+              sentinels:
+                - host: sentinel1.example.com
+                  port: 26379
+              sentinelTLS:
+                enabled: true
+                caFile:
+                  secret: sentinel-ca
+          redis:
+            install: false
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'Certificate configuration must have both \'secret\' and \'key\' fields.' }
+
+      include_examples 'config validation',
+                       success_description: 'when sentinelTLS cert references have both secret and key sub-fields',
+                       error_description: 'when a sentinelTLS cert reference is missing the key sub-field'
+    end
+
+    describe 'per-instance Redis TLS validation' do
+      let(:success_values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: redis.example.com
+              cache:
+                redisTLS:
+                  cert:
+                    secret: cache-cert
+                    key: cert
+                  key:
+                    secret: cache-key
+                    key: key
+          redis:
+            install: false
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: redis.example.com
+              cache:
+                redisTLS:
+                  cert:
+                    secret: cache-cert
+                  key:
+                    secret: cache-key
+          redis:
+            install: false
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'Certificate configuration must have both \'secret\' and \'key\' fields.' }
+
+      include_examples 'config validation',
+                       success_description: 'when per-instance redisTLS cert references have both secret and key sub-fields',
+                       error_description: 'when a per-instance redisTLS cert reference is missing the key sub-field'
+    end
+  end
 end

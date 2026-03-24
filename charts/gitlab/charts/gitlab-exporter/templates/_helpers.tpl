@@ -14,7 +14,15 @@ If global.redis.queues is present, use this. If not present, use global.redis
 
 {{- define "gitlab.gitlab-exporter.redis.sentinelsList" -}}
 {{- if $.Values.global.redis.queues -}}
-{{- $_ := set $ "redisConfigName" "queues" }}
+{{-   $_ := set $ "redisConfigName" "queues" }}
 {{- end -}}
 {{- include "gitlab.redis.sentinelsList" . }}
+{{- end -}}
+
+{{- define "gitlab.redis.exporter.sslParams" -}}
+{{- if $.Values.global.redis.queues -}}
+{{-   $_ := set $ "redisConfigName" "queues" }}
+{{- end -}}
+{{- $_ := set $ "sslParamName" "redis_ssl_params" }}
+{{- include "gitlab.redis.sslParams" . -}}
 {{- end -}}

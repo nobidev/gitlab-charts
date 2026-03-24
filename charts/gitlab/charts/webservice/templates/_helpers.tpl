@@ -286,6 +286,8 @@ Password = {% file.Read "/etc/gitlab/redis/{{ $passwordPath }}" | strings.TrimSp
 {{- if .redisMergedConfig.sentinelAuth.enabled }}
 SentinelPassword = {% file.Read "/etc/gitlab/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON %}
 {{- end }}
+{{- include "gitlab.workhorse.redis.tls" . }}
+{{- include "gitlab.workhorse.sentinel.tls" . }}
 {{- $_ := set . "redisConfigName" "" }}
 {{- end -}}
 
@@ -306,5 +308,35 @@ cp -v -r -L /init-config/redis/{{ $passwordPath }} /init-secrets-workhorse/redis
 mkdir -p /init-secrets-workhorse/redis-sentinel
 cp -v -r -L /init-config/redis-sentinel/redis-sentinel-password /init-secrets-workhorse/redis-sentinel/
 {{- end -}}
+{{- if eq (default "redis" .redisMergedConfig.scheme) "rediss" }}
+{{-   $redisTLS := .redisMergedConfig.redisTLS | default (dict) -}}
+{{-   if $redisTLS }}
+mkdir -p /init-secrets-workhorse/redis
+{{-     if (kindIs "map" $redisTLS.caFile) }}
+cp -v -r -L /init-config/redis/{{ $redisTLS.caFile.key }} /init-secrets-workhorse/redis/
+{{-     end }}
+{{-    if (kindIs "map" $redisTLS.cert) }}
+cp -v -r -L /init-config/redis/{{ $redisTLS.cert.key }} /init-secrets-workhorse/redis/
+{{-     end }}
+{{-     if (kindIs "map" $redisTLS.key) }}
+cp -v -r -L /init-config/redis/{{ $redisTLS.key.key }} /init-secrets-workhorse/redis/
+{{-     end }}
+{{-   end }}
+{{- end }}
+{{- $sentinelTLS := .redisMergedConfig.sentinelTLS | default (dict) -}}
+{{- if $sentinelTLS.enabled }}
+{{-   if $sentinelTLS }}
+mkdir -p /init-secrets-workhorse/redis-sentinel
+{{-     if (kindIs "map" $sentinelTLS.caFile) }}
+cp -v -r -L /init-config/redis-sentinel/{{ $sentinelTLS.caFile.key }} /init-secrets-workhorse/redis-sentinel/
+{{-     end }}
+{{-     if (kindIs "map" $sentinelTLS.cert) }}
+cp -v -r -L /init-config/redis-sentinel/{{ $sentinelTLS.cert.key }} /init-secrets-workhorse/redis-sentinel/
+{{-     end }}
+{{-     if (kindIs "map" $sentinelTLS.key) }}
+cp -v -r -L /init-config/redis-sentinel/{{ $sentinelTLS.key.key }} /init-secrets-workhorse/redis-sentinel/
+{{-     end }}
+{{-   end }}
+{{- end }}
 {{- $_ := set . "redisConfigName" "" }}
 {{- end -}}

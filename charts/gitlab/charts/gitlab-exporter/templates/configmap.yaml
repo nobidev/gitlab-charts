@@ -51,6 +51,7 @@ data:
           - probe_stats
         opts:
           redis_url: {{ include "gitlab.gitlab-exporter.redis.url" . }}
+          {{- include "gitlab.redis.exporter.sslParams" . | nindent 10 }}
           redis_enable_client: false
           probe_non_namespaced: true
           {{- $sentinels := include "gitlab.gitlab-exporter.redis.sentinelsList" . }}

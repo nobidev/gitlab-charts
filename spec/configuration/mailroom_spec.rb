@@ -818,4 +818,216 @@ describe 'Mailroom configuration' do
       it_behaves_like 'configures service_desk_email webhook delivery method'
     end
   end
+
+  context 'with Redis TLS' do
+    context 'when Redis scheme is rediss with TLS certificates' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              scheme: rediss
+              redisTLS:
+                caFile:
+                  secret: redis-ca
+                  key: ca.crt
+                cert:
+                  secret: redis-cert
+                  key: cert
+                key:
+                  secret: redis-key
+                  key: key
+            appConfig:
+              incomingEmail:
+                enabled: true
+        )).deep_merge(default_values)
+      end
+
+      it 'renders the template without error' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'mounts Redis TLS secrets' do
+        volumes = template.dig('Deployment/test-mailroom', 'spec', 'template', 'spec', 'volumes')
+        init_secrets = volumes.find { |v| v["name"] == "init-mailroom-secrets" }
+        sources = init_secrets.dig("projected", "sources")
+
+        ca_secret = sources.find { |s| s.dig("secret", "name") == "redis-ca" }
+        expect(ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis/ca.crt" }])
+
+        cert_secret = sources.find { |s| s.dig("secret", "name") == "redis-cert" }
+        expect(cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis/cert" }])
+
+        key_secret = sources.find { |s| s.dig("secret", "name") == "redis-key" }
+        expect(key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis/key" }])
+      end
+
+      it 'configures Redis TLS parameters in mail_room.yml' do
+        expect(rendered_mail_room_yml[:mailboxes].length).to eq(1)
+
+        mailbox = rendered_mail_room_yml[:mailboxes].first
+        expect(mailbox[:arbitration_options][:redis_ssl_params][:ca_file]).to include('/etc/gitlab/redis/ca.crt')
+        expect(mailbox[:arbitration_options][:redis_ssl_params][:cert]).to include('/etc/gitlab/redis/cert')
+        expect(mailbox[:arbitration_options][:redis_ssl_params][:key]).to include('/etc/gitlab/redis/key')
+      end
+    end
+  end
+
+  context 'with Sentinel TLS' do
+    context 'when Sentinel TLS is enabled with mutual TLS' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: global.host
+              sentinels:
+              - host: sentinel1.example.com
+                port: 26379
+              - host: sentinel2.example.com
+                port: 26379
+              sentinelTLS:
+                enabled: true
+                caFile:
+                  secret: sentinel-ca
+                  key: ca.crt
+                cert:
+                  secret: sentinel-cert
+                  key: cert
+                key:
+                  secret: sentinel-key
+                  key: key
+            appConfig:
+              incomingEmail:
+                enabled: true
+        )).deep_merge(default_values)
+      end
+
+      it 'renders the template without error' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'mounts Sentinel TLS secrets' do
+        volumes = template.dig('Deployment/test-mailroom', 'spec', 'template', 'spec', 'volumes')
+        init_secrets = volumes.find { |v| v["name"] == "init-mailroom-secrets" }
+        sources = init_secrets.dig("projected", "sources")
+
+        ca_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-ca" }
+        expect(ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis-sentinel/ca.crt" }])
+
+        cert_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-cert" }
+        expect(cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis-sentinel/cert" }])
+
+        key_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-key" }
+        expect(key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis-sentinel/key" }])
+      end
+
+      it 'configures Sentinel TLS in mail_room.yml' do
+        expect(rendered_mail_room_yml[:mailboxes].length).to eq(1)
+
+        mailbox = rendered_mail_room_yml[:mailboxes].first
+        expect(mailbox[:arbitration_options]).to include(:sentinels)
+        expect(mailbox[:arbitration_options][:sentinels].length).to eq(2)
+
+        mailbox[:arbitration_options][:sentinels].each do |sentinel|
+          expect(sentinel[:ssl]).to be true
+          expect(sentinel[:ssl_params]["ca_file"]).to include('/etc/gitlab/redis-sentinel/ca.crt')
+          expect(sentinel[:ssl_params]["cert"]).to include('/etc/gitlab/redis-sentinel/cert')
+          expect(sentinel[:ssl_params]["key"]).to include('/etc/gitlab/redis-sentinel/key')
+        end
+      end
+    end
+  end
+
+  context 'with both Redis TLS and Sentinel TLS enabled' do
+    context 'when both Redis and Sentinel TLS are enabled with mutual TLS' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              scheme: rediss
+              host: global.host
+              redisTLS:
+                caFile:
+                  secret: redis-ca
+                  key: ca.crt
+                cert:
+                  secret: redis-cert
+                  key: cert
+                key:
+                  secret: redis-key
+                  key: key
+              sentinels:
+              - host: sentinel1.example.com
+                port: 26379
+              - host: sentinel2.example.com
+                port: 26379
+              sentinelTLS:
+                enabled: true
+                caFile:
+                  secret: sentinel-ca
+                  key: ca.crt
+                cert:
+                  secret: sentinel-cert
+                  key: cert
+                key:
+                  secret: sentinel-key
+                  key: key
+            appConfig:
+              incomingEmail:
+                enabled: true
+        )).deep_merge(default_values)
+      end
+
+      it 'renders the template without error' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'mounts both Redis and Sentinel TLS secrets' do
+        volumes = template.dig('Deployment/test-mailroom', 'spec', 'template', 'spec', 'volumes')
+        init_secrets = volumes.find { |v| v["name"] == "init-mailroom-secrets" }
+        sources = init_secrets.dig("projected", "sources")
+
+        # Redis TLS secrets
+        redis_ca_secret = sources.find { |s| s.dig("secret", "name") == "redis-ca" }
+        expect(redis_ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis/ca.crt" }])
+
+        redis_cert_secret = sources.find { |s| s.dig("secret", "name") == "redis-cert" }
+        expect(redis_cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis/cert" }])
+
+        redis_key_secret = sources.find { |s| s.dig("secret", "name") == "redis-key" }
+        expect(redis_key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis/key" }])
+
+        # Sentinel TLS secrets
+        sentinel_ca_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-ca" }
+        expect(sentinel_ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis-sentinel/ca.crt" }])
+
+        sentinel_cert_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-cert" }
+        expect(sentinel_cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis-sentinel/cert" }])
+
+        sentinel_key_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-key" }
+        expect(sentinel_key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis-sentinel/key" }])
+      end
+
+      it 'configures both Redis and Sentinel TLS in mail_room.yml' do
+        expect(rendered_mail_room_yml[:mailboxes].length).to eq(1)
+
+        mailbox = rendered_mail_room_yml[:mailboxes].first
+        arbitration_options = mailbox[:arbitration_options]
+
+        # Redis TLS configuration
+        expect(arbitration_options[:redis_ssl_params][:ca_file]).to include('/etc/gitlab/redis/ca.crt')
+        expect(arbitration_options[:redis_ssl_params][:cert]).to include('/etc/gitlab/redis/cert')
+        expect(arbitration_options[:redis_ssl_params][:key]).to include('/etc/gitlab/redis/key')
+
+        # Sentinel TLS configuration
+        expect(arbitration_options[:sentinels].length).to eq(2)
+
+        arbitration_options[:sentinels].each do |sentinel|
+          expect(sentinel[:ssl]).to be true
+          expect(sentinel[:ssl_params]["ca_file"]).to include('/etc/gitlab/redis-sentinel/ca.crt')
+          expect(sentinel[:ssl_params]["cert"]).to include('/etc/gitlab/redis-sentinel/cert')
+          expect(sentinel[:ssl_params]["key"]).to include('/etc/gitlab/redis-sentinel/key')
+        end
+      end
+    end
+  end
 end

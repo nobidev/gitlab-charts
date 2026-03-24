@@ -654,6 +654,137 @@ describe 'Redis configuration' do
         expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("s1.cache.redis")
       end
     end
+
+    context 'When Sentinels have TLS enabled via ssl flag' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: resque.redis
+              port: 6379
+              sentinels:
+              - host: s1.resque.redis
+                port: 26379
+                ssl: true
+              - host: s2.resque.redis
+                port: 26379
+                ssl: true
+              cache:
+                host: cache.redis
+                sentinels:
+                - host: s1.cache.redis
+                  port: 26379
+                  ssl: false
+                - host: s2.cache.redis
+                  port: 26379
+                  ssl: false
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      it 'renders sentinels with ssl flag in YAML' do
+        t = HelmTemplate.new(values)
+        expect(t.exit_code).to eq(0)
+        # check that global sentinels include ssl: true
+        expect(t.dig('ConfigMap/test-webservice','data','resque.yml.erb')).to include("ssl: true")
+        expect(t.dig('ConfigMap/test-webservice','data','resque.yml.erb')).to include("s1.resque.redis")
+        expect(t.dig('ConfigMap/test-webservice','data','resque.yml.erb')).to include("s2.resque.redis")
+        # check that cache sentinels to omit ssl flag
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).not_to include("ssl:")
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("s1.cache.redis")
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("s2.cache.redis")
+      end
+    end
+
+    context 'When Sentinels have TLS enabled via sentinelTLS' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: resque.redis
+              port: 6379
+              scheme: rediss
+              redisTLS:
+                caFile:
+                  secret: redis-ca
+                  key: ca.crt
+              sentinels:
+              - host: s1.resque.redis
+                port: 26379
+              - host: s2.resque.redis
+                port: 26379
+              sentinelTLS:
+                enabled: true
+                caFile:
+                  secret: sentinel-ca
+                  key: ca.crt
+              cache:
+                host: cache.redis
+                sentinels:
+                - host: s1.cache.redis
+                  port: 26379
+                - host: s2.cache.redis
+                  port: 26379
+                sentinelTLS:
+                  enabled: true
+                  cert:
+                    secret: redis-sentinel
+                    key: cert
+                  key:
+                    secret: redis-sentinel
+                    key: key
+                  caFile:
+                    secret: sentinel-ca
+                    key: ca.crt
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      it 'renders Sentinels with ssl_params in YAML' do
+        t = HelmTemplate.new(values)
+        expect(t.exit_code).to eq(0)
+        # check that global sentinels include ssl and ssl_params
+        expect(t.dig('ConfigMap/test-webservice','data','resque.yml.erb')).to include("ssl: true")
+        expect(t.dig('ConfigMap/test-webservice','data','resque.yml.erb')).to include("ssl_params:")
+        expect(t.dig('ConfigMap/test-webservice','data','resque.yml.erb')).to include("ca_file: /etc/gitlab/redis-sentinel/ca.crt")
+        expect(t.dig('ConfigMap/test-webservice','data','resque.yml.erb')).to include("s1.resque.redis")
+        # check that cache sentinels include ssl_params with cert and key
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("ssl: true")
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("ssl_params:")
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("cert: /etc/gitlab/redis-sentinel/cert")
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("key: /etc/gitlab/redis-sentinel/key")
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("ca_file: /etc/gitlab/redis-sentinel/ca.crt")
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("s1.cache.redis")
+      end
+    end
+
+    context 'When Sentinels have mixed TLS settings' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: resque.redis
+              port: 6379
+              sentinels:
+              - host: s1.resque.redis
+                port: 26379
+                ssl: true
+              - host: s2.resque.redis
+                port: 26379
+                ssl: false
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      it 'fails validation' do
+        t = HelmTemplate.new(values)
+        expect(t.exit_code).not_to eq(0)
+        expect(t.stderr).to include('All Sentinel entries must have the same SSL setting')
+      end
+    end
   end
 
   describe 'Redis Cluster' do
@@ -849,6 +980,119 @@ describe 'Redis configuration' do
           "url" => "redis://:<%= ERB::Util::url_encode(File.read(\"/etc/gitlab/redis/actionCablePrimary-password\").strip) %>@mymaster:6379/0"
         }
       })
+    end
+  end
+
+  describe 'Redis and Sentinel TLS' do
+    context 'when both Redis TLS and Sentinel TLS are enabled' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              scheme: rediss
+              host: global.host
+              redisTLS:
+                caFile:
+                  secret: redis-ca
+                  key: ca.crt
+                cert:
+                  secret: redis-cert
+                  key: cert
+                key:
+                  secret: redis-key
+                  key: key
+              sentinels:
+              - host: sentinel1.example.com
+                port: 26379
+              - host: sentinel2.example.com
+                port: 26379
+              sentinelTLS:
+                enabled: true
+                caFile:
+                  secret: sentinel-ca
+                  key: ca.crt
+                cert:
+                  secret: sentinel-cert
+                  key: cert
+                key:
+                  secret: sentinel-key
+                  key: key
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      def render_erb_with_files(raw_template, files)
+        yaml = RuntimeTemplate.erb(raw_template: raw_template, files: files)
+        YAML.safe_load(yaml, aliases: true)
+      end
+
+      it 'renders resque.yml.erb with Redis TLS configuration' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        mock_files = RuntimeTemplate.mock_files.merge({
+          '/etc/gitlab/redis/ca.crt' => 'mock-redis-ca',
+          '/etc/gitlab/redis/cert' => 'mock-redis-cert',
+          '/etc/gitlab/redis/key' => 'mock-redis-key',
+          '/etc/gitlab/redis-sentinel/ca.crt' => 'mock-sentinel-ca',
+          '/etc/gitlab/redis-sentinel/cert' => 'mock-sentinel-cert',
+          '/etc/gitlab/redis-sentinel/key' => 'mock-sentinel-key'
+        })
+
+        resque_yml_erb = template.dig('ConfigMap/test-webservice', 'data', 'resque.yml.erb')
+        resque_yml = render_erb_with_files(resque_yml_erb, mock_files)
+
+        # Verify the YAML was rendered successfully
+        expect(resque_yml).to be_a(Hash)
+        expect(resque_yml).to have_key('production')
+
+        # Verify Redis configuration exists and has TLS settings
+        production_config = resque_yml['production']
+        expect(production_config['url']).to include('rediss://')
+        expect(production_config['url']).to include('global.host')
+        expect(production_config).to have_key('ssl_params')
+        expect(production_config['ssl_params']).to be_a(Hash)
+        expect(production_config['ssl_params']['ca_file']).to include('/etc/gitlab/redis/ca.crt')
+        expect(production_config['ssl_params']['cert']).to include('/etc/gitlab/redis/cert')
+        expect(production_config['ssl_params']['key']).to include('/etc/gitlab/redis/key')
+      end
+
+      it 'renders resque.yml.erb with Sentinel TLS configuration' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        mock_files = RuntimeTemplate.mock_files.merge({
+          '/etc/gitlab/redis/ca.crt' => 'mock-redis-ca',
+          '/etc/gitlab/redis/cert' => 'mock-redis-cert',
+          '/etc/gitlab/redis/key' => 'mock-redis-key',
+          '/etc/gitlab/redis-sentinel/ca.crt' => 'mock-sentinel-ca',
+          '/etc/gitlab/redis-sentinel/cert' => 'mock-sentinel-cert',
+          '/etc/gitlab/redis-sentinel/key' => 'mock-sentinel-key'
+        })
+
+        resque_yml_erb = template.dig('ConfigMap/test-webservice', 'data', 'resque.yml.erb')
+        resque_yml = render_erb_with_files(resque_yml_erb, mock_files)
+
+        # Verify the YAML was rendered successfully
+        expect(resque_yml).to be_a(Hash)
+        expect(resque_yml).to have_key('production')
+
+        production_config = resque_yml['production']
+
+        # Verify Sentinel configuration
+        expect(production_config).to have_key('sentinels')
+        expect(production_config['sentinels']).to be_an(Array)
+        expect(production_config['sentinels'].length).to eq(2)
+
+        production_config['sentinels'].each do |sentinel|
+          expect(sentinel['ssl']).to be(true)
+          expect(sentinel['ssl_params']).to be_a(Hash)
+          expect(sentinel['ssl_params']['ca_file']).to include('/etc/gitlab/redis-sentinel/ca.crt')
+          expect(sentinel['ssl_params']['cert']).to include('/etc/gitlab/redis-sentinel/cert')
+          expect(sentinel['ssl_params']['key']).to include('/etc/gitlab/redis-sentinel/key')
+          expect(sentinel['host']).to match(/sentinel[12]\.example\.com/)
+          expect(sentinel['port'].to_i).to eq(26379)
+        end
+      end
     end
   end
 end

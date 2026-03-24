@@ -30,6 +30,9 @@ username: {{ .redisMergedConfig.user }}
 password_file: /etc/kas/redis/{{ printf "%s-password" (default "redis" .redisConfigName) }}
 {{- end }}
 database_index: {{ .redisMergedConfig.database }}
+{{/* Save these before calling gitlab.redis.host which mutates state */}}
+{{- $sentinelTLS := .redisMergedConfig.sentinelTLS | default (dict) -}}
+{{- $redisTLS := .redisMergedConfig.redisTLS | default (dict) -}}
 {{- if not .redisMergedConfig.sentinels }}
 server:
   address: {{ template "gitlab.redis.host" . }}:{{ template "gitlab.redis.port" . }}
@@ -42,11 +45,33 @@ sentinel:
   master_name: {{ template "gitlab.redis.host" . }}
 {{- if .redisMergedConfig.sentinelAuth.enabled }}
   sentinel_password_file: "/etc/kas/redis-sentinel/redis-sentinel-password"
-{{- end -}}
+{{- end }}
+{{- if $sentinelTLS.enabled }}
+  tls:
+    enabled: true
+{{-   if (kindIs "map" $sentinelTLS.caFile) }}
+    ca_certificate_file: /etc/kas/redis-sentinel/{{ $sentinelTLS.caFile.key }}
+{{-   end }}
+{{-   if (kindIs "map" $sentinelTLS.cert) }}
+    certificate_file: /etc/kas/redis-sentinel/{{ $sentinelTLS.cert.key }}
+{{-   end }}
+{{-   if (kindIs "map" $sentinelTLS.key) }}
+    key_file: /etc/kas/redis-sentinel/{{ $sentinelTLS.key.key }}
+{{-   end }}
+{{- end }}
 {{- end -}}
 {{- if eq (.redisMergedConfig.scheme | default "") "rediss" }}
 tls:
   enabled: true
+{{-   if (kindIs "map" $redisTLS.caFile) }}
+  ca_certificate_file: /etc/kas/redis/{{ $redisTLS.caFile.key }}
+{{-   end }}
+{{-   if (kindIs "map" $redisTLS.cert) }}
+  certificate_file: /etc/kas/redis/{{ $redisTLS.cert.key }}
+{{-   end }}
+{{-   if (kindIs "map" $redisTLS.key) }}
+  key_file: /etc/kas/redis/{{ $redisTLS.key.key }}
+{{-   end }}
 {{- end -}}
 {{- end -}}
 
