@@ -855,4 +855,280 @@ CFG
       end
     end
   end
+
+  context 'Sentinel TLS support' do
+    context 'with Sentinel TLS enabled via sentinelTLS' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: global.redis
+              auth:
+                enabled: true
+                secret: redis-password
+              sentinels:
+              - host: s1.global.redis
+                port: 26379
+              - host: s2.global.redis
+                port: 26379
+              sentinelTLS:
+                enabled: true
+                caFile:
+                  secret: sentinel-ca
+                  key: ca.crt
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+
+      it 'renders Sentinel.tls section in workhorse config' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        toml = render_toml(raw_toml)
+        redis_config = toml['redis']
+        expect(redis_config['Sentinel']).to match_array(%w[redis://s1.global.redis:26379 redis://s2.global.redis:26379])
+
+        # Check that the rendered TOML has the Sentinel.tls section with the correct path
+        expect(toml).to have_key('Sentinel')
+        expect(toml['Sentinel']).to be_a(Hash)
+        expect(toml['Sentinel']['tls']).to be_a(Hash)
+        expect(toml['Sentinel']['tls']['ca_certificate']).to include('redis-sentinel/ca.crt')
+      end
+    end
+
+    context 'with Sentinel TLS disabled' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: global.redis
+              auth:
+                enabled: true
+                secret: redis-password
+              sentinels:
+              - host: s1.global.redis
+                port: 26379
+              - host: s2.global.redis
+                port: 26379
+              sentinelTLS:
+                enabled: false
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+
+      it 'does not render Sentinel.tls section' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        toml = render_toml(raw_toml)
+        redis_config = toml['redis']
+        expect(redis_config['Sentinel']).to match_array(%w[redis://s1.global.redis:26379 redis://s2.global.redis:26379])
+
+        # Check that Sentinel.tls section is NOT rendered
+        expect(raw_toml).not_to include("[Sentinel.tls]")
+      end
+    end
+
+    context 'with Sentinel TLS enabled via ssl flag' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: global.redis
+              auth:
+                enabled: true
+                secret: redis-password
+              sentinels:
+              - host: s1.global.redis
+                port: 26379
+                ssl: true
+              - host: s2.global.redis
+                port: 26379
+                ssl: true
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+
+      it 'uses rediss scheme for sentinels in workhorse config' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        toml = render_toml(raw_toml)
+        redis_config = toml['redis']
+        expect(redis_config['Sentinel']).to match_array(%w[rediss://s1.global.redis:26379 rediss://s2.global.redis:26379])
+      end
+    end
+
+    context 'with mixed Sentinel SSL settings' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: global.redis
+              auth:
+                enabled: true
+                secret: redis-password
+              sentinels:
+              - host: s1.global.redis
+                port: 26379
+                ssl: true
+              - host: s2.global.redis
+                port: 26379
+                ssl: false
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+
+      it 'fails validation' do
+        expect(template.exit_code).not_to eq(0)
+        expect(template.stderr).to include('All Sentinel entries must have the same SSL setting')
+      end
+    end
+
+    context 'with both Redis TLS and Sentinel TLS enabled' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              scheme: rediss
+              host: global.redis
+              auth:
+                enabled: true
+                secret: redis-password
+              redisTLS:
+                caFile:
+                  secret: redis-ca
+                  key: ca.crt
+                cert:
+                  secret: redis-cert
+                  key: cert
+                key:
+                  secret: redis-key
+                  key: key
+              sentinels:
+              - host: s1.global.redis
+                port: 26379
+              - host: s2.global.redis
+                port: 26379
+              sentinelTLS:
+                enabled: true
+                caFile:
+                  secret: sentinel-ca
+                  key: ca.crt
+                cert:
+                  secret: sentinel-cert
+                  key: cert
+                key:
+                  secret: sentinel-key
+                  key: key
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+
+      it 'renders the template without error' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'mounts both Redis and Sentinel TLS secrets' do
+        volumes = template.dig('Deployment/test-webservice-default', 'spec', 'template', 'spec', 'volumes')
+        init_secrets = volumes.find { |v| v["name"] == "init-webservice-secrets" }
+        sources = init_secrets.dig("projected", "sources")
+
+        # Redis TLS secrets
+        redis_ca_secret = sources.find { |s| s.dig("secret", "name") == "redis-ca" }
+        expect(redis_ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis/ca.crt" }])
+
+        redis_cert_secret = sources.find { |s| s.dig("secret", "name") == "redis-cert" }
+        expect(redis_cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis/cert" }])
+
+        redis_key_secret = sources.find { |s| s.dig("secret", "name") == "redis-key" }
+        expect(redis_key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis/key" }])
+
+        # Sentinel TLS secrets
+        sentinel_ca_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-ca" }
+        expect(sentinel_ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis-sentinel/ca.crt" }])
+
+        sentinel_cert_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-cert" }
+        expect(sentinel_cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis-sentinel/cert" }])
+
+        sentinel_key_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-key" }
+        expect(sentinel_key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis-sentinel/key" }])
+      end
+
+      it 'renders redis.tls section in workhorse config' do
+        toml = render_toml(raw_toml)
+        redis_config = toml['redis']
+
+        expect(redis_config.keys).to match_array(%w[DB SentinelMaster Sentinel Password tls])
+
+        expect(toml).to have_key('redis')
+        expect(toml['redis']).to be_a(Hash)
+        expect(toml['redis']).to have_key('tls')
+        expect(toml['redis']['tls']).to be_a(Hash)
+        expect(toml['redis']['tls']['ca_certificate']).to include('redis/ca.crt')
+        expect(toml['redis']['tls']['certificate']).to include('redis/cert')
+        expect(toml['redis']['tls']['key']).to include('redis/key')
+      end
+
+      it 'renders Sentinel.tls section in workhorse config' do
+        toml = render_toml(raw_toml)
+        redis_config = toml['redis']
+        expect(redis_config['Sentinel']).to match_array(%w[rediss://s1.global.redis:26379 rediss://s2.global.redis:26379])
+
+        # Check that the rendered TOML has the Sentinel.tls section with the correct paths
+        expect(toml).to have_key('Sentinel')
+        expect(toml['Sentinel']).to be_a(Hash)
+        expect(toml['Sentinel']).to have_key('tls')
+        expect(toml['Sentinel']['tls']).to be_a(Hash)
+        expect(toml['Sentinel']['tls']['ca_certificate']).to include('redis-sentinel/ca.crt')
+        expect(toml['Sentinel']['tls']['certificate']).to include('redis-sentinel/cert')
+        expect(toml['Sentinel']['tls']['key']).to include('redis-sentinel/key')
+      end
+    end
+
+    context 'with rediss scheme but no TLS certificates' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              scheme: rediss
+              host: global.redis
+              auth:
+                enabled: true
+                secret: redis-password
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+
+      it 'renders the template without error' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'does not render redis.tls section without certificates' do
+        expect(raw_toml).not_to include('[redis.tls]')
+      end
+
+      it 'uses rediss scheme in URL' do
+        toml = render_toml(raw_toml)
+        redis_config = toml['redis']
+
+        expect(redis_config['URL']).to eq('rediss://global.redis:6379')
+      end
+    end
+  end
 end

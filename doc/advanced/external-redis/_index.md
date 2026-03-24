@@ -70,6 +70,10 @@ To connect to Redis using SSL, use the `rediss` (note the double `s`) scheme par
 --set global.redis.scheme=rediss
 ```
 
+### Configure Redis TLS certificates
+
+To configure Redis TLS certificates, read the [globals documentation](../../charts/globals.md#redis-tls-configuration).
+
 ## `redis.yml` override
 
 If you want to override the contents of the [`redis.yml` config file introduced in GitLab 15.8](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/106854)

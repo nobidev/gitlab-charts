@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'helm_template_helper'
+require 'runtime_template_helper'
 require 'yaml'
 require 'hash_deep_merge'
 
@@ -787,6 +788,187 @@ describe 'Sidekiq configuration' do
         expect(env).to include(
           { 'name' => 'GITLAB_SIDEKIQ_MAX_REPLICAS', 'value' => '15' }
         )
+      end
+    end
+  end
+
+  context 'with Redis TLS' do
+    let(:default_values) do
+      HelmTemplate.defaults
+    end
+
+    context 'when Redis scheme is rediss with TLS certificates' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              scheme: rediss
+              redisTLS:
+                caFile:
+                  secret: redis-ca
+                  key: ca.crt
+                cert:
+                  secret: redis-cert
+                  key: cert
+                key:
+                  secret: redis-key
+                  key: key
+        )).deep_merge(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+
+      it 'renders the template without error' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'mounts Redis TLS secrets' do
+        volumes = template.dig('Deployment/test-sidekiq-all-in-1-v2', 'spec', 'template', 'spec', 'volumes')
+        init_secrets = volumes.find { |v| v["name"] == "init-sidekiq-secrets" }
+        sources = init_secrets.dig("projected", "sources")
+
+        ca_secret = sources.find { |s| s.dig("secret", "name") == "redis-ca" }
+        expect(ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis/ca.crt" }])
+
+        cert_secret = sources.find { |s| s.dig("secret", "name") == "redis-cert" }
+        expect(cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis/cert" }])
+
+        key_secret = sources.find { |s| s.dig("secret", "name") == "redis-key" }
+        expect(key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis/key" }])
+      end
+    end
+  end
+
+  context 'with Sentinel TLS' do
+    let(:default_values) do
+      HelmTemplate.defaults
+    end
+
+    context 'when Sentinel TLS is enabled with mutual TLS' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: global.host
+              sentinels:
+              - host: sentinel1.example.com
+                port: 26379
+              - host: sentinel2.example.com
+                port: 26379
+              sentinelTLS:
+                enabled: true
+                caFile:
+                  secret: sentinel-ca
+                  key: ca.crt
+                cert:
+                  secret: sentinel-cert
+                  key: cert
+                key:
+                  secret: sentinel-key
+                  key: key
+        )).deep_merge(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+
+      it 'renders the template without error' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'mounts sentinel TLS secrets' do
+        volumes = template.dig('Deployment/test-sidekiq-all-in-1-v2', 'spec', 'template', 'spec', 'volumes')
+        init_secrets = volumes.find { |v| v["name"] == "init-sidekiq-secrets" }
+        sources = init_secrets.dig("projected", "sources")
+
+        ca_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-ca" }
+        expect(ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis-sentinel/ca.crt" }])
+
+        cert_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-cert" }
+        expect(cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis-sentinel/cert" }])
+
+        key_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-key" }
+        expect(key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis-sentinel/key" }])
+      end
+    end
+  end
+
+  context 'with both Redis TLS and Sentinel TLS enabled' do
+    let(:default_values) do
+      HelmTemplate.defaults
+    end
+
+    context 'when both Redis and Sentinel TLS are enabled with mutual TLS' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              scheme: rediss
+              host: global.host
+              redisTLS:
+                caFile:
+                  secret: redis-ca
+                  key: ca.crt
+                cert:
+                  secret: redis-cert
+                  key: cert
+                key:
+                  secret: redis-key
+                  key: key
+              sentinels:
+              - host: sentinel1.example.com
+                port: 26379
+              - host: sentinel2.example.com
+                port: 26379
+              sentinelTLS:
+                enabled: true
+                caFile:
+                  secret: sentinel-ca
+                  key: ca.crt
+                cert:
+                  secret: sentinel-cert
+                  key: cert
+                key:
+                  secret: sentinel-key
+                  key: key
+        )).deep_merge(default_values)
+      end
+
+      let(:template) { HelmTemplate.new(values) }
+      let(:gitlab_yml_erb) { template.dig('ConfigMap/test-sidekiq', 'data', 'gitlab.yml.erb') }
+
+      def render_erb_with_files(raw_template, files)
+        yaml = RuntimeTemplate.erb(raw_template: raw_template, files: files)
+        YAML.safe_load(yaml, aliases: true)
+      end
+
+      it 'renders the template without error' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'mounts both Redis and Sentinel TLS secrets' do
+        volumes = template.dig('Deployment/test-sidekiq-all-in-1-v2', 'spec', 'template', 'spec', 'volumes')
+        init_secrets = volumes.find { |v| v["name"] == "init-sidekiq-secrets" }
+        sources = init_secrets.dig("projected", "sources")
+
+        # Redis TLS secrets
+        redis_ca_secret = sources.find { |s| s.dig("secret", "name") == "redis-ca" }
+        expect(redis_ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis/ca.crt" }])
+
+        redis_cert_secret = sources.find { |s| s.dig("secret", "name") == "redis-cert" }
+        expect(redis_cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis/cert" }])
+
+        redis_key_secret = sources.find { |s| s.dig("secret", "name") == "redis-key" }
+        expect(redis_key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis/key" }])
+
+        # Sentinel TLS secrets
+        sentinel_ca_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-ca" }
+        expect(sentinel_ca_secret["secret"]["items"]).to eq([{ "key" => "ca.crt", "path" => "redis-sentinel/ca.crt" }])
+
+        sentinel_cert_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-cert" }
+        expect(sentinel_cert_secret["secret"]["items"]).to eq([{ "key" => "cert", "path" => "redis-sentinel/cert" }])
+
+        sentinel_key_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-key" }
+        expect(sentinel_key_secret["secret"]["items"]).to eq([{ "key" => "key", "path" => "redis-sentinel/key" }])
       end
     end
   end

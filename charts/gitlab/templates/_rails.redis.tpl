@@ -28,6 +28,11 @@ Input: dict "context" $ "name" string
 {{ .name }}.yml.erb: |
   production:
     url: {{ template "gitlab.redis.url" .context }}
+    {{/* For redis-rb v5+, if Sentinel is enabled the ssl flag is needed because rediss:// is ignored in URL (see https://github.com/redis-rb/redis-client/pull/277). */}}
+    {{- if eq (include "gitlab.redis.scheme" .context) "rediss" }}
+    ssl: true
+    {{-   include "gitlab.redis.sslParams" .context | nindent 4 }}
+    {{- end }}
     {{- if $connect_timeout }}
     connect_timeout: {{ $connect_timeout }}
     {{- end }}

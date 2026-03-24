@@ -704,6 +704,125 @@ describe 'kas configuration' do
               )))
             end
           end
+
+          context 'when Sentinel TLS is enabled' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  redis:
+                    host: redis.example.com
+                    sentinels:
+                    - host: sentinel1.example.com
+                      port: 26379
+                    - host: sentinel2.example.com
+                      port: 26379
+                    sentinelTLS:
+                      enabled: true
+                      caFile:
+                        secret: sentinel-ca
+                        key: ca.crt
+                      cert:
+                        secret: redis-sentinel
+                        key: cert
+                      key:
+                        secret: redis-sentinel
+                        key: key
+                redis:
+                  install: false
+              )))
+            end
+
+            it 'configures Sentinel with TLS' do
+              template = HelmTemplate.new(default_values.merge(kas_values))
+              expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+              config_yaml = YAML.safe_load(template.dig('ConfigMap/test-kas', 'data', 'config.yaml'), permitted_classes: [Symbol])
+
+              expect(config_yaml['redis']).to include(YAML.safe_load(%(
+                sentinel:
+                  addresses:
+                    - sentinel1.example.com:26379
+                    - sentinel2.example.com:26379
+                  master_name: redis.example.com
+                  tls:
+                    enabled: true
+                    certificate_file: /etc/kas/redis-sentinel/cert
+                    key_file: /etc/kas/redis-sentinel/key
+                    ca_certificate_file: /etc/kas/redis-sentinel/ca.crt
+              )))
+            end
+
+            it 'mounts Sentinel TLS secrets' do
+              template = HelmTemplate.new(default_values.merge(kas_values))
+              expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+              kas_secret_mounts = template.projected_volume_sources(
+                'Deployment/test-kas',
+                'init-etc-kas'
+              )
+
+              ca_secret = kas_secret_mounts.find { |c| c.dig('secret', 'name') == 'sentinel-ca' }
+              expect(ca_secret['secret']['items']).to eq([{ "key" => "ca.crt", "path" => "redis-sentinel/ca.crt" }])
+
+              cert_secret = kas_secret_mounts.find { |c| c.dig('secret', 'name') == 'redis-sentinel' && c.dig('secret', 'items', 0, 'key') == 'cert' }
+              expect(cert_secret['secret']['items']).to eq([{ "key" => "cert", "path" => "redis-sentinel/cert" }])
+
+              key_secret = kas_secret_mounts.find { |c| c.dig('secret', 'name') == 'redis-sentinel' && c.dig('secret', 'items', 0, 'key') == 'key' }
+              expect(key_secret['secret']['items']).to eq([{ "key" => "key", "path" => "redis-sentinel/key" }])
+            end
+          end
+
+          context 'when Sentinel TLS is enabled with only caFile' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                  global:
+                    redis:
+                      host: redis.example.com
+                      sentinels:
+                      - host: sentinel1.example.com
+                        port: 26379
+                      - host: sentinel2.example.com
+                        port: 26379
+                      sentinelTLS:
+                        enabled: true
+                        caFile:
+                          secret: sentinel-ca
+                          key: ca.crt
+                  redis:
+                    install: false
+                )))
+            end
+
+            it 'configures Sentinel with TLS and only ca_certificate_file' do
+              template = HelmTemplate.new(default_values.merge(kas_values))
+              expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+              config_yaml = YAML.safe_load(template.dig('ConfigMap/test-kas', 'data', 'config.yaml'), permitted_classes: [Symbol])
+
+              expect(config_yaml['redis']).to include(YAML.safe_load(%(
+                sentinel:
+                  addresses:
+                    - sentinel1.example.com:26379
+                    - sentinel2.example.com:26379
+                  master_name: redis.example.com
+                  tls:
+                    enabled: true
+                    ca_certificate_file: /etc/kas/redis-sentinel/ca.crt
+              )))
+            end
+
+            it 'mounts only the CA secret' do
+              template = HelmTemplate.new(default_values.merge(kas_values))
+              expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+              kas_secret_mounts = template.projected_volume_sources(
+                'Deployment/test-kas',
+                'init-etc-kas'
+              )
+
+              ca_secret = kas_secret_mounts.find { |c| c.dig('secret', 'name') == 'sentinel-ca' }
+              expect(ca_secret['secret']['items']).to eq([{ "key" => "ca.crt", "path" => "redis-sentinel/ca.crt" }])
+            end
+          end
         end
       end
 

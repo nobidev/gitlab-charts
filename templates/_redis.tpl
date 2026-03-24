@@ -42,6 +42,16 @@ Build a dict of Redis Sentinel configuration
 {{-   if (kindIs "map" (get $.Values.global.redis "sentinelAuth")) -}}
 {{-     $_ := set $.redisMergedConfig "sentinelAuth" (get $.Values.global.redis "sentinelAuth") -}}
 {{-   end -}}
+{{-   if (kindIs "map" (get (index $.Values.global.redis $.redisConfigName) "sentinelTLS"))  -}}
+{{-     $_ := set $.redisMergedConfig "sentinelTLS" (get (index $.Values.global.redis $.redisConfigName) "sentinelTLS") -}}
+{{-   else if (kindIs "map" (get $.Values.global.redis "sentinelTLS")) -}}
+{{-     $_ := set $.redisMergedConfig "sentinelTLS" $.Values.global.redis.sentinelTLS -}}
+{{-   end -}}
+{{-   if (kindIs "map" (get (index $.Values.global.redis $.redisConfigName) "redisTLS"))  -}}
+{{-     $_ := set $.redisMergedConfig "redisTLS" (get (index $.Values.global.redis $.redisConfigName) "redisTLS") -}}
+{{-   else if (kindIs "map" (get $.Values.global.redis "redisTLS")) -}}
+{{-     $_ := set $.redisMergedConfig "redisTLS" $.Values.global.redis.redisTLS -}}
+{{-   end -}}
 {{- end -}}
 
 {{/*

@@ -50,3 +50,43 @@ to the service name
 {{- $shutdownTimeout := printf "%ss" ($timeout | toString) -}}
 {{- coalesce $.Values.workhorse.shutdownTimeout $shutdownTimeout -}}
 {{- end -}}
+
+{{/*
+Return the workhorse Redis TLS configuration section
+*/}}
+{{- define "gitlab.workhorse.redis.tls" -}}
+{{- if eq (default "redis" .redisMergedConfig.scheme) "rediss" }}
+{{-   $redisTLS := .redisMergedConfig.redisTLS | default (dict) -}}
+{{-   if or $redisTLS.caFile $redisTLS.cert $redisTLS.key }}
+[redis.tls]
+{{-     if $redisTLS.cert }}
+certificate = "/etc/gitlab/redis/{{ $redisTLS.cert.key | default "cert" }}"
+{{-     end }}
+{{-     if $redisTLS.key }}
+key = "/etc/gitlab/redis/{{ $redisTLS.key.key | default "key" }}"
+{{-     end }}
+{{-     if $redisTLS.caFile }}
+ca_certificate = "/etc/gitlab/redis/{{ $redisTLS.caFile.key | default "ca.crt" }}"
+{{-     end }}
+{{-   end }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Return the workhorse Sentinel TLS configuration section
+*/}}
+{{- define "gitlab.workhorse.sentinel.tls" -}}
+{{- $sentinelTLS := .redisMergedConfig.sentinelTLS | default (dict) -}}
+{{- if and .redisMergedConfig.sentinels $sentinelTLS.enabled }}
+[Sentinel.tls]
+{{-   if $sentinelTLS.cert }}
+certificate = "/etc/gitlab/redis-sentinel/{{ $sentinelTLS.cert.key | default "cert" }}"
+{{-   end }}
+{{-   if $sentinelTLS.key }}
+key = "/etc/gitlab/redis-sentinel/{{ $sentinelTLS.key.key | default "key" }}"
+{{-   end }}
+{{-   if $sentinelTLS.caFile }}
+ca_certificate = "/etc/gitlab/redis-sentinel/{{ $sentinelTLS.caFile.key | default "ca.crt" }}"
+{{-   end }}
+{{- end }}
+{{- end -}}

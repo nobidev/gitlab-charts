@@ -614,6 +614,7 @@ global:
 | `auth.key`       | String  |         | The `auth.key` attribute for Redis defines the name of the key in the secret (below) that contains the password. |
 | `auth.secret`    | String  |         | The `auth.secret` attribute for Redis defines the name of the Kubernetes `Secret` to pull from. |
 | `scheme`         | String  | `redis` | The URI scheme to be used to generate Redis URLs. Valid values are `redis`, `rediss`, and `tcp`. If using `rediss` (SSL encrypted connection) scheme, the certificate used by the server should be a part of the system's trusted chains. This can be done by adding them to the [custom certificate authorities](#custom-certificate-authorities) list. |
+| `redisTLS`       | Object  |         | TLS configuration for Redis connections. See [Redis TLS configuration](#redis-tls-configuration) below. |
 
 ### Configure Redis chart-specific settings
 
@@ -870,6 +871,78 @@ To connect to Redis with SSL:
 
 1. Follow Bitnami's [steps to enable TLS](https://github.com/bitnami/charts/tree/main/bitnami/redis#securing-traffic-using-tls). Make sure the chart components trust the certificate authority used to create Redis certificates.
 1. Optional. If you use a custom certificate authority, see the [Custom Certificate Authorities](#custom-certificate-authorities) global configuration.
+
+### Redis TLS configuration
+
+When using the `rediss` scheme, you can optionally configure client certificates and CA certificates for Redis connections using the `redisTLS` setting:
+
+```yaml
+global:
+  redis:
+    scheme: rediss
+    redisTLS:
+      cert:
+        secret: redis-client-cert
+        key: cert
+      key:
+        secret: redis-client-key
+        key: key
+      caFile:
+        secret: redis-ca
+        key: ca.crt
+```
+
+The `redisTLS` configuration supports:
+
+| Name                |  Type  | Default | Description |
+|:--------------------|:------:|:--------|:------------|
+| `cert.secret`       | String |         | The Kubernetes secret name containing the client certificate |
+| `cert.key`          | String |         | The key in the secret containing the client certificate |
+| `key.secret`        | String |         | The Kubernetes secret name containing the client private key |
+| `key.key`           | String |         | The key in the secret containing the client private key |
+| `caFile.secret`     | String |         | The Kubernetes secret name containing the CA certificate |
+| `caFile.key`        | String |         | The key in the secret containing the CA certificate |
+
+All three (`cert`, `key`, and `caFile`) are optional. If not specified, the system uses the default CA certificates.
+
+#### Sentinel TLS configuration
+
+When using Redis Sentinel with TLS, you can configure client certificates and CA certificates for Sentinel connections using the `sentinelTLS` setting:
+
+```yaml
+global:
+  redis:
+    sentinels:
+      - host: sentinel1.example.com
+        port: 26379
+      - host: sentinel2.example.com
+        port: 26379
+    sentinelTLS:
+      enabled: true
+      cert:
+        secret: sentinel-client-cert
+        key: cert
+      key:
+        secret: sentinel-client-key
+        key: key
+      caFile:
+        secret: sentinel-ca
+        key: ca.crt
+```
+
+The `sentinelTLS` configuration supports:
+
+| Name                |  Type   | Default | Description |
+|:--------------------|:-------:|:--------|:------------|
+| `enabled`           | Boolean | `false` | Set to `true` to enable TLS for Sentinel connections |
+| `cert.secret`       | String  |         | The Kubernetes secret name containing the client certificate |
+| `cert.key`          | String  |         | The key in the secret containing the client certificate |
+| `key.secret`        | String  |         | The Kubernetes secret name containing the client private key |
+| `key.key`           | String  |         | The key in the secret containing the client private key |
+| `caFile.secret`     | String  |         | The Kubernetes secret name containing the CA certificate |
+| `caFile.key`        | String  |         | The key in the secret containing the CA certificate |
+
+All certificate options are optional. If not specified, the system uses the default CA certificates.
 
 ### Password-less Redis Servers
 
