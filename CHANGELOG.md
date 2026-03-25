@@ -2,6 +2,10 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.10.1 (2026-03-24)
+
+No changes.
+
 ## 9.10.0 (2026-03-18)
 
 ### Added (4 changes)
@@ -28,6 +32,10 @@ entry.
 - [Update gitlab-runner to v0.86.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5989b6d58df3cd6333f896ac6d6186a97099b863) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4823))
 - [Update container-registry to v4.37.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f225950cc5b21f2c4dd09f30f989cb40185cd929) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4813))
 - [Remove Zoekt basic auth from main GitLab Helm chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bf6e3d48b050e0ba467d2adc98784ad123d2aa98) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4782))
+
+## 9.9.4 (2026-03-24)
+
+No changes.
 
 ## 9.9.3 (2026-03-10)
 
@@ -71,6 +79,10 @@ No changes.
 - [Update Helm release gitlab-zoekt to v3.8.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4c706d5c202d86d4d91f76ddaaf2ba0a833c2f1d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4733))
 - [Add support for Kubernetes 1.35](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c56c1f65688a13b350c7b70600a768ca37255ea4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4742))
 - [Update dependency container-registry to v4.34.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6a38e5c3e8926cd3ee20926e95b6d85123666fed) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4743))
+
+## 9.8.8 (2026-03-24)
+
+No changes.
 
 ## 9.8.7 (2026-03-10)
 
