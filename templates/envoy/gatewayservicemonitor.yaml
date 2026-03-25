@@ -1,4 +1,4 @@
-{{- $gatewayMoni := .Values.global.gatewayApi.metrics.envoyGateway.serviceMonitor }}
+{{- $gatewayMoni := .Values.gatewayApiResources.envoy.metrics.envoyGateway.serviceMonitor }}
 {{- if eq (include "gitlab.monitoring.enabled" .) "true" -}}
 {{- if and .Values.global.gatewayApi.installEnvoy $gatewayMoni.enabled }}
 apiVersion: monitoring.coreos.com/v1

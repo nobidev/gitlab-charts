@@ -1,5 +1,5 @@
 {{- if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
-{{-   $spec := .Values.global.gatewayApi.envoySecurityPolicySpec }}
+{{-   $spec := .Values.gatewayApiResources.envoy.securityPolicySpec }}
 {{-   if $spec }}
 {{-     if not $spec.targetRefs }}
 {{-       $_ := set $spec "targetRefs" (include "gitlab.gatewayApi.gatewayRef.local" . | fromYamlArray) -}}

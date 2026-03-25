@@ -2,9 +2,9 @@
 # for external DNS. Allows the host cluster to create the DNS entries without
 # access to the Ingress or Gateway Routes.
 
-global:
-  gatewayApi:
-    envoyProxySpec:
+gatewayApiResources:
+  envoy:
+    proxySpec:
       provider:
         kubernetes:
           envoyService:

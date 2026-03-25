@@ -2,7 +2,7 @@
 Returns name of the Gateway class. Consumed by chart managed Gateway and GatewayClass.
 */}}
 {{- define "gitlab.gatewayApi.class.name" -}}
-{{- .Values.global.gatewayApi.class.name -}}
+{{- .Values.gatewayApiResources.class.name -}}
 {{- end -}}
 
 {{/*
@@ -109,7 +109,7 @@ is active, and the Gateway is managed (no external gatewayRef).
 {{- define "gitlab.gatewayApi.httpDefault.enabled" -}}
 {{- $managed := and .Values.global.gatewayApi.enabled (not .Values.global.gatewayApi.gatewayRef) -}}
 {{- $certmanager := .Values.global.gatewayApi.configureCertmanager -}}
-{{- $redirect := and .Values.global.gatewayApi.httpToHttpsRedirect (eq (upper .Values.global.gatewayApi.protocol) "HTTPS") -}}
+{{- $redirect := and .Values.global.gatewayApi.httpToHttpsRedirect (eq (upper .Values.gatewayApiResources.gateway.protocol) "HTTPS") -}}
 {{- if and $managed (or $certmanager $redirect) -}}
 true
 {{- end -}}
@@ -122,7 +122,7 @@ is HTTPS, and the Gateway is managed (no external gatewayRef).
 */}}
 {{- define "gitlab.gatewayApi.httpRedirect.enabled" -}}
 {{- $enabled := and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.httpToHttpsRedirect -}}
-{{- $httpsProtocol := eq (upper .Values.global.gatewayApi.protocol) "HTTPS" -}}
+{{- $httpsProtocol := eq (upper .Values.gatewayApiResources.gateway.protocol) "HTTPS" -}}
 {{- $managedGateway := not .Values.global.gatewayApi.gatewayRef -}}
 {{- if and $enabled $httpsProtocol $managedGateway -}}
 true

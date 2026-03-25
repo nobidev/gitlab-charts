@@ -66,11 +66,11 @@ describe 'Gateway API configuration' do
     describe 'with proxy protocol and IP allow/deny listing' do
       let(:values) do
         HelmTemplate.with_defaults(%(
-          global:
-            gatewayApi:
-              envoyClientTrafficPolicySpec:
+          gatewayApiResources:
+            envoy:
+              clientTrafficPolicySpec:
                 enableProxyProtocol: true
-              envoySecurityPolicySpec:
+              securityPolicySpec:
                   authorization:
                     defaultAction: Deny
                     rules:
@@ -163,6 +163,8 @@ describe 'Gateway API configuration' do
           gatewayApi:
             enabled: true
             installEnvoy: false
+        gatewayApiResources:
+          gateway:
             protocol: HTTP
             listeners:
               gitlab-web:
@@ -188,7 +190,10 @@ describe 'Gateway API configuration' do
           gatewayApi:
             enabled: true
             installEnvoy: true
-            envoyProxySpec:
+
+        gatewayApiResources:
+          envoy:
+            proxySpec:
               provider:
                 kubernetes:
                   envoyDaemonSet: {}
@@ -292,6 +297,9 @@ describe 'Gateway API configuration' do
             gatewayApi:
               enabled: true
               installEnvoy: true
+
+          gatewayApiResources:
+            gateway:
               protocol: HTTP
           ))
         end

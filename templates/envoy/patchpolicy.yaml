@@ -1,5 +1,5 @@
 {{- if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
-{{- $gitlabWebProtocol := (index .Values.global.gatewayApi.listeners "gitlab-web").protocol | default .Values.global.gatewayApi.protocol }}
+{{- $gitlabWebProtocol := (index .Values.gatewayApiResources.gateway.listeners "gitlab-web").protocol | default .Values.gatewayApiResources.gateway.protocol }}
 {{- $patchPathPrefix := "/default_filter_chain" }}
 {{- if eq (upper $gitlabWebProtocol) "HTTPS" }}
 {{-   $patchPathPrefix = "/filter_chains/0" }}

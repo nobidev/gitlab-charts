@@ -1,6 +1,8 @@
 global:
   gatewayApi:
     installEnvoy: true
+gatewayApiResources:
+  envoy:
     metrics:
       envoyGateway:
         serviceMonitor:

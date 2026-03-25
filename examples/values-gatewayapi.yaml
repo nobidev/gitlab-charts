@@ -20,5 +20,3 @@ global:
     installEnvoy: true
     # Create a Gateway API compatible certmanager Issuer and configure the Gateway to use it.
     configureCertmanager: true
-    # Default web protocol.
-    protocol: "HTTPS" # or 'HTTP'

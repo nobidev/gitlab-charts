@@ -8,9 +8,10 @@ global:
   gatewayApi:
     enabled: true
     installEnvoy: true
-    class:
-      create: true
     configureCertmanager: false
+
+gatewayApiResources:
+  gateway:
     listeners:
       gitlab-web:
         tls:
@@ -23,7 +24,7 @@ global:
       kas-web:
         tls:
           certificateRefs:
-          - name: helm-charts-win-tls
+            - name: helm-charts-win-tls
       minio-web:
         tls:
           certificateRefs:

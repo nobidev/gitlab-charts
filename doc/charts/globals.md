@@ -216,29 +216,32 @@ For more information, see [work item 5](https://gitlab.com/groups/gitlab-com/gl-
 | Name                           |  Type   | Default        | Description |
 |:-------------------------------|:-------:|:---------------|:------------|
 | `enabled`                      | Boolean | false          | Enable deployment of GatewayAPI resources. |
-| `class.name`                   | String  | `gitlab-gw`    | Name of the Gateway class bound to the Gateway. |
-| `class.controllerName`         | String  | `gateway.envoyproxy.io/gitlab-gatewayclass-controller` | Controller name of the GatewayClass. |
 | `gatewayRef.name`              | String  |                | Gateway name rendered to all Gateway API resources. Use this to reference an externally managed Gateway and to disable the in Gateway provided my the chart. |
 | `gatewayRef.namespace`         | String  |                | Gateway namespace rendered to all Gateway API resources. Use this to reference an externally managed Gateway in another namespace and to disable the Gateway provided by the chart. |
-| `protocol`                     | String  | `HTTPS`        | Default protocol for all listeners. |
-| `httpToHttpsRedirect`          | Boolean | `true`         | Create an HTTPRoute that redirects all HTTP traffic to HTTPS with a 301 status code. Only effective when `protocol` is `HTTPS` and the Gateway is managed (no `gatewayRef`). |
+| `httpToHttpsRedirect`          | Boolean | true           | Create an HTTPRoute that redirects all HTTP traffic to HTTPS with a 301 status code. Only effective when `protocol` is `HTTPS` and the Gateway is managed (no `gatewayRef`). |
+| `installEnvoy`                 | Boolean | false          | Install Envoy Gateway subchart and configure a `GatewayClass` and [Envoy Gateway API extensions](envoygateway/_index.md#configuring-gateway-api-resources). |
+
+### Managed Gateway configuration
+
+The Gateway managed Gateway and Gatewayclass can be customized
+by configuring `gatewayApiResources` at the root of the chart:
+
+| Name                           |  Type   | Default        | Description |
+|:-------------------------------|:-------:|:---------------|:------------|
+| `class.name`                   | String  | `gitlab-gw`    | Name of the Gateway class bound to the Gateway. |
+| `class.controllerName`         | String  | `gateway.envoyproxy.io/gitlab-gatewayclass-controller` | Controller name of the GatewayClass. |
+| `gateway.addresses`            | Array   | false          | Array of addresses to be added Gateway. |
+| `gateway.protocol`             | String  | `HTTPS`        | Default listener protocol. |
 | `gateway.annotations`          | Map     | `{}`           | Annotations to add to the managed Gateway. |
 | `gateway.infrastructure`       | Object  | `{}`           | [GatewayInfrastructure](https://gateway-api.sigs.k8s.io/reference/spec/#gatewayinfrastructure) added to the managed Gateway. |
-| `installEnvoy`                 | Boolean | false          | Install Envoy Gateway subchart and configure a `GatewayClass` and Envoy Gateway API extensions like `EnvoyProxy`, `EnvoyPatchPolicy`, `ClientTrafficPolicy`, and `SecurityPolicy`. Policies are only installed if managed Gateway is used or if external Gateway is in GitLab namespace. |
-| `envoyProxySpec`               | Object  | see values     | Configuration of the default `EnvoyProxy` resource bound to the managed `Gateway`. |
-| `envoyClientTrafficPolicySpec` | Object  | `{}`           | Configuration of a optional `ClientTrafficPolicy` bound to the managed `Gateway`. |
-| `envoySecurityPolicySpec`      | Object  | see values     | Configuration of a optional `SecurityPolicy` bound to the managed `Gateway`. |
+| `gateway.listeners`            | Object  |                | Listener configuration for the managed Gateway. See below for an example. |
 
-### Listener configuration
-
-The Gateway listener configuration uses the following values. Each listener is only
-enabled if the underlying component is.
-
-You can configure a default protocol for all web listeners by setting
-`global.gatewayApi.protocol`. The listener tls configuration will be
-omited if the effective protocol does not support that configuration.
+The default listener config only specifies a protocol for listeners with
+a predefined protocol. Listeners where the protocol depends on your setup
+inherit the root level protocol:
 
 ```yaml
+protocol: HTTPS
 listeners:
   http-default:
     protocol: HTTP

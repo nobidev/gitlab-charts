@@ -1,4 +1,4 @@
-{{- $proxyMoni := .Values.global.gatewayApi.metrics.envoyProxy.podMonitor }}
+{{- $proxyMoni := .Values.gatewayApiResources.envoy.metrics.envoyProxy.podMonitor }}
 {{- if eq (include "gitlab.monitoring.enabled" .) "true" -}}
 {{- if and .Values.global.gatewayApi.installEnvoy $proxyMoni.enabled }}
 apiVersion: monitoring.coreos.com/v1

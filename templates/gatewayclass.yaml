@@ -9,7 +9,7 @@ metadata:
     {{- include "gitlab.commonLabels" . | nindent 4 }}
     {{- include "gitlab.serviceLabels" . | nindent 4 }}
 spec:
-  controllerName: {{ .Values.global.gatewayApi.class.controllerName }}
+  controllerName: {{ .Values.gatewayApiResources.class.controllerName }}
   parametersRef:
     group: gateway.envoyproxy.io
     kind: EnvoyProxy
