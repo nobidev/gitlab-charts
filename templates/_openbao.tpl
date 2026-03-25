@@ -110,3 +110,37 @@ key
 {{- define "gitlab.openbao.authenticationTokenSecretFilePath.key" -}}
 {{- .Values.global.openbao.httpAudit.key }}
 {{- end -}}
+
+{{/*
+Override the OpenBao seal configuration to support both static and awskms seal types.
+
+Overrides openbao.seal.config from the OpenBao sub-chart to add awskms support.
+Only one seal type may be active at a time. Set config.unseal.awskms.enabled=true
+and config.unseal.static.enabled=false to use AWS KMS auto-unseal.
+
+TODO: Remove this override once awskms support is merged into the upstream
+OpenBao chart (gitlab-org/cloud-native/charts/openbao) and the chart version
+is bumped here.
+*/}}
+{{- define "openbao.seal.config" -}}
+{{- $conf := dict }}
+{{- with .Values.config.unseal.static }}
+{{-   if .enabled }}
+{{-     $static := dict "current_key_id" .currentKeyId "current_key" (printf "file://%s" .currentKey) }}
+{{-     if .previousKeyId }}
+{{-       $_ := set $static "previous_key_id" .previousKeyId }}
+{{-       $_ := set $static "previous_key" (printf "file://%s" .previousKey) }}
+{{-     end }}
+{{-     $_ := set $conf "static" $static }}
+{{-   end }}
+{{- end }}
+{{- with .Values.config.unseal.awskms }}
+{{-   if .enabled }}
+{{-     $awskms := dict "kms_key_id" .kmsKeyId }}
+{{-     with .region }}{{- $_ := set $awskms "region" . }}{{- end }}
+{{-     with .endpoint }}{{- $_ := set $awskms "endpoint" . }}{{- end }}
+{{-     $_ := set $conf "awskms" $awskms }}
+{{-   end }}
+{{- end }}
+{{- toPrettyJson $conf }}
+{{- end -}}

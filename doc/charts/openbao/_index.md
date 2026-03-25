@@ -261,8 +261,11 @@ OpenBao is preconfigured to expose Prometheus metrics which will be scraped by t
 
 ### Unsealing and initialization options
 
-The OpenBao chart makes use of [static auto unsealing](https://openbao.org/docs/configuration/seal/static/) and OpenBao
-declarative [self initialization](https://openbao.org/docs/configuration/self-init/).
+The OpenBao chart supports two auto-unseal mechanisms: [static](https://openbao.org/docs/configuration/seal/static/)
+and [AWS KMS](https://openbao.org/docs/configuration/seal/awskms/). Only one may be active at a time.
+OpenBao also uses declarative [self initialization](https://openbao.org/docs/configuration/self-init/).
+
+#### Static unsealing
 
 | Parameter                                                | Default                                                 | Description |
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
@@ -271,11 +274,53 @@ declarative [self initialization](https://openbao.org/docs/configuration/self-in
 | `config.unseal.static.currentKey`                        | `/srv/openbao/keys/static-unseal-0`                     | Path of the current static unsealing key. |
 | `config.unseal.static.previousKeyId`                     |                                                         | ID of the previous static unsealing key. |
 | `config.unseal.static.previousKey`                       | `/srv/openbao/keys/static-unseal-1`                     | Path of the previous static unsealing key. Only rendered if previous key ID is also set. |
+| `staticUnsealSecret.generate`                            | false                                                   | Generate a static key to auto unseal OpenBao. Defaults to false as managed by GitLab charts shared-secret chart. |
+
+#### AWS KMS unsealing
+
+AWS KMS unsealing delegates the unseal operation to an [AWS KMS key](https://openbao.org/docs/configuration/seal/awskms/).
+KMS handles key rotation automatically, which makes this the recommended option for AWS-based deployments.
+
+| Parameter                          | Default | Description |
+|------------------------------------|---------|-------------|
+| `config.unseal.awskms.enabled`     | false   | Enable AWS KMS auto unsealing. Set to `true` and set `config.unseal.static.enabled=false`. |
+| `config.unseal.awskms.kmsKeyId`    |         | KMS key ID, ARN, or alias (for example, `alias/my-openbao-key`). Required when enabled. |
+| `config.unseal.awskms.region`      |         | AWS region of the KMS key. Falls back to the `AWS_REGION` environment variable or instance metadata when omitted. |
+| `config.unseal.awskms.endpoint`    |         | Optional custom KMS endpoint URL, for example a VPC endpoint. |
+
+With [IRSA (IAM Roles for Service Accounts)](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html),
+no explicit AWS credentials are required in the configuration. Annotate the OpenBao service account
+with the IAM role ARN that has `kms:Encrypt`, `kms:Decrypt`, and `kms:DescribeKey` permissions on the KMS key:
+
+```yaml
+openbao:
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::<account-id>:role/<role-name>"
+  config:
+    unseal:
+      static:
+        enabled: false
+      awskms:
+        enabled: true
+        kmsKeyId: "alias/my-openbao-key"
+        region: "us-east-1"
+```
+
+> [!note]
+> For [GitLab Geo](https://docs.gitlab.com/ee/administration/geo/) deployments, use
+> [AWS multi-region replica keys](https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-replicate.html).
+> AWS replicates key material to each region automatically, so the same key ID or alias
+> resolves on all sites without additional chart configuration.
+
+#### Initialization
+
+| Parameter                                                | Default                                                 | Description |
+|----------------------------------------------------------|---------------------------------------------------------|-------------|
 | `config.initialize.enabled`                              | true                                                    | Enable OpenBao self initialization. |
 | `config.initialize.oidcDiscoveryUrl`                     | External GitLab host                                    | OIDC discovery URL. Defaults to the external GitLab hostname. |
 | `config.initialize.boundIssuer`                          | External OpenBao host                                   | OIDC issuer. Defaults to the external OpenBao hostname. |
 | `config.initialize.boundAudiences`                       | External OpenBao host                                   | OIDC role audiences. Defaults to the external OpenBao hostname. |
-| `staticUnsealSecret.generate`                            | false                                                   | Generate a static key to auto unseal OpenBao. Defaults to false as managed by GitLab charts shared-secret chart. |
 | `initializeTpl`                                          |                                                         | Template passed to self initialize OpenBao. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
 
 ### Audit event streaming options
