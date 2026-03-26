@@ -123,24 +123,41 @@ OpenBao chart (gitlab-org/cloud-native/charts/openbao) and the chart version
 is bumped here.
 */}}
 {{- define "openbao.seal.config" -}}
+{{- $staticConf := .Values.config.unseal.static | default dict -}}
+{{- $awskmsConf := .Values.config.unseal.awskms | default dict -}}
+{{- $unsealMethods := list
+    ($staticConf.enabled | default false)
+    ($awskmsConf.enabled | default false)
+-}}
+{{- $enabledMethods := where $unsealMethods "==" true -}}
+{{- if gt (len $enabledMethods) 1 -}}
+{{-   fail "OpenBao: only one unseal method can be enabled at a time (static, awskms)." -}}
+{{- end -}}
+{{- if $staticConf.enabled | default false -}}
+{{-   if empty $staticConf.currentKeyId -}}
+{{-     fail "OpenBao: config.unseal.static.currentKeyId is required when static unsealing is enabled." -}}
+{{-   end -}}
+{{-   if empty $staticConf.currentKey -}}
+{{-     fail "OpenBao: config.unseal.static.currentKey is required when static unsealing is enabled." -}}
+{{-   end -}}
+{{- end -}}
+{{- if and ($awskmsConf.enabled | default false) (empty $awskmsConf.kmsKeyId) -}}
+{{-   fail "OpenBao: config.unseal.awskms.kmsKeyId is required when AWS KMS unsealing is enabled." -}}
+{{- end -}}
 {{- $conf := dict }}
-{{- with .Values.config.unseal.static }}
-{{-   if .enabled }}
-{{-     $static := dict "current_key_id" .currentKeyId "current_key" (printf "file://%s" .currentKey) }}
-{{-     if .previousKeyId }}
-{{-       $_ := set $static "previous_key_id" .previousKeyId }}
-{{-       $_ := set $static "previous_key" (printf "file://%s" .previousKey) }}
-{{-     end }}
-{{-     $_ := set $conf "static" $static }}
+{{- if $staticConf.enabled | default false }}
+{{-   $static := dict "current_key_id" $staticConf.currentKeyId "current_key" (printf "file://%s" $staticConf.currentKey) }}
+{{-   if $staticConf.previousKeyId }}
+{{-     $_ := set $static "previous_key_id" $staticConf.previousKeyId }}
+{{-     $_ := set $static "previous_key" (printf "file://%s" $staticConf.previousKey) }}
 {{-   end }}
+{{-   $_ := set $conf "static" $static }}
 {{- end }}
-{{- with .Values.config.unseal.awskms }}
-{{-   if .enabled }}
-{{-     $awskms := dict "kms_key_id" .kmsKeyId }}
-{{-     with .region }}{{- $_ := set $awskms "region" . }}{{- end }}
-{{-     with .endpoint }}{{- $_ := set $awskms "endpoint" . }}{{- end }}
-{{-     $_ := set $conf "awskms" $awskms }}
-{{-   end }}
+{{- if $awskmsConf.enabled | default false }}
+{{-   $awskms := dict "kms_key_id" $awskmsConf.kmsKeyId }}
+{{-   if $awskmsConf.region }}{{- $_ := set $awskms "region" $awskmsConf.region }}{{- end }}
+{{-   if $awskmsConf.endpoint }}{{- $_ := set $awskms "endpoint" $awskmsConf.endpoint }}{{- end }}
+{{-   $_ := set $conf "awskms" $awskms }}
 {{- end }}
 {{- toPrettyJson $conf }}
 {{- end -}}

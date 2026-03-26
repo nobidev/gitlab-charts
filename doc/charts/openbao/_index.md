@@ -283,10 +283,15 @@ KMS handles key rotation automatically, which makes this the recommended option 
 
 | Parameter                          | Default | Description |
 |------------------------------------|---------|-------------|
-| `config.unseal.awskms.enabled`     | false   | Enable AWS KMS auto unsealing. Set to `true` and set `config.unseal.static.enabled=false`. |
+| `config.unseal.awskms.enabled`     | false   | Enable AWS KMS auto unsealing. Mutually exclusive with `config.unseal.static.enabled`; the chart errors if both are `true`. |
 | `config.unseal.awskms.kmsKeyId`    |         | KMS key ID, ARN, or alias (for example, `alias/my-openbao-key`). Required when enabled. |
 | `config.unseal.awskms.region`      |         | AWS region of the KMS key. Falls back to the `AWS_REGION` environment variable or instance metadata when omitted. |
 | `config.unseal.awskms.endpoint`    |         | Optional custom KMS endpoint URL, for example a VPC endpoint. |
+
+> [!note]
+> `config.unseal.awskms.enabled` and `config.unseal.static.enabled` are mutually exclusive.
+> If both are set to `true`, the chart fails with a configuration error.
+> When enabling AWS KMS unsealing, ensure `config.unseal.static.enabled=false`.
 
 With [IRSA (IAM Roles for Service Accounts)](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html),
 no explicit AWS credentials are required in the configuration. Annotate the OpenBao service account
