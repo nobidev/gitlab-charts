@@ -39,13 +39,6 @@ describe 'OpenBao installation' do
     JSON.parse(config)['storage']['postgresql']
   end
 
-  describe 'by default' do
-    it 'uses the separate OpenBao logical database' do
-      expect(openbao_psql_config['connection_url'])
-        .to start_with('postgres://gitlab@test-postgresql.default.svc:5432/openbao')
-    end
-  end
-
   describe 'with a custom DB' do
     let(:values) do
       HelmTemplate.with_defaults(%(

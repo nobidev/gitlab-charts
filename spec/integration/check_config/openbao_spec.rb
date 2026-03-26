@@ -5,9 +5,9 @@ require 'check_config_helper'
 require 'yaml'
 require 'hash_deep_merge'
 
-describe 'checkConfig openbao' do
-  describe 'openbao.database' do
-    context 'when OpenBao is enabled with database configured' do
+describe 'openbao config check' do
+  describe 'when openbao.install is true' do
+    context 'when OpenBao is enabled and global.openbao.psql is configured' do
       let(:success_values) do
         YAML.safe_load(%(
           openbao:
@@ -34,7 +34,7 @@ describe 'checkConfig openbao' do
       end
     end
 
-    context 'when OpenBao is enabled with external PostgreSQL and explicit database config' do
+    context 'when OpenBao is enabled and global.openbao.psql and openbao.config.storage.postgresql.connection are both configured' do
       let(:success_values) do
         YAML.safe_load(%(
           openbao:
@@ -70,7 +70,7 @@ describe 'checkConfig openbao' do
       end
     end
 
-    context 'when OpenBao is enabled but no database configured' do
+    context 'when OpenBao is enabled but database name not configured' do
       let(:error_values) do
         YAML.safe_load(%(
           openbao:
