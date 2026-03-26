@@ -443,7 +443,7 @@ describe 'Redis configuration' do
       end
     end
 
-    context 'When sub-queue defines auth.secret (matching global auth pattern) instead of password' do
+    context 'When cache defines auth.secret (matching global auth pattern) instead of password' do
       let(:values) do
         YAML.safe_load(%(
           global:
@@ -460,7 +460,7 @@ describe 'Redis configuration' do
         )).deep_merge!(default_values)
       end
 
-      it 'sub-queue uses its own auth secret, not the global one' do
+      it 'cache uses its own auth secret, not the global one' do
         t = HelmTemplate.new(values)
         expect(t.exit_code).to eq(0)
         projected_volume = t.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
