@@ -299,7 +299,7 @@ The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/)
 OpenBao uses a **separate logical database** (`openbao` by default)
 for data isolation from the Rails backend.
 
-Configure `global.openbao.psql` or `openbao.config.storage.postgresql.connection` with host, database, username, and password. You must create the database and user manually. **Password is required** and is not inherited from the main GitLab database.
+Configure `global.openbao.psql` or `openbao.config.storage.postgresql.connection` with host, database, username, and password. You must create the database manually. **Password is required** and is not inherited from the main GitLab database.
 
 
 To configure an external database:
@@ -323,25 +323,21 @@ To configure an external database:
 1. Configure OpenBao to connect to your external database:
 
    ```yaml
-   openbao:
-     config:
-       storage:
-         postgresql:
-           connection:
-             host: "psql.openbao.example.com"
-             port: 5432
-             database: openbao
-             username: openbao
-             # connectTimeout:
-             # keepalives:
-             # keepalivesIdle:
-             # keepalivesInterval:
-             # keepalivesCount:
-             # tcpUserTimeout:
-             # sslMode: "disable"
-             password:
-               secret: openbao-db-password
-               key: password
+   global:
+     openbao:
+       psql:
+         host: "psql.openbao.example.com"
+         port: 5432
+         database: openbao
+         username: openbao
+         password:
+           secret: openbao-db-password
+           key: password
    ```
+
+   This uses `global.openbao.psql`, which is the preferred location because it is also
+   accessible by Toolbox for backup and restore operations. To set advanced connection
+   options (such as `sslMode`, `connectTimeout`, or keepalive tuning), use
+   `openbao.config.storage.postgresql.connection` alongside the global settings.
 
 1. Deploy or upgrade OpenBao. When starting, OpenBao automatically creates its database schema in the specified database.

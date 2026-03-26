@@ -1017,8 +1017,9 @@ global:
       secret: ""
       key: "token"
     psql:
+      # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password.
       database: openbao
-      username: openbao  # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password.
+      username: openbao
 
   ## https://docs.gitlab.com/charts/charts/globals
   extraEnv: {}
@@ -1645,7 +1646,7 @@ openbao:
         connection:
           host: ''
           database: ''  # Empty allows global.openbao.psql.database. Set explicitly to override.
-          username: 'openbao'
+          username: ''  # Empty allows global.openbao.psql.username. Set explicitly to override.
           sslMode: ''
 
 envoy-gateway:
