@@ -301,7 +301,6 @@ for data isolation from the Rails backend.
 
 Configure `global.openbao.psql` or `openbao.config.storage.postgresql.connection` with host, database, username, and password. You must create the database manually. **Password is required** and is not inherited from the main GitLab database.
 
-
 To configure an external database:
 
 1. Create a PostgreSQL user and database on your database server:
