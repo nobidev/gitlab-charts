@@ -178,7 +178,11 @@ sentinels:
 {{-   $_ := set . "redisMergedConfig" .Values.global.redis -}}
 {{- end -}}
 {{-   if not (kindIs "map" (get $.redisMergedConfig "password")) -}}
-{{-     $_ := set $.redisMergedConfig "password" $.Values.global.redis.auth -}}
+{{-     if and .redisConfigName (kindIs "map" (get $.redisMergedConfig "auth")) -}}
+{{-       $_ := set $.redisMergedConfig "password" (get $.redisMergedConfig "auth") -}}
+{{-     else -}}
+{{-       $_ := set $.redisMergedConfig "password" $.Values.global.redis.auth -}}
+{{-     end -}}
 {{-   end -}}
 {{- $_ := set $.redisMergedConfig "database" (default 0 .Values.global.redis.database) -}}
 {{- range $key := keys $.Values.global.redis.auth -}}

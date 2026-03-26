@@ -443,6 +443,37 @@ describe 'Redis configuration' do
       end
     end
 
+    context 'When sub-queue defines auth.secret (matching global auth pattern) instead of password' do
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            redis:
+              host: resque.redis
+              auth:
+                secret: rspec-resque
+              cache:
+                host: cache.redis
+                auth:
+                  secret: rspec-cache
+          redis:
+            install: false
+        )).deep_merge!(default_values)
+      end
+
+      it 'sub-queue uses its own auth secret, not the global one' do
+        t = HelmTemplate.new(values)
+        expect(t.exit_code).to eq(0)
+        projected_volume = t.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+        redis_mount = projected_volume.select { |item| item['secret']['name'] == "rspec-resque" }
+        cache_mount = projected_volume.select { |item| item['secret']['name'] == "rspec-cache" }
+        expect(t.dig('ConfigMap/test-webservice', 'data', 'resque.yml.erb')).to include("redis/redis-password")
+        expect(t.dig('ConfigMap/test-webservice', 'data', 'redis.cache.yml.erb')).to include("redis/cache-password")
+        # cache should mount its own secret, not the global rspec-resque secret
+        expect(redis_mount.length).to eq(1)
+        expect(cache_mount.length).to eq(1)
+      end
+    end
+
     context 'When sub-queue defines password.secret, but not password.enabled' do
       let(:values) do
         YAML.safe_load(%(
