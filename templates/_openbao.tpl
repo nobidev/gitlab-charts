@@ -129,7 +129,7 @@ is bumped here.
     ($staticConf.enabled | default false)
     ($awskmsConf.enabled | default false)
 -}}
-{{- $enabledMethods := where $unsealMethods "==" true -}}
+{{- $enabledMethods := without $unsealMethods false -}}
 {{- if eq (len $enabledMethods) 0 -}}
 {{-   fail "OpenBao: one unseal method must be enabled (static, awskms)." -}}
 {{- end -}}
