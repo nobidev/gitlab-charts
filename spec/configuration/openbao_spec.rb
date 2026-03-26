@@ -63,7 +63,7 @@ describe 'OpenBao installation' do
       ))
     end
 
-    it 'uses the custom PostgreSQL database' do
+    it 'sets the connection_url' do
       expect(openbao_psql_config['connection_url'])
         .to start_with('postgres://baouser@psql.openbao.example.com:5555/baodb')
     end

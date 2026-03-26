@@ -49,13 +49,6 @@ describe 'openbao config check' do
                     password:
                       secret: openbao-db-password
                       key: password
-          postgresql:
-            install: false
-          global:
-            psql:
-              host: gitlab-db.example.com
-              password:
-                secret: gitlab-db-password
         )).deep_merge!(default_required_values)
       end
 
@@ -75,13 +68,6 @@ describe 'openbao config check' do
         YAML.safe_load(%(
           openbao:
             install: true
-          postgresql:
-            install: false
-          global:
-            psql:
-              host: gitlab-db.example.com
-              password:
-                secret: gitlab-db-password
         )).deep_merge!(default_required_values)
       end
 
