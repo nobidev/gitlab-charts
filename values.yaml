@@ -1642,7 +1642,6 @@ openbao:
         streamingUri: '{{ include "gitlab.workhorse.url" . }}/api/v4/internal/secrets_manager/audit_logs'
     storage:
       postgresql:
-        # Configure via global.openbao.psql or here. Connection is not inherited from main DB (ADR-013).
         connection:
           host: ''
           database: ''  # Empty allows global.openbao.psql.database. Set explicitly to override.
