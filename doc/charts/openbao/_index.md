@@ -262,7 +262,8 @@ OpenBao is preconfigured to expose Prometheus metrics which will be scraped by t
 ### Unsealing and initialization options
 
 The OpenBao chart supports two auto-unseal mechanisms: [static](https://openbao.org/docs/configuration/seal/static/)
-and [AWS KMS](https://openbao.org/docs/configuration/seal/awskms/). Only one may be active at a time.
+and [AWS KMS](https://openbao.org/docs/configuration/seal/awskms/). Static unsealing is enabled by default.
+Only one may be active at a time; the chart fails during rendering if both or neither are enabled.
 OpenBao also uses declarative [self initialization](https://openbao.org/docs/configuration/self-init/).
 
 #### Static unsealing
@@ -274,7 +275,7 @@ OpenBao also uses declarative [self initialization](https://openbao.org/docs/con
 | `config.unseal.static.currentKey`                        | `/srv/openbao/keys/static-unseal-0`                     | Path of the current static unsealing key. |
 | `config.unseal.static.previousKeyId`                     |                                                         | ID of the previous static unsealing key. |
 | `config.unseal.static.previousKey`                       | `/srv/openbao/keys/static-unseal-1`                     | Path of the previous static unsealing key. Only rendered if previous key ID is also set. |
-| `staticUnsealSecret.generate`                            | false                                                   | Generate a static key to auto unseal OpenBao. Defaults to false as managed by GitLab charts shared-secret chart. |
+| `staticUnsealSecret.generate`                            | false                                                   | Generate a static key to auto unseal OpenBao. Defaults to false as managed by GitLab charts shared-secret chart. Has no effect when `config.unseal.awskms.enabled=true`. |
 
 #### AWS KMS unsealing
 
@@ -289,8 +290,8 @@ KMS handles key rotation automatically, which makes this the recommended option 
 | `config.unseal.awskms.endpoint`    |         | Optional custom KMS endpoint URL, for example a VPC endpoint. |
 
 > [!note]
-> `config.unseal.awskms.enabled` and `config.unseal.static.enabled` are mutually exclusive.
-> If both are set to `true`, the chart fails with a configuration error.
+> Exactly one of `config.unseal.awskms.enabled` and `config.unseal.static.enabled` must be `true`.
+> The chart fails during rendering if both are `true` or if neither is `true`.
 > When enabling AWS KMS unsealing, ensure `config.unseal.static.enabled=false`.
 
 With [IRSA (IAM Roles for Service Accounts)](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html),

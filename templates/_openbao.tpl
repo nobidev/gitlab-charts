@@ -130,6 +130,9 @@ is bumped here.
     ($awskmsConf.enabled | default false)
 -}}
 {{- $enabledMethods := where $unsealMethods "==" true -}}
+{{- if eq (len $enabledMethods) 0 -}}
+{{-   fail "OpenBao: one unseal method must be enabled (static, awskms)." -}}
+{{- end -}}
 {{- if gt (len $enabledMethods) 1 -}}
 {{-   fail "OpenBao: only one unseal method can be enabled at a time (static, awskms)." -}}
 {{- end -}}
@@ -155,8 +158,8 @@ is bumped here.
 {{- end }}
 {{- if $awskmsConf.enabled | default false }}
 {{-   $awskms := dict "kms_key_id" $awskmsConf.kmsKeyId }}
-{{-   if $awskmsConf.region }}{{- $_ := set $awskms "region" $awskmsConf.region }}{{- end }}
-{{-   if $awskmsConf.endpoint }}{{- $_ := set $awskms "endpoint" $awskmsConf.endpoint }}{{- end }}
+{{-   if not (empty $awskmsConf.region) }}{{- $_ := set $awskms "region" $awskmsConf.region }}{{- end }}
+{{-   if not (empty $awskmsConf.endpoint) }}{{- $_ := set $awskms "endpoint" $awskmsConf.endpoint }}{{- end }}
 {{-   $_ := set $conf "awskms" $awskms }}
 {{- end }}
 {{- toPrettyJson $conf }}
