@@ -49,6 +49,44 @@ describe 'openbao config check' do
                     password:
                       secret: openbao-db-password
                       key: password
+          global:
+            openbao:
+              psql:
+                host: global-psql.example.com
+                database: openbao
+                username: openbao
+                password:
+                  secret: openbao-db-password
+                  key: password
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:values) { success_values }
+
+      include_context 'check config setup'
+
+      it 'succeeds', :aggregate_failures do
+        expect(exit_code).to eq(0)
+        expect(stdout).to include('name: gitlab-checkconfig-test')
+        expect(stderr).to be_empty
+      end
+    end
+
+    context 'when OpenBao is enabled and openbao.config.storage.postgresql.connection is configured' do
+      let(:success_values) do
+        YAML.safe_load(%(
+          openbao:
+            install: true
+            config:
+              storage:
+                postgresql:
+                  connection:
+                    host: psql.openbao.example.com
+                    database: openbao
+                    username: openbao
+                    password:
+                      secret: openbao-db-password
+                      key: password
         )).deep_merge!(default_required_values)
       end
 
