@@ -63,7 +63,7 @@ describe 'openbao config check' do
       end
     end
 
-    context 'when OpenBao is enabled but database name not configured' do
+    context 'when OpenBao is enabled but database not configured' do
       let(:error_values) do
         YAML.safe_load(%(
           openbao:
@@ -78,7 +78,7 @@ describe 'openbao config check' do
                        error_description: 'when OpenBao is enabled but no database configured'
     end
 
-    context 'when OpenBao is enabled with database host but no password' do
+    context 'when OpenBao is enabled and database is configured without a password' do
       let(:error_values) do
         YAML.safe_load(%(
           openbao:
