@@ -699,7 +699,6 @@ describe 'gitlab.yml.erb configuration' do
           'enabled' => false,
           'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
           'jwt_audience' => 'gitlab-rails',
-          'jwks_cache_ttl' => 3600,
           'http' => {
             'host' => '',
             'port' => 443
@@ -725,7 +724,6 @@ describe 'gitlab.yml.erb configuration' do
                 host: grpc.localhost
                 port: 5005
               jwtAudience: custom-aud
-              jwksCacheTtl: 7200
       )))
 
       expect(t.stderr).to eq("")
@@ -742,7 +740,6 @@ describe 'gitlab.yml.erb configuration' do
           'enabled' => true,
           'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
           'jwt_audience' => 'custom-aud',
-          'jwks_cache_ttl' => 7200,
           'http' => {
             'host' => 'localhost',
             'port' => 8084

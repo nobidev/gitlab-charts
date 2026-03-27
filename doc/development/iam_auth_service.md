@@ -47,7 +47,6 @@ global:
 | `grpc.host` | string | - | Hostname of the gRPC endpoint |
 | `grpc.port` | integer | 5004 | Port number of the gRPC endpoint |
 | `jwtAudience` | string | `gitlab-rails` | The value used for the `aud` scope in JWTs sent to this service |
-| `jwksCacheTtl` | integer | 3600 | Time-to-live (TTL) in seconds for the cache used to store JWKs from this service |
 | `authToken.secret` | string | `gitlab-iam-auth-secret` | Kubernetes secret name containing the authentication token |
 | `authToken.key` | string | `iam_auth_service_token` | Key within the secret containing the authentication token |
 

@@ -616,7 +616,6 @@ global:
         # host:
         # port:
       # jwtAudience:
-      # jwksCacheTtl:
       # authToken:
         # secret:
         # key:

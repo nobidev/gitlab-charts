@@ -72,7 +72,6 @@ iam_auth_service:
     host: {{ dig "grpc" "host" "" . | quote }}
     port: {{ dig "grpc" "port" 5004 . | int }}
   jwt_audience: {{ dig "jwtAudience" "gitlab-rails" . | quote }}
-  jwks_cache_ttl: {{ dig "jwksCacheTtl" 3600 . | int }}
   {{- end }}
 {{- end }}
 
