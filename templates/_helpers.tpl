@@ -110,7 +110,9 @@ Returns the minio url.
 {{/* ######### cert-manager templates */}}
 
 {{- define "gitlab.certmanager_annotations" -}}
-{{- if (pluck "configureCertmanager" .Values.ingress .Values.global.ingress (dict "configureCertmanager" false) | first) -}}
+{{- $localEnabled := eq true .Values.ingress.configureCertmanager }}
+{{- $globalEnabled := and (eq nil .Values.ingress.configureCertmanager) (eq true .Values.global.ingress.configureCertmanager) }}
+{{- if or $localEnabled $globalEnabled }}
 cert-manager.io/issuer: "{{ .Release.Name }}-issuer"
 {{-   if not .Values.global.ingress.useNewIngressForCerts }}
 acme.cert-manager.io/http01-edit-in-place: "true"
