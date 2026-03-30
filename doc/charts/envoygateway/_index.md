@@ -15,9 +15,11 @@ title: Using Envoy Gateway
 
 GitLab chart bundles the official Envoy Gateway to support migrating from the bundled NGINX Ingress towards Gateway API.
 
-## Learn more
+## Use Envoy Gateway with GitLab
 
-- [Configuring Gateway API and Envoy Gateway extensions](../../advanced/gateway-api/_index.md)
+For information on using Envoy Gateway with GitLab, see:
+
+- [Configure Gateway API and Envoy Gateway extensions](../../advanced/gateway-api/_index.md)
 - [Migrate to Envoy Gateway](../../installation/migration/envoy_gateway_migration.md)
 - [Envoy Gateway documentation](https://gateway.envoyproxy.io/docs/)
 - [Envoy Gateway Helm chart](https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm)

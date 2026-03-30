@@ -2,7 +2,7 @@
 stage: GitLab Delivery
 group: Operate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
-title: Gateway API
+title: Configure Gateway API and Envoy Gateway extensions
 ---
 
 {{< details >}}
@@ -23,7 +23,7 @@ title: Gateway API
 
 GitLab chart supports Gateway API and bundles [Envoy Gateway](https://gateway.envoyproxy.io/) as one available provider.
 
-## Global Configuration
+## Global configuration
 
 | Name                                                |  Type   | Default        | Description |
 |:----------------------------------------------------|:-------:|:---------------|:------------|
@@ -47,7 +47,7 @@ GitLab chart allows you to customize the managed `Gateway`, `GatewayClass`, and 
 | `gatewayApiResources.gateway.infrastructure`       | Object  | `{}`           | [GatewayInfrastructure](https://gateway-api.sigs.k8s.io/reference/spec/#gatewayinfrastructure) added to the managed Gateway. |
 | `gatewayApiResources.gateway.listeners`            | Object  |                | Listener configuration for the managed Gateway. See below for an example. |
 
-#### Listener Configuration
+#### Listener configuration
 
 The default listener config only specifies a protocol for listeners with
 a predefined protocol. Listeners where the protocol depends on your setup
@@ -108,7 +108,7 @@ listeners:
         - name: openbao-tls
 ```
 
-#### Envoy Gateway Extensions
+#### Envoy Gateway extensions
 
 If the bundled Envoy Gateway is used, you can customize the `EnvoyProxy` and optionally create a `ClientTrafficPolicy`
 and a `SecurityPolicy` bound to the managed `Gateway`.
@@ -119,7 +119,7 @@ and a `SecurityPolicy` bound to the managed `Gateway`.
 | `gatewayApiResources.envoy.clientTrafficPolicySpec` | Object  | see values     | Envoy's `ClientTrafficPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
 | `gatewayApiResources.envoy.securityPolicySpec`      | Object  | see values     | Envoy's `SecurityPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
 
-#### Envoy Gateway Metrics
+#### Envoy Gateway metrics
 
 The bundled Prometheus is set up to collect metrics from both Envoy Gateway and the managed
 Envoy Proxy. If you have Prometheus Operator custom resource definitions (CRDs) enabled,

@@ -198,8 +198,8 @@ Ingress object is created for each validation.
 
 ## Gateway API
 
-Check the [Gateway API](../advanced/gateway-api/_index.md) documentation for all settings related to
-Gateway API and the bundled Envoy Gateway.
+For information on all the settings related to Gateway API and the bundled Envoy Gateway,
+see [Gateway API](../advanced/gateway-api/_index.md).
 
 ## GitLab Version
 

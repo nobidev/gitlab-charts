@@ -17,15 +17,17 @@ and the bundled Envoy Gateway. All bundled Ingress controllers, including HAProx
 and will be removed in 20.0. Ingresses are not deprecated and will remain available after 20.0, but will need
 an [external Ingress controller](../../advanced/external-ingress/_index.md).
 
-This guide covers how to migrate from the bundled NGINX Ingress to Gateway API either by as a [one step migration](#one-step-migration)
-or via a [multi step migration](#zero-downtime-migration) for zero downtime.
+You can migrate from the bundled NGINX Ingress to Gateway API with either:
 
-## One step Migration
+- A [one step migration](#migrate-in-one-step)
+- A [multi-step migration](#migrate-with-zero-downtime) with zero downtime.
+
+## Migrate in one step
 
 > [!warning]
 > Expect approximately 5 minutes of downtime during migration. The actual time may differ
 > depending on your deployment, infrastructure, and configuration. For a zero-downtime approach,
-> see [zero downtime migration](#zero-downtime-migration).
+> see [zero downtime migration](#migrate-with-zero-downtime).
 
 To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
 
@@ -141,7 +143,7 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
 
 1. Upgrade your GitLab chart release with the updated values.
 
-## Zero downtime migration
+## Migrate with zero downtime
 
 To perform a zero-downtime migration, you can run NGINX Ingress and Envoy Gateway side by side, allowing
 two LoadBalancers to operate simultaneously. Once Envoy Gateway is fully configured to handle GitLab traffic,
