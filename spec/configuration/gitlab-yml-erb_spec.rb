@@ -701,11 +701,11 @@ describe 'gitlab.yml.erb configuration' do
           'jwt_audience' => 'gitlab-rails',
           'http' => {
             'host' => '',
-            'port' => 443
+            'port' => 0
           },
           'grpc' => {
             'host' => '',
-            'port' => 5004
+            'port' => 0
           }
         }
       )
@@ -750,6 +750,22 @@ describe 'gitlab.yml.erb configuration' do
           }
         }
       )
+    end
+
+    it 'fails when service enabled and mandatory fields are missing' do
+      t = HelmTemplate.new(HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            iamAuthService:
+              enabled: true
+              jwtAudience: custom-aud
+      )))
+
+      expect(t.exit_code).not_to eq(0)
+      expect(t.stderr).to include("http.host is required when iamAuthService is enabled")
+      expect(t.stderr).to include("http.port is required when iamAuthService is enabled")
+      expect(t.stderr).to include("grpc.host is required when iamAuthService is enabled")
+      expect(t.stderr).to include("grpc.port is required when iamAuthService is enabled")
     end
   end
 

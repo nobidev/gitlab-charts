@@ -18,15 +18,25 @@ describe 'iamAuthService templates' do
   let(:values) { default_values }
   let(:template) { HelmTemplate.new(values) }
 
+  let(:enabled_values) do
+    YAML.safe_load(%(
+      global:
+        appConfig:
+          iamAuthService:
+            enabled: true
+            http:
+              host: iam-auth.example.com
+              port: 443
+            grpc:
+              host: iam-auth.example.com
+              port: 5004
+    ))
+  end
+
   describe 'gitlab.appConfig.iamAuthService.authToken.key' do
     context 'when no custom key name provided' do
       let(:values) do
-        YAML.safe_load(%(
-          global:
-            appConfig:
-              iamAuthService:
-                enabled: true
-        )).deep_merge!(default_values)
+        enabled_values.deep_merge!(default_values)
       end
 
       it 'returns the default key name' do
@@ -39,14 +49,13 @@ describe 'iamAuthService templates' do
 
     context 'when custom key name provided' do
       let(:values) do
-        YAML.safe_load(%(
+        enabled_values.deep_merge!(YAML.safe_load(%(
           global:
             appConfig:
               iamAuthService:
-                enabled: true
                 authToken:
                   key: custom-iam-key
-        )).deep_merge!(default_values)
+        ))).deep_merge!(default_values)
       end
 
       it 'returns the custom key name' do
@@ -61,12 +70,7 @@ describe 'iamAuthService templates' do
   describe 'gitlab.appConfig.iamAuthService.authToken.secret' do
     context 'when no custom secret name provided' do
       let(:values) do
-        YAML.safe_load(%(
-          global:
-            appConfig:
-              iamAuthService:
-                enabled: true
-        )).deep_merge!(default_values)
+        enabled_values.deep_merge!(default_values)
       end
 
       it 'returns the default secret name' do
@@ -79,14 +83,13 @@ describe 'iamAuthService templates' do
 
     context 'when iamAuthService is enabled with custom secret' do
       let(:values) do
-        YAML.safe_load(%(
+        enabled_values.deep_merge!(YAML.safe_load(%(
           global:
             appConfig:
               iamAuthService:
-                enabled: true
                 authToken:
                   secret: custom-iam-auth-secret
-        )).deep_merge!(default_values)
+        ))).deep_merge!(default_values)
       end
 
       it 'returns the custom secret name' do
@@ -131,12 +134,7 @@ describe 'iamAuthService templates' do
 
     context 'when iamAuthService is enabled' do
       let(:values) do
-        YAML.safe_load(%(
-          global:
-            appConfig:
-              iamAuthService:
-                enabled: true
-        )).deep_merge!(default_values)
+        enabled_values.deep_merge!(default_values)
       end
 
       it 'mounts shared secret on webservice deployment' do

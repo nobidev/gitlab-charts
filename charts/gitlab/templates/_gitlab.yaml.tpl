@@ -67,10 +67,10 @@ iam_auth_service:
   secret_file: /etc/gitlab/iam-auth/.gitlab_iam_auth_secret
   http:
     host: {{ dig "http" "host" "" . | quote }}
-    port: {{ dig "http" "port" 443 . | int }}
+    port: {{ dig "http" "port" 0 . | int }}
   grpc:
     host: {{ dig "grpc" "host" "" . | quote }}
-    port: {{ dig "grpc" "port" 5004 . | int }}
+    port: {{ dig "grpc" "port" 0 . | int }}
   jwt_audience: {{ dig "jwtAudience" "gitlab-rails" . | quote }}
   {{- end }}
 {{- end }}

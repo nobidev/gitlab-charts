@@ -43,9 +43,9 @@ global:
 |--------|------|---------|-------------|
 | `enabled` | boolean | `false` | Enable or disable IAM Auth Service integration |
 | `http.host` | string | - | Hostname of the HTTP endpoint |
-| `http.port` | integer | 443 | Port number of the HTTP endpoint |
+| `http.port` | integer | - | Port number of the HTTP endpoint |
 | `grpc.host` | string | - | Hostname of the gRPC endpoint |
-| `grpc.port` | integer | 5004 | Port number of the gRPC endpoint |
+| `grpc.port` | integer | - | Port number of the gRPC endpoint |
 | `jwtAudience` | string | `gitlab-rails` | The value used for the `aud` scope in JWTs sent to this service |
 | `authToken.secret` | string | `gitlab-iam-auth-secret` | Kubernetes secret name containing the authentication token |
 | `authToken.key` | string | `iam_auth_service_token` | Key within the secret containing the authentication token |
