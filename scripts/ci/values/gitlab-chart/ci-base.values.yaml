@@ -1,0 +1,8 @@
+global:
+  hosts:
+    hostSuffix: "${HOST_SUFFIX}"
+    domain: "${KUBE_INGRESS_BASE_DOMAIN}"
+  appConfig:
+    initialDefaults:
+      signupEnabled: false
+installCertmanager: false

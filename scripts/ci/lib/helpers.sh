@@ -1,0 +1,43 @@
+#!/bin/bash
+
+function is_ci_deployment() {
+  [[ -n "${CI_PIPELINE_ID}" ]]
+}
+
+function is_vcluster_deployment() {
+  [[ -n "${VCLUSTER_K8S_VERSION}" ]]
+}
+
+# release_name_base returns a common prefix for all releases managed
+# by the autodevops script
+function release_name_base() {
+  if is_ci_deployment; then
+    echo -n "rvw-${CI_PIPELINE_ID}"
+  else
+    echo -n "dev"
+  fi
+}
+
+function gitlab_release_name() {
+  echo -n "$(release_name_base)-gitlab"
+}
+
+function valkey_release_name() {
+  echo -n "$(release_name_base)-valkey"
+}
+
+function cnpg_release_name() {
+  echo -n "$(release_name_base)-cnpg"
+}
+
+function cnpg_cluster_name() {
+  echo -n "$(release_name_base)-cluster"
+}
+
+function cnpg_cluster_host() {
+  echo -n "$(cnpg_cluster_name)-rw"
+}
+
+function cnpg_cluster_secret() {
+  echo -n "$(cnpg_cluster_name)-app"
+}
