@@ -6,9 +6,12 @@
 #   1. Avoid CRD conflicts.
 #   2. Avoid resource conflicts in native review environments where mutliple review deploysments exist in the same namespace.
 function deploy_external_postgresql() {
-  echo "Installing external PostgreSQL"
-
-  install_cnpg_operator
+  # Skip install for native CI review envionments which use a shared CNPG Operator installation.
+  if is_ci_deployment && is_vcluster_deployment; then
+    echo "Installing CloudNativePG"
+    install_cnpg_operator
+  fi
+  echo "Installing CloudNativePG PostgreSQL Cluster"
   create_cnpg_cluster
 }
 
@@ -19,7 +22,7 @@ function install_cnpg_operator {
   fi
 
   helm repo add cnpg https://cloudnative-pg.github.io/charts
-  helm upgrade cnpg cnpg/cloudnative-pg \
+  helm upgrade "$(cnpg_release_name)" cnpg/cloudnative-pg \
     --install \
     ${VERSION_FLAG} \
     --namespace ${NAMESPACE} \
@@ -34,7 +37,7 @@ function create_cnpg_cluster {
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: gitlab-cluster
+  name: "$(cnpg_cluster_name)"
   namespace: "${NAMESPACE}"
 spec:
   instances: 1
@@ -63,7 +66,7 @@ EOF
   for i in $(seq 1 5); do
     sleep 5
     if echo "$cluster_cr" | kubectl apply -n "${NAMESPACE}" -f -; then
-      kubectl wait --timeout 180s --for=condition=Ready -n "${NAMESPACE}" "clusters/gitlab-cluster"
+      kubectl wait --timeout 180s --for=condition=Ready -n "${NAMESPACE}" "clusters/$(cnpg_cluster_name)"
       return 0
     fi
   done
@@ -72,9 +75,11 @@ EOF
 }
 
 function remove_external_postgres() {
-    echo "Removing GitLab CNPG Cluster"
-    kubectl delete -n "${NAMESPACE}" --wait --ignore-not-found=true cluster gitlab-cluster
+    echo "Removing CloudNativePG PostgreSQL Cluster"
+    kubectl delete -n "${NAMESPACE}" --wait --ignore-not-found=true cluster "$(cnpg_cluster_name)"
     
-    echo "Removing CNPG"
-    helm uninstall cnpg -n "${NAMESPACE}" --wait --ignore-not-found
+    if is_ci_deployment && is_vcluster_deployment; then
+      echo "Removing CloudNativePG"
+      helm uninstall "$(cnpg_release_name)" -n "${NAMESPACE}" --wait --ignore-not-found
+    fi
 }

@@ -1,0 +1,4 @@
+postgresql:
+  primary:
+    extendedConfiguration: |-
+      max_connections = 200

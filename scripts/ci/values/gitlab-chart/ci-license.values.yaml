@@ -1,0 +1,7 @@
+global:
+  extraEnv:
+    GITLAB_LICENSE_MODE: "test"
+    CUSTOMER_PORTAL_URL: "https://customers.staging.gitlab.com"
+  gitlab:
+    license:
+      secret: "${GITLAB_RELEASE_NAME}-gitlab-license"

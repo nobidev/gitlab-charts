@@ -3,7 +3,6 @@ set -e
 
 if [[ -n "${VARIABLES_FILE}" ]]; then
   source "${VARIABLES_FILE}"
-  ./scripts/ci/feature_spec_setup.sh
 else
   ./scripts/ci/integration_spec_setup.sh
 fi

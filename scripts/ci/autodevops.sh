@@ -4,61 +4,16 @@ set -e # Exit on first failure.
 
 # Auto DevOps variables and functions
 [[ "$TRACE" ]] && set -x
-export CI_APPLICATION_REPOSITORY=$CI_REGISTRY_IMAGE/$CI_COMMIT_SHORT_SHA
-export CI_APPLICATION_TAG=$CI_COMMIT_SHA
-export CI_CONTAINER_NAME=ci_job_build_${CI_JOB_ID}
 
-# Derive the Helm RELEASE argument from CI_ENVIRONMENT_SLUG
-if [[ $CI_ENVIRONMENT_SLUG =~ ^[^-]+-review ]]; then
-  # if multiarch deployment is on - we will be deploying *two*
-  # charts - one for "amd64" and second for "arm64" thus the need
-  # to avoid name collision:
-  if [ "${REVIEW_ARCH}" == "arm64" ]; then
-    RELEASE_NAME="rvw-a-${REVIEW_REF_PREFIX}${CI_COMMIT_SHORT_SHA}"
-  else
-    RELEASE_NAME=rvw-${REVIEW_REF_PREFIX}${CI_COMMIT_SHORT_SHA}
-  fi
-  # if a "review", use $REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
-  # Trim release name to leave room for prefixes/suffixes
-  RELEASE_NAME=${RELEASE_NAME:0:30}
-  # Trim any hyphens in the suffix
-  RELEASE_NAME=${RELEASE_NAME%-}
-else
-  # otherwise, use CI_ENVIRONMENT_SLUG
-  if [ "${REVIEW_ARCH}" == "arm64" ]; then
-    RELEASE_NAME="a-${CI_ENVIRONMENT_SLUG}"
-  else
-    RELEASE_NAME=$CI_ENVIRONMENT_SLUG
-  fi
-fi
-export RELEASE_NAME
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/autodevops_valkey.sh"
-source "$SCRIPT_DIR/autodevops_cnpg.sh"
-source "$SCRIPT_DIR/autodevops_garage.sh"
+source "$SCRIPT_DIR/lib/helpers.sh"
+source "$SCRIPT_DIR/lib/valkey.sh"
+source "$SCRIPT_DIR/lib/cloudnativepg.sh"
+source "$SCRIPT_DIR/lib/garage.sh"
 
-function previousDeployFailed() {
-  set +e
-  echo "Checking for previous deployment of $RELEASE_NAME"
-  deployment_status=$(helm status $RELEASE_NAME >/dev/null 2>&1)
-  status=$?
-  # if `status` is `0`, deployment exists, has a status
-  if [ $status -eq 0 ]; then
-    echo "Previous deployment found, checking status"
-    deployment_status=$(helm status $RELEASE_NAME | grep ^STATUS | cut -d' ' -f2)
-    echo "Previous deployment state: $deployment_status"
-    if [[ "$deployment_status" == "FAILED" || "$deployment_status" == "PENDING_UPGRADE" || "$deployment_status" == "PENDING_INSTALL" ]]; then
-      status=0;
-    else
-      status=1;
-    fi
-  else
-    echo "Previous deployment NOT found."
-  fi
-  set -e
-  return $status
-}
+PROJECT_ROOT="${SCRIPT_DIR}/../.."
+VALUES_DIR="${PROJECT_ROOT}/.values"
 
 function deploy_external_components() {
   if [ "${SKIP_EXTERNAL_VALKEY}" != "true" ]; then
@@ -94,190 +49,94 @@ function deploy() {
     exit 1
   fi
 
-  echo "REVIEW_ARCH: $REVIEW_ARCH"
-  # Cleanup and previous installs, as FAILED and PENDING_UPGRADE will cause errors with `upgrade`
-  if [ "$RELEASE_NAME" != "production" ] && previousDeployFailed ; then
-    echo "Deployment in bad state, cleaning up $RELEASE_NAME"
-    delete
-    cleanup
-  fi
-
-  #ROOT_PASSWORD=$(cat /dev/urandom | LC_TYPE=C tr -dc "[:alpha:]" | head -c 16)
-  #echo "Generated root login: $ROOT_PASSWORD"
-  kubectl create secret generic -n "${NAMESPACE}" "${RELEASE_NAME}-gitlab-initial-root-password" --from-literal=password=$ROOT_PASSWORD -o yaml --dry-run=client | kubectl replace --force -f -
-
-  echo "${QA_EE_LICENSE}" > /tmp/license.gitlab
-  kubectl create secret generic -n "${NAMESPACE}" "${RELEASE_NAME}-gitlab-license" --from-file=license=/tmp/license.gitlab -o yaml --dry-run=client | kubectl replace --force -f -
-
-  # YAML_FILE=""${KUBE_INGRESS_BASE_DOMAIN//\./-}.yaml"
-
   helm dependency update .
+  prepare_values
 
-  WAIT="--wait --timeout 900s"
+  CI_CONFIGURATION=""
+  # Substuite environment variables in values file
+  if is_ci_deployment; then
+    echo "CI deployment detected"
+    kubectl create secret generic -n "${NAMESPACE}" "$(gitlab_release_name)-gitlab-initial-root-password" \
+      --from-literal=password="$ROOT_PASSWORD" -o yaml --dry-run=client \
+      | kubectl replace --force -f -
 
-  PROMETHEUS_INSTALL="false"
+    kubectl create secret generic -n "${NAMESPACE}" "$(gitlab_release_name)-gitlab-license" \
+      --from-literal=license="$QA_EE_LICENSE" -o yaml --dry-run=client \
+      | kubectl replace --force -f -
 
-  # Only enable Prometheus on `master`. To override, set PROMETHEUS_INSTALL_OVERRIDE="false".
-  if [ "$CI_COMMIT_REF_NAME" == "master" ] && [ "${PROMETHEUS_INSTALL_OVERRIDE}" != "false" ]; then
-    PROMETHEUS_INSTALL="true"
+    CI_CONFIGURATION="-f ${VALUES_DIR}/ci-base.values.yaml -f ${VALUES_DIR}/ci-scale.values.yaml -f ${VALUES_DIR}/ci-license.values.yaml -f ci.digests.yaml"
   fi
 
-  cat << CIYAML > ci.prometheus.yaml
-  prometheus:
-    install: ${PROMETHEUS_INSTALL}
-    server:
-      retention: "3d"
-      extraArgs:
-        storage.tsdb.retention.size: "1GB"
-      resources:
-        requests:
-          memory: 2Gi
-        limits:
-          memory: 4Gi
-CIYAML
-
-  # helm's --set argument dislikes special characters, pass them as YAML
-  cat << CIYAML > ci.details.yaml
-  ci:
-    title: |
-      ${CI_COMMIT_TITLE}
-    sha: "${CI_COMMIT_SHA}"
-    branch: "${CI_COMMIT_REF_NAME}"
-    job:
-      url: "${CI_JOB_URL}"
-    pipeline:
-      url: "${CI_PIPELINE_URL}"
-    environment: "${CI_ENVIRONMENT_SLUG}"
-CIYAML
-
-  # configure CI resources, intentionally trimmed.
-  cat << CIYAML > ci.scale.yaml
-  gitlab:
-    webservice:
-      minReplicas: 1    # 2
-      maxReplicas: 3    # 10
-      resources:
-        requests:
-          cpu: 500m     # 900m
-          memory: 1500M # 2.5G
-    sidekiq:
-      minReplicas: 1    # 1
-      maxReplicas: 2    # 10
-      resources:
-        requests:
-          cpu: 500m     # 900m
-          memory: 1000M # 2G
-    gitlab-shell:
-      minReplicas: 1    # 2
-      maxReplicas: 2    # 10
-    toolbox:
-      enabled: true
-  nginx-ingress:
-    controller:
-      replicaCount: 1   # 2
-  redis:
-    resources:
-      requests:
-        cpu: 100m
-  minio:
-    resources:
-      requests:
-        cpu: 100m
-CIYAML
-
-  DOMAIN="-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"
-  envsubst < ./scripts/ci/values/vcluster.externaldns.values.yaml > ./vcluster.externaldns.values.yaml
-  envsubst < ./scripts/ci/values/ingress.values.yaml > ./ingress.values.yaml
-  envsubst < ./scripts/ci/values/gatewayapi.values.yaml > ./gatewayapi.values.yaml
-  envsubst < ./scripts/ci/values/external-valkey.values.yaml > ./external-valkey.values.yaml
-
-  NETWORKING_CONF="-f ingress.values.yaml"
+  NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress.values.yaml"
   if [ -n "${USE_GATEWAY_API}" ]; then
     echo "USE_GATEWAY_API detected"
-    NETWORKING_CONF="-f gatewayapi.values.yaml"
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi.values.yaml"
   fi
 
-  if [ -n "${VCLUSTER_NAME}" ]; then
+  if is_vcluster_deployment; then
     echo "VCLUSTER deployment detected"
-    NETWORKING_CONF="${NETWORKING_CONF} -f vcluster.externaldns.values.yaml"
+    NETWORKING_CONFIGURATION="${NETWORKING_CONFIGURATION} -f ${VALUES_DIR}/vcluster.externaldns.values.yaml"
   fi
-
-  # PostgreSQL max_connection defaults to 100, which is apparently not enough to pass QA.
-  cat << CIYAML > ci.psql.yaml
-  postgresql:
-    primary:
-      extendedConfiguration: |-
-        max_connections = 200
-CIYAML
 
   if [ -n "${REVIEW_APPS_SENTRY_DSN}" ] && [ -n "${REVIEW_APPS_SENTRY_ENVIRONMENT}" ]; then
-    echo "REVIEW_APPS_SENTRY_* detected, enabling Sentry"
-    cat << CIYAML > ci.sentry.yaml
-    global:
-      appConfig:
-        sentry:
-          enabled: true
-          dsn: "${REVIEW_APPS_SENTRY_DSN}"
-          environment: "${REVIEW_APPS_SENTRY_ENVIRONMENT}"
-CIYAML
-
-    SENTRY_CONFIGURATION="-f ci.sentry.yaml"
+    echo "Sentry deployment detected"
+    SENTRY_CONFIGURATION="-f ${VALUES_DIR}/sentry.values.yaml"
   fi
 
   ARCH_CONFIGURATION=""
   if [ "${REVIEW_ARCH}" == "arm64" ]; then
+    echo "ARM64 review arch detected"
     # The bundled MinIO chart is not being updated anymore.
     # Override the image for arm64 because the current default image is only build for amd64.
-    ARCH_CONFIGURATION="-f scripts/ci/values/arm64.values.yaml"
+    ARCH_CONFIGURATION="-f ${VALUES_DIR}/arm64.values.yaml"
     # Patch the minio chart to accomodate for CLI changes in the new minio/mc version.
     git apply ./scripts/ci/patches/arm64.minio.patch
   fi
 
   VALKEY_CONFIGURATION=""
   if [ "${SKIP_EXTERNAL_VALKEY}" != "true" ]; then
-    echo "Valkey deployment detected"
-    VALKEY_CONFIGURATION="-f external-valkey.values.yaml"
+    echo "External Valkey deployment detected"
+    VALKEY_CONFIGURATION="-f ${VALUES_DIR}/external-valkey.values.yaml"
   fi
 
-  POSTGRESQL_CONFIGURATION=""
+  POSTGRESQL_CONFIGURATION="-f ${VALUES_DIR}/bundled-postgresql.values.yaml"
   if [ -n "${USE_EXTERNAL_POSTGRESQL}" ]; then
-    echo "PostgreSQL deployment detected"
-    POSTGRESQL_CONFIGURATION="-f scripts/ci/values/external-postgresql.values.yaml"
+    echo "External PostgreSQL deployment detected"
+    POSTGRESQL_CONFIGURATION="-f ${VALUES_DIR}/external-postgresql.values.yaml"
   fi
 
   GARAGE_CONFIGURATION=""
   if [ -n "${USE_EXTERNAL_GARAGE}" ]; then
-      echo "Garage deployment detected"
+      echo "External object storage (Garage) deployment detected"
       GARAGE_CONFIGURATION="-f scripts/ci/values/external-garage.values.yaml"
   fi
 
   helm upgrade --install \
-    $WAIT \
+    --wait --timeout 900s \
+    ${CI_CONFIGURATION} \
     ${SENTRY_CONFIGURATION} \
     ${ARCH_CONFIGURATION} \
-    ${NETWORKING_CONF} \
+    ${NETWORKING_CONFIGURATION} \
     ${VALKEY_CONFIGURATION} \
     ${POSTGRESQL_CONFIGURATION} \
     ${GARAGE_CONFIGURATION} \
-    -f ci.details.yaml \
-    -f ci.scale.yaml \
-    -f ci.psql.yaml \
-    -f ci.digests.yaml \
-    -f ci.prometheus.yaml \
-    --set releaseOverride="$RELEASE_NAME" \
-    --set global.hosts.hostSuffix="$HOST_SUFFIX" \
-    --set global.hosts.domain="$KUBE_INGRESS_BASE_DOMAIN" \
-    --set global.appConfig.initialDefaults.signupEnabled=false \
-    --set installCertmanager=false \
-    --set global.extraEnv.GITLAB_LICENSE_MODE="test" \
-    --set global.extraEnv.CUSTOMER_PORTAL_URL="https://customers.staging.gitlab.com" \
-    --set global.gitlab.license.secret="$RELEASE_NAME-gitlab-license" \
     --namespace="$NAMESPACE" \
-    "${gitlab_version_args[@]}" \
-    --version="$CI_PIPELINE_ID-$CI_JOB_ID" \
     $HELM_EXTRA_ARGS \
-    "$RELEASE_NAME" \
-    .
+    "$(gitlab_release_name)" \
+    "${PROJECT_ROOT}"
+}
+
+function prepare_values() {
+  mkdir -p "${VALUES_DIR}"
+
+  for f in ./scripts/ci/values/gitlab-chart/*; do
+    env \
+      GITLAB_RELEASE_NAME="$(gitlab_release_name)" \
+      VALKEY_RELEASE_NAME="$(valkey_release_name)" \
+      CNPG_CLUSTER_HOST="$(cnpg_cluster_host)" \
+      CNPG_CLUSTER_SECRET="$(cnpg_cluster_secret)" \
+        envsubst < "$f" > "${VALUES_DIR}/$(basename $f)"
+  done
 }
 
 function check_kas_status() {
@@ -293,7 +152,7 @@ function check_kas_status() {
     fi
 
     iteration=$((iteration+1))
-    kasState=($(kubectl get pods -n "$NAMESPACE" -lrelease=${RELEASE_NAME},app=kas | awk '{print $3}'))
+    kasState=($(kubectl get pods -n "$NAMESPACE" -lrelease=$(gitlab_release_name),app=kas | awk '{print $3}'))
     sleep 5;
   done
 }
@@ -305,7 +164,7 @@ function wait_for_deploy {
   webserviceState=0
   while [ "$webserviceState" -lt 2 ]; do
     # This will always return at least one line, `NAME`
-    webserviceState=($(kubectl get pods -n "$NAMESPACE" -lrelease=${RELEASE_NAME},app=webservice --field-selector status.phase=Running -o=custom-columns=NAME:.metadata.name | wc -l))
+    webserviceState=($(kubectl get pods -n "$NAMESPACE" -lrelease=$(gitlab_release_name),app=webservice --field-selector status.phase=Running -o=custom-columns=NAME:.metadata.name | wc -l))
     if [ $iteration -eq 0 ]; then
       echo -n "Waiting for deploy to complete.";
     else
@@ -356,18 +215,8 @@ function check_domain_ip() {
   fi
 }
 
-function create_secret() {
-  kubectl create secret -n "$NAMESPACE" \
-    docker-registry gitlab-registry-docker \
-    --docker-server="$CI_REGISTRY" \
-    --docker-username="$CI_REGISTRY_USER" \
-    --docker-password="$CI_REGISTRY_PASSWORD" \
-    --docker-email="$GITLAB_USER_EMAIL" \
-    -o yaml --dry-run=client | kubectl replace -n "$NAMESPACE" --force -f -
-}
-
 function delete() {
-  helm uninstall "$RELEASE_NAME" || true
+  helm uninstall "$(gitlab_release_name)" || true
 }
 
 function cleanup() {
@@ -387,7 +236,17 @@ function cleanup() {
 
 function get_resources() {
   kubectl -n "$NAMESPACE" get "$1" --no-headers 2>&1 \
-    | grep "$RELEASE_NAME" \
+    | grep "$(release_name_base)" \
     | awk '{print $1}' \
     | xargs
+}
+
+function wait_for_toolbox() {
+  kubectl wait pods -n "${NAMESPACE}" -l app=toolbox,release="$(gitlab_release_name)" --for condition=Ready --timeout=60s
+}
+
+function get_qa_revision() {
+  wait_for_toolbox >/dev/null
+  toolbox_pod=$(kubectl get pods -lrelease="$(gitlab_release_name)",app=toolbox -o custom-columns=":metadata.name")
+  kubectl exec -n "${NAMESPACE}" "${toolbox_pod}" -ic toolbox -- cat /srv/gitlab/REVISION
 }

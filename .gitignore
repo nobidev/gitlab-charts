@@ -13,3 +13,4 @@ ci.digests.test.yaml
 scripts/debug/chart-info
 .idea
 .claude/settings.local.json
+.values

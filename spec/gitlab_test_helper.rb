@@ -78,6 +78,10 @@ module Gitlab
       return [stdout, status]
     end
 
+    def release_name
+      ENV['GITLAB_RELEASE_NAME'] || 'gitlab'
+    end
+
     def gitlab_url
       protocol = ENV['PROTOCOL'] || 'https'
       instance_url = ENV['GITLAB_URL'] || "gitlab.#{ENV['GITLAB_ROOT_DOMAIN']}"
@@ -96,26 +100,13 @@ module Gitlab
     end
 
     def get_hpa_minreplicas(app)
-      filters = "app=#{app}"
-
-      if ENV['RELEASE_NAME']
-        filters="#{filters},release=#{ENV['RELEASE_NAME']}"
-      end
-
-      stdout, status = Open3.capture2e("kubectl get hpa -l #{filters} -ojsonpath='{.items[0].spec.minReplicas}' ")
+      stdout, status = Open3.capture2e("kubectl get hpa -l app=#{app},release=#{release_name} -ojsonpath='{.items[0].spec.minReplicas}' ")
       return [stdout, status]
     end
 
     def scale_deployment(app, replicas)
-      filters = "app=#{app}"
-
-      if ENV['RELEASE_NAME']
-        filters="#{filters},release=#{ENV['RELEASE_NAME']}"
-      end
-
-      puts "Scaling Deployment ('#{filters}') to #{replicas}."
-
-      stdout, status = Open3.capture2e("kubectl scale deployment -l #{filters} --replicas=#{replicas}  --timeout=#{kube_timeout_parse('KUBE_SCALE_TIMEOUT')}")
+      puts "Scaling Deployment #{app} to #{replicas}."
+      stdout, status = Open3.capture2e("kubectl scale deployment -l app=#{app},release=#{release_name} --replicas=#{replicas} --timeout=#{kube_timeout_parse('KUBE_SCALE_TIMEOUT')}")
       return [stdout, status]
     end
 
@@ -147,11 +138,7 @@ module Gitlab
     def wait_for_rollout(type: nil, filters: nil)
       raise ArgumentError, "Must supply both 'type' and 'filters'" if type.nil? || filters.nil?
 
-      if ENV['RELEASE_NAME']
-        filters="#{filters},release=#{ENV['RELEASE_NAME']}"
-      end
-
-      cmd = "kubectl rollout status #{type} -l'#{filters}' --timeout=#{kube_timeout_parse('KUBE_ROLLOUT_TIMEOUT')}"
+      cmd = "kubectl rollout status #{type} -l'#{filters},release=#{release_name}' --timeout=#{kube_timeout_parse('KUBE_ROLLOUT_TIMEOUT')}"
       puts "Executing in Namespace #{ENV['KUBE_NAMESPACE']}: #{cmd}"
       stdout, status = Open3.capture2e(cmd)
       raise stdout unless status.success?
@@ -215,29 +202,21 @@ module Gitlab
       return [stdout, status]
     end
 
-    def find_pod_name(filters)
-      if ENV['RELEASE_NAME']
-        filters="#{filters},release=#{ENV['RELEASE_NAME']}"
-      end
-
-      `kubectl get pod -l #{filters} --field-selector=status.phase=Running -o jsonpath="{.items[0].metadata.name}"`
+    def find_pod_name(app)
+      `kubectl get pod -l release=#{release_name},app=#{app} --field-selector=status.phase=Running -o jsonpath="{.items[0].metadata.name}"`
     end
 
     def pod_name
-      filters = 'app=toolbox'
-
-      @pod ||= find_pod_name(filters)
+      @pod ||= find_pod_name('toolbox')
     end
 
     def gitaly_pod_name
-      filters = 'app=gitaly'
-
-      @gitaly_pod ||= find_pod_name(filters)
+      @gitaly_pod ||= find_pod_name('gitaly')
     end
 
     def runner_registration_token
       @runner_registration_token ||= Base64.decode64(
-        IO.popen(%W[kubectl get secret -o jsonpath="{.data.runner-registration-token}" -- #{ENV['RELEASE_NAME']}-gitlab-runner-secret], &:read)
+        IO.popen(%W[kubectl get secret -o jsonpath="{.data.runner-registration-token}" -- #{release_name}-gitlab-runner-secret], &:read)
       )
     end
 
@@ -246,8 +225,7 @@ module Gitlab
     end
 
     def runner_app_label
-      release = ENV['RELEASE_NAME'] || 'gitlab'
-      "#{release}-gitlab-runner"
+      "#{release_name}-gitlab-runner"
     end
   end
 end

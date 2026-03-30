@@ -1,0 +1,6 @@
+global:
+  appConfig:
+    sentry:
+      enabled: true
+      dsn: "${REVIEW_APPS_SENTRY_DSN}"
+      environment: "${REVIEW_APPS_SENTRY_ENVIRONMENT}"

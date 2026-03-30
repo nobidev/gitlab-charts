@@ -233,15 +233,9 @@ pin_image_versions:
 .set_up_namespace_secret_and_deploy:
   script:
     - ensure_namespace
-    - create_secret
     - deploy_external_components
     - deploy
     - wait_for_deploy
-
-.get_qa_revision:
-  script:
-    - kubectl wait pods -n $NAMESPACE -l app=toolbox,release=$RELEASE_NAME  --for condition=Ready --timeout=60s
-    - echo "export QA_GITLAB_REVISION=`kubectl exec -i $(kubectl get pods -lrelease=$RELEASE_NAME,app=toolbox -o custom-columns=":metadata.name") -c toolbox -- cat /srv/gitlab/REVISION`" >> "${VARIABLES_FILE}"
 
 .review_template:
   stage: review
@@ -259,11 +253,11 @@ pin_image_versions:
     - kubectl version --output=json
     - !reference [.set_up_namespace_secret_and_deploy, script]
     - check_domain_ip
-    - echo "export GITLAB_URL=gitlab-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN" >> "${VARIABLES_FILE}"
-    - echo "export GITLAB_ROOT_DOMAIN=$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN"        >> "${VARIABLES_FILE}"
-    - echo "export REGISTRY_URL=registry-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"     >> "${VARIABLES_FILE}"
-    - echo "export S3_ENDPOINT=https://minio-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN" >> "${VARIABLES_FILE}"
-    - !reference [.get_qa_revision, script]
+    - echo "export GITLAB_RELEASE_NAME=$(gitlab_release_name)"                        >> "${VARIABLES_FILE}"
+    - echo "export GITLAB_URL=gitlab-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"          >> "${VARIABLES_FILE}"
+    - echo "export GITLAB_ROOT_DOMAIN=$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN" >> "${VARIABLES_FILE}"
+    - echo "export REGISTRY_URL=registry-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"      >> "${VARIABLES_FILE}"
+    - echo "export QA_GITLAB_REVISION=$(get_qa_revision)"                             >> "${VARIABLES_FILE}"
   artifacts:
     when: always
     paths:

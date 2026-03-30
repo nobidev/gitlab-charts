@@ -1,15 +1,3 @@
-global:
-  hosts:
-    https: false
-  image:
-    pullPolicy: Always
-  ingress:
-    configureCertmanager: false
-    tls:
-      enabled: false
-  appConfig:
-    initialDefaults:
-      signupEnabled: false
 gitlab:
   webservice:
     minReplicas: 1    # 2
@@ -30,14 +18,9 @@ gitlab:
     maxReplicas: 2    # 10
   toolbox:
     enabled: true
-gitlab-runner:
-  install: false
-installCertmanager: false
 nginx-ingress:
   controller:
     replicaCount: 1   # 2
-    service:
-      type: NodePort # to avoid creating a LoadBalancer
 redis:
   resources:
     requests:
