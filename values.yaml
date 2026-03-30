@@ -1657,6 +1657,11 @@ openbao:
         enabled: true
         currentKeyId: "gl-unseal-1"
         currentKey: "/srv/openbao/keys/gl-unseal-1"
+      awskms:
+        enabled: false
+        kmsKeyId: ""
+        region: ""
+        endpoint: ""
     # Use external hostname in OpenBao auth.
     initialize:
       oidcDiscoveryUrl: '{{ include "gitlab.gitlab.url" . }}'
