@@ -46,7 +46,14 @@ function deploy_external_garage() {
     echo "Detected Garage node ID: ${NODE_ID}"
 
     kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage layout assign -z ci -c 1G "${NODE_ID}"
-    kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage layout apply --version 1
+
+    local CURRENT_VERSION
+    CURRENT_VERSION=$(kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- \
+        /garage layout show 2>/dev/null | grep -oP 'Current cluster layout version: \K[0-9]+' || echo "0")
+    local NEXT_VERSION=$(( CURRENT_VERSION + 1 ))
+    echo "Current Garage layout version: ${CURRENT_VERSION}, applying version: ${NEXT_VERSION}"
+
+    kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage layout apply --version "${NEXT_VERSION}"
 
     # https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/
     local buckets=(
