@@ -110,7 +110,7 @@ GKE platform only.
 | 1.35          | current   | NA        | secondary |      |
 | 1.35 Flux     | NA        | NA        | current   | Deploys Envoy Gateway instead of NGINX Ingress and Garage instead of MinIO. |
 | 1.35 ARM      | NA        | NA        | secondary | Virtual arm64 cluster by only syncing arm nodes to the vcluster. |
-| 1.34          | NA        | current   | secondary | Deploys the (deprecated) bundled Redis and MinIO charts in favor of an external Valkey and PostgreSQL. |
+| 1.34          | NA        | current   | secondary | Deploys the (deprecated) bundled Redis and PostgreSQL charts in favor of an external Valkey and CloudNative PG database. |
 | 1.33          | NA        | NA        | current   |      |
 
 This table is in development and subject to change.
