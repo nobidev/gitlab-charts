@@ -1,4 +1,4 @@
-cleanup:review-apps:
+cleanup:review-apps:gke135:
   stage: cleanup
   variables:
     AGENT_NAME: "gke135-ci-cluster"
@@ -7,6 +7,24 @@ cleanup:review-apps:
     FILTER: rvw
   environment:
     name: gke135_review/scheduled-cleanup
+    action: access
+  script:
+    - source scripts/ci/autodevops.sh
+    - set_context
+    - FILTER=$FILTER NAMESPACE=$NAMESPACE DAYS_AGO=$DAYS_AGO scripts/ci/cleanup-old-helm-releases.sh reap
+    - NAMESPACE=$NAMESPACE scripts/ci/cleanup-ghost-resources.sh reap
+  rules:
+    - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
+
+cleanup:review-apps:eks134:
+  stage: cleanup
+  variables:
+    AGENT_NAME: "eks134-ci-cluster"
+    NAMESPACE: eks-helm-charts-win
+    DAYS_AGO: 2
+    FILTER: rvw
+  environment:
+    name: eks134_review/scheduled-cleanup
     action: access
   script:
     - source scripts/ci/autodevops.sh
