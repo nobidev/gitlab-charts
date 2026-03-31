@@ -71,24 +71,29 @@ Populated from:
 {{/*
 Render the OpenBao postgresql configuration yaml.
 
-* Takes the rails main DB as base, and merges OpenBao custom storage
-  configuration in.
-* This needs special handling for <no value> objects because these are not
-  considered empty: https://github.com/helm/helm/issues/13487.
-
+* Uses global.openbao.psql and openbao.config.storage.postgresql.connection.
+* global.openbao.psql is the preferred source so toolbox can access it for backup/restore.
+* When host is empty, no default is applied. Configure global.openbao.psql or openbao.config.storage.postgresql.connection explicitly.
 */}}
 {{- define "openbao.postgresql.configuration" -}}
-{{- $main := (fromYaml (include "gitlab.database.yml" .)).production.main -}}
-{{- $_ := (include "gitlab.keysToCamelCase" $main) -}}
-{{- range $k, $v := $main -}}
-{{-   if and (kindIs "string" $v) (eq $v "<no value>") }}
-{{      $_ := unset $main $k }}
-{{-   end }}
+{{- $globalPsql := index (.Values.global | default dict) "psql" | default dict -}}
+{{- $globalObaPsql := ((.Values.global).openbao).psql | default dict -}}
+{{- $openbaoConfig := coalesce ((.Values.openbao).config) .Values.config | default dict -}}
+{{- $conn := ((($openbaoConfig.storage).postgresql).connection | default dict | deepCopy) -}}
+{{- $connection := merge $conn $globalObaPsql $globalPsql -}}
+{{- range $k, $v := $conn -}}
+{{-   if and (ne (printf "%v" $v) "") (has $k (list "keepalives" "keepalivesIdle" "keepalivesInterval" "keepalivesCount" "tcpUserTimeout" "connectTimeout" "sslMode")) -}}
+{{-     $_ := set $connection $k $v -}}
+{{-   end -}}
 {{- end -}}
-{{- $psqlSecret := dict "secret" (include "gitlab.psql.password.secret" .Values.local.psql.main) -}}
-{{- $_ := set $psqlSecret "key" (include "gitlab.psql.password.key" .Values.local.psql.main) -}}
-{{- $_ := set $main "password" $psqlSecret -}}
-{{ merge .Values.config.storage.postgresql.connection $main | toYaml }}
+{{- if not (index $connection "port") -}}
+{{-   $_ := set $connection "port" 5432 -}}
+{{- end -}}
+{{/* Database: connection.database wins when set; else global.openbao.psql.database (default openbao) */}}
+{{- $_ := set $connection "database" (coalesce (index $conn "database") (index $globalObaPsql "database") "openbao") -}}
+{{/* Username: connection.username wins when set; else global.openbao.psql.username (default openbao) */}}
+{{- $_ := set $connection "username" (coalesce (index $conn "username") (index $globalObaPsql "username") "openbao") -}}
+{{ $connection | toYaml }}
 {{- end -}}
 
 {{- define "gitlab.openbao.configureCertmanager" -}}

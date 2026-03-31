@@ -64,6 +64,7 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $removals = append $removals (include "gitlab.removal.global.grafana" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.busybox" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.kas.privateApi.tls" .) -}}
+{{- $removals = append $removals (include "gitlab.removal.openbao.psql" .) -}}
 
 {{- /* we're ready to deprecate top-level registry entries for workhorse and sidekiq, but not enforcing yet */ -}}
 {{- /* $removals = append $removals (include "gitlab.removal.registry.topLevel" .) */ -}}
@@ -535,6 +536,13 @@ registry:
 global.busybox:
     Support for busybox based based init containers was removed.
     Please use the GitLab base container (`global.gitlabBase`) instead.
+{{- end -}}
+{{- end -}}
+
+{{- define "gitlab.removal.openbao.psql" -}}
+{{- if and ($.Values.openbao).install (hasKey $.Values.openbao "psql") }}
+openbao:
+    `openbao.psql` has been removed. Use `global.openbao.psql` for OpenBao database config (host, database, username, password), or `openbao.config.storage.postgresql.connection` for connection-specific overrides.
 {{- end -}}
 {{- end -}}
 
