@@ -117,6 +117,9 @@ gatewayRoute:
   gatewayNamespace: ""
   annotations: {}
 
+backendTLSPolicy:
+  hostname: ""
+
 ingress:
   apiVersion:
   enabled:

@@ -212,7 +212,7 @@ to the `helm install` command using the `--set` flags.
 | `workhorse.readinessProbe.failureThreshold`                   | `3`                                                             | Minimum consecutive failures for the readiness probe to be considered failed after having succeeded |
 | `workhorse.imageScaler.maxProcs`                              | `2`                                                             | The maximum number of image scaling processes that may run concurrently |
 | `workhorse.imageScaler.maxFileSizeBytes`                      | `250000`                                                        | The maximum file size in bytes for images to be processed by the scaler |
-| `workhorse.tls.verify`                                        | `true`                                                          | When set to `true` forces NGINX Ingress to verify the TLS certificate of Workhorse. For custom CA you need to set `workhorse.tls.caSecretName` as well. Must be set to `false` for self-signed certificates. |
+| `workhorse.tls.verify`                                        | `true`                                                          | When set to `true` forces NGINX Ingress to verify the TLS certificate of Workhorse. For custom CA you need to set `workhorse.tls.caSecretName` as well. Must be set to `false` for self-signed certificates. Not used with Gateway API, which always verifies. See [Backend TLS](../../../advanced/gateway-api/_index.md#backend-tls). |
 | `workhorse.tls.secretName`                                    | `{Release.Name}-workhorse-tls`                                  | The name of the [TLS Secret](https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets) that contains the TLS key and certificate pair. This is required when Workhorse TLS is enabled. |
 | `workhorse.tls.caSecretName`                                  |                                                                 | The name of the Secret that contains the CA certificate. This **is not** a [TLS Secret](https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets), and must have only `ca.crt` key. This is used for TLS verification by NGINX. |
 | `workhorse.circuitBreaker.enabled`                            | `false`                                                         | Whether the circuit breaker is enabled |
@@ -643,6 +643,44 @@ webservice:
       gatewayRoute:
         rules: []
 ```
+
+### Backend TLS
+
+When [Workhorse TLS](#gitlab-workhorse) is enabled, you can configure a `BackendTLSPolicy` per
+deployment so the Gateway verifies TLS connections to each Workhorse backend. Set
+`workhorse.tls.enabled: true` and supply a CA Secret at the deployment level:
+
+```yaml
+global:
+  workhorse:
+    tls:
+      enabled: true
+gitlab:
+  webservice:
+    workhorse:
+      tls:
+        enabled: true
+        caSecretName: workhorse-tls-ca
+    deployments:
+      api:
+        workhorse:
+          tls:
+            enabled: true
+            caSecretName: workhorse-api-tls-ca
+```
+
+The validation hostname defaults to the Service DNS name (`<service-name>.<namespace>.svc`).
+Override it with `backendTLSPolicy.hostname`:
+
+```yaml
+gitlab:
+  webservice:
+    backendTLSPolicy:
+      hostname: workhorse.example.internal
+```
+
+For full details, see [Backend TLS](../../../advanced/gateway-api/_index.md#backend-tls) in the
+Gateway API documentation.
 
 ## Resources
 
