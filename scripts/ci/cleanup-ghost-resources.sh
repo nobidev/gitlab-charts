@@ -29,8 +29,12 @@ echo_ghosts(){
 
 reap_ghosts(){
   for rel in $ghost_releases; do
-    "${KUBECTL}" "${_context[@]}" delete -n "${NAMESPACE}" ${NAMESPACE_SCOPED_RESOURCES} \
-      -l "release=${rel}" --ignore-not-found --force --grace-period=0
+    if [ "${DRY_RUN:-}" == "true" ]; then
+      echo "DRY_RUN enabled — would delete resources for release: ${rel}"
+    else
+      "${KUBECTL}" "${_context[@]}" delete -n "${NAMESPACE}" ${NAMESPACE_SCOPED_RESOURCES} \
+        -l "release=${rel}" --ignore-not-found --force --grace-period=0
+    fi
   done
 }
 

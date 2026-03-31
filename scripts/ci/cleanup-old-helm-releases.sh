@@ -25,7 +25,12 @@ reap(){
   local releases
   releases=$(list | cut -d' ' -f1)
   [ -z "$releases" ] && return 0
-  echo "$releases" | xargs -n1 helm "${_context[@]}" --namespace="${NAMESPACE}" uninstall
+  if [ "${DRY_RUN:-}" == "true" ]; then
+    echo "DRY_RUN enabled — would uninstall:"
+    echo "$releases"
+  else
+    echo "$releases" | xargs -n1 helm "${_context[@]}" --namespace="${NAMESPACE}" uninstall
+  fi
 }
 
 if [ "${1:-}" == "reap" ]; then

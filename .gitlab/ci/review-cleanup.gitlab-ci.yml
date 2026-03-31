@@ -5,14 +5,15 @@ cleanup:review-apps:gke135:
     NAMESPACE: helm-charts-win
     DAYS_AGO: 2
     FILTER: rvw
+    DRY_RUN: "false"
   environment:
     name: gke135_review/scheduled-cleanup
     action: access
   script:
     - source scripts/ci/autodevops.sh
     - set_context
-    - FILTER="$FILTER" NAMESPACE="$NAMESPACE" DAYS_AGO="$DAYS_AGO" scripts/ci/cleanup-old-helm-releases.sh reap
-    - NAMESPACE="$NAMESPACE" scripts/ci/cleanup-ghost-resources.sh reap
+    - FILTER="$FILTER" NAMESPACE="$NAMESPACE" DAYS_AGO="$DAYS_AGO" DRY_RUN="$DRY_RUN" scripts/ci/cleanup-old-helm-releases.sh reap
+    - NAMESPACE="$NAMESPACE" DRY_RUN="$DRY_RUN" scripts/ci/cleanup-ghost-resources.sh reap
   rules:
     - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
 
@@ -23,13 +24,14 @@ cleanup:review-apps:eks134:
     NAMESPACE: eks-helm-charts-win
     DAYS_AGO: 2
     FILTER: rvw
+    DRY_RUN: "false"
   environment:
     name: eks134_review/scheduled-cleanup
     action: access
   script:
     - source scripts/ci/autodevops.sh
     - set_context
-    - FILTER="$FILTER" NAMESPACE="$NAMESPACE" DAYS_AGO="$DAYS_AGO" scripts/ci/cleanup-old-helm-releases.sh reap
-    - NAMESPACE="$NAMESPACE" scripts/ci/cleanup-ghost-resources.sh reap
+    - FILTER="$FILTER" NAMESPACE="$NAMESPACE" DAYS_AGO="$DAYS_AGO" DRY_RUN="$DRY_RUN" scripts/ci/cleanup-old-helm-releases.sh reap
+    - NAMESPACE="$NAMESPACE" DRY_RUN="$DRY_RUN" scripts/ci/cleanup-ghost-resources.sh reap
   rules:
     - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
