@@ -1,10 +1,16 @@
 cleanup:review-apps:
   stage: cleanup
   variables:
+    AGENT_NAME: "gke135-ci-cluster"
     NAMESPACE: helm-charts-win
     DAYS_AGO: 2
     FILTER: rvw
+  environment:
+    name: gke135_review/scheduled-cleanup
+    action: access
   script:
+    - source scripts/ci/autodevops.sh
+    - set_context
     - FILTER=$FILTER NAMESPACE=$NAMESPACE DAYS_AGO=$DAYS_AGO scripts/ci/cleanup-old-helm-releases.sh reap
     - NAMESPACE=$NAMESPACE scripts/ci/cleanup-ghost-resources.sh reap
   rules:
