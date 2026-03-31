@@ -297,6 +297,8 @@ trigger_review_current:
 .trigger_review_current:
   rules:
     - !reference [.rule:skip_if_not_canonical_or_security]
+    - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
+      when: never
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
       when: never
     - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
@@ -332,6 +334,8 @@ trigger_review_secondary:
 
 .trigger_review_secondary:
   rules:
+    - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
+      when: never
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
       when: never
     - !reference [.rule:skip_if_not_canonical_or_security]
