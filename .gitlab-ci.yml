@@ -282,6 +282,8 @@ trigger_review_current:
     - job: pin_image_versions
   rules:
     - !reference [.rule:skip_if_not_canonical_or_security]
+    - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
+      when: never
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
       when: never
     - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/ '
@@ -312,6 +314,8 @@ trigger_review_secondary:
       optional: true
     - job: pin_image_versions
   rules:
+    - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
+      when: never
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
       when: never
     - !reference [.rule:skip_if_not_canonical_or_security]
