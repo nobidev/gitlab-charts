@@ -12,6 +12,8 @@ trigger_operator_test:
       - SECURITY_PROJECT_PATH
   allow_failure: true
   rules:
+    - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
+      when: never
     - !reference [.rule:skip_docs_pipeline]
     - !reference [.rule:skip_if_not_canonical_or_security]
     - when: manual
