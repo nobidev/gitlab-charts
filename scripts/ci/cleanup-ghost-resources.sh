@@ -1,20 +1,23 @@
 #!/bin/bash
+set -euo pipefail
 
 KUBECTL=${KUBECTL:-kubectl}
 HELM=${HELM:-helm}
 NAMESPACE=${NAMESPACE:-helm-charts-win}
-ALL_THE_THINGS="ingress,svc,pdb,hpa,deploy,statefulset,replicaset,job,pod,secret,configmap,pvc,secret,clusterrole,clusterrolebinding,role,rolebinding,sa"
+NAMESPACE_SCOPED_RESOURCES="ingress,svc,pdb,hpa,deploy,statefulset,replicaset,job,pod,secret,configmap,pvc,role,rolebinding,sa"
 
-_context=""
-_helm_context=""
-if [ -n "${KCTX}" ]; then
-  _context="--context ${KCTX}"
-  _helm_context="--kube-context ${KCTX}"
+_context=()
+_helm_context=()
+if [ -n "${KCTX:-}" ]; then
+  _context=("--context" "${KCTX}")
+  _helm_context=("--kube-context" "${KCTX}")
 fi
 
 ghost_releases=$(comm -23 \
-    <(${KUBECTL} ${_context} -n ${NAMESPACE} get ${ALL_THE_THINGS} -ojson |  jq -r '.items[] | select(.metadata.name | test("rvw-")) | select(.metadata.labels | has("release")).metadata.labels.release' | sort -u) \
-    <(${HELM} ${_helm_context} ls -n ${NAMESPACE} -q | sort))
+    <("${KUBECTL}" "${_context[@]}" -n "${NAMESPACE}" get ${NAMESPACE_SCOPED_RESOURCES} -ojson \
+        | jq -r '.items[] | select(.metadata.name | test("rvw-")) | select(.metadata.labels | has("release")) | .metadata.labels.release' \
+        | sort -u) \
+    <("${HELM}" "${_helm_context[@]}" ls -n "${NAMESPACE}" -q | sort -u))
 
 echo_ghosts(){
   echo "====================="
@@ -25,9 +28,9 @@ echo_ghosts(){
 }
 
 reap_ghosts(){
-  for rel in $ghost_releases
-  do
-    ${KUBECTL} delete ${_context} -n ${NAMESPACE} ${ALL_THE_THINGS} -lrelease=$rel --force
+  for rel in $ghost_releases; do
+    "${KUBECTL}" "${_context[@]}" delete -n "${NAMESPACE}" ${NAMESPACE_SCOPED_RESOURCES} \
+      -l "release=${rel}" --ignore-not-found --force --grace-period=0
   done
 }
 

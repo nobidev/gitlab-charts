@@ -11,8 +11,8 @@ cleanup:review-apps:gke135:
   script:
     - source scripts/ci/autodevops.sh
     - set_context
-    - FILTER=$FILTER NAMESPACE=$NAMESPACE DAYS_AGO=$DAYS_AGO scripts/ci/cleanup-old-helm-releases.sh reap
-    - NAMESPACE=$NAMESPACE scripts/ci/cleanup-ghost-resources.sh reap
+    - FILTER="$FILTER" NAMESPACE="$NAMESPACE" DAYS_AGO="$DAYS_AGO" scripts/ci/cleanup-old-helm-releases.sh reap
+    - NAMESPACE="$NAMESPACE" scripts/ci/cleanup-ghost-resources.sh reap
   rules:
     - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
 
@@ -29,7 +29,7 @@ cleanup:review-apps:eks134:
   script:
     - source scripts/ci/autodevops.sh
     - set_context
-    - FILTER=$FILTER NAMESPACE=$NAMESPACE DAYS_AGO=$DAYS_AGO scripts/ci/cleanup-old-helm-releases.sh reap
-    - NAMESPACE=$NAMESPACE scripts/ci/cleanup-ghost-resources.sh reap
+    - FILTER="$FILTER" NAMESPACE="$NAMESPACE" DAYS_AGO="$DAYS_AGO" scripts/ci/cleanup-old-helm-releases.sh reap
+    - NAMESPACE="$NAMESPACE" scripts/ci/cleanup-ghost-resources.sh reap
   rules:
     - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
