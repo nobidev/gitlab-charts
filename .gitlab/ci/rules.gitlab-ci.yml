@@ -16,6 +16,9 @@ workflow:
     - if: '$PIPELINE_TYPE == null && $NIGHTLY == "true" && $CI_PIPELINE_SOURCE == "schedule"'
       variables:
         PIPELINE_TYPE: NIGHTLY_PIPELINE
+    - if: '$PIPELINE_TYPE == null && $CLEANUP_REVIEW_APPS == "true" && $CI_PIPELINE_SOURCE == "schedule"'
+      variables:
+        PIPELINE_TYPE: CLEANUP_REVIEW_APPS_PIPELINE
     ## Trigger pipelines
     - if: '$PIPELINE_TYPE == null && $CI_PIPELINE_TRIGGERED && $TRIGGER_JOB == "tag_auto_deploy" && $AUTO_DEPLOY_TAG && $REPOSITORY_PAT'
       variables:

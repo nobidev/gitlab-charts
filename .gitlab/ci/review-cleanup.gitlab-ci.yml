@@ -1,0 +1,11 @@
+cleanup:review-apps:
+  stage: cleanup
+  variables:
+    NAMESPACE: helm-charts-win
+    DAYS_AGO: 2
+    FILTER: rvw
+  script:
+    - FILTER=$FILTER NAMESPACE=$NAMESPACE DAYS_AGO=$DAYS_AGO scripts/ci/cleanup-old-helm-releases.sh reap
+    - NAMESPACE=$NAMESPACE scripts/ci/cleanup-ghost-resources.sh reap
+  rules:
+    - if: '$PIPELINE_TYPE == "CLEANUP_REVIEW_APPS_PIPELINE"'
