@@ -9,6 +9,8 @@ cleanup:review-apps:gke135:
   environment:
     name: gke135_review/scheduled-cleanup
     action: access
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq jq
   script:
     - source scripts/ci/autodevops.sh
     - set_context
@@ -28,6 +30,8 @@ cleanup:review-apps:eks134:
   environment:
     name: eks134_review/scheduled-cleanup
     action: access
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq jq
   script:
     - source scripts/ci/autodevops.sh
     - set_context
