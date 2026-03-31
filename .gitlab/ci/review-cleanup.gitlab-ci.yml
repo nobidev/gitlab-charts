@@ -5,7 +5,7 @@ cleanup:review-apps:gke135:
     NAMESPACE: helm-charts-win
     DAYS_AGO: 2
     FILTER: rvw
-    DRY_RUN: "false"
+    DRY_RUN: ""
   environment:
     name: gke135_review/scheduled-cleanup
     action: access
@@ -24,7 +24,7 @@ cleanup:review-apps:eks134:
     NAMESPACE: eks-helm-charts-win
     DAYS_AGO: 2
     FILTER: rvw
-    DRY_RUN: "false"
+    DRY_RUN: ""
   environment:
     name: eks134_review/scheduled-cleanup
     action: access
