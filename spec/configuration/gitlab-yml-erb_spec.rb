@@ -681,6 +681,94 @@ describe 'gitlab.yml.erb configuration' do
     end
   end
 
+  context 'iam-auth-service configuration' do
+    it 'populates gitlab.yml.erb with defaults' do
+      t = HelmTemplate.new(default_values)
+
+      expect(t.stderr).to eq("")
+      expect(t.exit_code).to eq(0)
+
+      expect(YAML.safe_load(
+        t.dig(
+          'ConfigMap/test-webservice',
+          'data',
+          'gitlab.yml.erb'
+        )
+      )['production']).to include(
+        'iam_auth_service' => {
+          'enabled' => false,
+          'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
+          'jwt_audience' => 'gitlab-rails',
+          'http' => {
+            'host' => '',
+            'port' => 0
+          },
+          'grpc' => {
+            'host' => '',
+            'port' => 0
+          }
+        }
+      )
+    end
+
+    it 'populates gitlab.yml.erb from custom config' do
+      t = HelmTemplate.new(HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            iamAuthService:
+              enabled: true
+              http:
+                host: localhost
+                port: 8084
+              grpc:
+                host: grpc.localhost
+                port: 5005
+              jwtAudience: custom-aud
+      )))
+
+      expect(t.stderr).to eq("")
+      expect(t.exit_code).to eq(0)
+
+      expect(YAML.safe_load(
+        t.dig(
+          'ConfigMap/test-webservice',
+          'data',
+          'gitlab.yml.erb'
+        )
+      )['production']).to include(
+        'iam_auth_service' => {
+          'enabled' => true,
+          'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
+          'jwt_audience' => 'custom-aud',
+          'http' => {
+            'host' => 'localhost',
+            'port' => 8084
+          },
+          'grpc' => {
+            'host' => 'grpc.localhost',
+            'port' => 5005
+          }
+        }
+      )
+    end
+
+    it 'fails when service enabled and mandatory fields are missing' do
+      t = HelmTemplate.new(HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            iamAuthService:
+              enabled: true
+              jwtAudience: custom-aud
+      )))
+
+      expect(t.exit_code).not_to eq(0)
+      expect(t.stderr).to include("http.host is required when iamAuthService is enabled")
+      expect(t.stderr).to include("http.port is required when iamAuthService is enabled")
+      expect(t.stderr).to include("grpc.host is required when iamAuthService is enabled")
+      expect(t.stderr).to include("grpc.port is required when iamAuthService is enabled")
+    end
+  end
+
   context 'CI ID token configuration' do
     let(:values) { HelmTemplate.defaults }
     let(:template) { HelmTemplate.new(values) }

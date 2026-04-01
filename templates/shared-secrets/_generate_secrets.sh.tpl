@@ -264,3 +264,8 @@ generate_secret_if_needed {{ template "gitlab.openbao.unseal.secret" . }} --from
 # Authentication token secret for Openbao Rails requests
 generate_secret_if_needed {{ template "gitlab.openbao.authenticationTokenSecretFilePath.secret" . }} --from-literal={{ template "gitlab.openbao.authenticationTokenSecretFilePath.key" . }}="$(gen_random 'a-zA-Z0-9' 32)"
 {{ end -}}
+
+{{ if .Values.global.appConfig.iamAuthService.enabled -}}
+# Service token used by GitLab to authenticate internal API requests to the iam-auth service
+generate_secret_if_needed {{ template "gitlab.appConfig.iamAuthService.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.iamAuthService.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
+{{ end }}

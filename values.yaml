@@ -531,6 +531,21 @@ global:
       # internalUrl:
       # clientTimeoutSeconds:
 
+    ## IAM-Auth service configuration
+    ## Shared secret for authenticating calls from GitLab Rails to the iam-auth service
+    iamAuthService:
+      enabled: false # Eventually this will be mandatory
+      # http:
+        # host:
+        # port:
+      # grpc:
+        # host:
+        # port:
+      # jwtAudience:
+      # authToken:
+        # secret:
+        # key:
+
     workspaces: {}
 
     ## Configure Database Traffic Capture. This is a Gitlab internal-use experiment.
