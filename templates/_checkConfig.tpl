@@ -130,6 +130,8 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.duoAuth.checkConfig" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.prometheus" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.gatewayApi.envoy.global" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.gatewayApi.internal.requireInstallEnvoy" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.gatewayApi.internal.requireAnnotations" .) -}}
 
 {{- /* prepare output */}}
 {{- $messages = without $messages "" -}}

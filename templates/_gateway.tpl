@@ -160,6 +160,51 @@ cert-manager.io/issuer: {{ include "gitlab.gatewayApi.certmanager.issuer" . }}
 {{- end -}}
 
 {{/*
+Returns true if the internal Gateway stack should be rendered.
+Checks global.gatewayApi.internalGateway so sub-charts can evaluate this helper.
+*/}}
+{{- define "gitlab.gatewayApi.internal.enabled" -}}
+{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.internalGateway -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Returns name of the internal GatewayClass.
+*/}}
+{{- define "gitlab.gatewayApi.internal.class.name" -}}
+{{- .Values.gatewayApiResources.internalGateway.class.name -}}
+{{- end -}}
+
+{{/*
+Returns the name of the internal EnvoyProxy resource.
+*/}}
+{{- define "gitlab.gatewayApi.envoy.internal.config.name" -}}
+{{- printf "%s-envoy-proxy-internal" .Release.Name -}}
+{{- end -}}
+
+{{/*
+Returns the name of the internal Gateway resource.
+*/}}
+{{- define "gitlab.gatewayApi.gateway.name.internal" -}}
+{{- printf "%s-gw-internal" .Release.Name -}}
+{{- end -}}
+
+{{/*
+Returns a parentRef to the internal Gateway resource with namespace and optional sectionName.
+Mirrors gitlab.gatewayApi.gatewayRef but targets the internal gateway.
+*/}}
+{{- define "gitlab.gatewayApi.internalGatewayRef" -}}
+- group: gateway.networking.k8s.io
+  kind: Gateway
+  name: {{ include "gitlab.gatewayApi.gateway.name.internal" . | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+{{- with (.Values.gatewayRoute).sectionName }}
+  sectionName: {{ . | quote }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Renders true if Gateway resources should be configured for Geo traffic.
 */}}
 {{- define "gitlab.gatewayApi.gateway.geo.configure" -}}

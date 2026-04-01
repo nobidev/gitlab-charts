@@ -12,6 +12,9 @@ metadata:
 spec:
   parentRefs:
   {{- include "gitlab.gatewayApi.gatewayRef" . | nindent 4 }}
+  {{- if eq "true" (include "gitlab.gatewayApi.internal.enabled" .) }}
+  {{- include "gitlab.gatewayApi.internalGatewayRef" . | nindent 4 }}
+  {{- end }}
   rules:
   - backendRefs:
     - name: {{ template "fullname" . }}

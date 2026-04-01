@@ -83,6 +83,7 @@ global:
     installEnvoy: false
     configureCertmanager: false
     httpToHttpsRedirect: true
+    internalGateway: false
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
@@ -1678,6 +1679,34 @@ gatewayApiResources:
           enabled: false
           additionalLabels: {}
           endpointConfig: {}
+  internalGateway:
+    class:
+      name: "gitlab-gw-internal"
+      # Must match the controllerName watched by the envoy-gateway deployment.
+      # Shares the same Envoy Gateway controller as the external gateway.
+      controllerName: "gateway.envoyproxy.io/gitlab-gatewayclass-controller"
+    gateway:
+      annotations: {}
+      infrastructure: {}
+    envoy:
+      proxySpec:
+        provider:
+          type: Kubernetes
+          kubernetes:
+            envoyService:
+              type: LoadBalancer
+              # annotations is mandatory when internalGateway.enabled is true.
+              # Set cloud-provider annotations here to create an internal load balancer, e.g.:
+              # AWS: service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+              # GCP: cloud.google.com/load-balancer-type: "Internal"
+              # Azure: service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+              annotations: {}
+            envoyDeployment:
+              pod:
+                annotations:
+                  gitlab.com/prometheus_scrape: "true"
+                  gitlab.com/prometheus_port: "19001"
+                  gitlab.com/prometheus_path: "/stats/prometheus"
 
 envoy-gateway:
   deployment:
