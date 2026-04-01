@@ -60,6 +60,21 @@ gitlab_kas:
 {{- end -}}
 {{- end -}}
 
+{{- define "gitlab.appConfig.iamAuthService" -}}
+iam_auth_service:
+  {{- with .Values.global.appConfig.iamAuthService }}
+  enabled: {{ eq .enabled true }}
+  secret_file: /etc/gitlab/iam-auth/.gitlab_iam_auth_secret
+  http:
+    host: {{ dig "http" "host" "" . | quote }}
+    port: {{ dig "http" "port" 0 . | int }}
+  grpc:
+    host: {{ dig "grpc" "host" "" . | quote }}
+    port: {{ dig "grpc" "port" 0 . | int }}
+  jwt_audience: {{ dig "jwtAudience" "gitlab-rails" . | quote }}
+  {{- end }}
+{{- end }}
+
 {{- define "gitlab.appConfig.workspaces" -}}
 {{- if .Values.global.workspaces.enabled -}}
 workspaces:
