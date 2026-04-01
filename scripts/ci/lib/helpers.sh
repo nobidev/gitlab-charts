@@ -41,3 +41,11 @@ function cnpg_cluster_host() {
 function cnpg_cluster_secret() {
   echo -n "$(cnpg_cluster_name)-app"
 }
+
+function use_external_valkey() {
+  [[ "${SKIP_EXTERNAL_VALKEY}" != "true" ]]
+}
+
+function use_external_postgresql() {
+  [[ "${SKIP_EXTERNAL_POSTGRESQL}" != "true" ]]
+}
