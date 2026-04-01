@@ -16,11 +16,11 @@ PROJECT_ROOT="${SCRIPT_DIR}/../.."
 VALUES_DIR="${PROJECT_ROOT}/.values"
 
 function deploy_external_components() {
-  if [ "${SKIP_EXTERNAL_VALKEY}" != "true" ]; then
+  if use_external_valkey; then
     deploy_external_valkey
   fi
 
-  if [ -n "${USE_EXTERNAL_POSTGRESQL}" ]; then
+  if use_external_postgresql; then
     deploy_external_postgresql
   fi
 
@@ -30,11 +30,11 @@ function deploy_external_components() {
 }
 
 function remove_external_components() {
-  if [ "${SKIP_EXTERNAL_VALKEY}" != "true" ]; then
+  if use_external_valkey; then
     remove_external_valkey
   fi
 
-  if [ -n "${USE_EXTERNAL_POSTGRESQL}" ]; then
+  if use_external_postgresql; then
     remove_external_postgres
   fi
 
@@ -94,13 +94,13 @@ function deploy() {
   fi
 
   VALKEY_CONFIGURATION=""
-  if [ "${SKIP_EXTERNAL_VALKEY}" != "true" ]; then
+  if use_external_valkey; then
     echo "External Valkey deployment detected"
     VALKEY_CONFIGURATION="-f ${VALUES_DIR}/external-valkey.values.yaml"
   fi
 
   POSTGRESQL_CONFIGURATION="-f ${VALUES_DIR}/bundled-postgresql.values.yaml"
-  if [ -n "${USE_EXTERNAL_POSTGRESQL}" ]; then
+  if use_external_postgresql; then
     echo "External PostgreSQL deployment detected"
     POSTGRESQL_CONFIGURATION="-f ${VALUES_DIR}/external-postgresql.values.yaml"
   fi
