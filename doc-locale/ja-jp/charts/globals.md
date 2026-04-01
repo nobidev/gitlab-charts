@@ -281,7 +281,8 @@ certmanager:
 
 ### GitLab Geo {#gitlab-geo}
 
-> [!note]Envoy GatewayおよびGateway APIを使用するGitLab Geoは、まだ完全には検証されていません。
+> [!note]
+> Envoy GatewayおよびGateway APIを使用するGitLab Geoは、まだ完全には検証されていません。
 
 Gateway APIを使用して[GitLab Geo](https://docs.gitlab.com/administration/geo/)を構成するには、`global.geo.gatewayApi.additionalHostname`を設定することにより、追加のホスト名を構成できます。
 
