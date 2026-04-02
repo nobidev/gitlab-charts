@@ -49,6 +49,14 @@ gitlab:
       objectStorage:
         backend: s3
         config: {}
+      registry:
+        database: {}
+          # backupUser: ""
+          # restoreUser: ""
+          # password:
+          #   secret: gitlab-toolbox-registry-database-password
+          #   backupPasswordKey: backupPassword
+          #   restorePasswordKey: restorePassword
     databaseReindex:
       cron:
         enabled: false
@@ -118,6 +126,11 @@ gitlab:
 | `backups.objectStorage.config.gcpProject`                | `""`                                                         | GCP Project to use when backend is `gcs` |
 | `backups.objectStorage.config.key`                       | `""`                                                         | Key containing credentials in secret |
 | `backups.objectStorage.config.secret`                    | `""`                                                         | Object storage credentials secret |
+| `backups.registry.database.backupUser`                   |                                                              | Username for the registry metadata database connection during backups |
+| `backups.registry.database.restoreUser`                  |                                                              | Username for the registry metadata database connection during restores |
+| `backups.registry.database.password.secret`              | `RELEASE-toolbox-registry-database-password`                 | Name of the Kubernetes secret containing the registry database password for backup and restore |
+| `backups.registry.database.password.backupPasswordKey`   | `backupPassword`                                             | Key within the secret that contains the backup database password |
+| `backups.registry.database.password.restorePasswordKey`  | `restorePassword`                                            | Key within the secret that contains the restore database password |
 | `databaseReindex.cron.enabled`                           | `false`                                                      | Indicates whether the database reindexing CronJob is enabled |
 | `common.labels`                                          | `{}`                                                         | Supplemental labels that are applied to all objects created by this chart. |
 | `deployment.strategy`                                    | `{ type: 'Recreate' }`                                       | Allows one to configure the update strategy utilized by the deployment |
@@ -174,6 +187,41 @@ Information concerning configuring backups in the
 information about the technical implementation of how the backups are
 performed can be found in the
 [backup and restore architecture documentation](../../../architecture/backup-restore.md).]
+
+### Registry metadata database credentials
+
+If you use the [container registry metadata database](../../registry/metadata_database.md),
+you can configure the Toolbox to receive registry database connection details
+for backup and restore operations. The connection parameters (host, port,
+database name, SSL settings) are sourced automatically from the registry
+chart's `ConfigMap`. You only need to supply the database usernames and
+password secret in the Toolbox values:
+
+```yaml
+gitlab:
+  toolbox:
+    backups:
+      registry:
+        database:
+          backupUser: registry_backup
+          restoreUser: registry_restore
+          password:
+            secret: gitlab-toolbox-registry-database-password
+            backupPasswordKey: backupPassword
+            restorePasswordKey: restorePassword
+```
+
+Create the Kubernetes secret before deploying:
+
+```shell
+kubectl create secret generic gitlab-toolbox-registry-database-password \
+  --from-literal=backupPassword=<backup_password> \
+  --from-literal=restorePassword=<restore_password>
+```
+
+The credentials are mounted into the Toolbox pod at
+`/etc/gitlab/registry-db/` and are available in both the long-running
+Toolbox deployment and the backup CronJob.
 
 ## Configure periodic database reindexing
 

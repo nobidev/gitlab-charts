@@ -536,6 +536,14 @@ cd ~
 
 After the command completes successfully, the registry is now fully migrated to the database!
 
+## Backup and restore
+
+To include the registry metadata database in Toolbox backup and restore
+operations, configure the Toolbox chart with the registry database
+credentials. See the
+[registry metadata database credentials](../gitlab/toolbox/_index.md#registry-metadata-database-credentials)
+section in the Toolbox chart documentation.
+
 ## Database migrations
 
 The container registry supports two types of migrations:
