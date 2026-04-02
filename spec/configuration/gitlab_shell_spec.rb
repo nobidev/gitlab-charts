@@ -397,10 +397,9 @@ describe 'gitlab-shell configuration' do
             gitlab-shell:
               sshDaemon: "gitlab-sshd"
               config:
-                sshd:
-                  trustedUserCAKeys:
-                    secret: my-ca-keys-secret
-                    keys: []
+                trustedUserCAKeys:
+                  secret: my-ca-keys-secret
+                  keys: []
         )).deep_merge(default_values)
       end
 
@@ -427,12 +426,11 @@ describe 'gitlab-shell configuration' do
             gitlab-shell:
               sshDaemon: "gitlab-sshd"
               config:
-                sshd:
-                  trustedUserCAKeys:
-                    secret: my-ca-keys-secret
-                    keys:
-                      - ca1.pub
-                      - ca2.pub
+                trustedUserCAKeys:
+                  secret: my-ca-keys-secret
+                  keys:
+                    - ca1.pub
+                    - ca2.pub
         )).deep_merge(default_values)
       end
 
