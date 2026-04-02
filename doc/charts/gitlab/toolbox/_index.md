@@ -51,12 +51,6 @@ gitlab:
         config: {}
       registry:
         database: {}
-          # backupUser: ""
-          # restoreUser: ""
-          # password:
-          #   secret: gitlab-toolbox-registry-database-password
-          #   backupPasswordKey: backupPassword
-          #   restorePasswordKey: restorePassword
     databaseReindex:
       cron:
         enabled: false
@@ -211,10 +205,12 @@ gitlab:
             restorePasswordKey: restorePassword
 ```
 
-Create the Kubernetes secret before deploying:
+The default secret name is `RELEASE-toolbox-registry-database-password`, where
+`RELEASE` is replaced by the Helm release name (usually `gitlab`). Create the
+Kubernetes secret before deploying:
 
 ```shell
-kubectl create secret generic gitlab-toolbox-registry-database-password \
+kubectl create secret generic <RELEASE>-toolbox-registry-database-password \
   --from-literal=backupPassword=<backup_password> \
   --from-literal=restorePassword=<restore_password>
 ```
