@@ -29,6 +29,10 @@ spec:
     {{ with .name }}
     name: {{ printf "%s-%s" $deployment.name . }}
     {{- end }}
+    {{- with .filters }}
+    filters:
+      {{- . | toYaml | nindent 6 }}
+    {{- end }}
     matches:
       {{- .matches | toYaml | nindent 6 }}
     timeouts:

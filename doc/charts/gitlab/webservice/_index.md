@@ -628,9 +628,14 @@ webservice:
           - path:
               type: PathPrefix
               value: /
-            timeouts:
-              request: "20s"
-              backendRequest: "20s"
+          timeouts:
+            request: "20s"
+            backendRequest: "20s"
+          filters:
+          - type: RequestHeaderModifier
+            requestHeaderModifier:
+              remove:
+              - X-Forwarded-Host
     api:
       gatewayRoute:
         rules:
@@ -642,6 +647,10 @@ webservice:
       gatewayRoute:
         rules: []
 ```
+
+Each rule supports `matches`, `timeouts`, and `filters`. Filters accept a list of
+[Gateway API HTTPRouteFilter](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.HTTPRouteFilter)
+objects.
 
 ### TLS between Gateway and Workhorse
 

@@ -81,6 +81,7 @@ gatewayRoute:
   gatewayName: ""
   gatewayNamespace: ""
   annotations: {}
+  filters: []
 
 backendTLSPolicy:
   hostname: ""
