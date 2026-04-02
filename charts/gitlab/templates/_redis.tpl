@@ -223,7 +223,7 @@ instances.
 {{- if hasKey . "mountRedisYmlOverrideSecrets" }}
 {{- $mountRedisYmlOverrideSecrets = .mountRedisYmlOverrideSecrets }}
 {{- end }}
-{{- $redisInstances := list "cache" "clusterCache" "sharedState" "queues" "actioncable" "actionCablePrimary" "traceChunks" "rateLimiting" "clusterRateLimiting" "sessions" "repositoryCache" "workhorse" }}
+{{- $redisInstances := list "cache" "clusterCache" "sharedState" "queues" "actioncable" "traceChunks" "rateLimiting" "clusterRateLimiting" "sessions" "repositoryCache" "workhorse" }}
 {{- if .instances }}
 {{- $redisInstances = splitList " " .instances }}
 {{- end }}

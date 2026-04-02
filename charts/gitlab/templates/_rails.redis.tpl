@@ -144,17 +144,6 @@ If no `global.redis.actioncable`, use `global.redis`
 {{- include "gitlab.rails.redis.yaml" (dict "context" $ "name" "cable") -}}
 {{- end -}}
 
-{{/*
-redis.action_cable.yml configuration
-Used to migrate from the cluster specified in cable.yml
-*/}}
-{{- define "gitlab.rails.redis.actionCable" -}}
-{{- if .Values.global.redis.actionCablePrimary -}}
-{{-   $_ := set $ "redisConfigName" "actionCablePrimary" }}
-{{- end -}}
-{{- include "gitlab.rails.redis.yaml" (dict "context" $ "name" "redis.action_cable") -}}
-{{- end -}}
-
 {{- define "gitlab.rails.redisYmlOverride" -}}
 {{- if .Values.global.redis.redisYmlOverride -}}
 {{-   $redisYmlOverride := deepCopy .Values.global.redis.redisYmlOverride -}}
@@ -187,7 +176,6 @@ redis.yml.erb: |
 {{ include "gitlab.rails.redis.sharedState" . }}
 {{ include "gitlab.rails.redis.queues" . }}
 {{ include "gitlab.rails.redis.cable" . }}
-{{ include "gitlab.rails.redis.actionCable" . }}
 {{ include "gitlab.rails.redis.traceChunks" . }}
 {{ include "gitlab.rails.redis.rateLimiting" . }}
 {{ include "gitlab.rails.redis.clusterRateLimiting" . }}

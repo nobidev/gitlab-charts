@@ -153,7 +153,7 @@ Ensure that `redis.install: false` if configuring multiple Redis instances
 {{- define "gitlab.checkConfig.multipleRedis" -}}
 {{/* "cache" "sharedState" "queues" "actioncable" */}}
 {{- $x := dict "count" 0 -}}
-{{- range $redis := list "cache" "sharedState" "queues" "actioncable" "actionCablePrimary" -}}
+{{- range $redis := list "cache" "sharedState" "queues" "actioncable" -}}
 {{-   if hasKey $.Values.global.redis $redis -}}
 {{-     $_ := set $x "count" ( add1 $x.count ) -}}
 {{-    end -}}
