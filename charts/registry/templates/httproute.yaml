@@ -21,8 +21,13 @@ spec:
       name: {{ template "registry.fullname" . }}
       port: {{ .Values.service.externalPort }}
       weight: 1
+    {{- with .Values.gatewayRoute.filters }}
+    filters:
+      {{- . | toYaml | nindent 6 }}
+    {{- end }}
     {{- with .Values.gatewayRoute.timeouts }}
-    timeouts: {{ . | toJson }}
+    timeouts:
+      {{- . | toYaml | nindent 6 }}
     {{- end }}
     matches:
     - path:

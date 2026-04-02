@@ -19,10 +19,6 @@ spec:
   - group: gateway.networking.k8s.io
     kind: HTTPRoute
     name: {{ template "fullname" . }}
-  {{/* GRPC connections are long living. */}}
-  timeout:
-    http:
-      requestTimeout: 0s
   {{/* Ensure envoy forwards GRPC request as HTTP/2 instead of HTTP/1.1  */}}
   useClientProtocol: true
 {{- end }}

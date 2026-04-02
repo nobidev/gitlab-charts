@@ -120,6 +120,8 @@ gatewayRoute:
   gatewayName: ""
   gatewayNamespace: ""
   annotations: {}
+  timeouts: {}
+  filters: []
 
 # Tolerations for pod scheduling
 tolerations: []

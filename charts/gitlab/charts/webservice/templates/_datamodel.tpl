@@ -72,6 +72,7 @@ gatewayRoute:
     timeouts:
       request: 15s
       backendRequest: 15s
+    filters: []
   - name: long-running
     matches:
     - path:
@@ -83,6 +84,7 @@ gatewayRoute:
     timeouts:
       request: 0s
       backendRequest: 0s
+    filters: []
 backendTLSPolicy:
   hostname: ""
 common:

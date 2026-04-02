@@ -21,6 +21,14 @@ spec:
       name: {{ template "gitlab.kas.serviceName" . }}
       port: {{ .Values.service.workspacesServerPort }}
       weight: 1
+    {{- with .Values.gatewayRoute.filters }}
+    filters:
+      {{- . | toYaml | nindent 6 }}
+    {{- end }}
+    {{- with .Values.gatewayRoute.timeouts }}
+    timeouts:
+      {{- . | toYaml | nindent 6 }}
+    {{- end }}
     matches:
     - path:
         type: PathPrefix
