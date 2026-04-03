@@ -219,6 +219,53 @@ The credentials are mounted into the Toolbox pod at
 `/etc/gitlab/registry-db/` and are available in both the long-running
 Toolbox deployment and the backup CronJob.
 
+#### Required database permissions
+
+The backup and restore users require different privilege levels on the
+registry metadata database. When using the bundled PostgreSQL with
+Linux package (Omnibus), these users and permissions are created
+automatically. For external PostgreSQL, create the users manually.
+
+The **backup user** needs read-only access for `pg_dump`:
+
+```sql
+-- Create the backup user
+CREATE ROLE registry_backup WITH LOGIN PASSWORD '<backup_password>'
+  NOINHERIT NOCREATEDB NOSUPERUSER NOREPLICATION;
+
+-- The partitions schema must exist (created by registry migrations)
+-- Grant connect and read-only privileges
+GRANT CONNECT ON DATABASE registry TO registry_backup;
+
+GRANT USAGE ON SCHEMA public TO registry_backup;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO registry_backup;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO registry_backup;
+ALTER DEFAULT PRIVILEGES FOR ROLE registry IN SCHEMA public
+  GRANT SELECT ON TABLES TO registry_backup;
+ALTER DEFAULT PRIVILEGES FOR ROLE registry IN SCHEMA public
+  GRANT SELECT ON SEQUENCES TO registry_backup;
+
+GRANT USAGE ON SCHEMA partitions TO registry_backup;
+GRANT SELECT ON ALL TABLES IN SCHEMA partitions TO registry_backup;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA partitions TO registry_backup;
+ALTER DEFAULT PRIVILEGES FOR ROLE registry IN SCHEMA partitions
+  GRANT SELECT ON TABLES TO registry_backup;
+ALTER DEFAULT PRIVILEGES FOR ROLE registry IN SCHEMA partitions
+  GRANT SELECT ON SEQUENCES TO registry_backup;
+```
+
+The `ALTER DEFAULT PRIVILEGES` statements ensure the backup user
+automatically receives `SELECT` on any tables or sequences the registry
+owner (`registry`) creates in the future.
+
+The **restore user** needs superuser privileges to recreate the schema,
+set role to the original object owner, and create triggers:
+
+```sql
+CREATE ROLE registry_restore WITH LOGIN PASSWORD '<restore_password>'
+  SUPERUSER;
+```
+
 ## Configure periodic database reindexing
 
 {{< details >}}
