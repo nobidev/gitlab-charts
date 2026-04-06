@@ -2,6 +2,9 @@ dependencies:
 - name: gitlab
   repository: ""
   version: '*.*.*'
+- name: common-templates
+  repository: https://charts.gitlab.io/unstable/
+  version: 1.3.1
 - name: certmanager-issuer
   repository: ""
   version: '*.*.*'
@@ -47,5 +50,5 @@ dependencies:
 - name: gateway-helm
   repository: oci://registry-1.docker.io/envoyproxy
   version: 1.7.1
-digest: sha256:2ecb8dfc23316da8861c472acd96f9d2252d560de85b121f93cc88dca6814d5e
-generated: "2026-04-02T11:31:45.914324+02:00"
+digest: sha256:480d4c1a8102dc2ae079cdb4ce794874fc867bbbb98bbd0a0a025b618a7408ba
+generated: "2026-04-06T11:11:23.685578-04:00"
