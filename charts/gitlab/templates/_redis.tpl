@@ -173,9 +173,9 @@ sentinels:
 {{/*Set redisMergedConfig*/}}
 {{- define "gitlab.redis.selectedMergedConfig" -}}
 {{- if .redisConfigName }}
-{{-   $_ := set . "redisMergedConfig" ( index .Values.global.redis .redisConfigName ) -}}
+{{-   $_ := set . "redisMergedConfig" ( index .Values.global.redis .redisConfigName | deepCopy ) -}}
 {{- else -}}
-{{-   $_ := set . "redisMergedConfig" .Values.global.redis -}}
+{{-   $_ := set . "redisMergedConfig" (.Values.global.redis | deepCopy) -}}
 {{- end -}}
 {{-   if not (kindIs "map" (get $.redisMergedConfig "password")) -}}
 {{-     if and .redisConfigName (kindIs "map" (get $.redisMergedConfig "auth")) -}}
