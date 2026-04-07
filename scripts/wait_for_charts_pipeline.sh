@@ -8,7 +8,7 @@
 set -euo pipefail
 
 PIPELINE_ID="${1:?pipeline ID is required}"
-GITLAB_COM_TOKEN="${COM_GITLAB_READ_API_TOKEN:?COM_GITLAB_READ_API_TOKEN is required}"
+GITLAB_COM_TOKEN="${COM_CHARTS_READ_TOKEN:?COM_CHARTS_READ_TOKEN is required}"
 CHARTS_PROJECT_ID="2860651"
 GITLAB_COM_API="https://gitlab.com/api/v4"
 PIPELINE_URL="https://gitlab.com/charts/charts.gitlab.io/-/pipelines/${PIPELINE_ID}"
