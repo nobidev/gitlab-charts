@@ -60,7 +60,7 @@ variables:
   VALKEY_CHART_VERSION: "0.9.3"
   GARAGE_APP_VERSION: "2.2.0"
   # CloudNativePg (PostgreSQL) deployed to CI envionments
-  CNPG_CHART_VERSION: "0.27.1"
+  CNPG_CHART_VERSION: "0.28.0"
   CNPG_POSTGRESQL_TAG: "17"
   # STRICT_VERSIONS is used in RSpecs to ensure exact version match for tools like "helm" and "kubectl"
   STRICT_VERSIONS: "true"
