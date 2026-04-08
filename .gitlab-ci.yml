@@ -607,15 +607,14 @@ release_package:
         UNSTABLE="false"
       fi
     - bash scripts/wait_for_images.sh
-    # trigger pipeline for https://gitlab.com/charts/charts.gitlab.io and wait for it to complete
-    - |
-      pipeline_response=$(curl -fS --request POST --form "token=${COM_CHARTS_TRIGGER_TOKEN}" --form ref=master \
-          --form "variables[CHART_NAME]=$CI_PROJECT_NAME" \
-          --form "variables[RELEASE_REF]=$CI_COMMIT_REF_NAME" \
-          --form "variables[UNSTABLE]=$UNSTABLE" \
-          https://gitlab.com/api/v4/projects/2860651/trigger/pipeline)
-      pipeline_id=$(echo "${pipeline_response}" | jq -r '.id')
-      bash scripts/wait_for_charts_pipeline.sh "${pipeline_id}"
+    # trigger pipeline for https://gitlab.com/charts/charts.gitlab.io
+    - curl -fS --request POST --form "token=${COM_CHARTS_TRIGGER_TOKEN}" --form ref=master
+        --form "variables[CHART_NAME]=$CI_PROJECT_NAME"
+        --form "variables[RELEASE_REF]=$CI_COMMIT_REF_NAME"
+        --form "variables[UNSTABLE]=$UNSTABLE"
+        https://gitlab.com/api/v4/projects/2860651/trigger/pipeline
+    # wait for the chart to be available on charts.gitlab.io from an end-user perspective
+    - bash scripts/wait_for_charts_availability.sh "${CI_COMMIT_REF_NAME#v}"
   artifacts:
     when: always
     expire_in: 7d
