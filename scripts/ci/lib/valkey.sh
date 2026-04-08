@@ -34,9 +34,9 @@ function remove_external_valkey() {
 # rollout of Valkey, which is a known bug to be fixed in
 # https://github.com/valkey-io/valkey-helm/pull/128.
 function valkey_password() {
-  if helm status "$(valkey_release_name)" -n "${NAMESPACE}" &>/dev/null; then
-    # Reuse existing password.
-    helm get values "$(valkey_release_name)" -n "${NAMESPACE}" -o json | jq -r '.auth.aclUsers.default.password'
+  if kubectl get secret "$(valkey_release_name)-valkey-auth" -n "${NAMESPACE}" &>/dev/null; then
+    kubectl get secret "$(valkey_release_name)-valkey-auth" -n "${NAMESPACE}" \
+      -o jsonpath='{.data.default-password}' | base64 -d
   else
     tr -dc A-Za-z0-9 </dev/urandom | head -c 10
   fi
