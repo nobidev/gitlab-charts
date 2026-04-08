@@ -682,74 +682,78 @@ describe 'gitlab.yml.erb configuration' do
   end
 
   context 'iam-auth-service configuration' do
-    it 'populates gitlab.yml.erb with defaults' do
-      t = HelmTemplate.new(default_values)
+    %w[webservice sidekiq toolbox].each do |chart|
+      context "for #{chart}" do
+        it 'populates gitlab.yml.erb with defaults' do
+          t = HelmTemplate.new(default_values)
 
-      expect(t.stderr).to eq("")
-      expect(t.exit_code).to eq(0)
+          expect(t.stderr).to eq("")
+          expect(t.exit_code).to eq(0)
 
-      expect(YAML.safe_load(
-        t.dig(
-          'ConfigMap/test-webservice',
-          'data',
-          'gitlab.yml.erb'
-        )
-      )['production']).to include(
-        'iam_auth_service' => {
-          'enabled' => false,
-          'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
-          'jwt_audience' => 'gitlab-rails',
-          'http' => {
-            'host' => '',
-            'port' => 0
-          },
-          'grpc' => {
-            'host' => '',
-            'port' => 0
-          }
-        }
-      )
-    end
+          expect(YAML.safe_load(
+            t.dig(
+              "ConfigMap/test-#{chart}",
+              'data',
+              'gitlab.yml.erb'
+            )
+          )['production']).to include(
+            'iam_auth_service' => {
+              'enabled' => false,
+              'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
+              'jwt_audience' => 'gitlab-rails',
+              'http' => {
+                'host' => '',
+                'port' => 0
+              },
+              'grpc' => {
+                'host' => '',
+                'port' => 0
+              }
+            }
+          )
+        end
 
-    it 'populates gitlab.yml.erb from custom config' do
-      t = HelmTemplate.new(HelmTemplate.with_defaults(%(
-        global:
-          appConfig:
-            iamAuthService:
-              enabled: true
-              http:
-                host: localhost
-                port: 8084
-              grpc:
-                host: grpc.localhost
-                port: 5005
-              jwtAudience: custom-aud
-      )))
+        it 'populates gitlab.yml.erb from custom config' do
+          t = HelmTemplate.new(HelmTemplate.with_defaults(%(
+            global:
+              appConfig:
+                iamAuthService:
+                  enabled: true
+                  http:
+                    host: localhost
+                    port: 8084
+                  grpc:
+                    host: grpc.localhost
+                    port: 5005
+                  jwtAudience: custom-aud
+          )))
 
-      expect(t.stderr).to eq("")
-      expect(t.exit_code).to eq(0)
+          expect(t.stderr).to eq("")
+          expect(t.exit_code).to eq(0)
 
-      expect(YAML.safe_load(
-        t.dig(
-          'ConfigMap/test-webservice',
-          'data',
-          'gitlab.yml.erb'
-        )
-      )['production']).to include(
-        'iam_auth_service' => {
-          'enabled' => true,
-          'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
-          'jwt_audience' => 'custom-aud',
-          'http' => {
-            'host' => 'localhost',
-            'port' => 8084
-          },
-          'grpc' => {
-            'host' => 'grpc.localhost',
-            'port' => 5005
-          }
-        }
-      )
+          expect(YAML.safe_load(
+            t.dig(
+              "ConfigMap/test-#{chart}",
+              'data',
+              'gitlab.yml.erb'
+            )
+          )['production']).to include(
+            'iam_auth_service' => {
+              'enabled' => true,
+              'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
+              'jwt_audience' => 'custom-aud',
+              'http' => {
+                'host' => 'localhost',
+                'port' => 8084
+              },
+              'grpc' => {
+                'host' => 'grpc.localhost',
+                'port' => 5005
+              }
+            }
+          )
+        end
+      end
     end
 
     it 'fails when service enabled and mandatory fields are missing' do

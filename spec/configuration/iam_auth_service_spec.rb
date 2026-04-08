@@ -102,15 +102,16 @@ describe 'iamAuthService templates' do
   end
 
   describe 'gitlab.appConfig.iamAuthService.mountSecrets' do
-    let(:webservice_secret_mounts) do
-      template.projected_volume_sources(
-        'Deployment/test-webservice-default',
-        'init-webservice-secrets'
-      )
+    let(:deployments) do
+      {
+        'Deployment/test-webservice-default' => 'init-webservice-secrets',
+        'Deployment/test-sidekiq-all-in-1-v2' => 'init-sidekiq-secrets',
+        'Deployment/test-toolbox' => 'init-toolbox-secrets'
+      }
     end
 
-    let(:shared_secret_mount) do
-      webservice_secret_mounts.find do |item|
+    def find_iam_auth_secret_mount(deployment, volume_name)
+      template.projected_volume_sources(deployment, volume_name)&.find do |item|
         item.dig('secret', 'name') == 'test-iam-auth-secret' && item.dig('secret', 'items')[0]['key'] == 'iam_auth_service_token'
       end
     end
@@ -128,7 +129,9 @@ describe 'iamAuthService templates' do
       it 'does not mount any secrets' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
-        expect(shared_secret_mount).to be_nil
+        deployments.each do |deployment, volume_name|
+          expect(find_iam_auth_secret_mount(deployment, volume_name)).to be_nil, "Expected no iam-auth secret mount in #{deployment}"
+        end
       end
     end
 
@@ -137,10 +140,12 @@ describe 'iamAuthService templates' do
         enabled_values.deep_merge!(default_values)
       end
 
-      it 'mounts shared secret on webservice deployment' do
+      it 'mounts shared secret on webservice, sidekiq, and toolbox deployments' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
-        expect(shared_secret_mount).not_to be_nil
+        deployments.each do |deployment, volume_name|
+          expect(find_iam_auth_secret_mount(deployment, volume_name)).not_to be_nil, "Expected iam-auth secret mount in #{deployment}"
+        end
       end
     end
   end
