@@ -62,6 +62,8 @@ controlled by `global.shell.port`.
 | `config.lfs.pureSSHProtocol`                             | `false`                                                 | Enable LFS Pure SSH protocol support |
 | `config.pat.enabled`                                     | `true`                                                  | Enable PAT using SSH |
 | `config.pat.allowedScopes`                               | `[]`                                                    | An array of scopes allowed for PATs generated with SSH |
+| `config.trustedUserCAKeys.secret`                        |                                                         | Name of a Kubernetes Secret containing trusted user CA public keys for instance-level SSH certificate authentication. Only applies when `sshDaemon` is `gitlab-sshd`. |
+| `config.trustedUserCAKeys.keys`                          | `[]`                                                    | List of key names within the Secret that contain CA public key data (for example, `["ca1.pub", "ca2.pub"]`). Certificates signed by these CA keys are trusted for authentication, with the certificate's `KeyId` used as the GitLab username. |
 | `opensshd.supplemental_config`                           |                                                         | Supplemental configuration, appended to `sshd_config`. Strict alignment to [man page](https://manpages.debian.org/bookworm/openssh-server/sshd_config.5.en.html) |
 | `deployment.livenessProbe.initialDelaySeconds`           | `10`                                                    | Delay before liveness probe is initiated |
 | `deployment.livenessProbe.periodSeconds`                 | `10`                                                    | How often to perform the liveness probe |
@@ -405,6 +407,40 @@ extraVolumeMounts: |
     mountPath: /etc/ssh/sshd_config.d/extra.conf
     subPath: extra.conf
 ```
+
+### Instance-level SSH certificates (`gitlab-sshd`)
+
+When using `gitlab-sshd` (via `sshDaemon: gitlab-sshd`), you can configure
+instance-level SSH certificate authentication using trusted CA keys.
+For a full overview, including CA key generation, certificate issuance, security
+considerations, and troubleshooting, see
+[Instance-level SSH certificates with `gitlab-sshd`](https://docs.gitlab.com/administration/operations/gitlab_sshd_ssh_certificates/).
+
+To configure the chart:
+
+1. Create a Kubernetes Secret containing one or more CA public keys:
+
+   ```shell
+   kubectl create secret generic my-ssh-ca-keys --from-file=ca.pub=ssh_user_ca.pub
+   ```
+
+1. Set the Helm values to reference the secret:
+
+   ```yaml
+   gitlab:
+     gitlab-shell:
+       sshDaemon: gitlab-sshd
+        config:
+          trustedUserCAKeys:
+            secret: my-ssh-ca-keys
+            keys:
+              - ca.pub
+   ```
+
+   The `secret` field is the name of the Kubernetes Secret.
+   The `keys` field lists the key names within that Secret that
+   contain CA public key data. Each key is mounted and passed to
+   `gitlab-sshd` as a `trusted_user_ca_keys` file path.
 
 ### Configuring the `networkpolicy`
 

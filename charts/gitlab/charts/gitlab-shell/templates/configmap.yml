@@ -13,6 +13,10 @@ data:
     mkdir -p /${secret_dir}/ssh
     cp -v -r -L /${config_dir}/ssh_host_* /${secret_dir}/ssh/
     chmod 0400 /${secret_dir}/ssh/ssh_host_*
+    {{- if and .Values.config.trustedUserCAKeys.secret .Values.config.trustedUserCAKeys.keys }}
+    mkdir -p /${secret_dir}/ssh/trusted-ca-keys
+    cp -v -r -L /${config_dir}/ssh/trusted-ca-keys/. /${secret_dir}/ssh/trusted-ca-keys/
+    {{- end }}
   config.yml.tpl: |
     # GitLab user. git by default
     user: git
@@ -96,6 +100,14 @@ data:
         keytab: "/etc/krb5.keytab"
         # The Kerberos service name to be used by sshd. Defaults to "", accepts any service name in keytab file.
         service_principal_name: {{ .Values.config.gssapi.servicePrincipalName }}
+      {{- if and .Values.config.trustedUserCAKeys.secret .Values.config.trustedUserCAKeys.keys }}
+      # Trusted user CA keys for instance-level SSH certificate authentication.
+      # Certificates signed by these CAs are trusted, with KeyId used as the GitLab username.
+      trusted_user_ca_keys:
+        {{- range .Values.config.trustedUserCAKeys.keys }}
+        - /etc/gitlab-secrets/ssh/trusted-ca-keys/{{ . }}
+        {{- end }}
+      {{- end }}
     {{- end }}
     lfs:
       pure_ssh_protocol: {{ .Values.config.lfs.pureSSHProtocol }}

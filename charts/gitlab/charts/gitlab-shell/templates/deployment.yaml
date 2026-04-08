@@ -196,6 +196,15 @@ spec:
                 items:
                   - key: {{ template "gitlab.gitlab-shell.authToken.key" . }}
                     path: shell/.gitlab_shell_secret
+            {{- if and (eq .Values.sshDaemon "gitlab-sshd") .Values.config.trustedUserCAKeys.secret .Values.config.trustedUserCAKeys.keys }}
+            - secret:
+                name: {{ .Values.config.trustedUserCAKeys.secret }}
+                items:
+                  {{- range .Values.config.trustedUserCAKeys.keys }}
+                  - key: {{ . }}
+                    path: ssh/trusted-ca-keys/{{ . }}
+                  {{- end }}
+            {{- end }}
       # Actual config dirs that will be used in the container
       - name: shell-secrets
         emptyDir:
