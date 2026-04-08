@@ -1,3 +1,4 @@
+{{- if .Values.global.kas.enabled -}}
 {{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
 {{- if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
 {{/*
@@ -24,5 +25,6 @@ spec:
       requestTimeout: 0s
   {{/* Ensure envoy forwards GRPC request as HTTP/2 instead of HTTP/1.1  */}}
   useClientProtocol: true
+{{- end }}
 {{- end }}
 {{- end }}
