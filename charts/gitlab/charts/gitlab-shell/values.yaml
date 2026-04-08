@@ -161,6 +161,10 @@ config:
   pat:
     enabled: true
     allowedScopes: []
+  # Trusted user CA keys for instance-level SSH certificate authentication (gitlab-sshd only)
+  trustedUserCAKeys:
+    secret: ""
+    keys: []
 
 ## Allow to overwrite under which User and Group the Pod will be running.
 securityContext:

@@ -356,4 +356,114 @@ describe 'gitlab-shell configuration' do
       end
     end
   end
+
+  context 'for trusted user CA keys (instance-level SSH certificates)' do
+    let(:config) { t.dig('ConfigMap/test-gitlab-shell', 'data', 'config.yml.tpl') }
+
+    let(:rendered_config) do
+      rendered = RuntimeTemplate.gomplate(raw_template: config)
+      YAML.safe_load(rendered, aliases: true)
+    end
+
+    context 'when unset (default)' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitlab-shell:
+              sshDaemon: "gitlab-sshd"
+        )).deep_merge(default_values)
+      end
+
+      it 'does not render trusted_user_ca_keys in sshd config' do
+        expect_successful_exit_code
+
+        expect(rendered_config['sshd']).not_to have_key('trusted_user_ca_keys')
+      end
+
+      it 'does not add CA keys source to projected volume' do
+        expect_successful_exit_code
+
+        volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
+        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
+        secret_names = init_secrets_volume['projected']['sources'].map { |s| s['secret']['name'] }
+        expect(secret_names).not_to include('my-ca-keys-secret')
+      end
+    end
+
+    context 'when secret is set but keys is empty' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitlab-shell:
+              sshDaemon: "gitlab-sshd"
+              config:
+                trustedUserCAKeys:
+                  secret: my-ca-keys-secret
+                  keys: []
+        )).deep_merge(default_values)
+      end
+
+      it 'does not render trusted_user_ca_keys in sshd config' do
+        expect_successful_exit_code
+
+        expect(rendered_config['sshd']).not_to have_key('trusted_user_ca_keys')
+      end
+
+      it 'does not add CA keys source to projected volume' do
+        expect_successful_exit_code
+
+        volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
+        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
+        secret_names = init_secrets_volume['projected']['sources'].map { |s| s['secret']['name'] }
+        expect(secret_names).not_to include('my-ca-keys-secret')
+      end
+    end
+
+    context 'when secret is configured with keys' do
+      let(:values) do
+        YAML.safe_load(%(
+          gitlab:
+            gitlab-shell:
+              sshDaemon: "gitlab-sshd"
+              config:
+                trustedUserCAKeys:
+                  secret: my-ca-keys-secret
+                  keys:
+                    - ca1.pub
+                    - ca2.pub
+        )).deep_merge(default_values)
+      end
+
+      it 'renders trusted_user_ca_keys with correct file paths' do
+        expect_successful_exit_code
+
+        expect(rendered_config['sshd']['trusted_user_ca_keys']).to eq([
+          '/etc/gitlab-secrets/ssh/trusted-ca-keys/ca1.pub',
+          '/etc/gitlab-secrets/ssh/trusted-ca-keys/ca2.pub'
+        ])
+      end
+
+      it 'includes trusted CA keys in the shell-init-secrets projected volume' do
+        expect_successful_exit_code
+
+        volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
+        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
+        ca_source = init_secrets_volume['projected']['sources'].find do |s|
+          s['secret']['name'] == 'my-ca-keys-secret'
+        end
+        expect(ca_source).not_to be_nil
+        expect(ca_source['secret']['items']).to contain_exactly(
+          { 'key' => 'ca1.pub', 'path' => 'ssh/trusted-ca-keys/ca1.pub' },
+          { 'key' => 'ca2.pub', 'path' => 'ssh/trusted-ca-keys/ca2.pub' }
+        )
+      end
+
+      it 'includes CA key copy commands in configure script' do
+        expect_successful_exit_code
+
+        configure_script = t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure')
+        expect(configure_script).to include('trusted-ca-keys')
+      end
+    end
+  end
 end

@@ -170,6 +170,23 @@
           },
           "title": "Personal access token (PAT) related settings",
           "type": "object"
+        },
+        "trustedUserCAKeys": {
+          "properties": {
+            "secret": {
+              "title": "Name of the Kubernetes Secret containing trusted user CA public keys",
+              "type": "string"
+            },
+            "keys": {
+              "title": "List of key names within the Secret that contain CA public keys",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "title": "Trusted user CA keys for instance-level SSH certificate authentication",
+          "type": "object"
         }
       },
       "required": [
