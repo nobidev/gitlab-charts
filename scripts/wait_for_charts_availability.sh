@@ -11,7 +11,7 @@ set -euo pipefail
 CHART_VERSION="${1:?chart version is required}"
 CHART_REPO_URL="https://charts.gitlab.io/"
 POLL_INTERVAL=${POLL_INTERVAL:-30}
-MAX_WAIT_SECONDS=${MAX_WAIT_SECONDS:-5400}  # 90 minutes
+MAX_WAIT_SECONDS=${MAX_WAIT_SECONDS:-600}  # 10 minutes
 
 if ! [[ "${POLL_INTERVAL}" =~ ^[0-9]+$ ]] || ! [[ "${MAX_WAIT_SECONDS}" =~ ^[0-9]+$ ]]; then
   echo "Error: POLL_INTERVAL and MAX_WAIT_SECONDS must be positive integers"
