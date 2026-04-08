@@ -30,6 +30,10 @@ function valkey_auth_secret() {
   echo -n "$(valkey_release_name)-auth"
 }
 
+function valkey_auth_secret_key() {
+  echo -n "default"
+}
+
 function cnpg_release_name() {
   echo -n "$(release_name_base)-cnpg"
 }

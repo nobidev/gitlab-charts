@@ -13,7 +13,7 @@ function deploy_external_valkey() {
   # Create auth secret if it doesn't exist yet.
   kubectl get secret "$(valkey_auth_secret)" -n "${NAMESPACE}" &>/dev/null || \
     kubectl create secret generic "$(valkey_auth_secret)" -n "${NAMESPACE}" \
-      --from-literal=default-password="$(valkey_password)"
+      --from-literal="$(valkey_auth_secret_key)"="$(valkey_password)"
 
   helm repo add valkey https://valkey.io/valkey-helm/
   helm upgrade --install "$(valkey_release_name)" valkey/valkey \

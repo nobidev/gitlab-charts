@@ -6,4 +6,4 @@ global:
     host: "${VALKEY_RELEASE_NAME}"
     auth:
       secret: "${VALKEY_AUTH_SECRET}"
-      key: default-password
+      key: "${VALKEY_AUTH_SECRET_KEY}"
