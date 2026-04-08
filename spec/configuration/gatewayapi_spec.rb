@@ -317,5 +317,94 @@ describe 'Gateway API configuration' do
         end
       end
     end
+
+    context 'when individual services are disabled' do
+      context 'when kas is disabled' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              kas:
+                enabled: false
+          )))
+        end
+
+        it 'does not create kas HTTPRoute' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(kas_route).to be_nil
+        end
+
+        it 'still creates other routes' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_route).not_to be_nil
+          expect(webservice_route).not_to be_nil
+          expect(registry_route).not_to be_nil
+        end
+      end
+
+      context 'when gitlab-shell is disabled' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            gitlab:
+              gitlab-shell:
+                enabled: false
+          )))
+        end
+
+        it 'does not create gitlab-shell TCPRoute' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_route).to be_nil
+        end
+
+        it 'still creates other routes' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(webservice_route).not_to be_nil
+          expect(registry_route).not_to be_nil
+          expect(kas_route).not_to be_nil
+        end
+      end
+
+      context 'when webservice is disabled' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            gitlab:
+              webservice:
+                enabled: false
+          )))
+        end
+
+        it 'does not create webservice HTTPRoute' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(webservice_route).to be_nil
+        end
+
+        it 'still creates other routes' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_route).not_to be_nil
+          expect(registry_route).not_to be_nil
+          expect(kas_route).not_to be_nil
+        end
+      end
+
+      context 'when registry is disabled' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            registry:
+              enabled: false
+          )))
+        end
+
+        it 'does not create registry HTTPRoute' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(registry_route).to be_nil
+        end
+
+        it 'still creates other routes' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_route).not_to be_nil
+          expect(webservice_route).not_to be_nil
+          expect(kas_route).not_to be_nil
+        end
+      end
+    end
   end
 end
