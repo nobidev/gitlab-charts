@@ -22,6 +22,8 @@ Build a dict of redis configuration
 {{-     $_ := set $.redisMergedConfig "password" (get (index $.Values.global.redis.redisYmlOverride $.redisConfigName) "password") -}}
 {{-   else if kindIs "map" (get (index $.Values.global.redis $.redisConfigName) "password")  -}}
 {{-     $_ := set $.redisMergedConfig "password" (get (index $.Values.global.redis $.redisConfigName) "password") -}}
+{{-   else if and $.redisConfigName (kindIs "map" (get (index $.Values.global.redis $.redisConfigName) "auth")) -}}
+{{-     $_ := set $.redisMergedConfig "password" (get (index $.Values.global.redis $.redisConfigName) "auth") -}}
 {{-   else if (kindIs "map" (get $.Values.global.redis "password")) -}}
 {{-     $_ := set $.redisMergedConfig "password" (get $.Values.global.redis "password") -}}
 {{-   else -}}
