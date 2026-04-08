@@ -133,6 +133,7 @@ function prepare_values() {
     env \
       GITLAB_RELEASE_NAME="$(gitlab_release_name)" \
       VALKEY_RELEASE_NAME="$(valkey_release_name)" \
+      VALKEY_AUTH_SECRET="$(valkey_auth_secret)" \
       CNPG_CLUSTER_HOST="$(cnpg_cluster_host)" \
       CNPG_CLUSTER_SECRET="$(cnpg_cluster_secret)" \
         envsubst < "$f" > "${VALUES_DIR}/$(basename $f)"

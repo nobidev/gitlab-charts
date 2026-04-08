@@ -10,6 +10,11 @@ function deploy_external_valkey() {
     VERSION_FLAG="--version ${VALKEY_CHART_VERSION}"
   fi
 
+  # Create auth secret if it doesn't exist yet.
+  kubectl get secret "$(valkey_auth_secret)" -n "${NAMESPACE}" &>/dev/null || \
+    kubectl create secret generic "$(valkey_auth_secret)" -n "${NAMESPACE}" \
+      --from-literal=default-password="$(valkey_password)"
+
   helm repo add valkey https://valkey.io/valkey-helm/
   helm upgrade --install "$(valkey_release_name)" valkey/valkey \
     -n "${NAMESPACE}" \
@@ -20,24 +25,16 @@ function deploy_external_valkey() {
     --set metrics.enabled=true \
     --set auth.enabled=true \
     --set auth.aclUsers.default.permissions="~* &* +@all" \
-    --set auth.aclUsers.default.password="$(valkey_password)" \
+    --set auth.usersExistingSecret="$(valkey_auth_secret)" \
     --hide-notes
 }
 
 function remove_external_valkey() {
     echo "Removing external Valkey"
+    kubectl delete secret -n "${NAMESPACE}" "$(valkey_auth_secret)" --ignore-not-found
     helm uninstall "$(valkey_release_name)" -n "${NAMESPACE}" --wait --ignore-not-found
 }
 
-# Returns the Valkey password, reusing the existing one on upgrades to prevent
-# Valkey from rotating it. Password changes currently do not result in a new
-# rollout of Valkey, which is a known bug to be fixed in
-# https://github.com/valkey-io/valkey-helm/pull/128.
 function valkey_password() {
-  if kubectl get secret "$(valkey_release_name)-valkey-auth" -n "${NAMESPACE}" &>/dev/null; then
-    kubectl get secret "$(valkey_release_name)-valkey-auth" -n "${NAMESPACE}" \
-      -o jsonpath='{.data.default-password}' | base64 -d
-  else
-    tr -dc A-Za-z0-9 </dev/urandom | head -c 10
-  fi
+  tr -dc A-Za-z0-9 </dev/urandom | head -c 10
 }
