@@ -19,11 +19,13 @@ if ! [[ "${POLL_INTERVAL}" =~ ^[1-9][0-9]*$ ]] || ! [[ "${MAX_WAIT_SECONDS}" =~ 
   exit 1
 fi
 
+command -v timeout > /dev/null 2>&1 || { echo "Error: timeout command not found"; exit 1; }
+
 echo "Waiting for GitLab Helm chart version ${CHART_VERSION} to be available on ${CHART_REPO_URL}"
 
-helm repo add gitlab "${CHART_REPO_URL}" 2>/dev/null || true
+helm repo add gitlab "${CHART_REPO_URL}" || true
 
-if ! helm repo update; then
+if ! helm repo update gitlab; then
   echo "Error: failed to update Helm repos"
   exit 1
 fi
