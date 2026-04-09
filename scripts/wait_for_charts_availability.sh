@@ -20,7 +20,12 @@ fi
 
 echo "Waiting for GitLab Helm chart version ${CHART_VERSION} to be available on ${CHART_REPO_URL}"
 
-helm repo add gitlab "${CHART_REPO_URL}" 2>/dev/null || true
+add_output=$(helm repo add gitlab "${CHART_REPO_URL}" 2>&1) || {
+  if ! echo "${add_output}" | grep -qi "already exists"; then
+    echo "${add_output}" >&2
+    exit 1
+  fi
+}
 
 if ! helm repo update 2>/dev/null; then
   echo "Error: failed to update Helm repos"
@@ -29,7 +34,7 @@ fi
 
 SECONDS=0
 while [[ $SECONDS -lt $MAX_WAIT_SECONDS ]]; do
-  if helm show chart gitlab/gitlab --version "${CHART_VERSION}" > /dev/null 2>&1; then
+  if timeout 30s helm show chart gitlab/gitlab --version "${CHART_VERSION}" > /dev/null 2>&1; then
     echo "GitLab Helm chart version ${CHART_VERSION} is available on ${CHART_REPO_URL}"
     exit 0
   fi
