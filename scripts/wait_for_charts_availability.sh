@@ -27,16 +27,15 @@ if ! helm repo update 2>/dev/null; then
   exit 1
 fi
 
-elapsed=0
-while [[ $elapsed -lt $MAX_WAIT_SECONDS ]]; do
+SECONDS=0
+while [[ $SECONDS -lt $MAX_WAIT_SECONDS ]]; do
   if helm show chart gitlab/gitlab --version "${CHART_VERSION}" > /dev/null 2>&1; then
     echo "GitLab Helm chart version ${CHART_VERSION} is available on ${CHART_REPO_URL}"
     exit 0
   fi
 
-  echo "Chart version ${CHART_VERSION} not yet available (elapsed: ${elapsed}s), retrying in ${POLL_INTERVAL}s..."
+  echo "Chart version ${CHART_VERSION} not yet available (elapsed: ${SECONDS}s), retrying in ${POLL_INTERVAL}s..."
   sleep "${POLL_INTERVAL}"
-  elapsed=$((elapsed + POLL_INTERVAL))
 done
 
 echo "Timed out after ${MAX_WAIT_SECONDS}s waiting for GitLab Helm chart version ${CHART_VERSION} on ${CHART_REPO_URL}"
