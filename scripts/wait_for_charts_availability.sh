@@ -13,21 +13,23 @@ CHART_REPO_URL="https://charts.gitlab.io/"
 POLL_INTERVAL=${POLL_INTERVAL:-30}
 MAX_WAIT_SECONDS=${MAX_WAIT_SECONDS:-600}  # 10 minutes
 
-if ! [[ "${POLL_INTERVAL}" =~ ^[0-9]+$ ]] || ! [[ "${MAX_WAIT_SECONDS}" =~ ^[0-9]+$ ]]; then
-  echo "Error: POLL_INTERVAL and MAX_WAIT_SECONDS must be positive integers"
+if ! [[ "${POLL_INTERVAL}" =~ ^[1-9][0-9]*$ ]] || ! [[ "${MAX_WAIT_SECONDS}" =~ ^[1-9][0-9]*$ ]]; then
+  echo "Error: POLL_INTERVAL and MAX_WAIT_SECONDS must be positive integers greater than zero"
   exit 1
 fi
 
 echo "Waiting for GitLab Helm chart version ${CHART_VERSION} to be available on ${CHART_REPO_URL}"
 
-if ! helm repo add gitlab "${CHART_REPO_URL}" 2>/dev/null && ! helm repo update gitlab 2>/dev/null; then
-  echo "Error: failed to add or update Helm repo ${CHART_REPO_URL}"
+helm repo add gitlab "${CHART_REPO_URL}" 2>/dev/null || true
+
+if ! helm repo update 2>/dev/null; then
+  echo "Error: failed to update Helm repos"
   exit 1
 fi
 
 elapsed=0
 while [[ $elapsed -lt $MAX_WAIT_SECONDS ]]; do
-  if helm repo update gitlab && helm show chart gitlab/gitlab --version "${CHART_VERSION}" > /dev/null 2>&1; then
+  if helm show chart gitlab/gitlab --version "${CHART_VERSION}" > /dev/null 2>&1; then
     echo "GitLab Helm chart version ${CHART_VERSION} is available on ${CHART_REPO_URL}"
     exit 0
   fi
