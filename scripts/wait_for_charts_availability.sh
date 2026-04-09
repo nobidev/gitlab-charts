@@ -19,19 +19,22 @@ if ! [[ "${POLL_INTERVAL}" =~ ^[1-9][0-9]*$ ]] || ! [[ "${MAX_WAIT_SECONDS}" =~ 
   exit 1
 fi
 
+command -v helm > /dev/null 2>&1 || { echo "Error: helm command not found"; exit 1; }
 command -v timeout > /dev/null 2>&1 || { echo "Error: timeout command not found"; exit 1; }
 
 echo "Waiting for GitLab Helm chart version ${CHART_VERSION} to be available on ${CHART_REPO_URL}"
 
-helm repo add gitlab "${CHART_REPO_URL}" || true
-
-if ! helm repo update gitlab; then
-  echo "Error: failed to update Helm repos"
-  exit 1
-fi
+# helm repo add exits 0 for both new additions and "already exists with same URL",
+# so redirect stdout to suppress the noise and let set -e surface any real failures via stderr.
+helm repo add gitlab "${CHART_REPO_URL}" > /dev/null
 
 SECONDS=0
 while [[ $SECONDS -lt $MAX_WAIT_SECONDS ]]; do
+  if ! helm repo update gitlab > /dev/null; then
+    echo "Error: failed to update Helm repo" >&2
+    exit 1
+  fi
+
   if timeout "${HELM_SHOW_TIMEOUT_SECONDS}s" helm show chart gitlab/gitlab --version "${CHART_VERSION}" > /dev/null 2>&1; then
     echo "GitLab Helm chart version ${CHART_VERSION} is available on ${CHART_REPO_URL}"
     exit 0
