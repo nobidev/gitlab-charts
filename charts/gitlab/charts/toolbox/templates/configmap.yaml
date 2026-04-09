@@ -136,6 +136,10 @@ data:
     # volume is remounted read-only
     mkdir "/${secret_dir}/registry-db/"
 
+    # Mount point for OpenBao DB secrets. Needs to be pre-created as later the
+    # volume is remounted read-only
+    mkdir "/${secret_dir}/openbao-db/"
+
     {{- if eq .Values.backups.objectStorage.backend "s3" }}
     if [ ! -f "/${secret_dir}/objectstorage/.s3cfg" ]; then
     cat <<EOF > "/${secret_dir}/.s3cfg"

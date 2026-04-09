@@ -968,9 +968,17 @@ global:
       secret: ""
       key: "token"
     psql:
-      # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password.
-      database: openbao
-      username: openbao
+      # OpenBao database config for toolbox backup/restore.
+      # host is required to enable OpenBao DB backup. Must differ from global.psql.host.
+      host: ""           # Required to activate backup: DB hostname/IP
+      port: 5432         # Optional: defaults to 5432
+      database: openbao  # Optional: defaults to "openbao"
+      username: openbao  # Optional: defaults to "openbao"
+      sslMode: disable   # Optional: e.g. "require", "verify-full". Defaults to "disable".
+      connectTimeout: "" # Optional: connection timeout in seconds.
+      # password.secret and password.key must be set explicitly — no defaults.
+      # Intentionally omitted: setting password.secret here (even to "") would cause
+      # the checkConfig validation to skip the "no password configured" error check.
 
   ## https://docs.gitlab.com/charts/charts/globals
   extraEnv: {}

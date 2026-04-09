@@ -155,3 +155,64 @@ Usage:
   mountPath: /etc/gitlab/registry-db/
   readOnly: true
 {{- end -}}
+
+{{/*
+Return the secret name for toolbox openbao database password.
+Defaults to a generated name (which likely does not exist) so the volume source is never
+name: "" — an empty name fails Kubernetes admission even with optional: true.
+The optional: true on the volume source handles the "secret not found" case gracefully.
+Pattern matches toolbox.registry.database.password.secret.
+*/}}
+{{- define "toolbox.openbao.database.password.secret" -}}
+{{- $obaPsql := ((.Values.global).openbao).psql | default dict -}}
+{{- dig "password" "secret" "" $obaPsql | default (printf "%s-toolbox-openbao-database-password" .Release.Name) -}}
+{{- end -}}
+
+{{/*
+Return the secret key for toolbox openbao database password
+*/}}
+{{- define "toolbox.openbao.database.password.key" -}}
+{{- $obaPsql := ((.Values.global).openbao).psql | default dict -}}
+{{- dig "password" "key" "password" $obaPsql | default "password" -}}
+{{- end -}}
+
+{{/*
+OpenBao database configuration volume for toolbox pods.
+
+Projects OpenBao DB credentials for backup/restore:
+- connection.env: HOST, PORT, NAME, USER from toolbox ConfigMap
+- backup-pass: PASSWORD from global.openbao.psql.password Secret
+
+Usage:
+  {{- include "toolbox.openbao.databaseBackupCredentialsVolume" . | nindent 6 }}
+*/}}
+{{- define "toolbox.openbao.databaseBackupCredentialsVolume" -}}
+- name: openbao-db-config
+  projected:
+    defaultMode: 0440
+    sources:
+      - configMap:
+          name: {{ template "fullname" . }}-openbao-db-connection-config
+          items:
+          - key: db-connection.env
+            path: connection.env
+          optional: true
+      - secret:
+          name: {{ include "toolbox.openbao.database.password.secret" . }}
+          items:
+          - key: {{ template "toolbox.openbao.database.password.key" . }}
+            path: backup-pass
+          optional: true
+{{- end -}}
+
+{{/*
+OpenBao database configuration volume mount for toolbox containers.
+
+Usage:
+  {{- include "toolbox.openbao.database.databaseBackupCredentialsMount" . | nindent 12 }}
+*/}}
+{{- define "toolbox.openbao.database.databaseBackupCredentialsMount" -}}
+- name: openbao-db-config
+  mountPath: /etc/gitlab/openbao-db/
+  readOnly: true
+{{- end -}}
