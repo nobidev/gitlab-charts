@@ -12,7 +12,6 @@ function deploy_external_garage() {
         echo "Garage already installed. Skipping."
         return
     fi
-
     echo "Installing external Garage"
 
     # default to v2.2.0 as that is the first version we tested with
