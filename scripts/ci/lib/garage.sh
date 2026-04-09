@@ -46,8 +46,8 @@ function deploy_external_garage() {
     fi
     echo "Detected Garage node ID: ${NODE_ID}"
 
-    layoutshow=$(kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- ./garage layout show 2>&1)
-    if ! echo "$layoutshow" | grep -q "Current cluster layout version:"; then
+    layoutshow=$(kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage layout show)
+    if echo "$layoutshow" | grep -q "Current cluster layout version: 0"; then
       # Initialize Layout
       kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage layout assign -z ci -c 1G "${NODE_ID}"
       kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage layout apply --version 1
