@@ -8,13 +8,6 @@ function deploy_external_garage() {
         exit 1
     fi
 
-    if helm status "$(garage_release_name)" -n "${NAMESPACE}" > /dev/null 2>&1; then
-        echo "Release exists"
-        return
-    else
-        echo "Release does not exist"
-    fi
-
     echo "Installing external Garage"
 
     # default to v2.2.0 as that is the first version we tested with
@@ -53,12 +46,12 @@ function deploy_external_garage() {
     fi
     echo "Detected Garage node ID: ${NODE_ID}"
 
-   layoutshow=$(kubectl exec -n "$NAMESPACE" "$POD" -- ./garage layout show 2>&1)
-   if ! echo "$layoutshow" | grep -q "Current cluster layout version:"; then
-     # Initialize Layout
-     kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage layout assign -z ci -c 1G "${NODE_ID}"
-     kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage layout apply --version 1
-   fi
+    layoutshow=$(kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- ./garage layout show 2>&1)
+    if ! echo "$layoutshow" | grep -q "Current cluster layout version:"; then
+      # Initialize Layout
+      kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage layout assign -z ci -c 1G "${NODE_ID}"
+      kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage layout apply --version 1
+    fi
 
     # https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/
     local buckets=(
@@ -85,11 +78,11 @@ function deploy_external_garage() {
         fi
     done
 
-keylist=$(kubectl exec -n "$NAMESPACE" "$POD" -- ./garage key list 2>&1)
-if echo "$keylist" | awk '{print $2}' | grep -qx "gitlab-app-key"; then
-  echo "GitLab key already exists."
-  return
-fi
+  keylist=$(kubectl exec -n "$NAMESPACE" "$POD" -- ./garage key list 2>&1)
+  if echo "$keylist" | awk '{print $2}' | grep -qx "gitlab-app-key"; then
+    echo "GitLab key already exists."
+    return
+  fi
 
     # create API key and capture credentials, or should we use create_password instead?
     local KEY_OUTPUT
