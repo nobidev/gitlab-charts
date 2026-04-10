@@ -28,13 +28,19 @@ title: OpenBao chart
 You can use the [OpenBao chart](https://gitlab.com/gitlab-org/cloud-native/charts/openbao) to install
 OpenBao, which is required to enable the [GitLab secrets manager](https://docs.gitlab.com/ci/secrets/secrets_manager/).
 
-## Known issues
+## Known limitations
 
 - You can't upgrade OpenBao without downtime. Zero downtime upgrades are proposed in
   [OpenBao chart issue 13](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/issues/13).
 - You can't deploy OpenBao with [GitLab Operator](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator).
 - A FIPS variant of the OpenBao image is already being build, but OpenBao is not FIPS validated.
   FIPS validation is tracked in [GitLab issue 574875](https://gitlab.com/gitlab-org/gitlab/-/issues/574875).
+- When failing over to a Geo secondary site that uses a different domain
+  (not updating DNS to point the primary domain to the secondary site), GitLab Secrets Manager requires manual
+  re-provisioning of JWT authentication for all projects and groups where it is enabled. This process can be
+  time-consuming for large deployments. A migration tool is planned in
+  [GitLab issue 595722](https://gitlab.com/gitlab-org/gitlab/-/issues/595722). Until then, the recommended
+  approach is to update DNS records so the primary domain points to the promoted secondary site.
 
 ## Setup GitLab secret manager and OpenBao
 
@@ -80,6 +86,14 @@ global:
 Ensure OpenBao `config.initialize.boundAudiences` includes the `jwt_audience` value. When using the bundled OpenBao chart, `boundAudiences` defaults to the external OpenBao hostname; for Geo you may need to override it to include the shared URL used as `jwt_audience`.
 
 In failover scenarios, when a secondary site is promoted to primary, omit `jwt_audience` from the configuration. The promoted primary uses its own URL, and the audience defaults to that URL.
+
+> [!warning]
+> When failing over to a secondary site that keeps its own domain (instead of updating DNS for the primary domain),
+> you must manually re-provision JWT authentication in OpenBao for all projects and groups where GitLab Secrets Manager
+> is enabled. This includes updating `oidc_discovery_url`, `bound_issuer`, and `bound_audiences` at both the root level
+> and for each project/group namespace. This process can be time-consuming for large deployments. A migration tool is
+> planned in [GitLab issue 595722](https://gitlab.com/gitlab-org/gitlab/-/issues/595722). Until then, the recommended
+> approach is to update DNS records so the primary domain points to the promoted secondary site.
 
 ## Rolling back OpenBao upgrades
 
