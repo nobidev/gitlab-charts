@@ -6,7 +6,7 @@ require 'hash_deep_merge'
 describe 'Self-Signed Certificates configuration' do
   context 'when CertManager is disabled' do
     let(:values_all_enabled) do
-      YAML.safe_load(%(
+      HelmTemplate.with_defaults(%(
         global:
           kas:
             enabled: true

@@ -8,7 +8,6 @@
     - helm repo add gitlab https://charts.gitlab.io
     - helm dependency update
     - echo "$HELM_DEFAULT_SETTINGS" | tee ./template_settings.yaml
-    - echo "$HELM_SETTINGS" | tee -a ./template_settings.yaml
     - echo "${KUBECONFORM_SCHEMA_LOCATION:-default}"
     - >
       helm kubeconform --strict --summary
@@ -23,19 +22,6 @@
     - if: '$PIPELINE_TYPE =~ /_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE == "NIGHTLY_PIPELINE"'
   needs: ['lint_package']
-  variables:
-    HELM_SETTINGS: |
-      global:
-        ingress:
-          apiVersion: networking.k8s.io/v1
-        pdb:
-          apiVersion: policy/v1
-        hpa:
-          apiVersion: autoscaling/v2
-        batch:
-          cronJob:
-            apiVersion: batch/v1
-
 kubeconform:
   extends: .kubeconform
   parallel:

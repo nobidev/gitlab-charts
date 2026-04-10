@@ -49,7 +49,7 @@ describe 'spamcheck configuration' do
     end
 
     let(:spamcheck_enabled_template) do
-      HelmTemplate.new(default_values.merge(spamcheck_enabled_values))
+      HelmTemplate.new(default_values.deep_merge(spamcheck_enabled_values))
     end
 
     it 'creates all spamcheck related required_resources' do

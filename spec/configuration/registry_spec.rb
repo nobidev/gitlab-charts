@@ -286,7 +286,7 @@ describe 'registry configuration' do
             <<~CONFIG
             database:
               enabled: true
-              host: "test-postgresql.default.svc"
+              host: "psql.example.com"
               port: 5432
               user: global_test_user
               password: "DB_PASSWORD_FILE"
@@ -321,7 +321,7 @@ describe 'registry configuration' do
             <<~CONFIG
             database:
               enabled: true
-              host: "test-postgresql.default.svc"
+              host: "psql.example.com"
               port: 5432
               user: local_test_user
               password: "DB_PASSWORD_FILE"
@@ -356,7 +356,7 @@ describe 'registry configuration' do
             <<~CONFIG
             database:
               enabled: true
-              host: "test-postgresql.default.svc"
+              host: "psql.example.com"
               port: 5432
               user: global_registry_user
               password: "DB_PASSWORD_FILE"
@@ -370,10 +370,6 @@ describe 'registry configuration' do
       context 'when database.configure is used with global settings' do
         let(:values) do
           YAML.safe_load(%(
-            postgresql:
-              install: true
-              image:
-                tag: 16.6.0
             global:
               registry:
                 database:
@@ -394,7 +390,7 @@ describe 'registry configuration' do
             <<~CONFIG
             database:
               enabled: false
-              host: "test-postgresql.default.svc"
+              host: "psql.example.com"
               port: 5432
               user: global_registry_user
               password: "DB_PASSWORD_FILE"
@@ -402,95 +398,6 @@ describe 'registry configuration' do
               sslmode: disable
             CONFIG
           )
-        end
-      end
-
-      describe 'global registry database with postgresql initialization' do
-        context 'when postgresql.install is true and global.registry.database is configured' do
-          let(:values) do
-            YAML.safe_load(%(
-              postgresql:
-                install: true
-                image:
-                  tag: 16.6.0
-              global:
-                registry:
-                  database:
-                    user: global_registry_user
-                    name: global_registry_db
-              registry:
-                database:
-                  enabled: true
-                  user: local_registry_user
-                  name: local_registry_db
-            )).deep_merge(default_values)
-          end
-
-          it 'creates the registry database initialization script' do
-            t = HelmTemplate.new(values)
-            expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
-
-            init_script = t.dig('ConfigMap/test-postgresql-init-db', 'data', 'init_registry.sh')
-            expect(init_script).not_to be_nil
-
-            expect(init_script).to include('CREATE USER \\"local_registry_user\\" WITH CREATEDB PASSWORD \'${REGISTRY_PASSWORD}\';')
-            expect(init_script).to include('CREATE DATABASE \\"local_registry_db\\" WITH OWNER \\"local_registry_user\\";')
-            expect(init_script).to include('GRANT ALL PRIVILEGES ON DATABASE \\"local_registry_db\\" TO \\"local_registry_user\\";')
-          end
-        end
-
-        context 'when postgresql.install is false' do
-          let(:values) do
-            YAML.safe_load(%(
-              postgresql:
-                install: false
-              global:
-                registry:
-                  database:
-                    user: global_registry_user
-                    name: global_registry_name
-              registry:
-                database:
-                  enabled: true
-            )).deep_merge(default_values)
-          end
-
-          it 'does not create the registry database initialization script' do
-            t = HelmTemplate.new(values)
-            expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
-
-            # When postgresql.install is false, the ConfigMap should not be rendered
-            expect(t.resource_exists?('ConfigMap/test-postgresql-init-db')).to be false
-          end
-        end
-
-        context 'with default global registry database values' do
-          let(:values) do
-            YAML.safe_load(%(
-             postgresql:
-               install: true
-               image:
-                 tag: 16.6.0
-             registry:
-               database:
-                 enabled: true
-           )).deep_merge(default_values)
-          end
-
-          it 'uses default global registry database settings in the init db script' do
-            t = HelmTemplate.new(values)
-            expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
-
-            init_script = t.dig('ConfigMap/test-postgresql-init-db', 'data', 'init_registry.sh')
-
-            # Updated expectations to match the actual escaped format
-            expect(init_script).to include('POSTGRES_POSTGRES_PASSWORD=$(cat ${POSTGRES_POSTGRES_PASSWORD_FILE})')
-            expect(init_script).to include('CREATE USER \\"registry\\" WITH CREATEDB PASSWORD \'${REGISTRY_PASSWORD}\';')
-            expect(init_script).to include('CREATE DATABASE \"registry\" WITH OWNER \"registry\";')
-            expect(init_script).to include('GRANT ALL PRIVILEGES ON DATABASE \"registry\" TO \"registry\";')
-            expect(init_script).to include('SELECT 1 FROM pg_user WHERE usename = \'registry\'')
-            expect(init_script).to include('grep -qw "registry"')
-          end
         end
       end
 
@@ -512,7 +419,7 @@ describe 'registry configuration' do
             <<~CONFIG
             database:
               enabled: true
-              host: "test-postgresql.default.svc"
+              host: "psql.example.com"
               port: 5432
               user: registry
               password: "DB_PASSWORD_FILE"
@@ -545,7 +452,7 @@ describe 'registry configuration' do
             <<~CONFIG
             database:
               enabled: true
-              host: "test-postgresql.default.svc"
+              host: "psql.example.com"
               port: 5432
               user: registry
               password: "DB_PASSWORD_FILE"
@@ -579,7 +486,7 @@ describe 'registry configuration' do
             <<~CONFIG
             database:
               enabled: true
-              host: "test-postgresql.default.svc"
+              host: "psql.example.com"
               port: 5432
               user: registry
               password: "DB_PASSWORD_FILE"
@@ -670,7 +577,7 @@ describe 'registry configuration' do
             <<~CONFIG
             database:
               enabled: #{enabled}
-              host: "test-postgresql.default.svc"
+              host: "psql.example.com"
               port: 5432
               user: registry
               password: "DB_PASSWORD_FILE"
@@ -719,7 +626,7 @@ describe 'registry configuration' do
               <<~CONFIG
               database:
                 enabled: true
-                host: "test-postgresql.default.svc"
+                host: "psql.example.com"
                 port: 5432
                 user: registry
                 password: "DB_PASSWORD_FILE"
@@ -783,7 +690,7 @@ describe 'registry configuration' do
               <<~CONFIG
               database:
                 enabled: true
-                host: "test-postgresql.default.svc"
+                host: "psql.example.com"
                 port: 5432
                 user: registry
                 password: "DB_PASSWORD_FILE"
@@ -853,7 +760,7 @@ describe 'registry configuration' do
               <<~CONFIG
               database:
                 enabled: true
-                host: "test-postgresql.default.svc"
+                host: "psql.example.com"
                 port: 5432
                 user: registry
                 password: "DB_PASSWORD_FILE"
@@ -890,7 +797,7 @@ describe 'registry configuration' do
               <<~CONFIG
               database:
                 enabled: true
-                host: "test-postgresql.default.svc"
+                host: "psql.example.com"
                 port: 5432
                 user: registry
                 password: "DB_PASSWORD_FILE"
@@ -932,7 +839,6 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             global:
               redis:
-                host: global.redis.example.com
                 port: 16379
             registry:
               database:
@@ -952,7 +858,7 @@ describe 'registry configuration' do
             redis:
               cache:
                 enabled: true
-                addr: "global.redis.example.com:16379"
+                addr: "redis.example.com:16379"
             CONFIG
           )
         end
@@ -1259,7 +1165,6 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             global:
               redis:
-                host: global.redis.example.com
                 port: 16379
             registry:
               redis:
@@ -1277,7 +1182,7 @@ describe 'registry configuration' do
             redis:
               ratelimiter:
                 enabled: true
-                addr: "global.redis.example.com:16379"
+                addr: "redis.example.com:16379"
             CONFIG
           )
         end
@@ -1911,7 +1816,7 @@ describe 'registry configuration' do
           YAML.safe_load(%(
             global:
               redis:
-                host: global.redis.example.com
+                host: redis.example.com
                 port: 16379
             registry:
               redis:
@@ -1929,7 +1834,7 @@ describe 'registry configuration' do
             redis:
               loadbalancing:
                 enabled: true
-                addr: "global.redis.example.com:16379"
+                addr: "redis.example.com:16379"
             CONFIG
           )
         end
@@ -2667,10 +2572,7 @@ describe 'registry configuration' do
     let(:t) { HelmTemplate.new(values) }
 
     let(:values) do
-      YAML.safe_load(%(
-        global:
-          ingress:
-            configureCertmanager: false
+      HelmTemplate.with_defaults(%(
         registry:
           enabled: true
           api:
@@ -2729,11 +2631,10 @@ describe 'registry configuration' do
     let(:t) { HelmTemplate.new(values) }
 
     let(:values) do
-      YAML.safe_load(%(
+      HelmTemplate.with_defaults %(
         global:
           ingress:
             enabled: #{enabled}
-            configureCertmanager: false
           monitoring:
             enabled: true
         registry:
@@ -2751,7 +2652,7 @@ describe 'registry configuration' do
             enabled: true
             serviceMonitor:
               enabled: #{enabled}
-      ))
+      )
     end
 
     context 'when api.enabled is true and other resources are enabled' do

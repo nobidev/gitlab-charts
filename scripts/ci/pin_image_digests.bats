@@ -83,6 +83,13 @@ setup() {
 certmanager-issuer:
   email: ci@gitlab.com
 global:
+  redis:
+    host: redis.example.com
+  psql:
+    host: psql.example.com
+    password:
+      secret: psql-password
+      key: password
   gitlabBase:
     image:
       tag: "$image_tag"

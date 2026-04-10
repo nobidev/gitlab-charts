@@ -109,7 +109,7 @@ describe 'kas configuration' do
 
   context 'when kas is enabled with custom values' do
     let(:kas_enabled_template) do
-      HelmTemplate.new(default_values.merge(kas_values))
+      HelmTemplate.new(default_values.deep_merge(kas_values))
     end
 
     it 'creates all kas related required_resources' do
@@ -451,12 +451,8 @@ describe 'kas configuration' do
               )))
             end
 
-            it 'has set url' do
-              expect(config_yaml_data['redis']).to include(YAML.safe_load(%(
-                database_index: 3
-                server:
-                  address: test-redis-master.default.svc:6379
-              )))
+            it 'sets database index' do
+              expect(config_yaml_data['redis']['database_index']).to eq(3)
             end
           end
 
@@ -466,7 +462,7 @@ describe 'kas configuration' do
                 database_index: 0
                 password_file: /etc/kas/redis/redis-password
                 server:
-                  address: test-redis-master.default.svc:6379
+                  address: redis.example.com:6379
               )))
             end
 
@@ -477,7 +473,7 @@ describe 'kas configuration' do
             let(:kas_values) do
               vals = default_kas_values
               vals['global'].deep_merge!(sentinels)
-              vals.deep_merge!('redis' => { 'install' => false })
+              vals
             end
 
             it_behaves_like 'mounts global redis secret'
@@ -498,7 +494,7 @@ describe 'kas configuration' do
             let(:kas_values) do
               vals = default_kas_values
               vals['global'].deep_merge!(sentinels_database)
-              vals.deep_merge!('redis' => { 'install' => false })
+              vals
             end
 
             it_behaves_like 'mounts global redis secret'
@@ -519,7 +515,6 @@ describe 'kas configuration' do
             let(:kas_values) do
               vals = default_kas_values
               vals['global'].deep_merge!(sentinels)
-              vals.deep_merge!('redis' => { 'install' => false })
 
               vals.deep_merge!(YAML.safe_load(%(
                 global:
@@ -560,7 +555,7 @@ describe 'kas configuration' do
             vals = default_kas_values
             vals['global'].deep_merge!(redis_shared_state_config)
             vals['global'].deep_merge!(redis_kas_config)
-            vals.deep_merge!('redis' => { 'install' => false })
+            vals
           end
 
           let(:redis_kas_config) { {} }
@@ -727,13 +722,11 @@ describe 'kas configuration' do
                       key:
                         secret: redis-sentinel
                         key: key
-                redis:
-                  install: false
               )))
             end
 
             it 'configures Sentinel with TLS' do
-              template = HelmTemplate.new(default_values.merge(kas_values))
+              template = HelmTemplate.new(default_values.deep_merge(kas_values))
               expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
               config_yaml = YAML.safe_load(template.dig('ConfigMap/test-kas', 'data', 'config.yaml'), permitted_classes: [Symbol])
 
@@ -752,7 +745,7 @@ describe 'kas configuration' do
             end
 
             it 'mounts Sentinel TLS secrets' do
-              template = HelmTemplate.new(default_values.merge(kas_values))
+              template = HelmTemplate.new(default_values.deep_merge(kas_values))
               expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
               kas_secret_mounts = template.projected_volume_sources(
@@ -787,13 +780,11 @@ describe 'kas configuration' do
                         caFile:
                           secret: sentinel-ca
                           key: ca.crt
-                  redis:
-                    install: false
                 )))
             end
 
             it 'configures Sentinel with TLS and only ca_certificate_file' do
-              template = HelmTemplate.new(default_values.merge(kas_values))
+              template = HelmTemplate.new(default_values.deep_merge(kas_values))
               expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
               config_yaml = YAML.safe_load(template.dig('ConfigMap/test-kas', 'data', 'config.yaml'), permitted_classes: [Symbol])
@@ -811,7 +802,7 @@ describe 'kas configuration' do
             end
 
             it 'mounts only the CA secret' do
-              template = HelmTemplate.new(default_values.merge(kas_values))
+              template = HelmTemplate.new(default_values.deep_merge(kas_values))
               expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
               kas_secret_mounts = template.projected_volume_sources(
@@ -1372,7 +1363,7 @@ describe 'kas configuration' do
         end
 
         it "creates PodMonitor for kas" do
-          template = HelmTemplate.new(default_values.merge(kas_values))
+          template = HelmTemplate.new(default_values.deep_merge(kas_values))
           expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
           kas_pod_monitor = template.resources_by_kind('PodMonitor')['PodMonitor/test-kas']
           expect(kas_pod_monitor).not_to be_nil, "missing PodMonitor for kas"
@@ -1408,7 +1399,7 @@ describe 'kas configuration' do
 
   describe 'gitlab.yml.erb/gitlab_kas' do
     let(:helm_template) do
-      HelmTemplate.new(default_values.merge(kas_values))
+      HelmTemplate.new(default_values.deep_merge(kas_values))
     end
 
     def gitlab_yml(chart)

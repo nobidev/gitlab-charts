@@ -186,12 +186,9 @@ CFG
         YAML.safe_load(%(
           global:
             redis:
-              host: global.redis
               auth:
                 enabled: true
                 secret: global-secret
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -203,7 +200,7 @@ CFG
         redis_config = toml['redis']
 
         expect(redis_config.keys).to match_array(%w[URL Password DB])
-        expect(redis_config['URL']).to eq('redis://global.redis:6379')
+        expect(redis_config['URL']).to eq('redis://redis.example.com:6379')
         expect(redis_config['DB']).to eq(0)
         expect(redis_config['Password']).to eq(global_redis_password)
 
@@ -217,13 +214,10 @@ CFG
         YAML.safe_load(%(
           global:
             redis:
-              host: global.redis
               database: 3
               auth:
                 enabled: true
                 secret: global-secret
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -235,7 +229,7 @@ CFG
         redis_config = toml['redis']
 
         expect(redis_config.keys).to match_array(%w[URL Password DB])
-        expect(redis_config['URL']).to eq('redis://global.redis:6379')
+        expect(redis_config['URL']).to eq('redis://redis.example.com:6379')
         expect(redis_config['DB']).to eq(3)
         expect(redis_config['Password']).to eq(global_redis_password)
 
@@ -258,8 +252,6 @@ CFG
                 password:
                   enabled: true
                   secret: workhorse
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -305,8 +297,6 @@ CFG
                 enabled: true
                 secret: global-secret
               user: redis-user
-          redis:
-            install: false
         )).deep_merge!(default_values)
 
         it "adds the username to the URL" do
@@ -342,8 +332,6 @@ CFG
                   enabled: true
                   secret: workhorse
                 user: workhorse-redis-user
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -382,8 +370,6 @@ CFG
                 password:
                   enabled: true
                   secret: workhorse
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -467,8 +453,6 @@ CFG
                     enabled: true
                     secret: workhorse-redis-sentinel-secret
                     key: password
-            redis:
-              install: false
           )).deep_merge!(default_values)
         end
 
@@ -876,8 +860,6 @@ CFG
                 caFile:
                   secret: sentinel-ca
                   key: ca.crt
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -914,8 +896,6 @@ CFG
                 port: 26379
               sentinelTLS:
                 enabled: false
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -949,8 +929,6 @@ CFG
               - host: s2.global.redis
                 port: 26379
                 ssl: true
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -981,8 +959,6 @@ CFG
               - host: s2.global.redis
                 port: 26379
                 ssl: false
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -1030,8 +1006,6 @@ CFG
                 key:
                   secret: sentinel-key
                   key: key
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -1104,12 +1078,9 @@ CFG
           global:
             redis:
               scheme: rediss
-              host: global.redis
               auth:
                 enabled: true
                 secret: redis-password
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -1127,7 +1098,7 @@ CFG
         toml = render_toml(raw_toml)
         redis_config = toml['redis']
 
-        expect(redis_config['URL']).to eq('rediss://global.redis:6379')
+        expect(redis_config['URL']).to eq('rediss://redis.example.com:6379')
       end
     end
   end

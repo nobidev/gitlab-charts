@@ -2,11 +2,7 @@
 
 installCertmanager: false
 
-postgresql:
-  install: false
 
-redis:
-  install: false
 
 nginx-ingress:
   controller:

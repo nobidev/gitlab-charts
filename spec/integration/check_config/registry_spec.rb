@@ -4,38 +4,6 @@ require 'yaml'
 require 'hash_deep_merge'
 
 describe 'checkConfig registry' do
-  describe 'registry.database (PG version)' do
-    let(:success_values) do
-      YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
-        registry:
-          database:
-            enabled: true
-      )).deep_merge!(default_required_values)
-    end
-
-    let(:error_values) do
-      YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 15
-
-        registry:
-          database:
-            enabled: true
-      )).deep_merge!(default_required_values)
-    end
-
-    let(:error_output) { 'PostgreSQL 16 is the minimum required version' }
-
-    include_examples 'config validation',
-                     success_description: 'when postgresql.image.tag is >= 16',
-                     error_description: 'when postgresql.image.tag is < 15'
-  end
-
   describe 'registry.database (sslmode)' do
     let(:success_values) do
       YAML.safe_load(%(

@@ -17,9 +17,6 @@ include:
   AGENT_NAME: "eks134-ci-cluster"
   KUBE_INGRESS_BASE_DOMAIN: "sandbox.eks.helm-charts.win"
   KUBE_NAMESPACE: "eks-helm-charts-win"
-  SKIP_EXTERNAL_VALKEY: "true"
-  SKIP_EXTERNAL_POSTGRESQL: "true"
-  SKIP_EXTERNAL_GARAGE: "true"
 
 create_review_eks134:
   stage: review

@@ -6,13 +6,11 @@ describe 'example configurations' do
 
   Dir["#{root}/examples/**/*.{yaml,yml}"].each do |path|
     it "renders #{path.delete_prefix(root).delete_prefix('/')}", :aggregate_failures do
-      result = Open3.capture3("#{HelmTemplate.helm_template_call(release_name: 'gitlab-examples-test', path: path)} --set certmanager-issuer.email=me@example.com")
+      t = HelmTemplate.new(HelmTemplate.defaults, 'gitlab-examples-test', "-f #{path}")
 
-      stdout, stderr, exit_code = result
-
-      expect(exit_code.to_i).to eq(0), "helm template generated error for #{path}"
-      expect(stdout).to include('name: gitlab-examples-test')
-      expect(stderr).to be_empty
+      expect(t.exit_code.to_i).to eq(0), "helm template generated error for #{path}"
+      expect(t.stdout).to include('name: gitlab-examples-test')
+      expect(t.stderr).to be_empty
     end
   end
 end

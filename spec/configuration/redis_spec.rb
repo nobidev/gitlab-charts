@@ -48,15 +48,15 @@ describe 'Redis configuration' do
 
     context 'custom redis database value' do
       let(:values) do
-        YAML.safe_load(%(
-          global:
-            redis:
-              host: resque.redis
-              port: 6379
-              database: 4
-          redis:
-            install: false
-        )).deep_merge!(default_values)
+        default_values.deep_merge(
+          YAML.safe_load(%(
+            global:
+              redis:
+                host: resque.redis
+                port: 6379
+                database: 4
+            ))
+        )
       end
 
       it 'configures Redis' do
@@ -155,8 +155,6 @@ describe 'Redis configuration' do
                       secret: gitlab-redis-cache-credential-v2
                       key: password
 
-            redis:
-              install: false
           )).deep_merge!(default_values)
         end
 
@@ -207,8 +205,6 @@ describe 'Redis configuration' do
                       enabled: true
                       secret: gitlab-redis-cache-credential-v3
                       key: password
-            redis:
-              install: false
           )).deep_merge!(default_values)
         end
 
@@ -251,8 +247,6 @@ describe 'Redis configuration' do
                       enabled: true
                       secret: gitlab-redis-cluster-chat-cache-rails-credential-v2
                       key: password
-            redis:
-              install: false
           )).deep_merge!(default_values)
         end
 
@@ -299,8 +293,6 @@ describe 'Redis configuration' do
                     secret: gitlab-redis-cache-credentials-v2
                     key: password
 
-          redis:
-            install: false
         )).deep_merge!(default_values)
         end
 
@@ -343,25 +335,7 @@ describe 'Redis configuration' do
       end
     end
 
-    context 'When redis.install is true' do
-      let(:values) do
-        YAML.safe_load(%(
-          global:
-            redis:
-              redisYmlOverride:
-                foo: bar
-          redis:
-            install: true
-        )).deep_merge!(default_values)
-      end
-
-      it 'fails to template (checkConfig)' do
-        t = HelmTemplate.new(values)
-        expect(t.exit_code).not_to eq(0)
-      end
-    end
-
-    context 'when redis.install is false' do
+    context 'when redisYmlOverride is configured' do
       let(:values) do
         YAML.safe_load(%(
           global:
@@ -376,8 +350,6 @@ describe 'Redis configuration' do
                 # ERB should pass through Helm without being evaluated
                 some:
                   password: <%= File.read('/path/to/password').chomp %>
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -395,38 +367,19 @@ describe 'Redis configuration' do
   end
 
   describe 'Split Redis queues' do
-    context 'When redis.install is true' do
-      let(:values) do
-        YAML.safe_load(%(
-          global:
-            redis:
-              host: resque.redis
-              cache:
-                host: cache.redis
-          redis:
-            install: true
-        )).deep_merge!(default_values)
-      end
-
-      it 'fails to template (checkConfig)' do
-        t = HelmTemplate.new(values)
-        expect(t.exit_code).not_to eq(0)
-      end
-    end
-
     context 'When sub-queue does not define password' do
       let(:values) do
-        YAML.safe_load(%(
-          global:
-            redis:
-              host: resque.redis
-              auth:
-                secret: rspec-resque
-              cache:
-                host: cache.redis
-          redis:
-            install: false
-        )).deep_merge!(default_values)
+        default_values.deep_merge(
+          YAML.safe_load(%(
+            global:
+              redis:
+                host: resque.redis
+                auth:
+                  secret: rspec-resque
+                cache:
+                  host: cache.redis
+          ))
+        )
       end
 
       it 'sub-queue inherits all of password from global.redis' do
@@ -455,8 +408,6 @@ describe 'Redis configuration' do
                 host: cache.redis
                 auth:
                   secret: rspec-cache
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -486,8 +437,6 @@ describe 'Redis configuration' do
                 host: cache.redis
                 password:
                   secret: rspec-cache
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -520,8 +469,6 @@ describe 'Redis configuration' do
                 password:
                   enabled: true
                   secret: rspec-cache
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -554,8 +501,6 @@ describe 'Redis configuration' do
                 password:
                   enabled: false
                   secret: rspec-cache
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -586,8 +531,6 @@ describe 'Redis configuration' do
                 secret: rspec-resque
               cache:
                 host: cache.redis
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -601,16 +544,16 @@ describe 'Redis configuration' do
 
     context 'When sub-queue defines port, but not host' do
       let(:values) do
-        YAML.safe_load(%(
-          global:
-            redis:
-              host: resque.redis
-              port: 6379
-              cache:
-                port: 9999
-          redis:
-            install: false
-        )).deep_merge!(default_values)
+        default_values.deep_merge(
+          YAML.safe_load(%(
+            global:
+              redis:
+                host: resque.redis
+                port: 6379
+                cache:
+                  port: 9999
+          ))
+        )
       end
 
       it 'sub-queue uses port, global host' do
@@ -641,8 +584,6 @@ describe 'Redis configuration' do
                   port: 26379
                 - host: s2.cache.redis
                   port: 26379
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -671,8 +612,6 @@ describe 'Redis configuration' do
                   port: 26379
                 - host: s2.cache.redis
                   port: 26379
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -709,8 +648,6 @@ describe 'Redis configuration' do
                 - host: s2.cache.redis
                   port: 26379
                   ssl: false
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -768,8 +705,6 @@ describe 'Redis configuration' do
                   caFile:
                     secret: sentinel-ca
                     key: ca.crt
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -805,8 +740,6 @@ describe 'Redis configuration' do
               - host: s2.resque.redis
                 port: 26379
                 ssl: false
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -834,8 +767,6 @@ describe 'Redis configuration' do
                 cluster:
                 - host: s1.cluster-cache.redis
                 - host: s2.cluster-cache.redis
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -864,8 +795,6 @@ describe 'Redis configuration' do
                 cluster:
                 - host: s1.cluster-cache.redis
                 - host: s2.cluster-cache.redis
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -899,8 +828,6 @@ describe 'Redis configuration' do
                 cluster:
                 - host: s1.cluster-cache.redis
                 - host: s2.cluster-cache.redis
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -928,8 +855,6 @@ describe 'Redis configuration' do
                 cluster:
                 - host: s1.cluster-cache.redis
                 - host: s2.cluster-cache.redis
-          redis:
-            install: false
         )).deep_merge!(default_values)
       end
 
@@ -947,6 +872,7 @@ describe 'Redis configuration' do
     end
   end
 
+<<<<<<< HEAD
   describe 'Generated Kubernetes object names' do
     context 'Helm release name does not include "redis"' do
       it 'Objects are suffixed with "-redis", references match' do
@@ -972,46 +898,44 @@ describe 'Redis configuration' do
         # check resque.yml is pointing to the right service.
         expect(t.dig('ConfigMap/redis-test-toolbox','data','resque.yml.erb')).to include('redis-test-master')
       end
-    end
-  end
 
   describe 'Redis and Sentinel TLS' do
     context 'when both Redis TLS and Sentinel TLS are enabled' do
       let(:values) do
-        YAML.safe_load(%(
-          global:
-            redis:
-              scheme: rediss
-              host: global.host
-              redisTLS:
-                caFile:
-                  secret: redis-ca
-                  key: ca.crt
-                cert:
-                  secret: redis-cert
-                  key: cert
-                key:
-                  secret: redis-key
-                  key: key
-              sentinels:
-              - host: sentinel1.example.com
-                port: 26379
-              - host: sentinel2.example.com
-                port: 26379
-              sentinelTLS:
-                enabled: true
-                caFile:
-                  secret: sentinel-ca
-                  key: ca.crt
-                cert:
-                  secret: sentinel-cert
-                  key: cert
-                key:
-                  secret: sentinel-key
-                  key: key
-          redis:
-            install: false
-        )).deep_merge!(default_values)
+        default_values.deep_merge(
+          YAML.safe_load(%(
+            global:
+              redis:
+                scheme: rediss
+                host: global.host
+                redisTLS:
+                  caFile:
+                    secret: redis-ca
+                    key: ca.crt
+                  cert:
+                    secret: redis-cert
+                    key: cert
+                  key:
+                    secret: redis-key
+                    key: key
+                sentinels:
+                - host: sentinel1.example.com
+                  port: 26379
+                - host: sentinel2.example.com
+                  port: 26379
+                sentinelTLS:
+                  enabled: true
+                  caFile:
+                    secret: sentinel-ca
+                    key: ca.crt
+                  cert:
+                    secret: sentinel-cert
+                    key: cert
+                  key:
+                    secret: sentinel-key
+                    key: key
+          ))
+        )
       end
 
       def render_erb_with_files(raw_template, files)

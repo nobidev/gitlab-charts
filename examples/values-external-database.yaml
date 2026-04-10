@@ -1,7 +1,5 @@
-# This is an example values.yaml. It shows how to set up an external postgresql instead of the in-cluster postgresql provided by default
+# This is an example values.yaml. It shows how to configure an external PostgreSQL database.
 # https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc/advanced/external-db
-postgresql:
-  install: false
 global:
   psql:
     host: production.postgress.hostname.local

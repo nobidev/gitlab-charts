@@ -48,8 +48,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $removals = append $removals (include "gitlab.removal.initContainerImage" .) -}}
 {{- $removals = append $removals (include "external.removal.initContainerImage" .) -}}
 {{- $removals = append $removals (include "external.removal.initContainerPullPolicy" .) -}}
-{{- $removals = append $removals (include "gitlab.removal.redis-ha.enabled" .) -}}
-{{- $removals = append $removals (include "gitlab.removal.redis.enabled" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.gitlab.webservice.service.configuration" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.gitlab.gitaly.serviceName" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.global.psql.pool" .) -}}
@@ -276,24 +274,6 @@ gitlab.{{ $chart }}:
 {{- end -}}
 {{- end -}}
 {{/* END external.removal.initContainerPullPolicy*/}}
-
-{{/* Deprecation behaviors for redis-ha.enabled */}}
-{{- define "gitlab.removal.redis-ha.enabled" -}}
-{{-   if hasKey (index .Values "redis-ha") "enabled" -}}
-redis-ha:
-    The `redis-ha.enabled` has been removed. Redis HA is now implemented by the Redis chart.
-{{-   end -}}
-{{- end -}}
-{{/* END gitlab.removal.redis-ha.enabled */}}
-
-{{/* Deprecation behaviors for redis.enabled */}}
-{{- define "gitlab.removal.redis.enabled" -}}
-{{-   if hasKey .Values.redis "enabled" -}}
-redis:
-    The `redis.enabled` has been removed. Please use `redis.install` to install the Redis service.
-{{-   end -}}
-{{- end -}}
-{{/* END gitlab.removal.redis.enabled */}}
 
 {{- define "gitlab.removal.gitlab.webservice.service.configuration" -}}
 {{-   range $chart := list "gitaly" "gitlab-shell" -}}

@@ -17,23 +17,16 @@ describe 'Database configuration' do
     HelmTemplate.with_defaults(%(
       global:
         psql:
-          host: ''
-          serviceName: ''
           username: ''
           database: ''
           applicationName: nil
           preparedStatements: ''
-          password:
-            secret: ''
-            key: ''
           connectTimeout: nil
           keepalives: nil
           keepalivesIdle: nil
           keepalivesInterval: nil
           keepalivesCount: nil
           tcpUserTimeout: nil
-      postgresql:
-        install: true
     ))
   end
 
@@ -44,10 +37,10 @@ describe 'Database configuration' do
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
         db_config = database_config(t, 'webservice')
         expect(db_config['production'].keys).to contain_exactly('main', 'ci')
-        expect(db_config['production'].dig('main', 'host')).to eq('test-postgresql.default.svc')
+        expect(db_config['production'].dig('main', 'host')).to eq('psql.example.com')
         expect(db_config['production'].dig('main', 'database_tasks')).to eq(true)
 
-        expect(db_config['production'].dig('ci', 'host')).to eq('test-postgresql.default.svc')
+        expect(db_config['production'].dig('ci', 'host')).to eq('psql.example.com')
         expect(db_config['production'].dig('ci', 'database_tasks')).to eq(false)
       end
     end
@@ -153,8 +146,6 @@ describe 'Database configuration' do
                   hosts:
                     - a.sidekiq.global
                     - b.sidekiq.global
-        postgresql: # must disable for load_balancing
-          install: false
       )))
     end
 
@@ -230,9 +221,9 @@ describe 'Database configuration' do
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
         db_config = database_config(t, 'webservice')
         expect(db_config['production'].keys).to contain_exactly('main', 'ci')
-        expect(db_config['production'].dig('main', 'host')).to eq('test-postgresql.default.svc')
+        expect(db_config['production'].dig('main', 'host')).to eq('psql.example.com')
         expect(db_config['production'].dig('main', 'database_tasks')).to eq(true)
-        expect(db_config['production'].dig('ci', 'host')).to eq('test-postgresql.default.svc')
+        expect(db_config['production'].dig('ci', 'host')).to eq('psql.example.com')
         expect(db_config['production'].dig('ci', 'database_tasks')).to eq(false), "since CI shared db/host/port with main:"
       end
 
@@ -294,9 +285,6 @@ describe 'Database configuration' do
                 preparedStatements: false
                 databaseTasks: false
                 applicationName: sec
-
-          postgresql:
-            install: false
         )))
       end
 
@@ -349,7 +337,7 @@ describe 'Database configuration' do
 
         # Check the secret mounts
         webservice_secret_mounts = t.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets').select do |item|
-          item['secret']['items'][0]['key'] == 'postgresql-password'
+          item['secret']['items'][0]['key'] == 'password'
         end
         psql_secret_mounts = webservice_secret_mounts.map { |x| x['secret']['name'] }
         expect(psql_secret_mounts).to contain_exactly('main-password', 'ci-password', 'embedding-password', 'sec-password')
@@ -591,9 +579,9 @@ describe 'Database configuration' do
           expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
           db_config = database_config(t, 'webservice')
           expect(db_config['production'].keys).to contain_exactly('main', 'ci')
-          expect(db_config['production'].dig('main', 'host')).to eq('test-postgresql.default.svc')
+          expect(db_config['production'].dig('main', 'host')).to eq('psql.example.com')
           expect(db_config['production'].dig('main', 'database_tasks')).to eq(true)
-          expect(db_config['production'].dig('ci', 'host')).to eq('test-postgresql.default.svc')
+          expect(db_config['production'].dig('ci', 'host')).to eq('psql.example.com')
           expect(db_config['production'].dig('ci', 'database_tasks')).to eq(false)
         end
       end
@@ -699,9 +687,9 @@ describe 'Database configuration' do
           expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
           db_config = database_config(t, 'webservice')
           expect(db_config['production'].keys).to contain_exactly('main', 'ci')
-          expect(db_config['production'].dig('main', 'host')).to eq('test-postgresql.default.svc')
+          expect(db_config['production'].dig('main', 'host')).to eq('psql.example.com')
           expect(db_config['production'].dig('main', 'database_tasks')).to eq(true)
-          expect(db_config['production'].dig('ci', 'host')).to eq('test-postgresql.default.svc')
+          expect(db_config['production'].dig('ci', 'host')).to eq('psql.example.com')
           expect(db_config['production'].dig('ci', 'database_tasks')).to eq(false)
         end
       end
