@@ -92,35 +92,9 @@ After you set up the external PostgreSQL server:
 > You can use the built-in cloud native metadata database for trial purposes only.
 > You should not use it in production.
 
-### Create the database automatically
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/5931) in GitLab 18.3.
-
-{{</ history >}}
-
-Prerequisites:
-
-- Helm chart 9.3 or later.
-
-New installations that set `postgresql.install=true`
-when installing the GitLab chart, automatically create the registry database,
-username, and shared secret `RELEASE-registry-database-password`.
-
-This automatic provisioning:
-
-- Creates a dedicated `registry` database.
-- Sets up a `registry` user with appropriate permissions.
-- Generates a Kubernetes secret named `RELEASE-registry-database-password` containing the database password.
-- Configures the necessary database schema and permissions.
-
-With automatic database creation, you can skip the manual database creation
-steps and immediately [enable the metadata database](#enable-the-metadata-database).
-
 ### Create the database manually
 
-To manually create the metadata database using the built-in PostgreSQL server:
+To manually create the metadata database on your external PostgreSQL server:
 
 1. Create the secret with the database password:
 

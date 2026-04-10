@@ -44,9 +44,9 @@ helm inspect values gitlab/gitlab
 | `global.image.pullPolicy`                            | _none_ (default behavior is `IfNotPresent`)   | Set default imagePullPolicy for all charts |
 | `global.image.pullSecrets`                           | _none_                                        | Set default imagePullSecrets for all charts (use a list of `name` and value pairs) |
 | `global.minio.enabled`                               | `true`                                        | MinIO enable flag |
-| `global.psql.host`                                   | _Uses in-cluster non-production PostgreSQL_   | Global hostname of an external psql, overrides subcharts' psql configuration |
-| `global.psql.password.key`                           | _Uses in-cluster non-production PostgreSQL_   | Key pointing to the psql password in the psql secret |
-| `global.psql.password.secret`                        | _Uses in-cluster non-production PostgreSQL_   | Global name of the secret containing the psql password |
+| `global.psql.host`                                   | Required                                      | Hostname of the external PostgreSQL instance |
+| `global.psql.password.key`                           | Required                                      | Key pointing to the psql password in the psql secret |
+| `global.psql.password.secret`                        | Required                                      | Global name of the secret containing the psql password |
 | `global.registry.bucket`                             | `registry`                                    | registry bucket name |
 | `global.service.annotations`                         | `{}`                                          | Annotations to add to every `Service` |
 | `global.rails.sessionStore.sessionCookieTokenPrefix` | `""`                                          | Prefix for the generated session cookies |
@@ -244,16 +244,9 @@ Prefix NGINX Ingress values with `nginx-ingress`. For example, set the controlle
 
 See [`nginx-ingress` chart](../charts/nginx/_index.md).
 
-## Advanced in-cluster Redis configuration
+## External Redis configuration
 
-| Parameter                 | Default               | Description |
-|---------------------------|-----------------------|-------------|
-| `redis.install`           | `true`                | Install the `bitnami/redis` chart |
-| `redis.existingSecret`    | `gitlab-redis-secret` | Specify the Secret for Redis servers to use |
-| `redis.existingSecretKey` | `redis-password`      | Secret key where password is stored |
-
-Any additional configuration of the Redis service should use the configuration
-settings from the [Redis chart](https://github.com/bitnami/charts/tree/main/bitnami/redis).
+See [Configure the GitLab chart with an external Redis](../advanced/external-redis/_index.md) for full setup instructions.
 
 ## Advanced registry configuration
 

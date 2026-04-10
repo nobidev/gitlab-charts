@@ -31,26 +31,16 @@ GitLab chart continues to support Helm 3 until its official EOL which is [estima
 
 ### PostgreSQL
 
-For production deployments, set up an [external PostgreSQL instance](../advanced/external-db/_index.md).
+Set up an [external PostgreSQL instance](../advanced/external-db/_index.md).
 
 Check [the GitLab requirements](https://docs.gitlab.com/install/requirements/#postgresql) for
 the supported PostgreSQL versions.
 
-> [!note]
-> The GitLab chart includes a bundled PostgreSQL deployment provided by
-> [`bitnami/PostgreSQL`](https://artifacthub.io/packages/helm/bitnami/postgresql)
-> for evaluation purposes only.
-
 ### Redis
 
-For production deployments, set up an [external Redis instance](../advanced/external-redis/_index.md).
+Set up an [external Redis instance](../advanced/external-redis/_index.md).
 For all the available configuration settings, see the
 [Redis globals documentation](../charts/globals.md#configure-redis-settings).
-
-> [!note]
-> The GitLab chart includes a bundled Redis deployment provided by
-> [`bitnami/Redis`](https://artifacthub.io/packages/helm/bitnami/redis)
-> for evaluation purposes only.
 
 ### Gitaly
 

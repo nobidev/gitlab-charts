@@ -18,8 +18,7 @@ Assuming you already have the [prerequisites](tools.md) installed and configured
 you can [deploy GitLab](deployment.md) with the `helm` command.
 
 > [!note]
-> The GitLab Helm chart requires external PostgreSQL, Redis, and object storage for production deployments.
-> Bundled versions of these services are included for evaluation purposes only.
+> The GitLab Helm chart requires external PostgreSQL, Redis, and object storage.
 > For production, follow the [Cloud Native Hybrid reference architecture](#use-the-reference-architectures).
 
 For a production deployment, you should have strong working knowledge of Kubernetes.
@@ -40,53 +39,19 @@ for simpler alternatives.
 
 The GitLab Helm chart uses the [Cloud Native GitLab (CNG)](https://gitlab.com/gitlab-org/build/CNG)
 container images to deploy GitLab. Besides the CNG images for GitLab itself, the default configuration
-uses images published by third parties (for example, Bitnami) to deploy PostgreSQL, Redis, and MinIO
-to simplify non-production deployments.
+uses MinIO for object storage in non-production deployments.
 
-Production instances should not deploy these (stateful) third party services
-with the GitLab chart as mentioned above.
-
-Refer to the following documentation for instructions on how to configure the chart to
-use external services.
+External PostgreSQL, Redis, and object storage are required. Refer to the following documentation for
+instructions on how to configure the chart to use external services.
 
 1. [External Database](../advanced/external-db/_index.md)
 1. [External Redis](../advanced/external-redis/_index.md)
 1. [External Object Storage](../advanced/external-object-storage/_index.md)
 
-> [!note]
-> Starting in December 2024, [Bitnami changed its build policy](https://github.com/bitnami/containers/issues/75671)
-> to update only the latest stable major version of each application in the free catalog. The GitLab chart
-> will continue to default to publicly available images.
->
-> In July 2025, [Bitnami announced](https://github.com/bitnami/containers/issues/75671) it will require
-> a subscription to Bitnami Secure Images, a paid offering, for users to get access to secure and
-> versioned charts and images.
->
-> As a result, the versions of these Bitnami charts configured by GitLab will fall out of date.
-> Teams that deploy these Bitnami charts for non-production use should take care to use appropriate
-> up-to-date, patched images commensurate with their security requirements.
->
-> From GitLab 19.0, the GitLab Helm chart will no longer bundle the Bitnami charts because of
-> several changes to licensing, project maintenance, and public image availability.
->
-> For more information, see the
-> [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
-> and [migrate](migration/bundled_chart_migration.md) to external alternatives.
-
 ## Configure the Helm chart to use external stateful data
 
-For production-grade deployments, you should configure the chart to point
-to external object storage, Valkey/Redis, PostgreSQL, and Gitaly services that
-match with your selected [reference architecture](https://docs.gitlab.com/administration/reference_architectures/).
-
-For proof-of-concept and testing purposes, the GitLab Helm chart bundles a MinIO, Bitnami
-PostgreSQL, and a Bitnami Redis charts. However, because of several project and licensing
-changes, bundling these charts has been deprecated and is scheduled for removal in
-GitLab 19.0.
-
-For more information, see the
-[deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
-and [migrate](migration/bundled_chart_migration.md) to external alternatives.
+Configure the chart to point to external object storage, Valkey/Redis, PostgreSQL, and Gitaly services
+that match your selected [reference architecture](https://docs.gitlab.com/administration/reference_architectures/).
 
 ### Use the reference architectures
 

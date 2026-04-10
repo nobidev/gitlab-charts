@@ -261,20 +261,6 @@ To fix this, either:
 
 Note that for optional keys, an empty map (`{}`) is a valid value.
 
-## Bundled PostgreSQL pod fails to start: `database files are incompatible with server`
-
-The following error message may appear in the bundled PostgreSQL pod after upgrading to a new version of the GitLab Helm chart:
-
-```plaintext
-gitlab-postgresql FATAL:  database files are incompatible with server
-gitlab-postgresql DETAIL:  The data directory was initialized by PostgreSQL version 11, which is not compatible with this version 12.7.
-```
-
-To address this, perform a [Helm rollback](https://helm.sh/docs/helm/helm_rollback/) to the previous
-version of the chart and then follow the steps in the [upgrade guide](../installation/upgrade.md) to
-upgrade the bundled PostgreSQL version. Once PostgreSQL is properly upgraded, try the GitLab Helm
-chart upgrade again.
-
 ## Bundled NGINX Ingress pod fails to start: `Failed to watch *v1beta1.Ingress`
 
 The following error message may appear in the bundled NGINX Ingress controller pod if running Kubernetes version 1.22 or later:

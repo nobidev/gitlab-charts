@@ -245,7 +245,6 @@ The GitLab global PostgreSQL settings are located under the `global.psql` key.
 global:
   psql:
     host: psql.example.com
-    # serviceName: pgbouncer
     port: 5432
     database: gitlabhq_production
     username: gitlab
@@ -267,8 +266,7 @@ global:
 
 | Name                 |  Type   | Default               | Description |
 |:---------------------|:-------:|:----------------------|:------------|
-| `host`               | String  |                       | The hostname of the PostgreSQL server with the database to use. This can be omitted if using PostgreSQL deployed by this chart. |
-| `serviceName`        | String  |                       | The name of the `service` which is operating the PostgreSQL database. If this is present, and `host` is not, the chart will template the hostname of the service in place of the `host` value. |
+| `host`               | String  |                       | The hostname of the external PostgreSQL server. Required. |
 | `database`           | String  | `gitlabhq_production` | The name of the database to use on the PostgreSQL server. |
 | `password.useSecret` | Boolean | `true`                | Controls whether the password for PostgreSQL is read from a secret or file. |
 | `password.file`      | String  |                       | Defines the path to the file that contains the password for PostgreSQL. Ignored if `password.useSecret` is true |
@@ -400,18 +398,13 @@ global:
 
 The GitLab global Redis settings are located under the `global.redis` key.
 
-By default we use an single, non-replicated Redis instance. If a highly available
-Redis is required, we recommend using an external Redis instance.
-
-You can bring an external Redis instance by setting `redis.install=false`, and
-following our [advanced documentation](../advanced/external-redis/_index.md) for
-configuration.
+An external Redis instance is required. Follow the
+[advanced documentation](../advanced/external-redis/_index.md) to configure it.
 
 ```yaml
 global:
   redis:
     host: redis.example.com
-    serviceName: redis
     database: 7
     port: 6379
     auth:
@@ -426,8 +419,7 @@ global:
 | `connectTimeout` | Integer |         | The number of seconds to wait for a Redis connection. If no value specified, the client defaults to 1 second. |
 | `readTimeout`    | Integer |         | The number of seconds to wait for a Redis read. If no value is specified, the client defaults to 1 second. |
 | `writeTimeout`   | Integer |         | The number of seconds to wait for a Redis write. If no value is specified, the client defaults to 1 second. |
-| `host`           | String  |         | The hostname of the Redis server with the database to use. This can be omitted in lieu of `serviceName`. |
-| `serviceName`    | String  | `redis` | The name of the `service` which is operating the Redis database. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Redis as a part of the overall GitLab chart. |
+| `host`           | String  |         | The hostname of the Redis server. Required when not using `redisYmlOverride`. |
 | `port`           | Integer | `6379`  | The port on which to connect to the Redis server. |
 | `database`       | Integer | `0`     | The database to connect to on the Redis server. |
 | `user`           | String  |         | The user used to authenticate against Redis (Redis 6.0+). |
@@ -437,44 +429,16 @@ global:
 | `scheme`         | String  | `redis` | The URI scheme to be used to generate Redis URLs. Valid values are `redis`, `rediss`, and `tcp`. If using `rediss` (SSL encrypted connection) scheme, the certificate used by the server should be a part of the system's trusted chains. This can be done by adding them to the [custom certificate authorities](#custom-certificate-authorities) list. |
 | `redisTLS`       | Object  |         | TLS configuration for Redis connections. See [Redis TLS configuration](#redis-tls-configuration) below. |
 
-### Configure Redis chart-specific settings
-
-Settings to configure the [Redis chart](https://github.com/bitnami/charts/tree/main/bitnami/redis)
-directly are located under the `redis` key:
-
-```yaml
-redis:
-  install: true
-  image:
-    registry: registry.example.com
-    repository: example/redis
-    tag: x.y.z
-```
-
 ### Redis Sentinel support
 
-The current Redis Sentinel support only supports Sentinels that have
-been deployed separately from the GitLab chart. As a result, the Redis
-deployment through the GitLab chart should be disabled with `redis.install=false`.
-The Kubernetes Secret containing the Redis password will need to be manually created
-before deploying the GitLab chart.
-
-The installation of an HA Redis cluster from the GitLab chart does not
-support using sentinels. If sentinel support is desired, a Redis cluster
-needs to be created separately from the GitLab chart install. This can be
-done inside or outside the Kubernetes cluster.
-
-An issue to track the
-[supporting of sentinels in a GitLab deployed Redis cluster](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1810) has
-been created for tracking purposes.
+The GitLab chart supports connecting to a [Redis Sentinel](https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/)
+cluster. Set `global.redis.host` to the Sentinel master name (as specified in `sentinel.conf`)
+and list the Sentinel nodes under `global.redis.sentinels`.
 
 ```yaml
-redis:
-  install: false
 global:
   redis:
     host: redis.example.com
-    serviceName: redis
     port: 6379
     sentinels:
       - host: sentinel1.example.com
@@ -505,12 +469,9 @@ continue to apply with the Sentinel support unless re-specified in the table abo
 {{< /history >}}
 
 ```yaml
-redis:
-  install: false
 global:
   redis:
     host: redis.example.com
-    serviceName: redis
     port: 6379
     sentinels:
       - host: sentinel1.example.com
@@ -569,8 +530,6 @@ The only exception is for the [GitLab agent server (KAS)](gitlab/kas/_index.md),
 For example:
 
 ```yaml
-redis:
-  install: false
 global:
   redis:
     host: redis.example
@@ -689,7 +648,7 @@ To connect to Redis with SSL:
 
    This configuration is required because [Redis defaults to mutual TLS](https://redis.io/docs/latest/operate/oss_and_stack/management/security/encryption/), which not all chart components support.
 
-1. Follow Bitnami's [steps to enable TLS](https://github.com/bitnami/charts/tree/main/bitnami/redis#securing-traffic-using-tls). Make sure the chart components trust the certificate authority used to create Redis certificates.
+1. Configure TLS on your external Redis server and make sure the chart components trust the certificate authority used to create Redis certificates.
 1. Optional. If you use a custom certificate authority, see the [Custom Certificate Authorities](#custom-certificate-authorities) global configuration.
 
 ### Redis TLS configuration
@@ -774,8 +733,6 @@ global:
     auth:
       enabled: false
     host: ${REDIS_PRIVATE_IP}
-redis:
-  enabled: false
 ```
 
 ## Configure Registry settings

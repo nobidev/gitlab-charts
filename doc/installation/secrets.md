@@ -334,40 +334,6 @@ kubectl create secret generic <name>-postgresql-password \
 
 This secret is referenced by the `global.psql.password.secret` setting.
 
-#### Changing the PostgreSQL password for the bundled PostgreSQL subchart
-
-> [!note]
-> The bundled PostgreSQL subchart is provided for evaluation purposes only.
-> For production, use an [external PostgreSQL instance](../advanced/external-db/_index.md).
-
-The bundled PostgreSQL subchart only configures the database with the passwords from the secret when the database is initially created.
-Additional steps need to be taken to change the passwords in an existing database.
-
-Please note this operation will be disruptive to users while the change is being made.
-
-To rotate the PostgreSQL secret:
-
-1. Complete the general [rotating secrets](#rotating-secrets) instructions for the PostgreSQL secret.
-1. Exec into the PostgreSQL pod and update the passwords in the database:
-
-   ```shell
-   # Exec into the PostgreSQL pod
-   kubectl exec -it <name>-postgresql-0 -- sh
-
-   # Inside the pod, update the passwords in the database
-   sed -i 's/^\(local .*\)md5$/\1trust/' /opt/bitnami/postgresql/conf/pg_hba.conf
-   pg_ctl reload ; sleep 1
-   echo "ALTER USER postgres WITH PASSWORD '$(echo $POSTGRES_POSTGRES_PASSWORD)' ; ALTER USER gitlab WITH PASSWORD '$(echo $POSTGRES_PASSWORD)' ; ALTER USER registry WITH PASSWORD '$(echo $REGISTRY_POSTGRES_PASSWORD)'" | psql -U postgres -d gitlabhq_production -f -
-   sed -i 's/^\(local .*\)trust$/\1md5/' /opt/bitnami/postgresql/conf/pg_hba.conf
-   pg_ctl reload
-   ```
-
-   **Note**: The registry user password update is only needed if you have the [registry metadata database](../charts/registry/metadata_database.md) feature enabled. If the registry user doesn't exist, the `ALTER USER registry` command will produce an error but won't affect the other password updates.
-
-1. Delete the `gitlab-exporter`, `postgresql`, `toolbox`, `sidekiq`, `webservice`, and `registry` pods using the `kubectl delete pod`
-   command so the new pods are loaded with the new secret and allow them to connect to the
-   database.
-
 ### GitLab Pages secret
 
 Generate the GitLab Pages secret. This must have a length of 32 characters and
@@ -641,6 +607,5 @@ The secrets can be rotated if required for security purposes.
    names are documented under each respective secret in the [manual secret creation](#manual-secret-creation-optional)
    section.
 1. Upgrade the GitLab chart release with the updated `values.yaml` file.
-1. If you are rotating the PostgreSQL secret, there are [additional steps to complete the rotation](#changing-the-postgresql-password-for-the-bundled-postgresql-subchart).
 1. Confirm that GitLab is working as expected. If it is, it should be safe to delete the
    old secrets.

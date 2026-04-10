@@ -109,7 +109,6 @@ to the `helm install` command using the `--set` flags:
 | `psql.password.key`                                      | `psql-password`                                              | key to psql password in psql secret |
 | `psql.password.secret`                                   | `gitlab-postgres`                                            | psql password secret |
 | `psql.port`                                              |                                                              | Set PostgreSQL server port. Takes precedence over `global.psql.port` |
-| `redis.serviceName`                                      | `redis`                                                      | Redis service name |
 | `resources.requests.cpu`                                 | `900m`                                                       | Sidekiq minimum needed CPU |
 | `resources.requests.memory`                              | `2G`                                                         | Sidekiq minimum needed memory |
 | `resources.limits.memory`                                |                                                              | Sidekiq maximum allowed memory |
@@ -355,27 +354,18 @@ redis:
 
 | Name                |  Type   | Default | Description |
 |:--------------------|:-------:|:--------|:------------|
-| `host`              | String  |         | The hostname of the Redis server with the database to use. This can be omitted in lieu of `serviceName`. If using Redis Sentinels, the `host` attribute needs to be set to the cluster name as specified in the `sentinel.conf`. |
+| `host`              | String  |         | The hostname of the Redis server with the database to use. If using Redis Sentinels, the `host` attribute needs to be set to the cluster name as specified in the `sentinel.conf`. |
 | `password.key`      | String  |         | The `password.key` attribute for Redis defines the name of the key in the secret (below) that contains the password. |
 | `password.secret`   | String  |         | The `password.secret` attribute for Redis defines the name of the Kubernetes `Secret` to pull from. |
 | `port`              | Integer | `6379`  | The port on which to connect to the Redis server. |
-| `serviceName`       | String  | `redis` | The name of the `service` which is operating the Redis database. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Redis as a part of the overall GitLab chart. |
 | `sentinels.[].host` | String  |         | The hostname of Redis Sentinel server for a Redis HA setup. |
 | `sentinels.[].port` | Integer | `26379` | The port on which to connect to the Redis Sentinel server. |
-
-> [!note]
-> The current Redis Sentinel support only supports Sentinels that have
-> been deployed separately from the GitLab chart. As a result, the Redis
-> deployment through the GitLab chart should be disabled with `redis.install=false`.
-> The Secret containing the Redis password needs to be manually created
-> before deploying the GitLab chart.
 
 ### PostgreSQL
 
 ```yaml
 psql:
   host: rank-racoon-psql
-  serviceName: pgbouncer
   port: 5432
   database: gitlabhq_production
   username: gitlab
@@ -387,8 +377,7 @@ psql:
 
 | Name                 |  Type   | Default               | Description |
 |:---------------------|:-------:|:----------------------|:------------|
-| `host`               | String  |                       | The hostname of the PostgreSQL server with the database to use. This can be omitted if `postgresql.install=true` (default non-production). |
-| `serviceName`        | String  |                       | The name of the `service` which is operating the PostgreSQL database. If this is present, and `host` is not, the chart will template the hostname of the service in place of the `host` value. |
+| `host`               | String  |                       | The hostname of the PostgreSQL server with the database to use. |
 | `database`           | String  | `gitlabhq_production` | The name of the database to use on the PostgreSQL server. |
 | `password.key`       | String  |                       | The `password.key` attribute for PostgreSQL defines the name of the key in the secret (below) that contains the password. |
 | `password.secret`    | String  |                       | The `password.secret` attribute for PostgreSQL defines the name of the Kubernetes `Secret` to pull from. |

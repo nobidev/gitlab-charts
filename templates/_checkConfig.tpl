@@ -67,6 +67,9 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{/* _checkConfig_openbao.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.openbao.database" .) -}}
 
+{{/* _checkConfig_redis.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.redis" .) -}}
+
 {{/* _checkConfig_postgresql.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.postgresql" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.postgresql.noPasswordFile" .) -}}
@@ -124,7 +127,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.kas.autoflowTemporalWorkerMtls" .) -}}
 
 {{/* other checks */}}
-{{- $messages = append $messages (include "gitlab.checkConfig.hostWhenNoInstall" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sentry" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.gitlab_docs" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.smtp.openssl_verify_mode" .) -}}
