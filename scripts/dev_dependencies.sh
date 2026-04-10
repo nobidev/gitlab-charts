@@ -20,10 +20,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${SCRIPT_DIR}/.."
 VALUES_DIR="${PROJECT_ROOT}/.values"
 
+# Source CI library functions for shared logic and naming conventions.
+# shellcheck source=scripts/ci/lib/helpers.sh
+source "${SCRIPT_DIR}/ci/lib/helpers.sh"
+# shellcheck source=scripts/ci/lib/valkey.sh
+source "${SCRIPT_DIR}/ci/lib/valkey.sh"
+# shellcheck source=scripts/ci/lib/cloudnativepg.sh
+source "${SCRIPT_DIR}/ci/lib/cloudnativepg.sh"
+# shellcheck source=scripts/ci/lib/garage.sh
+source "${SCRIPT_DIR}/ci/lib/garage.sh"
+
 NAMESPACE="${NAMESPACE:-gitlab}"
-VALKEY_RELEASE="dev-valkey"
-CNPG_RELEASE="dev-cnpg"
-CNPG_CLUSTER="dev-cluster"
 GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.2.0}"
 CNPG_POSTGRESQL_TAG="${CNPG_POSTGRESQL_TAG:-17}"
 
@@ -59,6 +66,7 @@ function ensure_valkey_password() {
 }
 
 # Valkey
+# Uses a dev-specific setup to persist data across restarts and save the password to a state file.
 
 function setup_valkey() {
   echo "==> Setting up Valkey..."
@@ -66,10 +74,11 @@ function setup_valkey() {
 
   helm repo add valkey https://valkey.io/valkey-helm/ --force-update > /dev/null
 
-  helm upgrade --install "${VALKEY_RELEASE}" valkey/valkey \
+  helm upgrade --install "$(valkey_release_name)" valkey/valkey \
     --namespace "${NAMESPACE}" \
     --set dataStorage.enabled=true \
     --set dataStorage.size=2Gi \
+    --set dataStorage.keepPvc=true \
     --set metrics.enabled=true \
     --set auth.enabled=true \
     --set "auth.aclUsers.default.permissions=~* &* +@all" \
@@ -80,101 +89,9 @@ function setup_valkey() {
   echo "    Valkey ready."
 }
 
-function teardown_valkey() {
-  echo "    Removing Valkey..."
-  helm uninstall "${VALKEY_RELEASE}" --namespace "${NAMESPACE}" --ignore-not-found 2>/dev/null || true
-}
-
-# CloudNativePG
-
-function setup_cnpg() {
-  echo "==> Setting up CloudNativePG operator..."
-
-  helm repo add cnpg https://cloudnative-pg.github.io/charts --force-update > /dev/null
-
-  helm upgrade --install "${CNPG_RELEASE}" cnpg/cloudnative-pg \
-    --namespace "${NAMESPACE}" \
-    --set config.clusterWide=false \
-    --wait \
-    --hide-notes
-
-  echo "==> Creating PostgreSQL cluster (${CNPG_CLUSTER})..."
-
-  # Retry the apply because the CNPG webhook may not be ready immediately after operator install.
-  # See https://github.com/cloudnative-pg/charts/issues/674
-  local applied=0
-  for i in $(seq 1 10); do
-    if cat <<EOF | kubectl apply --namespace "${NAMESPACE}" -f -
-apiVersion: postgresql.cnpg.io/v1
-kind: Cluster
-metadata:
-  name: "${CNPG_CLUSTER}"
-  namespace: "${NAMESPACE}"
-spec:
-  instances: 1
-  imageName: "ghcr.io/cloudnative-pg/postgresql:${CNPG_POSTGRESQL_TAG}"
-  storage:
-    size: 5Gi
-  postgresql:
-    parameters:
-      max_connections: "200"
-      shared_buffers: "256MB"
-  bootstrap:
-    initdb:
-      database: gitlabhq_production
-      owner: gitlab
-      postInitSQL:
-        - CREATE EXTENSION IF NOT EXISTS pg_trgm;
-        - CREATE EXTENSION IF NOT EXISTS btree_gist;
-        - CREATE EXTENSION IF NOT EXISTS plpgsql;
-        - CREATE EXTENSION IF NOT EXISTS amcheck;
-        - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
-EOF
-    then
-      applied=1
-      break
-    fi
-    echo "    Webhook not ready yet, retrying (${i}/10)..."
-    sleep 10
-  done
-
-  if [ "${applied}" -eq 0 ]; then
-    echo "ERROR: Failed to apply PostgreSQL cluster after 10 attempts."
-    exit 1
-  fi
-
-  # Retry waiting because the webhook may not be ready immediately after install.
-  echo "    Waiting for PostgreSQL cluster to be ready (this may take a few minutes)..."
-  local ready=0
-  for i in $(seq 1 10); do
-    if kubectl wait --timeout 30s --for=condition=Ready \
-        --namespace "${NAMESPACE}" "clusters/${CNPG_CLUSTER}" 2>/dev/null; then
-      ready=1
-      break
-    fi
-    echo "    Not ready yet, retrying (${i}/10)..."
-    sleep 10
-  done
-
-  if [ "${ready}" -eq 0 ]; then
-    echo "ERROR: PostgreSQL cluster did not become ready in time."
-    kubectl get clusters --namespace "${NAMESPACE}"
-    exit 1
-  fi
-
-  echo "    CloudNativePG cluster ready."
-}
-
-function teardown_cnpg() {
-  echo "    Removing CloudNativePG cluster..."
-  kubectl delete --namespace "${NAMESPACE}" --wait --ignore-not-found=true \
-    "cluster/${CNPG_CLUSTER}" 2>/dev/null || true
-
-  echo "    Removing CloudNativePG operator..."
-  helm uninstall "${CNPG_RELEASE}" --namespace "${NAMESPACE}" --ignore-not-found 2>/dev/null || true
-}
-
 # Garage (object storage)
+# Uses a dev-specific setup to enable persistent storage (not needed in CI).
+# Teardown also removes PVCs created by the persistent volumes.
 
 function setup_garage() {
   echo "==> Setting up Garage (object storage)..."
@@ -323,22 +240,6 @@ EOF
   echo "    Garage ready."
 }
 
-function teardown_garage() {
-  echo "    Removing Garage..."
-  helm uninstall garage --namespace "${NAMESPACE}" --ignore-not-found 2>/dev/null || true
-
-  kubectl delete pvc \
-    --namespace "${NAMESPACE}" \
-    -l app.kubernetes.io/name=garage \
-    --ignore-not-found 2>/dev/null || true
-
-  kubectl delete secret \
-    gitlab-object-storage \
-    gitlab-object-storage-s3cmd \
-    gitlab-registry-storage \
-    --namespace "${NAMESPACE}" --ignore-not-found 2>/dev/null || true
-}
-
 # Values file
 
 function generate_values_file() {
@@ -354,14 +255,14 @@ redis:
 
 global:
   redis:
-    host: "${VALKEY_RELEASE}"
+    host: "$(valkey_release_name)"
     auth:
-      secret: "${VALKEY_RELEASE}-auth"
+      secret: "$(valkey_release_name)-auth"
       key: default-password
   psql:
-    host: "${CNPG_CLUSTER}-rw"
+    host: "$(cnpg_cluster_host)"
     password:
-      secret: "${CNPG_CLUSTER}-app"
+      secret: "$(cnpg_cluster_secret)"
       key: password
   minio:
     enabled: false
@@ -423,7 +324,12 @@ function cmd_setup() {
   check_prerequisites
   ensure_namespace
   setup_valkey
-  setup_cnpg
+
+  echo "==> Setting up CloudNativePG..."
+  install_cnpg_operator
+  deploy_external_postgresql
+  echo "    CloudNativePG cluster ready."
+
   setup_garage
   generate_values_file
 
@@ -447,9 +353,22 @@ function cmd_setup() {
 function cmd_teardown() {
   echo "Removing external dependencies from namespace '${NAMESPACE}'..."
   echo ""
-  teardown_valkey
-  teardown_cnpg
-  teardown_garage
+  echo "    Removing Valkey..."
+  remove_external_valkey
+
+  echo "    Removing CloudNativePG cluster..."
+  remove_external_postgres
+  # remove_external_postgres only uninstalls the operator in vcluster CI deployments.
+  # Always remove it in the local dev context.
+  echo "    Removing CloudNativePG operator..."
+  helm uninstall "$(cnpg_release_name)" --namespace "${NAMESPACE}" --ignore-not-found 2>/dev/null || true
+
+  echo "    Removing Garage..."
+  remove_external_garage
+  kubectl delete pvc \
+    --namespace "${NAMESPACE}" \
+    -l app.kubernetes.io/name=garage \
+    --ignore-not-found 2>/dev/null || true
   echo ""
   echo "==> External dependencies removed."
   echo ""
@@ -461,24 +380,24 @@ function cmd_status() {
   echo "External dependency status in namespace '${NAMESPACE}':"
   echo ""
 
-  echo "--- Valkey (${VALKEY_RELEASE}) ---"
+  echo "--- Valkey ($(valkey_release_name)) ---"
   kubectl get deployment \
     --namespace "${NAMESPACE}" \
-    -l "app.kubernetes.io/instance=${VALKEY_RELEASE}" 2>/dev/null \
+    -l "app.kubernetes.io/instance=$(valkey_release_name)" 2>/dev/null \
     || echo "  Not found"
 
   echo ""
-  echo "--- CloudNativePG operator (${CNPG_RELEASE}) ---"
+  echo "--- CloudNativePG operator ($(cnpg_release_name)) ---"
   kubectl get deployment \
     --namespace "${NAMESPACE}" \
-    -l "app.kubernetes.io/instance=${CNPG_RELEASE}" 2>/dev/null \
+    -l "app.kubernetes.io/instance=$(cnpg_release_name)" 2>/dev/null \
     || echo "  Not found"
 
   echo ""
-  echo "--- PostgreSQL cluster (${CNPG_CLUSTER}) ---"
+  echo "--- PostgreSQL cluster ($(cnpg_cluster_name)) ---"
   kubectl get cluster \
     --namespace "${NAMESPACE}" \
-    "${CNPG_CLUSTER}" 2>/dev/null \
+    "$(cnpg_cluster_name)" 2>/dev/null \
     || echo "  Not found"
 
   echo ""
