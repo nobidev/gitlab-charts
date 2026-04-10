@@ -50,10 +50,8 @@
 
 .vcluster_specs_template:
   extends:
-    - .specs
+    - .review_specs
     - .vcluster_base
-  variables:
-    RSPEC_TAGS: type:feature
   before_script:
     - source scripts/ci/autodevops.sh
     - source scripts/ci/vcluster.sh
@@ -63,6 +61,3 @@
     - set_context
     - vcluster_run kubectl version --output=json
     - vcluster_run ./scripts/ci/run_specs.sh
-  rules:
-    - !reference [.rule:skip_if_no_cluster]
-    - !reference [.specs, rules]

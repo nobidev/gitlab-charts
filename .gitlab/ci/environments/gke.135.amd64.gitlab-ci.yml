@@ -53,19 +53,15 @@ stop_review_gke135:
     action: stop
 
 review_specs_gke135:
-  extends: .specs
+  extends: .review_specs
   variables:
     <<: *review_gke135_common_vars
     VARIABLES_FILE: "variables/review_gke135"
-    RSPEC_TAGS: type:feature
   environment:
     name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
     on_stop: stop_review_gke135
     action: access
-  rules:
-    - !reference [.rule:skip_if_no_cluster]
-    - !reference [.specs, rules]
   needs: ["review_gke135"]
 
 qa_gke135:
