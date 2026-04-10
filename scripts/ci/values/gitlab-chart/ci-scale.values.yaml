@@ -1,18 +1,10 @@
 gitlab:
   webservice:
     minReplicas: 1    # 2
-    maxReplicas: 3    # 10
-    resources:
-      requests:
-        cpu: 500m     # 900m
-        memory: 1500M # 2.5G
+    maxReplicas: 1    # 10
   sidekiq:
     minReplicas: 1    # 1
-    maxReplicas: 2    # 10
-    resources:
-      requests:
-        cpu: 500m     # 900m
-        memory: 1000M # 2G
+    maxReplicas: 1    # 10
   gitlab-shell:
     minReplicas: 1    # 2
     maxReplicas: 2    # 10
