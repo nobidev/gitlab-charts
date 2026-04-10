@@ -17,7 +17,6 @@ include:
   - .vcluster_base
   variables:
     VCLUSTER_K8S_VERSION: "v1.33.0"
-    VCLUSTER_NAME: "v133-${REVIEW_REF_PREFIX}${CI_COMMIT_SHORT_SHA}"
     HOST_SUFFIX: "${CI_ENVIRONMENT_SLUG}-vc133"
     # the VARIABLES_FILE value is from the CI_JOB_NAME of the review job
     VARIABLES_FILE: "variables/review_v133"

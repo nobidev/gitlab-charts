@@ -17,7 +17,6 @@ include:
   - .vcluster_base
   variables:
     VCLUSTER_K8S_VERSION: "v1.35.0"
-    VCLUSTER_NAME: "flux-${REVIEW_REF_PREFIX}${CI_COMMIT_SHORT_SHA}"
     HOST_SUFFIX: "${CI_ENVIRONMENT_SLUG}-flux"
     # the VARIABLES_FILE value is from the CI_JOB_NAME of the review job
     VARIABLES_FILE: "variables/review_flux"

@@ -5,6 +5,7 @@
     KUBE_INGRESS_BASE_DOMAIN: "cloud-native-vcluster.helm-charts.win"
     KUBE_NAMESPACE: "default"
     NAMESPACE: "${KUBE_NAMESPACE}"
+    VCLUSTER_NAME: "rvw-${CI_PIPELINE_ID}"
 
 .vcluster_review_template:
   extends:
