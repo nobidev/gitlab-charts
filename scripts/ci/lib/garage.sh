@@ -78,11 +78,11 @@ function deploy_external_garage() {
         fi
     done
 
-  keylist=$(kubectl exec -n "$NAMESPACE" "$POD" -- ./garage key list 2>&1)
-  if echo "$keylist" | awk '{print $2}' | grep -qx "gitlab-app-key"; then
-    echo "GitLab key already exists."
-    return
-  fi
+    keylist=$(kubectl exec -n "${NAMESPACE}" "${GARAGE_POD}" -- /garage key list 2>&1)
+    if echo "$keylist" | awk '{print $2}' | grep -qx "gitlab-app-key"; then
+        echo "GitLab key already exists."
+        return
+    fi
 
     # create API key and capture credentials, or should we use create_password instead?
     local KEY_OUTPUT
