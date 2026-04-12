@@ -164,16 +164,15 @@ The optional: true on the volume source handles the "secret not found" case grac
 Pattern matches toolbox.registry.database.password.secret.
 */}}
 {{- define "toolbox.openbao.database.password.secret" -}}
-{{- $obaPsql := ((.Values.global).openbao).psql | default dict -}}
-{{- dig "password" "secret" "" $obaPsql | default (printf "%s-toolbox-openbao-database-password" .Release.Name) -}}
+{{- $fallback := printf "%s-toolbox-openbao-database-password" .Release.Name }}
+{{- ((((.Values.global).openbao).psql).password).secret | default $fallback -}}
 {{- end -}}
 
 {{/*
 Return the secret key for toolbox openbao database password
 */}}
 {{- define "toolbox.openbao.database.password.key" -}}
-{{- $obaPsql := ((.Values.global).openbao).psql | default dict -}}
-{{- dig "password" "key" "password" $obaPsql | default "password" -}}
+{{- ((((.Values.global).openbao).psql).password).key | default "password" -}}
 {{- end -}}
 
 {{/*
