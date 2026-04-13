@@ -17,7 +17,5 @@ spec:
       name: {{ .Release.Name }}-gateway-acme-key
     solvers:
       - http01:
-          gatewayHTTPRoute:
-            parentRefs:
-              {{- include "gitlab.gatewayApi.gatewayRef" . | nindent 14 }}
+          gatewayHTTPRoute: {}
 {{- end }}
