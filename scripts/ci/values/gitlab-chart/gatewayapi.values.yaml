@@ -1,15 +1,3 @@
-nginx-ingress:
-  enabled: false
-
-global:
-  ingress:
-    enabled: false
-    configureCertmanager: false
-  gatewayApi:
-    enabled: true
-    installEnvoy: true
-    configureCertmanager: false
-
 gatewayApiResources:
   gateway:
     listeners:

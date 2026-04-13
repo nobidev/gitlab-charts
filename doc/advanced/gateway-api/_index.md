@@ -5,23 +5,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Configure Gateway API and Envoy Gateway extensions
 ---
 
-{{< details >}}
-
-- Status: Beta
-
-{{< /details >}}
-
-> [!warning]
-> Gateway API support is currently under active development. Please be aware that:
->
-> 1. Complete validation across all deployment scenarios has not yet been fully verified.
-> 1. Configuration values and default settings for Gateway API features are subject to change without notice.
-> 1. The Gateway API resources are currently only tested with [Envoy Gateway](https://gateway.envoyproxy.io/).
->    Other Gateway API controllers might need additional configuration.
->
-> For more information, see [work item 5](https://gitlab.com/groups/gitlab-com/gl-infra/software-delivery/operate/-/work_items/5).
-
 GitLab chart supports Gateway API and bundles [Envoy Gateway](https://gateway.envoyproxy.io/) as one available provider.
+Since GitLab 19.0, GitLab chart defaults to Gateway API with the bundled Envoy Gateway chart. NGINX Ingress is deprecated
+but remains available until its full removal in GitLab 20.0.
 
 ## Global configuration
 

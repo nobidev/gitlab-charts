@@ -75,3 +75,7 @@ function use_external_garage() {
 function common_openshift_values() {
   echo "--set podSecurityContext.fsGroup=null --set podSecurityContext.runAsUser=null --set podSecurityContext.runAsGroup=null"
 }
+
+function use_nginx_ingress() {
+  [[ "${USE_NGINX_INGRESS}" == "true" ]]
+}
