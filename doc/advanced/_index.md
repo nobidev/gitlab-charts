@@ -10,7 +10,7 @@ title: Advanced configuration
 - Using an [external Gitaly](external-gitaly/_index.md)
 - Using an [external GitLab Pages instance](external-gitlab-pages/_index.md)
 - Using an [external Mattermost](external-mattermost/_index.md)
-- Using your own [NGINX Ingress Controller](external-nginx/_index.md)
+- Using your own [NGINX Ingress Controller](external-ingress/_index.md)
 - Using an [external object storage](external-object-storage/_index.md)
 - Using an [external Redis](external-redis/_index.md)
 - Using [FIPS-compliant images](fips/_index.md)
