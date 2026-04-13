@@ -269,9 +269,9 @@ helm get values gitlab > values.yml
 When doing a one-step import, be aware that:
 
 - The registry must remain in `read-only` mode during the import.
-- If the Pod where the import is being executed is terminated,
-  you have to completely restart the process. The work to improve this process is tracked in
-  [issue 5293](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/5293).
+- If the pod where the import is being executed is terminated,
+  you can resume the import without starting over.
+  See [Resume interrupted imports](#resume-interrupted-imports).
 
 To import existing container registry to the metadata database in one step:
 
@@ -377,10 +377,9 @@ To import in three steps, you must:
 For larger instances, this process can take hours or even days to complete, depending
 on the size of your registry. You can still use the registry during this process.
 
-> [!warning]
-> It is [not yet possible](https://gitlab.com/gitlab-org/container-registry/-/issues/1162)
-> to restart the import, so it's important to let the import run to completion.
-> If you must halt the operation, you have to restart this step.
+> [!note]
+> If the import is interrupted, you can resume it without starting over.
+> See [Resume interrupted imports](#resume-interrupted-imports).
 
 1. Find the `registry:` section in the `values.yml` file and add the `database` section.
    Set:
@@ -535,6 +534,42 @@ cd ~
 ```
 
 After the command completes successfully, the registry is now fully migrated to the database!
+
+#### Resume interrupted imports
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/container-registry/-/issues/1162) in GitLab 18.5.
+
+{{< /history >}}
+
+You can resume an interrupted one-step or three-step import without starting
+over. The `--pre-import-skip-recent` flag skips repositories that were
+pre-imported in a given time period. The default is 72 hours.
+
+To resume an interrupted import, add `--pre-import-skip-recent` to your import
+command. For example, to resume a three-step import at step one:
+
+```shell
+cd ~
+/usr/bin/registry database import --step-one --pre-import-skip-recent 72h /etc/docker/registry/config.yml
+```
+
+To customize the skip duration:
+
+- Skip repositories imported in the last 6 hours:
+
+  ```shell
+  /usr/bin/registry database import --step-one --pre-import-skip-recent 6h /etc/docker/registry/config.yml
+  ```
+
+- Disable skipping (re-import everything):
+
+  ```shell
+  /usr/bin/registry database import --step-one --pre-import-skip-recent 0 /etc/docker/registry/config.yml
+  ```
+
+For valid duration units, see [Go duration strings](https://pkg.go.dev/time#ParseDuration).
 
 ## Backup and restore
 
