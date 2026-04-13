@@ -49,6 +49,8 @@ gitlab:
       objectStorage:
         backend: s3
         config: {}
+      registry:
+        database: {}
     databaseReindex:
       cron:
         enabled: false
@@ -118,6 +120,11 @@ gitlab:
 | `backups.objectStorage.config.gcpProject`                | `""`                                                         | GCP Project to use when backend is `gcs` |
 | `backups.objectStorage.config.key`                       | `""`                                                         | Key containing credentials in secret |
 | `backups.objectStorage.config.secret`                    | `""`                                                         | Object storage credentials secret |
+| `backups.registry.database.backupUser`                   |                                                              | Username for the registry metadata database connection during backups |
+| `backups.registry.database.restoreUser`                  |                                                              | Username for the registry metadata database connection during restores |
+| `backups.registry.database.password.secret`              | `RELEASE-toolbox-registry-database-password`                 | Name of the Kubernetes secret containing the registry database password for backup and restore |
+| `backups.registry.database.password.backupPasswordKey`   | `backupPassword`                                             | Key within the secret that contains the backup database password |
+| `backups.registry.database.password.restorePasswordKey`  | `restorePassword`                                            | Key within the secret that contains the restore database password |
 | `databaseReindex.cron.enabled`                           | `false`                                                      | Indicates whether the database reindexing CronJob is enabled |
 | `common.labels`                                          | `{}`                                                         | Supplemental labels that are applied to all objects created by this chart. |
 | `deployment.strategy`                                    | `{ type: 'Recreate' }`                                       | Allows one to configure the update strategy utilized by the deployment |
@@ -174,6 +181,90 @@ Information concerning configuring backups in the
 information about the technical implementation of how the backups are
 performed can be found in the
 [backup and restore architecture documentation](../../../architecture/backup-restore.md).]
+
+### Registry metadata database credentials
+
+If you use the [container registry metadata database](../../registry/metadata_database.md),
+you can configure the Toolbox to receive registry database connection details
+for backup and restore operations. The connection parameters (host, port,
+database name, SSL settings) are sourced automatically from the registry
+chart's `ConfigMap`. You only need to supply the database usernames and
+password secret in the Toolbox values:
+
+```yaml
+gitlab:
+  toolbox:
+    backups:
+      registry:
+        database:
+          backupUser: registry_backup
+          restoreUser: registry_restore
+          password:
+            secret: gitlab-toolbox-registry-database-password
+            backupPasswordKey: backupPassword
+            restorePasswordKey: restorePassword
+```
+
+The default secret name is `RELEASE-toolbox-registry-database-password`, where
+`RELEASE` is replaced by the Helm release name (usually `gitlab`). Create the
+Kubernetes secret before deploying:
+
+```shell
+kubectl create secret generic <RELEASE>-toolbox-registry-database-password \
+  --from-literal=backupPassword=<backup_password> \
+  --from-literal=restorePassword=<restore_password>
+```
+
+The credentials are mounted into the Toolbox pod at
+`/etc/gitlab/registry-db/` and are available in both the long-running
+Toolbox deployment and the backup CronJob.
+
+#### Required database permissions
+
+The backup and restore users require different privilege levels on the
+registry metadata database. When using the bundled PostgreSQL with
+Linux package (Omnibus), these users and permissions are created
+automatically. For external PostgreSQL, create the users manually.
+
+The **backup user** needs read-only access for `pg_dump`:
+
+```sql
+-- Create the backup user
+CREATE ROLE registry_backup WITH LOGIN PASSWORD '<backup_password>'
+  NOINHERIT NOCREATEDB NOSUPERUSER NOREPLICATION;
+
+-- The partitions schema must exist (created by registry migrations)
+-- Grant connect and read-only privileges
+GRANT CONNECT ON DATABASE registry TO registry_backup;
+
+GRANT USAGE ON SCHEMA public TO registry_backup;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO registry_backup;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO registry_backup;
+ALTER DEFAULT PRIVILEGES FOR ROLE registry IN SCHEMA public
+  GRANT SELECT ON TABLES TO registry_backup;
+ALTER DEFAULT PRIVILEGES FOR ROLE registry IN SCHEMA public
+  GRANT SELECT ON SEQUENCES TO registry_backup;
+
+GRANT USAGE ON SCHEMA partitions TO registry_backup;
+GRANT SELECT ON ALL TABLES IN SCHEMA partitions TO registry_backup;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA partitions TO registry_backup;
+ALTER DEFAULT PRIVILEGES FOR ROLE registry IN SCHEMA partitions
+  GRANT SELECT ON TABLES TO registry_backup;
+ALTER DEFAULT PRIVILEGES FOR ROLE registry IN SCHEMA partitions
+  GRANT SELECT ON SEQUENCES TO registry_backup;
+```
+
+The `ALTER DEFAULT PRIVILEGES` statements ensure the backup user
+automatically receives `SELECT` on any tables or sequences the registry
+owner (`registry`) creates in the future.
+
+The **restore user** needs superuser privileges to recreate the schema,
+set role to the original object owner, and create triggers:
+
+```sql
+CREATE ROLE registry_restore WITH LOGIN PASSWORD '<restore_password>'
+  SUPERUSER;
+```
 
 ## Configure periodic database reindexing
 
