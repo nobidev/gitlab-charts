@@ -1,17 +1,6 @@
 #!/bin/bash
 
 # Sets up external dependencies (Valkey, CloudNativePG, Garage) for local chart development.
-#
-# Usage:
-#   scripts/dev_dependencies.sh setup    - Deploy all external dependencies
-#   scripts/dev_dependencies.sh teardown - Remove all deployed external dependencies
-#   scripts/dev_dependencies.sh status   - Show status of external dependencies
-#
-# Environment variables:
-#   NAMESPACE           - Kubernetes namespace (default: gitlab)
-#   VALKEY_PASSWORD     - Valkey password (default: auto-generated and saved to .values/)
-#   GARAGE_APP_VERSION  - Garage version (default: 2.2.0)
-#   CNPG_POSTGRESQL_TAG - PostgreSQL image tag for CloudNativePG (default: 17)
 
 set -eo pipefail
 [[ "${TRACE}" ]] && set -x
@@ -21,13 +10,9 @@ PROJECT_ROOT="${SCRIPT_DIR}/.."
 VALUES_DIR="${PROJECT_ROOT}/.values"
 
 # Source CI library functions for shared logic and naming conventions.
-# shellcheck source=scripts/ci/lib/helpers.sh
 source "${SCRIPT_DIR}/ci/lib/helpers.sh"
-# shellcheck source=scripts/ci/lib/valkey.sh
 source "${SCRIPT_DIR}/ci/lib/valkey.sh"
-# shellcheck source=scripts/ci/lib/cloudnativepg.sh
 source "${SCRIPT_DIR}/ci/lib/cloudnativepg.sh"
-# shellcheck source=scripts/ci/lib/garage.sh
 source "${SCRIPT_DIR}/ci/lib/garage.sh"
 
 NAMESPACE="${NAMESPACE:-gitlab}"
@@ -55,7 +40,6 @@ function ensure_namespace() {
 
 function ensure_valkey_password() {
   mkdir -p "${VALUES_DIR}"
-  # shellcheck disable=SC1090
   [ -f "${STATE_FILE}" ] && source "${STATE_FILE}"
   if [ -z "${VALKEY_PASSWORD}" ]; then
     { set +o pipefail; VALKEY_PASSWORD="$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 20)"; set -o pipefail; }
@@ -65,182 +49,6 @@ function ensure_valkey_password() {
   fi
 }
 
-# Valkey
-# Uses a dev-specific setup to persist data across restarts and save the password to a state file.
-
-function setup_valkey() {
-  echo "==> Setting up Valkey..."
-  ensure_valkey_password
-
-  helm repo add valkey https://valkey.io/valkey-helm/ --force-update > /dev/null
-
-  helm upgrade --install "$(valkey_release_name)" valkey/valkey \
-    --namespace "${NAMESPACE}" \
-    --set dataStorage.enabled=true \
-    --set dataStorage.size=2Gi \
-    --set dataStorage.keepPvc=true \
-    --set metrics.enabled=true \
-    --set auth.enabled=true \
-    --set "auth.aclUsers.default.permissions=~* &* +@all" \
-    --set "auth.aclUsers.default.password=${VALKEY_PASSWORD}" \
-    --wait \
-    --hide-notes
-
-  echo "    Valkey ready."
-}
-
-# Garage (object storage)
-# Uses a dev-specific setup to enable persistent storage (not needed in CI).
-# Teardown also removes PVCs created by the persistent volumes.
-
-function setup_garage() {
-  echo "==> Setting up Garage (object storage)..."
-
-  if ! helm plugin list 2>/dev/null | grep -q "helm-git"; then
-    echo "    Installing helm-git plugin..."
-    helm plugin install https://github.com/aslafy-z/helm-git
-  fi
-
-  helm repo add garage \
-    "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v${GARAGE_APP_VERSION}" \
-    --force-update > /dev/null
-  helm repo update > /dev/null
-
-  helm upgrade --install garage garage/garage \
-    --namespace "${NAMESPACE}" \
-    --set garage.replicationFactor=1 \
-    --set deployment.replicaCount=1 \
-    --set persistence.data.size=5Gi \
-    --set persistence.meta.size=250Mi \
-    --set resources.requests.memory="256Mi" \
-    --set resources.requests.cpu="100m" \
-    --set resources.limits.memory="512Mi" \
-    --set resources.limits.cpu="500m" \
-    --wait --timeout=300s
-
-  local GARAGE_POD
-  GARAGE_POD=$(kubectl get pod \
-    --namespace "${NAMESPACE}" \
-    -l app.kubernetes.io/name=garage \
-    -o jsonpath='{.items[0].metadata.name}')
-
-  echo "    Using Garage pod: ${GARAGE_POD}"
-
-  local NODE_ID
-  NODE_ID=$(kubectl exec --namespace "${NAMESPACE}" "${GARAGE_POD}" -- \
-    /garage status 2>/dev/null | grep -oE '[0-9a-f]{16}' | head -1)
-
-  if [ -z "${NODE_ID}" ]; then
-    echo "ERROR: Could not detect Garage node ID."
-    kubectl exec --namespace "${NAMESPACE}" "${GARAGE_POD}" -- /garage status
-    exit 1
-  fi
-
-  echo "    Assigning Garage layout (node: ${NODE_ID})..."
-  kubectl exec --namespace "${NAMESPACE}" "${GARAGE_POD}" -- \
-    /garage layout assign -z dev -c 5G "${NODE_ID}" || true
-  kubectl exec --namespace "${NAMESPACE}" "${GARAGE_POD}" -- \
-    /garage layout apply --version 1 2>/dev/null \
-    || kubectl exec --namespace "${NAMESPACE}" "${GARAGE_POD}" -- \
-       /garage layout apply --version 2 2>/dev/null || true
-
-  local BUCKETS=(
-    "git-lfs"
-    "gitlab-artifacts"
-    "gitlab-backups"
-    "gitlab-ci-secure-files"
-    "gitlab-dependency-proxy"
-    "gitlab-mr-diffs"
-    "gitlab-packages"
-    "gitlab-pages"
-    "gitlab-terraform-state"
-    "gitlab-uploads"
-    "registry"
-    "runner-cache"
-    "tmp"
-  )
-
-  echo "    Creating buckets..."
-  for bucket in "${BUCKETS[@]}"; do
-    kubectl exec --namespace "${NAMESPACE}" "${GARAGE_POD}" -- \
-      /garage bucket create "${bucket}" 2>/dev/null \
-      && echo "      Created: ${bucket}" \
-      || echo "      Already exists: ${bucket}"
-  done
-
-  # Skip key/secret creation if credentials already exist.
-  if kubectl get secret gitlab-object-storage --namespace "${NAMESPACE}" > /dev/null 2>&1; then
-    echo "    Garage Kubernetes Secrets already exist, skipping key creation."
-    echo "    Garage ready."
-    return
-  fi
-
-  echo "    Creating Garage API key..."
-  local KEY_OUTPUT
-  KEY_OUTPUT=$(kubectl exec --namespace "${NAMESPACE}" "${GARAGE_POD}" -- \
-    /garage key create gitlab-app-key)
-
-  local GARAGE_ACCESS_KEY GARAGE_SECRET_KEY
-  GARAGE_ACCESS_KEY=$(echo "${KEY_OUTPUT}" | grep 'Key ID:' | awk '{print $3}')
-  GARAGE_SECRET_KEY=$(echo "${KEY_OUTPUT}" | grep 'Secret key:' | awk '{print $3}')
-
-  if [ -z "${GARAGE_ACCESS_KEY}" ] || [ -z "${GARAGE_SECRET_KEY}" ]; then
-    echo "ERROR: Failed to extract Garage API credentials from output:"
-    echo "${KEY_OUTPUT}"
-    exit 1
-  fi
-
-  echo "    Granting bucket permissions..."
-  for bucket in "${BUCKETS[@]}"; do
-    kubectl exec --namespace "${NAMESPACE}" "${GARAGE_POD}" -- \
-      /garage bucket allow --read --write --key "${GARAGE_ACCESS_KEY}" "${bucket}"
-  done
-
-  echo "    Creating Kubernetes Secrets for Garage access..."
-
-  kubectl create secret generic gitlab-object-storage \
-    --namespace "${NAMESPACE}" \
-    --from-literal=config="$(cat <<EOF
-provider: AWS
-region: garage
-aws_access_key_id: ${GARAGE_ACCESS_KEY}
-aws_secret_access_key: ${GARAGE_SECRET_KEY}
-endpoint: "http://garage.${NAMESPACE}.svc.cluster.local:3900"
-path_style: true
-EOF
-)" --dry-run=client -o yaml | kubectl apply -f -
-
-  kubectl create secret generic gitlab-object-storage-s3cmd \
-    --namespace "${NAMESPACE}" \
-    --from-literal=config="$(cat <<EOF
-[default]
-access_key = ${GARAGE_ACCESS_KEY}
-secret_key = ${GARAGE_SECRET_KEY}
-host_base = garage.${NAMESPACE}.svc.cluster.local:3900
-host_bucket = garage.${NAMESPACE}.svc.cluster.local:3900
-use_https = False
-EOF
-)" --dry-run=client -o yaml | kubectl apply -f -
-
-  kubectl create secret generic gitlab-registry-storage \
-    --namespace "${NAMESPACE}" \
-    --from-literal=config="$(cat <<EOF
-s3:
-  accesskey: ${GARAGE_ACCESS_KEY}
-  secretkey: ${GARAGE_SECRET_KEY}
-  bucket: registry
-  region: garage
-  regionendpoint: http://garage.${NAMESPACE}.svc.cluster.local:3900
-  secure: false
-  v4auth: true
-  pathstyle: true
-EOF
-)" --dry-run=client -o yaml | kubectl apply -f -
-
-  echo "    Garage ready."
-}
-
-# Values file
 
 function generate_values_file() {
   mkdir -p "${VALUES_DIR}"
@@ -271,7 +79,7 @@ global:
       enabled: true
       proxy_download: true
       connection:
-        secret: gitlab-object-storage
+        secret: $(garage_release_name)-gitlab-object-storage
         key: config
     artifacts:
       bucket: gitlab-artifacts
@@ -302,12 +110,12 @@ gitlab:
     backups:
       objectStorage:
         config:
-          secret: gitlab-object-storage-s3cmd
+          secret: $(garage_release_name)-gitlab-object-storage-s3cmd
           key: config
 
 registry:
   storage:
-    secret: gitlab-registry-storage
+    secret: $(garage_release_name)-gitlab-registry-storage
     key: config
     redirect:
       disable: true
@@ -317,36 +125,29 @@ EOF
 }
 
 # Commands
-
 function cmd_setup() {
   echo "Setting up external dependencies in namespace '${NAMESPACE}'..."
   echo ""
   check_prerequisites
   ensure_namespace
-  setup_valkey
+
+  echo "==> Setting up Valkey..."
+  ensure_valkey_password
+  deploy_external_valkey
 
   echo "==> Setting up CloudNativePG..."
   install_cnpg_operator
   deploy_external_postgresql
-  echo "    CloudNativePG cluster ready."
 
-  setup_garage
+  echo "==> Setting up Garage..."
+  deploy_external_garage
+
   generate_values_file
 
   echo ""
   echo "==> All external dependencies are ready."
   echo ""
-  echo "Deploy the GitLab chart with:"
-  echo ""
-  echo "  helm dependency update"
-  echo "  helm upgrade --install gitlab . \\"
-  echo "    --namespace ${NAMESPACE} \\"
-  echo "    --timeout 600s \\"
-  echo "    -f .values/dev-external.values.yaml \\"
-  echo "    --set global.hosts.domain=<YOUR_DOMAIN> \\"
-  echo "    --set global.hosts.externalIP=<YOUR_IP> \\"
-  echo "    --set certmanager-issuer.email=<YOUR_EMAIL>"
-  echo ""
+  echo "Deploy the GitLab chart and use '.values/dev-external.values.yaml' for connecting to CNPG, Valkey and Garage."
   echo "See doc/development/external-dependencies.md for more details."
 }
 
@@ -365,10 +166,6 @@ function cmd_teardown() {
 
   echo "    Removing Garage..."
   remove_external_garage
-  kubectl delete pvc \
-    --namespace "${NAMESPACE}" \
-    -l app.kubernetes.io/name=garage \
-    --ignore-not-found 2>/dev/null || true
   echo ""
   echo "==> External dependencies removed."
   echo ""
@@ -409,7 +206,10 @@ function cmd_status() {
 
   echo ""
   echo "--- Object storage secrets ---"
-  for secret in gitlab-object-storage gitlab-object-storage-s3cmd gitlab-registry-storage; do
+  for secret in \
+    "$(garage_release_name)-gitlab-object-storage" \
+    "$(garage_release_name)-gitlab-object-storage-s3cmd" \
+    "$(garage_release_name)-gitlab-registry-storage"; do
     kubectl get secret --namespace "${NAMESPACE}" "${secret}" \
       -o jsonpath="  {.metadata.name}: present{'\n'}" 2>/dev/null \
       || echo "  ${secret}: not found"
