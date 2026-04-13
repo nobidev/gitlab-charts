@@ -969,7 +969,7 @@ global:
       key: "token"
     psql:
       # OpenBao database config for toolbox backup/restore.
-      # host is required to enable OpenBao DB backup. Must differ from global.psql.host.
+      # host is required to enable OpenBao DB backup.
       host: ""           # Required to activate backup: DB hostname/IP
       port: 5432         # Optional: defaults to 5432
       database: openbao  # Optional: defaults to "openbao"
