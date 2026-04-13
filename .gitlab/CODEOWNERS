@@ -50,3 +50,4 @@ doc/charts/registry/index.md
 /doc-locale/ @gitlab-com/localization/maintainers/tech-docs
 /argo_translation.yml @gitlab-com/localization/maintainers/tech-docs
 /doc-locale/ja-jp/ @gitlab-com/localization/maintainers/tech-docs @gitlab-com/localization/maintainers/japanese
+/doc-locale/fr-fr/ @gitlab-com/localization/maintainers/tech-docs @gitlab-com/localization/maintainers/french
