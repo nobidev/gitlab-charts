@@ -27,11 +27,11 @@ function deploy_external_garage() {
         --set garage.replicationFactor=1 \
         --set deployment.replicaCount=1 \
         --set persistence.enabled=false \
-        --set resources.requests.memory="256Mi" \
-        --set resources.requests.cpu="100m" \
+        --set resources.requests.memory="512Mi" \
+        --set resources.requests.cpu="500m" \
         --set resources.limits.memory="512Mi" \
         --set resources.limits.cpu="500m" \
-        --wait --timeout=300s
+        --wait --timeout=600s
 
     GARAGE_POD=$(kubectl get pod -n "${NAMESPACE}" \
         -l app.kubernetes.io/instance=$(garage_release_name) \
