@@ -72,6 +72,36 @@ it requires using the Interoperability API which makes undesirable compromises t
 for backups you can configure the backup utility script to use the Cloud Storage native CLI, `gsutil`, to do the upload and download
 of your artifacts by setting the `BACKUP_BACKEND` environment variable to `gcs`.
 
+### Registry metadata database backup and restore
+
+The [container registry metadata database](../charts/registry/metadata_database.md)
+is a separate PostgreSQL database owned by the registry, not by GitLab Rails.
+Because the standard GitLab backup Rake task only covers the Rails database,
+backing up and restoring the registry metadata database requires its own
+database credentials to be available inside the Toolbox pod.
+
+When configured, the chart mounts the following files under
+`/etc/gitlab/registry-db/` so that backup and restore tooling can connect to
+the registry database independently of the Rails database:
+
+- `connection.env` — connection parameters (host, port, database name,
+  SSL mode, certificate paths). Sourced from the registry chart's `ConfigMap`.
+- `backup-user.env` / `restore-user.env` — database username overrides for
+  backup and restore. Sourced from a Toolbox `ConfigMap`.
+- `backup-pass` / `restore-pass` — corresponding passwords. Sourced from a
+  Kubernetes `Secret`.
+
+Separate backup and restore users are supported so that operators can follow
+the principle of least privilege (for example, a read-only user for backups and a
+user with write access for restores).
+
+All volume sources are marked `optional: true`, so the Toolbox pod continues
+to work normally when the registry metadata database is not configured.
+
+See the
+[Toolbox configuration](../charts/gitlab/toolbox/_index.md#registry-metadata-database-credentials)
+for setup instructions.
+
 ### Restore
 
 The backup utility when given an argument `--restore` attempts to restore from an existing backup to the running instance. This

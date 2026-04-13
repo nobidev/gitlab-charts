@@ -154,6 +154,15 @@ bucket names to your values or settings. For example:
 --set global.appConfig.backups.tmpBucket=gitlab-tmp-storage
 ```
 
+## Registry metadata database
+
+If you have enabled the [container registry metadata database](../charts/registry/metadata_database.md),
+you can configure the Toolbox to access the registry database during backup
+and restore operations. This requires setting registry database credentials
+in the Toolbox chart values. See the
+[registry metadata database credentials](../charts/gitlab/toolbox/_index.md#registry-metadata-database-credentials)
+section in the Toolbox chart documentation for configuration details.
+
 ## Troubleshooting
 
 ### Pod eviction issues
