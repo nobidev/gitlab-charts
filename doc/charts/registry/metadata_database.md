@@ -543,19 +543,12 @@ After the command completes successfully, the registry is now fully migrated to 
 
 {{< /history >}}
 
-You can resume an interrupted one-step or three-step import without starting
-over. The `--pre-import-skip-recent` flag skips repositories that were
-pre-imported in a given time period. The default is 72 hours.
+If an import is interrupted, re-running the import command automatically skips
+repositories that were pre-imported in the last 72 hours. The
+`--pre-import-skip-recent` flag controls this duration.
 
-To resume an interrupted import, add `--pre-import-skip-recent` to your import
-command. For example, to resume a three-step import at step one:
-
-```shell
-cd ~
-/usr/bin/registry database import --step-one --pre-import-skip-recent 72h /etc/docker/registry/config.yml
-```
-
-To customize the skip duration:
+To customize the skip duration, pass `--pre-import-skip-recent` with a
+different value:
 
 - Skip repositories imported in the last 6 hours:
 
