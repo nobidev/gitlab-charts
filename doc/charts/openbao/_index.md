@@ -279,7 +279,7 @@ It also uses OpenBao declarative [self initialization](https://openbao.org/docs/
 | `config.unseal.awskms.endpoint`                          |                                                         | Optional custom KMS endpoint URL (for example, a VPC endpoint). |
 | `config.initialize.enabled`                              | true                                                    | Enable OpenBao self initialization. |
 | `config.initialize.oidcDiscoveryUrl`                     | External GitLab host                                    | OIDC discovery URL. Defaults to the external GitLab hostname. |
-| `config.initialize.boundIssuer`                          | External OpenBao host                                   | OIDC issuer. Defaults to the external OpenBao hostname. |
+| `config.initialize.boundIssuer`                          | External GitLab host                                    | Issuer URL. Defaults to the external GitLab hostname. |
 | `config.initialize.boundAudiences`                       | External OpenBao host                                   | OIDC role audiences. Defaults to the external OpenBao hostname. |
 | `staticUnsealSecret.generate`                            | false                                                   | Generate a static key to auto unseal OpenBao. Defaults to false as managed by GitLab charts shared-secret chart. |
 | `initializeTpl`                                          |                                                         | Template passed to self initialize OpenBao. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
