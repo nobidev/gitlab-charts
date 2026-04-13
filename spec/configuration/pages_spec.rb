@@ -30,6 +30,8 @@ describe 'GitLab Pages' do
     let(:pages_enabled_values) do
       YAML.safe_load(%(
         global:
+          ingress:
+            enabled: true
           pages:
             enabled: true
       ))

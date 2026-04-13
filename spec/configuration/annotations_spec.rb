@@ -9,6 +9,8 @@ describe 'Annotations configuration' do
   let(:default_values) do
     HelmTemplate.with_defaults(%(
       global:
+        gatewayApi:
+          installEnvoy: false
         deployment:
           annotations:
             environment: development

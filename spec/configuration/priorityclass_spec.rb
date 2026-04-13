@@ -12,6 +12,8 @@ describe 'global priorityClass configuration' do
         priorityClassName: system-cluster-critical
         pages:
           enabled: true
+        gatewayApi:
+          installEnvoy: false
       gitlab:
         kas:
           enabled: true  # DELETE THIS WHEN KAS BECOMES ENABLED BY DEFAULT
@@ -50,6 +52,8 @@ describe 'local priorityClass configuration' do
     HelmTemplate.with_defaults(%(
       global:
         priorityClassName: system-cluster-critical
+        gatewayApi:
+          installEnvoy: false
       certmanager:
         global:
           priorityClassName: system-cluster-noncritical
@@ -107,6 +111,8 @@ describe 'local priorityClass configuration' do
     HelmTemplate.with_defaults(%(
       global:
         priorityClassName: system-cluster-critical
+        gatewayApi:
+          installEnvoy: false
       certmanager:
         global:
           priorityClassName: system-cluster-noncritical

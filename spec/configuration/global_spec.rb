@@ -357,6 +357,7 @@ describe 'global configuration' do
 
     let(:ignored_deployments) do
       [
+        'Deployment/envoy-gateway',
         'Deployment/test-gitlab-runner',
         'Deployment/test-prometheus-server',
         'Deployment/test-minio'
@@ -367,7 +368,8 @@ describe 'global configuration' do
       [
         'Job/test-minio-create-buckets-1',
         'Job/test-shared-secrets-1',
-        'Job/test-gitlab-upgrade-check'
+        'Job/test-gitlab-upgrade-check',
+        'Job/test-envoy-gateway-certgen'
       ]
     end
 

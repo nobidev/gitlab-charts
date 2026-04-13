@@ -18,6 +18,8 @@ describe 'kas configuration' do
     YAML.safe_load(%(
       gitlab:
         kas:
+          ingress:
+            enabled: true
           customConfig: #{custom_config.to_json}
       global:
         image:
@@ -69,6 +71,8 @@ describe 'kas configuration' do
               global_service: true
         gitlab:
           kas:
+            ingress:
+              enabled: true
             common:
               labels:
                 global: kas

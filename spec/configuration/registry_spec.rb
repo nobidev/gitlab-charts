@@ -35,6 +35,8 @@ describe 'registry configuration' do
             labels:
               global_service: true
         registry:
+          ingress:
+            enabled: true
           common:
             labels:
               global: registry
@@ -84,6 +86,8 @@ describe 'registry configuration' do
             registry:
               protocol: https
         registry:
+          ingress:
+            enabled: true
           tls:
             enabled: true
       )).deep_merge(default_values)
@@ -224,6 +228,8 @@ describe 'registry configuration' do
               registry:
                 protocol: https
           registry:
+            ingress:
+              enabled: true
             tls:
               secretName: registry-service-tls
               clientCAs: [one, two, three]
@@ -2640,6 +2646,8 @@ describe 'registry configuration' do
         registry:
           api:
             enabled: #{enabled}
+          gatewayRoute:
+            enabled: #{enabled}
           database:
             enabled: true
             migrations:
@@ -2711,6 +2719,7 @@ describe 'registry configuration' do
 
         # Verify only resources required for executing migrations are created
         resources = t.resources('test-registry')
+        puts resources
         expect(resources.length).to eq(4)
         expect(resources).to include('ConfigMap/test-registry')
         expect(resources).to include('ConfigMap/test-registry-db-connection-config')

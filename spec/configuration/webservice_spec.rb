@@ -10,6 +10,7 @@ describe 'webservice configuration' do
         webservice:
           ingress:
             proxyBodySize: 256M
+            enabled: true
           extraIngress:
             enabled: true
             proxyBodySize: 1024M

@@ -97,6 +97,7 @@ describe 'Strategy configuration' do
 
   let(:ignored_charts) do
     [
+      'Deployment/envoy-gateway',
       'Deployment/test-certmanager-cainjector',
       'Deployment/test-certmanager-webhook',
       'Deployment/test-certmanager',

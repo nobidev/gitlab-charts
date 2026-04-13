@@ -7,6 +7,8 @@ describe 'Labels configuration' do
   let(:default_values) do
     HelmTemplate.with_defaults(%(
       global:
+        gatewayApi:
+          installEnvoy: false
         pod:
           labels:
             environment: development
@@ -22,8 +24,6 @@ describe 'Labels configuration' do
       'Deployment/test-gitlab-runner',
       'Deployment/test-prometheus-server',
       'Deployment/test-minio',
-      'Deployment/test-nginx-ingress-controller',
-      'Deployment/test-nginx-ingress-default-backend',
       # not included, StatefulSet: postgresql, redis, gitlab/gitaly
     ]
   end
@@ -114,11 +114,19 @@ describe 'Labels configuration' do
   end
 
   context 'Standard labels' do
+    let(:values) do
+      HelmTemplate.with_defaults(%(
+        global:
+          gatewayApi:
+            installEnvoy: false
+      ))
+    end
+
     # These are the labels emitted by gitlab.common.legacyStandardLabels, which is the
     # migration target for all GitLab-owned resources. This context verifies backwards
     # compatibility: every resource must carry at minimum the four legacy Helm labels:
     # app, release, heritage, and chart.
-    let(:t) { HelmTemplate.new(HelmTemplate.defaults) }
+    let(:t) { HelmTemplate.new(values) }
 
     let(:third_party_resources) do
       [
