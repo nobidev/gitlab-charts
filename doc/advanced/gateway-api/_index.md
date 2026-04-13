@@ -114,7 +114,7 @@ If the bundled Envoy Gateway is used, you can customize the `EnvoyProxy` and opt
 and a `SecurityPolicy` bound to the managed `Gateway`.
 
 | Name                                                |  Type   | Default        | Description |
-|:----------------------------------------------- ----|:-------:|:---------------|:------------|
+|-----------------------------------------------------|---------|----------------|-------------|
 | `gatewayApiResources.envoy.proxySpec`               | Object  | see values     | `EnvoyProxy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
 | `gatewayApiResources.envoy.clientTrafficPolicySpec` | Object  | see values     | Envoy's `ClientTrafficPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
 | `gatewayApiResources.envoy.securityPolicySpec`      | Object  | see values     | Envoy's `SecurityPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
