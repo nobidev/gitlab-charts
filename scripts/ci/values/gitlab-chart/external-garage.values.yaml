@@ -7,7 +7,7 @@ global:
       enabled: true
       proxy_download: true
       connection:
-        secret: gitlab-object-storage
+        secret: "${GARAGE_RELEASE_NAME}-gitlab-object-storage"
         key: config
     artifacts:
       bucket: gitlab-artifacts
@@ -35,12 +35,12 @@ gitlab:
     backups:
       objectStorage:
         config:
-          secret: gitlab-object-storage-s3cmd
+          secret: "${GARAGE_RELEASE_NAME}-gitlab-object-storage-s3cmd"
           key: config
 
 registry:
   storage:
-    secret: gitlab-registry-storage
+    secret: "${GARAGE_RELEASE_NAME}-gitlab-registry-storage"
     key: config
     redirect:
       disable: true
