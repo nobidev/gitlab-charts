@@ -976,9 +976,10 @@ global:
       username: openbao  # Optional: defaults to "openbao"
       sslMode: disable   # Optional: e.g. "require", "verify-full". Defaults to "disable".
       connectTimeout: "" # Optional: connection timeout in seconds.
-      # password.secret and password.key must be set explicitly — no defaults.
-      # Intentionally omitted: setting password.secret here (even to "") would cause
-      # the checkConfig validation to skip the "no password configured" error check.
+      password:
+        key: password    # Optional: key within the secret. Defaults to "password".
+        # secret is intentionally omitted — setting it here (even to "") would cause
+        # the checkConfig validation to skip the "no password configured" error check.
 
   ## https://docs.gitlab.com/charts/charts/globals
   extraEnv: {}
