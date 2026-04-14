@@ -1,3 +1,6 @@
+prometheus:
+  install: false
+
 gitlab:
   webservice:
     minReplicas: 1    # 2
