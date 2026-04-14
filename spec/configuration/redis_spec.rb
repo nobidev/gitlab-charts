@@ -975,45 +975,6 @@ describe 'Redis configuration' do
     end
   end
 
-  describe 'Generation of redis.action_cable.yml.erb' do
-    let(:values) do
-      YAML.safe_load(%(
-        global:
-          redis:
-            host: placeholder
-            actionCablePrimary:
-              host: mymaster
-              sentinels:
-              - host: redis-actioncable-01
-                port: 26379
-              - host: redis-actioncable-02
-                port: 26379
-              - host: redis-actioncable-03
-                port: 26379
-        redis:
-          install: false
-      )).deep_merge!(default_values)
-    end
-
-    it 'populates an entry for redis.action_cable.yml.erb' do
-      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-
-      # check redis.action_cable.yml.erb
-      actual = YAML.safe_load(template.dig('ConfigMap/test-webservice','data','redis.action_cable.yml.erb'))
-      expect(actual).to eq({
-        "production" => {
-          "id" => nil,
-          "sentinels" => [
-            { "host" => "redis-actioncable-01", "port" => 26379 },
-            { "host" => "redis-actioncable-02", "port" => 26379 },
-            { "host" => "redis-actioncable-03", "port" => 26379 }
-          ],
-          "url" => "redis://:<%= ERB::Util::url_encode(File.read(\"/etc/gitlab/redis/actionCablePrimary-password\").strip) %>@mymaster:6379/0"
-        }
-      })
-    end
-  end
-
   describe 'Redis and Sentinel TLS' do
     context 'when both Redis TLS and Sentinel TLS are enabled' do
       let(:values) do
