@@ -490,6 +490,15 @@ trigger-eks134:
     - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE == "QA_KNAPSACK_UPDATE_PIPELINE"'
 
+.review_specs:
+  extends: .specs
+  retry: 1
+  variables:
+    RSPEC_TAGS: type:feature
+  rules:
+    - !reference [.rule:skip_if_no_cluster]
+    - !reference [.specs, rules]
+
 .qa:
   image: "${CI_REGISTRY}/${CI_TOOLS_NAMESPACE}/gitlab-omnibus-builder/distribution_ci_tools:${CI_TOOLS_VERSION}"
   stage: qa
