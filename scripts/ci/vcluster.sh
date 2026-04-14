@@ -44,7 +44,7 @@ function vcluster_create() {
     --connect=false \
     --values ./vcluster.yaml
 
-  kubectl annotate namespace ${vcluster_name} janitor/ttl=2d
+  kubectl annotate namespace ${vcluster_name} janitor/ttl=6h
 }
 
 function vcluster_run() {
