@@ -53,7 +53,7 @@ See [Environment setup](environment_setup.md) for tool installation guidance.
 
 ## What the script does
 
-1. **Valkey** - deploys a standalone instance with authentication and a 2 GiB persistent volume. The generated password is saved to `.values/dev-state.env` and reused on subsequent runs.
+1. **Valkey** - deploys a standalone instance with authentication and a 2 GiB persistent volume. A random password is auto-generated and stored in a Kubernetes Secret on first run; subsequent runs reuse the existing secret.
 1. **CloudNativePG** - installs the operator (namespace-scoped) and creates a single-instance PostgreSQL cluster with the `gitlabhq_production` database.
 1. **Garage** - installs the object storage service, creates the GitLab buckets, and writes three Kubernetes Secrets (`gitlab-object-storage`, `gitlab-object-storage-s3cmd`, `gitlab-registry-storage`).
 1. **Values file** - writes `.values/dev-external.values.yaml` with connection settings for all three services.
@@ -80,12 +80,11 @@ helm uninstall gitlab --namespace gitlab
 
 ## Configuration
 
-| Variable              | Default                                    | Description                                |
-|-----------------------|--------------------------------------------|--------------------------------------------|
-| `NAMESPACE`           | `gitlab`                                   | Kubernetes namespace for all services      |
-| `VALKEY_PASSWORD`     | auto-generated, saved to `.values/dev-state.env` | Valkey authentication password       |
-| `GARAGE_APP_VERSION`  | `2.2.0`                                    | Garage version to install                  |
-| `CNPG_POSTGRESQL_TAG` | `17`                                       | PostgreSQL image tag used by CloudNativePG |
+| Variable              | Default | Description                                |
+|-----------------------|---------|--------------------------------------------|
+| `NAMESPACE`           | `gitlab` | Kubernetes namespace for all services     |
+| `GARAGE_APP_VERSION`  | `2.2.0` | Garage version to install                  |
+| `CNPG_POSTGRESQL_TAG` | `17`    | PostgreSQL image tag used by CloudNativePG |
 
 ## Further reading
 

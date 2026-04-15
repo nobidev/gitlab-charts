@@ -36,9 +36,5 @@ function remove_external_valkey() {
 }
 
 function valkey_password() {
-  if [ -n "${VALKEY_PASSWORD}" ]; then
-    echo -n "${VALKEY_PASSWORD}"
-  else
-    tr -dc A-Za-z0-9 </dev/urandom | head -c 10
-  fi
+  tr -dc A-Za-z0-9 </dev/urandom | head -c 10
 }
