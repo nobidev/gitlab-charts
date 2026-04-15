@@ -25,6 +25,11 @@
 /doc/.markdownlint/ @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership
 /doc/.vale/ @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership
 
+## Localization files that do not need `*` rule approval,
+## but still require an approval from the localization team (covered by later [Localization Team] rules).
+!/doc-locale/
+!/argo_translation.yml
+
 # Distribution CI/CD
 .gitlab/ci/ @gitlab-org/maintainers/helm-charts-gitlab @balasankarc
 /scripts/ci/ @gitlab-org/maintainers/helm-charts-gitlab @balasankarc
@@ -51,3 +56,4 @@ doc/charts/registry/index.md
 /argo_translation.yml @gitlab-com/localization/maintainers/tech-docs
 /doc-locale/ja-jp/ @gitlab-com/localization/maintainers/tech-docs @gitlab-com/localization/maintainers/japanese
 /doc-locale/fr-fr/ @gitlab-com/localization/maintainers/tech-docs @gitlab-com/localization/maintainers/french
+/doc-locale/ko-kr/ @gitlab-com/localization/maintainers/tech-docs @gitlab-com/localization/maintainers/korean
