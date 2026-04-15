@@ -2,6 +2,32 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.11.0 (2026-04-15)
+
+### Added (3 changes)
+
+- [Add `trusted_user_ca_keys` support to gitlab-shell chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e66b479f46c355f6f000363bae601cebfdd5d8cd) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4913))
+- [Add Redis and Sentinel TLS support to GitLab Helm Chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f8d12ba2730102801e94335e5fdd1b55d71c13dc) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4720))
+- [Gateway API: Support Smartcard authentication](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/72100a0905e0bf6bb1c04d09c6d321c74b4cc8ed) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4850))
+
+### Fixed (3 changes)
+
+- [Guard Gateway API route templates with service enabled checks](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5ff2f18cfb9fea324a34401014878954c26dbf39) by @weijiany ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4916))
+- [Use nested Redis auth secrets when password key is absent](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7e3df81ec82a869c87549cefa31413789a3cff3d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4911))
+- [Fix certmanager annotation regression in Helm 3.20.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0a377d75f2d6c269c3bd434726fee458ea54c0dd) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4912))
+
+### Changed (9 changes)
+
+- [Update openbao to v0.14.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/076cd94b8f775371d7e5ce5a6b13b02479cf3dc3) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4947))
+- [Update cert-manager to v1.20.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f07432d0fe1ee945af576cba4495c06907e63798) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4865))
+- [Bump openbao chart version to 0.13.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b8d51d7f7b3ea59458490187005b562bef39adbd) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4932))
+- [Use a dedicated database for OpenBao instead of the main Rails database](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/64e44a659e47352a1d1b6eddc7a27bc843274ff9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4827))
+- [Update NGINX Ingress to 1.15.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a1fa5629eda9adad93e299606322b7c9d4d98641) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4890))
+- [Update gitlab-runner to v0.87.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ed282852692b0516c875d7b0f3b1d743a03c5d10) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4904))
+- [Update gitlab-exporter to v16.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/37981d9e8b352c9d62908df776a248c41c316901) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4866))
+- [Update container-registry to v4.39.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/be5ece2d4387f2d561000c549c2cc754ed95feb9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4886))
+- [Gateway API: Unglobalize Gateway API resources](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fb5977af6be6eb874f6be1f2fee7d74d03c27665) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4862))
+
 ## 9.10.3 (2026-04-07)
 
 No changes.
