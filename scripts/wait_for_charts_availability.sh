@@ -19,9 +19,10 @@ if ! [[ "${POLL_INTERVAL}" =~ ^[1-9][0-9]*$ ]] || ! [[ "${MAX_WAIT_SECONDS}" =~ 
   exit 1
 fi
 
+command -v curl > /dev/null 2>&1 || { echo "Error: curl command not found"; exit 1; }
 if ! command -v helm > /dev/null 2>&1; then
   echo "helm not found, installing..."
-  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  DESIRED_VERSION="v3.17.3" curl -fsSL https://raw.githubusercontent.com/helm/helm/v3.17.3/scripts/get-helm-3 | bash
 fi
 command -v timeout > /dev/null 2>&1 || { echo "Error: timeout command not found"; exit 1; }
 
