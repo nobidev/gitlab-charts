@@ -19,7 +19,10 @@ if ! [[ "${POLL_INTERVAL}" =~ ^[1-9][0-9]*$ ]] || ! [[ "${MAX_WAIT_SECONDS}" =~ 
   exit 1
 fi
 
-command -v helm > /dev/null 2>&1 || { echo "Error: helm command not found"; exit 1; }
+if ! command -v helm > /dev/null 2>&1; then
+  echo "helm not found, installing..."
+  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+fi
 command -v timeout > /dev/null 2>&1 || { echo "Error: timeout command not found"; exit 1; }
 
 echo "Waiting for GitLab Helm chart version ${CHART_VERSION} to be available on ${CHART_REPO_URL}"
