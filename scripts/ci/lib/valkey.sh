@@ -26,6 +26,7 @@ function deploy_external_valkey() {
     --set auth.enabled=true \
     --set auth.aclUsers.default.permissions="~* &* +@all" \
     --set auth.usersExistingSecret="$(valkey_auth_secret)" \
+    $(valkey_openshift_values) \
     --hide-notes
 }
 
@@ -37,4 +38,10 @@ function remove_external_valkey() {
 
 function valkey_password() {
   tr -dc A-Za-z0-9 </dev/urandom | head -c 10
+}
+
+function valkey_openshift_values() {
+  if is_openshift_deployment; then
+    echo "--set podSecurityContext.fsGroup=null --set podSecurityContext.runAsUser=null --set podSecurityContext.runAsGroup=null --set securityContext.runAsUser=null"
+  fi
 }

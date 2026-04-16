@@ -8,6 +8,10 @@ function is_vcluster_deployment() {
   [[ -n "${VCLUSTER_K8S_VERSION}" ]]
 }
 
+function is_openshift_deployment() {
+  [[ -n "${OPENSHIFT_DEPLOYMENT}" ]]
+}
+
 # release_name_base returns a common prefix for all releases managed
 # by the autodevops script
 function release_name_base() {
