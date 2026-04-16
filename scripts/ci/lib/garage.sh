@@ -170,6 +170,6 @@ function remove_external_garage() {
 
 function garage_openshift_values() {
   if is_openshift_deployment; then
-    echo "--set podSecurityContext.fsGroup=null --set podSecurityContext.runAsUser=null --set podSecurityContext.runAsGroup=null"
+    common_openshift_values
   fi
 }

@@ -69,3 +69,9 @@ function garage_release_name() {
 function use_external_garage() {
   [[ "${SKIP_EXTERNAL_GARAGE}" != "true" ]]
 }
+
+# common_openshift_values returns values needed to deploy Garage
+# and Valkey into OpenShift clusters.
+function common_openshift_values() {
+  echo "--set podSecurityContext.fsGroup=null --set podSecurityContext.runAsUser=null --set podSecurityContext.runAsGroup=null"
+}

@@ -42,6 +42,6 @@ function valkey_password() {
 
 function valkey_openshift_values() {
   if is_openshift_deployment; then
-    echo "--set podSecurityContext.fsGroup=null --set podSecurityContext.runAsUser=null --set podSecurityContext.runAsGroup=null --set securityContext.runAsUser=null"
+    echo "$(common_openshift_values) --set securityContext.runAsUser=null"
   fi
 }
