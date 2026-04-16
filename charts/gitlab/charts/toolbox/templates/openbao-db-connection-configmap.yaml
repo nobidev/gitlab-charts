@@ -13,12 +13,15 @@ data:
     OPENBAO_DATABASE_HOST={{ $globalObaPsql.host | quote }}
     OPENBAO_DATABASE_PORT={{ default 5432 $globalObaPsql.port | quote }}
     OPENBAO_DATABASE_NAME={{ default "openbao" $globalObaPsql.database | quote }}
-    OPENBAO_DATABASE_USER={{ default "openbao" $globalObaPsql.username | quote }}
     OPENBAO_DATABASE_SSLMODE={{ default "disable" $globalObaPsql.sslMode | quote }}
     {{- if $globalObaPsql.connectTimeout }}
     OPENBAO_DATABASE_CONNECT_TIMEOUT={{ $globalObaPsql.connectTimeout | quote }}
     {{- end }}
-    {{- if .Values.global.psql.ssl }}
+    {{- if and .Values.global.psql.ssl (ne (default "disable" $globalObaPsql.sslMode) "disable") }}
+    {{- /* NOTE: Due to Helm chart architecture constraints, only the globally-configured
+         PostgreSQL SSL certificates (global.psql.ssl) are accessible from the toolbox
+         sub-chart. A dedicated SSL certificate for the OpenBao database is not supported.
+         See: charts/registry/templates/dbconfig.yaml for the same pattern in registry DB backup. */ -}}
     OPENBAO_DATABASE_SSLCERT=/etc/gitlab/postgres/ssl/client-certificate.pem
     OPENBAO_DATABASE_SSLKEY=/etc/gitlab/postgres/ssl/client-key.pem
     OPENBAO_DATABASE_ROOTCERT=/etc/gitlab/postgres/ssl/server-ca.pem
