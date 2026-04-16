@@ -22,7 +22,7 @@ fi
 command -v curl > /dev/null 2>&1 || { echo "Error: curl command not found"; exit 1; }
 if ! command -v helm > /dev/null 2>&1; then
   echo "helm not found, installing..."
-  DESIRED_VERSION="v3.17.3" curl -fsSL https://raw.githubusercontent.com/helm/helm/v3.17.3/scripts/get-helm-3 | bash
+  curl -fsSL https://raw.githubusercontent.com/helm/helm/v3.17.3/scripts/get-helm-3 | DESIRED_VERSION="v3.17.3" bash
 fi
 command -v timeout > /dev/null 2>&1 || { echo "Error: timeout command not found"; exit 1; }
 
