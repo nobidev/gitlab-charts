@@ -74,6 +74,14 @@ variables:
         backups:
           cron:
             enabled: true
+          objectStorage:
+            config:
+              secret: backup-storage-secret
+              key: config
+    registry:
+      storage:
+        secret: registry-storage-secret
+        key: config
     global:
       ingress:
         apiVersion: networking.k8s.io/v1
@@ -84,13 +92,19 @@ variables:
       batch:
         cronJob:
           apiVersion: batch/v1
-      redis: 
+      redis:
         host: redis.example.com
       psql:
         host: psql.example.com
         password:
           secret: psql-password
           key: password
+      appConfig:
+        object_store:
+          enabled: true
+          connection:
+            secret: object-storage-secret
+            key: connection
   GITLAB_AUTH_TOKEN: $DANGER_GITLAB_API_TOKEN
   REVIEW_APPS_AUTO_STOP_IN: "2 hours"
   REVIEW_ARCH: amd64 # amd64 or arm64
@@ -502,7 +516,6 @@ trigger-k3d135:
     - .dind
   variables:
     GITLAB_PASSWORD: $ROOT_PASSWORD
-    S3_CONFIG_PATH: /etc/gitlab/minio
     RUBYGEMS_VERSION: "3.6"
     GO_VERSION: "1.24"
     PG_VERSION: "16"

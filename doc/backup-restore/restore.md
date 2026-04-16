@@ -24,7 +24,7 @@ It is recommended that you restore a backup to the same version of GitLab on whi
 GitLab backup restores are taken by running the `backup-utility` command on the Toolbox pod provided in the chart.
 
 Before running the restore for the first time, you should ensure the [Toolbox is properly configured](_index.md) for
-access to [object storage](_index.md#object-storage)
+access to [object storage](_index.md)
 
 The backup utility provided by GitLab Helm chart supports restoring a tarball from any of the following locations
 

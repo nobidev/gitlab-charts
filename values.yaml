@@ -66,7 +66,6 @@ global:
     externalIP:
     ssh:
     gitlab: {}
-    minio: {}
     registry: {}
     tls: {}
     smartcard: {}
@@ -250,12 +249,6 @@ global:
     tls:
       enabled: false
       # secretName:
-
-  ## https://docs.gitlab.com/charts/charts/globals#configure-minio-settings
-  minio:
-    enabled: true
-    credentials: {}
-      # secret:
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-appconfig-settings
   ## Rails based portions of this chart share many settings
@@ -1399,17 +1392,6 @@ gitlab-runner:
       [[runners]]
         [runners.kubernetes]
         image = "ubuntu:22.04"
-        {{- if .Values.global.minio.enabled }}
-        [runners.cache]
-          Type = "s3"
-          Path = "gitlab-runner"
-          Shared = true
-          [runners.cache.s3]
-            ServerAddress = {{ include "gitlab-runner.cache-tpl.s3ServerAddress" . }}
-            BucketName = "runner-cache"
-            BucketLocation = "us-east-1"
-            Insecure = false
-        {{ end }}
   podAnnotations:
     gitlab.com/prometheus_scrape: "true"
     gitlab.com/prometheus_port: 9252
@@ -1568,12 +1550,6 @@ gatewayApiResources:
           mode: Terminate
           certificateRefs:
             - name: kas-workspaces-tls
-      minio-web:
-        protocol: ""
-        tls:
-          mode: Terminate
-          certificateRefs:
-            - name: minio-tls
       openbao-web:
         protocol: ""
         tls:

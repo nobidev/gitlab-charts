@@ -1,8 +1,6 @@
 # This is an example values.yaml. It shows how to configure external object storage instead of the in-cluster minio provided by default
 # https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc/advanced/external-object-storage
 global:
-  minio:
-    enabled: false
   appConfig:
     artifacts:
       bucket: gitlab-artifacts-storage

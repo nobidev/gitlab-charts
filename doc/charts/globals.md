@@ -35,9 +35,6 @@ global:
     registry:
       name: registry.example.com
       https: false
-    minio:
-      name: minio.example.com
-      https: false
     smartcard:
       name: smartcard.example.com
     kas:
@@ -50,7 +47,7 @@ global:
 
 | Name                      |  Type   | Default       | Description |
 |:--------------------------|:-------:|:--------------|:------------|
-| `domain`                  | String  | `example.com` | The base domain. GitLab and Registry will be exposed on the subdomain of this setting. This defaults to `example.com`, but is not used for hosts that have their `name` property configured. See the `gitlab.name`, `minio.name`, and `registry.name` sections below. |
+| `domain`                  | String  | `example.com` | The base domain. GitLab and Registry will be exposed on the subdomain of this setting. This defaults to `example.com`, but is not used for hosts that have their `name` property configured. See the `gitlab.name`, and `registry.name` sections below. |
 | `externalIP`              |         | `nil`         | Set the external IP address that will be claimed from the provider. This will be templated into the [NGINX chart](nginx/_index.md#configuring-nginx), in place of the more complex `nginx.service.loadBalancerIP`. |
 | `externalGeoIP`           |         | `nil`         | Same as `externalIP` but for the [NGINX Geo chart](nginx/_index.md#gitlab-geo). Needed to configure a static IP for [GitLab Geo](../advanced/geo/_index.md) sites using a unified URL. Must be different from `externalIP`. |
 | `https`                   | Boolean | `true`        | If set to true, you will need to ensure the NGINX chart has access to the certificates. In cases where you have TLS-termination in front of your Ingresses, you probably want to look at [`global.ingress.tls.enabled`](#configure-ingress-settings). Set to false for external URLs to use `http://` instead of `https`. |
@@ -61,10 +58,6 @@ global:
 | `gitlab.serviceName`      | String  | `webservice`  | The name of the `service` which is operating the GitLab server. The chart will template the hostname of the service (and current `.Release.Name`) to create the proper internal `serviceName`. |
 | `gitlab.servicePort`      | String  | `workhorse`   | The named port of the `service` where the GitLab server can be reached. |
 | `keda.enabled`            | Boolean | `false`       | Use [KEDA](https://keda.sh/) `ScaledObjects` instead of `HorizontalPodAutoscalers` |
-| `minio.https`             | Boolean | `false`       | If `hosts.https` or `minio.https` are `true`, the MinIO external URL will use `https://` instead of `http://`. |
-| `minio.name`              | String  | `minio`       | The hostname for MinIO. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
-| `minio.serviceName`       | String  | `minio`       | The name of the `service` which is operating the MinIO server. The chart will template the hostname of the service (and current `.Release.Name`) to create the proper internal `serviceName`. |
-| `minio.servicePort`       | String  | `minio`       | The named port of the `service` where the MinIO server can be reached. |
 | `registry.https`          | Boolean | `false`       | If `hosts.https` or `registry.https` are `true`, the Registry external URL will use `https://` instead of `http://`. |
 | `registry.name`           | String  | `registry`    | The hostname for Registry. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
 | `registry.serviceName`    | String  | `registry`    | The name of the `service` which is operating the Registry server. The chart will template the hostname of the service (and current `.Release.Name`) to create the proper internal `serviceName`. |
@@ -182,7 +175,6 @@ If you wish to use an external `cert-manager`, you must provide the following:
 
 - `gitlab.webservice.ingress.tls.secretName`
 - `registry.ingress.tls.secretName`
-- `minio.ingress.tls.secretName`
 - `global.ingress.annotations`
 
 ### `global.ingress.useNewIngressForCerts`
@@ -955,18 +947,6 @@ global:
 | `psql.user`       | String  | `praefect` | The database user to use. |
 | `psql.dbName`     | String  | `praefect` | The name of the database to use. |
 
-## Configure MinIO settings
-
-The GitLab global MinIO settings are located under the `global.minio` key. For more
-details on these settings, see the documentation within the [MinIO chart](minio/_index.md).
-
-```yaml
-global:
-  minio:
-    enabled: true
-    credentials: {}
-```
-
 ## Configure `appConfig` settings
 
 The [Webservice](gitlab/webservice/_index.md), [Sidekiq](gitlab/sidekiq/_index.md), and
@@ -1293,9 +1273,8 @@ items below. The `connection` property structure is identical.
 > deviate from the default values.
 
 When using the `AWS` provider for the [connection](#connection) (which is any
-S3 compatible provider such as the included MinIO), GitLab Workhorse can offload
-all storage related uploads. This will automatically be enabled for you, when
-using this consolidated configuration.
+S3 compatible provider), GitLab Workhorse can offload all storage related uploads.
+This will automatically be enabled for you, when using this consolidated configuration.
 
 ### Specify buckets
 
@@ -1380,8 +1359,7 @@ as they are structurally identical aside from the default value of the `bucket` 
 #### `connection`
 
 The `connection` property has been transitioned to a Kubernetes Secret. The contents
-of this secret should be a YAML formatted file. Defaults to `{}` and will be ignored
-if `global.minio.enabled` is `true`.
+of this secret should be a YAML formatted file.
 
 This property has two sub-keys: `secret` and `key`.
 

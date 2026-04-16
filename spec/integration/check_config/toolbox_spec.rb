@@ -34,29 +34,13 @@ describe 'checkConfig toolbox' do
   describe 'gitlab.toolbox.backups.objectStorage.config.secret' do
     describe 'gitlab.toolbox.enabled (the default value)' do
       let(:success_values) do
-        YAML.safe_load(%(
-          gitlab:
-            toolbox:
-              enabled: true
-              backups:
-                objectStorage:
-                  config:
-                    secret: s3cmd-config
-                    key: config
-        )).deep_merge!(default_required_values)
+        default_required_values
       end
 
       let(:error_values) do
-        YAML.safe_load(%(
-          gitlab:
-            toolbox:
-              enabled: true
-              backups:
-                objectStorage:
-                  config:
-                    # secret: s3cmd-config
-                    key: config
-        )).deep_merge!(default_required_values)
+        vals = success_values
+        vals['gitlab']['toolbox']['backups']['objectStorage']['config'].delete('secret')
+        vals
       end
 
       let(:error_output) { 'A valid object storage config secret is needed for backups.' }

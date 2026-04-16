@@ -363,7 +363,7 @@ describe 'Gitaly configuration' do
               dir: #{pack_objects_cache_dir}
               max_age: #{pack_objects_cache_max_age}
               min_occurrences: #{pack_objects_cache_min_occurrences}
-      )).merge(default_values)
+      )).deep_merge(default_values)
     end
 
     context 'when enabled' do
@@ -406,7 +406,7 @@ describe 'Gitaly configuration' do
               timeout:
                 uploadPackNegotiation: 10m
                 uploadArchiveNegotiation: 20m
-        )).merge(default_values)
+        )).deep_merge(default_values)
       end
 
       it 'populates a timeout section in config.toml.tpl' do
@@ -425,7 +425,7 @@ describe 'Gitaly configuration' do
         YAML.safe_load(%(
           gitlab:
             gitaly: {}
-        )).merge(default_values)
+        )).deep_merge(default_values)
       end
 
       it 'does not populate a timeout section in config.toml.tpl' do
@@ -546,7 +546,7 @@ describe 'Gitaly configuration' do
                 memory: #{resources_limits_memory}
             gomemlimit:
               enabled: #{gomemlimit_enabled}
-      )).merge(default_values)
+      )).deep_merge(default_values)
     end
 
     context 'when enabled' do
@@ -579,7 +579,7 @@ describe 'Gitaly configuration' do
         gitlab:
           gitaly:
             shareProcessNamespace: #{share_process_namespace_enabled}
-      )).merge(default_values)
+      )).deep_merge(default_values)
     end
 
     context 'when enabled' do
@@ -802,7 +802,6 @@ describe 'Gitaly configuration' do
     let(:toml) { render_toml(gitaly_config, 'HOSTNAME' => 'default') }
 
     it 'renders the template' do
-      puts values
       expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
     end
 
@@ -903,7 +902,7 @@ describe 'Gitaly configuration' do
                 timeoutSeconds: 2
                 successThreshold: 1
                 failureThreshold: 60
-      )).merge(default_values)
+      )).deep_merge(default_values)
     end
 
     context 'when enabled' do
@@ -956,7 +955,7 @@ describe 'Gitaly configuration' do
     let(:values) do
       vals = { 'gitlab' => { 'gitaly' => {} } }
       vals['gitlab']['gitaly']['gracefulRestartTimeout'] = graceful_restart_timeout unless graceful_restart_timeout.nil?
-      vals.merge(default_values)
+      vals.deep_merge(default_values)
     end
 
     context 'when default' do
@@ -1010,7 +1009,7 @@ describe 'Gitaly configuration' do
             startMinute: 59
             duration: 5m
             storages: ["default", "custom"]
-      )).merge(default_values)
+      )).deep_merge(default_values)
     end
 
     it 'renders the template' do
@@ -1041,7 +1040,7 @@ describe 'Gitaly configuration' do
             type: #{gitaly_service_type}
             #{"clusterIP: #{gitaly_cluster_ip_address}" unless gitaly_cluster_ip_address.nil?}
             #{"loadBalancerIP: #{gitaly_lb_ip_address}" unless gitaly_lb_ip_address.nil?}
-      )).merge(default_values)
+      )).deep_merge(default_values)
     end
 
     context 'when service.clusterIP is given' do

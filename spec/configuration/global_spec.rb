@@ -359,14 +359,12 @@ describe 'global configuration' do
       [
         'Deployment/envoy-gateway',
         'Deployment/test-gitlab-runner',
-        'Deployment/test-prometheus-server',
-        'Deployment/test-minio'
+        'Deployment/test-prometheus-server'
       ]
     end
 
     let(:ignored_jobs) do
       [
-        'Job/test-minio-create-buckets-1',
         'Job/test-shared-secrets-1',
         'Job/test-gitlab-upgrade-check',
         'Job/test-envoy-gateway-certgen'
@@ -425,7 +423,6 @@ describe 'global configuration' do
       [
         'Deployment/test-gitlab-runner',
         'Deployment/test-prometheus-server',
-        'Deployment/test-minio',
         'Deployment/test-certmanager',
         'Deployment/test-certmanager-cainjector',
         'Deployment/test-certmanager-webhook'
@@ -434,7 +431,6 @@ describe 'global configuration' do
 
     let(:ignored_jobs) do
       [
-        'Job/test-minio-create-buckets-1',
         'Job/test-shared-secrets-1',
         'Job/test-gitlab-upgrade-check',
         'Job/test-cert-manager-startupapicheck'

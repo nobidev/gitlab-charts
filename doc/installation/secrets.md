@@ -52,16 +52,13 @@ documentation.
 - [SSH Host Keys](#ssh-host-keys)
 - Passwords:
   - [Initial root password](#initial-root-password)
-  - [Redis password](#redis-password)
   - [GitLab Shell secret](#gitlab-shell-secret)
   - [Gitaly secret](#gitaly-secret)
   - [Praefect secret](#praefect-secret)
   - [GitLab Rails secret](#gitlab-rails-secret)
   - [GitLab Workhorse secret](#gitlab-workhorse-secret)
   - [GitLab Runner secret](#gitlab-runner-secret)
-  - [PostgreSQL password](#postgresql-password)
   - [Praefect DB password](#praefect-db-password)
-  - [MinIO secret](#minio-secret)
   - [Registry HTTP secret](#registry-http-secret)
   - [Registry notification secret](#registry-notification-secret)
   - [GitLab Pages secret](#gitlab-pages-secret)
@@ -174,21 +171,6 @@ release.
 ```shell
 kubectl create secret generic <name>-gitlab-initial-root-password --from-literal=password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32)
 ```
-
-### Redis password
-
-Generate a random 64 character alpha-numeric password for Redis. Replace
-`<name>` with the name of the release.
-
-```shell
-kubectl create secret generic <name>-redis-secret --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
-```
-
-If deploying with an already existing Redis cluster, please use the password
-for accessing the Redis cluster that has been base64 encoded instead of a
-randomly generated one.
-
-This secret is referenced by the `global.redis.auth.secret` setting.
 
 ### GitLab Shell secret
 
@@ -309,30 +291,6 @@ kubectl create secret generic <name>-kas-websocket-token --from-literal=kas_webs
 ```
 
 This secret is referenced by the `gitlab.kas.websocketToken.secret` setting.
-
-### MinIO secret
-
-Generate a set of random 20 & 64 character alpha-numeric keys for MinIO.
-Replace `<name>` with the name of the release.
-
-```shell
-kubectl create secret generic <name>-minio-secret --from-literal=accesskey=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 20) --from-literal=secretkey=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
-```
-
-This secret is referenced by the `global.minio.credentials.secret` setting.
-
-### PostgreSQL password
-
-Generate a random 64 character alpha-numeric password. Replace `<name>` with
-the name of the release.
-
-```shell
-kubectl create secret generic <name>-postgresql-password \
-    --from-literal=postgresql-password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64) \
-    --from-literal=postgresql-postgres-password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
-```
-
-This secret is referenced by the `global.psql.password.secret` setting.
 
 ### GitLab Pages secret
 

@@ -165,11 +165,6 @@ the registry. You can either [add the certificate](https://distribution.github.i
 [expose the registry over HTTP](https://distribution.github.io/distribution/about/insecure/#deploy-a-plain-http-registry) (see `global.hosts.registry.https`).
 Note that adding the certificate is more secure than the insecure registry solution.
 
-Please keep in mind that Registry uses the external domain name of MinIO service (see `global.hosts.minio.name`). You may
-encounter an error when using internal domain names, e.g. with custom TLDs for development environment. The common symptom
-is that you can log in to the Registry but you can't push or pull images. This is generally because the Registry container(s)
-can not resolve the MinIO domain name and find the correct endpoint (you can see the errors in container logs).
-
 ## Development features
 
 1. Cells configuration (development only)

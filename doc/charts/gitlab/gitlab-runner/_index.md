@@ -66,7 +66,7 @@ Privileged containers have extended capabilities, for example they can mount arb
 
 ## Default runner configuration
 
-The default runner configuration used in the GitLab chart has been customized to use the included MinIO for cache by default. If you are setting the runner `config` value, you will need to also configure your own cache configuration.
+The default runner configuration used in the GitLab chart has been customized. If you are setting the runner `config` value, you will need to also configure your own cache configuration.
 
 ```yaml
 gitlab-runner:
@@ -75,17 +75,6 @@ gitlab-runner:
       [[runners]]
         [runners.kubernetes]
         image = "ubuntu:22.04"
-        {{- if .Values.global.minio.enabled }}
-        [runners.cache]
-          Type = "s3"
-          Path = "gitlab-runner"
-          Shared = true
-          [runners.cache.s3]
-            ServerAddress = {{ include "gitlab-runner.cache-tpl.s3ServerAddress" . }}
-            BucketName = "runner-cache"
-            BucketLocation = "us-east-1"
-            Insecure = false
-        {{ end }}
 ```
 
 All customized GitLab Runner chart configuration is available in the

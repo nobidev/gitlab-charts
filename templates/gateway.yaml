@@ -87,12 +87,6 @@ spec:
     {{- $_ := set $listener "name" "gitlab-ssh" }}
     {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig) | nindent 2 }}
   {{- end }}
-  {{- if .Values.global.minio.enabled }}
-    {{- $listener = index $listeners "minio-web" }}
-    {{- $_ := set $listener "name" "minio-web" }}
-    {{- $_ := set $listener "hostname" (include "gitlab.minio.hostname" .) }}
-    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig) | nindent 2 }}
-  {{- end }}
   {{- if .Values.openbao.install }}
     {{- $listener = index $listeners "openbao-web" }}
     {{- $_ := set $listener "name" "openbao-web" }}

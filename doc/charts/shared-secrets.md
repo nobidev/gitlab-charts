@@ -16,10 +16,9 @@ The `shared-secrets` job is responsible for provisioning a variety of secrets
 used across the installation, unless otherwise manually specified. This includes:
 
 1. Initial root password
-1. Self-signed TLS certificates for all public services: GitLab, MinIO, and Registry
+1. Self-signed TLS certificates for all public services: GitLab, Registry, KAS, and GitLab Pages
 1. Registry authentication certificates
-1. MinIO, Registry, GitLab Shell, and Gitaly secrets
-1. Redis and PostgreSQL passwords
+1. Registry, GitLab Shell, and Gitaly secrets
 1. SSH host keys
 1. GitLab Rails secret for [encrypted credentials](https://docs.gitlab.com/administration/encrypted_configuration/)
 

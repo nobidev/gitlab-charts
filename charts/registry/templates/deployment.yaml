@@ -188,10 +188,6 @@ spec:
               items:
                 - key: {{ template "gitlab.registry.httpSecret.key" . }}
                   path: httpSecret
-          {{- if .Values.global.minio.enabled }}
-          - secret:
-              name: {{ template "gitlab.minio.credentials.secret" . }}
-          {{- end }}
           {{- if .Values.storage.secret }}
           - secret:
               name: {{ .Values.storage.secret }}

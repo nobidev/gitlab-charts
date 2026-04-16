@@ -51,13 +51,12 @@ To migrate from a Helm installation to a Linux package (Omnibus) installation:
    connected to the Linux package instance. A couple of notes:
 
    - For S3-compatible storages, use the `s3cmd` utility to copy the data.
-   - If you plan to use an S3-compatible object storage like MinIO with your
+   - If you plan to use an S3-compatible object storage with your
      Linux package instance, you should configure the options `endpoint`
-     pointing to your MinIO and set `path_style` to `true` in
-     `/etc/gitlab/gitlab.rb`.
+     pointing to your object storage. Check the [provider specific](https://docs.gitlab.com/administration/object_storage/#provider-specific-configuration-examples)
+     example for other configuration that might be required.
    - You may re-use your old object storage with the new Linux package instance. In this case, you
-     do not need to sync data between two object storages. However, the storage could be de-provisioned when
-     you uninstall GitLab Helm chart if you are using the built-in MinIO instance.
+     do not need to sync data between two object storages. 
 
 1. Copy the GitLab Helm backup to `/var/opt/gitlab/backups` on your Linux package GitLab instance, and
    [perform the restore](https://docs.gitlab.com/administration/backup_restore/restore_gitlab/#restore-for-linux-package-installations).

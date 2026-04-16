@@ -1,5 +1,0 @@
-minio:
-  imageTag: "RELEASE.2020-09-21T22-31-59Z-arm64"
-  minioMc:
-    tag: "RELEASE.2020-09-23T20-02-13Z-arm64"
-

@@ -64,7 +64,6 @@ helm install gitlab gitlab/gitlab \
   --set global.ingress.annotations."kubernetes\.io/tls-acme"=true \
   --set gitlab.webservice.ingress.tls.secretName=RELEASE-gitlab-tls \
   --set registry.ingress.tls.secretName=RELEASE-registry-tls \
-  --set minio.ingress.tls.secretName=RELEASE-minio-tls \
   --set gitlab.kas.ingress.tls.secretName=RELEASE-kas-tls
 ```
 
@@ -110,7 +109,6 @@ helm install gitlab gitlab/gitlab \
   --set global.ingress.tls.enabled=true \
   --set gitlab.webservice.ingress.tls.secretName=RELEASE-gitlab-tls \
   --set registry.ingress.tls.secretName=RELEASE-registry-tls \
-  --set minio.ingress.tls.secretName=RELEASE-minio-tls \
   --set gitlab.kas.ingress.tls.secretName=RELEASE-kas-tls
 ```
 

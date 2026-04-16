@@ -43,7 +43,6 @@ helm inspect values gitlab/gitlab
 | `global.imagePullPolicy`                             | `IfNotPresent`                                | DEPRECATED: Use `global.image.pullPolicy` instead |
 | `global.image.pullPolicy`                            | _none_ (default behavior is `IfNotPresent`)   | Set default imagePullPolicy for all charts |
 | `global.image.pullSecrets`                           | _none_                                        | Set default imagePullSecrets for all charts (use a list of `name` and value pairs) |
-| `global.minio.enabled`                               | `true`                                        | MinIO enable flag |
 | `global.psql.host`                                   | Required                                      | Hostname of the external PostgreSQL instance |
 | `global.psql.password.key`                           | Required                                      | Key pointing to the PostgreSQL password in the PostgreSQL secret |
 | `global.psql.password.secret`                        | Required                                      | Global name of the secret containing the PostgreSQL password |
@@ -64,7 +63,6 @@ helm inspect values gitlab/gitlab
 | `global.ingress.configureCertmanager`               | `false` | Configure cert-manager to get certificates from Let's Encrypt (only used when Ingress is enabled) |
 | `global.gatewayApi.configureCertmanager`            | `true`  | Configure cert-manager to get certificates from Let's Encrypt via a Gateway API HTTP-01 solver |
 | `global.ingress.tls.secretName`                     | _none_  | Existing `Secret` containing wildcard TLS certificate and key |
-| `minio.ingress.tls.secretName`                      | _none_  | Existing `Secret` containing TLS certificate and key for MinIO |
 | `registry.ingress.tls.secretName`                   | _none_  | Existing `Secret` containing TLS certificate and key for registry |
 
 ## Outgoing Email configuration
@@ -256,7 +254,6 @@ See [Configure the GitLab chart with an external Redis](../advanced/external-red
 | `registry.authEndpoint`                             | Undefined by default                        | Auth endpoint |
 | `registry.enabled`                                  | `true`                                      | Enable Docker registry |
 | `registry.httpSecret`                               |                                             | Https secret |
-| `registry.minio.bucket`                             | `registry`                                  | MinIO registry bucket name |
 | `registry.service.annotations`                      | `{}`                                        | Annotations to add to the `Service` |
 | `registry.securityContext.fsGroup`                  | `1000`                                      | Group ID under which the pod should be started |
 | `registry.securityContext.runAsUser`                | `1000`                                      | User ID under which the pod should be started |
@@ -267,32 +264,6 @@ See [Configure the GitLab chart with an external Redis](../advanced/external-red
 | `registry.profiling.stackdriver.credentials.key`    | `credentials`                               | Secret key in which the credentials are stored |
 | `registry.profiling.stackdriver.service`            | `RELEASE-registry` (templated Service name) | Name of the Stackdriver service to record profiles under |
 | `registry.profiling.stackdriver.projectid`          | GCP project where running                   | GCP project to report profiles to |
-
-## Advanced MinIO configuration
-
-| Parameter                            | Default                        | Description |
-|--------------------------------------|--------------------------------|-------------|
-| `minio.defaultBuckets`               | `[{"name": "registry"}]`       | MinIO default buckets |
-| `minio.image`                        | `minio/minio`                  | MinIO image |
-| `minio.imagePullPolicy`              |                                | MinIO image pull policy |
-| `minio.imageTag`                     | `RELEASE.2017-12-28T01-21-00Z` | MinIO image tag |
-| `minio.minioConfig.browser`          | `on`                           | MinIO browser flag |
-| `minio.minioConfig.domain`           |                                | MinIO domain |
-| `minio.minioConfig.region`           | `us-east-1`                    | MinIO region |
-| `minio.mountPath`                    | `/export`                      | MinIO configuration file mount path |
-| `minio.persistence.accessMode`       | `ReadWriteOnce`                | MinIO persistence access mode |
-| `minio.persistence.enabled`          | `true`                         | MinIO enable persistence flag |
-| `minio.persistence.matchExpressions` |                                | MinIO label-expression matches to bind |
-| `minio.persistence.matchLabels`      |                                | MinIO label-value matches to bind |
-| `minio.persistence.size`             | `10Gi`                         | MinIO persistence volume size |
-| `minio.persistence.storageClass`     |                                | MinIO storageClassName for provisioning |
-| `minio.persistence.subPath`          |                                | MinIO persistence volume mount path |
-| `minio.persistence.volumeName`       |                                | MinIO existing persistent volume name |
-| `minio.resources.requests.cpu`       | `250m`                         | MinIO minimum CPU requested |
-| `minio.resources.requests.memory`    | `256Mi`                        | MinIO minimum memory requested |
-| `minio.service.annotations`          | `{}`                           | Annotations to add to the `Service` |
-| `minio.servicePort`                  | `9000`                         | MinIO service port |
-| `minio.serviceType`                  | `ClusterIP`                    | MinIO service type |
 
 ## Advanced GitLab configuration
 
@@ -312,7 +283,7 @@ See [Configure the GitLab chart with an external Redis](../advanced/external-red
 | `gitlab-runner.resources.requests.cpu`                     |                                                                 | runner resources |
 | `gitlab-runner.resources.requests.memory`                  |                                                                 | runner resources |
 | `gitlab-runner.runners.privileged`                         | `false`                                                         | run in privileged mode, needed for `dind` |
-| `gitlab-runner.runners.cache.secretName`                   | `gitlab-minio`                                                  | secret to get `accesskey` and `secretkey` from |
+| `gitlab-runner.runners.cache.secretName`                   |                                                                 | s3 cache secret |
 | `gitlab-runner.runners.config`                             | See [Chart documentation](../charts/gitlab/gitlab-runner/_index.md#default-runner-configuration) | Runner configuration as string |
 | `gitlab-runner.unregisterRunners`                          | `true`                                                          | Unregisters all runners in the local `config.toml` when the chart is installed. If the token is prefixed with `glrt-`, the runner manager is deleted, not the runner. The runner manager is identified by the runner and the machine that contains the `config.toml`. If the runner was registered with a registration token, the runner is deleted. |
 | `gitlab.geo-logcursor.securityContext.fsGroup`             | `1000`                                                          | Group ID under which the pod should be started |

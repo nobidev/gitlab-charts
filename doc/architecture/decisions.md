@@ -23,9 +23,9 @@ Introduced in [!757 checkConfig: add methods to test for known errors](https://g
 ## Breaking changes via deprecation
 
 During the development of these charts, we occasionally make improvements that require
-alterations to the properties of existing deployments. Two examples were the centralization
-of configuring the use of MinIO, and the migration of external object storage configuration
-from properties to secrets (in observance of our preference).
+alterations to the properties of existing deployments. One example was the migration of
+external object storage configuration from properties to secrets (in observance of our
+preference).
 
 As a means of preventing a user from accidentally deploying an updated version of these
 charts which includes a breaking change against a configuration that would not function, we
@@ -176,31 +176,19 @@ and WSS traffic for KAS, or for Smartcard support.
 The following charts have been forked or re-created in this repository following
 our [guidelines for forks and new charts](../development/readiness/_index.md)
 
-### Redis
+## Redis, PosgreSQL, and MinIO
 
-With the `3.0` release of the GitLab Helm chart, we no longer fork the [upstream Redis chart](https://github.com/bitnami/charts/tree/main/bitnami/redis),
-and instead include it as a dependency.
+GitLab chart bundled Redis, PostgreSQL, and MinIO for evaluation and testing purposes
+until GitLab 19.0/GitLab chart 10.0.
 
-### Redis HA
-
-Redis-HA was a chart we included in our releases prior to `3.0`. It has now been removed,
-and replaced with [upstream Redis chart](https://github.com/bitnami/charts/tree/main/bitnami/redis)
-which has added optional HA support.
-
-### MinIO
-
-Our [MinIO chart](../charts/minio/_index.md) was altered from the upstream [MinIO](https://github.com/helm/charts/tree/master/stable/minio).
-
-- Make use of pre-existing Kubernetes secrets instead of creating new ones from properties.
-- Remove providing the sensitive keys via Environment.
-- Automate the creation of multiple buckets via `defaultBuckets` in place of
-  `defaultBucket.*` properties.
+Because of several changes to licensing, project maintenance, and public image availability
+these, components will be removed with no replacement. To deploy GitLab chart, these
+components must be managed externally.
 
 ### registry
 
 Our [registry chart](../charts/registry/_index.md) was altered from the upstream [`docker-registry`](https://github.com/helm/charts/tree/master/stable/docker-registry).
 
-- Enable the use of in-chart MinIO services automatically.
 - Automatically hook authentication to the GitLab services.
 
 ### NGINX Ingress

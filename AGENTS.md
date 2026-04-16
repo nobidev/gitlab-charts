@@ -54,12 +54,11 @@ Those containers originate from `gitlab.com/gitlab-org/build/CNG`, and their sou
 - **cert-manager** — `jetstack/cert-manager`
 - **Prometheus** — `prometheus-community/prometheus`
 - **Envoy Gateway** - Gateway API implementation - `gateway-helm`
-- **MinIO** - still bundled optionally for proof of concept and testing environments. Will be removed in 19.0.
 - **Ingress controllers**: NGINX Ingress, Traefik Ingress, and HAProxy Ingress are deprecated but still bundled as optional dependencies. They are announced to be removed in 20.0.
 
 ### Key Design Decisions
 
-- Object storage (S3-compatible) is required for shared data
+- The chart does not provide PostgreSQL, Redis and (S3) object storage. These are prerequisites that must be managed externally.
 - Components are designed to run without root privileges, though some cluster configurations may require adjustments
 - All inter-service communication uses Kubernetes Services
 - Secrets managed via Kubernetes Secret objects

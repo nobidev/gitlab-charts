@@ -141,29 +141,7 @@ data:
     mkdir "/${secret_dir}/openbao-db/"
 
     {{- if eq .Values.backups.objectStorage.backend "s3" }}
-    if [ ! -f "/${secret_dir}/objectstorage/.s3cfg" ]; then
-    cat <<EOF > "/${secret_dir}/.s3cfg"
-    [default]
-    access_key = $(cat /init-secrets/minio/accesskey)
-    secret_key = $(cat /init-secrets/minio/secretkey)
-    bucket_location = us-east-1
-    host_base = {{ template "gitlab.minio.hostname" . }}
-    host_bucket = {{ template "gitlab.minio.hostname" . }}/%(bucket)
-    default_mime_type = binary/octet-stream
-    enable_multipart = True
-    multipart_max_chunks = 10000
-    multipart_chunk_size_mb = 128
-    recursive = True
-    recv_chunk = 65536
-    send_chunk = 65536
-    server_side_encryption = False
-    signature_v2 = True
-    socket_timeout = 300
-    use_mime_magic = False
-    verbosity = WARNING
-    website_endpoint = {{ template "gitlab.minio.url" . }}
-    EOF
-    else
+    if [ -f "/${secret_dir}/objectstorage/.s3cfg" ]; then
       mv "/${secret_dir}/objectstorage/.s3cfg" "/${secret_dir}/.s3cfg"
     fi
     {{- end }}

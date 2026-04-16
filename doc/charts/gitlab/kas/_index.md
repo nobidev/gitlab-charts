@@ -60,7 +60,7 @@ global.hosts.kas.name: kas.my-other-domain.com
 ```
 
 This example uses `kas.my-other-domain.com` as the host for the KAS Ingress alone.
-The rest of the services (including GitLab, Registry, MinIO, etc.) use the domain
+The rest of the services (including GitLab, Registry, GitLab Pages) use the domain
 specified in `global.hosts.domain`.
 
 ### gRPC Ingress Support

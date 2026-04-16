@@ -12,10 +12,8 @@ title: Configure storage for the GitLab chart
 
 {{< /details >}}
 
-The following applications within the GitLab chart require persistent storage to maintain state.
-
-- [Gitaly](../charts/gitlab/gitaly/_index.md) (persists the Git repositories)
-- [MinIO](../charts/minio/_index.md) (persists the object storage data)
+[Gitaly](../charts/gitlab/gitaly/_index.md) (managaed the Git repositories) requires persistent
+storage to maintain state.
 
 The administrator may choose to provision this storage using [dynamic](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#dynamic) or [static](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#static) volume provisioning.
 
@@ -70,10 +68,8 @@ the provided [example configuration file](https://gitlab.com/gitlab-org/charts/g
 helm install -upgrade gitlab gitlab/gitlab -f HELM_OPTIONS_YAML_FILE
 ```
 
-Follow the links below for further reading and additional persistence options:
-
-- [Gitaly persistence configuration](../charts/gitlab/gitaly/_index.md#git-repository-persistence)
-- [MinIO persistence configuration](../charts/minio/_index.md#persistence)
+Check the [Gitaly persistence documentation](../charts/gitlab/gitaly/_index.md#git-repository-persistence)
+for further reading and persistence options.
 
 ## Using Static Volume Provisioning
 

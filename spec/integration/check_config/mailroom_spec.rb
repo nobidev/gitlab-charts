@@ -180,7 +180,6 @@ describe 'checkConfig mailroom' do
       end
 
       it 'succeeds' do
-        puts stderr
         expect(stderr).to be_empty
         expect(exit_code).to eq(0)
         expect(stdout).to include('name: gitlab-checkconfig-test')

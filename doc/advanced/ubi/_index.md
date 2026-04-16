@@ -17,14 +17,9 @@ are mostly offer external services to GitLab, such as Redis, PostgreSQL, and so 
 If you wish to deploy a GitLab instance that purely based on UBI you must
 disable the internal services, and use external deployments or services.
 
-The services that must be disabled and provided externally are:
-
-- PostgreSQL
-- MinIO (Object Store)
-- Redis
-
 The services must be disabled are:
 
+- Envoy Gateway (Gateway API provider)
 - CertManager (Let's Encrypt integration)
 - Prometheus
 - GitLab Runner

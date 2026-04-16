@@ -320,9 +320,6 @@ global:
     registry: {}
       #name: registry.example.com
       #https: false
-    minio: {}
-      #name: minio.example.com
-      #https: false
   psql: {}
     # host: '0.0.0.0'
     # port: '5432'
@@ -373,9 +370,6 @@ global:
       names: ["default"]
     external: []
     authToken: {}
-  minio:
-    enabled:
-    credentials: {}
   webservice: {}
     # workerTimeout: 60
   appConfig:
@@ -480,10 +474,6 @@ gitaly:
   authToken: {}
   #   secret: gitaly-secret
   #   key: token
-minio:
-  serviceName: 'minio-svc'
-  port: 9000
-
 extra: {}
   # google_analytics_id: '_your_tracking_id'
   # matomo_url: '_your_matomo_url'

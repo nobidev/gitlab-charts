@@ -125,12 +125,6 @@ global:
     registry: {}
       #name: registry.example.com
       #https: false
-    minio: {}
-      #name: minio.example.com
-      #https: false
-  minio:
-    enabled:
-    credentials: {}
   registry:
     database: {}
     certificate: {}
@@ -308,9 +302,6 @@ middleware:
     #       secret: cdn-private-key
     #       key: private.pem
     #     keypairid: YOURKEYPAIRIDFORPRIVATEKEY
-
-minio:
-  redirect: false
 
 # Enable the registry to accept windows based docker images
 # See https://github.com/docker/distribution/issues/2795

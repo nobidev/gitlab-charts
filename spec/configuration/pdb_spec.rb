@@ -7,7 +7,7 @@ describe 'PodDisruptionBudget configuration' do
   let(:values) { {} }
   let(:helm_args) { '' }
   let(:gitlab_subcharts) { %w[gitaly gitlab-pages gitlab-shell kas sidekiq spamcheck webservice] }
-  let(:subcharts) { %w[minio nginx-ingress registry] }
+  let(:subcharts) { %w[nginx-ingress registry] }
   let(:template) { HelmTemplate.new(default_values.deep_merge(values), 'test', helm_args) }
 
   let :default_values do

@@ -301,12 +301,6 @@ data:
       mkdir -p /init-secrets-workhorse/gitlab-workhorse
       cp -v -r -L /init-config/gitlab-workhorse/secret /init-secrets-workhorse/gitlab-workhorse/secret
       {{- include "workhorse.redis.secret-setup" $ | nindent 6 -}}
-      {{- if $.Values.global.minio.enabled }}
-      if [ -d /init-config/minio ]; then
-        mkdir -p /init-secrets-workhorse/minio
-        cp -v -r -L /init-config/minio/* /init-secrets-workhorse/minio/
-      fi
-      {{- end }}
       {{- if $.Values.global.appConfig.object_store.connection }}
       if [ -f /init-config/objectstorage/object_store ]; then
         mkdir -p /init-secrets-workhorse/objectstorage

@@ -20,7 +20,3 @@ redis:
   resources:
     requests:
       cpu: 100m
-minio:
-  resources:
-    requests:
-      cpu: 100m

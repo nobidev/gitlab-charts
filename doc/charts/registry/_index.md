@@ -211,7 +211,6 @@ If you chose to deploy this chart as a standalone, remove the `registry` at the 
 | `keda.behavior`                                          | `hpa.behavior`                                                       | The specifications for up- and downscaling behavior. |
 | `keda.triggers`                                          |                                                                      | List of triggers to activate scaling of the target resource, defaults to triggers computed from `hpa.cpu` and `hpa.memory` |
 | `log`                                                    | `{level: info, fields: {service: registry}}`                         | Configure the logging options |
-| `minio.bucket`                                           | `global.registry.bucket`                                             | Legacy registry bucket name |
 | `maintenance.readonly.enabled`                           | `false`                                                              | Enable registry's read-only mode |
 | `maintenance.uploadpurging.enabled`                      | `true`                                                               | Enable upload purging |
 | `maintenance.uploadpurging.age`                          | `168h`                                                               | Purge uploads older than the specified age |
@@ -824,7 +823,7 @@ The Redis cache Secret is used when `global.redis.auth.enabled` is set to `true`
 When the `shared-secrets` feature is enabled, the `gitlab-redis-secret` secret object
 is automatically created if not provided.
 
-To create this secret manually, see the [Redis password instructions](../../installation/secrets.md#redis-password).
+To create this secret manually, see the [secrets documentation](../../installation/secrets.md#manual-secret-creation-optional).
 
 ### `authEndpoint`
 
@@ -1007,8 +1006,7 @@ external service, such as `s3`, `gcs`, `azure` or other compatible Object Storag
 > [!note]
 > The chart will populate `delete.enabled: true` into this configuration
 > by default if not specified by the user. This keeps expected behavior in line with
-> the default use of MinIO, as well as the Linux package. Any user provided value
-> will supersede this default.
+> the Linux package.
 
 ### `middleware.storage`
 

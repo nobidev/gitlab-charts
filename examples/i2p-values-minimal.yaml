@@ -63,16 +63,6 @@ registry:
   hpa:
     minReplicas: 1
     maxReplicas: 1
-redis:
-  metrics:
-    resources:
-      requests:
-        cpu: 10m
-postgresql:
-  metrics:
-    resources:
-      requests:
-        cpu: 10m
 prometheus:
   server:
     resources:
@@ -86,7 +76,3 @@ certmanager:
   resources:
     requests:
       cpu: 10m
-minio:
-  resources:
-    requests:
-      cpu: 50m

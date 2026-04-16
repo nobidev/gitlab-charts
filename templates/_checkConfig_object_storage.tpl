@@ -1,4 +1,32 @@
 {{/*
+Ensure Registry object store secret is configured.
+*/}}
+{{- define "gitlab.checkConfig.objectStorage.registry.configured" -}}
+{{-   with $.Values.registry -}}
+{{-     if and .enabled (not .storage.secret) -}}
+Registry Object Storage:
+  The chart provides no longer bundled object storage solution. Please
+  prepare an external object storage solution for the Registry by following 
+  https://docs.gitlab.com/charts/advanced/external-object-storage/#registry-configuration
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+
+{{/*
+Ensure Backup/Restore object store secret is configured.
+*/}}
+{{- define "gitlab.checkConfig.objectStorage.backup.configured" -}}
+{{-   with $.Values.gitlab.toolbox -}}
+{{-     if and .enabled (not .backups.objectStorage.config.secret) -}}
+Registry Object Storage:
+  The chart provides no longer bundled object storage solution. Please
+  prepare an external object storage solution for backup and restore by following 
+  https://docs.gitlab.com/charts/advanced/external-object-storage/#backups
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+
+{{/*
 Ensure consolidate and type-specific object store configuration are not mixed.
 */}}
 {{- define "gitlab.checkConfig.objectStorage.consolidatedConfig" -}}
@@ -13,14 +41,15 @@ Ensure consolidate and type-specific object store configuration are not mixed.
 {{-       end -}}
 {{-     end -}}
 {{-     if not (empty $problematicTypes) -}}
-When consolidated object storage is enabled, for each item `bucket` must be specified and the `connection` must be empty. Check the following object storage configuration(s): {{ join "," $problematicTypes }}
+Object Storage:
+  When consolidated object storage is enabled, for each item `bucket` must be specified and the `connection` must be empty. Check the following object storage configuration(s): {{ join "," $problematicTypes }}
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.objectStorage.consolidatedConfig */}}
 
 {{- define "gitlab.checkConfig.objectStorage.typeSpecificConfig" -}}
-{{-   if and (not $.Values.global.minio.enabled) (not $.Values.global.appConfig.object_store.enabled) -}}
+{{-   if not $.Values.global.appConfig.object_store.enabled -}}
 {{-     $problematicTypes := list -}}
 {{-     range $objectTypes := list "artifacts" "lfs" "uploads" "packages" "externalDiffs" "terraformState" "dependencyProxy" -}}
 {{-       if hasKey $.Values.global.appConfig . -}}
@@ -31,7 +60,8 @@ When consolidated object storage is enabled, for each item `bucket` must be spec
 {{-       end -}}
 {{-     end -}}
 {{-     if not (empty $problematicTypes) -}}
-When type-specific object storage is enabled the `connection` property can not be empty. Check the following object storage configuration(s): {{ join "," $problematicTypes }}
+Object Storage:
+  When type-specific object storage is enabled the `connection` property can not be empty. Check the following object storage configuration(s): {{ join "," $problematicTypes }}
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
