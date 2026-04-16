@@ -21,9 +21,8 @@ you will have *no* workers.
 
 ## Requirements
 
-This chart depends on access to Redis, PostgreSQL, and Gitaly services, either as
-part of the complete GitLab chart or provided as external services reachable from
-the Kubernetes cluster this chart is deployed onto.
+This chart depends on access to Redis, PostgreSQL, and Gitaly services provided as
+external services reachable from the Kubernetes cluster this chart is deployed onto.
 
 ## Design Choices
 

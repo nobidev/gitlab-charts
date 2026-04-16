@@ -50,7 +50,7 @@ instructions on how to configure the chart to use external services.
 
 ## Configure the Helm chart to use external stateful data
 
-Configure the chart to point to external object storage, Valkey/Redis, PostgreSQL, and Gitaly services
+Configure the chart to point to external object storage, Redis, PostgreSQL, and Gitaly services
 that match your selected [reference architecture](https://docs.gitlab.com/administration/reference_architectures/).
 
 ### Use the reference architectures

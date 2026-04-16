@@ -477,14 +477,6 @@ storage value using `prometheus.server.persistentVolume.size`. To disable Promet
 Refer to the [Prometheus chart documentation](https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus)
 for the exhaustive list of configuration options.
 
-### PostgreSQL
-
-Prefix PostgreSQL values with `postgresql`. For example, set the storage class of the
-primary by using `postgresql.primary.persistence.storageClass`.
-
-Refer to the [Bitnami PostgreSQL chart documentation](https://artifacthub.io/packages/helm/bitnami/postgresql)
-for the exhaustive list of configuration options.
-
 ## Bringing your own images
 
 In certain scenarios (i.e. offline environment), you may want to bring your own images rather than pulling them down from the Internet. This requires specifying your own Docker image registry/repository for each of the charts that make up the GitLab release.
