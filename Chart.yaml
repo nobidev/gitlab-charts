@@ -28,7 +28,7 @@ dependencies:
   condition: installCertmanager
   alias: certmanager
 - name: prometheus
-  version: 27.52.0
+  version: 29.2.1
   repository: oci://ghcr.io/prometheus-community/charts
   condition: prometheus.install
 - name: postgresql
