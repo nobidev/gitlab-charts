@@ -81,29 +81,6 @@ function generate_secret_if_needed(){
 # Initial root password
 generate_secret_if_needed {{ template "gitlab.migrations.initialRootPassword.secret" . }} --from-literal={{ template "gitlab.migrations.initialRootPassword.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
 
-{{/*
-The include in this if returns a value that makes use of
-"gitlab.redis.configMerge" to return global.redis.password.enabled
-with a fallback to global.redis.auth.enabled - it is evaluated for truthiness, based
-on emptiness of the returned string.
-
-This should be read as:
-
-"if there's not a defined global.redis.host and we've enabled redis password
-auth, then generate secrets if needed"
-*/}}
-{{ if and (not .Values.global.redis.host) (eq (include "gitlab.redis.password.enabled" $) "true" ) -}}
-# Redis password
-generate_secret_if_needed {{ template "gitlab.redis.password.secret" . }} --from-literal={{ template "gitlab.redis.password.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
-{{ end }}
-
-{{ if not .Values.global.psql.host -}}
-# Postgres password
-generate_secret_if_needed {{ template "gitlab.psql.password.secret" . }} --from-literal={{ include "gitlab.psql.password.key" . }}=$(gen_random 'a-zA-Z0-9' 64) --from-literal=postgresql-postgres-password=$(gen_random 'a-zA-Z0-9' 64)
-# Registry database.password secret
-generate_secret_if_needed {{ template "gitlab.registry.database.password.secret" . }} --from-literal={{ template "gitlab.registry.database.password.key" . }}=$(gen_random 'a-z0-9' 128 | base64 -w 0)
-{{ end }}
-
 # Gitlab shell
 generate_secret_if_needed {{ template "gitlab.gitlab-shell.authToken.secret" . }} --from-literal={{ template "gitlab.gitlab-shell.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
 
