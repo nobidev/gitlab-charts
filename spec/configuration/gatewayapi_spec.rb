@@ -15,7 +15,9 @@ describe 'Gateway API configuration' do
   let(:clienttrafficpolicy) { template["ClientTrafficPolicy/test-policy"] }
   let(:securitypolicy) { template["SecurityPolicy/test-policy"] }
   let(:kas_backendtrafficpolicy) { template["BackendTrafficPolicy/test-kas"] }
-  let(:webservice_smartcard_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice"] }
+  let(:webservice_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp"] }
+  let(:webservice_smartcard_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp-smartcard"] }
+  let(:webservice_geo_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp-geo"] }
 
   let(:shell_route) { template["TCPRoute/test-gitlab-shell"] }
   let(:webservice_route) { template["HTTPRoute/test-gitlab"] }
@@ -54,9 +56,15 @@ describe 'Gateway API configuration' do
       expect(gateway).not_to be_nil
       # Route objects
       expect(routes).not_to include(nil)
-      # Optional policies
+      # Optional gateway-wide policies
       expect(clienttrafficpolicy).to be_nil
       expect(securitypolicy).to be_nil
+      # Per-listener ClientTrafficPolicy with hardcoded escaped slashes handling
+      expect(webservice_clienttrafficpolicy).not_to be_nil
+      expect(webservice_clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("KeepUnchanged")
+      expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
+      expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-web")
+      expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]).not_to have_key("namespace")
     end
 
     it 'picks up the static IP' do
@@ -96,8 +104,9 @@ describe 'Gateway API configuration' do
         expect(kas_backendtrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-kas")
         expect(kas_backendtrafficpolicy["spec"]["targetRefs"][0]["kind"]).to eq("HTTPRoute")
 
-        # Additional policy for webservice must only be created if smartcard is enabled
+        # Additional policies for webservice are only created if smartcard/geo is enabled
         expect(webservice_smartcard_clienttrafficpolicy).to be_nil
+        expect(webservice_geo_clienttrafficpolicy).to be_nil
       end
     end
 
@@ -453,6 +462,8 @@ describe 'Gateway API configuration' do
 
         expect(webservice_route['spec']['hostnames']).to include('smartcard.example.com')
         expect(webservice_smartcard_clienttrafficpolicy).not_to be_nil
+        expect(webservice_smartcard_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-smartcard-web")
+        expect(webservice_smartcard_clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("KeepUnchanged")
         expect(gateway['spec']['listeners'].map { |l| l['name'] })
           .to include('gitlab-smartcard-web')
       end

@@ -1,0 +1,19 @@
+{{- if and .Values.enabled .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy }}
+{{/*
+ClientTrafficPolicy targeting the main Rails listener (gitlab-web).
+Keeps paths with escaped slashes unchanged, as they are commonly used
+in GitLab API calls to identify projects.
+*/}}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: {{ template "fullname" . }}-ctp
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRefs:
+  {{- $ref := (include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray) }}
+  {{- $_ := unset (first $ref) "namespace" }}
+  {{- $ref | toYaml | nindent 2 }}
+  path:
+    escapedSlashesAction: KeepUnchanged
+{{- end }}
