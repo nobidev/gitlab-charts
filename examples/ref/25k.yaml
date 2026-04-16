@@ -151,10 +151,6 @@ registry:
     key: registry-config
     secret: gcs-secret-example
 
-# Run Redis outside of cluster
-
-# Database run outside of cluster
-
 # https://docs.gitlab.com/ci/runners/configure_runners/
 gitlab-runner:
   install: false

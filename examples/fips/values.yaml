@@ -36,7 +36,7 @@ global:
 
   # See: https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc/advanced/external-db
   psql:
-    host: postgres.local
+    host: postgres.example.com
     password:
       secret: my-postgres-secret  # Your PostgreSQL credentials.
       key: secret
