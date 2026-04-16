@@ -53,8 +53,8 @@ global:
   redis:
     host: "$(valkey_release_name)"
     auth:
-      secret: "$(valkey_release_name)-auth"
-      key: default-password
+      secret: "$(valkey_auth_secret)"
+      key: "$(valkey_auth_secret_key)"
   psql:
     host: "$(cnpg_cluster_host)"
     password:
