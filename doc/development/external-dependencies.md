@@ -5,10 +5,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Set up external dependencies for local development
 ---
 
-The bundled PostgreSQL, Redis, and MinIO charts are
+The bundled PostgreSQL, Redis, and MinIO charts have been
 [deprecated](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
-and will be removed in GitLab 19.0. Use `scripts/dev_dependencies.sh` to quickly provision
-their replacements (CloudNativePG, Valkey, and Garage) in your local cluster.
+and were removed in GitLab 19.0. Use `scripts/dev_dependencies.sh` to quickly provision
+externally managed replacements (CloudNativePG, Valkey, and Garage) in your cluster.
 
 For migrating an existing installation, see
 [Migrate from the bundled Redis, PostgreSQL, and MinIO charts](../installation/migration/bundled_chart_migration.md).
