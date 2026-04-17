@@ -144,7 +144,7 @@ function cmd_teardown() {
   echo "    Removing Valkey..."
   remove_external_valkey
   kubectl delete secret -n "${NAMESPACE}" "$(valkey_auth_secret)" --ignore-not-found
-  rm -f "${VALUES_DIR}/dev-state.env"
+  rm -f "${GENERATED_VALUES}"
 
   echo "    Removing CloudNativePG cluster..."
   remove_external_postgres
