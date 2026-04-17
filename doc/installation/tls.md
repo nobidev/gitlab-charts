@@ -33,9 +33,10 @@ helm install gitlab gitlab/gitlab \
   --set certmanager-issuer.email=you@example.com
 ```
 
-Installing `cert-manager` is controlled by the `installCertmanager` setting, and using it in the charts is controlled by the
-`global.ingress.configureCertmanager` setting. Both of these are `true` by default, so only the issuer email needs to be
-provided by default.
+Installing `cert-manager` is controlled by the `installCertmanager` setting (`true` by default). Wiring cert-manager
+into the chart is controlled by `global.gatewayApi.configureCertmanager` for Gateway API (the default routing path
+since GitLab 19.0, `true` by default) and by `global.ingress.configureCertmanager` for NGINX Ingress (`false` by default,
+set to `true` when using Ingress). Only the issuer email needs to be provided by default.
 
 ### External cert-manager and internal Issuer
 

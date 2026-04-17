@@ -32,6 +32,7 @@ describe 'GitLab Pages' do
         global:
           ingress:
             enabled: true
+            configureCertmanager: true
           pages:
             enabled: true
       ))

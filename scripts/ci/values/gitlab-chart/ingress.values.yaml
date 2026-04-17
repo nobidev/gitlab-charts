@@ -14,3 +14,8 @@ global:
     tls:
       secretName: helm-charts-win-tls
     configureCertmanager: false
+
+  gatewayApi:
+    enabled: false
+    installEnvoy: false
+    configureCertmanager: false

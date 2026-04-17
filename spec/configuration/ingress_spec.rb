@@ -553,6 +553,7 @@ describe 'GitLab Ingress configuration(s)' do
             global:
               ingress:
                 enabled: true
+                configureCertmanager: true
                 class: #{class_name}
           )))
         end
@@ -576,6 +577,7 @@ describe 'GitLab Ingress configuration(s)' do
             global:
               ingress:
                 enabled: true
+                configureCertmanager: true
                 class: #{class_name}
                 useNewIngressForCerts: true
           )))

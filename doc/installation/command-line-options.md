@@ -61,7 +61,8 @@ helm inspect values gitlab/gitlab
 | `gitlab.webservice.ingress.tls.secretName`          | _none_  | Existing `Secret` containing TLS certificate and key for GitLab |
 | `gitlab.webservice.ingress.tls.smartcardSecretName` | _none_  | Existing `Secret` containing TLS certificate and key for the GitLab smartcard auth domain |
 | `global.hosts.https`                                | `true`  | Serve over https |
-| `global.ingress.configureCertmanager`               | `true`  | Configure cert-manager to get certificates from Let's Encrypt |
+| `global.ingress.configureCertmanager`               | `false` | Configure cert-manager to get certificates from Let's Encrypt (only used when Ingress is enabled) |
+| `global.gatewayApi.configureCertmanager`            | `true`  | Configure cert-manager to get certificates from Let's Encrypt via a Gateway API HTTP-01 solver |
 | `global.ingress.tls.secretName`                     | _none_  | Existing `Secret` containing wildcard TLS certificate and key |
 | `minio.ingress.tls.secretName`                      | _none_  | Existing `Secret` containing TLS certificate and key for MinIO |
 | `registry.ingress.tls.secretName`                   | _none_  | Existing `Secret` containing TLS certificate and key for registry |

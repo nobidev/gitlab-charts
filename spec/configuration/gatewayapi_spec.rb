@@ -259,12 +259,13 @@ describe 'Gateway API configuration' do
         end
       end
 
-      context 'when httpToHttpsRedirect is disabled' do
+      context 'when httpToHttpsRedirect and configureCertmanager are both disabled' do
         let(:values) do
           HelmTemplate.with_defaults(%(
             global:
               gatewayApi:
                 httpToHttpsRedirect: false
+                configureCertmanager: false
             )).deep_merge(super())
         end
 
@@ -306,6 +307,7 @@ describe 'Gateway API configuration' do
             gatewayApi:
               enabled: true
               installEnvoy: true
+              configureCertmanager: false
 
           gatewayApiResources:
             gateway:

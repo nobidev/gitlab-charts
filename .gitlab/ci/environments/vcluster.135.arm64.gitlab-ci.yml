@@ -22,6 +22,7 @@ include:
     VARIABLES_FILE: "variables/review_v135a"
     DOMAIN: "-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"
     REVIEW_ARCH: arm64
+    USE_NGINX_INGRESS: "true"
   environment:
     name: gkevc_135a/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: "https://gitlab${DOMAIN}"
