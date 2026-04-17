@@ -46,7 +46,7 @@ global:
 
   # See: https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc/advanced/external-redis
   redis:
-    host: redis.local
+    host: redis.example.com
     auth:
       # enabled: false
       secret: my-redis-secret  # Your Redis credentials.

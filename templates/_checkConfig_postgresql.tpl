@@ -5,11 +5,15 @@ Ensure a external database is configured
 {{- with $.Values.global -}}
 {{-   if not .psql.host }}
 postgresql:
-    You must configure an external PostgreSQL. Please set `global.psql.host`.
+    You must configure an PostgreSQL connetion. Please set `global.psql.host`. Since chart v10.0.0,
+    external PostgreSQL became required. If you were using the bundled PostgreSQL chart refer to
+    https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
 {{    end -}}
 {{-   if not .psql.password.secret }}
 postgresql:
-    You must configure an external PostgreSQL. Please set `global.psql.password.secret` is set.
+    You must configure an PostgreSQL connetion. Please set `global.psql.password.secret`. Since chart v10.0.0,
+    external PostgreSQL became required. If you were using the bundled PostgreSQL chart refer to
+    https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
 {{   end -}}
 {{- end -}}
 {{- end -}}

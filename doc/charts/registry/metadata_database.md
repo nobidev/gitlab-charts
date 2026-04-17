@@ -102,14 +102,10 @@ To manually create the metadata database on your external PostgreSQL server:
    kubectl create secret generic RELEASE_NAME-registry-database-password --from-literal=password=<your_registry_password>
    ```
 
-1. Log into your database instance:
+1. Log into your database instance. The exact connection command may vary depends on your setup:
 
    ```shell
-   kubectl exec -it $(kubectl get pods -l app.kubernetes.io/name=postgresql -o custom-columns=NAME:.metadata.name --no-headers) -- bash
-   ```
-
-   ```shell
-   PGPASSWORD=${POSTGRES_POSTGRES_PASSWORD} psql -U postgres -d template1
+   psql -U postgres -d template1
    ```
 
 1. Create the database user:
