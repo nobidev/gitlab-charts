@@ -17,8 +17,18 @@ For migrating an existing installation, see
 
 - A running local Kubernetes cluster: [k3s](https://k3s.io), [KinD](kind/_index.md), or [minikube](minikube/_index.md)
 - `kubectl` connected to your cluster
-- `helm` v3 or later
+- `helm` v4 or later (required by the Garage installation, which uses the `helm-git` plugin with `--verify` support)
 - Approximately 2 CPU cores, 4 GiB of memory, and 12 GiB of persistent storage
+
+> [!NOTE]
+> The Garage setup adds a Helm repository named `garage` to your local Helm configuration.
+> If you already have a `garage` repository registered with a different version, the setup fails.
+> Remove it first, then re-run setup:
+>
+> ```shell
+> helm repo remove garage
+> bash scripts/dev_dependencies.sh setup
+> ```
 
 See [Environment setup](environment_setup.md) for tool installation guidance.
 
