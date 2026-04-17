@@ -155,3 +155,82 @@ Usage:
   mountPath: /etc/gitlab/registry-db/
   readOnly: true
 {{- end -}}
+
+{{/*
+Return the secret name for toolbox openbao database backup/restore passwords.
+Defaults to a generated name so the volume source never has name: "" — an empty
+name fails Kubernetes admission even with optional: true.
+Pattern matches toolbox.registry.database.password.secret.
+*/}}
+{{- define "toolbox.openbao.database.password.secret" -}}
+{{- $database := default (dict) ((.Values.backups).openbao).database -}}
+{{- (($database.password).secret) | default (printf "%s-toolbox-openbao-database-password" .Release.Name) -}}
+{{- end -}}
+
+{{/*
+Return the secret key for the OpenBao database backup password.
+*/}}
+{{- define "toolbox.openbao.database.password.backupKey" -}}
+{{- $database := default (dict) ((.Values.backups).openbao).database -}}
+{{- (($database.password).backupPasswordKey) | default "backupPassword" -}}
+{{- end -}}
+
+{{/*
+Return the secret key for the OpenBao database restore password.
+*/}}
+{{- define "toolbox.openbao.database.password.restoreKey" -}}
+{{- $database := default (dict) ((.Values.backups).openbao).database -}}
+{{- (($database.password).restorePasswordKey) | default "restorePassword" -}}
+{{- end -}}
+
+{{/*
+OpenBao database configuration volume for toolbox pods.
+
+Projects OpenBao DB credentials for backup/restore:
+- connection.env: HOST, PORT, NAME from toolbox ConfigMap (no USER — operation-dependent)
+- backup-user.env / restore-user.env: per-operation USERNAME from toolbox ConfigMap
+- backup-pass / restore-pass: per-operation PASSWORD from Secret
+
+Usage:
+  {{- include "toolbox.openbao.databaseBackupCredentialsVolume" . | nindent 6 }}
+*/}}
+{{- define "toolbox.openbao.databaseBackupCredentialsVolume" -}}
+- name: openbao-db-config
+  projected:
+    defaultMode: 0440
+    sources:
+      - configMap:
+          name: {{ template "fullname" . }}-openbao-db-connection-config
+          items:
+          - key: db-connection.env
+            path: connection.env
+          optional: true
+      - configMap:
+          name: {{ template "fullname" . }}-openbao-db-backuprestore-users
+          items:
+          - key: backup-user
+            path: backup-user.env
+          - key: restore-user
+            path: restore-user.env
+          optional: true
+      - secret:
+          name: {{ include "toolbox.openbao.database.password.secret" . }}
+          items:
+          - key: {{ template "toolbox.openbao.database.password.backupKey" . }}
+            path: backup-pass
+          - key: {{ template "toolbox.openbao.database.password.restoreKey" . }}
+            path: restore-pass
+          optional: true
+{{- end -}}
+
+{{/*
+OpenBao database configuration volume mount for toolbox containers.
+
+Usage:
+  {{- include "toolbox.openbao.database.databaseBackupCredentialsMount" . | nindent 12 }}
+*/}}
+{{- define "toolbox.openbao.database.databaseBackupCredentialsMount" -}}
+- name: openbao-db-config
+  mountPath: /etc/gitlab/openbao-db/
+  readOnly: true
+{{- end -}}

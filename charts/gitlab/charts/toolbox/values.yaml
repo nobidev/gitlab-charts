@@ -202,6 +202,16 @@ backups:
       #   secret: gitlab-toolbox-registry-database-password
       #   backupPasswordKey: backupPassword
       #   restorePasswordKey: restorePassword
+  openbao:
+    database: {}
+      # Separate credentials for OpenBao database backup and restore.
+      # These are distinct from global.openbao.psql (the OpenBao application credential).
+      # backupUser: ""
+      # restoreUser: ""
+      # password: {}
+      #   secret: gitlab-toolbox-openbao-database-password
+      #   backupPasswordKey: backupPassword
+      #   restorePasswordKey: restorePassword
 extra: {}
 
 ## Automatic database reindexing

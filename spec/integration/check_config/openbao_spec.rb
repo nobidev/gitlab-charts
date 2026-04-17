@@ -116,6 +116,27 @@ describe 'openbao config check' do
                        error_description: 'when no database configured'
     end
 
+    context 'when only global.psql is configured but no dedicated OpenBao database' do
+      let(:error_values) do
+        YAML.safe_load(%(
+          openbao:
+            install: true
+          global:
+            psql:
+              host: main-db.example.com
+              password:
+                secret: gitlab-db-password
+                key: password
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'OpenBao is enabled but no database was configured' }
+
+      include_examples 'config validation',
+                       success_description: nil,
+                       error_description: 'when main DB is present but no dedicated OpenBao DB configured'
+    end
+
     context 'when database is configured without a password' do
       let(:error_values) do
         YAML.safe_load(%(
