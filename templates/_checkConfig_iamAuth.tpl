@@ -59,16 +59,16 @@ iamAuthService:
 {{/* END gitlab.checkConfig.iamAuthService.grpc.port */}}
 
 {{/*
-Ensures that issuerUrl is configured when iamAuthService is enabled
+Ensures that issuer is configured when iamAuthService is enabled
 */}}
-{{- define "gitlab.checkConfig.iamAuthService.issuerUrl" -}}
+{{- define "gitlab.checkConfig.iamAuthService.issuer" -}}
   {{- with .Values.global.appConfig.iamAuthService -}}
     {{- if .enabled -}}
-      {{- if not (dig "issuerUrl" "" .) }}
+      {{- if not (dig "issuer" "" .) }}
 iamAuthService:
-    issuerUrl is required when iamAuthService is enabled. Please set `global.appConfig.iamAuthService.issuerUrl`.
+    issuer is required when iamAuthService is enabled. Please set `global.appConfig.iamAuthService.issuer`.
       {{- end -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
-{{/* END gitlab.checkConfig.iamAuthService.issuerUrl */}}
+{{/* END gitlab.checkConfig.iamAuthService.issuer */}}

@@ -701,7 +701,7 @@ describe 'gitlab.yml.erb configuration' do
               'enabled' => false,
               'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
               'jwt_audience' => 'gitlab-rails',
-              'issuer_url' => '',
+              'issuer' => '',
               'http' => {
                 'host' => '',
                 'port' => 0
@@ -727,7 +727,7 @@ describe 'gitlab.yml.erb configuration' do
                     host: grpc.localhost
                     port: 5005
                   jwtAudience: custom-aud
-                  issuerUrl: custom-issuer-url
+                  issuer: custom-issuer-url
           )))
 
           expect(t.stderr).to eq("")
@@ -744,7 +744,7 @@ describe 'gitlab.yml.erb configuration' do
               'enabled' => true,
               'secret_file' => '/etc/gitlab/iam-auth/.gitlab_iam_auth_secret',
               'jwt_audience' => 'custom-aud',
-              'issuer_url' => 'custom-issuer-url',
+              'issuer' => 'custom-issuer-url',
               'http' => {
                 'host' => 'localhost',
                 'port' => 8084
@@ -773,7 +773,7 @@ describe 'gitlab.yml.erb configuration' do
       expect(t.stderr).to include("http.port is required when iamAuthService is enabled")
       expect(t.stderr).to include("grpc.host is required when iamAuthService is enabled")
       expect(t.stderr).to include("grpc.port is required when iamAuthService is enabled")
-      expect(t.stderr).to include("issuerUrl is required when iamAuthService is enabled")
+      expect(t.stderr).to include("issuer is required when iamAuthService is enabled")
     end
   end
 
