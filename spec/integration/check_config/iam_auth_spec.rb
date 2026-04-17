@@ -16,6 +16,7 @@ describe 'checkConfig iamAuthService' do
             grpc:
               host: iam-auth.example.com
               port: 5004
+            issuerUrl: https://iam-auth.example.com
     )).deep_merge!(default_required_values)
   end
 
@@ -33,6 +34,7 @@ describe 'checkConfig iamAuthService' do
               grpc:
                 host: iam-auth.example.com
                 port: 5004
+              issuerUrl: https://iam-auth.example.com
       )).deep_merge!(default_required_values)
     end
 
@@ -57,6 +59,7 @@ describe 'checkConfig iamAuthService' do
               grpc:
                 host: iam-auth.example.com
                 port: 5004
+              issuerUrl: https://iam-auth.example.com
       )).deep_merge!(default_required_values)
     end
 
@@ -81,6 +84,7 @@ describe 'checkConfig iamAuthService' do
                 port: 443
               grpc:
                 port: 5004
+              issuerUrl: https://iam-auth.example.com
       )).deep_merge!(default_required_values)
     end
 
@@ -105,6 +109,7 @@ describe 'checkConfig iamAuthService' do
                 port: 443
               grpc:
                 host: iam-auth.example.com
+              issuerUrl: https://iam-auth.example.com
       )).deep_merge!(default_required_values)
     end
 
@@ -113,5 +118,30 @@ describe 'checkConfig iamAuthService' do
     include_examples 'config validation',
                      success_description: 'when iamAuthService is enabled and grpc.port is set',
                      error_description: 'when iamAuthService is enabled but grpc.port is missing'
+  end
+
+  describe 'gitlab.checkConfig.iamAuthService.issuerUrl' do
+    let(:success_values) { enabled_values }
+
+    let(:error_values) do
+      YAML.safe_load(%(
+        global:
+          appConfig:
+            iamAuthService:
+              enabled: true
+              http:
+                host: iam-auth.example.com
+                port: 443
+              grpc:
+                host: iam-auth.example.com
+                port: 443
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_output) { 'issuerUrl is required when iamAuthService is enabled' }
+
+    include_examples 'config validation',
+                     success_description: 'when iamAuthService is enabled and issuerUrl is set',
+                     error_description: 'when iamAuthService is enabled but issuerUrl is missing'
   end
 end

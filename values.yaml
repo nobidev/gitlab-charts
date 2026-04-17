@@ -542,6 +542,7 @@ global:
         # host:
         # port:
       # jwtAudience:
+      # issuerUrl:
       # authToken:
         # secret:
         # key:

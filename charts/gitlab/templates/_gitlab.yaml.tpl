@@ -72,6 +72,7 @@ iam_auth_service:
     host: {{ dig "grpc" "host" "" . | quote }}
     port: {{ dig "grpc" "port" 0 . | int }}
   jwt_audience: {{ dig "jwtAudience" "gitlab-rails" . | quote }}
+  issuer_url: {{ dig "issuerUrl" "" . | quote }}
   {{- end }}
 {{- end }}
 

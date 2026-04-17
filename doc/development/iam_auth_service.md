@@ -35,6 +35,7 @@ global:
       authToken:
         secret: gitlab-iam-auth-token
         key: authToken
+      issuerUrl: https://iam-auth.example.com
 ```
 
 ### Configuration options
@@ -49,6 +50,7 @@ global:
 | `jwtAudience` | string | `gitlab-rails` | The value used for the `aud` scope in JWTs sent to this service |
 | `authToken.secret` | string |  | Kubernetes secret name containing the authentication token |
 | `authToken.key` | string | `iam_auth_service_token` | Key within the secret containing the authentication token |
+| `issuerUrl` | string |  | The value used to validate the `iss` scope in JWTs sent to this service |
 
 ## Secret generation
 
