@@ -24,6 +24,8 @@ describe 'Self-Signed Certificates configuration' do
         global:
           ingress:
             configureCertmanager: false
+          gatewayApi:
+            configureCertmanager: false
       )).deep_merge(values_all_enabled)
     end
 

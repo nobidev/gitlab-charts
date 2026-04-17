@@ -11,6 +11,9 @@ global:
     password:
       secret: bar
 
+  ingress:
+    configureCertmanager: true
+
   image:
     pullPolicy: pp-global
     pullSecrets:
