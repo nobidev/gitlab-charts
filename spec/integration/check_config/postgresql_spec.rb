@@ -13,7 +13,7 @@ describe 'checkConfig postgresql' do
       v
     end
 
-    let(:error_output) { 'You must configure an external PostgreSQL.' }
+    let(:error_output) { 'You must configure an PostgreSQL connetion.' }
 
     include_examples 'config validation',
                      success_description: 'when PostgreSQL is configured globally',
