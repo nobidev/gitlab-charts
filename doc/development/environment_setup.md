@@ -72,12 +72,6 @@ The following cloud cluster options are supported:
 - [GKE](../installation/cloud/gke.md) - Google Kubernetes Engine, recommended
 - [EKS](../installation/cloud/eks.md) - Amazon Elastic Kubernetes Service
 
-## External dependencies
-
-To set up Valkey, CloudNativePG, and Garage as external replacements for the bundled PostgreSQL,
-Redis, and MinIO charts (removed in GitLab 19.0), see
-[Set up external dependencies for local development](external-dependencies.md).
-
 ## Installing from repository
 
 Details on installing the chart from the Git repository can be found in the [developer deployment](deploy.md) documentation.

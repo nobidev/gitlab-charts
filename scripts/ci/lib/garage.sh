@@ -12,13 +12,12 @@ function deploy_external_garage() {
         echo "Garage already installed. Skipping."
         return
     fi
+
     echo "Installing external Garage"
 
     # default to v2.2.0 as that is the first version we tested with
     # garage charts are not tagged, we use the garage app release versions to get the charts
-   if helm plugin ls | grep -q helm-git; then
-      helm plugin install https://github.com/aslafy-z/helm-git --verify=false
-   fi
+    helm plugin install https://github.com/aslafy-z/helm-git --verify=false
     GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.2.0}"
     helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v${GARAGE_APP_VERSION}"
     helm repo update
@@ -28,8 +27,6 @@ function deploy_external_garage() {
         --set garage.replicationFactor=1 \
         --set deployment.replicaCount=1 \
         --set persistence.enabled=false \
-        --set environment[0].name=RUST_LOG \
-        --set environment[0].value="garage=warn" \
         --set resources.requests.memory="256Mi" \
         --set resources.requests.cpu="100m" \
         --set resources.limits.memory="512Mi" \
