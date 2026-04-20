@@ -1183,6 +1183,7 @@ prometheus:
     enabled: false
   prometheus-pushgateway:
     enabled: false
+  scrapeConfigs: null
   server:
     retention: 15d
     strategy:
