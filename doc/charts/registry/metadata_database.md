@@ -92,55 +92,6 @@ After you set up the external PostgreSQL server:
 > You can use the built-in cloud native metadata database for trial purposes only.
 > You should not use it in production.
 
-### Create the database manually
-
-To manually create the metadata database on your external PostgreSQL server:
-
-1. Create the secret with the database password:
-
-   ```shell
-   kubectl create secret generic RELEASE_NAME-registry-database-password --from-literal=password=<your_registry_password>
-   ```
-
-1. Log into your database instance. The exact connection command may vary depends on your setup:
-
-   ```shell
-   psql -U postgres -d template1
-   ```
-
-1. Create the database user:
-
-   ```sql
-   CREATE ROLE registry WITH LOGIN;
-   ```
-
-1. Set the database user password.
-
-   1. Fetch the password:
-
-      ```shell
-      kubectl get secret RELEASE_NAME-registry-database-password -o jsonpath="{.data.password}" | base64 --decode
-      ```
-
-   1. Set the password in the `psql` prompt:
-
-      ```sql
-      \password registry
-      ```
-
-1. Create the database:
-
-   ```sql
-   CREATE DATABASE registry WITH OWNER registry;
-   ```
-
-1. Safely exit from the PostgreSQL command line and then from the container using `exit`:
-
-   ```shell
-   template1=# exit
-   ...@gitlab-postgresql-0/$ exit
-   ```
-
 ## Enable the metadata database
 
 After you've created the database, enable it. Additional steps are required when migrating an existing container registry.
