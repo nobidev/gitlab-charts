@@ -45,8 +45,8 @@ helm inspect values gitlab/gitlab
 | `global.image.pullSecrets`                           | _none_                                        | Set default imagePullSecrets for all charts (use a list of `name` and value pairs) |
 | `global.minio.enabled`                               | `true`                                        | MinIO enable flag |
 | `global.psql.host`                                   | Required                                      | Hostname of the external PostgreSQL instance |
-| `global.psql.password.key`                           | Required                                      | Key pointing to the psql password in the psql secret |
-| `global.psql.password.secret`                        | Required                                      | Global name of the secret containing the psql password |
+| `global.psql.password.key`                           | Required                                      | Key pointing to the PostgreSQL password in the PostgreSQL secret |
+| `global.psql.password.secret`                        | Required                                      | Global name of the secret containing the PostgreSQL password |
 | `global.registry.bucket`                             | `registry`                                    | registry bucket name |
 | `global.service.annotations`                         | `{}`                                          | Annotations to add to every `Service` |
 | `global.rails.sessionStore.sessionCookieTokenPrefix` | `""`                                          | Prefix for the generated session cookies |
@@ -362,8 +362,8 @@ See [Configure the GitLab chart with an external Redis](../advanced/external-red
 | `gitlab.migrations.image.pullPolicy`                       |                                                                 | Migrations pull policy |
 | `gitlab.migrations.image.repository`                       | `registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ee`    | Migrations image repository |
 | `gitlab.migrations.image.tag`                              | `master`                                                        | Migrations image tag |
-| `gitlab.migrations.psql.password.key`                      | `psql-password`                                                 | key to psql password in psql secret |
-| `gitlab.migrations.psql.password.secret`                   | `gitlab-postgres`                                               | psql secret |
+| `gitlab.migrations.psql.password.key`                      | `psql-password`                                                 | key to PostgreSQL password in PostgreSQL secret |
+| `gitlab.migrations.psql.password.secret`                   | `gitlab-postgres`                                               | PostgreSQL secret |
 | `gitlab.migrations.psql.port`                              |                                                                 | Set PostgreSQL server port. Takes precedence over `global.psql.port` |
 | `gitlab.migrations.securityContext.fsGroup`                | `1000`                                                          | Group ID under which the pod should be started |
 | `gitlab.migrations.securityContext.runAsUser`              | `1000`                                                          | User ID under which the pod should be started |
@@ -375,8 +375,8 @@ See [Configure the GitLab chart with an external Redis](../advanced/external-red
 | `gitlab.sidekiq.image.pullPolicy`                          |                                                                 | Sidekiq image pull policy |
 | `gitlab.sidekiq.image.repository`                          | `registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ee`    | Sidekiq image repository |
 | `gitlab.sidekiq.image.tag`                                 | `master`                                                        | Sidekiq image tag |
-| `gitlab.sidekiq.psql.password.key`                         | `psql-password`                                                 | key to psql password in psql secret |
-| `gitlab.sidekiq.psql.password.secret`                      | `gitlab-postgres`                                               | psql password secret |
+| `gitlab.sidekiq.psql.password.key`                         | `psql-password`                                                 | key to PostgreSQL password in PostgreSQL secret |
+| `gitlab.sidekiq.psql.password.secret`                      | `gitlab-postgres`                                               | PostgreSQL password secret |
 | `gitlab.sidekiq.psql.port`                                 |                                                                 | Set PostgreSQL server port. Takes precedence over `global.psql.port` |
 | `gitlab.sidekiq.replicas`                                  | `1`                                                             | Sidekiq replicas |
 | `gitlab.sidekiq.resources.requests.cpu`                    | `100m`                                                          | Sidekiq minimum needed CPU |
@@ -431,8 +431,8 @@ See [Configure the GitLab chart with an external Redis](../advanced/external-red
 | `gitlab.webservice.image.pullPolicy`                       |                                                                 | webservice image pull policy |
 | `gitlab.webservice.image.repository`                       | `registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ee` | webservice image repository |
 | `gitlab.webservice.image.tag`                              | `master`                                                        | webservice image tag |
-| `gitlab.webservice.psql.password.key`                      | `psql-password`                                                 | Key to psql password in psql secret |
-| `gitlab.webservice.psql.password.secret`                   | `gitlab-postgres`                                               | psql secret name |
+| `gitlab.webservice.psql.password.key`                      | `psql-password`                                                 | Key to PostgreSQL password in PostgreSQL secret |
+| `gitlab.webservice.psql.password.secret`                   | `gitlab-postgres`                                               | PostgreSQL secret name |
 | `gitlab.webservice.psql.port`                              |                                                                 | Set PostgreSQL server port. Takes precedence over `global.psql.port` |
 | `global.registry.enabled`                                  | `true`                                                          | Enable registry. Mirrors `registry.enabled` |
 | `global.registry.api.port`                                 | `5000`                                                          | Registry port |
