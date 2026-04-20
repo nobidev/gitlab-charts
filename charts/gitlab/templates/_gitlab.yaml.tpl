@@ -124,6 +124,9 @@ gitlab_shell:
   hooks_path: /home/git/gitlab-shell/hooks/
   upload_pack: true
   receive_pack: true
+  {{- if .Values.global.appConfig.gitTimeout }}
+  git_timeout: {{ .Values.global.appConfig.gitTimeout }}
+  {{- end }}
 {{- end -}}
 
 {{- define "gitlab.appConfig.shell.ssh_port" -}}

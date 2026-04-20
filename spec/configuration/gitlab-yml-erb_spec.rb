@@ -441,6 +441,36 @@ describe 'gitlab.yml.erb configuration' do
     end
   end
 
+  context 'Git timeout' do
+    let(:values) { HelmTemplate.defaults }
+    let(:template) { HelmTemplate.new(values) }
+    let(:renderedGitTimeout) do
+      YAML.safe_load(
+        template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb')
+      )['production']['gitlab_shell']['git_timeout']
+    end
+
+    context 'default value' do
+      it 'populates the default value to gitlab.yml.erb' do
+        expect(renderedGitTimeout).to eq(nil)
+      end
+    end
+
+    context 'when configured' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            gitTimeout: 3600
+        ))
+      end
+
+      it 'populates the value to gitlab.yml.erb' do
+        expect(renderedGitTimeout).to eq(3600)
+      end
+    end
+  end
+
   context 'OIDC provider token expiration' do
     it 'populates the gitlab.yml.erb' do
       t = HelmTemplate.new(default_values)
