@@ -16,7 +16,7 @@ function deploy_external_garage() {
 
     # default to v2.2.0 as that is the first version we tested with
     # garage charts are not tagged, we use the garage app release versions to get the charts
-   if helm plugin ls | grep -q helm-git; then
+   if ! helm plugin ls | grep -q helm-git; then
       helm plugin install https://github.com/aslafy-z/helm-git --verify=false
    fi
     GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.2.0}"
