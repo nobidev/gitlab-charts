@@ -30,7 +30,7 @@ describe 'iamAuthService templates' do
             grpc:
               host: iam-auth.example.com
               port: 5004
-            issuer: https://iam-auth.example.com
+            jwtIssuer: https://iam-auth.example.com
     ))
   end
 

@@ -16,7 +16,7 @@ describe 'checkConfig iamAuthService' do
             grpc:
               host: iam-auth.example.com
               port: 5004
-            issuer: https://iam-auth.example.com
+            jwtIssuer: https://iam-auth.example.com
     )).deep_merge!(default_required_values)
   end
 
@@ -34,7 +34,7 @@ describe 'checkConfig iamAuthService' do
               grpc:
                 host: iam-auth.example.com
                 port: 5004
-              issuer: https://iam-auth.example.com
+              jwtIssuer: https://iam-auth.example.com
       )).deep_merge!(default_required_values)
     end
 
@@ -59,7 +59,7 @@ describe 'checkConfig iamAuthService' do
               grpc:
                 host: iam-auth.example.com
                 port: 5004
-              issuer: https://iam-auth.example.com
+              jwtIssuer: https://iam-auth.example.com
       )).deep_merge!(default_required_values)
     end
 
@@ -84,7 +84,7 @@ describe 'checkConfig iamAuthService' do
                 port: 443
               grpc:
                 port: 5004
-              issuer: https://iam-auth.example.com
+              jwtIssuer: https://iam-auth.example.com
       )).deep_merge!(default_required_values)
     end
 
@@ -109,7 +109,7 @@ describe 'checkConfig iamAuthService' do
                 port: 443
               grpc:
                 host: iam-auth.example.com
-              issuer: https://iam-auth.example.com
+              jwtIssuer: https://iam-auth.example.com
       )).deep_merge!(default_required_values)
     end
 
@@ -120,7 +120,7 @@ describe 'checkConfig iamAuthService' do
                      error_description: 'when iamAuthService is enabled but grpc.port is missing'
   end
 
-  describe 'gitlab.checkConfig.iamAuthService.issuer' do
+  describe 'gitlab.checkConfig.iamAuthService.jwtIssuer' do
     let(:success_values) { enabled_values }
 
     let(:error_values) do
@@ -138,10 +138,10 @@ describe 'checkConfig iamAuthService' do
       )).deep_merge!(default_required_values)
     end
 
-    let(:error_output) { 'issuer is required when iamAuthService is enabled' }
+    let(:error_output) { 'jwtIssuer is required when iamAuthService is enabled' }
 
     include_examples 'config validation',
-                     success_description: 'when iamAuthService is enabled and issuer is set',
-                     error_description: 'when iamAuthService is enabled but issuer is missing'
+                     success_description: 'when iamAuthService is enabled and jwtIssuer is set',
+                     error_description: 'when iamAuthService is enabled but jwtIssuer is missing'
   end
 end
