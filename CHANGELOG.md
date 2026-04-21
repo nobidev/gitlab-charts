@@ -2,6 +2,16 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.10.4 (2026-04-21)
+
+### Fixed (1 change)
+
+- [Fix certmanager annotation regression in Helm 3.20.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/69a370090f573afc23d510b5586ba8c20044a783)
+
+### Changed (1 change)
+
+- [Bump gitlab-zoekt chart to 3.8.3](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/74f4e6490669560919e6ec2e130da584530651d5)
+
 ## 9.10.3 (2026-04-07)
 
 No changes.
