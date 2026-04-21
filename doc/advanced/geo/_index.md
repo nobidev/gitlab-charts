@@ -702,7 +702,7 @@ the Primary site that the Secondary site exists:
 
 1. Visit the **primary** site.
 1. In the upper-right corner, select **Admin**.
-1. Select **Geo > Add site**.
+1. In the left sidebar, select **Geo > Add site**.
 1. Add the **secondary** site. Use the full GitLab URL for the URL.
 1. Enter a Name with the `global.geo.nodeName` of the Secondary site. These values must always match exactly, character for character.
 1. Enter Internal URL, for example `https://shanghai.gitlab.example.com`.

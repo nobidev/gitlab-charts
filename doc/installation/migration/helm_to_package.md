@@ -15,7 +15,7 @@ title: Migrate from the Helm chart to the Linux package
 To migrate from a Helm installation to a Linux package (Omnibus) installation:
 
 1. In the upper-right corner, select **Admin**.
-1. Select **Overview > Components** to check your current version of GitLab.
+1. In the left sidebar, select **Overview > Components** to check your current version of GitLab.
 1. Prepare a clean machine and
    [install the Linux package](https://docs.gitlab.com/update/package/)
    that matches your GitLab Helm chart version.
