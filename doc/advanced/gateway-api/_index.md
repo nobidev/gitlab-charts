@@ -203,7 +203,7 @@ gitlab:
 See the [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#backend-tls) to
 optionally configure deployment-level overrides.
 
-#### KAS
+#### GitLab Relay (KAS)
 
 Backend TLS for KAS is controlled by `global.kas.tls.enabled`. The validation hostname defaults
 to the Service DNS name (`<service-name>.<namespace>.svc`) and can be overridden with
