@@ -57,3 +57,18 @@ iamAuthService:
   {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.iamAuthService.grpc.port */}}
+
+{{/*
+Ensures that jwtIssuer is configured when iamAuthService is enabled
+*/}}
+{{- define "gitlab.checkConfig.iamAuthService.jwtIssuer" -}}
+  {{- with .Values.global.appConfig.iamAuthService -}}
+    {{- if .enabled -}}
+      {{- if not (dig "jwtIssuer" "" .) }}
+iamAuthService:
+    jwtIssuer is required when iamAuthService is enabled. Please set `global.appConfig.iamAuthService.jwtIssuer`.
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.iamAuthService.jwtIssuer */}}
