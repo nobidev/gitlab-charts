@@ -9,6 +9,9 @@ kind: ClientTrafficPolicy
 metadata:
   name: {{ template "fullname" . }}-ctp-smartcard
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
 spec:
   targetRefs:
   {{- $ref := (include "webservice.gatewayApi.gatewayRef.smartcard" . | fromYamlArray) }}
