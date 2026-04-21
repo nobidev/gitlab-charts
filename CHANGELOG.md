@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.9.7 (2026-04-21)
+
+### Fixed (1 change)
+
+- [Fix certmanager annotation regression in Helm 3.20.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/4cc9a05181676d3afe3fcf732e7f2ad7fcda8fb2)
+
 ## 9.9.6 (2026-04-07)
 
 No changes.
