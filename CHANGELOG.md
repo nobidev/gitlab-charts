@@ -32,6 +32,16 @@ No changes.
 - [Update container-registry to v4.39.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/be5ece2d4387f2d561000c549c2cc754ed95feb9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4886))
 - [Gateway API: Unglobalize Gateway API resources](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fb5977af6be6eb874f6be1f2fee7d74d03c27665) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4862))
 
+## 9.10.4 (2026-04-21)
+
+### Fixed (1 change)
+
+- [Fix certmanager annotation regression in Helm 3.20.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/69a370090f573afc23d510b5586ba8c20044a783)
+
+### Changed (1 change)
+
+- [Bump gitlab-zoekt chart to 3.8.3](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/74f4e6490669560919e6ec2e130da584530651d5)
+
 ## 9.10.3 (2026-04-07)
 
 No changes.
