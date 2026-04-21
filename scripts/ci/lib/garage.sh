@@ -36,6 +36,7 @@ function deploy_external_garage() {
         --set resources.limits.cpu="500m" \
         --set image.repository=docker.io/dxflrs/garage \
         --set initImage.repository=docker.io/busybox \
+        $(garage_openshift_values) \
         --wait --timeout=300s
 
     GARAGE_POD=$(kubectl get pod -n "${NAMESPACE}" \
@@ -168,4 +169,10 @@ function remove_external_garage() {
         -n "${NAMESPACE}" \
         -l app.kubernetes.io/instance=$(garage_release_name) \
         --timeout=60s 2>/dev/null || true
+}
+
+function garage_openshift_values() {
+  if is_openshift_deployment; then
+    common_openshift_values
+  fi
 }
