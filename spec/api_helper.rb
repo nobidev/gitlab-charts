@@ -2,7 +2,8 @@ require 'rest-client'
 require 'json'
 
 module ApiHelper
-  BASE_URL = "https://#{ENV['GITLAB_URL']}/api/v4/".freeze
+  PROTOCOL = ENV.fetch('PROTOCOL', 'https').freeze
+  BASE_URL = "#{PROTOCOL}://#{ENV['GITLAB_URL']}/api/v4/".freeze
   def self.invoke_get_request(uri)
     invoke_request(uri, :get)
   end
@@ -19,7 +20,7 @@ module ApiHelper
     default_args = {
       method: method,
       url: "#{BASE_URL}#{uri}",
-      verify_ssl: true,
+      verify_ssl: PROTOCOL == 'https',
       headers: {
         "Authorization" => "Bearer #{ENV['GITLAB_ADMIN_TOKEN']}"
       },
