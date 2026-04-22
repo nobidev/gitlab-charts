@@ -20,12 +20,25 @@ deploy
 wait_for_deploy
 # check_domain_ip is skipped: nip.io resolves immediately without DNS propagation
 
+# Wait for ClientTrafficPolicy resources to be reconciled by the Envoy Gateway
+# controller before running tests.  Without this, there is a race where tests
+# start before the escaped-slash policy takes effect, causing 307/404 errors on
+# API paths that include %2F (e.g. root%2Fproject).
+echo "Waiting for ClientTrafficPolicy reconciliation (up to 120s)..."
+kubectl wait clienttrafficpolicies.gateway.envoyproxy.io \
+  --for=condition=Accepted \
+  --all \
+  -n "${NAMESPACE}" \
+  --timeout=120s \
+  && echo "ClientTrafficPolicy accepted." \
+  || echo "Warning: ClientTrafficPolicy not yet accepted — proceeding anyway."
+
 echo "export GITLAB_RELEASE_NAME=$(gitlab_release_name)"                          >> "${VARIABLES_FILE}"
 echo "export GITLAB_URL=gitlab-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"        >> "${VARIABLES_FILE}"
 echo "export GITLAB_ROOT_DOMAIN=${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"       >> "${VARIABLES_FILE}"
 echo "export REGISTRY_URL=registry-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"    >> "${VARIABLES_FILE}"
 echo "export QA_GITLAB_REVISION=$(get_qa_revision)"                               >> "${VARIABLES_FILE}"
-echo "export PROTOCOL=http"                                                        >> "${VARIABLES_FILE}"
+echo "export PROTOCOL=http"                                                       >> "${VARIABLES_FILE}"
 
 _admin_pat=$(create_admin_pat)
 if [ -z "${_admin_pat}" ]; then

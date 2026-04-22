@@ -1,0 +1,48 @@
+# Envoy Gateway (Gateway API) overrides for k3d per-job review environments.
+# Replaces k3d.ingress.values.yaml — uses HTTPRoute/TCPRoute instead of NGINX Ingress.
+# Values commented out below are now master defaults; left here to document intent
+# and to test that the defaults are correctly applied.
+# nginx-ingress:
+#   enabled: false
+
+global:
+  hosts:
+    https: false
+  ingress:
+    # enabled: false
+    configureCertmanager: false
+  gatewayApi:
+    # enabled: true
+    # installEnvoy: true
+    configureCertmanager: false
+
+gatewayApiResources:
+  gateway:
+    listeners:
+      http-default:
+        protocol: HTTP
+        port: 80
+      gitlab-web:
+        protocol: HTTP
+        port: 80
+      registry-web:
+        protocol: HTTP
+        port: 80
+      kas-web:
+        protocol: HTTP
+        port: 80
+      minio-web:
+        protocol: HTTP
+        port: 80
+      gitlab-ssh:
+        protocol: TCP
+        port: 22
+  # Gateway-wide ClientTrafficPolicy: keeps %2F in URL paths unchanged so that
+  # GitLab API calls using namespace/project notation (root%2Fproject) are routed
+  # correctly. The per-listener webservice CTP targets only the gitlab-web section;
+  # this gateway-level policy provides coverage for all HTTP listeners (which use
+  # Envoy's default_filter_chain rather than filter_chains[0]).
+  envoy:
+    clientTrafficPolicySpec:
+      path:
+        escapedSlashesAction: KeepUnchanged
