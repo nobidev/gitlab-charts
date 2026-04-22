@@ -2,6 +2,10 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.11.1 (2026-04-21)
+
+No changes.
+
 ## 9.11.0 (2026-04-15)
 
 ### Added (3 changes)
@@ -27,6 +31,16 @@ entry.
 - [Update gitlab-exporter to v16.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/37981d9e8b352c9d62908df776a248c41c316901) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4866))
 - [Update container-registry to v4.39.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/be5ece2d4387f2d561000c549c2cc754ed95feb9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4886))
 - [Gateway API: Unglobalize Gateway API resources](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fb5977af6be6eb874f6be1f2fee7d74d03c27665) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4862))
+
+## 9.10.4 (2026-04-21)
+
+### Fixed (1 change)
+
+- [Fix certmanager annotation regression in Helm 3.20.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/69a370090f573afc23d510b5586ba8c20044a783)
+
+### Changed (1 change)
+
+- [Bump gitlab-zoekt chart to 3.8.3](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/74f4e6490669560919e6ec2e130da584530651d5)
 
 ## 9.10.3 (2026-04-07)
 
@@ -66,6 +80,12 @@ No changes.
 - [Update gitlab-runner to v0.86.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5989b6d58df3cd6333f896ac6d6186a97099b863) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4823))
 - [Update container-registry to v4.37.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f225950cc5b21f2c4dd09f30f989cb40185cd929) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4813))
 - [Remove Zoekt basic auth from main GitLab Helm chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bf6e3d48b050e0ba467d2adc98784ad123d2aa98) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4782))
+
+## 9.9.7 (2026-04-21)
+
+### Fixed (1 change)
+
+- [Fix certmanager annotation regression in Helm 3.20.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/4cc9a05181676d3afe3fcf732e7f2ad7fcda8fb2)
 
 ## 9.9.6 (2026-04-07)
 
