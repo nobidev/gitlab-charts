@@ -29,12 +29,18 @@ function install_cnpg_operator {
     --namespace ${NAMESPACE} \
     --set config.clusterWide=false \
     --wait \
+    --timeout 600s \
     --hide-notes
-  # Wait for the CRD to be fully established before creating a Cluster CR.
-  # The operator pod becoming Ready (--wait above) doesn't guarantee the CRD
-  # is Established yet, causing "no matches for kind Cluster" errors.
-  kubectl wait --for=condition=Established --timeout=60s \
-    crd/clusters.postgresql.cnpg.io
+  # Wait for ALL CNPG CRDs to be Established before creating any CRs.
+  # Helm --wait ensures the operator pod is Ready, but CRD Established
+  # condition can lag on k3d (poolers in particular hits the default 300s limit).
+  kubectl wait --for=condition=Established --timeout=120s \
+    crd/backups.postgresql.cnpg.io \
+    crd/clusterimagecatalogs.postgresql.cnpg.io \
+    crd/clusters.postgresql.cnpg.io \
+    crd/imagecatalogs.postgresql.cnpg.io \
+    crd/poolers.postgresql.cnpg.io \
+    crd/scheduledbackups.postgresql.cnpg.io
 }
 
 function create_cnpg_cluster {

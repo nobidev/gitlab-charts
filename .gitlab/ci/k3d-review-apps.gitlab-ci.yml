@@ -50,9 +50,6 @@
     - kubectl version --output=json
     - ./scripts/ci/k3d_deploy.sh
     - source "${VARIABLES_FILE}"
-    # GITLAB_QA_ADMIN_ACCESS_TOKEN is pre-set to the shared vcluster token; unset it
-    # so gitlab-qa falls back to password auth (ROOT_PASSWORD) against this k3d instance.
-    - unset GITLAB_QA_ADMIN_ACCESS_TOKEN
     - |
       http_code=$(curl -sSo /dev/null -w "%{http_code}" \
         --user "root:${ROOT_PASSWORD}" \
