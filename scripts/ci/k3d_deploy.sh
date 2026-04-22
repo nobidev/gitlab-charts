@@ -25,12 +25,4 @@ echo "export GITLAB_URL=gitlab-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"      
 echo "export GITLAB_ROOT_DOMAIN=${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"       >> "${VARIABLES_FILE}"
 echo "export REGISTRY_URL=registry-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"    >> "${VARIABLES_FILE}"
 echo "export QA_GITLAB_REVISION=$(get_qa_revision)"                               >> "${VARIABLES_FILE}"
-
-_admin_pat=$(create_admin_pat)
-if [ -z "${_admin_pat}" ]; then
-  echo "ERROR: create_admin_pat returned empty — cannot proceed without admin token"
-  exit 1
-fi
-echo "export GITLAB_ADMIN_TOKEN=${_admin_pat}"                                     >> "${VARIABLES_FILE}"
-
 echo "export PROTOCOL=http"                                                        >> "${VARIABLES_FILE}"
