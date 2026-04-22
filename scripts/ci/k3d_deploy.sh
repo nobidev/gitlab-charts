@@ -26,3 +26,6 @@ echo "export GITLAB_ROOT_DOMAIN=${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"     
 echo "export REGISTRY_URL=registry-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"    >> "${VARIABLES_FILE}"
 echo "export QA_GITLAB_REVISION=$(get_qa_revision)"                               >> "${VARIABLES_FILE}"
 echo "export PROTOCOL=http"                                                        >> "${VARIABLES_FILE}"
+# The CI/CD GITLAB_QA_ADMIN_ACCESS_TOKEN belongs to the shared vcluster instance;
+# create a fresh admin PAT scoped to this k3d instance instead.
+echo "export GITLAB_QA_ADMIN_ACCESS_TOKEN=$(create_admin_pat)"                    >> "${VARIABLES_FILE}"

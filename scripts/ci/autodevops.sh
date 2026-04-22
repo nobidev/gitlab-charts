@@ -262,3 +262,14 @@ function get_qa_revision() {
   toolbox_pod=$(kubectl get pods -lrelease="$(gitlab_release_name)",app=toolbox -o custom-columns=":metadata.name" --no-headers | tr -d '[:space:]')
   kubectl exec -n "${NAMESPACE}" "${toolbox_pod}" -ic toolbox -- cat /srv/gitlab/REVISION
 }
+
+function create_admin_pat() {
+  wait_for_toolbox >/dev/null
+  local toolbox_pod
+  toolbox_pod=$(kubectl get pods -lrelease="$(gitlab_release_name)",app=toolbox \
+    -o custom-columns=":metadata.name" --no-headers | tr -d '[:space:]')
+  kubectl exec -n "${NAMESPACE}" "${toolbox_pod}" -ic toolbox -- \
+    /srv/gitlab/bin/rails runner \
+    "token = User.find_by_username('root').personal_access_tokens.create!(name: 'qa-admin', scopes: ['api'], expires_at: 1.day.from_now); puts token.token" \
+    2>/dev/null
+}
