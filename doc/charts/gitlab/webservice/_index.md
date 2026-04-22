@@ -644,7 +644,7 @@ webservice:
         rules: []
 ```
 
-### Backend TLS
+### TLS between Gateway and Workhorse
 
 When [Workhorse TLS](#gitlab-workhorse) is enabled, you can configure a `BackendTLSPolicy` per
 deployment so the Gateway verifies TLS connections to each Workhorse backend. Set
