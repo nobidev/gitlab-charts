@@ -6,8 +6,9 @@
 #   1. Avoid CRD conflicts.
 #   2. Avoid resource conflicts in native review environments where mutliple review deploysments exist in the same namespace.
 function deploy_external_postgresql() {
-  # Skip install for native CI review envionments which use a shared CNPG Operator installation.
-  if is_ci_deployment && is_vcluster_deployment; then
+  # Install operator for isolated clusters (vcluster, k3d) that don't have a
+  # shared CNPG operator. Native GKE/EKS environments use a cluster-wide install.
+  if is_ci_deployment && (is_vcluster_deployment || is_k3d_deployment); then
     echo "Installing CloudNativePG"
     install_cnpg_operator
   fi
