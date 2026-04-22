@@ -59,7 +59,7 @@ The zero-downtime upgrade process requires:
 
 When considering a zero-downtime upgrade, be aware that:
 
-- [Gitaly in Kubernetes does not support zero-downtime upgrades](https://gitlab.com/gitlab-org/gitaly/-/work_items/6934) and requires downtime.
+- Gitaly on Kubernetes supports zero-downtime upgrades [through client retries](https://docs.gitlab.com/administration/settings/gitaly_timeouts/#gitaly-client-retries). 
 - Most of the time, you can safely upgrade from a patch release to the next minor release if the patch release is not the latest. For example, upgrading from 18.0.5 to 18.1.0 should be safe even if 18.0.6 exists. We do recommend you check the [version-specific upgrade](https://docs.gitlab.com/update/versions/) notes for the version you are upgrading to.
 - Ensure your deployment has sufficient resources to run both old and new pods simultaneously during the rolling update. The amount of additional resources required depends on your maxSurge settings. For example, with maxSurge: 10%, you need 10% additional capacity for the new pods to use.
 
