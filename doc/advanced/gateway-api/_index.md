@@ -209,6 +209,10 @@ Backend TLS for KAS is controlled by `global.kas.tls.enabled`. The validation ho
 to the Service DNS name (`<service-name>.<namespace>.svc`) and can be overridden with
 `kas.backendTLSPolicy.hostname`:
 
+> [!warning]
+> GitLab Workspaces does not yet support internal TLS. If you use Workspaces,
+> do not enable internal TLS for GitLab Relay, as it will cause protocol and TLS errors.
+
 ```yaml
 global:
   kas:
