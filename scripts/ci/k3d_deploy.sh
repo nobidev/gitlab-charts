@@ -26,6 +26,12 @@ echo "export GITLAB_ROOT_DOMAIN=${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"     
 echo "export REGISTRY_URL=registry-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"    >> "${VARIABLES_FILE}"
 echo "export QA_GITLAB_REVISION=$(get_qa_revision)"                               >> "${VARIABLES_FILE}"
 echo "export PROTOCOL=http"                                                        >> "${VARIABLES_FILE}"
+
+_admin_pat=$(create_admin_pat)
+if [ -z "${_admin_pat}" ]; then
+  echo "ERROR: create_admin_pat returned empty — cannot proceed without admin token"
+  exit 1
+fi
 # The CI/CD GITLAB_QA_ADMIN_ACCESS_TOKEN belongs to the shared vcluster instance;
-# create a fresh admin PAT scoped to this k3d instance instead.
-echo "export GITLAB_QA_ADMIN_ACCESS_TOKEN=$(create_admin_pat)"                    >> "${VARIABLES_FILE}"
+# export the fresh PAT as GITLAB_ADMIN_TOKEN so the QA job can re-export it.
+echo "export GITLAB_ADMIN_TOKEN=${_admin_pat}"                                     >> "${VARIABLES_FILE}"

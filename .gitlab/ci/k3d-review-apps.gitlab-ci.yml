@@ -50,9 +50,13 @@
     - kubectl version --output=json
     - ./scripts/ci/k3d_deploy.sh
     - source "${VARIABLES_FILE}"
+    # GITLAB_QA_ADMIN_ACCESS_TOKEN is baked at job-setup time from the CI variable
+    # GITLAB_ADMIN_TOKEN (which holds the shared vcluster token). Re-export it here
+    # so gitlab-qa picks up the fresh PAT created against this k3d instance.
+    - export GITLAB_QA_ADMIN_ACCESS_TOKEN="${GITLAB_ADMIN_TOKEN}"
     - |
       http_code=$(curl -sSo /dev/null -w "%{http_code}" \
-        --user "root:${ROOT_PASSWORD}" \
+        --header "PRIVATE-TOKEN: ${GITLAB_ADMIN_TOKEN}" \
         "http://${GITLAB_URL}/api/v4/user")
       if [ "${http_code}" != "200" ]; then
         echo "Pre-flight check failed: GET /api/v4/user returned HTTP ${http_code} (expected 200)"
