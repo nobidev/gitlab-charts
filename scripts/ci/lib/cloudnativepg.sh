@@ -30,6 +30,11 @@ function install_cnpg_operator {
     --set config.clusterWide=false \
     --wait \
     --hide-notes
+  # Wait for the CRD to be fully established before creating a Cluster CR.
+  # The operator pod becoming Ready (--wait above) doesn't guarantee the CRD
+  # is Established yet, causing "no matches for kind Cluster" errors.
+  kubectl wait --for=condition=Established --timeout=60s \
+    crd/clusters.postgresql.cnpg.io
 }
 
 function create_cnpg_cluster {
