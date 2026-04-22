@@ -525,8 +525,8 @@ To enable TLS:
 When `registry.tls.verify` is `true`, you must pass the CA certificate Secret
 name to `registry.tls.caSecretName`. This is necessary for self-signed
 certificates and custom Certificate Authorities. This Secret is used by NGINX to verify the TLS
-certificate of Registry. When using Gateway API, verification is always enforced and
-`registry.tls.verify` has no effect. See [Backend TLS](../../advanced/gateway-api/_index.md#backend-tls).
+certificate of Registry. If using [Gateway API](../../advanced/gateway-api/_index.md#tls-between-gateway-and-backend-services),
+the Gateway API controller always verifies the certificate.
 
 For example:
 

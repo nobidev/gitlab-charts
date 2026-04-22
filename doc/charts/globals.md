@@ -1553,7 +1553,7 @@ To configure `kas` to use the certificates you created, set the following values
 |-------------------------------|-------------|
 | `global.kas.tls.enabled`      | Mounts the certificates volume and enables TLS communication to `kas` endpoints. |
 | `global.kas.tls.secretName`   | Specifies which Kubernetes TLS secret stores your certificates. |
-| `global.kas.tls.verify`       | When `true`, instructs NGINX Ingress to verify the backend TLS certificate of KAS. Must be set to `false` for self-signed certificates. Not used with Gateway API, which always verifies the backend TLS connection. See [Backend TLS](../advanced/gateway-api/_index.md#backend-tls). |
+| `global.kas.tls.verify`       | When `true`, instructs NGINX Ingress to verify the backend TLS certificate of KAS. Must be set to `false` for self-signed certificates. If using [Gateway API](../advanced/gateway-api/_index.md#tls-between-gateway-and-backend-services), the Gateway API controller always verifies the certificate. |
 | `global.kas.tls.caSecretName` | Specifies which Kubernetes TLS secret stores your custom CA. |
 
 For example, you could use the following in your `values.yaml` file to deploy your chart:

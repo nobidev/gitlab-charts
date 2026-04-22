@@ -201,7 +201,7 @@ gitlab:
 ```
 
 For information on configuring optional deployment-level overrides, see the
-[Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#backend-tls).
+[Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#tls-between-gateway-and-workhorse).
 
 #### Enable internal TLS for GitLab Relay (KAS)
 
