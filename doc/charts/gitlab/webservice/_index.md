@@ -648,7 +648,7 @@ webservice:
 
 When [Workhorse TLS](#gitlab-workhorse) is enabled, you can configure a `BackendTLSPolicy` per
 deployment so the Gateway verifies TLS connections to each Workhorse backend. Set
-`workhorse.tls.enabled: true` and supply a CA Secret at the deployment level:
+`workhorse.tls.enabled: true` and supply a CA secret at the deployment level:
 
 ```yaml
 global:
@@ -669,7 +669,7 @@ gitlab:
             caSecretName: workhorse-api-tls-ca
 ```
 
-The validation hostname defaults to the Service DNS name (`<service-name>.<namespace>.svc`).
+The validation hostname defaults to the service DNS name (`<service-name>.<namespace>.svc`).
 Override it with `backendTLSPolicy.hostname`:
 
 ```yaml

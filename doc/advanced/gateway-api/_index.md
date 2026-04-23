@@ -168,7 +168,7 @@ If you configure multiple webservice deployment, the route rules can be customiz
 Check the [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#gateway-api)
 for details.
 
-### TLS between Gateway and backend Services
+### TLS between Gateway and backend services
 
 When TLS is enabled on a backend service (Webservice, KAS, or Registry), the chart creates a
 `BackendTLSPolicy` resource that instructs the Gateway to establish a TLS connection.
@@ -206,12 +206,12 @@ For information on configuring optional deployment-level overrides, see the
 #### Enable internal TLS for GitLab Relay (KAS)
 
 Backend TLS for KAS is controlled by `global.kas.tls.enabled`. The validation hostname defaults
-to the Service DNS name (`<service-name>.<namespace>.svc`) and can be overridden with
+to the service DNS name (`<service-name>.<namespace>.svc`) and can be overridden with
 `kas.backendTLSPolicy.hostname`:
 
 > [!warning]
 > GitLab Workspaces does not yet support internal TLS. If you use Workspaces,
-> do not enable internal TLS for GitLab Relay, as it will cause protocol and TLS errors.
+> do not enable internal TLS for GitLab Relay because it will cause protocol and TLS errors.
 
 ```yaml
 global:

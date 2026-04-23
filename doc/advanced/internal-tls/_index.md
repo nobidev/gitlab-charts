@@ -126,7 +126,7 @@ testing-services.pem
 
 The various GitLab components speak to each other over their Service's DNS names.
 For TLS certificate verification to pass, each certificate requires a SAN
-that includes the component's Service name, or a wildcard acceptable to the
+that includes the component's service name, or a wildcard acceptable to the
 Kubernetes Service DNS entry.
 
 - `service-name.namespace.svc`
