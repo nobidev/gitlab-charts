@@ -4,7 +4,7 @@ function is_ci_deployment() {
   [[ -n "${CI_PIPELINE_ID}" ]]
 }
 
-function is_local_development() {
+function is_local_deployment() {
   ! is_ci_deployment
 }
 
