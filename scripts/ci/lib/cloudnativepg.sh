@@ -74,11 +74,11 @@ EOF
   return 1
 }
 
-function remove_external_postgres() {
+function remove_external_postgresql() {
     echo "Removing CloudNativePG PostgreSQL Cluster"
     kubectl delete -n "${NAMESPACE}" --wait --ignore-not-found=true cluster "$(cnpg_cluster_name)"
     
-    if is_ci_deployment && is_vcluster_deployment; then
+    if is_local_development || (is_ci_deployment && is_vcluster_deployment); then
       echo "Removing CloudNativePG"
       helm uninstall "$(cnpg_release_name)" -n "${NAMESPACE}" --wait --ignore-not-found
     fi

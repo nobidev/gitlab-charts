@@ -35,7 +35,7 @@ function remove_external_components() {
   fi
 
   if use_external_postgresql; then
-    remove_external_postgres
+    remove_external_postgresql
   fi
 
   if use_external_garage; then

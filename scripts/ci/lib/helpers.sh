@@ -4,6 +4,10 @@ function is_ci_deployment() {
   [[ -n "${CI_PIPELINE_ID}" ]]
 }
 
+function is_local_development() {
+  ! is_ci_deployment
+}
+
 function is_vcluster_deployment() {
   [[ -n "${VCLUSTER_K8S_VERSION}" ]]
 }
