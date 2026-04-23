@@ -272,7 +272,7 @@ function create_admin_pat() {
       u = User.find_by_username('root')
       t = u.personal_access_tokens.create!(
         name: 'k3d-qa-admin',
-        scopes: [:api, :read_api, :read_user],
+        scopes: [:api],
         expires_at: 1.day.from_now
       )
       puts t.token
