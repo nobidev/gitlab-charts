@@ -53,3 +53,15 @@ qa_k3d:
       job: pin_image_versions
   rules:
     - when: on_success
+
+qa_k3d_manual_full_suite:
+  extends: .k3d_qa_manual_full_suite_template
+  image: "ruby:3.3.7"
+  tags:
+    - saas-linux-large-arm64
+  variables:
+    REVIEW_ARCH: "arm64"
+  parallel: 7
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: pin_image_versions

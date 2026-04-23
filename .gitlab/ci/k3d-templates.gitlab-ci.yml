@@ -94,6 +94,14 @@
   retry: 1
   allow_failure: true
 
+.k3d_qa_manual_full_suite_template:
+  extends: .k3d_qa_template
+  stage: qa-manual
+  when: manual
+  retry: 0
+  variables:
+    TEST_SUITE: $QA_FULL_SUITE_OPTIONS
+
 .k3d_review_specs_template:
   extends:
     - .specs
