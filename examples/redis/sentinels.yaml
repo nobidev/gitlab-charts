@@ -1,5 +1,3 @@
-redis:
-  install: false
 global:
   redis:
     host: redis.example

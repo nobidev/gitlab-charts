@@ -41,7 +41,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.serviceDeskEmail.deliveryMethod" .) -}}
 
 {{/* _checkConfig_geo.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.geo.database" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.geo.secondary.database" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.geo.registry.replication.primaryApiUrl" .) -}}
 
@@ -68,8 +67,11 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{/* _checkConfig_openbao.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.openbao.database" .) -}}
 
+{{/* _checkConfig_redis.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.redis" .) -}}
+
 {{/* _checkConfig_postgresql.tpl*/}}
-{{- $messages = append $messages (include "gitlab.checkConfig.postgresql.deprecatedVersion" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.postgresql" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.postgresql.noPasswordFile" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.database.externalLoadBalancing" .) -}}
 
@@ -125,9 +127,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.kas.autoflowTemporalWorkerMtls" .) -}}
 
 {{/* other checks */}}
-{{- $messages = append $messages (include "gitlab.checkConfig.multipleRedis" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.redisYmlOverride" .) -}}
-{{- $messages = append $messages (include "gitlab.checkConfig.hostWhenNoInstall" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sentry" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.gitlab_docs" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.smtp.openssl_verify_mode" .) -}}
@@ -146,46 +145,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{-   printf "\nCONFIGURATION CHECKS:\n%s" $message | fail -}}
 {{- end -}}
 {{- end -}}
-
-{{/*
-Ensure that `redis.install: false` if configuring multiple Redis instances
-*/}}
-{{- define "gitlab.checkConfig.multipleRedis" -}}
-{{/* "cache" "sharedState" "queues" "actioncable" */}}
-{{- $x := dict "count" 0 -}}
-{{- range $redis := list "cache" "sharedState" "queues" "actioncable" -}}
-{{-   if hasKey $.Values.global.redis $redis -}}
-{{-     $_ := set $x "count" ( add1 $x.count ) -}}
-{{-    end -}}
-{{- end -}}
-{{- if and .Values.redis.install ( lt 0 $x.count ) }}
-redis:
-  If configuring multiple Redis servers, you can not use the in-chart Redis server. Please see https://docs.gitlab.com/charts/charts/globals#configure-redis-settings
-{{- end -}}
-{{- end -}}
-{{/* END gitlab.checkConfig.multipleRedis */}}
-
-{{/*
-Ensure that `redis.install: false` if using redis.yml override
-*/}}
-{{- define "gitlab.checkConfig.redisYmlOverride" -}}
-{{- if and .Values.redis.install ( hasKey .Values.global.redis "redisYmlOverride" ) }}
-redis:
-  When you override redis.yml you can not use the in-chart Redis server. Please see https://docs.gitlab.com/charts/charts/globals#configure-redis-settings
-{{- end -}}
-{{- end -}}
-{{/* END gitlab.checkConfig.redisYmlOverride */}}
-
-{{/*
-Ensure that `global.redis.host: <hostname>` is present if `redis.install: false`
-*/}}
-{{- define "gitlab.checkConfig.hostWhenNoInstall" -}}
-{{-   if and (not .Values.redis.install) (empty .Values.global.redis.host) (empty .Values.global.redis.redisYmlOverride) }}
-redis:
-  You've disabled the installation of Redis. When using an external Redis, you must populate `global.redis.host` or `gitlab.redis.redisYmlOverride`. Please see https://docs.gitlab.com/charts/advanced/external-redis/
-{{-   end -}}
-{{- end -}}
-{{/* END gitlab.checkConfig.hostWhenNoInstall */}}
 
 {{/*
 Ensure that sentry has a DSN configured if enabled

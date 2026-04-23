@@ -175,18 +175,10 @@ to configure where new repositories are stored.
 
 Praefect uses its own database to track its state. This has to be manually created in order for Praefect to be functional.
 
-> [!note]
-> These instructions assume you are using the bundled PostgreSQL server. If you are using your own server,
-> there will be some variation in how you connect.
-
-1. Log into your database instance:
+1. Log into your database instance. The exact connection command may vary depends on your setup.
 
    ```shell
-   kubectl exec -it $(kubectl get pods -l app.kubernetes.io/name=postgresql -o custom-columns=NAME:.metadata.name --no-headers) -- bash
-   ```
-
-   ```shell
-   PGPASSWORD=$(echo $POSTGRES_POSTGRES_PASSWORD) psql -U postgres -d template1
+   psql -U postgres -d template1
    ```
 
 1. Create the database user:

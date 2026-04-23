@@ -15,8 +15,6 @@ title: Configure storage for the GitLab chart
 The following applications within the GitLab chart require persistent storage to maintain state.
 
 - [Gitaly](../charts/gitlab/gitaly/_index.md) (persists the Git repositories)
-- [PostgreSQL](https://github.com/bitnami/charts/tree/main/bitnami/postgresql) (persists the GitLab database data)
-- [Redis](https://github.com/bitnami/charts/tree/main/bitnami/redis) (persists GitLab job data)
 - [MinIO](../charts/minio/_index.md) (persists the object storage data)
 
 The administrator may choose to provision this storage using [dynamic](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#dynamic) or [static](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#static) volume provisioning.
@@ -76,11 +74,6 @@ Follow the links below for further reading and additional persistence options:
 
 - [Gitaly persistence configuration](../charts/gitlab/gitaly/_index.md#git-repository-persistence)
 - [MinIO persistence configuration](../charts/minio/_index.md#persistence)
-- [Redis persistence configuration](https://github.com/bitnami/charts/tree/main/bitnami/redis#persistence)
-- [Upstream PostgreSQL chart configuration](https://github.com/bitnami/charts/tree/main/bitnami/postgresql#configuration-and-installation-details)
-
-> **Note**: Some of the advanced persistence options differ between PostgreSQL and the others, so it's important to check
-> the specific documentation for each before making changes.
 
 ## Using Static Volume Provisioning
 

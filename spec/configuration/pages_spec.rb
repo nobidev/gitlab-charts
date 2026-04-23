@@ -36,7 +36,7 @@ describe 'GitLab Pages' do
     end
 
     let(:pages_enabled_template) do
-      HelmTemplate.new(values.merge(pages_enabled_values))
+      HelmTemplate.new(values.deep_merge(pages_enabled_values))
     end
 
     it 'renders cert-manager.io/issuer annotation correctly' do

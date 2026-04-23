@@ -4,34 +4,6 @@ require 'yaml'
 require 'hash_deep_merge'
 
 describe 'checkConfig geo' do
-  describe 'geo.database' do
-    let(:success_values) do
-      YAML.safe_load(%(
-        global:
-          geo:
-            enabled: true
-          psql:
-            host: foo
-            password:
-              secret: bar
-      )).deep_merge!(default_required_values)
-    end
-
-    let(:error_values) do
-      YAML.safe_load(%(
-        global:
-          geo:
-            enabled: true
-      )).deep_merge!(default_required_values)
-    end
-
-    let(:error_output) { 'Geo was configured but no database was provided' }
-
-    include_examples 'config validation',
-                     success_description: 'when Geo is enabled with a database',
-                     error_description: 'when Geo is enabled without a database'
-  end
-
   describe 'geo.secondary.database' do
     let(:success_values) do
       YAML.safe_load(%(

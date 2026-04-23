@@ -31,6 +31,3 @@
      extraIngress:
        enabled: true
        hostname: shanghai.gitlab.example.com
- # External DB, disable
- postgresql:
-   install: false

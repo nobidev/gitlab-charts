@@ -262,9 +262,6 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
        nodeName: London Office
        enabled: true
        role: primary
-   # External DB, disable
-   postgresql:
-     install: false
    ```
 
    <!-- markdownlint-disable MD044 -->
@@ -625,9 +622,6 @@ To deploy this chart as a Geo Secondary site, start [from this example configura
          password:
            secret: geo
            key: geo-postgresql-password
-   # External DB, disable
-   postgresql:
-     install: false
    ```
 
    <!-- markdownlint-disable MD044 -->

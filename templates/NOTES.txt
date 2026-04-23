@@ -12,12 +12,12 @@ managed Ingress controller and review the deprecation announcements at https://d
 and https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haproxy-and-traefik-charts.
 {{- end }}
 
-{{- /* Warn users about MinIO and Bitnami Redis/PostgreSQL removal */}}
-{{- if or (eq .Values.postgresql.install true) (eq .Values.redis.install true) (eq .Values.global.minio.enabled true) }}
+{{- /* Warn users about MinIO removal */}}
+{{- if eq .Values.global.minio.enabled true }}
 {{ $CRITICAL }}
-The bundled PostgreSQL, Redis and MinIO will be removed in GitLab 19.0. Please review
+The bundled MinIO will be removed in GitLab 19.0. Please review
 the deprecation announcement at https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart
-and plan to migrate to externally managed alternatives by following https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
+and plan to migrate to an externally managed alternative by following https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
 {{- end }}
 
 {{- /* If any development subchart is enabled, note it is not production ready */}}

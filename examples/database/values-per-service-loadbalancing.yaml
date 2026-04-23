@@ -1,6 +1,4 @@
 # disable in-chart PostgreSQL
-postgresql:
-  install: false
 # Configure separate database for Global, Sidekiq
 global:
   psql:

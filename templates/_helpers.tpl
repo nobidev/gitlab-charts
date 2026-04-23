@@ -124,51 +124,10 @@ acme.cert-manager.io/http01-edit-in-place: "true"
 
 {{/*
 Return the db hostname
-If an external postgresl host is provided, it will use that, otherwise it will fallback
-to the service name. Failing a specified service name it will fall back to the default service name.
-
-This overrides the upstream postegresql chart so that we can deterministically
-use the name of the service the upstream chart creates
 */}}
 {{- define "gitlab.psql.host" -}}
 {{- $local := pluck "psql" $.Values | first -}}
-{{- coalesce (pluck "host" $local .Values.global.psql | first) (printf "%s.%s.svc" (include "postgresql.v1.primary.fullname" .) $.Release.Namespace) -}}
-{{- end -}}
-
-{{/*
-Return the configmap for initializing the PostgreSQL database. This is used to enable the
-necessary postgres extensions for Gitlab to work
-This overrides the upstream postegresql chart so that we can deterministically
-use the name of the initdb scripts ConfigMap the upstream chart creates
-*/}}
-{{- define "gitlab.psql.initdbscripts" -}}
-{{- printf "%s-%s-%s" .Release.Name "postgresql" "init-db" -}}
-{{- end -}}
-
-{{/*
-Overrides the full name of PostegreSQL in the upstream chart.
-*/}}
-{{- define "postgresql.v1.primary.fullname" -}}
-{{- $local := pluck "psql" $.Values | first -}}
-{{- coalesce (pluck "serviceName" $local .Values.global.psql | first) (printf "%s-%s" $.Release.Name "postgresql") -}}
-{{- end -}}
-
-{{/*
-Overrides the username of PostegreSQL in the upstream chart.
-
-Alias of gitlab.psql.username
-*/}}
-{{- define "postgresql.v1.username" -}}
-{{- template "gitlab.psql.username" . -}}
-{{- end -}}
-
-{{/*
-Overrides the database name of PostegreSQL in the upstream chart.
-
-Alias of gitlab.psql.database
-*/}}
-{{- define "postgresql.v1.database" -}}
-{{- template "gitlab.psql.database" . -}}
+{{- pluck "host" $local .Values.global.psql | first -}}
 {{- end -}}
 
 
@@ -201,20 +160,18 @@ to 5432 default
 {{- end -}}
 
 {{/*
-Return the secret name
-Defaults to a release-based name and falls back to .Values.global.psql.secretName
-  when using an external PostgreSQL
+Return the secret name for the PostgreSQL password.
+Requires global.psql.password.secret to be set.
 */}}
 {{- define "gitlab.psql.password.secret" -}}
 {{- $local := pluck "psql" $.Values | first -}}
 {{- $localPass := pluck "password" $local | first -}}
-{{- default (printf "%s-%s" .Release.Name "postgresql-password") (pluck "secret" $localPass $.Values.global.psql.password | first ) | quote -}}
+{{- pluck "secret" $localPass $.Values.global.psql.password | first | quote -}}
 {{- end -}}
 
 {{/*
-Return the name of the key in a secret that contains the postgres password
-Uses `postgresql-password` to match upstream postgresql chart when not using an
-  external postegresql
+Return the name of the key in a secret that contains the postgres password.
+Defaults to `postgresql-password`.
 */}}
 {{- define "gitlab.psql.password.key" -}}
 {{- $local := pluck "psql" $.Values | first -}}

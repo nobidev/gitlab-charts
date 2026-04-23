@@ -54,7 +54,7 @@ Those containers originate from `gitlab.com/gitlab-org/build/CNG`, and their sou
 - **cert-manager** — `jetstack/cert-manager`
 - **Prometheus** — `prometheus-community/prometheus`
 - **Envoy Gateway** - Gateway API implementation - `gateway-helm`
-- **PostgreSQL**, **Redis** and **MinIO** - still bundled optionally (`bitnami/postgresql`, `bitnami/redis`, `MinIO`) for proof of concept and testing environments. Will be removed in 19.0.
+- **MinIO** - still bundled optionally for proof of concept and testing environments. Will be removed in 19.0.
 - **Ingress controllers**: NGINX Ingress, Traefik Ingress, and HAProxy Ingress are deprecated but still bundled as optional dependencies. They are announced to be removed in 20.0.
 
 ### Key Design Decisions

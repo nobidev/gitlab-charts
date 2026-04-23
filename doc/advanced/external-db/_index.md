@@ -5,12 +5,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Configure the GitLab chart with an external database
 ---
 
-Configure the GitLab Helm chart with an external PostgreSQL instance, which is required for production deployments.
-
-> [!note]
-> From GitLab 19.0, the GitLab Helm chart will no longer bundle the Bitnami PostgreSQL. For more information, see the
-> [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
-> and [migrate](../../installation/migration/bundled_chart_migration.md) to an external alternative.
+Configure the GitLab Helm chart with an external PostgreSQL instance, which is required for all deployments.
 
 Prerequisites:
 
@@ -30,19 +25,14 @@ Networking prerequisites:
 
 - Ensure that the database is reachable from the cluster. Be sure that your firewall policies allow traffic.
 - If you plan to use PostgreSQL as a load balancing cluster and Kubernetes
-  DNS for service discovery, when you install the `bitnami/postgresql` chart,
-  use `--set slave.service.clusterIP=None`.
-  This setting configures the PostgreSQL secondary service as a headless service to
-  allow DNS `A` records to be created for each secondary instance.
-
-  For an example of how to use Kubernetes DNS for service discovery,
-  see [`examples/database/values-loadbalancing-discover.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/database/values-loadbalancing-discover.yaml).
+  DNS for service discovery, configure the PostgreSQL secondary service as a headless service to
+  allow DNS `A` records to be created for each secondary instance. For an example, see
+  [`examples/database/values-loadbalancing-discover.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/database/values-loadbalancing-discover.yaml).
 
 To configure the GitLab chart to use an external database:
 
 1. Set the following parameters:
 
-   - `postgresql.install`: Set to `false` to disable the embedded database.
    - `global.psql.host`: Set to the hostname of the external database, can be a domain or an IP address.
    - `global.psql.password.secret`: The name of the [secret that contains the database password for the `gitlab` user](../../installation/secrets.md#postgresql-password).
    - `global.psql.password.key`: Within the secret, the key that contains the password.
@@ -64,7 +54,6 @@ To configure the GitLab chart to use an external database:
 
    ```shell
    helm install gitlab gitlab/gitlab
-     --set postgresql.install=false
      --set global.psql.host=psql.example
      --set global.psql.password.secret=gitlab-postgresql-password
      --set global.psql.password.key=postgres-password

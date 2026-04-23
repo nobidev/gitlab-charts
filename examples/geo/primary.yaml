@@ -34,6 +34,3 @@
        enabled: true
        hostname: gitlab.london.example.com
        useGeoClass: true
- # External DB, disable
- postgresql:
-   install: false
