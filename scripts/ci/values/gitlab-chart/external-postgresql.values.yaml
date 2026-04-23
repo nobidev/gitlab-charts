@@ -4,6 +4,3 @@ global:
     password:
       secret: ${CNPG_CLUSTER_SECRET}
       key: password
-
-postgresql:
-  install: false

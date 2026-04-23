@@ -46,7 +46,19 @@ class HelmTemplate
   # the tests are running on, since on stable versions will have a semVer value, while the default branch
   # will have `master`.
   def self.defaults
-    HelmTemplate.certmanager_issuer.deep_merge!({ 'global' => { 'gitlabVersion' => "v42.0.0" } })
+    HelmTemplate.certmanager_issuer.deep_merge!({
+      'global' => {
+        'gitlabVersion' => "v42.0.0",
+        'redis' => { 'host' => 'redis.example.com' },
+        'psql' => {
+          'host' => 'psql.example.com',
+          'password' => {
+            'secret' => 'psql-secret',
+            'key' => 'password'
+          }
+        }
+      }
+    })
   end
 
   def self.with_defaults(yaml)
@@ -206,6 +218,10 @@ class HelmTemplate
 
   def exit_code()
     @exit_code.to_i
+  end
+
+  def stdout()
+    @stdout
   end
 
   def stderr()

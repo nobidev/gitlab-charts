@@ -103,10 +103,13 @@ describe 'openbao config check' do
 
     context 'when database not configured' do
       let(:error_values) do
-        YAML.safe_load(%(
+        v = YAML.safe_load(%(
           openbao:
             install: true
         )).deep_merge!(default_required_values)
+
+        v["global"].delete("psql")
+        v
       end
 
       let(:error_output) { 'OpenBao is enabled but no database was configured' }
@@ -139,7 +142,7 @@ describe 'openbao config check' do
 
     context 'when database is configured without a password' do
       let(:error_values) do
-        YAML.safe_load(%(
+        v = YAML.safe_load(%(
           openbao:
             install: true
           global:
@@ -148,6 +151,9 @@ describe 'openbao config check' do
                 host: gitlab-checkconfig-test-postgresql.default.svc
                 username: gitlab
         )).deep_merge!(default_required_values)
+
+        v["global"]["psql"].delete('password')
+        v
       end
 
       let(:error_output) { 'no database password configured' }

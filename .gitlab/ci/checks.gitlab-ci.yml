@@ -188,8 +188,14 @@ kube-score:
   script:
     - bash ./scripts/ci/add_dependency_repos.sh
     - helm dependency build
-    - helm template . --set certmanager-issuer.email=gitlab@example.com  > /tmp/test.yaml
-    - /kube-score score --ignore-container-cpu-limit --ignore-container-memory-limit --ignore-test "container-image-pull-policy,container-security-context-user-group-id,container-ephemeral-storage-request-and-limit,container-security-context-readonlyrootfilesystem,pod-probes,pod-networkpolicy,container-resources,deployment-has-poddisruptionbudget,deployment-replicas,deployment-has-host-podantiaffinity" /tmp/test.yaml
+    - echo "$HELM_DEFAULT_SETTINGS" | tee ./template_settings.yaml
+    - helm template . -f ./template_settings.yaml > /tmp/test.yaml
+    - >
+      /kube-score score
+      --ignore-container-cpu-limit
+      --ignore-container-memory-limit
+      --ignore-test "container-image-pull-policy,container-security-context-user-group-id,container-ephemeral-storage-request-and-limit,container-security-context-readonlyrootfilesystem,pod-probes,pod-networkpolicy,container-resources,deployment-has-poddisruptionbudget,deployment-replicas,deployment-has-host-podantiaffinity,cronjob-has-deadline"
+      /tmp/test.yaml
   rules:
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'

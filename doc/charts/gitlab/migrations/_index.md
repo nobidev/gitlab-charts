@@ -61,8 +61,6 @@ Table below contains all the possible charts configurations that can be supplied
 | `annotations`                                            | `{}`                                                         | Annotations for the job spec |
 | `podAnnotations`                                         | `{}`                                                         | Annotations for the pod spec |
 | `podLabels`                                              |                                                              | Supplemental Pod labels. Will not be used for selectors. |
-| `redis.serviceName`                                      | `redis`                                                      | Redis service name |
-| `psql.serviceName`                                       | `release-postgresql`                                         | Name of Service providing PostgreSQL |
 | `psql.password.secret`                                   | `gitlab-postgres`                                            | `psql` secret |
 | `psql.password.key`                                      | `psql-password`                                              | key to `psql` password in `psql` secret |
 | `psql.port`                                              |                                                              | Set PostgreSQL server port. Takes precedence over `global.psql.port` |
@@ -185,7 +183,6 @@ In order to use the Community Edition, set `image.repository` to `registry.gitla
 ```yaml
 redis:
   host: redis.example.com
-  serviceName: redis
   port: 6379
   sentinels:
     - host: sentinel1.example.com
@@ -197,11 +194,7 @@ redis:
 
 #### `host`
 
-The hostname of the Redis server with the database to use. This can be omitted in lieu of `serviceName`. If using Redis Sentinels, the `host` attribute needs to be set to the cluster name as specified in the `sentinel.conf`.
-
-#### `serviceName`
-
-The name of the `service` which is operating the Redis database. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Redis as a part of the overall GitLab chart. This will default to `redis`.
+The hostname of the Redis server with the database to use. If using Redis Sentinels, the `host` attribute needs to be set to the cluster name as specified in the `sentinel.conf`.
 
 #### `port`
 
@@ -222,19 +215,11 @@ The sub keys describe each Sentinel connection.
 - `host` defines the hostname for the Sentinel service
 - `port` defines the port number to reach the Sentinel service, defaults to `26379`
 
-> [!note]
-> The current Redis Sentinel support only supports Sentinels that have
-> been deployed separately from the GitLab chart. As a result, the Redis
-> deployment through the GitLab chart should be disabled with `redis.install=false`.
-> The Secret containing the Redis password will need to be manually created
-> before deploying the GitLab chart.
-
 ### PostgreSQL
 
 ```yaml
 psql:
   host: psql.example.com
-  serviceName: pgbouncer
   port: 5432
   database: gitlabhq_production
   username: gitlab
@@ -246,11 +231,7 @@ psql:
 
 #### `host`
 
-The hostname of the PostgreSQL server with the database to use. This can be omitted if `postgresql.install=true` (default non-production).
-
-#### `serviceName`
-
-The name of the service which is operating the PostgreSQL database. If this is present, and `host` is not, the chart will template the hostname of the service in place of the `host` value.
+The hostname of the PostgreSQL server with the database to use.
 
 #### `port`
 

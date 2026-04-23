@@ -7,5 +7,3 @@ global:
       hosts:
       - secondary-1.db.example
       - secondary-2.db.example
-postgresql:
-  install: false

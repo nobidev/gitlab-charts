@@ -31,18 +31,10 @@ dependencies:
   version: 29.2.1
   repository: oci://ghcr.io/prometheus-community/charts
   condition: prometheus.install
-- name: postgresql
-  version: 13.4.4
-  repository: https://charts.bitnami.com/bitnami
-  condition: postgresql.install
 - name: gitlab-runner
   version: 0.87.1
   repository: https://charts.gitlab.io/
   condition: gitlab-runner.install
-- name: redis
-  version: 18.19.4
-  repository: https://charts.bitnami.com/bitnami
-  condition: redis.install
 - name: nginx-ingress
   condition: nginx-ingress.enabled
   version: "*.*.*"

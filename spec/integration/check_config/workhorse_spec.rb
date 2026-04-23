@@ -50,8 +50,6 @@ describe 'checkConfig workhorse' do
           global:
             redis:
               host: redis.example.com
-          redis:
-            install: false
         )).deep_merge!(default_required_values)
       end
 
@@ -75,8 +73,6 @@ describe 'checkConfig workhorse' do
                 caFile:
                   secret: redis-ca
                   key: ca.crt
-          redis:
-            install: false
         )).deep_merge!(default_required_values)
       end
 
@@ -88,8 +84,6 @@ describe 'checkConfig workhorse' do
               redisTLS:
                 cert:
                   secret: redis-cert
-          redis:
-            install: false
         )).deep_merge!(default_required_values)
       end
 
@@ -120,8 +114,6 @@ describe 'checkConfig workhorse' do
                 caFile:
                   secret: sentinel-ca
                   key: ca.crt
-          redis:
-            install: false
         )).deep_merge!(default_required_values)
       end
 
@@ -137,8 +129,6 @@ describe 'checkConfig workhorse' do
                 enabled: true
                 caFile:
                   secret: sentinel-ca
-          redis:
-            install: false
         )).deep_merge!(default_required_values)
       end
 
@@ -163,8 +153,6 @@ describe 'checkConfig workhorse' do
                   key:
                     secret: cache-key
                     key: key
-          redis:
-            install: false
         )).deep_merge!(default_required_values)
       end
 
@@ -179,8 +167,6 @@ describe 'checkConfig workhorse' do
                     secret: cache-cert
                   key:
                     secret: cache-key
-          redis:
-            install: false
         )).deep_merge!(default_required_values)
       end
 

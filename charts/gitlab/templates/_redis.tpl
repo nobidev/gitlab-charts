@@ -2,23 +2,10 @@
 
 {{/*
 Return the redis hostname
-If the redis host is provided, it will use that, otherwise it will fallback
-to the service name
 */}}
 {{- define "gitlab.redis.host" -}}
 {{- include "gitlab.redis.configMerge" . -}}
-{{- if .redisMergedConfig.host -}}
-{{-   .redisMergedConfig.host -}}
-{{- else -}}
-{{-   $name := default "redis" (.Values.redis).serviceName -}}
-{{-   $redisRelease := .Release.Name -}}
-{{-   if contains $name $redisRelease -}}
-{{-     $redisRelease = .Release.Name | trunc 63 | trimSuffix "-" -}}
-{{-   else -}}
-{{-     $redisRelease = printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{-   end -}}
-{{-   printf "%s-master.%s.svc" $redisRelease .Release.Namespace -}}
-{{- end -}}
+{{- .redisMergedConfig.host -}}
 {{- end -}}
 
 {{/*

@@ -17,11 +17,6 @@ nginx-ingress:
       requests:
         cpu: 50m
         memory: 100Mi
-redis:
-  resources:
-    requests:
-      cpu: 10m
-      memory: 64Mi
 minio:
   resources:
     requests:

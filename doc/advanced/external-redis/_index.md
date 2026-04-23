@@ -5,12 +5,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Configure the GitLab chart with an external Redis
 ---
 
-Configure the GitLab Helm chart with an external Redis or Valkey instance, which is required for production deployments.
-
-> [!note]
-> From GitLab 19.0, the GitLab Helm chart will no longer bundle the Bitnami Redis. For more information, see the
-> [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
-> and [migrate](../../installation/migration/bundled_chart_migration.md) to an external alternative.
+Configure the GitLab Helm chart with an external Redis or Valkey instance, which is required for all deployments.
 
 If you don't have Redis configured, for on-premise or deployment to VM,
 consider using our [Linux package](external-omnibus-redis.md).
@@ -19,11 +14,8 @@ For details about currently supported Redis versions, see [Installation system r
 
 ## Configure the chart
 
-Disable the `redis` chart and the Redis service it provides, and point the other services to the external service.
-
 You must set the following parameters:
 
-- `redis.install`: Set to `false` to disable including the Redis chart.
 - `global.redis.host`: Set to the hostname of the external Redis, can be a domain or an IP address.
 - `global.redis.auth.enabled`: Set to `false` if the external Redis does not require a password.
 - `global.redis.auth.secret`: The name of the [secret which contains the token for authentication](../../installation/secrets.md#redis-password).
@@ -38,7 +30,6 @@ For example, pass these values via Helm's `--set` flag while deploying:
 
 ```shell
 helm install gitlab gitlab/gitlab  \
-  --set redis.install=false \
   --set global.redis.host=redis.example \
   --set global.redis.auth.secret=gitlab-redis \
   --set global.redis.auth.key=redis-password \
@@ -82,15 +73,13 @@ you can do so by defining values under
 key will be rendered into `redis.yml` as-is.
 
 The `global.redis.redisYmlOverride` setting is intended for use with
-external Redis services. You must set `redis.install` to `false`. See
+external Redis services. See
 [configure Redis settings](../../charts/globals.md#configure-redis-settings)
 for further details.
 
 Example:
 
 ```yaml
-redis:
-  install: false
 global:
   redis:
     redisYmlOverride:

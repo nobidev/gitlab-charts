@@ -36,7 +36,7 @@ describe 'Mailroom configuration' do
       t = HelmTemplate.new(default_values)
       expect(t.exit_code).to eq(0)
       # check the default service name & password are used
-      expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).to include("test-redis-master.default.svc:6379")
+      expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).to include("redis.example.com:6379")
       # check the default secret is mounted
       projected_volume = t.projected_volume_sources('Deployment/test-mailroom','init-mailroom-secrets')
       redis_mount =  projected_volume.select { |item| item['secret']['name'] == "test-redis-secret" }
@@ -317,7 +317,6 @@ describe 'Mailroom configuration' do
       YAML.safe_load(%(
         global:
           redis:
-            host: external-redis
             port: 9999
             password:
               enable: true
@@ -330,7 +329,7 @@ describe 'Mailroom configuration' do
       t = HelmTemplate.new(values)
       expect(t.exit_code).to eq(0)
       # configure the external-redis server, port, secret
-      expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).to include("external-redis:9999/0")
+      expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).to include("redis.example.com:9999/0")
       projected_volume = t.projected_volume_sources('Deployment/test-mailroom','init-mailroom-secrets')
       redis_mount =  projected_volume.select { |item| item['secret']['name'] == "external-redis-secret" }
       expect(redis_mount.length).to eq(1)
@@ -428,8 +427,6 @@ describe 'Mailroom configuration' do
               password:
                 secret: redis-queues-secret
                 key: redis-queues-key
-        redis:
-          install: false
       )).deep_merge(default_values)
     end
 

@@ -2,11 +2,7 @@
 
 installCertmanager: false
 
-postgresql:
-  install: false
 
-redis:
-  install: false
 
 nginx-ingress:
   controller:
@@ -40,7 +36,7 @@ global:
 
   # See: https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc/advanced/external-db
   psql:
-    host: postgres.local
+    host: postgres.example.com
     password:
       secret: my-postgres-secret  # Your PostgreSQL credentials.
       key: secret
@@ -50,7 +46,7 @@ global:
 
   # See: https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc/advanced/external-redis
   redis:
-    host: redis.local
+    host: redis.example.com
     auth:
       # enabled: false
       secret: my-redis-secret  # Your Redis credentials.

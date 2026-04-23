@@ -1,6 +1,3 @@
-redis:
-  install: false
-
 global:
   redis:
     host: "${VALKEY_RELEASE_NAME}"

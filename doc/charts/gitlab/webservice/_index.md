@@ -124,7 +124,6 @@ to the `helm install` command using the `--set` flags.
 | `puma.threads.max`                                            | `4`                                                             | The maximum amount of Puma threads |
 | `puma.bindIp6`                                                | `false`                                                         | Bind IPv6 addresses with Puma. Currently defaults to false due to a [known issue](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6084) related to rate limiting. |
 | `rack_attack.git_basic_auth`                                  | `{}`                                                            | See [GitLab documentation](https://docs.gitlab.com/administration/settings/protected_paths/) for details |
-| `redis.serviceName`                                           | `redis`                                                         | Redis service name |
 | `global.registry.api.port`                                    | `5000`                                                          | Registry port |
 | `global.registry.api.protocol`                                | `http`                                                          | Registry protocol |
 | `global.registry.api.serviceName`                             | `registry`                                                      | Registry service name |

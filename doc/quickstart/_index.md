@@ -10,7 +10,8 @@ GitLab chart with default values on Google Kubernetes Engine (GKE)
 or Amazon Elastic Kubernetes Service (EKS).
 
 > [!note]
-> The default chart includes bundled PostgreSQL, Redis, and MinIO services for evaluation purposes only.
+> The default chart includes a bundled MinIO service for evaluation purposes only.
+> PostgreSQL and Redis must be configured externally.
 > To deploy GitLab in production, follow the [installation guide](../installation/_index.md).
 
 ## Prerequisites

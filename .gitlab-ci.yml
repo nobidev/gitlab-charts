@@ -73,6 +73,23 @@ variables:
         backups:
           cron:
             enabled: true
+    global:
+      ingress:
+        apiVersion: networking.k8s.io/v1
+      pdb:
+        apiVersion: policy/v1
+      hpa:
+        apiVersion: autoscaling/v2
+      batch:
+        cronJob:
+          apiVersion: batch/v1
+      redis: 
+        host: redis.example.com
+      psql:
+        host: psql.example.com
+        password:
+          secret: psql-password
+          key: password
   GITLAB_AUTH_TOKEN: $DANGER_GITLAB_API_TOKEN
   REVIEW_APPS_AUTO_STOP_IN: "2 hours"
   REVIEW_ARCH: amd64 # amd64 or arm64
