@@ -278,6 +278,8 @@ global:
       wiki: true
       snippets: true
       builds: true
+    # Git import/fetch timeout
+    # gitTimeout: 10800
     graphQlTimeout:
     webhookTimeout:
     maxRequestDurationSeconds:

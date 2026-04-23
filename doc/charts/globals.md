@@ -1193,6 +1193,7 @@ application are described below:
 | `defaultColorMode`                  | Integer |         | [Default color mode for the GitLab instance](https://gitlab.com/gitlab-org/gitlab/-/blob/66788a1de8c3dd3c5566d0f30fe1c2a1bae64bf9/lib/gitlab/color_modes.rb#L17-19). It takes a number, denoting the ID of the color mode. |
 | `defaultSyntaxHighlightingTheme`    | Integer |         | [Default syntax highlighting theme for the GitLab instance](https://gitlab.com/gitlab-org/gitlab/-/blob/66788a1de8c3dd3c5566d0f30fe1c2a1bae64bf9/lib/gitlab/color_schemes.rb#L12-17). It takes a number, denoting the ID of the syntax highlighting theme. |
 | `defaultProjectsFeatures.*feature*` | Boolean | `true`  | [See below](#defaultprojectsfeatures). |
+| `gitTimeout`                        | Integer | `nil`   | Timeout (in seconds) for Git import, fetch, and clone operations performed through GitLab Shell. |
 | `webhookTimeout`                    | Integer | (empty) | Waiting time in seconds before a [hook is deemed to have failed](https://docs.gitlab.com/user/project/integrations/webhooks/#auto-disabled-webhooks). |
 | `graphQlTimeout`                    | Integer | (empty) | Time in seconds the Rails has to [complete a GraphQL request](https://docs.gitlab.com/api/graphql/#limits). |
 
