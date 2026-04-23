@@ -7,8 +7,7 @@
 K3D_VERSION="${K3D_VERSION:-5.8.3}"
 
 function k3d_cluster_name() {
-  # Include CI_JOB_ID so multiple jobs in the same pipeline (parallel QA) never collide
-  echo -n "k3d-rvw-${CI_PIPELINE_ID}-${CI_JOB_ID}"
+  echo -n "gitlab"
 }
 
 function k3d_install() {
