@@ -144,22 +144,28 @@ you can query Kubernetes for those names:
 
 ## Ingress Traffic
 
+By default, network traffic from the Ingress or Gateway API controller to the backend
+services is expected to be unencrypted. To enable internal TLS for these connections,
+additional configuration is required depending on your networking solution.
+
 ### NGINX Ingress
 
-If you are using NGINX Ingress to forward incoming traffic to the GitLab services,
-the GitLab chart configures the required annotations on the Ingress objects for
-NGINX to initiate TLS connections with the backends.
+When internal TLS is enabled, the GitLab chart automatically annotates the Ingress
+objects so that NGINX Ingress initiates TLS connections to the backend services
+and verifies their certificates against the configured CA. No additional
+user configuration is required.
 
-If you use another Ingress implementation, you must add provider-specific
-annotations to enable TLS connections between the controller and the backends.
+If you use a different Ingress implementation, you must add provider-specific
+annotations or configuration to enable TLS connections between the controller
+and the backends.
 
 ### Envoy Gateway
 
 The chart provides `BackendTLSPolicy` resources to configure Envoy Gateway, or other
-spec-compliant controllers, to initiate TLS connections with the backends.
+spec-compliant Gateway API controllers, to initiate TLS connections with the backends.
 
-Check the [Gateway API](../gateway-api/_index.md#tls-between-gateway-and-backend-services)
-documentation for details.
+For details, see the [Gateway API](../gateway-api/_index.md#tls-between-gateway-and-backend-services)
+documentation.
 
 ## Configuration
 
