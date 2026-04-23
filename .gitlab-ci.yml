@@ -52,7 +52,7 @@ variables:
   DEBIAN_VERSION: bookworm-slim
   BUSYBOX_VERSION: "1.37"
   RUBY_VERSION: "3.3.7"
-  CI_TOOLS_VERSION: "4.22.0"
+  CI_TOOLS_VERSION: "5.53.0"
   CI_TOOLS_NAMESPACE: "gitlab-org"
   GITLAB_NAMESPACE: "gitlab-org"
   GITLAB_QA_VERSION: "15.7.1"
