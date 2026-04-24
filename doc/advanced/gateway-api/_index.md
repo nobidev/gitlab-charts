@@ -182,7 +182,7 @@ verification to succeed.
 
 Backend TLS for Webservice requires
 [Workhorse TLS](../../charts/gitlab/webservice/_index.md#gitlab-workhorse) to be enabled globally.
-The validation hostname defaults to the Service DNS name (`<service-name>.<namespace>.svc`) and
+The validation hostname defaults to the service DNS name (`<service-name>.<namespace>.svc`) and
 can be overridden with `webservice.backendTLSPolicy.hostname`:
 
 ```yaml

@@ -142,7 +142,7 @@ you can query Kubernetes for those names:
 
 `kubectl -n ${NAMESPACE} get service -lrelease=${RELEASE}`
 
-## Ingress Traffic
+## Ingress traffic
 
 By default, network traffic from the Ingress or Gateway API controller to the backend
 services is expected to be unencrypted. To enable internal TLS for these connections,
