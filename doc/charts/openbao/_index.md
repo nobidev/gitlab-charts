@@ -36,9 +36,9 @@ OpenBao, which is required to enable the [GitLab secrets manager](https://docs.g
 - A FIPS variant of the OpenBao image is already being build, but OpenBao is not FIPS validated.
   FIPS validation is tracked in [GitLab issue 574875](https://gitlab.com/gitlab-org/gitlab/-/issues/574875).
 - When failing over to a Geo secondary site that uses a different domain
-  (not updating DNS to point the primary domain to the secondary site), GitLab Secrets Manager requires manual
-  re-provisioning of JWT authentication for all projects and groups where it is enabled. This process can be
-  time-consuming for large deployments. A migration tool is planned in
+  (not updating DNS to point the primary domain to the secondary site), OpenBao requires manual
+  re-configuring of JWT authentication for all projects and groups where the GitLab Secrets Manager is enabled.
+  This process can be time-consuming for large deployments. A migration tool is planned in
   [GitLab issue 595722](https://gitlab.com/gitlab-org/gitlab/-/issues/595722). Until then, the recommended
   approach is to update DNS records so the primary domain points to the promoted secondary site.
 
@@ -91,7 +91,7 @@ In failover scenarios, when a secondary site is promoted to primary, omit `jwt_a
 > When failing over to a secondary site that keeps its own domain (instead of updating DNS for the primary domain),
 > you must manually re-provision JWT authentication in OpenBao for all projects and groups where GitLab Secrets Manager
 > is enabled. This includes updating `oidc_discovery_url`, `bound_issuer`, and `bound_audiences` at both the root level
-> and for each project/group namespace. This process can be time-consuming for large deployments. A migration tool is
+> and for each project and group namespace. This process can be time-consuming for large deployments. A migration tool is
 > planned in [GitLab issue 595722](https://gitlab.com/gitlab-org/gitlab/-/issues/595722). Until then, the recommended
 > approach is to update DNS records so the primary domain points to the promoted secondary site.
 
