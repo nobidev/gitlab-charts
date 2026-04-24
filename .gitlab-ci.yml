@@ -55,7 +55,7 @@ variables:
   CI_TOOLS_VERSION: "4.22.0"
   CI_TOOLS_NAMESPACE: "gitlab-org"
   GITLAB_NAMESPACE: "gitlab-org"
-  GITLAB_QA_VERSION: "15.7.1"
+  GITLAB_QA_VERSION: "15.7.2"
   # Valkey deployed to CI review envionments
   VALKEY_CHART_VERSION: "0.9.4"
   GARAGE_APP_VERSION: "2.2.0"
