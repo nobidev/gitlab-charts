@@ -147,11 +147,7 @@ function cmd_teardown() {
   rm -f "${GENERATED_VALUES}"
 
   echo "    Removing CloudNativePG cluster..."
-  remove_external_postgres
-  # remove_external_postgres only uninstalls the operator in vcluster CI deployments.
-  # Always remove it in the local dev context.
-  echo "    Removing CloudNativePG operator..."
-  helm uninstall "$(cnpg_release_name)" --namespace "${NAMESPACE}" --ignore-not-found 2>/dev/null || true
+  remove_external_postgresql
 
   echo "    Removing Garage..."
   remove_external_garage
