@@ -17,6 +17,7 @@ include:
   AGENT_NAME: "gke135-ci-cluster"
   KUBE_INGRESS_BASE_DOMAIN: "cloud-native-v135.helm-charts.win"
   KUBE_NAMESPACE: "helm-charts-win"
+  USE_NGINX_INGRESS: "true"
 
 create_review_gke135:
   stage: review

@@ -6,10 +6,9 @@
 {{- /* Warn users about Ingress controller changes */}}
 {{- if or (index .Values "nginx-ingress").enabled .Values.traefik.install (index .Values "kubernetes-ingress").enabled }}
 {{ $CRITICAL }}
-The bundled Ingress controllers including NGINX Ingress are deprecated. Starting with GitLab 19.0, GitLab chart will
-disable NGINX Ingress and will default to Gateway API and Envoy Gateway. Please migrate to Gateway API or an externally
-managed Ingress controller and review the deprecation announcements at https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress
-and https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haproxy-and-traefik-charts.
+The bundled Ingress controllers including NGINX Ingress are deprecated and will be removed in GitLab 20.0.
+Please migrate to Gateway API or an externally managed Ingress controller and review the deprecation announcement
+at https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haproxy-and-traefik-charts.
 {{- end }}
 
 {{- /* Warn users about MinIO removal */}}
@@ -153,14 +152,6 @@ helm:
 {{- /* PostgreSQL minimum version change */}}
 {{ $WARNING }}
 The minimum required version of PostgreSQL is now 16. See https://docs.gitlab.com/charts/installation/upgrade.html for more details.
-
-{{- /* NGINX Ingress update */}}
-{{- if (index $.Values "nginx-ingress").enabled }}
-{{ $WARNING }}
-The default NGINX Ingress version was updated from to 1.15.1. Please check the
-upstream changelogs for impact on your usage:
-  https://github.com/kubernetes/ingress-nginx/blob/main/changelog/controller-1.15.0.md
-{{- end }}
 
 {{- /* Certmanager update */}}
 {{- if .Values.installCertmanager }}

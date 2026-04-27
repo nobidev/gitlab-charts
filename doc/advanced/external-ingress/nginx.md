@@ -6,9 +6,10 @@ title: Configure the GitLab chart with an external NGINX Ingress Controller
 ---
 
 > [!warning]
-> NGINX Ingress was deprecated and won't receive security patches after March 2026.
-> Read the [official announcement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/)
-> for more information.
+> GitLab chart defaults to Gateway API and Envoy Gateway since 19.0. The bundled NGINX Ingress is deprecated
+> and will be removed in GitLab 20.0.
+> Check the [deprecation notice](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haproxy-and-traefik-charts)
+> and the [retirement announcement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/) for more information.
 
 GitLab chart currently manages and bundles a forked NGINX Ingress. This guide
 helps to configure an external NGINX Ingress to be used with GitLab chart

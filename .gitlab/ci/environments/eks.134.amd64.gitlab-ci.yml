@@ -17,6 +17,7 @@ include:
   AGENT_NAME: "eks134-ci-cluster"
   KUBE_INGRESS_BASE_DOMAIN: "sandbox.eks.helm-charts.win"
   KUBE_NAMESPACE: "eks-helm-charts-win"
+  USE_NGINX_INGRESS: "true"
 
 create_review_eks134:
   stage: review

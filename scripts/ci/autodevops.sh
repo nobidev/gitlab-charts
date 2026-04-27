@@ -67,10 +67,10 @@ function deploy() {
     CI_CONFIGURATION="-f ${VALUES_DIR}/ci-base.values.yaml -f ${VALUES_DIR}/ci-scale.values.yaml -f ${VALUES_DIR}/ci-license.values.yaml -f ci.digests.yaml"
   fi
 
-  NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress.values.yaml"
-  if [ -n "${USE_GATEWAY_API}" ]; then
-    echo "USE_GATEWAY_API detected"
-    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi.values.yaml"
+  NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi.values.yaml"
+  if use_nginx_ingress; then
+    echo "NGINX Ingress deployment detected"
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress.values.yaml"
   fi
 
   if is_vcluster_deployment; then

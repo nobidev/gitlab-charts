@@ -6,10 +6,14 @@ require 'hash_deep_merge'
 describe 'webservice configuration' do
   let(:values) do
     HelmTemplate.with_defaults(%(
+      global:
+        ingress:
+          enabled: true
       gitlab:
         webservice:
           ingress:
             proxyBodySize: 256M
+            enabled: true
           extraIngress:
             enabled: true
             proxyBodySize: 1024M
@@ -21,6 +25,14 @@ describe 'webservice configuration' do
   let(:template) { HelmTemplate.new(values) }
 
   context 'extraIngress and certmanager are enabled' do
+    let(:values) do
+      YAML.safe_load(%(
+        global:
+          ingress:
+            configureCertmanager: true
+      )).deep_merge(super())
+    end
+
     it 'configures the default Ingress' do
       expect(default_ingress["spec"]["rules"][0]["host"]).to eql("gitlab.example.com")
       expect(default_ingress["metadata"]["annotations"]).to include(

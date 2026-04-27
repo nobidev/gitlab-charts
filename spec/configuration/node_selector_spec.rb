@@ -26,6 +26,8 @@ describe 'Node Selector configuration' do
         # ensures inclusion of shared-secrets/templates/_self-signed-cert-job.yml
         ingress:
           configureCertmanager: false
+        gatewayApi:
+          installEnvoy: false
 
       # ensures inclusion of:
       # - nginx-ingress/templates/admission-webhooks/job-patch/job-createSecret.yaml

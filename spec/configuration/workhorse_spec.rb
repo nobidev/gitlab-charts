@@ -499,6 +499,8 @@ CFG
               enabled: #{global_workhorse_tls_enabled}
         gitlab:
           webservice:
+            ingress:
+              enabled: true
             workhorse:
               monitoring:
                 exporter:

@@ -30,6 +30,8 @@ describe 'Geo NGINX controller' do
   describe 'is enabled' do
     let(:values) do
       HelmTemplate.with_defaults(%(
+      nginx-ingress:
+        enabled: true
       nginx-ingress-geo:
         enabled: true
       gitlab:
@@ -41,6 +43,8 @@ describe 'Geo NGINX controller' do
           ingress:
             useGeoClass: true
       global:
+        ingress:
+          enabled: true
         hosts:
           domain: example.com
           hostSuffix: secondary

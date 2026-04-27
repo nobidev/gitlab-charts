@@ -30,6 +30,9 @@ describe 'GitLab Pages' do
     let(:pages_enabled_values) do
       YAML.safe_load(%(
         global:
+          ingress:
+            enabled: true
+            configureCertmanager: true
           pages:
             enabled: true
       ))
@@ -746,6 +749,9 @@ describe 'GitLab Pages' do
         let(:pages_enabled_values) do
           YAML.safe_load(%(
             global:
+              ingress:
+                enabled: true
+                configureCertmanager: true
               pages:
                 enabled: true
                 externalHttps: ['1.2.3.4']
@@ -810,6 +816,9 @@ describe 'GitLab Pages' do
         let(:pages_enabled_values) do
           YAML.safe_load(%(
             global:
+              ingress:
+                enabled: true
+                configureCertmanager: true
               pages:
                 enabled: true
                 externalHttp: ['1.2.3.4']

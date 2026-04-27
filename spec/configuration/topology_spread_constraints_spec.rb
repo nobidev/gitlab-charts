@@ -20,7 +20,7 @@ describe 'local topologySpreadConstraints configuration' do
       'Deployment/test-cert-manager-webhook',
       'Deployment/test-gitlab-runner',
       'Deployment/test-minio',
-      'Deployment/test-nginx-ingress-controller',
+      'Deployment/envoy-gateway',
       'Deployment/test-prometheus-server',
       'Deployment/test-gitlab-exporter'
     ].freeze

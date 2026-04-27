@@ -1,16 +1,10 @@
-nginx-ingress:
-  enabled: false
-
-global:
-  ingress:
-    enabled: false
-    configureCertmanager: false
-  gatewayApi:
-    enabled: true
-    installEnvoy: true
-    configureCertmanager: false
-
 gatewayApiResources:
+  class:
+    # Unique per-release GatewayClass and controller binding so concurrent
+    # review apps don't fight over a cluster-scoped GatewayClass or have
+    # their Envoy Gateway control planes reconcile each other's resources.
+    name: "${GITLAB_RELEASE_NAME}-gw"
+    controllerName: "gateway.envoyproxy.io/${GITLAB_RELEASE_NAME}-controller"
   gateway:
     listeners:
       gitlab-web:
@@ -29,6 +23,18 @@ gatewayApiResources:
         tls:
           certificateRefs:
           - name: helm-charts-win-tls
+
+global:
+  gatewayApi:
+    configureCertmanager: false
+
+envoy-gateway:
+  # Must match gatewayApiResources.class.controllerName above. Helm cannot
+  # template sub-chart values, so this is kept in sync via envsubst.
+  config:
+    envoyGateway:
+      gateway:
+        controllerName: "gateway.envoyproxy.io/${GITLAB_RELEASE_NAME}-controller"
 
 gitlab:
   webservice:

@@ -1,4 +1,5 @@
 nginx-ingress:
+  enabled: true
   controller:
     electionID: "${GITLAB_RELEASE_NAME}-nginx-election"
     ingressClassByName: true
@@ -7,8 +8,14 @@ nginx-ingress:
 
 global:
   ingress:
+    enabled: true
     annotations:
       external-dns.alpha.kubernetes.io/ttl: "10"
     tls:
       secretName: helm-charts-win-tls
+    configureCertmanager: false
+
+  gatewayApi:
+    enabled: false
+    installEnvoy: false
     configureCertmanager: false

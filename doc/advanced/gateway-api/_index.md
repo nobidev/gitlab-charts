@@ -5,33 +5,20 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Configure Gateway API and Envoy Gateway extensions
 ---
 
-{{< details >}}
-
-- Status: Beta
-
-{{< /details >}}
-
-> [!warning]
-> Gateway API support is currently under active development. Please be aware that:
->
-> 1. Complete validation across all deployment scenarios has not yet been fully verified.
-> 1. Configuration values and default settings for Gateway API features are subject to change without notice.
-> 1. The Gateway API resources are currently only tested with [Envoy Gateway](https://gateway.envoyproxy.io/).
->    Other Gateway API controllers might need additional configuration.
->
-> For more information, see [work item 5](https://gitlab.com/groups/gitlab-com/gl-infra/software-delivery/operate/-/work_items/5).
-
 GitLab chart supports Gateway API and bundles [Envoy Gateway](https://gateway.envoyproxy.io/) as one available provider.
+Since GitLab 19.0, GitLab chart defaults to Gateway API with the bundled Envoy Gateway chart. NGINX Ingress is deprecated
+but remains available until its full removal in GitLab 20.0.
 
 ## Global configuration
 
 | Name                                                |  Type   | Default        | Description |
 |:----------------------------------------------------|:-------:|:---------------|:------------|
-| `global.gatewayApi.enabled`                         | Boolean | false          | Enable deployment of GatewayAPI resources. |
+| `global.gatewayApi.enabled`                         | Boolean | true           | Enable deployment of GatewayAPI resources. Default flipped to `true` in GitLab 19.0. |
+| `global.gatewayApi.configureCertmanager`            | Boolean | true           | Configure cert-manager to get certificates from Let's Encrypt via a Gateway API HTTP-01 solver. Requires `certmanager-issuer.email`. |
 | `global.gatewayApi.gatewayRef.name`                 | String  |                | Gateway name rendered to all Gateway API resources. Use this to reference an externally managed Gateway and to disable the Gateway provided by the chart. |
 | `global.gatewayApi.gatewayRef.namespace`            | String  |                | Gateway namespace rendered to all Gateway API resources. Use this to reference an externally managed Gateway in another namespace and to disable the Gateway provided by the chart. |
 | `global.gatewayApi.httpToHttpsRedirect`             | Boolean | true           | Create an HTTPRoute that redirects all HTTP traffic to HTTPS with a 301 status code. Only effective when `protocol` is `HTTPS` and the Gateway is managed (no `gatewayRef`). |
-| `global.gatewayApi.installEnvoy`                    | Boolean | false          | Install Envoy Gateway subchart and configure a `GatewayClass` and [Envoy Gateway API extensions](../../charts/envoygateway/_index.md). |
+| `global.gatewayApi.installEnvoy`                    | Boolean | true           | Install Envoy Gateway subchart and configure a `GatewayClass` and [Envoy Gateway API extensions](../../charts/envoygateway/_index.md). Default flipped to `true` in GitLab 19.0. |
 
 ### Configuring managed Gateway API resources
 

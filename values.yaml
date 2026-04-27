@@ -76,23 +76,23 @@ global:
     workspaces: {}
 
   gatewayApi:
-    enabled: false
+    enabled: true
     gatewayRef: {}
       # name: ""
       # namespace: ""
-    installEnvoy: false
-    configureCertmanager: false
+    installEnvoy: true
+    configureCertmanager: true
     httpToHttpsRedirect: true
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
     apiVersion: ""
-    configureCertmanager: true
+    configureCertmanager: false
     useNewIngressForCerts: false
     provider: nginx
     # class:
     annotations: {}
-    enabled: true
+    enabled: false
     tls: {}
     #   enabled: true
     #   secretName:
@@ -1058,7 +1058,7 @@ certmanager:
 ## https://docs.gitlab.com/charts/architecture/decisions#nginx-ingress
 ## Installation & configuration of charts/ingress-nginx:
 nginx-ingress: &nginx-ingress
-  enabled: true
+  enabled: false
   tcpExternalConfig: "true"
   controller: &nginx-ingress-controller
     podSecurityContext:

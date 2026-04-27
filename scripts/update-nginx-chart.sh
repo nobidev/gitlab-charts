@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# NGINX Ingress was archived and is deprecated and disabled by default in GitLab chart.
+# The full removal is planned for GitLab 20.0.
+# The script and the related patches remain available until the full removal.
+
 set -e
 
 STOP_PATCH="$1"

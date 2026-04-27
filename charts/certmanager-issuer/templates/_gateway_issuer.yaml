@@ -10,9 +10,7 @@ metadata:
 spec:
   acme:
     server: {{ .Values.server | quote }}
-    {{- with .Values.email }}
-    email: {{ . }}
-    {{- end }}
+    email: {{ required "You must provide an email to associate with your TLS certificates. Please set certmanager-issuer.email" .Values.email | quote }}
     privateKeySecretRef:
       name: {{ .Release.Name }}-gateway-acme-key
     solvers:

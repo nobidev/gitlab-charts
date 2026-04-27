@@ -7,6 +7,7 @@ describe 'NGINX configuration(s)' do
   let(:values) do
     HelmTemplate.with_defaults(%(
         nginx-ingress:
+          enabled: true
           controller:
             kind: #{kind}
             service:

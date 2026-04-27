@@ -20,6 +20,8 @@ describe 'Webservice Deployments configuration' do
     let(:values) do
       YAML.safe_load(%(
         global:
+          ingress:
+            enabled: true
           appConfig:
             smartcard:
               enabled: true
@@ -189,6 +191,8 @@ describe 'Webservice Deployments configuration' do
       YAML.safe_load(%(
       gitlab:
         webservice:
+          ingress:
+            enabled: true
           deployments:
             default:
               ingress:
@@ -326,6 +330,8 @@ describe 'Webservice Deployments configuration' do
         YAML.safe_load(%(
         gitlab:
           webservice:
+            ingress:
+              enabled: true
             deployments:
               test:
                 ingress:
@@ -600,6 +606,8 @@ describe 'Webservice Deployments configuration' do
         YAML.safe_load(%(
           gitlab:
             webservice:
+              ingress:
+                enabled: true
               deployments:
                 default:
                   ingress:
@@ -628,6 +636,8 @@ describe 'Webservice Deployments configuration' do
               provider: global-provider
           gitlab:
             webservice:
+              ingress:
+                enabled: true
               deployments:
                 default:
                   ingress:

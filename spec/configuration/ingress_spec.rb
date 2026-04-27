@@ -74,6 +74,8 @@ describe 'GitLab Ingress configuration(s)' do
             grpc:
               enabled: true
       global:
+        ingress:
+          enabled: true
         appConfig:
           smartcard:
             enabled: true
@@ -155,6 +157,8 @@ describe 'GitLab Ingress configuration(s)' do
       let(:smartcard) do
         default_values.deep_merge(YAML.safe_load(%(
           global:
+            ingress:
+              enabled: true
             appConfig:
               smartcard:
                 enabled: true
@@ -376,12 +380,21 @@ describe 'GitLab Ingress configuration(s)' do
         global:
           ingress:
             class: specified
+        nginx-ingress:
+          enabled: true
       )))
     end
 
     context 'default' do
+      let(:values) do
+        HelmTemplate.with_defaults %(
+          nginx-ingress:
+            enabled: true
+        )
+      end
+
       it 'populates the default name' do
-        template = HelmTemplate.new(default_values)
+        template = HelmTemplate.new(values)
         expect(template.exit_code).to eq(0)
 
         expected_name = 'test-nginx'
@@ -406,6 +419,7 @@ describe 'GitLab Ingress configuration(s)' do
     let(:gitlab_shell_disabled) do
       default_values.deep_merge(YAML.safe_load(%(
         nginx-ingress:
+          enabled: true
           controller:
             service:
               enableShell: false
@@ -415,6 +429,7 @@ describe 'GitLab Ingress configuration(s)' do
     let(:internal_ingress_enabled) do
       default_values.deep_merge(YAML.safe_load(%(
         nginx-ingress:
+          enabled: true
           controller:
             service:
               internal:
@@ -427,6 +442,7 @@ describe 'GitLab Ingress configuration(s)' do
     let(:internal_ingress_gitlab_shell_enabled) do
       default_values.deep_merge(YAML.safe_load(%(
         nginx-ingress:
+          enabled: true
           controller:
             service:
               internal:
@@ -438,8 +454,15 @@ describe 'GitLab Ingress configuration(s)' do
     end
 
     context 'with the defaults' do
+      let(:values) do
+        HelmTemplate.with_defaults %(
+          nginx-ingress:
+            enabled: true
+        )
+      end
+
       it 'has gitlab shell enabled on the nginx ingress service' do
-        template = HelmTemplate.new(default_values)
+        template = HelmTemplate.new(values)
         expect(template.exit_code).to eq(0)
 
         service_name = 'test-nginx-ingress-controller'
@@ -529,6 +552,8 @@ describe 'GitLab Ingress configuration(s)' do
           default_values.deep_merge(YAML.safe_load(%(
             global:
               ingress:
+                enabled: true
+                configureCertmanager: true
                 class: #{class_name}
           )))
         end
@@ -551,6 +576,8 @@ describe 'GitLab Ingress configuration(s)' do
           default_values.deep_merge(YAML.safe_load(%(
             global:
               ingress:
+                enabled: true
+                configureCertmanager: true
                 class: #{class_name}
                 useNewIngressForCerts: true
           )))
@@ -577,6 +604,7 @@ describe 'GitLab Ingress configuration(s)' do
         gitlab:
           kas:
             ingress:
+              enabled: true
               grpc:
                 enabled: true
       )))
@@ -587,6 +615,7 @@ describe 'GitLab Ingress configuration(s)' do
         gitlab:
           kas:
             ingress:
+              enabled: true
               grpc:
                 enabled: true
         global:
