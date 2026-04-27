@@ -19,7 +19,7 @@ dependencies:
   version: 29.2.1
 - name: gitlab-runner
   repository: https://charts.gitlab.io/
-  version: 0.87.1
+  version: 0.88.0
 - name: nginx-ingress
   repository: ""
   version: '*.*.*'
@@ -41,5 +41,5 @@ dependencies:
 - name: gateway-helm
   repository: oci://registry-1.docker.io/envoyproxy
   version: 1.7.1
-digest: sha256:b3ad48110dc52bfedda32a2024312401004a4b32789fc0bb6c787ceefcab9f66
-generated: "2026-04-21T09:00:34.562198628+02:00"
+digest: sha256:234f5382a23055d74d15efdbd3c3d4d502d5f14a9e7176e30d8085acf328cf41
+generated: "2026-04-27T03:09:36.753476822Z"
