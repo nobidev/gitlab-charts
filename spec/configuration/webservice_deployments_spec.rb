@@ -80,6 +80,41 @@ describe 'Webservice Deployments configuration' do
       )).deep_merge(values)
     end
 
+    let(:gateway_api_values) do
+      YAML.safe_load(%(
+        nginx-ingress:
+          enabled: false
+        nginx-ingress-geo:
+          enabled: false
+
+        global:
+          appConfig:
+            smartcard:
+              enabled: true
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+          geo:
+            enabled: true
+            role: primary
+            gatewayApi:
+              additionalHostname: geo.example.com
+          psql:
+            host: psql.example.com
+            password:
+              secret: geo-psql-password
+      )).deep_merge(values)
+    end
+
+    let(:gateway_api_objects) do
+      [
+        'HTTPRoute/test-gitlab',
+        'ClientTrafficPolicy/test-webservice-ctp',
+        'ClientTrafficPolicy/test-webservice-ctp-geo',
+        'ClientTrafficPolicy/test-webservice-ctp-smartcard'
+      ]
+    end
+
     it 'Populates the additional labels in the expected manner on the default deployment' do
       t = HelmTemplate.new(values)
       expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
@@ -111,6 +146,22 @@ describe 'Webservice Deployments configuration' do
       expect(t.labels('NetworkPolicy/test-webservice-v1')).to include('global' => 'webservice')
 
       expect(t.labels('PodDisruptionBudget/test-webservice-default')).to include('global' => 'webservice')
+    end
+
+    it 'Populates the additional labels on Gateway API objects' do
+      t = HelmTemplate.new(gateway_api_values)
+      expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+      aggregate_failures do
+        gateway_api_objects.each do |key|
+          expect(t.labels(key)).to include('foo' => 'webservice-common')
+          expect(t.labels(key)).to include('global' => 'webservice')
+          expect(t.labels(key)).to include('ws_common' => 'true')
+          expect(t.labels(key)).to include('webservice' => 'webservice')
+          expect(t.labels(key)).not_to include('foo' => 'global')
+          expect(t.labels(key)).not_to include('global' => 'true')
+        end
+      end
     end
 
     it 'Populates the additional labels on on all objects per deployment' do
