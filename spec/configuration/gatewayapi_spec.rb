@@ -457,6 +457,58 @@ describe 'Gateway API configuration' do
           .to include('gitlab-smartcard-web')
       end
     end
+
+    context 'Backend TLS' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          hosts:
+            registry:
+              protocol: https
+          kas:
+            tls:
+              enabled: true
+              caSecretName: kas-tls-ca
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+          workhorse:
+            tls:
+              enabled: true
+
+        registry:
+          tls:
+            enabled: true
+            caSecretName: registry-tls-ca
+
+        gitlab:
+          webservice:
+            workhorse:
+              tls:
+                enabled: true
+                caSecretName: workhorse-tls-ca
+        ))
+      end
+
+      it 'creates BackendTLSPolicy resources for KAS, Registry, and Webservice' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        kas_policy = template["BackendTLSPolicy/test-kas"]
+        expect(kas_policy).not_to be_nil
+        expect(kas_policy['spec']['targetRefs'][0]['name']).to eq('test-kas')
+
+        registry_policy = template["BackendTLSPolicy/test-registry"]
+        expect(registry_policy).not_to be_nil
+        expect(registry_policy['spec']['targetRefs'][0]['name']).to eq('test-registry')
+
+        webservice_policy = template["BackendTLSPolicy/test-webservice-default"]
+        expect(webservice_policy).not_to be_nil
+        expect(webservice_policy['spec']['targetRefs'][0]['name']).to eq('test-webservice-default')
+      end
+    end
   end
 end
 # rubocop:enable RSpec/MultipleMemoizedHelpers
