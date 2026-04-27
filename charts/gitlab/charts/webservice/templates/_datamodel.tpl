@@ -83,6 +83,8 @@ gatewayRoute:
     timeouts:
       request: 0s
       backendRequest: 0s
+backendTLSPolicy:
+  hostname: ""
 common:
   labels: {{ mergeOverwrite (deepCopy .Values.global.common.labels) (deepCopy .Values.common.labels) | toYaml | nindent 4 }}
 deployment:
