@@ -14,7 +14,7 @@ redirect_to: '../advanced/external-db/_index.md'
 
 {{< /details >}}
 
-The bundled PostgreSQL chart has been [deprecated](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
+The bundled PostgreSQL chart has been [deprecated](https://docs.gitlab.com/update/deprecations/)
 and has been removed from the GitLab Helm chart.
 
 Please [migrate](migration/bundled_chart_migration.md) to an [externally managed](../advanced/external-db/_index.md) PostgreSQL.

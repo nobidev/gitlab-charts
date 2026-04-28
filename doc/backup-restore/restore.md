@@ -40,7 +40,7 @@ The backup utility provided by GitLab Helm chart supports restoring a tarball fr
 
 Hybrid environments deployed using the [GitLab Environment Toolkit (GET)](https://docs.gitlab.com/install/install_methods/#gitlab-environment-toolkit-get) perform automatic secret
 synchronisation between Omnibus nodes and Kubernetes that needs to be considered when performing a restore. Refer to
-[this section](https://gitlab.com/gitlab-org/gitlab-environment-toolkit/-/blob/main/docs/environment_post_considerations.md#restores) of the GET documentation for details.
+[this section](https://gitlab.com/gitlab-org/gitlab-environment-toolkit/-/blob/main/docs/environment_post_considerations.md) of the GET documentation for details.
 
 {{</alert>}}
 
@@ -71,7 +71,7 @@ the rails secret from a Linux package instance, secrets are stored in JSON forma
    ```
 
 1. Check that multi-line secrets like `openid_connect_signing_key` do not contain any newline characters (`\n`). Split any multi-line secrets into separate lines to avoid
-   [a decoding issue](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3352#note_994430571) when consumed by applications.
+   [a decoding issue](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3352) when consumed by applications.
 
 To restore the rails secrets from a YAML file:
 

@@ -30,8 +30,8 @@ The backup utility script when run without any arguments creates a backup tar an
 
 Backups are made using the following steps, in order:
 
-1. Backup the database (if not skipped) using the [GitLab backup Rake task](https://gitlab.com/gitlab-org/build/CNG/-/blob/f65867afa54f6d0033e19f9e9038ec680abd5eb2/gitlab-toolbox/scripts/bin/backup-utility#L217)
-1. Backup the repositories (if not skipped) using the [GitLab backup Rake task](https://gitlab.com/gitlab-org/build/CNG/-/blob/f65867afa54f6d0033e19f9e9038ec680abd5eb2/gitlab-toolbox/scripts/bin/backup-utility#L220)
+1. Backup the database (if not skipped) using the [GitLab backup Rake task](https://gitlab.com/gitlab-org/build/CNG/-/blob/master/gitlab-toolbox/scripts/bin/backup-utility)
+1. Backup the repositories (if not skipped) using the [GitLab backup Rake task](https://gitlab.com/gitlab-org/build/CNG/-/blob/master/gitlab-toolbox/scripts/bin/backup-utility)
 1. For each of the object storage backends
    1. If the object storage backend is marked for skipping, skip this storage backend.
    1. Tar the existing data in the corresponding object storage bucket naming it `<bucket-name>.tar`

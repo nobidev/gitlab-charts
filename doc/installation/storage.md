@@ -82,7 +82,7 @@ will need to create the [Persistent Volume](https://kubernetes.io/docs/concepts/
 
 ### Using Google GKE
 
-1. [Create a persistent disk in the cluster.](https://kubernetes.io/docs/concepts/storage/volumes/#creating-a-pd)
+1. [Create a persistent disk in the cluster.](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#static)
 
 ```shell
 gcloud compute disks create --size=50GB --zone=*GKE_ZONE* *DISK_VOLUME_NAME*
@@ -100,7 +100,7 @@ If you need to deploy in multiple zones, you should review
 [Amazon's own documentation on storage classes](https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html)
 when defining your storage solution.
 
-1. [Create a persistent disk in the cluster.](https://kubernetes.io/docs/concepts/storage/volumes/#creating-an-ebs-volume)
+1. [Create a persistent disk in the cluster.](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#static)
 
 ```shell
 aws ec2 create-volume --availability-zone=*AWS_ZONE* --size=10 --volume-type=gp2

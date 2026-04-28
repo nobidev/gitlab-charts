@@ -1146,9 +1146,9 @@ application are described below:
 | `applicationSettingsCacheSeconds`   | Integer | `60`    | An interval value (in seconds) to invalidate the [application settings cache](https://docs.gitlab.com/administration/application_settings_cache/). |
 | `usernameChangingEnabled`           | Boolean | `true`  | A flag to decide if users are allowed to change their username. |
 | `issueClosingPattern`               | String  | (empty) | [Pattern to close issues automatically](https://docs.gitlab.com/administration/issue_closing_pattern/). |
-| `defaultTheme`                      | Integer |         | [Numeric ID of the default theme for the GitLab instance](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/themes.rb#L17-27). It takes a number, denoting the ID of the theme. |
-| `defaultColorMode`                  | Integer |         | [Default color mode for the GitLab instance](https://gitlab.com/gitlab-org/gitlab/-/blob/66788a1de8c3dd3c5566d0f30fe1c2a1bae64bf9/lib/gitlab/color_modes.rb#L17-19). It takes a number, denoting the ID of the color mode. |
-| `defaultSyntaxHighlightingTheme`    | Integer |         | [Default syntax highlighting theme for the GitLab instance](https://gitlab.com/gitlab-org/gitlab/-/blob/66788a1de8c3dd3c5566d0f30fe1c2a1bae64bf9/lib/gitlab/color_schemes.rb#L12-17). It takes a number, denoting the ID of the syntax highlighting theme. |
+| `defaultTheme`                      | Integer |         | [Numeric ID of the default theme for the GitLab instance](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/themes.rb). It takes a number, denoting the ID of the theme. |
+| `defaultColorMode`                  | Integer |         | [Default color mode for the GitLab instance](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/color_modes.rb). It takes a number, denoting the ID of the color mode. |
+| `defaultSyntaxHighlightingTheme`    | Integer |         | [Default syntax highlighting theme for the GitLab instance](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/color_schemes.rb). It takes a number, denoting the ID of the syntax highlighting theme. |
 | `defaultProjectsFeatures.*feature*` | Boolean | `true`  | [See below](#defaultprojectsfeatures). |
 | `gitTimeout`                        | Integer | `nil`   | Timeout (in seconds) for Git import, fetch, and clone operations performed through GitLab Shell. |
 | `webhookTimeout`                    | Integer | (empty) | Waiting time in seconds before a [hook is deemed to have failed](https://docs.gitlab.com/user/project/integrations/webhooks/#auto-disabled-webhooks). |
@@ -1499,7 +1499,7 @@ KAS supports TLS communication between its `kas` pods and other GitLab chart com
 
 Prerequisites:
 
-- Use [GitLab 15.5.1 or later](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/101571#note_1146419137).
+- Use [GitLab 15.5.1 or later](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/101571).
   You can set your GitLab version with `global.gitlabVersion: <version>`. If you need to force an image update
   after an initial deployment, also set `global.image.pullPolicy: Always`.
 - [Create the certificate authority](../advanced/internal-tls/_index.md) and certificates that your `kas` pods will trust.
@@ -1793,7 +1793,7 @@ omniauth:
     - secret: gitlab-cas3
 ```
 
-[Group SAML](https://docs.gitlab.com/integration/saml/#configuring-group-saml-on-a-self-managed-gitlab-instance) configuration example:
+[Group SAML](https://docs.gitlab.com/integration/saml/) configuration example:
 
 ```yaml
 omniauth:
@@ -2203,7 +2203,7 @@ The Secrets and ConfigMaps can be named in any fashion, but they *must not* cont
 
 GitLab can optionally include an [Application resource](https://github.com/kubernetes-sigs/application),
 which can be created to identify the GitLab application within the cluster. Requires the
-[Application CRD](https://github.com/kubernetes-sigs/application#installing-the-crd),
+[Application CRD](https://github.com/kubernetes-sigs/application),
 version `v1beta1`, to already be deployed to the cluster.
 
 To enable, set `global.application.create` to `true`:
@@ -2623,7 +2623,7 @@ global:
 By default, the GitLab Helm chart does not rotate logs. This can cause ephemeral storage issues for containers that run for a long time.
 
 To enable log rotation, set the `GITLAB_LOGGER_TRUNCATE_LOGS` environment variable to `true`. For more information, see
-[GitLab Logger's documentation](https://gitlab.com/gitlab-org/cloud-native/gitlab-logger#configuration). In particular,
+[GitLab Logger's documentation](https://gitlab.com/gitlab-org/cloud-native/gitlab-logger). In particular,
 see information on:
 
 - [`GITLAB_LOGGER_TRUNCATE_INTERVAL`](https://gitlab.com/gitlab-org/cloud-native/gitlab-logger#truncate-logs-interval).

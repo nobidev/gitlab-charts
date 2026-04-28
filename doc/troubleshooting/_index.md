@@ -221,7 +221,7 @@ used on the [kube-state-metrics Deployment](https://github.com/prometheus-commun
 which is disabled by default (`prometheus.kubeStateMetrics.enabled=false`).
 
 If this error message is encountered, meaning `prometheus.kubeStateMetrics.enabled=true`, then upgrading
-requires [an additional step](https://artifacthub.io/packages/helm/prometheus-community/prometheus#to-15-0):
+requires [an additional step](https://artifacthub.io/packages/helm/prometheus-community/prometheus):
 
 1. Remove the old **kube-state-metrics** Deployment.
 
