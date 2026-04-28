@@ -183,5 +183,60 @@ describe 'Labels configuration' do
         end
       end
     end
+
+    context 'Gateway API resources' do
+      let(:t) do
+        HelmTemplate.new(HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+          nginx-ingress-geo:
+            enabled: false
+
+          gatewayApiResources:
+            envoy:
+              clientTrafficPolicySpec:
+                enableProxyProtocol: true
+
+          global:
+            appConfig:
+              smartcard:
+                enabled: true
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+            geo:
+              enabled: true
+              role: primary
+              gatewayApi:
+                additionalHostname: geo.example.com
+            psql:
+              host: psql.example.com
+              password:
+                secret: geo-psql-password
+        )))
+      end
+
+      let(:gitlab_owned_client_traffic_policies) do
+        [
+          'ClientTrafficPolicy/test-policy',
+          'ClientTrafficPolicy/test-webservice-ctp',
+          'ClientTrafficPolicy/test-webservice-ctp-geo',
+          'ClientTrafficPolicy/test-webservice-ctp-smartcard'
+        ]
+      end
+
+      it 'applies standard labels to metadata of all GitLab-owned ClientTrafficPolicy resources' do
+        expect(t.exit_code).to eq(0), t.stderr
+        expect(t.resources_by_kind('ClientTrafficPolicy').keys).to include(*gitlab_owned_client_traffic_policies)
+
+        aggregate_failures do
+          gitlab_owned_client_traffic_policies.each do |key|
+            actual_keys = t.labels(key).keys
+            expect(actual_keys).to include(*legacy_label_keys),
+              "#{key}: expected resource labels #{actual_keys.inspect} to include #{legacy_label_keys.inspect}"
+          end
+        end
+      end
+    end
   end
 end
