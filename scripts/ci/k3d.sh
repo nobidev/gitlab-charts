@@ -121,6 +121,10 @@ function k3d_create() {
 }
 
 function k3d_delete() {
+  if ! command -v k3d &>/dev/null; then
+    echo "k3d not installed, skipping cluster delete"
+    return 0
+  fi
   local cluster_name
   cluster_name=$(k3d_cluster_name)
   k3d cluster delete "${cluster_name}" || true
