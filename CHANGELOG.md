@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.10.5 (2026-04-28)
+
+### Fixed (1 change)
+
+- [Guard Gateway API route templates with service enabled checks](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2c1aa6b335d0d0613bc7cde51394fe3df341cb5f) by @weijiany ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4941))
+
 ## 9.10.4 (2026-04-21)
 
 ### Fixed (1 change)
