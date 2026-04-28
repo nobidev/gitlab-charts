@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.11.2 (2026-04-28)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.88.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/d5a1c79236b4d370966259297fc3c64ed3a5c712) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4992))
+
 ## 9.11.1 (2026-04-21)
 
 No changes.
