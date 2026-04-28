@@ -49,6 +49,7 @@ variables:
   DEV_PROJECT_PATH: 'gitlab/charts/gitlab'
   QA_FULL_SUITE_OPTIONS: '--tag ~smoke --tag ~skip_live_env --tag ~orchestrated --tag ~transient'
   QA_SANITY_SUITE_OPTIONS: '--tag smoke --tag ~skip_live_env --tag ~orchestrated'
+  QA_PARALLEL: "5"
   GITLAB_QA_ADMIN_ACCESS_TOKEN: $GITLAB_ADMIN_TOKEN
   DEBIAN_VERSION: bookworm-slim
   BUSYBOX_VERSION: "1.37"
