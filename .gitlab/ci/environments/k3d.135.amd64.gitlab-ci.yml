@@ -21,7 +21,7 @@ qa_k3d_v135:
   extends:
     - .k3d_qa_template
     - .k3d135_base
-  parallel: $QA_PARALLEL
+  parallel: 5
   variables:
     TEST_SUITE: $QA_SANITY_SUITE_OPTIONS
   needs:
