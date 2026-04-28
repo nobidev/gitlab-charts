@@ -2,10 +2,14 @@
 # Uses HTTP only (no TLS) so spec runners don't need cert trust configuration.
 # The NGINX ingress controller is deployed by the GitLab chart itself;
 # k3d's default Traefik is disabled at cluster creation time.
+nginx-ingress:
+  enabled: true
+
 global:
   hosts:
     https: false
   ingress:
+    enabled: true
     configureCertmanager: false
     annotations: {}
     tls:
