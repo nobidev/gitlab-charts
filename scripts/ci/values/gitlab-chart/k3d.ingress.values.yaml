@@ -10,3 +10,5 @@ global:
     annotations: {}
     tls:
       enabled: false
+  gatewayApi:
+    configureCertmanager: false
