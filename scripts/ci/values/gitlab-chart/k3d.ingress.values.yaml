@@ -15,6 +15,3 @@ global:
     installEnvoy: false
     configureCertmanager: false
     httpToHttpsRedirect: false
-
-gitlab-runner:
-  install: false
