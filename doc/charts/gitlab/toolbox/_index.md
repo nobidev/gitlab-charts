@@ -51,6 +51,8 @@ gitlab:
         config: {}
       registry:
         database: {}
+      openbao:
+        database: {}
     databaseReindex:
       cron:
         enabled: false
@@ -125,6 +127,11 @@ gitlab:
 | `backups.registry.database.password.secret`              | `RELEASE-toolbox-registry-database-password`                 | Name of the Kubernetes secret containing the registry database password for backup and restore |
 | `backups.registry.database.password.backupPasswordKey`   | `backupPassword`                                             | Key within the secret that contains the backup database password |
 | `backups.registry.database.password.restorePasswordKey`  | `restorePassword`                                            | Key within the secret that contains the restore database password |
+| `backups.openbao.database.backupUser`                    |                                                              | Username for the OpenBao database connection during backups |
+| `backups.openbao.database.restoreUser`                   |                                                              | Username for the OpenBao database connection during restores |
+| `backups.openbao.database.password.secret`               | `RELEASE-toolbox-openbao-database-password`                  | Name of the Kubernetes secret containing the OpenBao database password for backup and restore |
+| `backups.openbao.database.password.backupPasswordKey`    | `backupPassword`                                             | Key within the secret that contains the backup database password |
+| `backups.openbao.database.password.restorePasswordKey`   | `restorePassword`                                            | Key within the secret that contains the restore database password |
 | `databaseReindex.cron.enabled`                           | `false`                                                      | Indicates whether the database reindexing CronJob is enabled |
 | `common.labels`                                          | `{}`                                                         | Supplemental labels that are applied to all objects created by this chart. |
 | `deployment.strategy`                                    | `{ type: 'Recreate' }`                                       | Allows one to configure the update strategy utilized by the deployment |
@@ -263,6 +270,83 @@ set role to the original object owner, and create triggers:
 
 ```sql
 CREATE ROLE registry_restore WITH LOGIN PASSWORD '<restore_password>'
+  SUPERUSER;
+```
+
+### OpenBao database credentials
+
+If you use the [OpenBao chart](../../openbao/_index.md), configure the Toolbox with OpenBao
+database credentials for backup and restore. Connection parameters (host, port, database name,
+SSL mode) are sourced from `global.openbao.psql`; when SSL is enabled, the certificates
+themselves come from `global.psql.ssl`. Assuming `global.openbao.psql` is already configured for
+the OpenBao chart, you only need to supply the database usernames and password secret in the
+Toolbox values:
+
+```yaml
+gitlab:
+  toolbox:
+    backups:
+      openbao:
+        database:
+          backupUser: openbao_backup
+          restoreUser: openbao_restore
+          password:
+            secret: gitlab-toolbox-openbao-database-password
+            backupPasswordKey: backupPassword
+            restorePasswordKey: restorePassword
+```
+
+The default secret name is `RELEASE-toolbox-openbao-database-password`, where
+`RELEASE` is replaced by the Helm release name (usually `gitlab`). Create the
+Kubernetes secret before deploying:
+
+```shell
+kubectl create secret generic <RELEASE>-toolbox-openbao-database-password \
+  --from-literal=backupPassword=<backup_password> \
+  --from-literal=restorePassword=<restore_password>
+```
+
+The credentials are mounted into the Toolbox pod at `/etc/gitlab/openbao-db/`. They are
+available in the long-running Toolbox deployment, and in the backup CronJob when
+`backups.cron.enabled` is `true`.
+
+If the credential files are missing, the OpenBao database backup is skipped with a warning.
+If the files exist but the password file is unreadable or empty, the backup fails with an error.
+
+#### Required database permissions
+
+The backup and restore users require different privilege levels on the OpenBao database.
+Create these users in PostgreSQL before running a backup or restore.
+
+The **backup user** needs read-only access for `pg_dump`:
+
+```sql
+CREATE ROLE openbao_backup WITH LOGIN PASSWORD '<backup_password>'
+  NOINHERIT NOCREATEDB NOSUPERUSER NOREPLICATION;
+
+GRANT CONNECT ON DATABASE openbao TO openbao_backup;
+
+GRANT USAGE ON SCHEMA public TO openbao_backup;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO openbao_backup;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO openbao_backup;
+ALTER DEFAULT PRIVILEGES FOR ROLE openbao IN SCHEMA public
+  GRANT SELECT ON TABLES TO openbao_backup;
+ALTER DEFAULT PRIVILEGES FOR ROLE openbao IN SCHEMA public
+  GRANT SELECT ON SEQUENCES TO openbao_backup;
+```
+
+The `ALTER DEFAULT PRIVILEGES` statements ensure the backup user automatically receives
+`SELECT` on any tables or sequences the OpenBao owner creates in the future. The example
+uses `openbao` as the owner role; replace it with whatever you set as
+`global.openbao.psql.username`.
+
+The **restore user** needs `SUPERUSER` because the dump produced by `pg_dump` includes
+`ALTER TABLE ... OWNER TO <owner>` statements (`pg_dump` runs without `--no-owner`). Applying
+these requires either the original owner role or `SUPERUSER`; `SUPERUSER` is the simplest option
+for the restore user.
+
+```sql
+CREATE ROLE openbao_restore WITH LOGIN PASSWORD '<restore_password>'
   SUPERUSER;
 ```
 
