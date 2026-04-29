@@ -171,7 +171,7 @@ describe 'ObjectStorage configuration' do
     end
 
     let(:values_artifacts_disabled) do
-      default_values.deep_merge!(
+      default_values.deep_merge(
         YAML.safe_load(%(
           global:
             appConfig:
@@ -182,7 +182,7 @@ describe 'ObjectStorage configuration' do
     end
 
     let(:values_artifacts_connection) do
-      default_values.deep_merge!(
+      default_values.deep_merge(
         YAML.safe_load(%(
           global:
             appConfig:
@@ -249,7 +249,7 @@ describe 'ObjectStorage configuration' do
     let(:objectstorage_config_file) { '/etc/gitlab/objectstorage/ci_secure_files' }
 
     let(:connection_settings) do
-      default_values.deep_merge!(
+      default_values.deep_merge(
         YAML.safe_load(%(
           global:
             appConfig:
@@ -279,7 +279,7 @@ describe 'ObjectStorage configuration' do
     let(:objectstorage_config_file) { '/etc/gitlab/objectstorage/dependency_proxy' }
 
     let(:connection_settings) do
-      default_values.deep_merge!(
+      default_values.deep_merge(
         YAML.safe_load(%(
         global:
           appConfig:
