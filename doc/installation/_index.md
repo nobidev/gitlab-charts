@@ -26,8 +26,7 @@ This method of deployment has different management, observability, and concepts 
 
 In a production deployment:
 
-- The stateful components, like PostgreSQL, Redis or Gitaly (a Git repository storage dataplane),
-  must run outside the cluster on PaaS or compute instances. This configuration is required
+- PostgreSQL and Redis must run outside the cluster on PaaS or compute instances. This configuration is required
   to scale and reliably service the variety of workloads found in production GitLab environments.
 - You should use Cloud PaaS for PostgreSQL, Redis, and object storage for all non-Git repository storage.
 
