@@ -33,6 +33,7 @@ variables:
   HELM_MINOR_VERSION: "4.1"
   KUBECTL_VERSION: "1.33.1"
   VCLUSTER_VERSION: "0.30.4"
+  K3D_VERSION: "5.8.3"
   STABLE_REPO_URL: "https://charts.helm.sh/stable"
   GOOGLE_APPLICATION_CREDENTIALS: ${CI_PROJECT_DIR}/.google_keyfile.json
   # AUTO_DEVOPS_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
@@ -127,6 +128,7 @@ stages:
 include:
   - local: '/.gitlab/ci/rules.gitlab-ci.yml'
   - local: '/.gitlab/ci/vcluster-review-apps.gitlab-ci.yml'
+  - local: '/.gitlab/ci/k3d-review-apps.gitlab-ci.yml'
   - local: '/.gitlab/ci/operator.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
@@ -158,6 +160,10 @@ include:
   - local: '/.gitlab/ci/environments/eks.134.amd64.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "eks134"'
+  # k3d 1.35 (per-job isolation) — runs alongside vcluster for comparison
+  - local: '/.gitlab/ci/environments/k3d.135.amd64.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == "k3d135"'
   - local: /.gitlab/ci/scanners.gitlab-ci.yml
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
@@ -439,6 +445,20 @@ trigger-eks134:
     LIMIT_TO: eks134
   rules:
     - !reference [.trigger_review_secondary, rules]
+
+# k3d PoC: runs automatically on MR and default branch pipelines
+trigger-k3d135:
+  extends: .trigger_review_job
+  interruptible: true
+  needs:
+    - pin_image_versions
+  variables:
+    LIMIT_TO: k3d135
+  rules:
+    - !reference [.rule:skip_if_not_canonical_or_security]
+    - if: '$CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /MR_PIPELINE$/'
+    - if: '$CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
+
 # Jobs using auto_stop_in that exit with a failure will not execute the on_stop
 # action. We get frequent failures during review_* jobs. Their accompanying
 # partially deployed environments then hang around forever which may eventually
