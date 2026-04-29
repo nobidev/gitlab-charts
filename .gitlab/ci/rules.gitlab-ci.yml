@@ -59,12 +59,18 @@ workflow:
     - if: '$PIPELINE_TYPE == null && $CI_PROJECT_PATH == $CANONICAL_PROJECT_PATH && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       variables:
         PIPELINE_TYPE: CANONICAL_DEFAULT_BRANCH_PIPELINE
+      auto_cancel:
+        on_new_commit: none
     - if: '$PIPELINE_TYPE == null && $CI_PROJECT_PATH == $SECURITY_PROJECT_PATH && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       variables:
         PIPELINE_TYPE: SECURITY_DEFAULT_BRANCH_PIPELINE
+      auto_cancel:
+        on_new_commit: none
     - if: '$PIPELINE_TYPE == null && $CI_PROJECT_PATH == $DEV_PROJECT_PATH && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       variables:
         PIPELINE_TYPE: BUILD_DEFAULT_BRANCH_PIPELINE
+      auto_cancel:
+        on_new_commit: none
     ## Feature branch pipelines
     - if: '$PIPELINE_TYPE == null && $CI_PROJECT_PATH == $CANONICAL_PROJECT_PATH && $CI_COMMIT_BRANCH && $TEST_BRANCH == "true"'
       variables:

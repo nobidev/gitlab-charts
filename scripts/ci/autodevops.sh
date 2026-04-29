@@ -67,15 +67,20 @@ function deploy() {
     CI_CONFIGURATION="-f ${VALUES_DIR}/ci-base.values.yaml -f ${VALUES_DIR}/ci-scale.values.yaml -f ${VALUES_DIR}/ci-license.values.yaml -f ci.digests.yaml"
   fi
 
-  NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi.values.yaml"
-  if use_nginx_ingress; then
-    echo "NGINX Ingress deployment detected"
-    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress.values.yaml"
-  fi
+  if is_k3d_deployment; then
+    echo "K3D deployment detected"
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/k3d.ingress.values.yaml"
+  else
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi.values.yaml"
+    if use_nginx_ingress; then
+      echo "NGINX Ingress deployment detected"
+      NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress.values.yaml"
+    fi
 
-  if is_vcluster_deployment; then
-    echo "VCLUSTER deployment detected"
-    NETWORKING_CONFIGURATION="${NETWORKING_CONFIGURATION} -f ${VALUES_DIR}/vcluster.externaldns.values.yaml"
+    if is_vcluster_deployment; then
+      echo "VCLUSTER deployment detected"
+      NETWORKING_CONFIGURATION="${NETWORKING_CONFIGURATION} -f ${VALUES_DIR}/vcluster.externaldns.values.yaml"
+    fi
   fi
 
   if [ -n "${REVIEW_APPS_SENTRY_DSN}" ] && [ -n "${REVIEW_APPS_SENTRY_ENVIRONMENT}" ]; then
@@ -186,6 +191,10 @@ function ensure_namespace() {
 }
 
 function set_context() {
+  if is_k3d_deployment; then
+    echo "K3D_MODE: using local k3d kubeconfig (${KUBECONFIG})"
+    return
+  fi
   if [ -z ${AGENT_NAME+x} ] || [ -z ${AGENT_PROJECT_PATH+x} ]; then
     echo "No AGENT_NAME or AGENT_PROJECT_PATH set, using the default"
   else
@@ -250,6 +259,31 @@ function wait_for_toolbox() {
 
 function get_qa_revision() {
   wait_for_toolbox >/dev/null
-  toolbox_pod=$(kubectl get pods -lrelease="$(gitlab_release_name)",app=toolbox -o custom-columns=":metadata.name")
+  toolbox_pod=$(kubectl get pods -lrelease="$(gitlab_release_name)",app=toolbox -o custom-columns=":metadata.name" --no-headers | tr -d '[:space:]')
   kubectl exec -n "${NAMESPACE}" "${toolbox_pod}" -ic toolbox -- cat /srv/gitlab/REVISION
+}
+
+function create_admin_pat() {
+  wait_for_toolbox >/dev/null
+  local toolbox_pod runner_output token
+  toolbox_pod=$(kubectl get pods -n "${NAMESPACE}" -lrelease="$(gitlab_release_name)",app=toolbox -o custom-columns=":metadata.name" --no-headers | tr -d '[:space:]')
+  runner_output=$(kubectl exec -n "${NAMESPACE}" "${toolbox_pod}" -ic toolbox -- \
+    gitlab-rails runner "
+      u = User.find_by_username('root')
+      t = u.personal_access_tokens.create!(
+        name: 'k3d-qa-admin',
+        scopes: [:api],
+        expires_at: 1.day.from_now
+      )
+      puts t.token
+    " 2>&1)
+  # GitLab 17+ PAT tokens include a routing suffix with dots, e.g. glpat-xxx.01.yyy
+  # Match the full token including dots to avoid truncating it.
+  token=$(echo "${runner_output}" | grep -oE 'glpat-[A-Za-z0-9._-]+')
+  if [ -z "${token}" ]; then
+    echo "create_admin_pat: ERROR: no glpat- token found in runner output" >&2
+    echo "${runner_output}" >&2
+    return 1
+  fi
+  echo "${token}"
 }
