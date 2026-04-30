@@ -234,7 +234,7 @@ to those documents for details.
 - Install minikube via Homebrew:
 
   ```shell
-  brew cask install minikube
+  brew install minikube
   ```
 
 - Start minikube and configure it. If minikube cannot start, try running `minikube delete && minikube start`
