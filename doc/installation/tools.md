@@ -42,16 +42,6 @@ Set up an [external Redis instance](../advanced/external-redis/_index.md).
 For all the available configuration settings, see the
 [Redis globals documentation](../charts/globals.md#configure-redis-settings).
 
-### Gitaly
-
-By default, the GitLab chart includes an in-cluster Gitaly deployment. For production, running Gitaly in Kubernetes is not supported.
-[Gitaly is only supported on conventional virtual machines](https://docs.gitlab.com/administration/reference_architectures/#stateful-components-in-kubernetes).
-
-You should set up an
-[external, production-ready Gitaly instance](../advanced/external-gitaly/_index.md).
-For all the available configuration settings, see the
-[Gitaly globals documentation](../charts/globals.md#configure-gitaly-settings).
-
 ## Decide on other options
 
 You use the following options with `helm install` when you deploy GitLab.
