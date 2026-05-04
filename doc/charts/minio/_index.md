@@ -10,7 +10,7 @@ remove_date: '2027-07-31'
 <!-- markdownlint-disable -->
 
 The bundled MinIO has been [deprecated](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) and was removed in GitLab 19.0.
-Check the documentation to [configure external object storage](../../advanced/external-object-storage/_index.md) instead.
+[Configure external object storage](../../advanced/external-object-storage/_index.md) instead.
 
 <!-- This redirect file can be deleted after <2027-07-31>. -->
 <!-- Redirects that point to other docs in the same project expire in three months. -->

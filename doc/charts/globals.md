@@ -47,7 +47,7 @@ global:
 
 | Name                      |  Type   | Default       | Description |
 |:--------------------------|:-------:|:--------------|:------------|
-| `domain`                  | String  | `example.com` | The base domain. GitLab and Registry will be exposed on the subdomain of this setting. This defaults to `example.com`, but is not used for hosts that have their `name` property configured. See the `gitlab.name`, and `registry.name` sections below. |
+| `domain`                  | String  | `example.com` | The base domain. GitLab and Registry will be exposed on the subdomain of this setting. This defaults to `example.com`, but is not used for hosts that have their `name` property configured. See the `gitlab.name` and `registry.name` sections below. |
 | `externalIP`              |         | `nil`         | Set the external IP address that will be claimed from the provider. This will be templated into the [NGINX chart](nginx/_index.md#configuring-nginx), in place of the more complex `nginx.service.loadBalancerIP`. |
 | `externalGeoIP`           |         | `nil`         | Same as `externalIP` but for the [NGINX Geo chart](nginx/_index.md#gitlab-geo). Needed to configure a static IP for [GitLab Geo](../advanced/geo/_index.md) sites using a unified URL. Must be different from `externalIP`. |
 | `https`                   | Boolean | `true`        | If set to true, you will need to ensure the NGINX chart has access to the certificates. In cases where you have TLS-termination in front of your Ingresses, you probably want to look at [`global.ingress.tls.enabled`](#configure-ingress-settings). Set to false for external URLs to use `http://` instead of `https`. |
@@ -1274,7 +1274,7 @@ items below. The `connection` property structure is identical.
 
 When using the `AWS` provider for the [connection](#connection) (which is any
 S3 compatible provider), GitLab Workhorse can offload all storage related uploads.
-This will automatically be enabled for you, when using this consolidated configuration.
+When using this consolidated configuration, this feature is automatically enabled for you.
 
 ### Specify buckets
 
@@ -1359,7 +1359,7 @@ as they are structurally identical aside from the default value of the `bucket` 
 #### `connection`
 
 The `connection` property has been transitioned to a Kubernetes Secret. The contents
-of this secret should be a YAML formatted file.
+of this secret should be a YAML-formatted file.
 
 This property has two sub-keys: `secret` and `key`.
 

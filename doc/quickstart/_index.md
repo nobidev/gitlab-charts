@@ -29,9 +29,9 @@ issue certificates.
 
 The chart depends on an externally provisioned PostgreSQL, Redis, and object storage:
 
-1. [Setup your PostgreSQL installation](../advanced/external-db/_index.md).
-1. [Setup your Redis installation](../advanced/external-redis/_index.md)
-1. [Setup your object storage](../advanced/external-object-storage/_index.md)
+1. [Set up your PostgreSQL installation](../advanced/external-db/_index.md).
+1. [Set up your Redis installation](../advanced/external-redis/_index.md).
+1. [Set up your object storage](../advanced/external-object-storage/_index.md).
 
 ### Create a Kubernetes cluster
 
@@ -81,7 +81,7 @@ To configure the chart, you need:
 - Secrets with your Redis and PostgreSQL installations in your Kubernetes namespace.
 - Kubernetes Secrets with your [S3 object storage configuration and credentials](../advanced/external-object-storage/_index.md).
 
-To install the chart prepare a values file and run Helm:
+To install the chart, prepare a values file and run Helm:
 
 ```yaml
 # custom-values.yaml

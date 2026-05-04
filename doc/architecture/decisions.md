@@ -179,10 +179,10 @@ our [guidelines for forks and new charts](../development/readiness/_index.md)
 ## Redis, PosgreSQL, and MinIO
 
 GitLab chart bundled Redis, PostgreSQL, and MinIO for evaluation and testing purposes
-until GitLab 19.0/GitLab chart 10.0.
+until GitLab 19.0 (GitLab chart 10.0).
 
-Because of several changes to licensing, project maintenance, and public image availability
-these, components will be removed with no replacement. To deploy GitLab chart, these
+Because of several changes to licensing, project maintenance, and public image availability,
+these components will be removed with no replacement. To deploy GitLab chart, these
 components must be managed externally.
 
 ### registry
