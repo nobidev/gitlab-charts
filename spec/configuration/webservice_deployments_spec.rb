@@ -1071,6 +1071,53 @@ describe 'Webservice Deployments configuration' do
       end
     end
 
+    context "default deployment with per-rule filters" do
+      let(:deployment_values) do
+        HelmTemplate.with_defaults(%(
+        gitlab:
+          webservice:
+            deployments:
+              default:
+                gatewayRoute:
+                  rules:
+                  - name: root
+                    matches:
+                    - path:
+                        type: PathPrefix
+                        value: /
+                    timeouts:
+                      request: 15s
+                      backendRequest: 15s
+                    filters:
+                    - type: RequestHeaderModifier
+                      requestHeaderModifier:
+                        remove:
+                        - X-Forwarded-Host
+                  - name: long-running
+                    matches:
+                    - path:
+                        type: RegularExpression
+                        value: "^/.*/ssh-receive-pack$"
+                    - path:
+                        type: RegularExpression
+                        value: "^/.*/ssh-upload-pack$"
+                    timeouts:
+                      request: 0s
+                      backendRequest: 0s
+        )).deep_merge(super())
+      end
+
+      it 'renders filters on rules that have them' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        rules = webservice_route["spec"]["rules"]
+        # root rule has filters
+        expect(rules[0]['filters'].length).to eq(1)
+        expect(rules[0]['filters'][0]['type']).to eq('RequestHeaderModifier')
+        # long-running rule has no filters (not specified)
+        expect(rules[1]).not_to have_key('filters')
+      end
+    end
+
     context "multiple deployments" do
       let(:deployment_values) do
         HelmTemplate.with_defaults(%(

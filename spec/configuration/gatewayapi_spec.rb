@@ -443,6 +443,116 @@ describe 'Gateway API configuration' do
       end
     end
 
+    context 'Route filters and timeouts' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          hosts:
+            externalIP: 127.0.0.1
+          pages:
+            enabled: true
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+        ))
+      end
+
+      context 'when filters are configured on simple routes' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+            registry:
+              gatewayRoute:
+                filters:
+                - type: ResponseHeaderModifier
+                  responseHeaderModifier:
+                    set:
+                    - name: X-Content-Type-Options
+                      value: nosniff
+            gitlab:
+              gitlab-pages:
+                gatewayRoute:
+                  filters:
+                  - type: ResponseHeaderModifier
+                    responseHeaderModifier:
+                      remove:
+                      - Server
+              kas:
+                gatewayRoute:
+                  filters:
+                  - type: RequestHeaderModifier
+                    requestHeaderModifier:
+                      set:
+                      - name: X-Custom
+                        value: kas-value
+            )).deep_merge(super())
+        end
+
+        it 'renders filters on registry route' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          filters = registry_route['spec']['rules'][0]['filters']
+          expect(filters.length).to eq(1)
+          expect(filters[0]['type']).to eq('ResponseHeaderModifier')
+          expect(filters[0]['responseHeaderModifier']['set'][0]['name']).to eq('X-Content-Type-Options')
+        end
+
+        it 'renders filters on pages route' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          filters = pages_route['spec']['rules'][0]['filters']
+          expect(filters.length).to eq(1)
+          expect(filters[0]['type']).to eq('ResponseHeaderModifier')
+        end
+
+        it 'renders filters on all kas route rules' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          kas_route['spec']['rules'].each do |rule|
+            expect(rule['filters']).not_to be_nil
+            expect(rule['filters'][0]['type']).to eq('RequestHeaderModifier')
+          end
+        end
+      end
+
+      context 'when filters are not configured' do
+        it 'omits filters from rendered routes' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(registry_route['spec']['rules'][0]).not_to have_key('filters')
+          expect(pages_route['spec']['rules'][0]).not_to have_key('filters')
+          kas_route['spec']['rules'].each do |rule|
+            expect(rule).not_to have_key('filters')
+          end
+        end
+      end
+
+      context 'when timeouts are configured on simple routes' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+            gitlab:
+              gitlab-pages:
+                gatewayRoute:
+                  timeouts:
+                    request: 30s
+                    backendRequest: 30s
+            )).deep_merge(super())
+        end
+
+        it 'renders timeouts on pages route' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          timeouts = pages_route['spec']['rules'][0]['timeouts']
+          expect(timeouts['request']).to eq('30s')
+          expect(timeouts['backendRequest']).to eq('30s')
+        end
+      end
+
+      context 'when timeouts are not configured' do
+        it 'omits timeouts from pages routes' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(pages_route['spec']['rules'][0]).not_to have_key('timeouts')
+        end
+      end
+    end
+
     context 'Smartcard' do
       let(:values) do
         HelmTemplate.with_defaults(%(

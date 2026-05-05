@@ -149,10 +149,35 @@ subchart:
     timeouts:
       request: 15s
       backendRequest: 15s
+    # Gateway API filters applied to the route rules
+    filters: []
 ```
 
-If you configure multiple webservice deployment, the route rules can be customized further.
-Check the [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#gateway-api)
+Timeouts are supported on all routes except KAS (which uses a `BackendTrafficPolicy` for its
+GRPC/WSS requirements). Filters are supported on all `HTTPRoute` resources.
+
+The `filters` field accepts a list of
+[Gateway API HTTPRouteFilter](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.HTTPRouteFilter)
+objects. Common filter types include `RequestHeaderModifier`, `ResponseHeaderModifier`,
+`RequestRedirect`, `URLRewrite`, and `RequestMirror`.
+
+Header sanitization example:
+
+```yaml
+registry:
+  gatewayRoute:
+    filters:
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        set:
+        - name: X-Content-Type-Options
+          value: nosniff
+        remove:
+        - X-Powered-By
+```
+
+If you configure multiple webservice deployments, the route rules (including filters) can be
+customized per rule. Check the [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#gateway-api)
 for details.
 
 ### TLS between Gateway and backend services
