@@ -31,7 +31,7 @@ dependencies:
   version: 3.8.2
 - name: openbao
   repository: https://charts.gitlab.io/
-  version: 0.14.0
+  version: 0.15.0
 - name: traefik
   repository: https://helm.traefik.io/traefik
   version: 10.19.4
@@ -44,5 +44,5 @@ dependencies:
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   version: 0.10.2
-digest: sha256:d79b84a410a983509c60f31009f3ed191950d7042c7da9ee9c829f48b44ea85a
-generated: "2026-04-29T09:11:13.724515854Z"
+digest: sha256:73a26b53f87a3b18d63b06386f9e74eb502abae7c7c296ef9bff021e3bab2f2e
+generated: "2026-05-05T08:36:00.743669+02:00"
