@@ -198,8 +198,13 @@ A ChatOps command exists to tag a release. Run the following command in the
 relevant release Slack channel (such as `#f_upcoming_release`)
 
 ```plaintext
-/chatops run helm tag <charts version> <GitLab version>
+/chatops gitlab run helm tag <charts version> <GitLab version>
 ```
+
+See past real examples:
+
+- [Manual Release Chart 9.8.6 and 9.9.2](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6308)
+- [Release Charts v8.11.6](https://gitlab.com/gitlab-org/distribution/team-tasks/-/work_items/1766)
 
 You can also do it manually, without using the ChatOps command as follows:
 
