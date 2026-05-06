@@ -18,7 +18,7 @@ Ensure Backup/Restore object store secret is configured.
 {{- define "gitlab.checkConfig.objectStorage.backup.configured" -}}
 {{-   with $.Values.gitlab.toolbox -}}
 {{-     if and .enabled (not .backups.objectStorage.config.secret) -}}
-Registry Object Storage:
+Backup Object Storage:
   The chart provides no longer bundled object storage solution. Please
   prepare an external object storage solution for backup and restore by following 
   https://docs.gitlab.com/charts/advanced/external-object-storage/#backups
