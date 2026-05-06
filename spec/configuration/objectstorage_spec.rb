@@ -267,7 +267,7 @@ describe 'ObjectStorage configuration' do
           appConfig:
             ciSecureFiles:
               enabled: true
-      )).deep_merge(default_values)
+      ))
     end
 
     let(:disabled_settings) { default_values }

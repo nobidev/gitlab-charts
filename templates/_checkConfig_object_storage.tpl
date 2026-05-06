@@ -51,7 +51,7 @@ Object Storage:
 {{- define "gitlab.checkConfig.objectStorage.typeSpecificConfig" -}}
 {{-   if not $.Values.global.appConfig.object_store.enabled -}}
 {{-     $problematicTypes := list -}}
-{{-     range $objectTypes := list "artifacts" "lfs" "uploads" "packages" "externalDiffs" "terraformState" "dependencyProxy" -}}
+{{-     range $objectTypes := list "artifacts" "lfs" "uploads" "packages" "externalDiffs" "terraformState" "dependencyProxy" "ciSecureFiles" -}}
 {{-       if hasKey $.Values.global.appConfig . -}}
 {{-         $objectProps := index $.Values.global.appConfig . -}}
 {{-         if and (index $objectProps "enabled") (empty (index $objectProps "connection")) -}}
