@@ -349,6 +349,32 @@ describe 'Gateway API configuration' do
       end
     end
 
+    context 'HTTP-only mode' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            hosts:
+              https: false
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+              configureCertmanager: false
+        ))
+      end
+
+      it 'does not render the webservice section-scoped CTP' do
+        expect(template.exit_code).to eq(0), template.stderr
+        # In HTTP-only mode all listeners share port 80; Envoy Gateway rejects
+        # section-scoped CTPs (port overlap) and marks the gateway-wide CTP as
+        # Overridden while the conflict exists. The section-scoped CTP must not
+        # be rendered so the gateway-wide CTP can be accepted.
+        expect(webservice_clienttrafficpolicy).to be_nil
+      end
+    end
+
     context 'when individual services are disabled' do
       context 'when kas is disabled' do
         let(:values) do
