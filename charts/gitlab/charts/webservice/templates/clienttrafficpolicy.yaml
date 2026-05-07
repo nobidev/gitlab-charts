@@ -1,11 +1,14 @@
-{{- if and .Values.enabled .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy .Values.global.hosts.https }}
+{{- if and .Values.enabled (eq (include "webservice.gatewayApi.sectionCtp.enabled" .) "true") }}
 {{/*
 ClientTrafficPolicy targeting the main Rails listener (gitlab-web).
 Keeps paths with escaped slashes unchanged, as they are commonly used
 in GitLab API calls to identify projects.
-Only rendered in HTTPS mode: in HTTP-only deployments all listeners share port 80,
-so section-scoped CTPs are rejected by Envoy Gateway (port overlap). The gateway-wide
-CTP (gatewayApiResources.envoy.clientTrafficPolicySpec) covers this case instead.
+Only rendered when HTTPS is on for the gitlab service (either via
+global.hosts.https or the per-service global.hosts.gitlab.https override):
+in HTTP-only deployments all listeners share port 80, so section-scoped
+CTPs are rejected by Envoy Gateway (port overlap). The gateway-wide CTP
+(gatewayApiResources.envoy.clientTrafficPolicySpec) covers that case
+instead.
 */}}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: ClientTrafficPolicy

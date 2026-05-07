@@ -373,6 +373,27 @@ describe 'Gateway API configuration' do
         # be rendered so the gateway-wide CTP can be accepted.
         expect(webservice_clienttrafficpolicy).to be_nil
       end
+
+      context 'with per-service HTTPS override on gitlab' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              hosts:
+                gitlab:
+                  https: true
+          )))
+        end
+
+        it 'renders the webservice section-scoped CTP' do
+          expect(template.exit_code).to eq(0), template.stderr
+          # global.hosts.gitlab.https overrides global.hosts.https for the
+          # gitlab service, so the gitlab-web listener uses HTTPS (port 443).
+          # Section-scoped CTPs are accepted since listener ports differ.
+          expect(webservice_clienttrafficpolicy).not_to be_nil
+          expect(webservice_clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("KeepUnchanged")
+          expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-web")
+        end
+      end
     end
 
     context 'when individual services are disabled' do
