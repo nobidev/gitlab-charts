@@ -13,6 +13,20 @@ Registry Object Storage:
 {{- end -}}
 
 {{/*
+Ensure Pages object store secret is configured.
+*/}}
+{{- define "gitlab.checkConfig.objectStorage.pages.configured" -}}
+{{-   with $.Values.global.pages -}}
+{{-     if and .enabled .objectStore.enabled (empty .objectStore.connection) -}}
+Pages Object Storage:
+  The chart provides no longer bundled object storage solution. Please
+  prepare an external object storage solution for Pages by following
+  https://docs.gitlab.com/charts/advanced/external-object-storage/
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+
+{{/*
 Ensure Backup/Restore object store secret is configured.
 */}}
 {{- define "gitlab.checkConfig.objectStorage.backup.configured" -}}

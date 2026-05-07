@@ -90,6 +90,11 @@ global:
     password:
       secret: psql-password
       key: password
+  pages:
+    objectStore:
+      connection:
+        secret: pages-secret
+        key: connection
   appConfig:
     object_store:
       enabled: true

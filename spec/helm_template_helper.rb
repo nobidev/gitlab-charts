@@ -61,6 +61,14 @@ class HelmTemplate
           password:
             secret: psql-secret
             key: password
+        pages:
+          objectStore:
+            connection:
+              secret: pages-secret
+              key: connection
+        appConfig:
+          object_store:
+            enabled: false
         appConfig:
           object_store:
             enabled: true
@@ -88,6 +96,11 @@ class HelmTemplate
     base.deep_merge!(
       YAML.safe_load(%(
       global:
+        pages:
+          objectStore:
+            connection:
+              secret: pages-secret
+              key: connection
         appConfig:
           object_store:
             enabled: false
