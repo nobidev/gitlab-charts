@@ -13,6 +13,9 @@ Override ai-gateway.gitlab.apiUrl helper
 {{- include "ai-gateway.gitlab.url" . -}}/api/v4
 {{- end -}}
 
+{{/*
+Override Duo Workflow key secret helpers
+*/}}
 {{- define "ai-gateway.duoWorkflowSigningKey.secret" -}}
 {{- default (printf "%s-ai-gateway-duo-workflow-signing-secret" .Release.Name) -}}
 {{- end -}}
@@ -27,4 +30,23 @@ duoWorkflowSigningKey
 
 {{- define "ai-gateway.duoWorkflowValidationKey.key" -}}
 duoWorkflowValidationKey
+{{- end -}}
+
+{{/*
+Override AI Gateway key secret helpers
+*/}}
+{{- define "ai-gateway.aigwSigningKey.secret" -}}
+{{- default (printf "%s-ai-gateway-aigw-signing-secret" .Release.Name) -}}
+{{- end -}}
+
+{{- define "ai-gateway.aigwSigningKey.key" -}}
+aigwSigningKey
+{{- end -}}
+
+{{- define "ai-gateway.aigwValidationKey.secret" -}}
+{{- default (printf "%s-ai-gateway-aigw-validation-secret" .Release.Name) -}}
+{{- end -}}
+
+{{- define "ai-gateway.aigwValidationKey.key" -}}
+aigwValidationKey
 {{- end -}}
