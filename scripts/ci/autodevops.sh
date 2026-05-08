@@ -69,7 +69,13 @@ function deploy() {
 
   if is_k3d_deployment; then
     echo "K3D deployment detected"
-    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/k3d.ingress.values.yaml"
+    if [ -n "${K3D_USE_NGINX_INGRESS}" ]; then
+      echo "K3D_USE_NGINX_INGRESS set: using NGINX ingress"
+      NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/k3d.ingress.values.yaml"
+    else
+      echo "Using Envoy Gateway API (default for k3d)"
+      NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/k3d.gatewayapi.values.yaml"
+    fi
   else
     NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi.values.yaml"
     if use_nginx_ingress; then

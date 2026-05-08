@@ -349,6 +349,53 @@ describe 'Gateway API configuration' do
       end
     end
 
+    context 'HTTP-only mode' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            hosts:
+              https: false
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+              configureCertmanager: false
+        ))
+      end
+
+      it 'does not render the webservice section-scoped CTP' do
+        expect(template.exit_code).to eq(0), template.stderr
+        # In HTTP-only mode all listeners share port 80; Envoy Gateway rejects
+        # section-scoped CTPs (port overlap) and marks the gateway-wide CTP as
+        # Overridden while the conflict exists. The section-scoped CTP must not
+        # be rendered so the gateway-wide CTP can be accepted.
+        expect(webservice_clienttrafficpolicy).to be_nil
+      end
+
+      context 'with per-service HTTPS override on gitlab' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              hosts:
+                gitlab:
+                  https: true
+          )))
+        end
+
+        it 'renders the webservice section-scoped CTP' do
+          expect(template.exit_code).to eq(0), template.stderr
+          # global.hosts.gitlab.https overrides global.hosts.https for the
+          # gitlab service, so the gitlab-web listener uses HTTPS (port 443).
+          # Section-scoped CTPs are accepted since listener ports differ.
+          expect(webservice_clienttrafficpolicy).not_to be_nil
+          expect(webservice_clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("KeepUnchanged")
+          expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-web")
+        end
+      end
+    end
+
     context 'when individual services are disabled' do
       context 'when kas is disabled' do
         let(:values) do

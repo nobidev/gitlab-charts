@@ -140,7 +140,7 @@ helm:
 
 {{- /* PostgreSQL minimum version change */}}
 {{ $WARNING }}
-The minimum required version of PostgreSQL is now 16. See https://docs.gitlab.com/charts/installation/upgrade.html for more details.
+The minimum required version of PostgreSQL is now 17. See https://docs.gitlab.com/charts/installation/upgrade.html for more details.
 
 {{- /* Certmanager update */}}
 {{- if .Values.installCertmanager }}

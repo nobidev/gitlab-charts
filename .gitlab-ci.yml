@@ -61,7 +61,7 @@ variables:
   VALKEY_CHART_VERSION: "0.9.4"
   GARAGE_APP_VERSION: "2.2.0"
   # CloudNativePg (PostgreSQL) deployed to CI envionments
-  CNPG_CHART_VERSION: "0.27.1"
+  CNPG_CHART_VERSION: "0.28.0"
   CNPG_POSTGRESQL_TAG: "17"
   # STRICT_VERSIONS is used in RSpecs to ensure exact version match for tools like "helm" and "kubectl"
   STRICT_VERSIONS: "true"
@@ -477,6 +477,24 @@ trigger-k3d135:
     - !reference [.rule:skip_if_not_canonical_or_security]
     - if: '$CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
+
+# Manual trigger: run k3d v1.35 suite with NGINX ingress instead of Envoy Gateway
+trigger-k3d135-nginx:
+  extends: .trigger_review_job
+  interruptible: true
+  needs:
+    - pin_image_versions
+  variables:
+    LIMIT_TO: k3d135
+    K3D_USE_NGINX_INGRESS: "true"
+  rules:
+    - !reference [.rule:skip_if_not_canonical_or_security]
+    - if: '$CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /MR_PIPELINE$/'
+      when: manual
+      allow_failure: true
+    - if: '$CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
+      when: manual
+      allow_failure: true
 
 # Jobs using auto_stop_in that exit with a failure will not execute the on_stop
 # action. We get frequent failures during review_* jobs. Their accompanying
