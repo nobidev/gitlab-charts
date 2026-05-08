@@ -30,6 +30,26 @@ Renders optional Smartcard Gateway+Listener reference.
 {{- end }}
 
 {{/*
+Returns "true" when the section-scoped ClientTrafficPolicy targeting the
+gitlab-web listener should be rendered.
+
+Conditions:
+- Gateway API is enabled and Envoy Gateway is the implementation.
+- HTTPS is enabled either globally (global.hosts.https) or for the gitlab
+  service specifically (global.hosts.gitlab.https). In HTTP-only mode all
+  listeners share port 80, so Envoy Gateway rejects section-scoped CTPs
+  due to port overlap; the gateway-wide CTP
+  (gatewayApiResources.envoy.clientTrafficPolicySpec) covers that case.
+*/}}
+{{- define "webservice.gatewayApi.sectionCtp.enabled" -}}
+{{- $envoy := and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy -}}
+{{- $https := or .Values.global.hosts.https .Values.global.hosts.gitlab.https -}}
+{{- if and $envoy $https -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
 Renders all hostnames webservice accepts traffic for.
 */}}
 {{- define "webservice.gatewayApi.hostnames" }}
