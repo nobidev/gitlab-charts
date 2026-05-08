@@ -98,7 +98,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 
 {{/* _checkConfig_toolbox.tpl*/}}
 {{- $messages = append $messages (include "gitlab.toolbox.replicas" .) -}}
-{{- $messages = append $messages (include "gitlab.toolbox.backups.objectStorage.config.secret" .) -}}
 
 {{/* _checkConfig_webservice.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.appConfig.maxRequestDurationSeconds" .) -}}

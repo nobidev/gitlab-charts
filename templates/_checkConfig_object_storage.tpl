@@ -3,7 +3,7 @@ Ensure Registry object store secret is configured.
 */}}
 {{- define "gitlab.checkConfig.objectStorage.registry.configured" -}}
 {{-   with $.Values.registry -}}
-{{-     if and .enabled (not .storage.secret) -}}
+{{-     if and .enabled (not .storage.secret) }}
 Registry Object Storage:
   The chart provides no longer bundled object storage solution. Please
   prepare an external object storage solution for the Registry by following 
@@ -17,7 +17,7 @@ Ensure Pages object store secret is configured.
 */}}
 {{- define "gitlab.checkConfig.objectStorage.pages.configured" -}}
 {{-   with $.Values.global.pages -}}
-{{-     if and .enabled .objectStore.enabled (empty .objectStore.connection) -}}
+{{-     if and .enabled .objectStore.enabled (empty .objectStore.connection) }}
 Pages Object Storage:
   The chart provides no longer bundled object storage solution. Please
   prepare an external object storage solution for Pages by following
@@ -35,7 +35,7 @@ no backup object store secret.
 {{- define "gitlab.checkConfig.objectStorage.backup.configured" -}}
 {{-   with $.Values.gitlab.toolbox -}}
 {{-     $gcsWorkloadIdentity := and (eq .backups.objectStorage.backend "gcs") (empty .backups.objectStorage.config) -}}
-{{-     if and .enabled (not .backups.objectStorage.config.secret) (not $gcsWorkloadIdentity) -}}
+{{-     if and .enabled (not .backups.objectStorage.config.secret) (not $gcsWorkloadIdentity) }}
 Backup Object Storage:
   The chart provides no longer bundled object storage solution. Please
   prepare an external object storage solution for backup and restore by following
@@ -58,7 +58,7 @@ Ensure consolidate and type-specific object store configuration are not mixed.
 {{-         end -}}
 {{-       end -}}
 {{-     end -}}
-{{-     if not (empty $problematicTypes) -}}
+{{-     if not (empty $problematicTypes) }}
 Object Storage:
   When consolidated object storage is enabled, for each item `bucket` must be specified and the `connection` must be empty. Check the following object storage configuration(s): {{ join "," $problematicTypes }}
 {{-     end -}}
@@ -77,7 +77,7 @@ Object Storage:
 {{-         end -}}
 {{-       end -}}
 {{-     end -}}
-{{-     if not (empty $problematicTypes) -}}
+{{-     if not (empty $problematicTypes) }}
 Object Storage:
   When type-specific object storage is enabled the `connection` property can not be empty. Check the following object storage configuration(s): {{ join "," $problematicTypes }}
 {{-     end -}}
