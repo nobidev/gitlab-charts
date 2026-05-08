@@ -52,10 +52,13 @@ describe 'ObjectStorage configuration' do
             ciSecureFiles:
               enabled: true
               bucket: ci-secure-files-bucket
+            agentPlanContent:
+              enabled: true
+              bucket: agent-plan-content-bucket
       ))
     end
 
-    let(:object_types) { %w[artifacts lfs uploads ci_secure_files] }
+    let(:object_types) { %w[artifacts lfs uploads ci_secure_files agent_plan_content] }
 
     context 'with proxy_download configured' do
       it 'enables proxy_download for LFS' do
@@ -76,6 +79,7 @@ describe 'ObjectStorage configuration' do
           expect(object_store_config.dig('objects', 'uploads', 'proxy_download')).to be true
           expect(object_store_config.dig('objects', 'uploads', 'bucket')).to eq('uploads-bucket')
           expect(object_store_config.dig('objects', 'ci_secure_files', 'bucket')).to eq('ci-secure-files-bucket')
+          expect(object_store_config.dig('objects', 'agent_plan_content', 'bucket')).to eq('agent-plan-content-bucket')
 
           object_types.each do |obj_type|
             expect(raw_config).not_to include("/etc/gitlab/objectstorage/#{obj_type}")
@@ -266,6 +270,36 @@ describe 'ObjectStorage configuration' do
         global:
           appConfig:
             ciSecureFiles:
+              enabled: true
+      ))
+    end
+
+    let(:disabled_settings) { default_values }
+
+    it_behaves_like 'storage-specific settings'
+  end
+
+  describe 'global.appConfig.agentPlanContent.enabled' do
+    let(:objectstorage_config_file) { '/etc/gitlab/objectstorage/agent_plan_content' }
+
+    let(:connection_settings) do
+      default_values.deep_merge(
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              agentPlanContent:
+                connection:
+                  secret: gitlab-object-storage
+                  key: connection
+        ))
+      )
+    end
+
+    let(:enabled_settings) do
+      HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            agentPlanContent:
               enabled: true
       ))
     end

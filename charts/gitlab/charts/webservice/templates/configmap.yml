@@ -106,6 +106,7 @@ data:
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "ci_secure_files" "config" $.Values.global.appConfig.ciSecureFiles) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "agent_plan_content" "config" $.Values.global.appConfig.agentPlanContent) | nindent 10 -}}
           {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 -}}
       {{- end }}
       {{- include "gitlab.appConfig.artifacts.configuration" (dict "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
@@ -115,6 +116,7 @@ data:
       {{- include "gitlab.appConfig.external_diffs.configuration" (dict "config" $.Values.global.appConfig.externalDiffs "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.terraformState.configuration" (dict "config" $.Values.global.appConfig.terraformState "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.ciSecureFiles.configuration" (dict "config" $.Values.global.appConfig.ciSecureFiles "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.agentPlanContent.configuration" (dict "config" $.Values.global.appConfig.agentPlanContent "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.dependencyProxy.configuration" (dict "config" $.Values.global.appConfig.dependencyProxy "context" $) | nindent 6 }}
       {{- include "gitlab.geo.config" $ | nindent 6 }}
       {{- include "gitlab.appConfig.sentry.configuration" $ | nindent 6 }}
