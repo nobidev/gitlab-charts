@@ -168,6 +168,82 @@ If you configure multiple webservice deployment, the route rules can be customiz
 Check the [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#gateway-api)
 for details.
 
+### TLS between Gateway and backend services
+
+When TLS is enabled on a backend service (Webservice, KAS, or Registry), the chart creates a
+`BackendTLSPolicy` resource that instructs the Gateway to establish a TLS connection.
+
+Unlike the NGINX Ingress implementation, where certificate verification can be disabled (for
+example with `workhorse.tls.verify: false` for self-signed certificates), Gateway API always
+verifies the backend TLS connection. A CA certificate secret must therefore be provided for
+verification to succeed.
+
+#### Enable internal TLS for Webservice
+
+Backend TLS for Webservice requires
+[Workhorse TLS](../../charts/gitlab/webservice/_index.md#gitlab-workhorse) to be enabled globally.
+The validation hostname defaults to the service DNS name (`<service-name>.<namespace>.svc`) and
+can be overridden with `webservice.backendTLSPolicy.hostname`:
+
+```yaml
+global:
+  workhorse:
+    tls:
+      enabled: true
+gitlab:
+  webservice:
+    workhorse:
+      tls:
+        enabled: true
+        caSecretName: workhorse-tls-ca
+    backendTLSPolicy:
+      hostname: workhorse.example.internal
+```
+
+For information on configuring optional deployment-level overrides, see the
+[Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#tls-between-gateway-and-workhorse).
+
+#### Enable internal TLS for GitLab Relay (KAS)
+
+Backend TLS for KAS is controlled by `global.kas.tls.enabled`. The validation hostname defaults
+to the service DNS name (`<service-name>.<namespace>.svc`) and can be overridden with
+`kas.backendTLSPolicy.hostname`:
+
+> [!warning]
+> GitLab Workspaces does not yet support internal TLS. If you use Workspaces,
+> do not enable internal TLS for GitLab Relay because it will cause protocol and TLS errors.
+
+```yaml
+global:
+  kas:
+    tls:
+      enabled: true
+      caSecretName: kas-tls-ca
+gitlab:
+  kas:
+    backendTLSPolicy:
+      hostname: kas.example.internal
+```
+
+#### Enable internal TLS for Registry
+
+Backend TLS for Registry is controlled by `registry.tls.enabled`. The validation hostname defaults
+to the service DNS name (`<service-name>.<namespace>.svc`) and can be overridden with
+`registry.backendTLSPolicy.hostname`:
+
+```yaml
+global:
+  hosts:
+    registry:
+      protocol: https
+registry:
+  tls:
+    enabled: true
+    caSecretName: registry-tls-ca
+  backendTLSPolicy:
+    hostname: registry.example.internal
+```
+
 ### GitLab Geo
 
 To configure [GitLab Geo](https://docs.gitlab.com/administration/geo/) using the Gateway API, an

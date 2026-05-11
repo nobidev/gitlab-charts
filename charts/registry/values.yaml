@@ -89,6 +89,9 @@ gatewayRoute:
     request: 900s
     backendRequest: 900s
 
+backendTLSPolicy:
+  hostname: ""
+
 ingress:
   apiVersion:
   enabled:
