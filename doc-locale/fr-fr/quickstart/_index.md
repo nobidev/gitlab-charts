@@ -7,7 +7,8 @@ title: Tester le chart GitLab sur GKE ou EKS
 
 Ce guide constitue une documentation concise mais complète sur la manière d'installer le chart GitLab avec les valeurs par défaut sur Google Kubernetes Engine (GKE) ou Amazon Elastic Kubernetes Service (EKS).
 
-> [!note] Le chart par défaut inclut un service MinIO intégré à des fins d'évaluation uniquement. PostgreSQL et Redis doivent être configurés de manière externe. Pour déployer GitLab en production, suivez le [guide d'installation](../installation/_index.md).
+> [!note] 
+> Le chart par défaut inclut un service MinIO intégré à des fins d'évaluation uniquement. PostgreSQL et Redis doivent être configurés de manière externe. Pour déployer GitLab en production, suivez le [guide d'installation](../installation/_index.md).
 
 ## Prérequis {#prerequisites}
 
@@ -28,7 +29,8 @@ Un cluster avec un total d'au moins huit CPU virtuels et 30 Go de RAM est recomm
 
 Vous pouvez soit consulter les instructions de vos fournisseurs de cloud sur la façon de créer un cluster Kubernetes, soit utiliser les scripts fournis par GitLab pour [automatiser la création du cluster](../installation/cloud/_index.md).
 
-> [!warning] Les nœuds Kubernetes prennent en charge les architectures x86-64 et ARM64. Les images validées FIPS sont uniquement disponibles pour x86-64. Consultez le [ticket 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285) pour connaître le statut FIPS ARM64.
+> [!warning] 
+> Les nœuds Kubernetes prennent en charge les architectures x86-64 et ARM64. Les images validées FIPS sont uniquement disponibles pour x86-64. Consultez le [ticket 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285) pour connaître le statut FIPS ARM64.
 
 ### Installer kubectl {#install-kubectl}
 

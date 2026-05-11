@@ -14,7 +14,8 @@ title: Aide-mémoire Kubernetes
 
 Voici une liste d'informations utiles concernant Kubernetes que l'équipe Support de GitLab utilise parfois lors du dépannage. GitLab rend ces informations publiques afin que chacun puisse bénéficier des connaissances collectées par l'équipe Support.
 
-> [!warning] Ces commandes **can alter or break** vos composants Kubernetes. Utilisez-les à vos propres risques.
+> [!warning] 
+> Ces commandes **can alter or break** vos composants Kubernetes. Utilisez-les à vos propres risques.
 
 Si vous bénéficiez d'un [niveau payant](https://about.gitlab.com/pricing/) et que vous n'êtes pas sûr(e) de savoir comment utiliser ces commandes, il est préférable de [contacter le Support](https://support.gitlab.com/hc/en-us/articles/11626483177756-GitLab-Support), qui vous aidera à résoudre tout problème que vous rencontrez.
 
@@ -269,11 +270,13 @@ but commented out to help encourage others to add to it in the future. -->
 
 ## Patcher le code Rails dans le pod `toolbox` {#patching-the-rails-code-in-the-toolbox-pod}
 
-> [!warning] Cette tâche n'est pas quelque chose qui devrait être effectuée régulièrement. Utilisez-la à vos propres risques.
+> [!warning] 
+> Cette tâche n'est pas quelque chose qui devrait être effectuée régulièrement. Utilisez-la à vos propres risques.
 
 Patcher des pods de service GitLab opérationnels nécessite la création de nouvelles images avec le code source modifié à l'intérieur. Ceux-ci ne peuvent _pas_ être directement patchés. Le [pod `toolbox` / `task-runner`](../charts/gitlab/toolbox/_index.md) possède tout ce qui est nécessaire pour fonctionner comme un pod basé sur Rails, sans interférer avec les autres opérations de service normales. Vous pouvez l'utiliser pour exécuter des tâches indépendantes et pour modifier temporairement le code source afin d'effectuer certaines tâches.
 
-> [!note] Si vous apportez des modifications à l'aide du pod `toolbox`, celles-ci ne seront pas persistées si le pod est redémarré. Elles ne sont présentes que pendant la durée de vie de l'opération du conteneur.
+> [!note] 
+> Si vous apportez des modifications à l'aide du pod `toolbox`, celles-ci ne seront pas persistées si le pod est redémarré. Elles ne sont présentes que pendant la durée de vie de l'opération du conteneur.
 
 Pour patcher le code source dans le pod `toolbox` :
 

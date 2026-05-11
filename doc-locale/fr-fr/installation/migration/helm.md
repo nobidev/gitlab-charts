@@ -50,7 +50,8 @@ Cela est dû à des problèmes connus avec la migration de Helm 2 vers 3 dans le
 
 Pour contourner ce problème, suivez les instructions ci-dessous :
 
-> [!note] Ces instructions remplacent les ressources de force, notamment le StatefulSet Redis. Vous devez vous assurer que le volume de données attaché à ce StatefulSet est sûr et reste intact.
+> [!note] 
+> Ces instructions remplacent les ressources de force, notamment le StatefulSet Redis. Vous devez vous assurer que le volume de données attaché à ce StatefulSet est sûr et reste intact.
 
 1. Remplacez les Deployments cert-manager (si activés).
 

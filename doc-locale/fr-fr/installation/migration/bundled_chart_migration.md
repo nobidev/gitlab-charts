@@ -14,7 +14,8 @@ title: "Migrer depuis les charts Redis, PostgreSQL et MinIO intégrés"
 
 Lors de la configuration d'un système de production, vous devez migrer depuis Redis, MinIO et PostgreSQL intégrés vers des alternatives gérées en externe.
 
-> [!warning] Les Redis, MinIO et PostgreSQL intégrés sont [obsolètes](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) et seront supprimés dans GitLab 19.0.
+> [!warning] 
+> Les Redis, MinIO et PostgreSQL intégrés sont [obsolètes](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) et seront supprimés dans GitLab 19.0.
 
 Ce guide suppose que vous migrez vers des alternatives Cloud Native telles que [Valkey](https://valkey.io/) , [Garage](https://garagehq.deuxfleurs.fr/) et [CloudNativePG](https://cloudnative-pg.io/) respectivement.
 
@@ -155,7 +156,8 @@ Prérequis :
 
 1. Initialisez la disposition du cluster.
 
-   > [!note] Cet exemple provisionne une disposition Garage avec trois zones, un nœud par zone, et utilise le facteur de réplication par défaut de trois. Consultez les [recommandations de production de Garage](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/) et ajustez ces paramètres selon vos besoins.
+   > [!note] 
+   > Cet exemple provisionne une disposition Garage avec trois zones, un nœud par zone, et utilise le facteur de réplication par défaut de trois. Consultez les [recommandations de production de Garage](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/) et ajustez ces paramètres selon vos besoins.
 
    Étant donné que GitLab stocke à la fois les données d'objets primaires et les sauvegardes dans le même backend de stockage (Garage dans ce cas), toute défaillance au niveau du stockage d'objets ou de la couche de persistance pourrait affecter les deux ensembles de données. Par conséquent, en plus de [sauvegarder GitLab](../../backup-restore/_index.md) régulièrement, vous devriez également vous familiariser avec la [récupération après des défaillances de Garage](https://garagehq.deuxfleurs.fr/documentation/operations/recovering/).
 
@@ -174,7 +176,8 @@ Prérequis :
 
 1. Créez les compartiments GitLab :
 
-   > [!note] La commande suivante utilise les noms de compartiments par défaut du chart GitLab. Si vous avez personnalisé vos noms de compartiments précédemment, ajustez-les en conséquence ici et dans les étapes ci-dessous.
+   > [!note] 
+   > La commande suivante utilise les noms de compartiments par défaut du chart GitLab. Si vous avez personnalisé vos noms de compartiments précédemment, ajustez-les en conséquence ici et dans les étapes ci-dessous.
 
    ```shell
    buckets=("git-lfs" "gitlab-artifacts" "gitlab-backups" "gitlab-ci-secure-files" \
@@ -267,7 +270,8 @@ Une fois tous les remplacements provisionnés, vous pouvez maintenant désactive
    kubectl annotate pvc <RELEASE>-minio --list
    ```
 
-   > [!note] Les volumes persistants Redis et PostgreSQL sont gérés par leur StatefulSet plutôt que par Helm. La politique de rétention par défaut est [`Retain`](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention). Sauf si vous avez modifié cette politique, ces deux volumes ne seront pas supprimés lorsque vous supprimerez leur StatefulSet.
+   > [!note] 
+   > Les volumes persistants Redis et PostgreSQL sont gérés par leur StatefulSet plutôt que par Helm. La politique de rétention par défaut est [`Retain`](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention). Sauf si vous avez modifié cette politique, ces deux volumes ne seront pas supprimés lorsque vous supprimerez leur StatefulSet.
 
 1. Mettez à jour vos valeurs pour pointer vers les services nouvellement provisionnés :
 

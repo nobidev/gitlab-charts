@@ -21,7 +21,8 @@ Vous pouvez migrer du contrôleur NGINX Ingress intégré vers l'API Gateway ave
 
 ## Migrer en une étape {#migrate-in-one-step}
 
-> [!warning] Prévoyez environ 5 minutes d'interruption de service pendant la migration. La durée réelle peut varier en fonction de votre déploiement, de votre infrastructure et de votre configuration. Pour une approche sans interruption de service, consultez la [migration sans interruption de service](#migrate-with-zero-downtime).
+> [!warning] 
+> Prévoyez environ 5 minutes d'interruption de service pendant la migration. La durée réelle peut varier en fonction de votre déploiement, de votre infrastructure et de votre configuration. Pour une approche sans interruption de service, consultez la [migration sans interruption de service](#migrate-with-zero-downtime).
 
 Pour migrer de l'Ingress (NGINX) vers l'API Gateway et Envoy Gateway :
 
@@ -162,7 +163,8 @@ Pour effectuer une migration sans interruption de service, vous pouvez exécuter
 
 1. Configurez vos certificats TLS ou un émetteur certmanager pour la Gateway gérée :
 
-   > [!note] Vous ne pouvez pas utiliser l'Issuer fourni par le chart GitLab à cette fin. L'émetteur utilise [HTTP01](https://cert-manager.io/docs/configuration/acme/http01/), qui ne sera pas en mesure de récupérer les certificats tant que vos enregistrements DNS n'auront pas été mis à jour.
+   > [!note] 
+   > Vous ne pouvez pas utiliser l'Issuer fourni par le chart GitLab à cette fin. L'émetteur utilise [HTTP01](https://cert-manager.io/docs/configuration/acme/http01/), qui ne sera pas en mesure de récupérer les certificats tant que vos enregistrements DNS n'auront pas été mis à jour.
 
    1. Configurez un [Issuer DNS01](https://cert-manager.io/docs/configuration/acme/dns01/) ou personnalisez les [listeners](../../charts/globals.md) pour utiliser des certificats déjà existants.
 
