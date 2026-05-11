@@ -9,11 +9,6 @@ This guide serves as a concise but complete documentation about how to install t
 GitLab chart with default values on Google Kubernetes Engine (GKE)
 or Amazon Elastic Kubernetes Service (EKS).
 
-> [!note]
-> The default chart includes a bundled MinIO service for evaluation purposes only.
-> PostgreSQL and Redis must be configured externally.
-> To deploy GitLab in production, follow the [installation guide](../installation/_index.md).
-
 ## Prerequisites
 
 To complete this guide, you must have the following:
@@ -26,9 +21,17 @@ To complete this guide, you must have the following:
 ### Available domain
 
 You must have access to an internet-accessible domain to which you can add
-a DNS record. This can be a sub-domain such as `poc.domain.com`, but the
+a DNS record. This can be a sub-domain such as `poc.example.com`, but the
 Let's Encrypt servers must be able to resolve the addresses in order to
 issue certificates.
+
+### PostgreSQL, Redis, and object storage
+
+The chart depends on an externally provisioned PostgreSQL, Redis, and object storage:
+
+1. [Set up your PostgreSQL installation](../advanced/external-db/_index.md).
+1. [Set up your Redis installation](../advanced/external-redis/_index.md).
+1. [Set up your object storage](../advanced/external-object-storage/_index.md).
 
 ### Create a Kubernetes cluster
 
@@ -74,14 +77,50 @@ To configure the chart, you need:
 
 - The domain or subdomain for GitLab to operate under.
 - Your email address, so Let's Encrypt can issue a certificate.
+- The host of your [Redis](../advanced/external-redis/_index.md) and [PosgtreSQL](../advanced/external-db/_index.md) installations.
+- Secrets with your Redis and PostgreSQL installations in your Kubernetes namespace.
+- Kubernetes Secrets with your [S3 object storage configuration and credentials](../advanced/external-object-storage/_index.md).
 
-To install the chart, run the install command with two
-`--set` arguments:
+To install the chart, prepare a values file and run Helm:
+
+```yaml
+# custom-values.yaml
+global:
+  hosts:
+    domain: example.com
+  redis: 
+    host: redis.example.com
+    auth:
+      secret: psql-password
+      key: password
+  psql:
+    host: psql.example.com
+    password:
+      secret: psql-password
+      key: password
+   appConfig:
+     object_store:
+       enabled: true
+       connection:
+         secret: gitlab-object-storage
+         key: config
+gitlab:
+  toolbox:
+    backups:
+      objectStorage:
+        config:
+          secret: gitlab-object-storage-s3cmd
+          key: config
+registry:
+  storage:
+    secret: gitlab-registry-storage
+    key: config
+certmanager-issuer:
+  email: webmaster@example.com
+```
 
 ```shell
-helm install gitlab gitlab/gitlab \
-  --set global.hosts.domain=DOMAIN \
-  --set certmanager-issuer.email=me@example.com
+helm install gitlab gitlab/gitlab -n gitlab -f custom-values.yaml
 ```
 
 This step can take several minutes in order for all resources
@@ -104,7 +143,6 @@ The output should look something like the following:
 
 ```plaintext
 NAME               HOSTS                 ADDRESS         PORTS     AGE
-gitlab-minio       minio.domain.tld      35.239.27.235   80, 443   118m
 gitlab-registry    registry.domain.tld   35.239.27.235   80, 443   118m
 gitlab-webservice  gitlab.domain.tld     35.239.27.235   80, 443   118m
 ```

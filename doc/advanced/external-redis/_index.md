@@ -18,7 +18,7 @@ You must set the following parameters:
 
 - `global.redis.host`: Set to the hostname of the external Redis, can be a domain or an IP address.
 - `global.redis.auth.enabled`: Set to `false` if the external Redis does not require a password.
-- `global.redis.auth.secret`: The name of the [secret which contains the token for authentication](../../installation/secrets.md#redis-password).
+- `global.redis.auth.secret`: The name of the secret that contains the token for authentication.
 - `global.redis.auth.key`: The key in the secret, which contains the token content.
 
 Items below can be further customized if you are not using the defaults:

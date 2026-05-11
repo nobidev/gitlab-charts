@@ -21,7 +21,7 @@ describe 'ObjectStorage configuration' do
   end
 
   let(:default_values) do
-    HelmTemplate.defaults
+    HelmTemplate.unconsolidated_defaults
   end
 
   let(:artifacts_cdn_file) { '/etc/gitlab/objectstorage/cdn/artifacts' }
@@ -30,7 +30,7 @@ describe 'ObjectStorage configuration' do
     let(:object_store_config_file) { '/etc/gitlab/objectstorage/object_store' }
 
     let(:values_object_store_connection) do
-      YAML.safe_load(%(
+      HelmTemplate.with_defaults(%(
         global:
           appConfig:
             object_store:
@@ -52,7 +52,7 @@ describe 'ObjectStorage configuration' do
             ciSecureFiles:
               enabled: true
               bucket: ci-secure-files-bucket
-      )).deep_merge(default_values)
+      ))
     end
 
     let(:object_types) { %w[artifacts lfs uploads ci_secure_files] }
@@ -162,32 +162,36 @@ describe 'ObjectStorage configuration' do
     let(:artifacts_config_file) { '/etc/gitlab/objectstorage/artifacts' }
 
     let(:values_artifacts_enabled) do
-      YAML.safe_load(%(
+      HelmTemplate.with_defaults(%(
         global:
           appConfig:
             artifacts:
               enabled: true
-      )).deep_merge(default_values)
+      ))
     end
 
     let(:values_artifacts_disabled) do
-      YAML.safe_load(%(
-        global:
-          appConfig:
-            artifacts:
-              enabled: false
-      )).deep_merge(default_values)
+      default_values.deep_merge(
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              artifacts:
+                enabled: false
+        ))
+      )
     end
 
     let(:values_artifacts_connection) do
-      YAML.safe_load(%(
-        global:
-          appConfig:
-            artifacts:
-              connection:
-                secret: gitlab-object-storage
-                key: connection
-      )).deep_merge(default_values)
+      default_values.deep_merge(
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              artifacts:
+                connection:
+                  secret: gitlab-object-storage
+                  key: connection
+        ))
+      )
     end
 
     let(:values_artifacts_cdn) do
@@ -223,7 +227,7 @@ describe 'ObjectStorage configuration' do
 
             expect(artifacts_config['enabled']).to be true
             expect(artifacts_config.dig('object_store', 'enabled')).to be true
-            expect(artifacts_config.dig('object_store', 'remote_directory')).to eq('gitlab-artifacts')
+            expect(artifacts_config.dig('object_store', 'remote_directory')).to eq('artifacts-bucket')
             expect(artifacts_config.dig('object_store', 'connection')).to include(artifacts_config_file)
             expect(artifacts_config.dig('object_store', 'cdn')).to include(artifacts_cdn_file)
           end
@@ -245,23 +249,25 @@ describe 'ObjectStorage configuration' do
     let(:objectstorage_config_file) { '/etc/gitlab/objectstorage/ci_secure_files' }
 
     let(:connection_settings) do
-      YAML.safe_load(%(
-        global:
-          appConfig:
-            ciSecureFiles:
-              connection:
-                secret: gitlab-object-storage
-                key: connection
-      )).deep_merge(default_values)
+      default_values.deep_merge(
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              ciSecureFiles:
+                connection:
+                  secret: gitlab-object-storage
+                  key: connection
+        ))
+      )
     end
 
     let(:enabled_settings) do
-      YAML.safe_load(%(
+      HelmTemplate.with_defaults(%(
         global:
           appConfig:
             ciSecureFiles:
               enabled: true
-      )).deep_merge(default_values)
+      ))
     end
 
     let(:disabled_settings) { default_values }
@@ -273,23 +279,25 @@ describe 'ObjectStorage configuration' do
     let(:objectstorage_config_file) { '/etc/gitlab/objectstorage/dependency_proxy' }
 
     let(:connection_settings) do
-      YAML.safe_load(%(
+      default_values.deep_merge(
+        YAML.safe_load(%(
         global:
           appConfig:
             dependencyProxy:
               connection:
                 secret: gitlab-object-storage
                 key: connection
-      )).deep_merge(default_values)
+      ))
+      )
     end
 
     let(:enabled_settings) do
-      YAML.safe_load(%(
+      HelmTemplate.with_defaults(%(
         global:
           appConfig:
             dependencyProxy:
               enabled: true
-      )).deep_merge(default_values)
+      ))
     end
 
     let(:disabled_settings) { default_values }

@@ -61,7 +61,6 @@ describe 'GitLab Ingress configuration(s)' do
       test-kas-grpc
       test-webservice-default
       test-webservice-default-smartcard
-      test-minio
       test-registry
     ]
   end
@@ -79,8 +78,6 @@ describe 'GitLab Ingress configuration(s)' do
         appConfig:
           smartcard:
             enabled: true
-        minio:
-          enabled: true
         pages:
           enabled: true
       registry:

@@ -218,19 +218,6 @@ describe 'GitLab Pages' do
             'external_https' => false,
             'https' => true,
             'secret_file' => '/etc/gitlab/pages/secret',
-            'object_store' => {
-              'enabled' => true,
-              'remote_directory' => 'gitlab-pages',
-              'connection' => {
-                'provider' => 'AWS',
-                'region' => 'us-east-1',
-                'host' => 'minio.example.com',
-                'endpoint' => 'http://test-minio-svc.default.svc:9000',
-                'path_style' => true,
-                'aws_access_key_id' => "<%= File.read('/etc/gitlab/minio/accesskey').strip.to_json %>",
-                'aws_secret_access_key' => "<%= File.read('/etc/gitlab/minio/secretkey').strip.to_json %>"
-              }
-            },
             'local_store' => {
               'enabled' => false,
               'path' => nil
@@ -242,7 +229,7 @@ describe 'GitLab Pages' do
 
       context 'with user specified values' do
         let(:pages_enabled_values) do
-          YAML.safe_load(%(
+          HelmTemplate.with_unconsolidated_defaults(%(
             global:
               pages:
                 enabled: true

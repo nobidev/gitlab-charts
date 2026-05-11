@@ -134,10 +134,3 @@ registry:
   init:
     image:
       pullPolicy: pp-registry-init
-minio:
-  imagePullPolicy: pp-minio
-  pullSecrets:
-  - name: ps-minio
-  init:
-    image:
-      pullPolicy: pp-minio-init

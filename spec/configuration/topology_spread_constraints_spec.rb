@@ -19,7 +19,6 @@ describe 'local topologySpreadConstraints configuration' do
       'Deployment/test-cert-manager-cainjector',
       'Deployment/test-cert-manager-webhook',
       'Deployment/test-gitlab-runner',
-      'Deployment/test-minio',
       'Deployment/envoy-gateway',
       'Deployment/test-prometheus-server',
       'Deployment/test-gitlab-exporter'
@@ -113,14 +112,6 @@ describe 'local topologySpreadConstraints configuration' do
               maxSkew: 1
               topologyKey: topology.kubernetes.io/zone
               whenUnsatisfiable: DoNotSchedule
-      minio:
-        topologySpreadConstraints:
-          - labelSelector:
-              matchLabels:
-                app: test
-            maxSkew: 1
-            topologyKey: topology.kubernetes.io/zone
-            whenUnsatisfiable: DoNotSchedule
       registry:
         topologySpreadConstraints:
           - labelSelector:
@@ -156,6 +147,7 @@ describe 'local topologySpreadConstraints configuration' do
 
       deployments = t.resources_by_kind('Deployment').reject { |key, _| ignored_deployments.include? key }
       deployments.each do |key, _|
+        puts key
         expect(t.dig(key, 'spec', 'template', 'spec', 'topologySpreadConstraints')).to be_present
         expect(t.dig(key, 'spec', 'template', 'spec', 'topologySpreadConstraints')[0]['labelSelector']['matchLabels']['app']).to eq('test')
         expect(t.dig(key, 'spec', 'template', 'spec', 'topologySpreadConstraints')[0]['maxSkew']).to eq(1)

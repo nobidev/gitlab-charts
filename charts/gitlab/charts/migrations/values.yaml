@@ -47,8 +47,6 @@ gitaly:
   authToken: {}
   #   secret: gitaly-secret
   #   key: token
-minio: {}
-
 psql: {}
   # port: 5432
 

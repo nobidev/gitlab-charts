@@ -25,7 +25,6 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $removals := list -}}
 {{/* add templates here */}}
 {{- $removals = append $removals (include "gitlab.removal.rails.appConfig" .) -}}
-{{- $removals = append $removals (include "gitlab.removal.minio" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.registryStorage" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.registryHttpSecret" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.registry.replicas" .) -}}
@@ -102,39 +101,6 @@ gitlab.{{ $chart }}:
 {{-   end -}}
 {{- end -}}
 {{- end -}}
-
-{{/* Deprecation behaviors for global configuration of Minio */}}
-{{- define "gitlab.removal.minio" -}}
-{{- if ( hasKey .Values.minio "enabled" ) }}
-minio:
-    Chart-local `enabled` property has been moved to global. Please remove `minio.enabled` from your properties, and set `global.minio.enabled` instead.
-{{- end -}}
-{{- if .Values.registry.minio -}}
-{{-   if ( hasKey .Values.registry.minio "enabled" ) }}
-registry:
-    Chart-local configuration of Minio features has been moved to global. Please remove `registry.minio.enabled` from your properties, and set `global.minio.enabled` instead.
-{{-   end -}}
-{{- end -}}
-{{- if .Values.gitlab.webservice.minio -}}
-{{-   if ( hasKey .Values.gitlab.webservice.minio "enabled" ) }}
-gitlab.webservice:
-    Chart-local configuration of Minio features has been moved to global. Please remove `gitlab.webservice.minio.enabled` from your properties, and set `global.minio.enabled` instead.
-{{-   end -}}
-{{- end -}}
-{{- if .Values.gitlab.sidekiq.minio -}}
-{{-   if ( hasKey .Values.gitlab.sidekiq.minio "enabled" ) }}
-gitlab.sidekiq:
-    Chart-local configuration of Minio features has been moved to global. Please remove `gitlab.sidekiq.minio.enabled` from your properties, and set `global.minio.enabled` instead.
-{{-   end -}}
-{{- end -}}
-{{- if index .Values.gitlab "toolbox" "minio" -}}
-{{-   if ( hasKey ( index .Values.gitlab "toolbox" "minio" ) "enabled" ) }}
-gitlab.toolbox:
-    Chart-local configuration of Minio features has been moved to global. Please remove `gitlab.toolbox.minio.enabled` from your properties, and set `global.minio.enabled` instead.
-{{-   end -}}
-{{- end -}}
-{{- end -}}
-{{/* END deprecate.minio */}}
 
 {{/* Migration of Registry `storage` dict to a secret */}}
 {{- define "gitlab.removal.registryStorage" -}}
@@ -247,7 +213,7 @@ gitlab.{{ $chart }}:
 
 {{/* Deprecation behavious for configuration of initContainer images of external charts */}}
 {{- define "external.removal.initContainerImage" -}}
-{{- range $chart:= list "minio" "registry" "redis" "redis-ha" }}
+{{- range $chart:= list "registry" "redis" "redis-ha" }}
 {{-     if hasKey (index $.Values $chart) "init" -}}
 {{-         with $config := index $.Values $chart "init" -}}
 {{-             if or (and (hasKey $config "image") (kindIs "string" $config.image)) (hasKey $config "tag") }}
@@ -262,7 +228,7 @@ gitlab.{{ $chart }}:
 
 {{/* Deprecation behavious for configuration of initContainer image pull policy of external charts */}}
 {{- define "external.removal.initContainerPullPolicy" -}}
-{{- range $chart:= list "minio" "registry" }}
+{{- range $chart:= list "registry" }}
 {{-     if hasKey (index $.Values $chart) "init" -}}
 {{-         with $config := index $.Values $chart "init" -}}
 {{-             if hasKey $config "pullPolicy" }}

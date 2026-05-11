@@ -90,9 +90,33 @@ global:
     password:
       secret: psql-password
       key: password
+  pages:
+    objectStore:
+      connection:
+        secret: pages-secret
+        key: connection
+  appConfig:
+    object_store:
+      enabled: true
+      connection:
+        secret: object-storage-secret
+        key: connection
   gitlabBase:
     image:
       tag: "$image_tag"
+gitlab:
+  toolbox:
+    backups:
+      cron:
+        enabled: true
+      objectStorage:
+        config:
+          secret: backup-storage-secret
+          key: config
+registry:
+  storage:
+    secret: registry-storage-secret
+    key: config
 CIYAML
 
   helm dependency build

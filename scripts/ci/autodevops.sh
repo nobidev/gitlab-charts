@@ -94,16 +94,6 @@ function deploy() {
     SENTRY_CONFIGURATION="-f ${VALUES_DIR}/sentry.values.yaml"
   fi
 
-  ARCH_CONFIGURATION=""
-  if [ "${REVIEW_ARCH}" == "arm64" ]; then
-    echo "ARM64 review arch detected"
-    # The bundled MinIO chart is not being updated anymore.
-    # Override the image for arm64 because the current default image is only build for amd64.
-    ARCH_CONFIGURATION="-f ${VALUES_DIR}/arm64.values.yaml"
-    # Patch the minio chart to accomodate for CLI changes in the new minio/mc version.
-    git apply ./scripts/ci/patches/arm64.minio.patch
-  fi
-
   VALKEY_CONFIGURATION=""
   if use_external_valkey; then
     echo "External Valkey deployment detected"
@@ -126,7 +116,6 @@ function deploy() {
     --wait --timeout 900s \
     ${CI_CONFIGURATION} \
     ${SENTRY_CONFIGURATION} \
-    ${ARCH_CONFIGURATION} \
     ${NETWORKING_CONFIGURATION} \
     ${VALKEY_CONFIGURATION} \
     ${POSTGRESQL_CONFIGURATION} \

@@ -19,10 +19,6 @@ gatewayApiResources:
         tls:
           certificateRefs:
             - name: helm-charts-win-tls
-      minio-web:
-        tls:
-          certificateRefs:
-          - name: helm-charts-win-tls
 
 global:
   gatewayApi:

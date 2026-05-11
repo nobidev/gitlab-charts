@@ -93,10 +93,6 @@ describe 'Self-Signed Certificates configuration' do
             ingress:
               tls:
                 secretName: registry-tls
-          minio:
-            ingress:
-              tls:
-                secretName: minio-tls
         )).deep_merge(values_certmanager_disabled)
       end
 

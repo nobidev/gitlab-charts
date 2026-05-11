@@ -108,9 +108,6 @@ to the `helm install` command using the `--set` flags.
 | `metrics.annotations`                                         |                                                                 | **DEPRECATED** Set explicit metrics annotations. Replaced by template content. |
 | `metrics.tls.enabled`                                         |                                                                 | TLS enabled for the metrics/web_exporter endpoint. Defaults to `tls.enabled`. |
 | `metrics.tls.secretName`                                      |                                                                 | Secret for the metrics/web_exporter endpoint TLS cert and key. Defaults to `tls.secretName`. |
-| `minio.bucket`                                                | `git-lfs`                                                       | Name of storage bucket, when using MinIO |
-| `minio.port`                                                  | `9000`                                                          | Port for MinIO service |
-| `minio.serviceName`                                           | `minio-svc`                                                     | Name of MinIO service |
 | `monitoring.ipWhitelist`                                      | `[0.0.0.0/0, ::/0]`                                             | List of IPs to whitelist for the monitoring endpoints |
 | `monitoring.exporter.listenAddr`                              | `0.0.0.0`                                                       | Metrics listen address. |
 | `monitoring.exporter.enabled`                                 | `false`                                                         | Enable webserver to expose Prometheus metrics, this is overridden by `metrics.enabled` if the metrics port is set to the monitoring exporter port |
@@ -768,19 +765,6 @@ global:
 
 Other Gitaly settings are configured by [global settings](../../globals.md). Please see the
 [Gitaly configuration documentation](../../globals.md#configure-gitaly-settings).
-
-### MinIO
-
-```yaml
-minio:
-  serviceName: 'minio-svc'
-  port: 9000
-```
-
-| Name          |  Type   | Default     | Description |
-|:--------------|:-------:|:------------|:------------|
-| `port`        | Integer | `9000`      | Port number to reach the MinIO `Service` on. |
-| `serviceName` | String  | `minio-svc` | Name of the `Service` that is exposed by the MinIO pod. |
 
 ### Registry
 

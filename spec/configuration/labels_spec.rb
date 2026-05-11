@@ -23,8 +23,6 @@ describe 'Labels configuration' do
       'Deployment/test-certmanager',
       'Deployment/test-gitlab-runner',
       'Deployment/test-prometheus-server',
-      'Deployment/test-minio',
-      # not included, StatefulSet: postgresql, redis, gitlab/gitaly
     ]
   end
 

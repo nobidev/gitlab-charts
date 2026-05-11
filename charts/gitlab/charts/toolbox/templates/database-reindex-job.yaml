@@ -157,7 +157,6 @@ spec:
                 {{- include "gitlab.registry.notificationSecret.mount" $ | nindent 16 -}}
                 {{- include "gitlab.kas.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.pages.mountSecrets" $ | nindent 16 }}
-                {{- include "gitlab.minio.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store) | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "artifacts" "config" $.Values.global.appConfig.artifacts) | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs) | nindent 16 }}

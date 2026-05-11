@@ -33,10 +33,6 @@ describe 'checkConfig registry' do
   describe 'registry.database.loadBalancing (record)' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             loadBalancing:
@@ -51,10 +47,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             loadBalancing:
@@ -76,10 +68,6 @@ describe 'checkConfig registry' do
   describe 'registry.database.loadBalancing requires database.enabled to be true' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             loadBalancing:
@@ -94,10 +82,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             loadBalancing:
@@ -120,10 +104,6 @@ describe 'checkConfig registry' do
   describe 'registry.database.loadBalancing requires redis.loadbalancing.enabled to be true' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             loadBalancing:
@@ -138,10 +118,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             loadBalancing:
@@ -164,10 +140,6 @@ describe 'checkConfig registry' do
   describe 'registry.database.metrics requires database.enabled to be true' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             cache:
@@ -181,10 +153,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             cache:
@@ -206,10 +174,6 @@ describe 'checkConfig registry' do
   describe 'registry.database.metrics requires redis.cache.enabled to be true' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             cache:
@@ -223,10 +187,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             cache:
@@ -305,10 +265,6 @@ describe 'checkConfig registry' do
   describe 'registry.redis.cache (host)' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           database:
             enabled: true
@@ -321,10 +277,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           database:
             enabled: true
@@ -345,10 +297,6 @@ describe 'checkConfig registry' do
   describe 'registry.redis.cache (sentinels)' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           database:
             enabled: true
@@ -366,10 +314,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           database:
             enabled: true
@@ -395,10 +339,6 @@ describe 'checkConfig registry' do
   describe 'registry.redis.cache.password (secret)' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           database:
             enabled: true
@@ -415,10 +355,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           database:
             enabled: true
@@ -442,10 +378,6 @@ describe 'checkConfig registry' do
   describe 'registry.redis.cache.password (key)' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           database:
             enabled: true
@@ -462,10 +394,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           database:
             enabled: true
@@ -490,10 +418,6 @@ describe 'checkConfig registry' do
   describe 'registry.redis.rateLimiting (host)' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             rateLimiting:
@@ -504,10 +428,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             rateLimiting:
@@ -526,10 +446,6 @@ describe 'checkConfig registry' do
   describe 'registry.redis.rateLimiting (sentinels)' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             rateLimiting:
@@ -545,10 +461,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             rateLimiting:
@@ -572,10 +484,6 @@ describe 'checkConfig registry' do
   describe 'registry.redis.rateLimiting.password (secret)' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             rateLimiting:
@@ -590,10 +498,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             rateLimiting:
@@ -615,10 +519,6 @@ describe 'checkConfig registry' do
   describe 'registry.redis.rateLimiting.password (key)' do
     let(:success_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             rateLimiting:
@@ -633,10 +533,6 @@ describe 'checkConfig registry' do
 
     let(:error_values) do
       YAML.safe_load(%(
-        postgresql:
-          image:
-            tag: 16
-
         registry:
           redis:
             rateLimiting:

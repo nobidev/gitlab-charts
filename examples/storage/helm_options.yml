@@ -3,16 +3,3 @@ gitlab:
     persistence:
       storageClass: CUSTOM_STORAGE_CLASS_NAME
       size: 50Gi
-postgresql:
-  persistence:
-    storageClass: CUSTOM_STORAGE_CLASS_NAME
-    size: 8Gi
-minio:
-  persistence:
-    storageClass: CUSTOM_STORAGE_CLASS_NAME
-    size: 10Gi
-redis:
-  master:
-    persistence:
-      storageClass: CUSTOM_STORAGE_CLASS_NAME
-      size: 5Gi

@@ -55,14 +55,6 @@ gitlab-runner:
     image: custom-repository
     tag: custom-tag
 
-minio:
-  image: custom-repository
-  imageTag: custom-tag
-  init: *custom
-  minioMc:
-    image: custom-repository
-    tag: custom-tag
-
 nginx-ingress:
   controller: *custom
 
@@ -70,30 +62,8 @@ registry:
     <<: *custom
     init: *custom
 
-postgresql:
-  image:
-    registry: custom-registry
-    repository: custom-image
-    tag: 16-custom-tag # start with number to make checkConfig happy
-  metrics:
-    image:
-      registry: custom-registry
-      repository: custom-image
-      tag: custom-tag
-
 prometheus:
   server: *custom
   configmapReload: *custom
-
-redis:
-  image:
-    registry: custom-registry
-    repository: custom-image
-    tag: custom-tag
-  metrics:
-    image:
-      registry: custom-registry
-      repository: custom-image
-      tag: custom-tag
 
 upgradeCheck: *custom

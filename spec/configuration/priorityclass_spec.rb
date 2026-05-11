@@ -98,8 +98,6 @@ describe 'local priorityClass configuration' do
           priorityClassName: system-cluster-noncritical
       gitlab-runner:
         priorityClassName: system-cluster-noncritical
-      minio:
-        priorityClassName: system-cluster-noncritical
       nginx-ingress:
         controller:
           priorityClassName: system-cluster-noncritical
@@ -172,8 +170,6 @@ describe 'local priorityClass configuration' do
               ingress:
                 path: /b
       gitlab-runner:
-        priorityClassName: system-cluster-noncritical
-      minio:
         priorityClassName: system-cluster-noncritical
       nginx-ingress:
         controller:

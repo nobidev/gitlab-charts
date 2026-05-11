@@ -18,8 +18,6 @@ dependencies:
   version: "*.*.*"
 - name: certmanager-issuer
   version: "*.*.*"
-- name: minio
-  version: "*.*.*"
 - name: registry
   version: "*.*.*"
 - name: cert-manager

@@ -83,11 +83,6 @@ listeners:
       mode: Terminate
       certificateRefs:
         - name: kas-workspaces-tls
-  minio-web:
-    tls:
-      mode: Terminate
-      certificateRefs:
-        - name: minio-tls
   openbao-web:
     tls:
       mode: Terminate

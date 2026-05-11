@@ -33,10 +33,10 @@ chart:
   This ensures proper formatting, and readability for the user.
 - The message should declare the chart, relative to the global chart, that is affected. This helps
   the user understand where the property came from in the charts, and configuration properties.
-  Example: `gitlab.webservice`, `minio`, `registry`.
+  Example: `gitlab.webservice`, `gitlab.gitaly`, or `registry`.
 - The message should inform the user of the property that has been altered / relocated / deprecated,
   and what action should be taken. Name the property relative to the affected chart. For example,
-  `gitlab.webservice.minio.enabled` would be referenced as `minio.enabled` because the chart
+  `gitlab.webservice.http.enabled` would be referenced as `http.enabled` because the chart
   affected by the deprecation is `gitlab.webservice`.
 
 Example message:
@@ -44,7 +44,7 @@ Example message:
 ```plaintext
 
 gitlab.webservice:
-    Chart-local configuration of Minio features has been moved to global. Please remove `gitlab.webservice.minio.enabled` from your properties, and set `global.minio.enabled` instead.
+    Chart-local configuration of HTTP features has been moved to global. Please remove `gitlab.webservice.http.enabled` from your properties, and set `global.http.enabled` instead.
 ```
 
 ## Removals

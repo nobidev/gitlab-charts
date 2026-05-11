@@ -33,7 +33,6 @@ describe 'global affinity configuration' do
       'Deployment/test-cert-manager-cainjector',
       'Deployment/test-cert-manager-webhook',
       'Deployment/test-gitlab-runner',
-      'Deployment/test-minio',
       'Deployment/envoy-gateway',
       'Deployment/test-prometheus-server',
       'Deployment/test-gitlab-exporter'
@@ -113,7 +112,6 @@ describe 'local affinity configuration' do
       'Deployment/test-cert-manager-cainjector',
       'Deployment/test-cert-manager-webhook',
       'Deployment/test-gitlab-runner',
-      'Deployment/test-minio',
       'Deployment/envoy-gateway',
       'Deployment/test-prometheus-server',
       'Deployment/test-gitlab-exporter'
@@ -202,6 +200,7 @@ describe 'local affinity configuration' do
           expect(t.dig(key, 'spec', 'template', 'spec', 'affinity', 'podAntiAffinity', 'preferredDuringSchedulingIgnoredDuringExecution')).not_to be_present
           expect(t.dig(key, 'spec', 'template', 'spec', 'affinity', 'podAntiAffinity', 'requiredDuringSchedulingIgnoredDuringExecution')[0]['topologyKey']).to eq('override.com/hostname')
         else
+          puts key
           expect(t.dig(key, 'spec', 'template', 'spec', 'affinity', 'podAntiAffinity', 'preferredDuringSchedulingIgnoredDuringExecution')).to be_present
           expect(t.dig(key, 'spec', 'template', 'spec', 'affinity', 'podAntiAffinity', 'requiredDuringSchedulingIgnoredDuringExecution')).not_to be_present
           expect(t.dig(key, 'spec', 'template', 'spec', 'affinity', 'podAntiAffinity', 'preferredDuringSchedulingIgnoredDuringExecution')[0]['podAffinityTerm']['topologyKey']).to eq('test.com/hostname')

@@ -39,32 +39,109 @@ class HelmTemplate
 
   # This is the most common "default" as it is a hard requirement within defaults.
   def self.certmanager_issuer
-    { "certmanager-issuer" => { "email" => "test@example.com" } }
+    YAML.safe_load(%(
+      certmanager-issuer:
+        email: test@example.com
+    ))
   end
 
   # The final defaults stubs the stable version so that the spec values are dependent on which branch
   # the tests are running on, since on stable versions will have a semVer value, while the default branch
   # will have `master`.
   def self.defaults
-    HelmTemplate.certmanager_issuer.deep_merge!({
-      'global' => {
-        'gitlabVersion' => "v42.0.0",
-        'redis' => { 'host' => 'redis.example.com' },
-        'psql' => {
-          'host' => 'psql.example.com',
-          'password' => {
-            'secret' => 'psql-secret',
-            'key' => 'password'
-          }
-        }
-      }
-    })
+    YAML.safe_load(%(
+      certmanager-issuer:
+        email: test@example.com
+      global:
+        gitlabVersion: v42.0.0
+        redis:
+          host: redis.example.com
+        psql:
+          host: psql.example.com
+          password:
+            secret: psql-secret
+            key: password
+        pages:
+          objectStore:
+            connection:
+              secret: pages-secret
+              key: connection
+        appConfig:
+          object_store:
+            enabled: false
+        appConfig:
+          object_store:
+            enabled: true
+            connection:
+              secret: object-storage-secret
+              key: connection
+      registry:
+        storage:
+          secret: registry-storage-secret
+          key: config
+      gitlab:
+        toolbox:
+          backups:
+            objectStorage:
+              config:
+                secret: backup-storage-secret
+                key: config
+    ))
+  end
+
+  def self.unconsolidated_defaults
+    base = HelmTemplate.defaults
+    base['global']['appConfig'].delete('object_store')
+
+    base.deep_merge!(
+      YAML.safe_load(%(
+      global:
+        pages:
+          objectStore:
+            connection:
+              secret: pages-secret
+              key: connection
+        appConfig:
+          object_store:
+            enabled: false
+          lfs:
+            bucket: lfs-bucket
+            connection:
+              secret: lfs-secret
+              key: connection
+          artifacts:
+            bucket: artifacts-bucket
+            connection:
+              secret: artifacts-secret
+              key: connection
+          uploads:
+            bucket: uploads-bucket
+            connection:
+              secret: uploads-secret
+              key: connection
+          packages:
+            bucket: packages-bucket
+            connection:
+              secret: packages-secret
+              key: connection
+          backups:
+            bucket: backups-bucket
+            tmpBucket: tmp-restore-bucket
+      ))
+    )
   end
 
   def self.with_defaults(yaml)
     yaml ||= {}
     hash = yaml.is_a?(Hash) ? yaml : YAML.safe_load(yaml)
     HelmTemplate.defaults.deep_merge!(hash)
+  end
+
+  def self.with_unconsolidated_defaults(yaml)
+    yaml ||= {}
+    hash = yaml.is_a?(Hash) ? yaml : YAML.safe_load(yaml)
+
+    HelmTemplate.unconsolidated_defaults.deep_merge!(hash)
   end
 
   attr_reader :mapped

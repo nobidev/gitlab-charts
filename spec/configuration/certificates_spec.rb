@@ -7,7 +7,6 @@ describe 'Certificates configuration' do
   # we're skipping anything not using this feature
   let(:skip_items) do
     [
-      'minio',
       'nginx',
       'gitlab-runner',
       'test-kas',

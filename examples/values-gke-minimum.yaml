@@ -17,12 +17,6 @@ nginx-ingress:
       requests:
         cpu: 50m
         memory: 100Mi
-minio:
-  resources:
-    requests:
-      memory: 64Mi
-      cpu: 10m
-# Disable Rails bootsnap cache (temporary)
 global:
   rails:
     bootsnap:

@@ -33,11 +33,8 @@ gitlab:
 
 Use these charts for optional dependencies:
 
-- [MinIO](../minio/_index.md)
 - [NGINX](../nginx/_index.md)
 - [HAProxy](../haproxy/_index.md)
-- [PostgreSQL](https://artifacthub.io/packages/helm/bitnami/postgresql)
-- [Redis](https://artifacthub.io/packages/helm/bitnami/redis)
 - [Registry](../registry/_index.md)
 - [Traefik](../traefik/_index.md)
 

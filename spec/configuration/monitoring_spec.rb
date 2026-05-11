@@ -22,7 +22,7 @@ describe 'monitoring object configuration' do
   end
 
   let(:servicemonitor_components) do
-    servicemonitor_enabled_values['gitlab'].keys << 'envoy-gateway'
+    %w[gitaly gitlab-exporter gitlab-pages gitlab-shell kas praefect webservice envoy-gateway]
   end
 
   let(:podmonitor_enabled_values) do

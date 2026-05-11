@@ -77,18 +77,12 @@ image repository.
 {{/*
 Returns gomplate section for Workhorse direct object storage configuration.
 
-If Minio in use, set AWS and keys.
 If consolidated object storage is in use, read the connection YAML
   If provider is AWS, render enabled as true.
 */}}
 {{- define "workhorse.object_storage.config" -}}
 {%- $supported_providers := coll.Slice "AWS" "AzureRM" "Google" -%}
 {%- $connection := coll.Dict "provider" "" -%}
-{%- if file.Exists "/etc/gitlab/minio/accesskey" %}
-  {%- $aws_access_key_id := file.Read "/etc/gitlab/minio/accesskey" | strings.TrimSpace -%}
-  {%- $aws_secret_access_key := file.Read "/etc/gitlab/minio/secretkey" | strings.TrimSpace -%}
-  {%- $connection = coll.Dict "provider" "AWS" "aws_access_key_id" $aws_access_key_id "aws_secret_access_key" $aws_secret_access_key -%}
-{%- end %}
 {%- if file.Exists "/etc/gitlab/objectstorage/object_store" %}
   {%- $connection = file.Read "/etc/gitlab/objectstorage/object_store" | strings.TrimSpace | data.YAML -%}
 {%- end %}

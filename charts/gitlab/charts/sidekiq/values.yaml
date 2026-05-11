@@ -109,9 +109,6 @@ global:
     registry: {}
       #name: registry.example.com
       #https: false
-    minio: {}
-      #name: minio.example.com
-      #https: false
   psql: {}
     # host: '0.0.0.0'
     # port: '5432'
@@ -136,9 +133,6 @@ global:
     external: []
     authToken: {}
   webservice: {}
-  minio:
-    enabled:
-    credentials: {}
   appConfig:
     microsoft_graph_mailer:
       enabled: false
@@ -221,9 +215,7 @@ gitaly:
   authToken: {}
   #   secret: gitaly-secret
   #   key: token
-minio:
-  serviceName: 'minio-svc'
-  port: 9000
+
 
 extra: {}
 

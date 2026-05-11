@@ -37,8 +37,7 @@ for simpler alternatives.
 ## Container images
 
 The GitLab Helm chart uses the [Cloud Native GitLab (CNG)](https://gitlab.com/gitlab-org/build/CNG)
-container images to deploy GitLab. Besides the CNG images for GitLab itself, the default configuration
-uses MinIO for object storage in non-production deployments.
+container images to deploy GitLab.
 
 External PostgreSQL, Redis, and object storage are required. Refer to the following documentation for
 instructions on how to configure the chart to use external services.

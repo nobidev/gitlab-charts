@@ -27,35 +27,11 @@ object_store:
   {{- end -}}
   {{- if and .config.enabled .config.connection }}
   connection: <%= YAML.load_file("/etc/gitlab/objectstorage/{{ .name }}").to_json() %>
-  {{- else if and .config.enabled .context.Values.global.minio.enabled }}
-  {{-   include "gitlab.appConfig.objectStorage.connection.minio" . | nindent 2 }}
   {{- end -}}
   {{- if and .config.enabled .config.cdn (eq .name "artifacts") }}
   cdn: <%= YAML.load_file("/etc/gitlab/objectstorage/cdn/{{ .name }}").to_json %>
   {{- end -}}
 {{- end -}}{{/* "gitlab.appConfig.objectStorage.configuration" */}}
-
-{{/*
-Generates a templated object storage connection settings for Minio.
-
-Usage:
-{{ include "gitlab.appConfig.objectStorage.connection.minio" ( \
-     dict                                                  \
-         "name" "STORAGE_NAME"                             \
-         "config" .Values.path.to.objectstorage.config     \
-     ) }}
-*/}}
-{{- define "gitlab.appConfig.objectStorage.connection.minio" -}}
-connection:
-  provider: AWS
-  region: us-east-1
-  host: {{ template "gitlab.minio.hostname" .context }}
-  endpoint: {{ template "gitlab.minio.endpoint" .context }}
-  path_style: true
-  aws_access_key_id: <%= File.read('/etc/gitlab/minio/accesskey').strip.to_json %>
-  aws_secret_access_key: <%= File.read('/etc/gitlab/minio/secretkey').strip.to_json %>
-{{- end }}
-
 
 {{/*
 Generates a templated object storage secrets mounts.

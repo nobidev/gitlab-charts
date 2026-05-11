@@ -58,8 +58,8 @@ By default, to expose services, GitLab uses name-based virtual servers that are
 configured with `Ingress` objects. These objects are Kubernetes `Service` objects
 of `type: LoadBalancer`.
 
-You must specify a domain that contains records to resolve
-`gitlab`, `registry`, and `minio` (if enabled) to the appropriate IP address for your chart.
+You must specify a domain that contains records to resolve `gitlab`, `registry`,
+and `kas` to the appropriate IP address for your chart.
 
 For example, use the following with `helm install`:
 
@@ -98,7 +98,7 @@ If you provision a [GKE cluster](cloud/gke.md) by using the provided script,
 If you plan to manually configure your DNS records, they should all point to a
 static IP address. For example, if you choose `example.com` and you have a static IP address
 of `10.10.10.10`, then `gitlab.example.com`, `registry.example.com` and
-`minio.example.com` (if using MinIO) should all resolve to `10.10.10.10`.
+`kas.example.com` should all resolve to `10.10.10.10`.
 
 If you are using GKE, read more on [creating the external IP and DNS entry](cloud/gke.md#creating-the-external-ip).
 Consult your cloud or DNS provider's documentation for more help on this process.
