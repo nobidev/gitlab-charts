@@ -77,9 +77,7 @@ class RuntimeTemplate
       "#{path}/gitaly/gitaly_token" => JUNK_TOKEN,
       # registry notification has a special format ...
       "#{path}/registry/notificationSecret" => "[#{JUNK_TOKEN}]",
-      # minio
-      "#{path}/minio/accesskey" => JUNK_TOKEN,
-      "#{path}/minio/secretkey" => JUNK_TOKEN
+      "#{path}/objectstorage/object_store" => JUNK_TOKEN
     }
   end
 end

@@ -7,11 +7,6 @@ title: Configure the GitLab chart with an external object storage
 
 Configure the GitLab Helm chart with an external object storage, which is required for production deployments.
 
-> [!note]
-> From GitLab 19.0, the GitLab Helm chart will no longer bundle MinIO. For more information, see the
-> [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
-> and [migrate](../../installation/migration/bundled_chart_migration.md) to an external alternative.
-
 GitLab relies on object storage for highly-available persistent data in Kubernetes.
 GitLab supports two types of authentication methods for major cloud object storage providers: static credentials and temporary credentials through cloud-specific services.
 
@@ -38,26 +33,6 @@ These temporary credential mechanisms improve security by:
 - Enabling fine-grained access control.
 - Supporting audit logging of credential usage.
 - Integrating with cloud provider IAM policies.
-
-## Disable MinIO
-
-> [!warning]
-> From GitLab 19.0, the GitLab Helm chart will no longer bundle MinIO. For more information, see the
-> [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
-> and [migrate](../../installation/migration/bundled_chart_migration.md) to an external alternative.
-
-By default, an S3-compatible storage solution named `minio` is deployed with the
-chart. For production quality deployments, we recommend using a hosted
-object storage solution like Google Cloud Storage or AWS S3.
-
-To disable MinIO, set this option and then follow the related documentation below:
-
-```shell
---set global.minio.enabled=false
-```
-
-An [example of the full configuration](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/values-external-objectstorage.yaml)
-has been provided in the [examples](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples).
 
 ## Azure Blob Storage
 
@@ -283,7 +258,7 @@ For Azure Blob Storage:
 --set gitlab.toolbox.backups.objectStorage.config.key=config
 ```
 
-See the [backup/restore object storage documentation](../../backup-restore/_index.md#object-storage) for full details.
+See the [backup/restore object storage documentation](../../backup-restore/_index.md#backup-and-restoring-procedures) for full details.
 
 > [!note]
 > To backup or restore files from the other object storage locations, the configuration file needs to be

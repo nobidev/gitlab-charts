@@ -16,8 +16,8 @@ When configuring a production system, you should migrate from the bundled Redis,
 managed alternatives.
 
 > [!warning]
-> The bundled Redis, MinIO, and PostgreSQL are
-> [deprecated](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) and will be removed in GitLab 19.0.
+> The bundled Redis, MinIO, and PostgreSQL were [removed](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)
+> in GitLab 19.0 (GitLab Helm chart 10.0). You must migrate to external solutions before you upgrade.
 
 This guide assumes you're migrating to Cloud Native alternatives such as [Valkey](https://valkey.io/), [Garage](https://garagehq.deuxfleurs.fr/), and [CloudNativePG](https://cloudnative-pg.io/) respectively.
 

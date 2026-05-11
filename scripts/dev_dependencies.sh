@@ -46,9 +46,6 @@ function generate_values_file() {
 # Use this values file when deploying the GitLab chart locally.
 # See doc/development/external-dependencies.md for usage.
 
-redis:
-  install: false
-
 global:
   redis:
     host: "$(valkey_release_name)"
@@ -60,8 +57,6 @@ global:
     password:
       secret: "$(cnpg_cluster_secret)"
       key: password
-  minio:
-    enabled: false
   appConfig:
     object_store:
       enabled: true
@@ -89,9 +84,6 @@ global:
     dependencyProxy:
       enabled: true
       bucket: gitlab-dependency-proxy
-
-postgresql:
-  install: false
 
 gitlab:
   toolbox:

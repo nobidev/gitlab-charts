@@ -45,7 +45,7 @@ describe 'Database configuration' do
 
       context 'when locally overridden in gitlab.webservice' do
         let(:local_values) do
-          global_values.merge(YAML.safe_load(%(
+          global_values.deep_merge(YAML.safe_load(%(
             gitlab:
               webservice:
                 psql:

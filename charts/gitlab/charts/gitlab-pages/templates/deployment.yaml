@@ -145,7 +145,6 @@ spec:
           defaultMode: 0400
           sources:
           {{- include "gitlab.pages.mountSecrets" $ | nindent 10 }}
-          {{- include "gitlab.minio.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 }}
           {{- if not (empty $.Values.global.pages.externalHttps) }}
           - secret:

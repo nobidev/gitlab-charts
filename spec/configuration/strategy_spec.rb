@@ -104,7 +104,6 @@ describe 'Strategy configuration' do
       'Deployment/test-prometheus-server',
       'Deployment/test-nginx-ingress-controller',
       'Deployment/test-toolbox',
-      'Deployment/test-minio',
       'Deployment/test-gitlab-runner',
       'StatefulSet/test-redis-master',
       'StatefulSet/test-postgresql'

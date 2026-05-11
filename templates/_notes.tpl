@@ -9,8 +9,6 @@ charts:
     enabled: {{ .Values.global.gitaly.enabled }}
   - name: Praefect
     enabled: {{ .Values.global.praefect.enabled }}
-  - name: MinIO
-    enabled: {{ .Values.global.minio.enabled }}
 {{- end }}
 
 {{/*

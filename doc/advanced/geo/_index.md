@@ -101,10 +101,7 @@ Bear in mind that communication is required:
 Each cluster that is provisioned should have:
 
 - Enough resources to support a base-line installation of these charts.
-- Access to persistent storage:
-  - MinIO not required if using [external object storage](../external-object-storage/_index.md).
-  - Gitaly not required if using [external Gitaly](../external-gitaly/_index.md).
-  - Redis not required if using [external Redis](../external-redis/_index.md).
+- Access to persistent storage unless [external Gitaly](../external-gitaly/_index.md) is used.
 
 ## Collect information
 
@@ -271,8 +268,8 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
      [the Name field of a Geo site in the Admin Area](https://docs.gitlab.com/administration/geo_sites/#common-settings)
    - Also configure any additional settings, such as:
      - [Configuring SSL/TLS](../../installation/tools.md#tls-certificates)
-     - [Using external Redis](../external-redis/_index.md)
-     - [using external Object Storage](../external-object-storage/_index.md)
+     - The [Redis](../external-redis/_index.md) configuration
+     - The [Object Storage](../external-object-storage/_index.md) configuration
    <!-- markdownlint-enable MD044 -->
 
 1. Add the necessary Ingress or Gateway API configuration to your `primary.yaml`.
@@ -634,8 +631,8 @@ To deploy this chart as a Geo Secondary site, start [from this example configura
      [This makes it easier to promote the site to a primary.](../../charts/nginx/_index.md#gitlab-geo).
    - Also configure any additional settings, such as:
      - [Configuring SSL/TLS](../../installation/tools.md#tls-certificates)
-     - [Using external Redis](../external-redis/_index.md)
-     - [using external Object Storage](../external-object-storage/_index.md)
+     - The [Redis](../external-redis/_index.md) configuration
+     - The [Object Storage](../external-object-storage/_index.md) configuration
    - For external databases, `global.psql.host` is the secondary, read-only replica database, while `global.geo.psql.host` is the Geo tracking database
    <!-- markdownlint-enable MD044 -->
 

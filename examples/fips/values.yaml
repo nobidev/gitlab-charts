@@ -19,9 +19,6 @@ gitlab-runner:
   install: false
 
 global:
-  minio:
-    enabled: false
-
   image:
     pullPolicy: Always  # You can drop this if you're using release tags.
     tagSuffix: -fips
@@ -58,6 +55,8 @@ global:
     bucket: my-registry-storage  # Registry storage bucket.
 
   appConfig:
+    object_store:
+      enabled: false
     lfs:
       bucket: my-lfs-storage  # LFS storage bucket.
       connection:
@@ -84,7 +83,6 @@ global:
       tmpBucket: my-tmp-storage # Temp storage bucket.
 
 gitlab:
-
   toolbox:
     # See: https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc/advanced/external-object-storage
     backups:

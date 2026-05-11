@@ -16,7 +16,7 @@ GitLab backups are taken by running the `backup-utility` command in the Toolbox 
 
 Before running the backup for the first time, you should ensure the
 [Toolbox is properly configured](../charts/gitlab/toolbox/_index.md#configuration)
-for access to [object storage](_index.md#object-storage).
+for access to [object storage](_index.md).
 
 Follow these steps for backing up a GitLab Helm chart based installation.
 

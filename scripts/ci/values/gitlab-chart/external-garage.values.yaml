@@ -1,7 +1,4 @@
-# Disable bundled MinIO
 global:
-  minio:
-    enabled: false
   appConfig:
     object_store:
       enabled: true

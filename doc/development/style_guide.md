@@ -19,12 +19,12 @@ Template functions are placed into namespaces according to the chart they are as
 Examples:
 
 - `gitlab.redis.host`: provides the host name of the Redis server, as a part of the `gitlab` chart.
-- `registry.minio.url`: provides the URL to the MinIO host as part of the `registry` chart.
+- `registry.image.tag`: tag of the registry image, as part of the `registry` chart.
 
 Not acceptable:
 
 - `gitlab.redis-server.host`: kebab-case.
-- `registry.Minio.Url`: initial capitals.
+- `registry.RedisServer.Url`: initial capitals.
 
 ## Common structure for `values.yaml`
 

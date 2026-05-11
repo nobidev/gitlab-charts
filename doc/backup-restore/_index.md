@@ -19,16 +19,12 @@ Technical details for how the utility works can be found in the [architecture do
 
 - Backup and Restore procedures described here have only been tested with S3 compatible APIs. Support for other object storage services, like Google Cloud Storage, will be tested in future revisions.
 - During restoration, the backup tarball needs to be extracted to disk. This means the Toolbox pod should have disk of [necessary size available](../charts/gitlab/toolbox/_index.md#restore-considerations).
-- This chart relies on the use of [object storage](#object-storage) for `artifacts`, `uploads`, `packages`, `registry` and `lfs` objects, and does not currently migrate these for you during restore. If you are restoring a backup taken from another instance, you must migrate your existing instance to using object storage before taking the backup. See [issue 646](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/646).
+- This chart relies on the use of [object storage](../advanced/external-object-storage/_index.md) for `artifacts`, `uploads`, `packages`, `registry` and `lfs` objects, and does not currently migrate these for you during restore. If you are restoring a backup taken from another instance, you must migrate your existing instance to using object storage before taking the backup. See [issue 646](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/646).
 
 ## Backup and Restoring procedures
 
 - [Backing up a GitLab installation](backup.md)
 - [Restoring a GitLab installation](restore.md)
-
-## Object storage
-
-We provide a MinIO instance out of the box when using this charts unless an [external object storage](../advanced/external-object-storage/_index.md) is specified. The Toolbox connects to the included MinIO by default, unless specific settings are given. The Toolbox can also be configured to back up to Amazon S3 or Google Cloud Storage (GCS).
 
 ### Backups to S3
 

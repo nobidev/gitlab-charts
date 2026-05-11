@@ -11,14 +11,6 @@ Please migrate to Gateway API or an externally managed Ingress controller and re
 at https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haproxy-and-traefik-charts.
 {{- end }}
 
-{{- /* Warn users about MinIO removal */}}
-{{- if eq .Values.global.minio.enabled true }}
-{{ $CRITICAL }}
-The bundled MinIO will be removed in GitLab 19.0. Please review
-the deprecation announcement at https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart
-and plan to migrate to an externally managed alternative by following https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/.
-{{- end }}
-
 {{- /* If any development subchart is enabled, note it is not production ready */}}
 {{- $enabledNonProdCharts := fromJsonArray (include "gitlab.nonProdCharts.enabledNames" .) -}}
 {{- if not (empty $enabledNonProdCharts) }}
@@ -54,7 +46,7 @@ The Container Registry database metrics feature has been enabled. This is an exp
 {{- end }}
 
 {{- /* If using self-signed auto-generated certificates, and a service needing them is enabled */}}
-{{- if or .Values.gitlab.webservice.enabled .Values.registry.enabled .Values.global.minio.enabled }}
+{{- if or .Values.gitlab.webservice.enabled .Values.registry.enabled }}
 {{-   if not (or .Values.global.ingress.configureCertmanager (include "gitlab.ingress.tls.configured" .)) }}
 {{ $WARNING }}
 {{-     if (eq (include "gitlab.global.ingress.tls.enabled" .) "false") }}
@@ -80,9 +72,6 @@ OR all of:
 {{- end }}
 {{- if $.Values.registry.enabled }}
 - registry.ingress.tls.secretName
-{{- end }}
-{{- if $.Values.global.minio.enabled }}
-- minio.ingress.tls.secretName
 {{- end }}
 {{- if $.Values.global.pages.enabled }}
 - gitlab.gitlab-pages.ingress.tls.secretName

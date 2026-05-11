@@ -37,9 +37,6 @@ describe 'security context' do
             enabled: true
           job:
             nameSuffixOverride: '1'
-        minio:
-          securityContext:
-            fsGroupChangePolicy: "OnRootMismatch"
         registry:
           securityContext:
             fsGroupChangePolicy: "OnRootMismatch"
@@ -107,7 +104,6 @@ describe 'security context' do
 
     it "applied fsGroupChangePolicy to statefulsets and deployments" do
       [
-        'Deployment/test-minio',
         'Deployment/test-registry',
         'Deployment/test-gitlab-exporter',
         'Deployment/test-geo-logcursor',

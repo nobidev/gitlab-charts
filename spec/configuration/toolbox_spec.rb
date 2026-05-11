@@ -369,7 +369,8 @@ describe 'toolbox configuration' do
   context 'backup configuration' do
     context 'using azure backend' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge!(
+          YAML.safe_load(%(
           gitlab:
             toolbox:
               backups:
@@ -378,7 +379,8 @@ describe 'toolbox configuration' do
                     secret: azure-backup-conf
                     key: azconf
                   backend: azure
-        )).deep_merge(default_values)
+          ))
+        )
       end
 
       let(:template) do

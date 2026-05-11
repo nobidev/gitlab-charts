@@ -57,10 +57,7 @@ For example:
 ```shell
 $ kubectl --namespace helm-charts-win get PersistentVolumeClaims -l release=review-update-app-h8qogp -ojsonpath='{range .items[*]}{.spec.volumeName}{"\t"}{.metadata.labels.app}{"\n"}{end}'
 pvc-6247502b-8c2d-11e8-8267-42010a9a0113  gitaly
-pvc-61bbc05e-8c2d-11e8-8267-42010a9a0113  minio
-pvc-61bc6069-8c2d-11e8-8267-42010a9a0113  postgresql
 pvc-61bcd6d2-8c2d-11e8-8267-42010a9a0113  prometheus
-pvc-61bdf136-8c2d-11e8-8267-42010a9a0113  redis
 ```
 
 ## Before making storage changes

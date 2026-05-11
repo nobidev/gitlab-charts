@@ -2,8 +2,6 @@
 
 installCertmanager: false
 
-
-
 nginx-ingress:
   controller:
     image:
@@ -21,9 +19,6 @@ gitlab-runner:
     tag: ubi-fips-vX.Y.Z
 
 global:
-  minio:
-    enabled: false
-
   image:
     pullPolicy: Always  # You can drop this if you're using release tags.
     tagSuffix: -ubi # -ubi8 for GitLab 17.2 and earlier
@@ -58,6 +53,8 @@ global:
     bucket: my-registry-storage  # Registry storage bucket.
 
   appConfig:
+    object_store:
+      enabled: false
     lfs:
       bucket: my-lfs-storage  # LFS storage bucket.
       connection:

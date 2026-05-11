@@ -109,8 +109,6 @@ global:
       secret: example-gitlab-license
   hosts:
     domain: example.com
-  minio:
-    enabled: false
   psql:
     host: db.example.com
     password:

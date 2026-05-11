@@ -60,27 +60,6 @@ Calls into the `gitlab.gitlabHost` function for the hostname part of the url.
 {{- end -}}
 {{- end -}}
 
-{{/*
-Returns the minio hostname.
-If the hostname is set in `global.hosts.minio.name`, that will be returned,
-otherwise the hostname will be assembled using `minio` as the prefix, and the `gitlab.assembleHost` function.
-*/}}
-{{- define "gitlab.minio.hostname" -}}
-{{- coalesce .Values.global.hosts.minio.name (include "gitlab.assembleHost"  (dict "name" "minio" "context" . )) -}}
-{{- end -}}
-
-{{/*
-Returns the minio url.
-*/}}
-
-{{- define "gitlab.minio.url" -}}
-{{- if or .Values.global.hosts.https .Values.global.hosts.minio.https -}}
-{{-   printf "https://%s" (include "gitlab.minio.hostname" .) -}}
-{{- else -}}
-{{-   printf "http://%s" (include "gitlab.minio.hostname" .) -}}
-{{- end -}}
-{{- end -}}
-
 {{/* ######### Utility templates */}}
 
 {{/*
@@ -368,7 +347,6 @@ We're explicitly checking for an actual value being present, not the existence o
 {{- $global      := pluck "secretName" (default (dict) $.Values.global.ingress.tls) | first -}}
 {{- $webservice  := pluck "secretName" $.Values.gitlab.webservice.ingress.tls | first -}}
 {{- $registry    := pluck "secretName" $.Values.registry.ingress.tls | first -}}
-{{- $minio       := pluck "secretName" $.Values.minio.ingress.tls | first -}}
 {{- $pages       := pluck "secretName" ((index $.Values.gitlab "gitlab-pages").ingress).tls | first -}}
 {{- $kas         := pluck "secretName" $.Values.gitlab.kas.ingress.tls | first -}}
 {{- $workspaces  := pluck "workspacesSecretName" $.Values.gitlab.kas.ingress.tls | first -}}
@@ -383,13 +361,12 @@ We're explicitly checking for an actual value being present, not the existence o
 */}}
 {{- $webservice  :=  default $webservice (not $.Values.gitlab.webservice.enabled) -}}
 {{- $registry    :=  default $registry (not $.Values.registry.enabled) -}}
-{{- $minio       :=  default $minio (not $.Values.global.minio.enabled) -}}
 {{- $pages       :=  default $pages (not $.Values.global.pages.enabled) -}}
 {{- $kas         :=  default $kas (not $.Values.global.kas.enabled) -}}
 {{- $workspaces  :=  default $workspaces (not $.Values.global.workspaces.enabled) -}}
 {{- $smartcard   :=  default $smartcard (not $.Values.global.appConfig.smartcard.enabled) -}}
 {{/* Check that all enabled items have been configured */}}
-{{- if or $global (and $webservice $registry $minio $pages $kas $smartcard) -}}
+{{- if or $global (and $webservice $registry $pages $kas $smartcard) -}}
 true
 {{- end -}}
 {{- end -}}
@@ -439,20 +416,6 @@ Return true in any other case.
 {{- else }}
 {{-   true }}
 {{- end -}}
-{{- end -}}
-
-{{/*
-Override upstream redis chart naming
-*/}}
-{{- define "redis.secretName" -}}
-{{ template "gitlab.redis.password.secret" . }}
-{{- end -}}
-
-{{/*
-Override upstream redis secret key name
-*/}}
-{{- define "redis.secretPasswordKey" -}}
-{{ template "gitlab.redis.password.key" . }}
 {{- end -}}
 
 {{/*

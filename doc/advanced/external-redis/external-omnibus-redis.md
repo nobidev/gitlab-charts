@@ -30,7 +30,7 @@ Create a minimal `gitlab.rb` file to be placed at `/etc/gitlab/gitlab.rb`. Be _v
 > [!note]
 > This example is not intended to provide [Redis for scaling](https://docs.gitlab.com/administration/redis/).
 
-- `REDIS_PASSWORD` should be replaced with the value in the [`gitlab-redis` secret](../../installation/secrets.md#redis-password).
+- `REDIS_PASSWORD` should be replaced with the value in the Redis secret.
 
 ```Ruby
 # Listen on all addresses
