@@ -26,8 +26,6 @@ describe 'Strategy configuration' do
             secret: foobar
         pages:
           enabled: true
-        spamcheck:
-          enabled: true
         praefect:
           enabled: true
         appConfig:
@@ -65,10 +63,6 @@ describe 'Strategy configuration' do
             strategy:
               type: Recreate
         gitlab-pages:
-          deployment:
-            strategy:
-              type: Recreate
-        spamcheck:
           deployment:
             strategy:
               type: Recreate

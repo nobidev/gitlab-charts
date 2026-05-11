@@ -16,7 +16,6 @@ describe 'GitLab KEDA configuration(s)' do
       test-mailroom
       test-sidekiq-all-in-1-v2
       test-webservice-default
-      test-spamcheck
       test-registry
     ]
   end
@@ -34,8 +33,6 @@ describe 'GitLab KEDA configuration(s)' do
         keda:
           enabled: true
         pages:
-          enabled: true
-        spamcheck:
           enabled: true
       gitlab:
         gitlab-shell:
@@ -74,14 +71,6 @@ describe 'GitLab KEDA configuration(s)' do
               scaleDown:
                 stabilizationWindowSeconds: 300
         sidekiq:
-          hpa:
-            cpu:
-              targetType: AverageValue
-              targetAverageValue: 100m
-            behavior:
-              scaleDown:
-                stabilizationWindowSeconds: 300
-        spamcheck:
           hpa:
             cpu:
               targetType: AverageValue

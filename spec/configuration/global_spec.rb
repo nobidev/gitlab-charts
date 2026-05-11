@@ -340,8 +340,6 @@ describe 'global configuration' do
               tag: fixed-version
           praefect:
             enabled: true
-          spamcheck:
-            enabled: true
           pages:
             enabled: true
           ingress:
@@ -409,8 +407,6 @@ describe 'global configuration' do
         global:
           time_zone: "America/Chicago"
           praefect:
-            enabled: true
-          spamcheck:
             enabled: true
           pages:
             enabled: true

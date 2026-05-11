@@ -33,8 +33,6 @@ describe 'security context' do
             enabled: true
           praefect:
             enabled: true
-          spamcheck:
-            enabled: true
           job:
             nameSuffixOverride: '1'
         minio:
@@ -75,9 +73,6 @@ describe 'security context' do
             enabled: true
             securityContext:
               fsGroupChangePolicy: "OnRootMismatch"
-          spamcheck:
-            securityContext:
-              fsGroupChangePolicy: "OnRootMismatch"
           webservice:
             securityContext:
               fsGroupChangePolicy: "OnRootMismatch"
@@ -116,7 +111,6 @@ describe 'security context' do
         'Deployment/test-kas',
         'Deployment/test-mailroom',
         'Deployment/test-sidekiq-all-in-1-v2',
-        'Deployment/test-spamcheck',
         'Deployment/test-webservice-default',
         'StatefulSet/test-gitaly-default',
         'StatefulSet/test-praefect'

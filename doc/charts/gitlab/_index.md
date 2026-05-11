@@ -18,7 +18,6 @@ which provide the core GitLab components:
 - [Migrations](migrations/_index.md)
 - [Praefect](praefect/_index.md)
 - [Sidekiq](sidekiq/_index.md)
-- [Spamcheck](spamcheck/_index.md)
 - [Toolbox](toolbox/_index.md)
 - [Webservice](webservice/_index.md)
 

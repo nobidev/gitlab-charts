@@ -29,7 +29,6 @@ global:
 
   image: {}
     # Registry value override is only available for the following Charts:
-    # - Spamcheck
     # - Mailroom
     # If specifying a value here, be sure to also configure
     # `gitlab.<subchart>.image.repository` to a value that does not
@@ -696,10 +695,6 @@ global:
 
   workspaces:
     ## If workspaces is enabled, you must provide a hostname under global.hosts
-    enabled: false
-
-  ## https://docs.gitlab.com/charts/charts/gitlab/spamcheck/
-  spamcheck:
     enabled: false
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-gitlab-shell

@@ -5,7 +5,6 @@ require 'yaml'
 describe 'image configuration' do
   let(:included_charts) do
     [
-      'spamcheck',
       'mailroom'
     ]
   end
@@ -13,8 +12,6 @@ describe 'image configuration' do
   let(:default_values) do
     HelmTemplate.with_defaults(%(
       global:
-        spamcheck:
-          enabled: true
         appConfig:
           incomingEmail:
             enabled: true # for Mailroom
@@ -57,9 +54,6 @@ describe 'image configuration' do
     let(:local_image_registry_values) do
       YAML.safe_load(%(
       gitlab:
-        spamcheck:
-          image:
-            registry: spamcheck.registry.com
         mailroom:
           image:
             registry: mailroom.registry.com

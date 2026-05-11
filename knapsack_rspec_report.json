@@ -45,7 +45,6 @@
   "spec/configuration/session_store_spec.rb": 83.67126578099851,
   "spec/configuration/sidekiq_spec.rb": 449.12245170499955,
   "spec/configuration/smtp_spec.rb": 41.83819774999574,
-  "spec/configuration/spamcheck_spec.rb": 43.34732647299825,
   "spec/configuration/strategy_spec.rb": 103.62078622700938,
   "spec/configuration/suggested_reviewers_spec.rb": 126.50295814799028,
   "spec/configuration/toolbox_spec.rb": 281.3193447490048,

@@ -63,6 +63,7 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $removals = append $removals (include "gitlab.removal.busybox" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.kas.privateApi.tls" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.openbao.psql" .) -}}
+{{- $removals = append $removals (include "gitlab.removal.spamcheck" .) -}}
 
 {{- /* we're ready to deprecate top-level registry entries for workhorse and sidekiq, but not enforcing yet */ -}}
 {{- /* $removals = append $removals (include "gitlab.removal.registry.topLevel" .) */ -}}
@@ -464,7 +465,7 @@ gitaly:
 {{- end -}}
 
 {{- define "gitlab.removal.hpa.legacyCpuTarget" -}}
-{{-   range $chart := list "gitlab-pages" "gitlab-shell" "kas" "sidekiq" "spamcheck" "webservice" -}}
+{{-   range $chart := list "gitlab-pages" "gitlab-shell" "kas" "sidekiq" "webservice" -}}
 {{-     if and (hasKey $.Values.gitlab $chart) (hasKey (index $.Values.gitlab $chart) "hpa") -}}
 {{-       if hasKey (index $.Values.gitlab $chart).hpa "targetAverageValue" }}
 gitlab.{{ $chart }}:
@@ -479,7 +480,7 @@ gitlab.{{ $chart }}:
 registry:
     The configuration of `registry.hpa.behaviour` has moved. Please use `registry.hpa.behavior` instead.
 {{-   end -}}
-{{-   range $chart := list "gitlab-pages" "gitlab-shell" "kas" "mailroom" "sidekiq" "spamcheck" "webservice" -}}
+{{-   range $chart := list "gitlab-pages" "gitlab-shell" "kas" "mailroom" "sidekiq" "webservice" -}}
 {{-     if and (hasKey $.Values.gitlab $chart) (hasKey (index $.Values.gitlab $chart) "hpa") -}}
 {{-       if hasKey (index $.Values.gitlab $chart).hpa "behaviour" }}
 gitlab.{{ $chart }}:
@@ -533,5 +534,13 @@ kas:
     Please use `global.kas.tls.enabled` and `global.kas.tls.secretName` instead.
     Other components of the GitLab chart other than KAS also need to be configured to talk to KAS via TLS.
     With a global value the chart can take care of these configurations without the need for other specific values.
+{{- end -}}
+{{- end -}}
+
+{{- define "gitlab.removal.spamcheck" -}}
+{{- if and (hasKey .Values.global "spamcheck") (hasKey .Values.global.spamcheck "enabled") (.Values.global.spamcheck.enabled) }}
+spamcheck:
+The Spamcheck subchart has been removed in GitLab 19.0. Please remove `global.spamcheck.enabled` and any
+`gitlab.spamcheck` configuration from your values.
 {{- end -}}
 {{- end -}}
