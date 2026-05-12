@@ -62,6 +62,9 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $removals = append $removals (include "gitlab.removal.busybox" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.kas.privateApi.tls" .) -}}
 {{- $removals = append $removals (include "gitlab.removal.openbao.psql" .) -}}
+{{- $removals = append $removals (include "gitlab.removal.chart.minio" .) -}}
+{{- $removals = append $removals (include "gitlab.removal.chart.redis" .) -}}
+{{- $removals = append $removals (include "gitlab.removal.chart.postgresql" .) -}}
 
 {{- /* we're ready to deprecate top-level registry entries for workhorse and sidekiq, but not enforcing yet */ -}}
 {{- /* $removals = append $removals (include "gitlab.removal.registry.topLevel" .) */ -}}
