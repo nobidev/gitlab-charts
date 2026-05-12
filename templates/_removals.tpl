@@ -542,5 +542,7 @@ kas:
 spamcheck:
 The Spamcheck subchart has been removed in GitLab 19.0. Please remove `global.spamcheck.enabled` and any
 `gitlab.spamcheck` configuration from your values.
+For more information, see
+https://docs.gitlab.com/update/deprecations/#spamcheck-support-in-the-linux-package-and-gitlab-helm-chart
 {{- end -}}
 {{- end -}}
