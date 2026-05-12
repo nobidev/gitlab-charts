@@ -5,8 +5,6 @@
 */}}
 {{- define "gitlab.nonProdCharts" }}
 charts:
-  - name: Gitaly
-    enabled: {{ .Values.global.gitaly.enabled }}
   - name: Praefect
     enabled: {{ .Values.global.praefect.enabled }}
 {{- end }}
