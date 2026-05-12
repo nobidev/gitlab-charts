@@ -253,6 +253,7 @@ pin_image_versions:
     paths:
       - ci.digests.yaml
       - skopeo_errors.log
+      - cng_pipeline_urls.txt
   rules:
     # If we ever enable cluster tests in Dev, we have to fix the
     # pin_image_digtests.{bats|sh} to consider images built from

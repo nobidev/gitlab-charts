@@ -19,6 +19,11 @@ set -e
 PROJECT_ROOT="$(dirname -- "${BASH_SOURCE[0]}")/../.."
 DIGESTS_FILE="${DIGESTS_FILE:-$PROJECT_ROOT/ci.digests.yaml}"
 CHART_FILE="${CHART_FILE:-$PROJECT_ROOT/Chart.yaml}"
+# Auxiliary file populated by get_digest as a side effect. Each line is
+# `<component>\t<build-pipeline URL>`. Subshell-safe (every tag_and_digest
+# runs in $(...) so a bash variable wouldn't propagate). Read by
+# check_cng_pipeline_consistency after render_digests_file completes.
+CNG_PIPELINE_URLS_FILE="${CNG_PIPELINE_URLS_FILE:-$PROJECT_ROOT/cng_pipeline_urls.txt}"
 
 function main() {
   if [ $SOURCED -eq 0 ]; then
@@ -61,6 +66,9 @@ function get_tag() {
 }
 
 # Gets the current digest for the given image name and image tag.
+# As a side effect, records the image's `build-pipeline` label (the CNG pipeline
+# URL that built it) to CNG_PIPELINE_URLS_FILE for the later consistency check.
+# Echo output is the digest only — callers and bats tests are unchanged.
 # Usage:
 #   `get_digest gitlab-webservice-ee master`
 function get_digest() {
@@ -72,12 +80,16 @@ function get_digest() {
   base_delay=${GET_DIGEST_BASE_DELAY:-2}
   attempt=1
   digest=""
+  pipeline_url=""
 
   while [ $attempt -le $max_retries ]; do
-    # Try to get the digest, with failures logged silently
-    # All error details are captured in skopeo_errors.log for later analysis
-    if digest=$(skopeo inspect docker://registry.gitlab.com/gitlab-org/build/cng/$component:$tag --format "{{.Digest}}" --no-tags 2>>"skopeo_errors.log"); then
-      # Success - return the digest without any logging
+    # Try to fetch digest + build-pipeline label in a single skopeo inspect.
+    # All error details are captured in skopeo_errors.log for later analysis.
+    if output=$(skopeo inspect docker://registry.gitlab.com/gitlab-org/build/cng/$component:$tag --format '{{.Digest}}|{{index .Labels "build-pipeline"}}' --no-tags 2>>"skopeo_errors.log"); then
+      digest="${output%%|*}"
+      pipeline_url="${output#*|}"
+      # Subshell-safe side-channel: write to a file rather than a variable.
+      printf '%s\t%s\n' "${component}" "${pipeline_url}" >> "${CNG_PIPELINE_URLS_FILE}"
       echo -n "${digest}"
       return 0
     fi
@@ -118,7 +130,7 @@ function tag_and_digest() {
 # Usage:
 #   `render_digests_file`
 function render_digests_file() {
-  rm -f $DIGESTS_FILE
+  rm -f $DIGESTS_FILE $CNG_PIPELINE_URLS_FILE
   cat << CIYAML > $DIGESTS_FILE
 # generated: $(date)
 global:
@@ -167,22 +179,6 @@ CIYAML
 
 }
 
-# Reads a single label off an image by digest. Echoes the label value (possibly
-# empty) on success, or empty + non-zero on skopeo failure.
-# Usage:
-#   `get_label_for_digest gitlab-toolbox-ee sha256:abc… build-pipeline`
-function get_label_for_digest() {
-  component=$1
-  digest=$2
-  label=$3
-
-  skopeo inspect \
-    --override-os linux --override-arch amd64 --no-tags \
-    --format "{{index .Labels \"${label}\"}}" \
-    "docker://registry.gitlab.com/gitlab-org/build/cng/${component}@${digest}" \
-    2>>"skopeo_errors.log"
-}
-
 # Returns 0 if every argument is identical, 1 otherwise. Isolated so the
 # comparison logic is unit-testable without skopeo.
 # Usage:
@@ -197,80 +193,67 @@ function _pipelines_match() {
   return 0
 }
 
-# Verifies the Rails-derived CNG images (toolbox, sidekiq, webservice) that we
-# just pinned all came from the same CNG build pipeline. CNG bakes the
-# originating pipeline URL into a `build-pipeline` label on each image. When a
-# CNG master pipeline partially fails, the floating `:master` tags can end up
-# pointing at different CNG pipelines (and therefore different gitlab-org/gitlab
-# commits) for different components, which means the chart's migrations Job
-# runs the schema for one commit while webservice expects newer migrations from
-# another — producing "Progress deadline exceeded" rollout timeouts on
-# webservice and sidekiq.
+# Verifies all pinned CNG images came from the same CNG build pipeline. CNG
+# bakes the originating pipeline URL into a `build-pipeline` label on each
+# image, recorded by get_digest into CNG_PIPELINE_URLS_FILE during pin
+# resolution (so no extra skopeo round trips are needed here).
+#
+# CNG content-addressable builds skip rebuilds when a component's inputs
+# haven't changed, so per-component :master tags can drift across successive
+# CNG pipelines. A drifted set means the chart pinned images from potentially
+# different gitlab-org/gitlab commits, which causes schema drift between
+# migrations and webservice and produces "Progress deadline exceeded" rollout
+# timeouts on webservice and sidekiq.
 # See: https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6478
 function check_cng_pipeline_consistency() {
-  components="gitlab-toolbox-ee gitlab-sidekiq-ee gitlab-webservice-ee"
-  has_unlabeled=0
-  pipeline_urls=""
-  report=""
-
   echo ""
-  echo "Verifying CNG build-pipeline consistency for Rails-derived images..."
+  echo "Verifying CNG build-pipeline consistency across pinned components..."
 
-  for component in ${components}; do
-    tag=$(get_tag "${component}")
-    if ! digest=$(get_digest "${component}" "${tag}"); then
-      echo "ERROR: could not resolve digest for ${component} during consistency check" >&2
-      return 1
-    fi
-
-    pipeline_url=$(get_label_for_digest "${component}" "${digest}" "build-pipeline" || true)
-
-    if [ -z "${pipeline_url}" ]; then
-      report="${report}  ${component}: <no build-pipeline label>
-"
-      has_unlabeled=1
-      continue
-    fi
-
-    pipeline_urls="${pipeline_urls} ${pipeline_url}"
-    report="${report}  ${component}: ${pipeline_url}
-"
-  done
-
-  printf '%s' "${report}"
-
-  if [ "${has_unlabeled}" -eq 1 ]; then
-    echo "WARN: at least one image lacks the build-pipeline label; skipping consistency check."
+  if [ ! -s "${CNG_PIPELINE_URLS_FILE}" ]; then
+    echo "WARN: ${CNG_PIPELINE_URLS_FILE} is empty or missing; skipping consistency check."
     return 0
   fi
 
-  if _pipelines_match ${pipeline_urls}; then
-    echo "OK: all Rails-derived images built by the same CNG pipeline."
+  # Each line is `<component>\t<build-pipeline URL>`. Drop entries with empty
+  # URL (older CNG images without the label) and dedup (toolbox is pinned twice).
+  filtered=$(awk -F'\t' '$2 != ""' "${CNG_PIPELINE_URLS_FILE}" | sort -u)
+  if [ -z "${filtered}" ]; then
+    echo "WARN: no pinned image carried a build-pipeline label; skipping consistency check."
     return 0
   fi
 
-  cat >&2 <<'MSG'
+  unique_pipelines=$(printf '%s\n' "${filtered}" | awk -F'\t' '{print $2}' | sort -u)
+  pipeline_count=$(printf '%s\n' "${unique_pipelines}" | wc -l | tr -d ' ')
 
-ERROR: CNG image-tag drift detected.
+  while IFS= read -r pl; do
+    comps=$(printf '%s\n' "${filtered}" | awk -F'\t' -v p="${pl}" '$2 == p { print "    " $1 }')
+    comp_count=$(printf '%s\n' "${comps}" | wc -l | tr -d ' ')
+    suffix=""
+    [ "${comp_count}" -ne 1 ] && suffix="s"
+    printf '  pipeline %s (%d component%s):\n%s\n' "${pl}" "${comp_count}" "${suffix}" "${comps}"
+  done <<< "${unique_pipelines}"
 
-The Rails-derived CNG images this pipeline pinned were built by different CNG
-build pipelines, meaning they may have been built from different
-gitlab-org/gitlab commits. Deploying this combination causes schema drift: the
-migrations container runs the schema for one commit while the webservice
-container expects newer migrations from another, producing "Progress deadline
+  if [ "${pipeline_count}" -le 1 ]; then
+    echo "OK: all pinned CNG images came from the same build pipeline."
+    return 0
+  fi
+
+  cat >&2 <<MSG
+
+ERROR: CNG image-tag drift detected — pinned :master images come from ${pipeline_count} different CNG build pipelines.
+
+This typically happens when CNG content-addressable builds skip unchanged
+components: each component's :master tag stays at whichever earlier pipeline
+last rebuilt it. The chart pins those :master digests, so the resulting set
+spans multiple CNG pipelines (and therefore potentially multiple
+gitlab-org/gitlab commits). Mismatched Rails-stack source SHAs cause schema
+drift between migrations and webservice, producing "Progress deadline
 exceeded" rollout timeouts on webservice and sidekiq.
 
-Drifting images and their CNG build pipelines:
-MSG
-  printf '%s' "${report}" >&2
-  cat >&2 <<'MSG'
+Retry this job once a more recent CNG master pipeline run has touched every
+pinned component, or follow up at:
+https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6478
 
-This is typically caused by a partial failure in a CNG master pipeline where
-some component builds succeed and push :master while others leave older
-:master tags in place. Retry this job once the next successful CNG master
-pipeline run has finished.
-
-Root-cause discussion: https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6478
 MSG
   return 1
 }
