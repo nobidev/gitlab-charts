@@ -70,6 +70,26 @@ setup() {
   [[ "$output" =~ $expected ]]
 }
 
+@test "_pipelines_match returns 0 when all values are identical" {
+  source scripts/ci/pin_image_digests.sh
+  run _pipelines_match \
+    "https://gitlab.com/gitlab-org/build/CNG/-/pipelines/123" \
+    "https://gitlab.com/gitlab-org/build/CNG/-/pipelines/123" \
+    "https://gitlab.com/gitlab-org/build/CNG/-/pipelines/123"
+
+  [ "$status" -eq 0 ]
+}
+
+@test "_pipelines_match returns 1 when one value differs" {
+  source scripts/ci/pin_image_digests.sh
+  run _pipelines_match \
+    "https://gitlab.com/gitlab-org/build/CNG/-/pipelines/123" \
+    "https://gitlab.com/gitlab-org/build/CNG/-/pipelines/123" \
+    "https://gitlab.com/gitlab-org/build/CNG/-/pipelines/456"
+
+  [ "$status" -eq 1 ]
+}
+
 @test "rendering digests file with helm template" {
   DIGESTS_FILE="$PROJECT_ROOT/ci.digests.test.yaml"
 

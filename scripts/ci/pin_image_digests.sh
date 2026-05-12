@@ -23,6 +23,7 @@ CHART_FILE="${CHART_FILE:-$PROJECT_ROOT/Chart.yaml}"
 function main() {
   if [ $SOURCED -eq 0 ]; then
     render_digests_file
+    check_cng_pipeline_consistency
   fi
 }
 
@@ -164,6 +165,114 @@ CIYAML
 
   echo "Finished writing $DIGESTS_FILE."
 
+}
+
+# Reads a single label off an image by digest. Echoes the label value (possibly
+# empty) on success, or empty + non-zero on skopeo failure.
+# Usage:
+#   `get_label_for_digest gitlab-toolbox-ee sha256:abc… build-pipeline`
+function get_label_for_digest() {
+  component=$1
+  digest=$2
+  label=$3
+
+  skopeo inspect \
+    --override-os linux --override-arch amd64 --no-tags \
+    --format "{{index .Labels \"${label}\"}}" \
+    "docker://registry.gitlab.com/gitlab-org/build/cng/${component}@${digest}" \
+    2>>"skopeo_errors.log"
+}
+
+# Returns 0 if every argument is identical, 1 otherwise. Isolated so the
+# comparison logic is unit-testable without skopeo.
+# Usage:
+#   `_pipelines_match url-a url-a url-a`  # exit 0
+#   `_pipelines_match url-a url-a url-b`  # exit 1
+function _pipelines_match() {
+  first=$1
+  shift
+  for v in "$@"; do
+    [ "${v}" = "${first}" ] || return 1
+  done
+  return 0
+}
+
+# Verifies the Rails-derived CNG images (toolbox, sidekiq, webservice) that we
+# just pinned all came from the same CNG build pipeline. CNG bakes the
+# originating pipeline URL into a `build-pipeline` label on each image. When a
+# CNG master pipeline partially fails, the floating `:master` tags can end up
+# pointing at different CNG pipelines (and therefore different gitlab-org/gitlab
+# commits) for different components, which means the chart's migrations Job
+# runs the schema for one commit while webservice expects newer migrations from
+# another — producing "Progress deadline exceeded" rollout timeouts on
+# webservice and sidekiq.
+# See: https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6478
+function check_cng_pipeline_consistency() {
+  components="gitlab-toolbox-ee gitlab-sidekiq-ee gitlab-webservice-ee"
+  has_unlabeled=0
+  pipeline_urls=""
+  report=""
+
+  echo ""
+  echo "Verifying CNG build-pipeline consistency for Rails-derived images..."
+
+  for component in ${components}; do
+    tag=$(get_tag "${component}")
+    if ! digest=$(get_digest "${component}" "${tag}"); then
+      echo "ERROR: could not resolve digest for ${component} during consistency check" >&2
+      return 1
+    fi
+
+    pipeline_url=$(get_label_for_digest "${component}" "${digest}" "build-pipeline" || true)
+
+    if [ -z "${pipeline_url}" ]; then
+      report="${report}  ${component}: <no build-pipeline label>
+"
+      has_unlabeled=1
+      continue
+    fi
+
+    pipeline_urls="${pipeline_urls} ${pipeline_url}"
+    report="${report}  ${component}: ${pipeline_url}
+"
+  done
+
+  printf '%s' "${report}"
+
+  if [ "${has_unlabeled}" -eq 1 ]; then
+    echo "WARN: at least one image lacks the build-pipeline label; skipping consistency check."
+    return 0
+  fi
+
+  if _pipelines_match ${pipeline_urls}; then
+    echo "OK: all Rails-derived images built by the same CNG pipeline."
+    return 0
+  fi
+
+  cat >&2 <<'MSG'
+
+ERROR: CNG image-tag drift detected.
+
+The Rails-derived CNG images this pipeline pinned were built by different CNG
+build pipelines, meaning they may have been built from different
+gitlab-org/gitlab commits. Deploying this combination causes schema drift: the
+migrations container runs the schema for one commit while the webservice
+container expects newer migrations from another, producing "Progress deadline
+exceeded" rollout timeouts on webservice and sidekiq.
+
+Drifting images and their CNG build pipelines:
+MSG
+  printf '%s' "${report}" >&2
+  cat >&2 <<'MSG'
+
+This is typically caused by a partial failure in a CNG master pipeline where
+some component builds succeed and push :master while others leave older
+:master tags in place. Retry this job once the next successful CNG master
+pipeline run has finished.
+
+Root-cause discussion: https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6478
+MSG
+  return 1
 }
 
 (return 0 2>/dev/null) && SOURCED=1 || SOURCED=0
