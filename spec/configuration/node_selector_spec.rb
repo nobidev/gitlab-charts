@@ -18,8 +18,6 @@ describe 'Node Selector configuration' do
             enabled: true  # DELETE THIS WHEN KAS BECOMES ENABLED BY DEFAULT
           pages:
             enabled: true
-          spamcheck:
-            enabled: true
           praefect:
             enabled: true
 

@@ -88,14 +88,6 @@ describe 'local topologySpreadConstraints configuration' do
               maxSkew: 1
               topologyKey: topology.kubernetes.io/zone
               whenUnsatisfiable: DoNotSchedule
-        spamcheck:
-          topologySpreadConstraints:
-            - labelSelector:
-                matchLabels:
-                  app: test
-              maxSkew: 1
-              topologyKey: topology.kubernetes.io/zone
-              whenUnsatisfiable: DoNotSchedule
         toolbox:
           topologySpreadConstraints:
             - labelSelector:

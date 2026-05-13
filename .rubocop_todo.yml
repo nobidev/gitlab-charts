@@ -44,7 +44,6 @@ Layout/EmptyLineAfterGuardClause:
 Layout/EmptyLineAfterMagicComment:
   Exclude:
     - 'spec/configuration/monitoring_spec.rb'
-    - 'spec/configuration/spamcheck_spec.rb'
 
 # Offense count: 11
 # This cop supports safe autocorrection (--autocorrect).
