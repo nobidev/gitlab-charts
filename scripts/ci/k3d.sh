@@ -130,6 +130,73 @@ function k3d_delete() {
   k3d cluster delete "${cluster_name}" || true
 }
 
+# Collect debug artifacts (helm values, manifests, pod events, logs) into
+# ${CI_PROJECT_DIR}/k3d-debug/ before the cluster is destroyed. Called from
+# after_script — all commands are best-effort and must never fail the job.
+# See: https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6478
+function k3d_collect_debug() {
+  local debug_dir="${CI_PROJECT_DIR:-$(pwd)}/k3d-debug"
+  local ns="${NAMESPACE:-default}"
+  mkdir -p "${debug_dir}/failed-pod-logs" "${debug_dir}/values-inputs"
+
+  # Source helpers for gitlab_release_name when invoked standalone from
+  # after_script (autodevops.sh isn't necessarily sourced there).
+  local script_dir
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  # shellcheck disable=SC1091
+  source "${script_dir}/lib/helpers.sh" 2>/dev/null || true
+
+  local release=""
+  if command -v gitlab_release_name &>/dev/null; then
+    release=$(gitlab_release_name 2>/dev/null || echo "")
+  fi
+  echo "k3d_collect_debug: release='${release}' namespace='${ns}' output='${debug_dir}'"
+
+  if command -v helm &>/dev/null && [ -n "${release}" ]; then
+    helm get values "${release}" -n "${ns}" --all > "${debug_dir}/helm-values.yaml" 2>&1 || true
+    helm get manifest "${release}" -n "${ns}" > "${debug_dir}/helm-manifest.yaml" 2>&1 || true
+    helm status "${release}" -n "${ns}" > "${debug_dir}/helm-status.txt" 2>&1 || true
+    helm history "${release}" -n "${ns}" > "${debug_dir}/helm-history.txt" 2>&1 || true
+  fi
+
+  if command -v kubectl &>/dev/null; then
+    kubectl get pods -A -o wide > "${debug_dir}/pods.txt" 2>&1 || true
+    kubectl describe pods -n "${ns}" > "${debug_dir}/pods-describe.txt" 2>&1 || true
+    kubectl get events -A --sort-by=.lastTimestamp > "${debug_dir}/events.txt" 2>&1 || true
+    { kubectl get nodes -o wide; echo "---"; kubectl describe nodes; } > "${debug_dir}/nodes.txt" 2>&1 || true
+    # Image strings as scheduled (spec) and as resolved by the kubelet (status/imageID).
+    # To answer "were the ci.digests.yaml pins respected?",
+    # compare the outputs of ci.digests.yaml and pod-images.txt
+    kubectl get pods -A \
+      -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{range .spec.containers[*]}  spec:   {.name}={.image}{"\n"}{end}{range .status.containerStatuses[*]}  status: {.name}={.image} imageID={.imageID}{"\n"}{end}{"\n"}{end}' \
+      > "${debug_dir}/pod-images.txt" 2>&1 || true
+
+    # Logs from pods not Running in the release namespace.
+    local not_running
+    not_running=$(kubectl get pods -n "${ns}" \
+      -o jsonpath='{range .items[?(@.status.phase!="Running")]}{.metadata.name}{"\n"}{end}' 2>/dev/null || true)
+    while IFS= read -r pod; do
+      [ -z "${pod}" ] && continue
+      kubectl logs -n "${ns}" "${pod}" --all-containers --tail=500 \
+        > "${debug_dir}/failed-pod-logs/${pod}.log" 2>&1 || true
+      kubectl logs -n "${ns}" "${pod}" --all-containers --previous --tail=500 \
+        > "${debug_dir}/failed-pod-logs/${pod}.previous.log" 2>&1 || true
+    done <<< "${not_running}"
+  fi
+
+  # Copy the literal -f inputs passed to `helm upgrade` (post-envsubst).
+  local project_root="${CI_PROJECT_DIR:-${script_dir}/../..}"
+  if [ -d "${project_root}/.values" ]; then
+    cp "${project_root}"/.values/*.yaml "${debug_dir}/values-inputs/" 2>/dev/null || true
+  fi
+  if [ -f "${project_root}/ci.digests.yaml" ]; then
+    cp "${project_root}/ci.digests.yaml" "${debug_dir}/values-inputs/" 2>/dev/null || true
+  fi
+
+  echo "k3d_collect_debug: collected artifacts:"
+  ls -la "${debug_dir}" 2>/dev/null || true
+}
+
 function k3d_info() {
   echo "k3d cluster: $(k3d_cluster_name)"
   echo "  K8s image:  ${K3D_K8S_IMAGE}"
