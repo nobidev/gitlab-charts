@@ -276,9 +276,10 @@ There are two ways to opt out of the bundled Envoy Gateway:
   an externally managed `Gateway`. The chart skips the managed `Gateway` and all listener
   configuration. You provide the `Gateway`, its listeners, and the `GatewayClass`.
 
-The two options can be combined. See [Configuration recipes](#configuration-recipes) below.
+The two options can be combined. For more information, see the
+[configuration recipes](#configuration-recipes).
 
-#### Requirements for external Gateway API providers
+#### Requirements
 
 The provider must support the following standard Gateway API resources and features:
 
@@ -296,12 +297,12 @@ specification leaves implementation-defined:
 - **Preserve URL-encoded forward slashes (`%2F`) in request paths.** GitLab APIs commonly identify
   projects with a URL-encoded path (for example, `/api/v4/projects/group%2Fproject`). If the
   provider unescapes or rejects these requests, the GitLab API will not work. With the bundled
-  Envoy Gateway the chart sets `path.escapedSlashesAction: KeepUnchanged` on a `ClientTrafficPolicy`
+  Envoy Gateway, the chart sets `path.escapedSlashesAction: KeepUnchanged` on a `ClientTrafficPolicy`
   for the `gitlab-web`, `gitlab-web-geo`, and `gitlab-smartcard-web` listeners. Other providers
   need an equivalent configuration on the listeners that serve GitLab API traffic.
 - **Cross-serve HTTP/1.1 and gRPC (HTTP/2) on the GitLab Relay (KAS) hostname.** KAS exposes both
   gRPC and HTTP (including WebSocket) endpoints on the same hostname and port. With the bundled
-  Envoy Gateway the chart sets `useClientProtocol: true` on a `BackendTrafficPolicy`. Other
+  Envoy Gateway, the chart sets `useClientProtocol: true` on a `BackendTrafficPolicy`. Other
   providers must forward gRPC as HTTP/2 to the backend while still accepting HTTP/1.1 from clients.
 - **Smartcard mutual TLS** (if `global.appConfig.smartcard.enabled` is `true`). The provider must
   validate client certificates on the smartcard listener and forward the certificate to Workhorse
@@ -309,24 +310,26 @@ specification leaves implementation-defined:
   `ClientTrafficPolicy`).
 
 If you use `global.gatewayApi.configureCertmanager`, the cert-manager installation in the cluster
-must have [Gateway API support enabled](https://cert-manager.io/docs/usage/gateway/#enabling-gateway-api-support);
-this is independent of which Gateway API provider you choose. cert-manager solves HTTP-01
+must have [Gateway API support enabled](https://cert-manager.io/docs/usage/gateway/#enabling-gateway-api-support),
+independent of which Gateway API provider you choose. cert-manager solves HTTP-01
 challenges by attaching an `HTTPRoute` to a `Gateway`, so your `Gateway` must expose an HTTP
 listener that cert-manager can route challenges through.
 
-This list is not exhaustive, only the bundled Envoy Gateway is exercised in CI, so other
-providers may surface additional requirements in practice. If you get GitLab working on another
-Gateway API provider, contributions that document the configuration are welcome.
+This list of requirements is not exhaustive and providers may surface additional requirements in practice.
+If you get GitLab working on another Gateway API provider, please contribute updates to this documentation.
 
-#### Responsibilities when bundled Envoy Gateway is disabled
+#### Additional requirements
 
 The behaviors described under [Requirements](#requirements-for-external-gateway-api-providers) are
 configured automatically when the bundled Envoy Gateway is installed (`installEnvoy: true`). When
 it is disabled, the chart skips its Envoy-specific custom resources and you become responsible for
-configuring the equivalent behavior on your provider — preserving escaped slashes, cross-serving
-HTTP and HTTP/2 for KAS, and (if applicable) smartcard mutual TLS.
+configuring the equivalent behavior on your provider:
 
-When `global.gatewayApi.gatewayRef` is set the chart additionally skips the managed `Gateway` and
+- Preserving escaped slashes.
+- Cross-serving HTTP and HTTP/2 for KAS.
+- Smartcard mutual TLS, if applicable.
+
+When `global.gatewayApi.gatewayRef` is set, the chart additionally skips the managed `Gateway` and
 everything attached to it. You are responsible for:
 
 - Exposing listeners on your external `Gateway` that the chart's routes can attach to. Routes
