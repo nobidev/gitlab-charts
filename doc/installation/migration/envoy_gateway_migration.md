@@ -12,7 +12,7 @@ title: Migrate to Envoy Gateway
 
 {{< /details >}}
 
-Starting with GitLab 19.0, GitLab chart will disable the bundled NGINX Ingress and will default to Gateway API
+Starting with GitLab 19.0, GitLab chart disables the bundled NGINX Ingress and defaults to Gateway API
 and the bundled Envoy Gateway. All bundled Ingress controllers, including HAProxy and Traefik, are deprecated
 and will be removed in 20.0. Ingresses are not deprecated and will remain available after 20.0, but will need
 an [external Ingress controller](../../advanced/external-ingress/_index.md).

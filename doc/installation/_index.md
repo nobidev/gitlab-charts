@@ -18,7 +18,7 @@ Assuming you already have the [prerequisites](tools.md) installed and configured
 you can [deploy GitLab](deployment.md) with the `helm` command.
 
 > [!note]
-> The GitLab Helm chart requires external PostgreSQL, Redis, and object storage.
+> The GitLab Helm chart requires external [PostgreSQL](../advanced/external-db/_index.md), [Redis](../advanced/external-redis/_index.md), and [object storage](../advanced/external-object-storage/_index.md).
 > For production, follow the [Cloud Native Hybrid reference architecture](#use-the-reference-architectures).
 
 For a production deployment, you should have strong working knowledge of Kubernetes.

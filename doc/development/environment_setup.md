@@ -74,8 +74,7 @@ The following cloud cluster options are supported:
 
 ## External dependencies
 
-To set up Valkey, CloudNativePG, and Garage as external replacements for the bundled PostgreSQL,
-Redis, and MinIO charts (removed in GitLab 19.0), see
+To set up Valkey, CloudNativePG, and Garage as the required external services, see
 [Set up external dependencies for local development](external-dependencies.md).
 
 ## Installing from repository
