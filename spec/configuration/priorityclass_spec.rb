@@ -21,8 +21,6 @@ describe 'global priorityClass configuration' do
       gitlab:
         kas:
           enabled: true  # DELETE THIS WHEN KAS BECOMES ENABLED BY DEFAULT
-        spamcheck:
-          enabled: true  # DELETE THIS WHEN SPAMCHECK BECOMES ENABLED BY DEFAULT
       gitlab-runner:
         priorityClassName: system-cluster-critical
       prometheus:
@@ -89,9 +87,6 @@ describe 'local priorityClass configuration' do
           priorityClassName: system-cluster-noncritical
         sidekiq:
           priorityClassName: system-cluster-noncritical
-        spamcheck:
-          enabled: true  # DELETE THIS WHEN SPAMCHECK BECOMES ENABLED BY DEFAULT
-          priorityClassName: system-cluster-noncritical
         toolbox:
           priorityClassName: system-cluster-noncritical
         webservice:
@@ -154,9 +149,6 @@ describe 'local priorityClass configuration' do
               priorityClassName: system-cluster-noncritical
             - name: sidekiq-b
               priorityClassName: system-cluster-noncritical
-        spamcheck:
-          enabled: true  # DELETE THIS WHEN SPAMCHECK BECOMES ENABLED BY DEFAULT
-          priorityClassName: system-cluster-noncritical
         toolbox:
           priorityClassName: system-cluster-noncritical
         webservice:

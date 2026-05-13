@@ -71,8 +71,6 @@ describe 'image tag configuration' do
         global:
           pages:
             enabled: true
-          spamcheck:
-            enabled: true
           praefect:
             enabled: true
           ingress:
@@ -103,8 +101,6 @@ describe 'image tag configuration' do
           global:
             gitlabVersion: 1.2.3
             pages:
-              enabled: true
-            spamcheck:
               enabled: true
             praefect:
               enabled: true
@@ -158,8 +154,6 @@ describe 'image tag configuration' do
           global:
             gitlabVersion: 1.2.3
             pages:
-              enabled: true
-            spamcheck:
               enabled: true
             praefect:
               enabled: true
