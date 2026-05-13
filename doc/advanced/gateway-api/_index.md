@@ -262,61 +262,127 @@ information.
 
 ### Using an external Gateway API provider
 
-The chart can be configured to use an external Gateway API provider, yet not every provider
-meets the requirements to expose GitLab.
+The chart can be configured to use an external Gateway API provider, but not every provider meets
+the requirements to expose GitLab. The chart is only tested with the bundled Envoy Gateway. Support
+for other providers is offered on a best-effort basis and we welcome contributions that document
+working configurations with other Gateway API providers.
 
-Make sure your Gateway API provider does support:
+There are two ways to opt out of the bundled Envoy Gateway:
 
-1. `HTTPRoutes`, `TCPRoute` (for SSH), and `GRPCRoutes` (for future KAS features)
-1. `RegularExpression` matches in `HTTPRoutes`
+- Set `global.gatewayApi.installEnvoy: false` to skip the Envoy Gateway subchart and Envoy-specific
+  custom resources. The chart still renders the `Gateway`, route resources, and any
+  `BackendTLSPolicy` resources. You provide the `GatewayClass`.
+- Set `global.gatewayApi.gatewayRef.name` and `global.gatewayApi.gatewayRef.namespace` to reference
+  an externally managed `Gateway`. The chart skips the managed `Gateway` and all listener
+  configuration. You provide the `Gateway`, its listeners, and the `GatewayClass`.
 
-Note that we only test with the bundled Envoy Gateway chart. Support for other providers is
-offered on a best-effort basis. We welcome any contributions that document working
-configurations with other Gateway API providers.
+The two options can be combined. See [Configuration recipes](#configuration-recipes) below.
 
-#### Setting up external Gateway API providers
+#### Requirements for external Gateway API providers
 
-{{< tabs >}}
+The provider must support the following standard Gateway API resources and features:
 
-{{< tab title="Envoy Gateway" >}}
+- `Gateway`, `HTTPRoute`, and `BackendTLSPolicy` from `gateway.networking.k8s.io/v1`.
+- `TCPRoute` from `gateway.networking.k8s.io/v1alpha2` (for the GitLab Shell SSH listener). Skip
+  this if `gitlab-shell.enabled` is `false`.
+- `RegularExpression` path matches on `HTTPRoute` (Webservice uses these for long-running Git
+  over HTTP paths: `^/.*/ssh-receive-pack$` and `^/.*/ssh-upload-pack$`).
+- The `RequestRedirect` filter on `HTTPRoute` if you rely on the chart-managed HTTP-to-HTTPS
+  redirect (only rendered for a chart-managed `Gateway`).
 
-- For GitLab to work with Envoy Gateway escaped slashed in traffic have to remain unchanged. This can
-  be configured with a [PatchPolicy](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/0e07dbab91c9ba4df48c9424b769e92a219e7528/templates/envoypatchpolicy.yaml#L21).
-- Note that `EnvoyPatchPolicies` are disabled by default and Envoy Gateway must be
-  [configured to enable them](https://gateway.envoyproxy.io/docs/tasks/extensibility/envoy-patch-policy/#enable-envoypatchpolicy).
+In addition, your provider must be configured for the following behaviors that the Gateway API
+specification leaves implementation-defined:
 
-{{< /tab >}}
+- **Preserve URL-encoded forward slashes (`%2F`) in request paths.** GitLab APIs commonly identify
+  projects with a URL-encoded path (for example, `/api/v4/projects/group%2Fproject`). If the
+  provider unescapes or rejects these requests, the GitLab API will not work. With the bundled
+  Envoy Gateway the chart sets `path.escapedSlashesAction: KeepUnchanged` on a `ClientTrafficPolicy`
+  for the `gitlab-web`, `gitlab-web-geo`, and `gitlab-smartcard-web` listeners. Other providers
+  need an equivalent configuration on the listeners that serve GitLab API traffic.
+- **Cross-serve HTTP/1.1 and gRPC (HTTP/2) on the GitLab Relay (KAS) hostname.** KAS exposes both
+  gRPC and HTTP (including WebSocket) endpoints on the same hostname and port. With the bundled
+  Envoy Gateway the chart sets `useClientProtocol: true` on a `BackendTrafficPolicy`. Other
+  providers must forward gRPC as HTTP/2 to the backend while still accepting HTTP/1.1 from clients.
+- **Smartcard mutual TLS** (if `global.appConfig.smartcard.enabled` is `true`). The provider must
+  validate client certificates on the smartcard listener and forward the certificate to Workhorse
+  in the `X-Forwarded-Client-Cert` header (the bundled Envoy Gateway configures this through a
+  `ClientTrafficPolicy`).
 
-{{< /tabs >}}
+If you use `global.gatewayApi.configureCertmanager`, the cert-manager installation in the cluster
+must have [Gateway API support enabled](https://cert-manager.io/docs/usage/gateway/#enabling-gateway-api-support);
+this is independent of which Gateway API provider you choose. cert-manager solves HTTP-01
+challenges by attaching an `HTTPRoute` to a `Gateway`, so your `Gateway` must expose an HTTP
+listener that cert-manager can route challenges through.
 
-#### Configure an externally managed Gateway
+This list is not exhaustive, only the bundled Envoy Gateway is exercised in CI, so other
+providers may surface additional requirements in practice. If you get GitLab working on another
+Gateway API provider, contributions that document the configuration are welcome.
 
-To configure GitLab chart to use an external Gateway, disable the chart-managed `Gateway`
-and configure your externally managed Gateway:
+#### Responsibilities when bundled Envoy Gateway is disabled
+
+The behaviors described under [Requirements](#requirements-for-external-gateway-api-providers) are
+configured automatically when the bundled Envoy Gateway is installed (`installEnvoy: true`). When
+it is disabled, the chart skips its Envoy-specific custom resources and you become responsible for
+configuring the equivalent behavior on your provider — preserving escaped slashes, cross-serving
+HTTP and HTTP/2 for KAS, and (if applicable) smartcard mutual TLS.
+
+When `global.gatewayApi.gatewayRef` is set the chart additionally skips the managed `Gateway` and
+everything attached to it. You are responsible for:
+
+- Exposing listeners on your external `Gateway` that the chart's routes can attach to. Routes
+  attach by `sectionName`; the defaults match the listener names in the
+  [example listener configuration](#listener-configuration) (`gitlab-web`, `gitlab-web-geo`,
+  `gitlab-smartcard-web`, `registry-web`, `pages-web`, `kas-web`, `kas-workspaces-web`,
+  `gitlab-ssh`, `openbao-web`). Each sub-chart accepts a `gatewayRoute.sectionName` override if
+  your listener names differ.
+- Configuring an HTTP-to-HTTPS redirect on your `Gateway` if you need one. The
+  `global.gatewayApi.httpToHttpsRedirect` flag only applies to the chart-managed `Gateway`.
+- Annotating your `Gateway` for TLS certificates. The chart still creates a cert-manager `Issuer`
+  when `global.gatewayApi.configureCertmanager` is `true`, but it does not annotate your
+  externally managed `Gateway`. Add `cert-manager.io/issuer: RELEASE-gw-issuer` (replacing
+  `RELEASE` with your Helm release name) to your `Gateway` to reuse the Issuer, or manage TLS
+  certificates yourself.
+
+#### Configuration recipes
+
+##### Use an externally managed Gateway
+
+To use an external `Gateway` instead of the chart-managed one, disable Envoy Gateway and point at
+your `Gateway`:
 
 ```yaml
 global:
   gatewayApi:
     enabled: true
-    # Don't install Envoy Gateway subchart and custom resources.
+    # Skip the Envoy Gateway subchart and Envoy-specific custom resources.
     installEnvoy: false
     gatewayRef:
       name: "custom-gateway"
       namespace: "custom-gateway-namespace"
 ```
 
-#### Configure an externally managed GatewayClass
+##### Use the chart-managed Gateway with an external GatewayClass
 
-To configure GitLab chart to use the chart-managed `Gateway` resource, but an external `GatewayClass`,
-disable the bundled Envoy Gateway and configure your `GatewayClass`:
+To keep the chart-managed `Gateway` resource but bind it to a `GatewayClass` you manage yourself,
+disable the bundled Envoy Gateway and reference your `GatewayClass` by name:
 
 ```yaml
 global:
   gatewayApi:
     enabled: true
-    # Don't install Envoy Gateway subchart and custom resources.
+    # Skip the Envoy Gateway subchart and Envoy-specific custom resources.
     installEnvoy: false
-    class:
-      # Name of the GatewayClass backed by your Gateway API controller.
-      name: custom-class
+gatewayApiResources:
+  class:
+    # Name of the GatewayClass backed by your Gateway API controller.
+    name: custom-class
 ```
+
+##### Use an externally managed Envoy Gateway
+
+You can also use Envoy Gateway as an external provider (for example, when it is installed
+cluster-wide by your platform team). Set `installEnvoy: false` to disable the bundled subchart,
+then either reference an external `Gateway` through `gatewayRef` or point at the
+externally-installed `GatewayClass`. The chart only renders Envoy-specific custom resources when
+`installEnvoy` is `true`, so you must configure escaped slash handling, KAS gRPC forwarding, and
+smartcard mutual TLS yourself on that external Envoy Gateway installation.
