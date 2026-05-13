@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.9.8 (2026-05-13)
+
+### Changed (1 change)
+
+- [chore: bump gitlab-zoekt chart to 3.9.0](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/9096e93eeb366b0444bd594bca29074d234d954e)
+
 ## 9.9.7 (2026-04-21)
 
 ### Fixed (1 change)
