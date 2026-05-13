@@ -26,10 +26,8 @@ Before the migration, a few prerequisites must be met:
   of Git repositories prior to the migration.
 - A Helm charts based deployment running the same GitLab version as the
   package-based installation is required.
-- The bundled MinIO chart is not production ready. Check
-  the [reference architectures](https://docs.gitlab.com/administration/reference_architectures/)
-  to configure a production grade deployment. If you want to migrate from
-  bundled MinIO, check the [migration guide](bundled_chart_migration.md).
+- Object storage must be configured as an external service before deploying
+  the GitLab Helm chart. See [Configure external object storage](../../advanced/external-object-storage/_index.md).
 - PostgreSQL and Redis must be configured as external services before deploying
   the GitLab Helm chart. See [external database](../../advanced/external-db/_index.md)
   and [external Redis](../../advanced/external-redis/_index.md).

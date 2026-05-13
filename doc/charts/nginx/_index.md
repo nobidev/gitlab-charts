@@ -14,7 +14,7 @@ title: Using NGINX
 
 > [!warning]
 > NGINX Ingress is deprecated and won't receive security patches after March 2026.
-> In GitLab 19.0 the bundled NGINX Ingress will be disabled by default and a full removal is planned for 20.0.
+> Since GitLab 19.0 the bundled NGINX Ingress is disabled by default and a full removal is planned for 20.0.
 >
 > For more information, see the [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress).
 > You should migrate to the [bundled Envoy Gateway](../envoygateway/_index.md) or an

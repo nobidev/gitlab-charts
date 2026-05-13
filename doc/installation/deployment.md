@@ -18,8 +18,7 @@ This guide will cover required values and common options.
 For a complete list of options, read [Installation command line options](command-line-options.md).
 
 > [!note]
-> The GitLab Helm chart requires external PostgreSQL, Redis, and object storage for production deployments.
-> Bundled versions of these services are included for evaluation purposes only.
+> The GitLab Helm chart requires external [PostgreSQL](../advanced/external-db/_index.md), [Redis](../advanced/external-redis/_index.md), and [object storage](../advanced/external-object-storage/_index.md).
 > For production, follow the [Cloud Native Hybrid reference architecture](_index.md#use-the-reference-architectures).
 
 For a production deployment, you should have strong working knowledge of Kubernetes.
