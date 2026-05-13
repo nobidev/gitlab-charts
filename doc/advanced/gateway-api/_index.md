@@ -320,7 +320,7 @@ If you get GitLab working on another Gateway API provider, please contribute upd
 
 #### Additional requirements
 
-The behaviors described under [Requirements](#requirements-for-external-gateway-api-providers) are
+The behaviors described under [Requirements](#requirements) are
 configured automatically when the bundled Envoy Gateway is installed (`installEnvoy: true`). When
 it is disabled, the chart skips its Envoy-specific custom resources and you become responsible for
 configuring the equivalent behavior on your provider:
