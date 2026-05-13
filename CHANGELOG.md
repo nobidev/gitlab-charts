@@ -57,6 +57,12 @@ No changes.
 - [Update container-registry to v4.39.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/be5ece2d4387f2d561000c549c2cc754ed95feb9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4886))
 - [Gateway API: Unglobalize Gateway API resources](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fb5977af6be6eb874f6be1f2fee7d74d03c27665) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4862))
 
+## 9.10.6 (2026-05-13)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.87.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/5669a1e36b1acd9d9f990b92f508e9ead504d132)
+
 ## 9.10.5 (2026-04-28)
 
 ### Fixed (1 change)
