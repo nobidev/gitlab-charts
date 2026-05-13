@@ -169,10 +169,22 @@ data:
     {{- end }}
     {{- include "gitlab.topologyService.configureScript" $ | nindent 4 }}
   configure-gcloud-storage: |
-    if [ -e "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
-      # Activate the service account using the provided key file for gcloud storage
-      gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+    if command -v gcloud > /dev/null 2>&1; then
+      if [ -e "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+        # Activate the service account using the provided key file for gcloud storage
+        gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+      fi
+      # If GOOGLE_APPLICATION_CREDENTIALS is not set, gcloud storage will use
+      # Application Default Credentials (e.g. GKE Workload Identity Federation) automatically.
     fi
-    # If GOOGLE_APPLICATION_CREDENTIALS is not set, gcloud storage will use
-    # Application Default Credentials (e.g. GKE Workload Identity Federation).
+    if command -v gsutil > /dev/null 2>&1; then
+      if [ -e "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+        # Configure gsutil with the provided service account key file
+        printf "[Credentials]\ngs_service_key_file = $GOOGLE_APPLICATION_CREDENTIALS\n" > ~/.boto
+      else
+        # If GOOGLE_APPLICATION_CREDENTIALS is not set, configure gsutil for
+        # Application Default Credentials (e.g. GKE Workload Identity Federation).
+        printf "[GoogleCompute]\nservice_account = default\n" > ~/.boto
+      fi
+    fi
 {{- end }}
