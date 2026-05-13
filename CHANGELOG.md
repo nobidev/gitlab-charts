@@ -2,6 +2,21 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.11.4 (2026-05-13)
+
+### Added (1 change)
+
+- [Gateway API: Support backend TLS for KAS/Registry/Workhorse](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/7f6efbbed24956f5bbd0ec8396572e60389c6da4)
+
+### Fixed (1 change)
+
+- [Fix dependencyProxy bucket validation when disabled](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/26e4da55ca2c1e9e192a732150a2ca15cd84a62f)
+
+### Changed (2 changes)
+
+- [Update gitlab-runner to v0.88.2](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/8f7e27f76912818061825eb2549275af5f74b98e)
+- [chore: bump gitlab-zoekt chart to 3.11.0](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/fcc32831c118f14bb588337a83c045e8e1d04f5e)
+
 ## 9.11.3 (2026-05-05)
 
 No changes.
@@ -41,6 +56,12 @@ No changes.
 - [Update gitlab-exporter to v16.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/37981d9e8b352c9d62908df776a248c41c316901) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4866))
 - [Update container-registry to v4.39.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/be5ece2d4387f2d561000c549c2cc754ed95feb9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4886))
 - [Gateway API: Unglobalize Gateway API resources](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fb5977af6be6eb874f6be1f2fee7d74d03c27665) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4862))
+
+## 9.10.6 (2026-05-13)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.87.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/5669a1e36b1acd9d9f990b92f508e9ead504d132)
 
 ## 9.10.5 (2026-04-28)
 
@@ -96,6 +117,12 @@ No changes.
 - [Update gitlab-runner to v0.86.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5989b6d58df3cd6333f896ac6d6186a97099b863) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4823))
 - [Update container-registry to v4.37.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f225950cc5b21f2c4dd09f30f989cb40185cd929) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4813))
 - [Remove Zoekt basic auth from main GitLab Helm chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bf6e3d48b050e0ba467d2adc98784ad123d2aa98) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4782))
+
+## 9.9.8 (2026-05-13)
+
+### Changed (1 change)
+
+- [chore: bump gitlab-zoekt chart to 3.9.0](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/9096e93eeb366b0444bd594bca29074d234d954e)
 
 ## 9.9.7 (2026-04-21)
 
