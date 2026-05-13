@@ -165,7 +165,8 @@ function k3d_collect_debug() {
     kubectl get events -A --sort-by=.lastTimestamp > "${debug_dir}/events.txt" 2>&1 || true
     { kubectl get nodes -o wide; echo "---"; kubectl describe nodes; } > "${debug_dir}/nodes.txt" 2>&1 || true
     # Image strings as scheduled (spec) and as resolved by the kubelet (status/imageID).
-    # Directly answers "were the ci.digests.yaml pins respected?".
+    # To answer "were the ci.digests.yaml pins respected?",
+    # compare the outputs of ci.digests.yaml and pod-images.txt
     kubectl get pods -A \
       -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{range .spec.containers[*]}  spec:   {.name}={.image}{"\n"}{end}{range .status.containerStatuses[*]}  status: {.name}={.image} imageID={.imageID}{"\n"}{end}{"\n"}{end}' \
       > "${debug_dir}/pod-images.txt" 2>&1 || true
