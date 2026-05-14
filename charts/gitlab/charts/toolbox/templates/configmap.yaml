@@ -179,12 +179,18 @@ data:
     fi
     if command -v gsutil > /dev/null 2>&1; then
       if [ -e "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
-        # Configure gsutil with the provided service account key file
-        printf "[Credentials]\ngs_service_key_file = $GOOGLE_APPLICATION_CREDENTIALS\n" > ~/.boto
+        # The following script is used to configure gsutil when creating backups
+        # It provides inputs to the `gsutil config -e` prompt as follows:
+        # 1) Path to service account JSON key file
+        # 2) Do not set permissions for key file
+        # 3) GCP Project ID
+        # 4) Decline anonymous usage statistics
+        printf "$GOOGLE_APPLICATION_CREDENTIALS\nN\n{{ .Values.backups.objectStorage.config.gcpProject }}\nN\n" | gsutil config -e
       else
-        # If GOOGLE_APPLICATION_CREDENTIALS is not set, configure gsutil for
-        # Application Default Credentials (e.g. GKE Workload Identity Federation).
-        printf "[GoogleCompute]\nservice_account = default\n" > ~/.boto
+        # If the backup config is not configured, assume that
+        # Application Default Credentials are used with a service account.
+        # This enables GKE Workload Identity Federation to work.
+        echo '[GoogleCompute]\nservice_account = default' > ~/.boto
       fi
     fi
 {{- end }}
