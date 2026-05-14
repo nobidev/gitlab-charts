@@ -171,6 +171,7 @@ If you chose to deploy this chart as a standalone, remove the `registry` at the 
 | `metrics.serviceMonitor.endpointConfig`                  | `{}`                                                                 | Additional endpoint configuration for the ServiceMonitor |
 | `deployment.terminationGracePeriodSeconds`               | `30`                                                                 | Optional duration in seconds the pod needs to terminate gracefully. |
 | `deployment.strategy`                                    | `{}`                                                                 | Allows one to configure the update strategy utilized by the deployment |
+| `deployment.revisionHistoryLimit`                        |                                                                      | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `draintimeout`                                           | `'0'`                                                                | Amount of time to wait for HTTP connections to drain after receiving a SIGTERM signal (e.g. `'10s'`) |
 | `relativeurls`                                           | `false`                                                              | Enable the registry to return relative URLs in Location headers. |
 | `enabled`                                                | `true`                                                               | Enable registry flag |
@@ -413,7 +414,7 @@ tolerations:
   - Schedule pods to nodes that belong to a specific zone or zones.
   - Set two modes of `nodeAffinity` rules: required (`requiredDuringSchedulingIgnoredDuringExecution`) and preferred
     (`preferredDuringSchedulingIgnoredDuringExecution`). When set to `soft`, the preferred mode is applied. When set to `hard`, the required mode is applied. This
-    rule is implemented only for the `registry` chart and the `gitlab` chart alongwith all its subcharts except `webservice` and `sidekiq`.
+    rule is implemented only for the `registry` chart and the `gitlab` chart along with all its subcharts except `webservice` and `sidekiq`.
 
 `nodeAffinity` only implements the [`In` operator](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#operators).
 
@@ -1390,7 +1391,7 @@ Replace these values in the commands below according to your actual configuratio
 # Because of https://github.com/helm/helm/issues/2948 we can't rely on --reuse-values, so let's get our current config.
 helm get values mygitlab > mygitlab.yml
 # Upgrade Helm installation and configure the registry to be read-only.
-# The --wait parameter makes Helm wait until all ressources are in ready state, so we are safe to continue.
+# The --wait parameter makes Helm wait until all resources are in ready state, so we are safe to continue.
 helm upgrade mygitlab gitlab/gitlab -f mygitlab.yml --set registry.maintenance.readonly.enabled=true --wait
 # Our registry is in r/o mode now, so let's get the name of one of the registry Pods.
 # Note down the Pod name and replace the '<registry-pod>' placeholder below with that value.

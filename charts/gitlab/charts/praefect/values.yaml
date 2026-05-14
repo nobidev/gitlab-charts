@@ -85,6 +85,7 @@ serviceLabels: {}
 
 statefulset:
   strategy: {}
+  # revisionHistoryLimit: 10
 
 affinity:
   podAntiAffinity:

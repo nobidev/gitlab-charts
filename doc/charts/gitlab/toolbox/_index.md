@@ -128,6 +128,7 @@ gitlab:
 | `databaseReindex.cron.enabled`                           | `false`                                                      | Indicates whether the database reindexing CronJob is enabled |
 | `common.labels`                                          | `{}`                                                         | Supplemental labels that are applied to all objects created by this chart. |
 | `deployment.strategy`                                    | `{ type: 'Recreate' }`                                       | Allows one to configure the update strategy utilized by the deployment |
+| `deployment.revisionHistoryLimit`                        |                                                              | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `enabled`                                                | `true`                                                       | Toolbox enablement flag |
 | `extra`                                                  | `{}`                                                         | YAML block for [extra `gitlab.yml` configuration](https://gitlab.com/gitlab-org/gitlab/-/blob/8d2b59dbf232f17159d63f0359fa4793921896d5/config/gitlab.yml.example#L1193-1199) |
 | `image.pullPolicy`                                       | `IfNotPresent`                                               | Toolbox image pull policy |
@@ -180,7 +181,7 @@ Information concerning configuring backups in the
 [backup and restore documentation](../../../backup-restore/_index.md). Additional
 information about the technical implementation of how the backups are
 performed can be found in the
-[backup and restore architecture documentation](../../../architecture/backup-restore.md).]
+[backup and restore architecture documentation](../../../architecture/backup-restore.md).
 
 ### Registry metadata database credentials
 

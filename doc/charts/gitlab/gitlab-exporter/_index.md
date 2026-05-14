@@ -42,6 +42,7 @@ to the `helm install` command using the `--set` flags.
 | `podLabels`                                              |                                                            | Supplemental Pod labels. Will not be used for selectors. |
 | `common.labels`                                          |                                                            | Supplemental labels that are applied to all objects created by this chart. |
 | `deployment.strategy`                                    | `{}`                                                       | Allows one to configure the update strategy utilized by the deployment |
+| `deployment.revisionHistoryLimit`                        |                                                            | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `enabled`                                                | `true`                                                     | GitLab Exporter enabled flag |
 | `extraContainers`                                        |                                                            | Multiline literal style string containing a list of containers to include |
 | `extraInitContainers`                                    |                                                            | List of extra init containers to include |
@@ -92,7 +93,7 @@ to the `helm install` command using the `--set` flags.
 | `psql.port`                                              |                                                            | Set PostgreSQL server port. Takes precedence over `global.psql.port` |
 | `tls.enabled`                                            | `false`                                                    | GitLab Exporter TLS enabled |
 | `tls.secretName`                                         | `{Release.Name}-gitlab-exporter-tls`                       | GitLab Exporter TLS secret. Must point to a [Kubernetes TLS secret](https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets). |
-| `listenAddr`                                             | `*`                                                       | GitLab Exporter listen address. |
+| `listenAddr`                                             | `*`                                                        | GitLab Exporter listen address. |
 
 ## Chart configuration examples
 

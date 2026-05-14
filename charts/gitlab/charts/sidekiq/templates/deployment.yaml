@@ -49,6 +49,11 @@ spec:
   {{- if or $.Values.deployment.strategy .strategy}}
   strategy: {{ default $.Values.deployment.strategy .strategy | toYaml | nindent 4 }}
   {{- end }}
+  {{- if hasKey $.Values.deployment "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ $.Values.deployment.revisionHistoryLimit }}
+  {{- else if hasKey $.Values.global "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ $.Values.global.revisionHistoryLimit }}
+  {{- end }}
   template:
     metadata:
       labels:

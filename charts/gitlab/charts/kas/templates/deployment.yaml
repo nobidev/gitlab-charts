@@ -18,6 +18,11 @@ spec:
   {{- if .Values.deployment.strategy }}
   strategy: {{ .Values.deployment.strategy | toYaml | nindent 4 }}
   {{- end }}
+  {{- if hasKey .Values.deployment "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  {{- else if hasKey $.Values.global "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ $.Values.global.revisionHistoryLimit }}
+  {{- end }}
   {{- if .Values.deployment.minReadySeconds }}
   minReadySeconds: {{ .Values.deployment.minReadySeconds }}
   {{- end }}

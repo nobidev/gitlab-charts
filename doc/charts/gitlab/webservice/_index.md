@@ -56,6 +56,7 @@ to the `helm install` command using the `--set` flags.
 | `deployment.readinessProbe.successThreshold`                  | `1`                                                             | Minimum consecutive successes for the readiness probe to be considered successful after having failed |
 | `deployment.readinessProbe.failureThreshold`                  | `3`                                                             | Minimum consecutive failures for the readiness probe to be considered failed after having succeeded |
 | `deployment.strategy`                                         | `{}`                                                            | Allows one to configure the update strategy used by the deployment. When not provided, the cluster default is used. |
+| `deployment.revisionHistoryLimit`                             |                                                                 | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `enabled`                                                     | `true`                                                          | Webservice enabled flag |
 | `extraContainers`                                             |                                                                 | Multiline literal style string containing a list of containers to include |
 | `extraInitContainers`                                         |                                                                 | List of extra init containers to include |
@@ -218,7 +219,7 @@ to the `helm install` command using the `--set` flags.
 | `workhorse.circuitBreaker.consecutiveFailures`                | `5`.                                                            | The number of consecutive failed requests to open the circuit breaker when closed |
 | `webServer`                                                   | `puma`                                                          | Selects web server (Webservice/Puma) that would be used for request handling |
 | `priorityClassName`                                           | `""`                                                            | Allow configuring pods `priorityClassName`, this is used to control pod priority in case of eviction |
-| `antiAffinity`                                           | `""`                                                         | Allow you to overwrite antiAffinity values from chart global values, default is read from global, could be set to `soft` or `hard` |
+| `antiAffinity`                                                | `""`                                                            | Allow you to overwrite antiAffinity values from chart global values, default is read from global, could be set to `soft` or `hard` |
 
 ## Chart configuration examples
 
@@ -811,7 +812,7 @@ The following values are used to configure the Webservice Pods.
 Metrics can be enabled with the `metrics.enabled` value and use the GitLab
 monitoring exporter to expose a metrics port. Pods are either given Prometheus
 annotations or if `metrics.serviceMonitor.enabled` is `true` a Prometheus
-Operator ServiceMonitor is created. Metrics can alternativly be scraped from
+Operator ServiceMonitor is created. Metrics can alternatively be scraped from
 the `/-/metrics` endpoint, but this requires [GitLab Prometheus metrics](https://docs.gitlab.com/administration/monitoring/prometheus/gitlab_metrics/)
 to be enabled in the Admin area. The GitLab Workhorse metrics can also be
 exposed via `workhorse.metrics.enabled` but these can't be collected using the

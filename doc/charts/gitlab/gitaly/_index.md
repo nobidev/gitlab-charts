@@ -135,6 +135,7 @@ the `helm install` command using the `--set` flags.
 | `statefulset.startupProbe.timeoutSeconds`                | `1`                                                     | When the startup probe times out |
 | `statefulset.startupProbe.successThreshold`              | `1`                                                     | Minimum consecutive successes for the startup probe to be considered successful after having failed |
 | `statefulset.startupProbe.failureThreshold`              | `60`                                                    | Minimum consecutive failures for the startup probe to be considered failed after having succeeded |
+| `statefulset.revisionHistoryLimit`                       |                                                         | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `metrics.enabled`                                        | `false`                                                 | If a metrics endpoint should be made available for scraping |
 | `metrics.port`                                           | `9236`                                                  | Metrics endpoint port |
 | `metrics.path`                                           | `/metrics`                                              | Metrics endpoint path |
@@ -490,7 +491,7 @@ To use them:
    gitlab:
      gitaly:
        extraEnvFrom:
-          # Mount the exisitign object store secret to the expected environment variables.
+          # Mount the existing object store secret to the expected environment variables.
           AWS_ACCESS_KEY_ID:
             secretKeyRef:
               name: <Rails object store secret>

@@ -77,6 +77,7 @@ controlled by `global.shell.port`.
 | `deployment.readinessProbe.failureThreshold`             | `2`                                                     | Minimum consecutive failures for the readiness probe to be considered failed after having succeeded |
 | `deployment.strategy`                                    | `{}`                                                    | Allows one to configure the update strategy utilized by the deployment |
 | `deployment.terminationGracePeriodSeconds`               | `30`                                                    | Seconds that Kubernetes will wait for a pod to forcibly exit |
+| `deployment.revisionHistoryLimit`                        |                                                          | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `enabled`                                                | `true`                                                  | Shell enable flag |
 | `extraContainers`                                        |                                                         | Multiline literal style string containing a list of containers to include |
 | `extraInitContainers`                                    |                                                         | List of extra init containers to include |
@@ -375,7 +376,7 @@ Any configuration supplied _must_ meet the functional requirements of `sshd_conf
 #### opensshd.supplemental_config
 
 The content of `.opensshd.supplemental_config` will be directly placed at the end the `sshd_config` file within the container.
-This value should be a mutli-line string.
+This value should be a multi-line string.
 
 Example, enabling older clients using the `ssh-rsa` key exchange algorithms. Note that enabling deprecated algorithms, such as `ssh-rsa`, creates [significant security vulnerabilities](https://www.openssh.com/txt/release-8.8). The likelihood of exploitation is **significantly amplified** on publicly exposed GitLab instances with these changes.
 
@@ -430,11 +431,11 @@ To configure the chart:
    gitlab:
      gitlab-shell:
        sshDaemon: gitlab-sshd
-        config:
-          trustedUserCAKeys:
-            secret: my-ssh-ca-keys
-            keys:
-              - ca.pub
+       config:
+         trustedUserCAKeys:
+           secret: my-ssh-ca-keys
+           keys:
+             - ca.pub
    ```
 
    The `secret` field is the name of the Kubernetes Secret.
@@ -460,7 +461,7 @@ Pods to specific endpoints.
 ### Example Network Policy
 
 The `gitlab-shell` service requires Ingress connections for port 22 and Egress
-connections to various to default workhorse port 8181. This example adds the
+connections to default workhorse port 8181. This example adds the
 following network policy:
 
 - Allows Ingress requests:
@@ -560,4 +561,4 @@ Refer to the [KEDA documentation](https://keda.sh/docs/2.10/concepts/scaling-dep
 | `behavior`                      |   Map   | `hpa.behavior`                  | The specifications for up- and downscaling behavior. |
 | `triggers`                      |  Array  |                                 | List of triggers to activate scaling of the target resource, defaults to triggers computed from `hpa.cpu` and `hpa.memory` |
 
-See [`examples/keda/gitlab-shell.yml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/keda/gitlab-shell.yml) for an usage example of `keda`.
+See [`examples/keda/gitlab-shell.yml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/keda/gitlab-shell.yml) for a usage example of `keda`.

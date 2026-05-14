@@ -196,6 +196,7 @@ serviceAccount:
 
 deployment:
   strategy: {}
+  # revisionHistoryLimit: 10
 
 affinity:
   podAntiAffinity:
