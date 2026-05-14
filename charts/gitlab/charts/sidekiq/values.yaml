@@ -250,6 +250,7 @@ concurrency: 20
 deployment:
   strategy: {}
   terminationGracePeriodSeconds: 30
+  # revisionHistoryLimit: 10
 
 hpa:
   # targetAverageValue: 350m  # DEPRECATED: in favor of `hpa.cpu.targetAverageValue` below

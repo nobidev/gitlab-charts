@@ -270,27 +270,27 @@ the `helm install` command using the `--set` flags.
 
 | Parameter                                                | Default                                           | Description |
 |----------------------------------------------------------|---------------------------------------------------|-------------|
-| common.labels                                            | `{}`                                              | Supplemental labels that are applied to all objects created by this chart. |
-| failover.enabled                                         | true                                              | Whether Praefect should perform failover on node failure |
-| failover.readonlyAfter                                   | false                                             | Whether the nodes should be in read-only mode after failover |
-| autoMigrate                                              | true                                              | Automatically run migrations on startup |
-| image.repository                                         | `registry.gitlab.com/gitlab-org/build/cng/gitaly` | The default image repository to use. Praefect is bundled as part of the Gitaly image |
-| podLabels                                                | `{}`                                              | Supplemental Pod labels. Will not be used for selectors. |
-| ntpHost                                                  | `pool.ntp.org`                                    | Configure the NTP server Praefect should ask the for the current time. |
-| service.name                                             | `praefect`                                        | The name of the service to create |
-| service.type                                             | ClusterIP                                         | The type of service to create |
-| service.internalPort                                     | 8075                                              | The internal port number that the Praefect pod will be listening on |
-| service.externalPort                                     | 8075                                              | The port number the Praefect service should expose in the cluster |
-| init.resources                                           |                                                   |             |
-| init.image                                               |                                                   |             |
+| `common.labels`                                          | `{}`                                              | Supplemental labels that are applied to all objects created by this chart. |
+| `failover.enabled`                                       | true                                              | Whether Praefect should perform failover on node failure |
+| `failover.readonlyAfter`                                 | false                                             | Whether the nodes should be in read-only mode after failover |
+| `autoMigrate`                                            | true                                              | Automatically run migrations on startup |
+| `image.repository`                                       | `registry.gitlab.com/gitlab-org/build/cng/gitaly` | The default image repository to use. Praefect is bundled as part of the Gitaly image |
+| `podLabels`                                              | `{}`                                              | Supplemental Pod labels. Will not be used for selectors. |
+| `ntpHost`                                                | `pool.ntp.org`                                    | Configure the NTP server Praefect should ask the for the current time. |
+| `service.name`                                           | `praefect`                                        | The name of the service to create |
+| `service.type`                                           | ClusterIP                                         | The type of service to create |
+| `service.internalPort`                                   | 8075                                              | The internal port number that the Praefect pod will be listening on |
+| `service.externalPort`                                   | 8075                                              | The port number the Praefect service should expose in the cluster |
+| `init.resources`                                         |                                                   |             |
+| `init.image`                                             |                                                   |             |
 | `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                           | initContainer specific: Controls whether a process can gain more privileges than its parent process |
 | `init.containerSecurityContext.runAsNonRoot`             | `true`                                            | initContainer specific: Controls whether the container runs with a non-root user |
 | `init.containerSecurityContext.capabilities.drop`        | `[ "ALL" ]`                                       | initContainer specific: Removes [Linux capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html) for the container |
-| extraEnvFrom                                             |                                                   | List of extra environment variables from other data sources to expose |
-| logging.level                                            |                                                   | Log level   |
-| logging.format                                           | `json`                                            | Log format  |
-| logging.sentryDsn                                        |                                                   | Sentry DSN URL - Exceptions from Go server |
-| logging.sentryEnvironment                                |                                                   | Sentry environment to be used for logging |
+| `extraEnvFrom`                                           |                                                   | List of extra environment variables from other data sources to expose |
+| `logging.level`                                          |                                                   | Log level   |
+| `logging.format`                                         | `json`                                            | Log format  |
+| `logging.sentryDsn`                                      |                                                   | Sentry DSN URL - Exceptions from Go server |
+| `logging.sentryEnvironment`                              |                                                   | Sentry environment to be used for logging |
 | `metrics.enabled`                                        | `true`                                            | If a metrics endpoint should be made available for scraping |
 | `metrics.port`                                           | `9236`                                            | Metrics endpoint port |
 | `metrics.separate_database_metrics`                      | `true`                                            | If true then metrics scrapes will not perform database queries, setting to false [may cause performance problems](https://gitlab.com/gitlab-org/gitaly/-/issues/3796) |
@@ -299,9 +299,9 @@ the `helm install` command using the `--set` flags.
 | `affinity`                                               | `{}`                                              | [Affinity rules](../_index.md#affinity) for pod assignment |
 | `metrics.serviceMonitor.additionalLabels`                | `{}`                                              | Additional labels to add to the ServiceMonitor |
 | `metrics.serviceMonitor.endpointConfig`                  | `{}`                                              | Additional endpoint configuration for the ServiceMonitor |
-| securityContext.runAsUser                                | 1000                                              |             |
-| securityContext.fsGroup                                  | 1000                                              |             |
-| securityContext.fsGroupChangePolicy                      |                                                   | Policy for changing ownership and permission of the volume (requires Kubernetes 1.23) |
+| `securityContext.runAsUser`                              | 1000                                              |             |
+| `securityContext.fsGroup`                                | 1000                                              |             |
+| `securityContext.fsGroupChangePolicy`                    |                                                   | Policy for changing ownership and permission of the volume (requires Kubernetes 1.23) |
 | `securityContext.seccompProfile.type`                    | `RuntimeDefault`                                  | Seccomp profile to use |
 | `containerSecurityContext.allowPrivilegeEscalation`      | `false`                                           | Controls whether a process of the container can gain more privileges than its parent process |
 | `containerSecurityContext.runAsNonRoot`                  | `true`                                            | Controls whether the container runs with a non-root user |
@@ -311,8 +311,9 @@ the `helm install` command using the `--set` flags.
 | `serviceAccount.create`                                  | `false`                                           | Indicates whether or not a ServiceAccount should be created |
 | `serviceAccount.enabled`                                 | `false`                                           | Indicates whether or not to use a ServiceAccount |
 | `serviceAccount.name`                                    |                                                   | Name of the ServiceAccount. If not set, the full chart name is used |
-| serviceLabels                                            | `{}`                                              | Supplemental service labels |
-| statefulset.strategy                                     | `{}`                                              | Allows one to configure the update strategy utilized by the statefulset |
+| `serviceLabels`                                          | `{}`                                              | Supplemental service labels |
+| `statefulset.strategy`                                   | `{}`                                              | Allows one to configure the update strategy utilized by the statefulset |
+| `statefulset.revisionHistoryLimit`                       |                                                   | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 
 ### serviceAccount
 

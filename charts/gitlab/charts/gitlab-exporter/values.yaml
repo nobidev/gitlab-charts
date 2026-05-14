@@ -110,6 +110,7 @@ extraEnv:
 
 deployment:
   strategy: {}
+  # revisionHistoryLimit: 10
 
 affinity:
   podAntiAffinity:

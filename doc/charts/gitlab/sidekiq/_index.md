@@ -50,6 +50,7 @@ to the `helm install` command using the `--set` flags:
 | `concurrency`                                            | `20`                                                         | Sidekiq default concurrency |
 | `deployment.strategy`                                    | `{}`                                                         | Allows one to configure the update strategy utilized by the deployment |
 | `deployment.terminationGracePeriodSeconds`               | `30`                                                         | Optional duration in seconds the pod needs to terminate gracefully. |
+| `deployment.revisionHistoryLimit`                        |                                                              | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `enabled`                                                | `true`                                                       | Sidekiq enabled flag |
 | `extraContainers`                                        |                                                              | Multiline literal style string containing a list of containers to include |
 | `extraInitContainers`                                    |                                                              | List of extra init containers to include |

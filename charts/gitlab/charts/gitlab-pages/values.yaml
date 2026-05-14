@@ -100,6 +100,7 @@ init:
 
 deployment:
   strategy: {}
+  # revisionHistoryLimit: 10
   readinessProbe:
     initialDelaySeconds: 0
     periodSeconds: 10

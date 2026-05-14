@@ -185,6 +185,7 @@ workspaces:
 deployment:
   terminationGracePeriodSeconds: 300
   strategy: {}
+  # revisionHistoryLimit: 10
   # minReadySeconds: 0
 
 ## Allow to overwrite under which User and Group the Pod will be running.

@@ -45,6 +45,7 @@ configurations that can be supplied to the `helm install` command using the
 | `annotations`                                            |                                                         | Pod annotations |
 | `common.labels`                                          | `{}`                                                    | Supplemental labels that are applied to all objects created by this chart. |
 | `deployment.strategy`                                    | `{}`                                                    | Allows one to configure the update strategy used by the deployment. When not provided, the cluster default is used. |
+| `deployment.revisionHistoryLimit`                        |                                                         | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `extraEnv`                                               |                                                         | List of extra environment variables to expose |
 | `extraEnvFrom`                                           |                                                         | List of extra environment variables from other data source to expose |
 | `hpa.behavior`                                           | `{scaleDown: {stabilizationWindowSeconds: 300 }}`       | Behavior contains the specifications for up- and downscaling behavior (requires `autoscaling/v2beta2` or higher) |
@@ -236,7 +237,7 @@ Pods to specific endpoints.
 ### Example Network Policy
 
 The `gitlab-pages` service requires Ingress connections for port 80 and 443 and
-Egress connections to various to default workhorse port 8181. This example adds
+Egress connections to default workhorse port 8181. This example adds
 the following network policy:
 
 - Allows Ingress requests:

@@ -222,12 +222,16 @@
         "terminationGracePeriodSeconds": {
           "type": "integer",
           "minimum": 5
-	      }
+	      },
+        "revisionHistoryLimit": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
       "required": [
         "livenessProbe"
       ],
-      "title": "Deploment details",
+      "title": "Deployment details",
       "type": "object"
     },
     "enabled": {

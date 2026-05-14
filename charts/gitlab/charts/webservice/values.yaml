@@ -219,6 +219,7 @@ deployment:
   # related to this subject.
   # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
   strategy: {}
+  # revisionHistoryLimit: 10
 
 workhorse:
   keywatcher: true

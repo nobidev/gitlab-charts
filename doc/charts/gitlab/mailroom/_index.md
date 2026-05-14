@@ -87,6 +87,7 @@ serviceAccount:
 | `affinity`                                    | `{}`                                                       | [Affinity rules](../_index.md#affinity) for pod assignment |
 | `annotations`                                 | `{}`                                                       | Pod annotations. |
 | `deployment.strategy`                         | `{}`                                                       | Allows one to configure the update strategy utilized by the deployment |
+| `deployment.revisionHistoryLimit`             |                                                            | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `enabled`                                     | `true`                                                     | Mailroom enablement flag |
 | `hpa.behavior`                                | `{scaleDown: {stabilizationWindowSeconds: 300 }}`          | Behavior contains the specifications for up- and downscaling behavior (requires `autoscaling/v2beta2` or higher) |
 | `hpa.customMetrics`                           | `[]`                                                       | Custom metrics contains the specifications for which to use to calculate the desired replica count (overrides the default use of Average CPU Utilization configured in `targetAverageUtilization`) |

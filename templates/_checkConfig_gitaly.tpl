@@ -28,7 +28,7 @@ gitaly:
 {{- end }}
 {{- end -}}
 {{- end -}}
-{{/* END gitlab.checkConfig.gitaly.storageNames -}}
+{{/* END gitlab.checkConfig.gitaly.storageNames */}}
 
 {{/*
 Ensure that if a user is migrating to Praefect, none of the Praefect virtual storage
@@ -46,7 +46,7 @@ praefect:
 {{-   end }}
 {{- end -}}
 {{- end -}}
-{{/* END gitlab.checkConfig.praefect.storageNames" -}}
+{{/* END gitlab.checkConfig.praefect.storageNames */}}
 
 {{/*
 Ensure that defaultReplicationFactor is greater then 0, and less than gitalyReplicas's number
@@ -91,7 +91,7 @@ gitaly:
 {{- end -}}
 {{/* END gitlab.checkConfig.gitaly.tls */}}
 
-{{/* Check configuration of Gitaly external repos*/}}
+{{/* Check configuration of Gitaly external repos */}}
 {{- define "gitlab.checkConfig.gitaly.extern.repos" -}}
 {{-   if (and (not .Values.global.gitaly.enabled) (not .Values.global.gitaly.external) ) }}
 gitaly:
@@ -100,7 +100,7 @@ gitaly:
 {{- end -}}
 {{/* END gitlab.checkConfig.gitaly.extern.repos */}}
 
-{{/* Check that both GPG secret and key are set*/}}
+{{/* Check that both GPG secret and key are set */}}
 {{- define "gitlab.checkConfig.gitaly.gpgSigning" -}}
 {{-   if and $.Values.global.gitaly.enabled $.Values.gitlab.gitaly.gpgSigning.enabled -}}
 {{-     if not (and $.Values.gitlab.gitaly.gpgSigning.secret $.Values.gitlab.gitaly.gpgSigning.key) -}}

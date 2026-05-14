@@ -198,6 +198,7 @@ serviceAccount:
 
 statefulset:
   strategy: {}
+  # revisionHistoryLimit: 10
   livenessProbe:
     initialDelaySeconds: 0
     periodSeconds: 10

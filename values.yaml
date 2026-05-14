@@ -850,6 +850,9 @@ global:
   deployment:
     annotations: {}
 
+  ## Sets the revisionHistoryLimit for all StatefulSets and Deployments, can be overridden in the individual sub-charts.
+  # revisionHistoryLimit: 10
+
 
   # Setting a global nodeAffinity only applies to the registry chart for now.
   # See issue https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/issues/25403 for more information

@@ -820,7 +820,7 @@ global:
 [Gitaly](https://gitlab.com/gitlab-org/gitaly) is a service that provides high-level
 RPC access to Git repositories, which handles all Git calls made by GitLab.
 
-Administrators can chose to use Gitaly nodes in the following ways:
+Administrators can choose to use Gitaly nodes in the following ways:
 
 - [Internal to the chart](#internal), as part of a `StatefulSet` via the [Gitaly chart](gitlab/gitaly/_index.md).
 - [External to the chart](#external), as external pets.
@@ -1582,7 +1582,7 @@ Example `--set` configuration items, when using the global chart:
 
 It can be useful to prevent using LDAP credentials through the web UI when an alternative such as SAML is preferred. This allows LDAP to be used for group sync, while also allowing your SAML identity provider to handle additional checks like custom 2FA.
 
-When LDAP web sign in is disabled, users will not see a LDAP tab on the sign in page. This does not disable
+When LDAP web sign in is disabled, users will not see an LDAP tab on the sign in page. This does not disable
 [using LDAP credentials for Git access](https://docs.gitlab.com/administration/settings/sign_in_restrictions/#allow-password-authentication-for-git-over-https).
 
 To disable the use of LDAP for web sign-in, set `global.appConfig.ldap.preventSignin: true`.
@@ -2314,7 +2314,7 @@ gitlab:
 ```
 
 In the above example, all components associated with the `pod-0` Sidekiq
-deployment will also recieve the label set `baz: bat`. Refer to the Sidekiq and
+deployment will also receive the label set `baz: bat`. Refer to the Sidekiq and
 Webservice charts for additional details.
 
 Some charts that we depend on are excluded from this label configuration. Only
@@ -2551,7 +2551,7 @@ platform like GKE or EKS.
 ## Affinity
 
 Affinity configuration is available via `global.antiAffinity` and `global.affinity`.
-Affinity allows you to constrain which nodes your pod is eligible to be scheduled on, based on node labels or labels of pods that are already running on a node. This allow spread pods across the cluster or select specific nodes, ensuring more resilience in case of a failing node.
+Affinity allows you to constrain which nodes your pod is eligible to be scheduled on, based on node labels or labels of pods that are already running on a node. This allows spread pods across the cluster or select specific nodes, ensuring more resilience in case of a failing node.
 
 ```yaml
 global:
@@ -2579,7 +2579,7 @@ Kubernetes references on [Inter-pod affinity and anti-affinity](https://kubernet
 ## Pod Priority and Preemption
 
 Pod priorities can be configured either via `global.priorityClassName` or per sub-chart via `priorityClassName`.
-Setting pod priority allows you to tell the scheduler to evict lower priority pods to make scheduling of pendings pods possible.
+Setting pod priority allows you to tell the scheduler to evict lower priority pods to make scheduling of pending pods possible.
 
 ```yaml
 global:
@@ -2660,3 +2660,16 @@ global:
 | Name         | Type   | Default | Description |
 |:-------------|:-------|:--------|:------------|
 | `apiVersion` | String |         | Overrides the default `apiVersion` of Traefik resources |
+
+## Configure the number of old revisions retained for the deployed StatefulSets and Deployments
+
+The `global.revisionHistoryLimit` setting allows setting the `revisionHistoryLimit` option for all GitLab sub-charts. This option can be overridden on a per-chart basis in the respective sub-charts' `values.yaml` files.
+
+```yaml
+global:
+  revisionHistoryLimit: 10
+```
+
+| Name                   | Type    | Default | Description                                               |
+|:-----------------------|:--------|:--------|:----------------------------------------------------------|
+| `revisionHistoryLimit` | Integer |         | Sets the `revisionHistoryLimit` for all GitLab sub-charts |

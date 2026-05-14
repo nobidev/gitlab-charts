@@ -118,6 +118,7 @@ You can pass these parameters to the `helm install` command by using the `--set`
 | `containerSecurityContext.allowPrivilegeEscalation`      | `false`                                               | Controls whether a process of the container can gain more privileges than its parent process |
 | `containerSecurityContext.runAsNonRoot`                  | `true`                                                | Controls whether the container runs with a non-root user |
 | `containerSecurityContext.capabilities.drop`             | `[ "ALL" ]`                                           | Removes [Linux capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html) for the Gitaly container |
+| `deployment.revisionHistoryLimit`                        |                                                       | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `extraContainers`                                        |                                                       | Multiline literal style string containing a list of containers to include. |
 | `extraEnv`                                               |                                                       | List of extra environment variables to expose |
 | `extraEnvFrom`                                           |                                                       | List of extra environment variables from other data sources to expose |
