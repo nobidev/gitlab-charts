@@ -19,7 +19,7 @@ describe 'middleware configuration' do
 
   context 'When customer provides middleware storage configuration' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         registry:
           middleware:
             storage:
@@ -30,7 +30,7 @@ describe 'middleware configuration' do
                     secret: cdn-private-key
                     key: private.pem
                   keypairid: GIBBERISH
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'Populates the middleware storage configuration in expected manner' do

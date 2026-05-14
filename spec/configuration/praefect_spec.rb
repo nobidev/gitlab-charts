@@ -37,11 +37,11 @@ describe 'Praefect configuration' do
 
   context 'with Praefect disabled' do
     let(:values_praefect_disabled) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           praefect:
             enabled: false
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values_praefect_disabled) }
@@ -59,11 +59,11 @@ describe 'Praefect configuration' do
 
   context 'with Praefect enabled' do
     let(:values_praefect_enabled) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           praefect:
             enabled: true
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values_praefect_enabled) }

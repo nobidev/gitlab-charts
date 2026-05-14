@@ -24,7 +24,7 @@ describe 'toolbox registry database configuration' do
 
   context 'when registry database backup user is configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           toolbox:
             backups:
@@ -35,7 +35,7 @@ describe 'toolbox registry database configuration' do
                     secret: registry-db-password
                     backupPasswordKey: backupPassword
                     restorePasswordKey: restorePassword
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -120,7 +120,7 @@ describe 'toolbox registry database configuration' do
 
   context 'when registry database restore user is configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           toolbox:
             backups:
@@ -131,7 +131,7 @@ describe 'toolbox registry database configuration' do
                     secret: registry-db-password
                     backupPasswordKey: backupPassword
                     restorePasswordKey: restorePassword
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -216,7 +216,7 @@ describe 'toolbox registry database configuration' do
 
   context 'when both backup and restore users are configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           toolbox:
             backups:
@@ -228,7 +228,7 @@ describe 'toolbox registry database configuration' do
                     secret: registry-db-password
                     backupPasswordKey: backupPassword
                     restorePasswordKey: restorePassword
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -275,7 +275,7 @@ describe 'toolbox registry database configuration' do
 
   context 'when custom password secret is configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           toolbox:
             backups:
@@ -286,7 +286,7 @@ describe 'toolbox registry database configuration' do
                     secret: custom-registry-secret
                     backupPasswordKey: custom-backup-key
                     restorePasswordKey: custom-restore-key
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -305,14 +305,14 @@ describe 'toolbox registry database configuration' do
 
   context 'when using default password secret' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           toolbox:
             backups:
               registry:
                 database:
                   backupUser: registry_user
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }

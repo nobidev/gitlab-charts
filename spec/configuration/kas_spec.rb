@@ -55,7 +55,7 @@ describe 'kas configuration' do
 
   context 'When customer provides additional labels' do
     let(:kas_label_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           common:
             labels:
@@ -87,7 +87,7 @@ describe 'kas configuration' do
             serviceLabels:
               service: true
               global: service
-      )).deep_merge!(default_values)
+      )))
     end
 
     it 'Populates the additional labels in the expected manner' do

@@ -29,13 +29,13 @@ describe 'Redis configuration' do
 
     context 'timeouts set' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               connectTimeout: 3
               readTimeout: 4
               writeTimeout: 5
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'renders {connect,read,write}_timeout values' do
@@ -69,12 +69,12 @@ describe 'Redis configuration' do
 
   describe 'global.redis.auth.enabled' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           redis:
             auth:
               enabled: true
-      )).deep_merge!(default_values)
+      )))
     end
 
     context 'when true' do
@@ -87,12 +87,12 @@ describe 'Redis configuration' do
 
     context 'when false' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               auth:
                 enabled: false
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'do not populate password' do
@@ -105,12 +105,12 @@ describe 'Redis configuration' do
 
   describe 'global.redis.sentinelAuth.enabled' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           redis:
             sentinelAuth:
               enabled: true
-      )).deep_merge!(default_values)
+      )))
     end
 
     context 'when true' do
@@ -123,12 +123,12 @@ describe 'Redis configuration' do
 
     context 'when false' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               senntinelAuth:
                 enabled: false
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'do not populate password' do
@@ -143,7 +143,7 @@ describe 'Redis configuration' do
     context 'when redisYmlOverride is set' do
       context 'when redisYmlOverrideSecrets contains invalid secrets' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 redisYmlOverride:
@@ -155,7 +155,7 @@ describe 'Redis configuration' do
                       secret: gitlab-redis-cache-credential-v2
                       key: password
 
-          )).deep_merge!(default_values)
+          )))
         end
 
         it 'skips render only for invalid secret' do
@@ -188,7 +188,7 @@ describe 'Redis configuration' do
 
       context 'when using both global.redis.redisYmlOverride.xxx and global.redis.xxx to define secrets' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: placeholder
@@ -205,7 +205,7 @@ describe 'Redis configuration' do
                       enabled: true
                       secret: gitlab-redis-cache-credential-v3
                       key: password
-          )).deep_merge!(default_values)
+          )))
         end
 
         it 'renders both secret without namespace clash' do
@@ -226,7 +226,7 @@ describe 'Redis configuration' do
 
       context 'when redisYmlOverride contains disabled secrets' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: placeholder
@@ -247,7 +247,7 @@ describe 'Redis configuration' do
                       enabled: true
                       secret: gitlab-redis-cluster-chat-cache-rails-credential-v2
                       key: password
-          )).deep_merge!(default_values)
+          )))
         end
 
         it 'renders custom enabled secrets as a volume alongside other secrets' do
@@ -270,7 +270,7 @@ describe 'Redis configuration' do
 
       context 'when rendering redis.yml.erb' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               redisYmlOverride:
@@ -293,7 +293,7 @@ describe 'Redis configuration' do
                     secret: gitlab-redis-cache-credentials-v2
                     key: password
 
-        )).deep_merge!(default_values)
+        )))
         end
 
         it 'replaces password with ERB string where required' do
@@ -337,7 +337,7 @@ describe 'Redis configuration' do
 
     context 'when redisYmlOverride is configured' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               redisYmlOverride:
@@ -350,7 +350,7 @@ describe 'Redis configuration' do
                 # ERB should pass through Helm without being evaluated
                 some:
                   password: <%= File.read('/path/to/password').chomp %>
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'renders arbitrary values' do
@@ -398,7 +398,7 @@ describe 'Redis configuration' do
 
     context 'When cache defines auth.secret (matching global auth pattern) instead of password' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -408,7 +408,7 @@ describe 'Redis configuration' do
                 host: cache.redis
                 auth:
                   secret: rspec-cache
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'cache uses its own auth secret, not the global one' do
@@ -427,7 +427,7 @@ describe 'Redis configuration' do
 
     context 'When sub-queue defines password.secret, but not password.enabled' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -437,7 +437,7 @@ describe 'Redis configuration' do
                 host: cache.redis
                 password:
                   secret: rspec-cache
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'sub-queue inherits from global' do
@@ -457,7 +457,7 @@ describe 'Redis configuration' do
 
     context 'When sub-queue defines password.enabled true, and redis.password.enabled is false' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -469,7 +469,7 @@ describe 'Redis configuration' do
                 password:
                   enabled: true
                   secret: rspec-cache
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'sub-queue uses password, global does not' do
@@ -489,7 +489,7 @@ describe 'Redis configuration' do
 
     context 'When sub-queue defines password.enabled false, and redis.password.enabled is true' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -501,7 +501,7 @@ describe 'Redis configuration' do
                 password:
                   enabled: false
                   secret: rspec-cache
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'sub-queue does not use password, global does' do
@@ -521,7 +521,7 @@ describe 'Redis configuration' do
 
     context 'When global defines user' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -531,7 +531,7 @@ describe 'Redis configuration' do
                 secret: rspec-resque
               cache:
                 host: cache.redis
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'global uses user' do
@@ -567,7 +567,7 @@ describe 'Redis configuration' do
 
     context 'When global and sub-queue defines Sentinels' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -584,7 +584,7 @@ describe 'Redis configuration' do
                   port: 26379
                 - host: s2.cache.redis
                   port: 26379
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'separate sentinels are populated' do
@@ -600,7 +600,7 @@ describe 'Redis configuration' do
 
     context 'When only sub-queue defines Sentinels' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -612,7 +612,7 @@ describe 'Redis configuration' do
                   port: 26379
                 - host: s2.cache.redis
                   port: 26379
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'sub-queue sentinels are populated' do
@@ -627,7 +627,7 @@ describe 'Redis configuration' do
 
     context 'When Sentinels have TLS enabled via ssl flag' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -648,7 +648,7 @@ describe 'Redis configuration' do
                 - host: s2.cache.redis
                   port: 26379
                   ssl: false
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'renders sentinels with ssl flag in YAML' do
@@ -667,7 +667,7 @@ describe 'Redis configuration' do
 
     context 'When Sentinels have TLS enabled via sentinelTLS' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -705,7 +705,7 @@ describe 'Redis configuration' do
                   caFile:
                     secret: sentinel-ca
                     key: ca.crt
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'renders Sentinels with ssl_params in YAML' do
@@ -728,7 +728,7 @@ describe 'Redis configuration' do
 
     context 'When Sentinels have mixed TLS settings' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -740,7 +740,7 @@ describe 'Redis configuration' do
               - host: s2.resque.redis
                 port: 26379
                 ssl: false
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'fails validation' do
@@ -754,7 +754,7 @@ describe 'Redis configuration' do
   describe 'Redis Cluster' do
     context 'When only nested redis defines cluster' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -767,7 +767,7 @@ describe 'Redis configuration' do
                 cluster:
                 - host: s1.cluster-cache.redis
                 - host: s2.cluster-cache.redis
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'Only nested redis cluster is populated' do
@@ -782,7 +782,7 @@ describe 'Redis configuration' do
 
     context 'When only nested redis defines cluster, user, and password' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -795,7 +795,7 @@ describe 'Redis configuration' do
                 cluster:
                 - host: s1.cluster-cache.redis
                 - host: s2.cluster-cache.redis
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'Only nested redis cluster is populated' do
@@ -812,7 +812,7 @@ describe 'Redis configuration' do
 
     context 'When timeouts are defined' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               connectTimeout: 3
@@ -828,7 +828,7 @@ describe 'Redis configuration' do
                 cluster:
                 - host: s1.cluster-cache.redis
                 - host: s2.cluster-cache.redis
-        )).deep_merge!(default_values)
+        )))
       end
 
       let(:redis_cluster_yml_erb) { template.dig('ConfigMap/test-webservice', 'data', 'redis.cluster_cache.yml.erb') }
@@ -844,7 +844,7 @@ describe 'Redis configuration' do
 
     context 'When top level user and password are defined' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: resque.redis
@@ -855,7 +855,7 @@ describe 'Redis configuration' do
                 cluster:
                 - host: s1.cluster-cache.redis
                 - host: s2.cluster-cache.redis
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'No values are inherited by nested redis cluster' do

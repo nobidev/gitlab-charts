@@ -22,7 +22,7 @@ describe 'registry configuration' do
 
   context 'When customer provides additional labels' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           common:
             labels:
@@ -52,7 +52,7 @@ describe 'registry configuration' do
           serviceLabels:
             service: true
             global: service
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'Populates the additional labels in the expected manner' do
@@ -80,7 +80,7 @@ describe 'registry configuration' do
 
   describe 'service TLS is configured' do
     let(:tls_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           hosts:
             registry:
@@ -90,7 +90,7 @@ describe 'registry configuration' do
             enabled: true
           tls:
             enabled: true
-      )).deep_merge(default_values)
+      )))
     end
 
     context 'when enabled without configuration' do
@@ -271,7 +271,7 @@ describe 'registry configuration' do
     describe 'database config' do
       context 'when global registry.database.{user,name} settings are set' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               registry:
                 database:
@@ -281,7 +281,7 @@ describe 'registry configuration' do
               database:
                 enabled: true
                 # user and name not specified locally
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'uses global registry database settings' do
@@ -305,7 +305,7 @@ describe 'registry configuration' do
 
       context 'when global and local registry.database.{user,name} settings are set' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               registry:
                 database:
@@ -316,7 +316,7 @@ describe 'registry configuration' do
                 enabled: true
                 user: local_test_user
                 name: local_test_db
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'gives precedence to local registry database settings' do
@@ -340,7 +340,7 @@ describe 'registry configuration' do
 
       context 'when local registry settings are empty strings' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               registry:
                 database:
@@ -351,7 +351,7 @@ describe 'registry configuration' do
                 enabled: true
                 user: ""
                 name: ""
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'treats empty strings as not set and falls back to global settings' do
@@ -375,7 +375,7 @@ describe 'registry configuration' do
 
       context 'when database.configure is used with global settings' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               registry:
                 database:
@@ -385,7 +385,7 @@ describe 'registry configuration' do
               database:
                 configure: true
                 enabled: false
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'respects configure flag and uses global settings' do
@@ -409,12 +409,12 @@ describe 'registry configuration' do
 
       context 'when primary is provided' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               database:
                 enabled: true
                 primary: "primary.record.fqdn"
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the database primary settings correctly' do
@@ -439,7 +439,7 @@ describe 'registry configuration' do
 
       context 'when backgroundMigrations is enabled' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               database:
                 enabled: true
@@ -447,7 +447,7 @@ describe 'registry configuration' do
                   enabled: true
                   maxJobRetries: 3
                   jobInterval: 5s
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the database backgroundmigrations settings correctly' do
@@ -475,13 +475,13 @@ describe 'registry configuration' do
 
       context 'when backgroundMigrations is enabled and configured properly without maxJobRetries and jobInterval' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               database:
                 enabled: true
                 backgroundMigrations:
                   enabled: true
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the backgroundmigrations settings without maxjobretries and jobinterval' do
@@ -507,7 +507,7 @@ describe 'registry configuration' do
 
       context 'when extraEnv and extraEnvFrom are set' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               extraEnv:
                 EXTRA_ENV_VAR_A: global-a
@@ -521,7 +521,7 @@ describe 'registry configuration' do
               database:
                 enabled: true
                 primary: "primary.record.fqdn"
-          )).deep_merge(default_values)
+          )))
         end
 
         let(:template) { HelmTemplate.new(values) }
@@ -571,12 +571,12 @@ describe 'registry configuration' do
 
         with_them do
           let(:values) do
-            YAML.safe_load(%(
+            default_values.deep_merge(YAML.safe_load(%(
             registry:
               database:
                 configure: #{configure}
                 enabled: #{enabled}
-          )).deep_merge(default_values)
+          )))
           end
 
           let(:config) do
@@ -610,7 +610,7 @@ describe 'registry configuration' do
       describe 'database loadBalancing config' do
         context 'when replicaCheckInterval is provided' do
           let(:values) do
-            YAML.safe_load(%(
+            default_values.deep_merge(YAML.safe_load(%(
               registry:
                 redis:
                   loadBalancing:
@@ -621,7 +621,7 @@ describe 'registry configuration' do
                     enabled: true
                     record: db-replica-registry.service.consul
                     replicaCheckInterval: 1s
-            )).deep_merge(default_values)
+            )))
           end
 
           it 'populates the replicacheckinterval setting correctly' do
@@ -649,7 +649,7 @@ describe 'registry configuration' do
 
         context 'when replicaCheckInterval is not provided' do
           let(:values) do
-            YAML.safe_load(%(
+            default_values.deep_merge(YAML.safe_load(%(
               registry:
                 redis:
                   loadBalancing:
@@ -659,7 +659,7 @@ describe 'registry configuration' do
                   loadBalancing:
                     enabled: true
                     record: db-replica-registry.service.consul
-            )).deep_merge(default_values)
+            )))
           end
 
           it 'does not include the replicaCheckInterval setting' do
@@ -672,7 +672,7 @@ describe 'registry configuration' do
 
         context 'when nameserver.host and nameserver.port are provided' do
           let(:values) do
-            YAML.safe_load(%(
+            default_values.deep_merge(YAML.safe_load(%(
               registry:
                 redis:
                   loadBalancing:
@@ -685,7 +685,7 @@ describe 'registry configuration' do
                     nameserver:
                       host: "nameserver.example.com"
                       port: 5353
-            )).deep_merge(default_values)
+            )))
           end
 
           it 'populates the nameserver host and port settings correctly' do
@@ -714,7 +714,7 @@ describe 'registry configuration' do
 
         context 'when nameserver.host and nameserver.port are not provided' do
           let(:values) do
-            YAML.safe_load(%(
+            default_values.deep_merge(YAML.safe_load(%(
               registry:
                 redis:
                   loadBalancing:
@@ -724,7 +724,7 @@ describe 'registry configuration' do
                   loadBalancing:
                     enabled: true
                     record: db-replica-registry.service.consul
-            )).deep_merge(default_values)
+            )))
           end
 
           it 'does not include the nameserver or port settings' do
@@ -744,7 +744,7 @@ describe 'registry configuration' do
       describe 'database metrics config' do
         context 'when metrics is enabled with all settings' do
           let(:values) do
-            YAML.safe_load(%(
+            default_values.deep_merge(YAML.safe_load(%(
               registry:
                 redis:
                   cache:
@@ -755,7 +755,7 @@ describe 'registry configuration' do
                     enabled: true
                     interval: 15s
                     leaseDuration: 45s
-            )).deep_merge(default_values)
+            )))
           end
 
           it 'populates the metrics settings correctly' do
@@ -783,7 +783,7 @@ describe 'registry configuration' do
 
         context 'when metrics is enabled with default settings' do
           let(:values) do
-            YAML.safe_load(%(
+            default_values.deep_merge(YAML.safe_load(%(
               registry:
                 redis:
                   cache:
@@ -792,7 +792,7 @@ describe 'registry configuration' do
                   enabled: true
                   metrics:
                     enabled: true
-            )).deep_merge(default_values)
+            )))
           end
 
           it 'populates the metrics settings with defaults' do
@@ -820,13 +820,13 @@ describe 'registry configuration' do
 
         context 'when metrics is disabled' do
           let(:values) do
-            YAML.safe_load(%(
+            default_values.deep_merge(YAML.safe_load(%(
               registry:
                 database:
                   enabled: true
                   metrics:
                     enabled: false
-            )).deep_merge(default_values)
+            )))
           end
 
           it 'does not include metrics settings' do
@@ -842,7 +842,7 @@ describe 'registry configuration' do
     describe 'redis cache config' do
       context 'when cache is enabled using global settings' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 port: 16379
@@ -852,7 +852,7 @@ describe 'registry configuration' do
               redis:
                 cache:
                   enabled: true
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis address with the global setting' do
@@ -872,7 +872,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis cache configuration with a single host' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               database:
                 enabled: true
@@ -896,7 +896,7 @@ describe 'registry configuration' do
                     size: 10
                     maxlifetime: 1h
                     idletimeout: 300s
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis cache settings in the expected manner' do
@@ -930,7 +930,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis cache configuration with a single host without port' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               database:
                 enabled: true
@@ -938,7 +938,7 @@ describe 'registry configuration' do
                 cache:
                   enabled: true
                   host: redis.example.com
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis cache settings with the default port' do
@@ -957,7 +957,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis cache configuration with global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -972,7 +972,7 @@ describe 'registry configuration' do
               redis:
                 cache:
                   enabled: true
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis cache settings in the expected manner' do
@@ -992,7 +992,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis cache configuration with local sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               database:
                 enabled: true
@@ -1005,7 +1005,7 @@ describe 'registry configuration' do
                       port: 26379
                     - host: sentinel2.example.com
                       port: 26379
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis cache settings in the expected manner' do
@@ -1025,7 +1025,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis cache configuration with local and global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1046,7 +1046,7 @@ describe 'registry configuration' do
                       port: 26379
                     - host: local2.example.com
                       port: 26379
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis cache settings with the local sentinels' do
@@ -1066,7 +1066,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis cache configuration with a registry Sentinel password' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1089,7 +1089,7 @@ describe 'registry configuration' do
                     enabled: true
                     secret: local-redis-sentinel-secret
                     key: password
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis cache settings in the expected manner' do
@@ -1118,7 +1118,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis cache configuration with global Sentinel password' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1137,7 +1137,7 @@ describe 'registry configuration' do
               redis:
                 cache:
                   enabled: true
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis cache settings in the expected manner' do
@@ -1168,7 +1168,7 @@ describe 'registry configuration' do
     describe 'redis rate-limiter config' do
       context 'when rate-limiter is enabled using redis global settings' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 port: 16379
@@ -1176,7 +1176,7 @@ describe 'registry configuration' do
               redis:
                 rateLimiting:
                   enabled: true
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis address with the global setting' do
@@ -1196,7 +1196,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis rate-limiter configuration with a single host' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               redis:
                 rateLimiting:
@@ -1219,7 +1219,7 @@ describe 'registry configuration' do
                     size: 10
                     maxlifetime: 1h
                     idletimeout: 300s
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis rate-limiter settings in the expected manner' do
@@ -1254,13 +1254,13 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis rate-limiter configuration with a single host without port' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               redis:
                 rateLimiting:
                   enabled: true
                   host: redis.example.com
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis rate-limiter settings with the default port' do
@@ -1279,7 +1279,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis rate-limiter configuration with global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1292,7 +1292,7 @@ describe 'registry configuration' do
               redis:
                 rateLimiting:
                   enabled: true
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis rate-limiter settings in the expected manner' do
@@ -1312,7 +1312,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis rate-limiter configuration with local sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               redis:
                 rateLimiting:
@@ -1323,7 +1323,7 @@ describe 'registry configuration' do
                       port: 26379
                     - host: sentinel2.example.com
                       port: 26379
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis rate-limiter settings in the expected manner' do
@@ -1343,7 +1343,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis rate-limiter configuration with local and global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1362,7 +1362,7 @@ describe 'registry configuration' do
                       port: 26379
                     - host: local2.example.com
                       port: 26379
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis rate-limiter settings with the local sentinels' do
@@ -1382,7 +1382,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis cache and rate-limiter configuration with global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1399,7 +1399,7 @@ describe 'registry configuration' do
                   enabled: true
                 rateLimiting:
                   enabled: true
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis cache and rate-limiter settings with the global sentinels' do
@@ -1423,7 +1423,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a redis rate-limiting cluster configuration' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               redis:
                 rateLimiting:
@@ -1432,7 +1432,7 @@ describe 'registry configuration' do
                     - host: redis1.cluster.example.com
                       port: 16379
                     - host: redis2.cluster.example.com
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis rate-limiter settings with the list of host:port' do
@@ -1451,7 +1451,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a registry redis cache cluster configuration' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               database:
                 enabled: true
@@ -1462,7 +1462,7 @@ describe 'registry configuration' do
                     - host: redis1.cache-cluster.example.com
                       port: 16379
                     - host: redis2.cache-cluster.example.com
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the registry redis cache settings with the list of host:port' do
@@ -1481,7 +1481,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a redis rate-limiting cluster configuration in presense of global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1498,7 +1498,7 @@ describe 'registry configuration' do
                     - host: redis1.cluster.example.com
                       port: 16379
                     - host: redis2.cluster.example.com
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis rate-limiter settings with the local cluster host:port instead of global.redis.sentinels' do
@@ -1517,7 +1517,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a registry redis cache cluster configuration in presense of global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1536,7 +1536,7 @@ describe 'registry configuration' do
                     - host: redis1.cache-cluster.example.com
                       port: 16379
                     - host: redis2.cache-cluster.example.com
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the registry redis cache cluster settings with the local cluster host:port instead of global.redis.sentinels' do
@@ -1555,7 +1555,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis rate-limiter and cache configuration' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               database:
                 enabled: true
@@ -1598,7 +1598,7 @@ describe 'registry configuration' do
                     size: 30
                     maxlifetime: 2h
                     idletimeout: 100s
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis rate-limiter and cache settings in the expected manner' do
@@ -1649,7 +1649,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis rate limiting configuration with a registry Sentinel password' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1672,7 +1672,7 @@ describe 'registry configuration' do
                     enabled: true
                     secret: local-redis-sentinel-secret
                     key: password
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis rate limiting settings in the expected manner' do
@@ -1701,7 +1701,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis cache rate limiting configuration with a registry Sentinel password' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1730,7 +1730,7 @@ describe 'registry configuration' do
                     enabled: true
                     secret: local-redis-ratelimiting-sentinel-secret
                     key: password
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis cache and rate limiting settings in the expected manner' do
@@ -1769,7 +1769,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis rate limiting configuration with global Sentinel password' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1788,7 +1788,7 @@ describe 'registry configuration' do
               redis:
                 rateLimiting:
                   enabled: true
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis cache settings in the expected manner' do
@@ -1819,7 +1819,7 @@ describe 'registry configuration' do
     describe 'redis load balancing config' do
       context 'when redis connection for load balancing is enabled using redis global settings' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1828,7 +1828,7 @@ describe 'registry configuration' do
               redis:
                 loadBalancing:
                   enabled: true
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis address with the global setting' do
@@ -1848,7 +1848,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis configuration with a single host' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               redis:
                 loadBalancing:
@@ -1871,7 +1871,7 @@ describe 'registry configuration' do
                     size: 10
                     maxlifetime: 1h
                     idletimeout: 300s
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis settings in the expected manner' do
@@ -1906,13 +1906,13 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis configuration with a single host without port' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               redis:
                 loadBalancing:
                   enabled: true
                   host: redis.example.com
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis settings with the default port' do
@@ -1931,7 +1931,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis configuration with global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -1944,7 +1944,7 @@ describe 'registry configuration' do
               redis:
                 loadBalancing:
                   enabled: true
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis settings in the expected manner' do
@@ -1964,7 +1964,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis configuration with local sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               redis:
                 loadBalancing:
@@ -1975,7 +1975,7 @@ describe 'registry configuration' do
                       port: 26379
                     - host: sentinel2.example.com
                       port: 26379
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis settings in the expected manner' do
@@ -1995,7 +1995,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis configuration with local and global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -2014,7 +2014,7 @@ describe 'registry configuration' do
                       port: 26379
                     - host: local2.example.com
                       port: 26379
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis settings with the local sentinels' do
@@ -2034,7 +2034,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis cache and load redis balancing configuration with global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -2051,7 +2051,7 @@ describe 'registry configuration' do
                   enabled: true
                 loadBalancing:
                   enabled: true
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis cache and redis load balancing settings with the global sentinels' do
@@ -2075,7 +2075,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a redis cluster configuration' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               redis:
                 loadBalancing:
@@ -2084,7 +2084,7 @@ describe 'registry configuration' do
                     - host: redis1.cluster.example.com
                       port: 16379
                     - host: redis2.cluster.example.com
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis settings with the list of host:port' do
@@ -2103,7 +2103,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a redis cluster configuration in presense of global sentinels' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: redis.example.com
@@ -2120,7 +2120,7 @@ describe 'registry configuration' do
                     - host: redis1.cluster.example.com
                       port: 16379
                     - host: redis2.cluster.example.com
-        )).deep_merge(default_values)
+        )))
         end
 
         it 'populates the redis settings with the local cluster host:port instead of global.redis.sentinels' do
@@ -2139,7 +2139,7 @@ describe 'registry configuration' do
 
       context 'when customer provides a custom redis load balancing and cache configuration' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             registry:
               database:
                 enabled: true
@@ -2182,7 +2182,7 @@ describe 'registry configuration' do
                     size: 30
                     maxlifetime: 2h
                     idletimeout: 100s
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'populates the redis load balancing and cache settings in the expected manner' do
@@ -2236,12 +2236,12 @@ describe 'registry configuration' do
   describe 'debug TLS is configured' do
     context 'when enabled without required configuration' do
       let(:test_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           registry:
             debug:
               tls:
                 enabled: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'fails to render' do
@@ -2251,7 +2251,7 @@ describe 'registry configuration' do
 
     context 'when enabled and service tls is configured' do
       let(:test_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             hosts:
               registry:
@@ -2263,7 +2263,7 @@ describe 'registry configuration' do
             debug:
               tls:
                 enabled: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders default debug tls configuration and sets healthcheck scheme to HTTPS' do
@@ -2304,13 +2304,13 @@ describe 'registry configuration' do
 
     context 'when minimum required configuration provided' do
       let(:test_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           registry:
             debug:
               tls:
                 enabled: true
                 secretName: registry-debug-tls
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders default debug tls configuration and sets healthcheck scheme to HTTPS' do
@@ -2350,7 +2350,7 @@ describe 'registry configuration' do
 
     context 'when provided extended TLS configuration' do
       let(:test_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           registry:
             debug:
               tls:
@@ -2358,7 +2358,7 @@ describe 'registry configuration' do
                 secretName: registry-debug-tls
                 clientCAs: [one, two, three]
                 minimumTLS: "tls1.3"
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders configuration as expected' do
@@ -2395,11 +2395,11 @@ describe 'registry configuration' do
   describe 'Registry tokenIssuer references' do
     context 'when tokenIssuer set globally' do
       let(:test_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             registry:
               tokenIssuer: substitute-issuer
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders configuration as expected' do
@@ -2732,10 +2732,10 @@ describe 'registry configuration' do
   describe 'Registry enablement' do
     context 'when registry is enabled' do
       let(:registry_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           registry:
             enabled: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'deploys registry service' do
@@ -2793,10 +2793,10 @@ describe 'registry configuration' do
 
     context 'when registry is disabled' do
       let(:registry_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           registry:
             enabled: false
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'registry service is not deployed' do

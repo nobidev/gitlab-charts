@@ -20,7 +20,7 @@ describe 'database traffic capture configuration' do
   end
 
   context 'when partial configuration is set' do
-    let(:helm_template) { HelmTemplate.new(database_traffic_capture_values.deep_merge!(default_values)) }
+    let(:helm_template) { HelmTemplate.new(default_values.deep_merge(database_traffic_capture_values)) }
     let(:database_traffic_capture_values) do
       {
         'global' => {
@@ -41,7 +41,7 @@ describe 'database traffic capture configuration' do
   end
 
   context 'when partial configuration with the provider name is set' do
-    let(:helm_template) { HelmTemplate.new(database_traffic_capture_values.deep_merge!(default_values)) }
+    let(:helm_template) { HelmTemplate.new(default_values.deep_merge(database_traffic_capture_values)) }
     let(:database_traffic_capture_values) do
       {
         'global' => {
@@ -80,7 +80,7 @@ describe 'database traffic capture configuration' do
   end
 
   context 'when custom configuration is set' do
-    let(:helm_template) { HelmTemplate.new(database_traffic_capture_values.deep_merge!(default_values)) }
+    let(:helm_template) { HelmTemplate.new(default_values.deep_merge(database_traffic_capture_values)) }
     let(:database_traffic_capture_values) do
       {
         'global' => {

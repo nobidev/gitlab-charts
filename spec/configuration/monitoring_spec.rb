@@ -16,9 +16,9 @@ describe 'monitoring object configuration' do
   end
 
   let(:servicemonitor_enabled_values) do
-    YAML.safe_load(
+    default_values.deep_merge(YAML.safe_load(
       open('spec/fixtures/servicemonitor-config.yaml', 'r').read
-    ).deep_merge(default_values)
+    ))
   end
 
   let(:servicemonitor_components) do
@@ -26,7 +26,7 @@ describe 'monitoring object configuration' do
   end
 
   let(:podmonitor_enabled_values) do
-    YAML.safe_load(%(
+    default_values.deep_merge(YAML.safe_load(%(
       global:
         gatewayApi:
           installEnvoy: true
@@ -41,15 +41,15 @@ describe 'monitoring object configuration' do
           metrics:
             podMonitor:
               enabled: true
-    )).deep_merge(default_values)
+    )))
   end
 
   let(:global_monitoring_enabled) do
-    YAML.safe_load(%(
+    default_values.deep_merge(YAML.safe_load(%(
       global:
         monitoring:
           enabled: true
-    )).deep_merge(default_values)
+    )))
   end
 
   let(:api_versions_args) do

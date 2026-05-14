@@ -10,12 +10,12 @@ describe 'registry database connection configuration' do
 
   context 'when registry database is enabled' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         registry:
           enabled: true
           database:
             enabled: true
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -37,13 +37,13 @@ describe 'registry database connection configuration' do
 
   context 'when registry database is configured, and not enabled' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         registry:
           enabled: true
           database:
             configure: true
             enabled: false
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -56,13 +56,13 @@ describe 'registry database connection configuration' do
 
   context 'when registry database is not enabled or configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         registry:
           enabled: true
           database:
             enabled: false
             configure: false
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -75,7 +75,7 @@ describe 'registry database connection configuration' do
 
   context 'when global.psql.ssl is configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           psql:
             ssl:
@@ -87,7 +87,7 @@ describe 'registry database connection configuration' do
           enabled: true
           database:
             enabled: true
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -103,12 +103,12 @@ describe 'registry database connection configuration' do
 
   context 'when global.psql.ssl is not configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         registry:
           enabled: true
           database:
             enabled: true
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -124,13 +124,13 @@ describe 'registry database connection configuration' do
 
   context 'when database connecttimeout is configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         registry:
           enabled: true
           database:
             enabled: true
             connecttimeout: 30
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -144,12 +144,12 @@ describe 'registry database connection configuration' do
 
   context 'when database connecttimeout is not configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         registry:
           enabled: true
           database:
             enabled: true
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -163,12 +163,12 @@ describe 'registry database connection configuration' do
 
   context 'when registry is disabled' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         registry:
           enabled: false
           database:
             enabled: true
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }

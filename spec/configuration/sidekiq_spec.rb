@@ -24,12 +24,12 @@ describe 'Sidekiq configuration' do
 
     context 'when the global value is set' do
       let(:global_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             extraEnv:
               EXTRA_ENV_VAR_A: global-a
               EXTRA_ENV_VAR_B: global-b
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'sets those environment variables on each pod' do
@@ -153,7 +153,7 @@ describe 'Sidekiq configuration' do
 
     context 'when the global value is set' do
       let(:global_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             extraEnvFrom:
               EXTRA_ENV_VAR_B:
@@ -168,7 +168,7 @@ describe 'Sidekiq configuration' do
                 secretKeyRef:
                   key: "keyD"
                   name: "nameD"
-        )).deep_merge(default_values)
+        )))
       end
 
       let(:global_template) { HelmTemplate.new(global_values) }
@@ -364,12 +364,12 @@ describe 'Sidekiq configuration' do
 
       context 'when disabled' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               sidekiq:
                 metrics:
                   enabled: false
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'emits empty hash' do
@@ -379,7 +379,7 @@ describe 'Sidekiq configuration' do
 
       context 'when custom values are set' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               sidekiq:
                 metrics:
@@ -387,7 +387,7 @@ describe 'Sidekiq configuration' do
                   log_enabled: true
                   port: 2222
                   listenAddr: 0.0.0.0
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'uses these settings' do
@@ -404,14 +404,14 @@ describe 'Sidekiq configuration' do
 
       context 'when TLS support is enabled' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               sidekiq:
                 metrics:
                   enabled: true
                   tls:
                     enabled: true
-          )).deep_merge(default_values)
+          )))
         end
         let(:tls_cert_path) { '/etc/gitlab/sidekiq-metrics/sidekiq-metrics.crt' }
         let(:tls_key_path) { '/etc/gitlab/sidekiq-metrics/sidekiq-metrics.key' }
@@ -441,13 +441,13 @@ describe 'Sidekiq configuration' do
 
       context 'when custom port and listen address is set' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               sidekiq:
                 health_checks:
                   port: 2222
                   listenAddr: 0.0.0.0
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'uses these settings' do
@@ -469,12 +469,12 @@ describe 'Sidekiq configuration' do
     end
 
     let(:hard_limit) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           sidekiq:
             memoryKiller:
               hardLimitRss: 9000000
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'uses defaults or uses chart global values' do
@@ -527,19 +527,19 @@ describe 'Sidekiq configuration' do
       end
 
       let(:minimum_multi_pod_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             sidekiq:
               pods: [#{pod_zero.to_json}]
-        )).deep_merge!(default_values)
+        )))
       end
 
       let(:override_multi_pod_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             sidekiq:
               pods: [#{pod_zero.to_json}, #{pod_one.to_json}]
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'with the chart defaults' do
@@ -799,7 +799,7 @@ describe 'Sidekiq configuration' do
 
     context 'when Redis scheme is rediss with TLS certificates' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               scheme: rediss
@@ -813,7 +813,7 @@ describe 'Sidekiq configuration' do
                 key:
                   secret: redis-key
                   key: key
-        )).deep_merge(default_values)
+        )))
       end
 
       let(:template) { HelmTemplate.new(values) }
@@ -846,7 +846,7 @@ describe 'Sidekiq configuration' do
 
     context 'when Sentinel TLS is enabled with mutual TLS' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.host
@@ -866,7 +866,7 @@ describe 'Sidekiq configuration' do
                 key:
                   secret: sentinel-key
                   key: key
-        )).deep_merge(default_values)
+        )))
       end
 
       let(:template) { HelmTemplate.new(values) }
@@ -899,7 +899,7 @@ describe 'Sidekiq configuration' do
 
     context 'when both Redis and Sentinel TLS are enabled with mutual TLS' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               scheme: rediss
@@ -930,7 +930,7 @@ describe 'Sidekiq configuration' do
                 key:
                   secret: sentinel-key
                   key: key
-        )).deep_merge(default_values)
+        )))
       end
 
       let(:template) { HelmTemplate.new(values) }
