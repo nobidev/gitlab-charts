@@ -96,6 +96,7 @@
   extends:
     - .specs
     - .k3d_base
+  stage: review-specs
   variables:
     RSPEC_TAGS: type:feature
   # Override rules: k3d provisions its own cluster inside the job, so there is

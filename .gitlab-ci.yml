@@ -132,6 +132,7 @@ stages:
   - approve-review-apps
   - prepare-review
   - review
+  - review-specs
   - staging
   - canary
   - qa-manual
@@ -552,6 +553,7 @@ trigger-k3d135-nginx:
 
 .review_specs:
   extends: .specs
+  stage: review-specs
   retry: 1
   variables:
     RSPEC_TAGS: type:feature
