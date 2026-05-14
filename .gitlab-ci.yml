@@ -128,13 +128,12 @@ variables:
 stages:
   - prepare
   - test
-  - preflight
+  - specs
   - approve-review-apps
   - prepare-review
   - review
   - staging
   - canary
-  - specs
   - qa-manual
   - qa
   - qa-report
@@ -241,7 +240,7 @@ update-trigger-branch:
     - if: '$TRIGGER_UPDATE'  # Allow us to manually trigger this job in a pipeline if we wish using this CI variable
 
 pin_image_versions:
-  stage: approve-review-apps
+  stage: specs
   script:
     - apt-get update -qq
     - apt install -y bats skopeo
@@ -317,10 +316,6 @@ trigger_review_current:
   image: ${BUSYBOX_IMAGE}
   script:
     - echo "Testing current platform."
-  needs:
-    - job: danger-review
-      optional: true
-    - job: pin_image_versions
   rules:
     - !reference [.rule:skip_if_not_canonical_or_security]
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
@@ -348,10 +343,6 @@ trigger_review_secondary:
   image: ${BUSYBOX_IMAGE}
   script:
     - echo "Testing secondary platforms."
-  needs:
-    - job: danger-review
-      optional: true
-    - job: pin_image_versions
   rules:
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
       when: never
@@ -469,8 +460,6 @@ trigger-eks134:
 trigger-k3d135:
   extends: .trigger_review_job
   interruptible: true
-  needs:
-    - pin_image_versions
   variables:
     LIMIT_TO: k3d135
   rules:
@@ -482,8 +471,6 @@ trigger-k3d135:
 trigger-k3d135-nginx:
   extends: .trigger_review_job
   interruptible: true
-  needs:
-    - pin_image_versions
   variables:
     LIMIT_TO: k3d135
     K3D_USE_NGINX_INGRESS: "true"

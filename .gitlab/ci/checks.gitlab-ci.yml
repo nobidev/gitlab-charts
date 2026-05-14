@@ -184,7 +184,7 @@ kube-score:
   image:
     name: ${KUBE_SCORE_IMAGE}
     entrypoint: [""]
-  stage: prepare
+  stage: test
   script:
     - bash ./scripts/ci/add_dependency_repos.sh
     - helm dependency build
@@ -201,8 +201,8 @@ kube-score:
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
 
-lint_package:
-  stage: preflight
+lint_chart:
+  stage: test
   when: always
   script:
     - kubectl version --client=true --output=json
@@ -225,7 +225,7 @@ lint_package:
     - if: '$PIPELINE_TYPE == "AUTO_DEPLOY_PIPELINE"'
     - if: '$PIPELINE_TYPE == "RELEASE_PIPELINE"'
 
-specs_without_cluster:
+rspec_without_cluster:
   extends: .specs
   variables:
     RSPEC_TAGS: ~type:feature
@@ -234,4 +234,3 @@ specs_without_cluster:
     - !reference [.specs, rules]
     - if: '$PIPELINE_TYPE == "AUTO_DEPLOY_PIPELINE"'
     - if: '$PIPELINE_TYPE == "RELEASE_PIPELINE"'
-  needs: ['lint_package']
