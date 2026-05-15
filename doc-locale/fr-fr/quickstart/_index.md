@@ -110,7 +110,7 @@ Vous pouvez maintenant vous connecter à GitLab avec le nom d'utilisateur `root`
 Si vous rencontrez des problèmes lors de ce guide, voici quelques points que vous devriez vérifier :
 
 1. Le `gitlab.my.domain.tld` est résolu vers l'adresse IP de l'Ingress que vous avez récupérée.
-2. Si vous obtenez un avertissement de certificat, un problème est survenu avec Let's Encrypt, généralement lié au DNS ou à la nécessité de réessayer.
+1. Si vous obtenez un avertissement de certificat, un problème est survenu avec Let's Encrypt, généralement lié au DNS ou à la nécessité de réessayer.
 
 Pour d'autres conseils de dépannage, consultez notre guide de [dépannage](../troubleshooting/_index.md).
 

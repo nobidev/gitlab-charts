@@ -70,7 +70,7 @@ Pour remplacer les charts Redis, PostgreSQL et MinIO intégrés, provisionnez de
      --set auth.aclUsers.default.password="<RANDOM PASSWORD>"
    ```
 
-2. Confirmez que Valkey est opérationnel :
+1. Confirmez que Valkey est opérationnel :
 
    ```script
    $ kubectl get deployment -n <NAMESPACE> -l app.kubernetes.io/name=valkey
@@ -88,7 +88,7 @@ Provisionnez votre service PostgreSQL externe. Par exemple, en utilisant [CloudN
    kubectl apply --server-side -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.28/releases/cnpg-1.28.0.yaml
    ```
 
-2. Provisionnez un cluster PostgreSQL pour GitLab (la [base de données des métadonnées du registre](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/) n'est pas couverte) :
+1. Provisionnez un cluster PostgreSQL pour GitLab (la [base de données des métadonnées du registre](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/) n'est pas couverte) :
 
    Consultez l'[API Cluster](https://cloudnative-pg.io/docs/1.28/cloudnative-pg.v1/#postgresqlcnpgiov1) pour personnaliser votre cluster.
 
@@ -115,7 +115,7 @@ Provisionnez votre service PostgreSQL externe. Par exemple, en utilisant [CloudN
            - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
    ```
 
-3. Confirmez que le cluster PostgreSQL est en bonne santé :
+1. Confirmez que le cluster PostgreSQL est en bonne santé :
 
    ```script
    $ kubectl get clusters -n <NAMESPACE>
@@ -146,7 +146,7 @@ Prérequis :
      --set persistence.meta.size=250Mi
    ```
 
-2. Confirmez que Garage est opérationnel :
+1. Confirmez que Garage est opérationnel :
 
    ```shell
    $ kubectl get statefulsets.apps -n garage -l app.kubernetes.io/name=garage
@@ -154,7 +154,7 @@ Prérequis :
    garage   3/3     36s
    ```
 
-3. Initialisez la disposition du cluster.
+1. Initialisez la disposition du cluster.
 
    > [!note] 
    > Cet exemple provisionne une disposition Garage avec trois zones, un nœud par zone, et utilise le facteur de réplication par défaut de trois. Consultez les [recommandations de production de Garage](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/) et ajustez ces paramètres selon vos besoins.
@@ -174,7 +174,7 @@ Prérequis :
    kubectl exec <GARAGE_POD>  -- /garage layout apply --version 1
    ```
 
-4. Créez les compartiments GitLab :
+1. Créez les compartiments GitLab :
 
    > [!note] 
    > La commande suivante utilise les noms de compartiments par défaut du chart GitLab. Si vous avez personnalisé vos noms de compartiments précédemment, ajustez-les en conséquence ici et dans les étapes ci-dessous.
@@ -188,7 +188,7 @@ Prérequis :
    done
    ```
 
-5. Créez une clé API, notez la clé d'accès et la clé secrète, et accordez l'accès aux compartiments créés :
+1. Créez une clé API, notez la clé d'accès et la clé secrète, et accordez l'accès aux compartiments créés :
 
    ```shell
    # Create GitLab key. Note down the access and secret key.
@@ -209,7 +209,7 @@ Prérequis :
    done
    ```
 
-6. Créez un Secret configurant l'accès au stockage d'objets. Assurez-vous de remplacer les espaces réservés `GARAGE_ACCESS_KEY`, `GARAGE_SECRET_KEY` et `NAMESPACE` :
+1. Créez un Secret configurant l'accès au stockage d'objets. Assurez-vous de remplacer les espaces réservés `GARAGE_ACCESS_KEY`, `GARAGE_SECRET_KEY` et `NAMESPACE` :
 
    ```shell
    cat <<EOF | kubectl create secret generic gitlab-object-storage --from-file=config=/dev/stdin
@@ -222,7 +222,7 @@ Prérequis :
    EOF
    ```
 
-7. Créez un secret configurant l'accès pour la sauvegarde/restauration :
+1. Créez un secret configurant l'accès pour la sauvegarde/restauration :
 
    ```shell
    cat <<EOF | kubectl create secret generic gitlab-object-storage-s3cmd --from-file=config=/dev/stdin
@@ -235,7 +235,7 @@ Prérequis :
    EOF
    ```
 
-8. Créez un secret configurant l'accès pour le registre :
+1. Créez un secret configurant l'accès pour le registre :
 
    ```shell
    cat <<EOF | kubectl create secret generic gitlab-registry-storage --from-file=config=/dev/stdin
@@ -273,7 +273,7 @@ Une fois tous les remplacements provisionnés, vous pouvez maintenant désactive
    > [!note] 
    > Les volumes persistants Redis et PostgreSQL sont gérés par leur StatefulSet plutôt que par Helm. La politique de rétention par défaut est [`Retain`](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention). Sauf si vous avez modifié cette politique, ces deux volumes ne seront pas supprimés lorsque vous supprimerez leur StatefulSet.
 
-2. Mettez à jour vos valeurs pour pointer vers les services nouvellement provisionnés :
+1. Mettez à jour vos valeurs pour pointer vers les services nouvellement provisionnés :
 
    ```yaml
    global:
@@ -346,13 +346,13 @@ Une fois tous les remplacements provisionnés, vous pouvez maintenant désactive
 
    Consultez la documentation associée sur [Redis](../../advanced/external-redis/_index.md) , [PostgreSQL](../../advanced/external-db/_index.md) et le [stockage d'objets](../../advanced/external-object-storage/_index.md) pour plus d'informations.
 
-3. Si vous migrez PostgreSQL, mettez à niveau votre instance GitLab avec les migrations désactivées :
+1. Si vous migrez PostgreSQL, mettez à niveau votre instance GitLab avec les migrations désactivées :
 
    ```shell
    helm upgrade <RELEASE> gitlab/gitlab -f your-values.yaml --set gitlab.migrations.enabled=false
    ```
 
-4. Si vous migrez MinIO, copiez votre sauvegarde dans la toolbox et téléchargez-la vers votre nouveau stockage d'objets :
+1. Si vous migrez MinIO, copiez votre sauvegarde dans la toolbox et téléchargez-la vers votre nouveau stockage d'objets :
 
    ```shell
    # Find Toolbox Pod
@@ -363,16 +363,16 @@ Une fois tous les remplacements provisionnés, vous pouvez maintenant désactive
    s3cmd put /tmp/LOCAL_BACKUP_ARCHIVE.tar s3://gitlab-backups/
    ```
 
-4. Si vous migrez PostgreSQL ou MinIO, [réduisez les charges de travail et restaurez la sauvegarde](../../backup-restore/restore.md#restoring-the-backup-file).
-6. Une fois la mise à niveau terminée, mettez à niveau votre instance GitLab pour exécuter toutes les migrations en attente.
+1. Si vous migrez PostgreSQL ou MinIO, [réduisez les charges de travail et restaurez la sauvegarde](../../backup-restore/restore.md#restoring-the-backup-file).
+1. Une fois la mise à niveau terminée, mettez à niveau votre instance GitLab pour exécuter toutes les migrations en attente.
 
    ```shell
    helm upgrade <RELEASE> gitlab/gitlab -f your-values.yaml
    ```
 
-7. Confirmez que GitLab est opérationnel.
-8. Confirmez que les [sauvegardes](../../backup-restore/backup.md) fonctionnent comme prévu en effectuant une nouvelle sauvegarde.
-9. Supprimez les secrets et les PersistentVolumeClaims liés aux PostgreSQL, MinIO et Redis intégrés.
+1. Confirmez que GitLab est opérationnel.
+1. Confirmez que les [sauvegardes](../../backup-restore/backup.md) fonctionnent comme prévu en effectuant une nouvelle sauvegarde.
+1. Supprimez les secrets et les PersistentVolumeClaims liés aux PostgreSQL, MinIO et Redis intégrés.
 
    ```shell
    kubectl delete pvc <RELEASE>-minio redis-data-<RELEASE>-redis-master-0 data-<RELEASE>-postgresql-0

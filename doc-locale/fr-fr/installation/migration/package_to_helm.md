@@ -30,16 +30,16 @@ Avant la migration, vérifiez les prérequis suivants :
 
    1. [Migrez vers le stockage d'objets](https://docs.gitlab.com/administration/object_storage/#migrate-to-object-storage).
 
-   2. Accédez à l'instance GitLab basée sur un paquet et assurez-vous que les données migrées sont disponibles. Par exemple, vérifiez si les avatars des utilisateurs, des groupes et des projets s'affichent correctement, si les images et autres fichiers ajoutés aux tickets se chargent correctement, etc.
+   1. Accédez à l'instance GitLab basée sur un paquet et assurez-vous que les données migrées sont disponibles. Par exemple, vérifiez si les avatars des utilisateurs, des groupes et des projets s'affichent correctement, si les images et autres fichiers ajoutés aux tickets se chargent correctement, etc.
 
-2. [Créez une archive tar de sauvegarde](https://docs.gitlab.com/administration/backup_restore/backup_gitlab/) et [excluez tous les répertoires déjà migrés](https://docs.gitlab.com/administration/backup_restore/backup_gitlab/#excluding-specific-directories-from-the-backup).
+1. [Créez une archive tar de sauvegarde](https://docs.gitlab.com/administration/backup_restore/backup_gitlab/) et [excluez tous les répertoires déjà migrés](https://docs.gitlab.com/administration/backup_restore/backup_gitlab/#excluding-specific-directories-from-the-backup).
 
    Pour les sauvegardes locales (par défaut), le fichier de sauvegarde est stocké sous `/var/opt/gitlab/backups`, sauf si vous avez [explicitement modifié l'emplacement](https://docs.gitlab.com/omnibus/settings/backups/#manually-manage-backup-directory). Pour les [sauvegardes sur stockage distant](https://docs.gitlab.com/administration/backup_restore/backup_gitlab/#upload-backups-to-a-remote-cloud-storage), le fichier de sauvegarde est stocké dans le compartiment configuré.
-3. [Restaurez depuis l'installation basée sur un paquet](../../backup-restore/restore.md) vers le chart Helm, en commençant par les secrets. Vous devrez migrer les valeurs de `/etc/gitlab/gitlab-secrets.json` vers le fichier YAML qui sera utilisé par Helm.
-4. Redémarrez tous les pods pour vous assurer que les modifications sont appliquées :
+1. [Restaurez depuis l'installation basée sur un paquet](../../backup-restore/restore.md) vers le chart Helm, en commençant par les secrets. Vous devrez migrer les valeurs de `/etc/gitlab/gitlab-secrets.json` vers le fichier YAML qui sera utilisé par Helm.
+1. Redémarrez tous les pods pour vous assurer que les modifications sont appliquées :
 
    ```shell
    kubectl delete pods -lrelease=<helm release name>
    ```
 
-5. Accédez au déploiement basé sur Helm et confirmez que les projets, groupes, utilisateurs, tickets, etc. qui existaient dans l'installation basée sur un paquet sont restaurés. Vérifiez également si les fichiers importés (avatars, fichiers importés dans les tickets, etc.) se chargent correctement.
+1. Accédez au déploiement basé sur Helm et confirmez que les projets, groupes, utilisateurs, tickets, etc. qui existaient dans l'installation basée sur un paquet sont restaurés. Vérifiez également si les fichiers importés (avatars, fichiers importés dans les tickets, etc.) se chargent correctement.
