@@ -14,3 +14,19 @@ registry:
     password:
       secret: ${CNPG_CLUSTER_REGISTRY_SECRET}
       key: password
+
+# Wire toolbox backup/restore to include the registry metadata database.
+# Without this, `gitlab-backup` skips the registry DB and restored manifests
+# 404 (the manifest blobs remain in object storage but the DB rows pointing
+# at them are gone).
+gitlab:
+  toolbox:
+    backups:
+      registry:
+        database:
+          backupUser: registry
+          restoreUser: registry
+          password:
+            secret: ${CNPG_CLUSTER_REGISTRY_SECRET}
+            backupPasswordKey: password
+            restorePasswordKey: password
