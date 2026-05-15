@@ -14,7 +14,7 @@ Ce guide constitue une documentation concise mais complète sur la manière d'in
 
 Pour suivre ce guide, vous devez disposer des éléments suivants :
 
-- Un domaine vous appartenant, auquel vous pouvez ajouter un enregistrement DNS.
+- Un domaine qui vous appartient, auquel vous pouvez ajouter un enregistrement DNS.
 - Un cluster Kubernetes.
 - Une installation fonctionnelle de `kubectl`.
 - Une installation fonctionnelle de Helm v3.
@@ -40,7 +40,7 @@ Après avoir créé le cluster, vous devez [configurer `kubectl`](https://cloud.
 
 ### Installer Helm {#install-helm}
 
-Pour ce guide, nous utilisons la dernière release de Helm v3 (v3.9.4 ou ultérieure). Pour installer Helm, consultez la [documentation d'installation Helm](https://helm.sh/docs/intro/install/).
+Pour ce guide, nous utilisons la dernière release de Helm v3 (version v3.9.4 ou ultérieure). Pour installer Helm, consultez la [documentation d'installation Helm](https://helm.sh/docs/intro/install/).
 
 ## Ajouter le dépôt Helm GitLab {#add-the-gitlab-helm-repository}
 
@@ -52,7 +52,7 @@ helm repo add gitlab https://charts.gitlab.io/
 
 ## Installer GitLab {#install-gitlab}
 
-Voici la puissance de ce chart. Une seule commande. Et voilà ! GitLab entièrement installé et configuré avec SSL.
+C'est la puissance de ce chart : il suffit d'une seule commande pour entièrement installer et configurer GitLab avec SSL.
 
 Pour configurer le chart, vous avez besoin de :
 
@@ -73,13 +73,13 @@ Une fois terminé, vous pouvez procéder à la collecte de l'adresse IP qui a é
 
 ## Récupérer l'adresse IP {#retrieve-the-ip-address}
 
-Vous pouvez utiliser `kubectl` pour récupérer l'adresse qui a été allouée dynamiquement par GKE au NGINX Ingress que vous venez d'installer et configuré dans le cadre du chart GitLab :
+Vous pouvez utiliser `kubectl` pour récupérer l'adresse qui a été allouée dynamiquement par GKE au NGINX Ingress que vous venez d'installer et configurée dans le cadre du chart GitLab :
 
 ```shell
 kubectl get ingress -lrelease=gitlab
 ```
 
-La sortie devrait ressembler à ce qui suit :
+Les données de sortie devraient ressembler à ce qui suit :
 
 ```plaintext
 NAME               HOSTS                 ADDRESS         PORTS     AGE
@@ -88,16 +88,16 @@ gitlab-registry    registry.domain.tld   35.239.27.235   80, 443   118m
 gitlab-webservice  gitlab.domain.tld     35.239.27.235   80, 443   118m
 ```
 
-Vous remarquerez qu'il y a trois entrées, toutes avec la même adresse IP. Prenez cette adresse IP et ajoutez-la à votre DNS pour le domaine que vous avez choisi d'utiliser. Vous pouvez ajouter plusieurs enregistrements de type `A`, mais pour simplifier, nous recommandons un seul enregistrement « wildcard » :
+Vous remarquerez qu'il y a trois entrées, toutes avec la même adresse IP. Prenez cette adresse IP et ajoutez-la à votre DNS pour le domaine que vous avez choisi d'utiliser. Vous pouvez ajouter plusieurs enregistrements de type `A`, mais pour simplifier, nous recommandons un seul enregistrement « générique » :
 
 - Dans Google Cloud DNS, créez un enregistrement `A` avec le nom `*`. Nous suggérons également de définir le TTL à `1` minute au lieu de `5` minutes.
 - Sur AWS EKS, l'adresse sera une URL plutôt qu'une adresse IP. [Créez un enregistrement alias Route 53](https://repost.aws/knowledge-center/route-53-create-alias-records) `*.domain.tld` pointant vers cette URL.
 
 ## Se connecter à GitLab {#sign-in-to-gitlab}
 
-Vous pouvez accéder à GitLab à l'adresse `gitlab.domain.tld`. Par exemple, si vous définissez `global.hosts.domain=my.domain.tld`, vous visiterez alors `gitlab.my.domain.tld`.
+Vous pouvez accéder à GitLab à l'adresse `gitlab.domain.tld`. Par exemple, si vous définissez `global.hosts.domain=my.domain.tld`, vous accéderez alors à `gitlab.my.domain.tld`.
 
-Pour vous connecter, vous devez récupérer le mot de passe de l'utilisateur `root`. Celui-ci est automatiquement généré au moment de l'installation et stocké dans un Secret Kubernetes. Récupérons ce mot de passe depuis le secret et décodons-le :
+Pour vous connecter, vous devez récupérer le mot de passe de l'utilisateur `root`. Celui-ci est automatiquement généré au moment de l'installation et stocké dans un secret Kubernetes. Récupérons ce mot de passe depuis le secret et décodons-le :
 
 ```shell
 kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
@@ -110,7 +110,7 @@ Vous pouvez maintenant vous connecter à GitLab avec le nom d'utilisateur `root`
 Si vous rencontrez des problèmes lors de ce guide, voici quelques points que vous devriez vérifier :
 
 1. Le `gitlab.my.domain.tld` est résolu vers l'adresse IP de l'Ingress que vous avez récupérée.
-1. Si vous obtenez un avertissement de certificat, un problème est survenu avec Let's Encrypt, généralement lié au DNS ou à la nécessité de réessayer.
+2. Si vous obtenez un avertissement de certificat, un problème est survenu avec Let's Encrypt, généralement lié au DNS ou à la nécessité de réessayer.
 
 Pour d'autres conseils de dépannage, consultez notre guide de [dépannage](../troubleshooting/_index.md).
 
@@ -131,4 +131,4 @@ Error: failed pre-install: warning: Hook pre-install templates/shared-secrets-rb
 {APIGroups:[""], Resources:["secrets"], Verbs:["get" "list" "create" "patch"]}
 ```
 
-Cela signifie que le contexte `kubectl` que vous utilisez pour vous connecter au cluster ne dispose pas des autorisations nécessaires pour créer des ressources [RBAC](../installation/rbac.md).
+Cela signifie que le contexte `kubectl` que vous utilisez pour vous connecter au cluster ne dispose pas des autorisations nécessaires pour créer des ressources avec [contrôle d'accès basé sur les rôles](../installation/rbac.md).
