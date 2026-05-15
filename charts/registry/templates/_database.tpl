@@ -1,11 +1,13 @@
 {{/*
-Return database configuration, if settings available.
+Return database configuration.
+
+Always emits `database.enabled` so the container-registry binary never sees
+an unset value.
 */}}
 {{- define "registry.database.config" -}}
-{{/*Need to use enabled or configure flags for backwards compatibility*/}}
-{{- if or .Values.database.enabled .Values.database.configure }}
 database:
   enabled: {{ .Values.database.enabled }}
+{{- if or .Values.database.enabled .Values.database.configure }}
   host: {{ default (include "gitlab.psql.host" .) .Values.database.host | quote }}
   port: {{ default (include "gitlab.psql.port" .) .Values.database.port }}
   user: {{ include "registry.database.username" . }}

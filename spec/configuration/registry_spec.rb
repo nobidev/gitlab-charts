@@ -407,6 +407,31 @@ describe 'registry configuration' do
         end
       end
 
+      context 'when database is disabled and not configured (default)' do
+        let(:values) do
+          YAML.safe_load(%(
+            registry:
+              database:
+                enabled: false
+                configure: false
+          )).deep_merge(default_values)
+        end
+
+        # As of container-registry v4.40, an unset `database.enabled` in the
+        # rendered config is coerced to `prefer`, causing the registry to
+        # attempt a DB connection. The template must always emit an explicit
+        # `enabled` so the binary takes the disabled path.
+        it 'emits an explicit enabled: false without connection details' do
+          t = HelmTemplate.new(values)
+          expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+          config = t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')
+          expect(config).to include("database:\n  enabled: false\n")
+          expect(config).not_to match(/^  host:/)
+          expect(config).not_to match(/^  user:/)
+        end
+      end
+
       context 'when primary is provided' do
         let(:values) do
           YAML.safe_load(%(
