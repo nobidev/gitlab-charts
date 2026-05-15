@@ -7,22 +7,22 @@ title: Migrer vers Envoy Gateway
 
 {{< details >}}
 
-- Niveau :  Free, Premium, Ultimate
+- Édition :  version gratuite, GitLab Premium, GitLab Ultimate
 - Offre :  GitLab Self-Managed
 
 {{< /details >}}
 
-À partir de GitLab 19.0, le chart GitLab désactivera le contrôleur NGINX Ingress intégré et utilisera par défaut l'API Gateway ainsi que l'Envoy Gateway intégré. Tous les contrôleurs Ingress intégrés, notamment HAProxy et Traefik, sont dépréciés et seront supprimés dans la version 20.0. Les Ingresses ne sont pas dépréciés et resteront disponibles après la version 20.0, mais nécessiteront un [contrôleur Ingress externe](../../advanced/external-ingress/_index.md).
+À partir de GitLab 19.0, le chart GitLab désactivera le contrôleur NGINX Ingress intégré et utilisera par défaut l'API Gateway ainsi que l'Envoy Gateway intégré. Tous les contrôleurs Ingress intégrés, notamment HAProxy et Traefik, sont obsolètes et seront supprimés dans la version 20.0. Les Ingresses ne sont pas obsolètes et resteront disponibles après la version 20.0, mais nécessiteront un [contrôleur Ingress externe](../../advanced/external-ingress/_index.md).
 
 Vous pouvez migrer du contrôleur NGINX Ingress intégré vers l'API Gateway avec l'une des méthodes suivantes :
 
 - Une [migration en une étape](#migrate-in-one-step)
-- Une [migration en plusieurs étapes](#migrate-with-zero-downtime) sans interruption de service.
+- Une [migration en plusieurs étapes](#migrate-with-zero-downtime) sans temps d'arrêt
 
 ## Migrer en une étape {#migrate-in-one-step}
 
 > [!warning] 
-> Prévoyez environ 5 minutes d'interruption de service pendant la migration. La durée réelle peut varier en fonction de votre déploiement, de votre infrastructure et de votre configuration. Pour une approche sans interruption de service, consultez la [migration sans interruption de service](#migrate-with-zero-downtime).
+> Prévoyez environ 5 minutes de temps d'arrêt pendant la migration. La durée réelle peut varier en fonction de votre déploiement, de votre infrastructure et de votre configuration. Pour une approche sans temps d'arrêt, consultez la [migration sans temps d'arrêt](#migrate-with-zero-downtime).
 
 Pour migrer de l'Ingress (NGINX) vers l'API Gateway et Envoy Gateway :
 
@@ -36,9 +36,9 @@ Pour migrer de l'Ingress (NGINX) vers l'API Gateway et Envoy Gateway :
      | kubectl apply --server-side -f -
    ```
 
-1. Sinon, installez les CRD de l'API Gateway via votre fournisseur cloud ou [appliquez-les manuellement](https://gateway-api.sigs.k8s.io/guides/#installing-gateway-api) à votre cluster.
+2. Vous pouvez également installer les CRD de l'API Gateway via votre fournisseur cloud ou [les appliquer manuellement](https://gateway-api.sigs.k8s.io/guides/#installing-gateway-api) à votre cluster.
 
-1. Désactivez le contrôleur NGINX Ingress et les ressources Ingress :
+3. Désactivez le contrôleur NGINX Ingress et les ressources Ingress :
 
    ```yaml
    # Disable bundled NGINX Ingress controller.
@@ -51,7 +51,7 @@ Pour migrer de l'Ingress (NGINX) vers l'API Gateway et Envoy Gateway :
        enabled: false
    ```
 
-1. Configurez Certmanager pour l'API Gateway :
+4. Configurez Certmanager pour l'API Gateway :
 
    ```yaml
    # Configure bundled certmanager for Gateway API support.
@@ -66,7 +66,7 @@ Pour migrer de l'Ingress (NGINX) vers l'API Gateway et Envoy Gateway :
        configureCertmanager: true
    ```
 
-1. Activez les ressources Envoy et de l'API Gateway :
+5. Activez les ressources Envoy et de l'API Gateway :
 
    ```yaml
    global:
@@ -78,7 +78,7 @@ Pour migrer de l'Ingress (NGINX) vers l'API Gateway et Envoy Gateway :
        installEnvoy: true
    ```
 
-1. Configurez la Gateway pour lier une adresse IP statique. Par défaut, l'adresse IP configurée via `global.hosts.externalIP` est réutilisée.
+6. Configurez la Gateway pour lui associer une adresse IP statique. Par défaut, l'adresse IP configurée via `global.hosts.externalIP` est réutilisée.
 
    ```yaml
    # Depending on your cloud provider you might to migrate additional annotations.
@@ -132,11 +132,11 @@ Pour migrer de l'Ingress (NGINX) vers l'API Gateway et Envoy Gateway :
 
    {{< /tabs >}}
 
-1. Mettez à niveau votre release du chart GitLab avec les valeurs mises à jour.
+7. Mettez à niveau votre release du chart GitLab avec les valeurs mises à jour.
 
-## Migrer sans interruption de service {#migrate-with-zero-downtime}
+## Migrer sans temps d'arrêt {#migrate-with-zero-downtime}
 
-Pour effectuer une migration sans interruption de service, vous pouvez exécuter NGINX Ingress et Envoy Gateway côte à côte, permettant à deux LoadBalancers de fonctionner simultanément. Une fois qu'Envoy Gateway est entièrement configuré pour gérer le trafic GitLab, mettez à jour les enregistrements DNS de GitLab pour pointer vers le LoadBalancer géré par Envoy Gateway.
+Pour effectuer une migration sans temps d'arrêt, vous pouvez exécuter NGINX Ingress et Envoy Gateway côte à côte afin que deux LoadBalancers fonctionnent simultanément. Une fois qu'Envoy Gateway est entièrement configuré pour gérer le trafic GitLab, mettez à jour les enregistrements DNS de GitLab pour pointer vers le LoadBalancer géré par Envoy Gateway.
 
 1. Activez les ressources Envoy Gateway et de l'API Gateway sans désactiver NGINX Ingress :
 
@@ -161,14 +161,14 @@ Pour effectuer une migration sans interruption de service, vous pouvez exécuter
          annotations: {}
    ```
 
-1. Configurez vos certificats TLS ou un émetteur certmanager pour la Gateway gérée :
+2. Configurez vos certificats TLS ou un émetteur certmanager pour la Gateway gérée :
 
    > [!note] 
-   > Vous ne pouvez pas utiliser l'Issuer fourni par le chart GitLab à cette fin. L'émetteur utilise [HTTP01](https://cert-manager.io/docs/configuration/acme/http01/), qui ne sera pas en mesure de récupérer les certificats tant que vos enregistrements DNS n'auront pas été mis à jour.
+   > Vous ne pouvez pas utiliser l'émetteur fourni par le chart GitLab à cette fin. L'émetteur utilise [HTTP01](https://cert-manager.io/docs/configuration/acme/http01/), qui ne sera pas en mesure de récupérer les certificats tant que vos enregistrements DNS n'auront pas été mis à jour.
 
-   1. Configurez un [Issuer DNS01](https://cert-manager.io/docs/configuration/acme/dns01/) ou personnalisez les [listeners](../../charts/globals.md) pour utiliser des certificats déjà existants.
+   1. Configurez un [émetteur DNS01](https://cert-manager.io/docs/configuration/acme/dns01/) ou personnalisez les [listeners](../../charts/globals.md) pour utiliser des certificats déjà existants.
 
-   1. Si vous avez créé un Issuer personnalisé, activez la prise en charge de l'API Gateway par certmanager et annotez la Gateway gérée :
+   2. Si vous avez créé un émetteur personnalisé, activez la prise en charge de l'API Gateway par certmanager et annotez la Gateway gérée :
 
       ```yaml
       # Enable Gateway API support for bundled certmanager.
@@ -189,7 +189,7 @@ Pour effectuer une migration sans interruption de service, vous pouvez exécuter
             cert-manager.io/issuer: gitlab-dns01
       ```
 
-1. Assurez-vous que GitLab est accessible si le domaine résout vers l'adresse IP du LoadBalancer Envoy Gateway :
+3. Assurez-vous que GitLab est accessible si le domaine résout vers l'adresse IP du LoadBalancer Envoy Gateway :
 
    ```script
    $ curl -Lso /dev/null \
@@ -199,9 +199,9 @@ Pour effectuer une migration sans interruption de service, vous pouvez exécuter
    Status: 200 TLS: 0 (0=OK)
    ```
 
-1. Mettez à jour vos entrées DNS pour qu'elles résolvent vers le LoadBalancer Envoy Gateway.
-1. Attendez que les entrées DNS se propagent à tous les clients.
-1. Désactivez le contrôleur NGINX Ingress et les objets Ingress :
+4. Mettez à jour vos entrées DNS pour qu'elles résolvent vers le LoadBalancer Envoy Gateway.
+5. Attendez que les entrées DNS se propagent à tous les clients.
+6. Désactivez le contrôleur NGINX Ingress et les objets Ingress :
 
    ```yaml
    nginx-ingress:
