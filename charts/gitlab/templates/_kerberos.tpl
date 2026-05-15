@@ -15,13 +15,8 @@ kerberos:
 {{- if .Values.global.appConfig.kerberos.keytab.secret }}
 # volume for kerberos
 - name: kerberos-keytab
-  projected:
-    sources:
-      - secret:
-          name: {{ .Values.global.appConfig.kerberos.keytab.secret }}
-          items:
-          - key: {{ .Values.global.appConfig.kerberos.keytab.key }}
-            path: {{ .Values.global.appConfig.kerberos.keytab.secret }}
+  secret:
+    secretName: {{ .Values.global.appConfig.kerberos.keytab.secret }}
 {{- end -}}
 {{- end -}}{{/* "gitlab.appConfig.kerberos.volume" */}}
 
@@ -29,6 +24,7 @@ kerberos:
 {{- if .Values.global.appConfig.kerberos.keytab.secret }}
 # volume mount for kerberos
 - mountPath: "/etc/krb5.keytab"
+  subPath: {{ .Values.global.appConfig.kerberos.keytab.key }}
   name: kerberos-keytab
   readOnly: true
 {{- end -}}
