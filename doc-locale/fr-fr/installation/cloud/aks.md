@@ -7,7 +7,7 @@ title: Préparation des ressources AKS pour le chart GitLab
 
 {{< details >}}
 
-- Édition : version gratuite, GitLab Premium, GitLab Ultimate
+- Édition :  version gratuite, GitLab Premium, GitLab Ultimate
 - Offre :  GitLab Self-Managed
 
 {{< /details >}}
