@@ -7,7 +7,7 @@ title: "Migrer depuis les charts Redis, PostgreSQL et MinIO intégrés"
 
 {{< details >}}
 
-- Niveau :  Free, Premium, Ultimate
+- Édition :  version gratuite, GitLab Premium, GitLab Ultimate
 - Offre :  GitLab Self-Managed
 
 {{< /details >}}
@@ -15,29 +15,29 @@ title: "Migrer depuis les charts Redis, PostgreSQL et MinIO intégrés"
 Lors de la configuration d'un système de production, vous devez migrer depuis Redis, MinIO et PostgreSQL intégrés vers des alternatives gérées en externe.
 
 > [!warning] 
-> Les Redis, MinIO et PostgreSQL intégrés sont [obsolètes](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) et seront supprimés dans GitLab 19.0.
+> Les Redis, MinIO et PostgreSQL intégrés ont été [supprimés](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) dans GitLab 19.0 (chart Helm GitLab 10.0). Vous devez migrer vers des solutions externes avant de mettre à niveau.
 
-Ce guide suppose que vous migrez vers des alternatives Cloud Native telles que [Valkey](https://valkey.io/) , [Garage](https://garagehq.deuxfleurs.fr/) et [CloudNativePG](https://cloudnative-pg.io/) respectivement.
+Ce guide suppose que vous migrez vers des alternatives cloud-native telles que [Valkey](https://valkey.io/) , [Garage](https://garagehq.deuxfleurs.fr/) et [CloudNativePG](https://cloudnative-pg.io/) respectivement.
 
 Ce processus de migration vous demande d'effectuer les étapes suivantes :
 
-- Provisionner des services externes :  Déployez et configurez les services externes de votre choix.
-- Sauvegarder vos données :  Créez une sauvegarde de toutes les données des services PostgreSQL et MinIO intégrés.
-- Reconfigurer GitLab :  Mettez à jour la configuration de GitLab pour utiliser les services externes à la place des services intégrés.
-- Restaurer vers les nouveaux services :  Restaurez vos données de sauvegarde vers les services externes nouvellement provisionnés.
-- Nettoyer les anciens services :  Supprimez manuellement les anciens services intégrés et leurs volumes persistants lorsque vous êtes certain que la migration est terminée.
+- Provisionner des services externes :  déployez et configurez les services externes de votre choix.
+- Sauvegarder vos données :  créez une sauvegarde de toutes les données des services PostgreSQL et MinIO intégrés.
+- Reconfigurer GitLab :  mettez à jour la configuration de GitLab pour utiliser les services externes à la place des services intégrés.
+- Restaurer vers les nouveaux services :  restaurez vos données de sauvegarde vers les services externes nouvellement provisionnés.
+- Nettoyer les anciens services :  supprimez manuellement les anciens services intégrés et leurs volumes persistants lorsque vous êtes certain que la migration est terminée.
 
 ## Avant de commencer {#before-you-begin}
 
 Avant de commencer la migration depuis les services Redis, MinIO ou PostgreSQL intégrés :
 
-- Évaluez les services qui correspondent aux [exigences d'installation](https://docs.gitlab.com/install/requirements/). Envisagez des services de fournisseurs cloud ou d'autres alternatives qui répondent à vos besoins d'infrastructure et à vos exigences organisationnelles. Pour des considérations générales sur l'architecture de référence et les fournisseurs recommandés, consultez la [documentation sur l'architecture de référence](https://docs.gitlab.com/administration/reference_architectures/#recommended-cloud-providers-and-services).
+- Évaluez les services qui correspondent aux [exigences d'installation](https://docs.gitlab.com/install/requirements/). Envisagez des services de fournisseurs cloud ou d'autres solutions qui répondent à vos besoins d'infrastructure et aux exigences de votre organisation. Pour des considérations générales sur l'architecture de référence et les fournisseurs recommandés, consultez la [documentation relative à l'architecture de référence](https://docs.gitlab.com/administration/reference_architectures/#recommended-cloud-providers-and-services).
 - À la suite de cette migration, la mise à niveau du chart GitLab ne mettra plus à niveau vos déploiements Redis ou PostgreSQL. Les mises à niveau majeures de GitLab peuvent nécessiter des versions plus récentes de Valkey/Redis ou de PostgreSQL. Avant de suivre ce guide, ou avant d'effectuer une mise à niveau majeure de GitLab, vérifiez les [exigences](https://docs.gitlab.com/install/requirements) pour votre version de GitLab.
-- Vérifiez la taille actuelle et l'utilisation des données de vos demandes de volumes persistants MinIO, Redis et PostgreSQL. Le guide configure 5 Gio pour PostgreSQL, 2 Gio pour Valkey et 5 Gio (répliqués 3 fois) pour Garage, ce qui peut nécessiter des ajustements.
-- Notez que GitLab ne peut pas vous aider avec la configuration ou le dépannage des applications tierces mentionnées dans ce document. Nous pouvons garantir que GitLab lui-même envoie des données correctement formatées à un tiers dans la configuration minimale.
+- Vérifiez la taille actuelle et l'utilisation des données de vos demandes de volumes persistants MinIO, Redis et PostgreSQL. Le guide configure 5 GiB pour PostgreSQL, 2 GiB pour Valkey et 5 GiB (répliqués 3 fois) pour Garage, ce qui peut nécessiter des ajustements.
+- Notez que GitLab ne peut pas vous aider avec la configuration ou le dépannage des applications tierces mentionnées dans ce document. Nous pouvons garantir que GitLab elle-même envoie des données correctement formatées à un tiers dans la configuration minimale.
 - Planifiez une période d'indisponibilité pour cette migration. Pendant l'importation des données vers les nouveaux services externes, GitLab ne sera pas accessible.
 
-## Sauvegarder GitLab {#backup-gitlab}
+## Effectuer une sauvegarde de GitLab {#backup-gitlab}
 
 Commencez par [sauvegarder](../../backup-restore/_index.md) toutes les données actuelles et notez l'identifiant de la sauvegarde.
 
@@ -47,17 +47,17 @@ Veuillez noter que :
 - Si vous ne migrez que MinIO, vous devrez sauvegarder uniquement les compartiments de stockage d'objets.
 - Si vous ne migrez que Redis, vous pouvez ignorer les étapes de sauvegarde et de restauration.
 - Si vous ne migrez que PostgreSQL, vous pouvez [ignorer](../../backup-restore/backup.md#skipping-components) la sauvegarde de tous les composants sauf `db`.
-- Si vous avez activé la [base de données des métadonnées du registre](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/) , les données de métadonnées ne seront pas couvertes par le [processus de sauvegarde/restauration par défaut](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/#backup-with-metadata-database).
+- Si vous avez activé la [base de données des métadonnées du registre](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/), les données de métadonnées ne seront pas couvertes par le [processus de sauvegarde/restauration par défaut](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/#backup-with-metadata-database).
 
 ## Provisionner des services externes {#provision-external-services}
 
 Pour remplacer les charts Redis, PostgreSQL et MinIO intégrés, provisionnez des remplacements gérés en externe. Pour un aperçu des options disponibles, consultez les [fournisseurs et services recommandés](https://docs.gitlab.com/administration/reference_architectures/#recommended-cloud-providers-and-services) et assurez-vous qu'ils respectent les [exigences minimales actuelles](https://docs.gitlab.com/install/requirements/).
 
-### Provisionner Valkey ou Redis externe {#provision-external-valkey-or-redis}
+### Provisionner un service Valkey ou Redis externe {#provision-external-valkey-or-redis}
 
 1. Provisionnez votre service Valkey ou Redis externe. Par exemple, en utilisant le [chart Helm Valkey](https://github.com/valkey-io/valkey-helm) officiel :
 
-   Cela configure une instance Valkey indépendante qui conserve les données entre les redémarrages. Les identifiants d'authentification sont stockés dans un Secret nommé `<RELEASE>-auth`.
+   Vous configurez ainsi une instance Valkey indépendante qui conserve les données entre les redémarrages. Les identifiants d'authentification sont stockés dans un secret nommé `<RELEASE>-auth`.
 
    ```shell
    helm repo add valkey https://valkey.io/valkey-helm/
@@ -78,7 +78,7 @@ Pour remplacer les charts Redis, PostgreSQL et MinIO intégrés, provisionnez de
    valkey   1/1     1            1           30m
    ```
 
-### Provisionner PostgreSQL externe {#provision-external-postgresql}
+### Provisionner un service PostgreSQL externe {#provision-external-postgresql}
 
 Provisionnez votre service PostgreSQL externe. Par exemple, en utilisant [CloudNativePG](https://cloudnative-pg.io/docs/1.28/installation_upgrade) :
 
@@ -127,7 +127,7 @@ Provisionnez votre service PostgreSQL externe. Par exemple, en utilisant [CloudN
 
 Pour migrer depuis le MinIO intégré, vous devez provisionner votre propre solution de stockage d'objets externe.
 
-Une option est [Garage](https://garagehq.deuxfleurs.fr/). Avant d'installer Garage, consultez la documentation de Garage pour :
+[Garage](https://garagehq.deuxfleurs.fr/) est une option. Avant d'installer Garage, consultez la documentation de Garage pour :
 
 - [Déploiement sur un cluster](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/).
 - [Déploiement sur Kubernetes](https://garagehq.deuxfleurs.fr/documentation/cookbook/kubernetes/).
@@ -222,7 +222,7 @@ Prérequis :
    EOF
    ```
 
-1. Créez un Secret configurant l'accès pour la sauvegarde/restauration :
+1. Créez un secret configurant l'accès pour la sauvegarde/restauration :
 
    ```shell
    cat <<EOF | kubectl create secret generic gitlab-object-storage-s3cmd --from-file=config=/dev/stdin
@@ -235,7 +235,7 @@ Prérequis :
    EOF
    ```
 
-1. Créez un Secret configurant l'accès pour le registre :
+1. Créez un secret configurant l'accès pour le registre :
 
    ```shell
    cat <<EOF | kubectl create secret generic gitlab-registry-storage --from-file=config=/dev/stdin
@@ -255,7 +255,7 @@ Prérequis :
 
 Une fois tous les remplacements provisionnés, vous pouvez maintenant désactiver les MinIO, Redis et PostgreSQL intégrés.
 
-1. Assurez-vous que le volume persistant MinIO sera conservé pour l'instant.
+1. Assurez-vous que le volume persistant MinIO est conservé pour l'instant.
 
    ```yaml
    minio:
@@ -372,7 +372,7 @@ Une fois tous les remplacements provisionnés, vous pouvez maintenant désactive
 
 1. Confirmez que GitLab est opérationnel.
 1. Confirmez que les [sauvegardes](../../backup-restore/backup.md) fonctionnent comme prévu en effectuant une nouvelle sauvegarde.
-1. Supprimez les Secrets et les PersistentVolumeClaims liés aux PostgreSQL, MinIO et Redis intégrés.
+1. Supprimez les secrets et les PersistentVolumeClaims liés aux PostgreSQL, MinIO et Redis intégrés.
 
    ```shell
    kubectl delete pvc <RELEASE>-minio redis-data-<RELEASE>-redis-master-0 data-<RELEASE>-postgresql-0
