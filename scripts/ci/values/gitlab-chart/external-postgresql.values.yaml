@@ -4,3 +4,13 @@ global:
     password:
       secret: ${CNPG_CLUSTER_SECRET}
       key: password
+
+# Enable the container registry metadata database against an extra logical DB
+# (`registry`, owner `registry`) created in the same CNPG cluster — see the
+# postInitSQL block in scripts/ci/lib/cloudnativepg.sh.
+registry:
+  database:
+    enabled: true
+    password:
+      secret: ${CNPG_CLUSTER_REGISTRY_SECRET}
+      key: password
