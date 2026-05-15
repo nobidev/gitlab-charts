@@ -50,7 +50,8 @@ Cet exemple utilise `kas.my-other-domain.com` comme hôte pour l'Ingress KAS uni
 
 Le service KAS prend en charge le trafic gRPC via le même port que le trafic WebSocket, en utilisant le routage basé sur les chemins avec correspondance regex pour distinguer les deux protocoles.
 
-> [!warning] L'Ingress gRPC n'est pas pris en charge lorsque [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root) est défini sur une valeur non vide.
+> [!warning]
+> L'Ingress gRPC n'est pas pris en charge lorsque [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root) est défini sur une valeur non vide.
 
 #### Prise en charge des contrôleurs {#controller-support}
 

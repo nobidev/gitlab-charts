@@ -417,7 +417,8 @@ Les valeurs suivantes seront utilisées à l'échelle du chart, dans le cas où 
 | `maxReplicas`                | Integer | `10`      | Nombre maximum de réplicas |
 | `maxUnavailable`             | Integer | `1`       | Limite du nombre maximum de pods pouvant être indisponibles |
 
-> [!note] [La documentation détaillée du memory killer Sidekiq est disponible](https://docs.gitlab.com/administration/sidekiq/sidekiq_memory_killer/) dans la documentation du package Linux.
+> [!note]
+> [La documentation détaillée du memory killer Sidekiq est disponible](https://docs.gitlab.com/administration/sidekiq/sidekiq_memory_killer/) dans la documentation du package Linux.
 
 ## Désactiver la mise à l'échelle HPA {#disable-hpa-scaling}
 

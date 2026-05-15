@@ -25,7 +25,8 @@ title: Graphique Zoekt
 
 {{< /history >}}
 
-> [!warning] Cette fonctionnalité est en [disponibilité limitée](https://docs.gitlab.com/policy/development_stages_support/#limited-availability). Pour plus d'informations, consultez l'epic [9404](https://gitlab.com/groups/gitlab-org/-/epics/9404). Donnez votre avis dans le ticket [420920](https://gitlab.com/gitlab-org/gitlab/-/issues/420920).
+> [!warning]
+> Cette fonctionnalité est en [disponibilité limitée](https://docs.gitlab.com/policy/development_stages_support/#limited-availability). Pour plus d'informations, consultez l'epic [9404](https://gitlab.com/groups/gitlab-org/-/epics/9404). Donnez votre avis dans le ticket [420920](https://gitlab.com/gitlab-org/gitlab/-/issues/420920).
 
 ## Graphique Zoekt avec une instance de package Linux {#zoekt-chart-with-a-linux-package-instance}
 

@@ -338,7 +338,8 @@ workhorse:
 
 Les valeurs suivantes sont utilisées pour configurer les pods Gitaly.
 
-> [!note] Gitaly utilise un token d'authentification pour s'authentifier auprès des services Workhorse et Sidekiq. Le secret et la clé du token d'authentification proviennent de la valeur `global.gitaly.authToken`. De plus, le conteneur Gitaly dispose d'une copie de GitLab Shell, qui possède une configuration pouvant être définie. Le authToken Shell provient des valeurs `global.shell.authToken`.
+> [!note]
+> Gitaly utilise un token d'authentification pour s'authentifier auprès des services Workhorse et Sidekiq. Le secret et la clé du token d'authentification proviennent de la valeur `global.gitaly.authToken`. De plus, le conteneur Gitaly dispose d'une copie de GitLab Shell, qui possède une configuration pouvant être définie. Le authToken Shell provient des valeurs `global.shell.authToken`.
 
 ### Persistance du dépôt Git {#git-repository-persistence}
 
@@ -373,7 +374,8 @@ persistence:
 
 ### Exécution de Gitaly sur TLS {#running-gitaly-over-tls}
 
-> [!note] Cette section traite de Gitaly exécuté à l'intérieur du cluster à l'aide des charts Helm. Si vous utilisez une instance Gitaly externe et souhaitez utiliser TLS pour communiquer avec elle, reportez-vous à [la documentation Gitaly externe](../../../advanced/external-gitaly/_index.md#connecting-to-external-gitaly-over-tls).
+> [!note]
+> Cette section traite de Gitaly exécuté à l'intérieur du cluster à l'aide des charts Helm. Si vous utilisez une instance Gitaly externe et souhaitez utiliser TLS pour communiquer avec elle, reportez-vous à [la documentation Gitaly externe](../../../advanced/external-gitaly/_index.md#connecting-to-external-gitaly-over-tls).
 
 Gitaly prend en charge la communication avec d'autres composants via TLS. Cela est contrôlé par les paramètres `global.gitaly.tls.enabled` et `global.gitaly.tls.secretName`. Suivez les étapes pour exécuter Gitaly sur TLS :
 

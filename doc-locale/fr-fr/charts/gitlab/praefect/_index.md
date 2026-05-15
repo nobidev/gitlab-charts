@@ -13,7 +13,8 @@ title: Utilisation du chart Praefect
 
 {{< /details >}}
 
-> [!warning] Le chart Praefect est encore en cours de développement. Cette version expérimentale n'est pas encore adaptée à un usage en production. Les mises à niveau peuvent nécessiter une intervention manuelle importante. Consultez notre [Epic de release GA Praefect](https://gitlab.com/groups/gitlab-org/charts/-/epics/33) pour plus d'informations.
+> [!warning]
+> Le chart Praefect est encore en cours de développement. Cette version expérimentale n'est pas encore adaptée à un usage en production. Les mises à niveau peuvent nécessiter une intervention manuelle importante. Consultez notre [Epic de release GA Praefect](https://gitlab.com/groups/gitlab-org/charts/-/epics/33) pour plus d'informations.
 
 Le chart Praefect est utilisé pour gérer le [Gitaly Cluster (Praefect)](https://docs.gitlab.com/administration/gitaly/praefect/) au sein d'une installation GitLab déployée avec les charts Helm.
 
@@ -118,7 +119,8 @@ global:
 
 ### Migration vers Praefect {#migrating-to-praefect}
 
-> [!note] Les wikis de groupe [ne peuvent pas être déplacés via l'API](https://docs.gitlab.com/api/project_repository_storage_moves/).
+> [!note]
+> Les wikis de groupe [ne peuvent pas être déplacés via l'API](https://docs.gitlab.com/api/project_repository_storage_moves/).
 
 Lors de la migration d'instances Gitaly autonomes vers une configuration Praefect, `global.praefect.replaceInternalGitaly` peut être défini sur `false`. Cela garantit que les instances Gitaly existantes sont préservées pendant la création des nouvelles instances Gitaly gérées par Praefect.
 
@@ -133,7 +135,8 @@ global:
       maxUnavailable: 2
 ```
 
-> [!note] Lors de la migration vers Praefect, aucun stockage virtuel de Praefect ne peut être nommé `default`. Cela est dû au fait qu'il doit exister en permanence au moins un stockage nommé `default`, et ce nom est donc déjà utilisé par la configuration non-Praefect.
+> [!note]
+> Lors de la migration vers Praefect, aucun stockage virtuel de Praefect ne peut être nommé `default`. Cela est dû au fait qu'il doit exister en permanence au moins un stockage nommé `default`, et ce nom est donc déjà utilisé par la configuration non-Praefect.
 
 Les instructions pour [migrer vers Gitaly Cluster (Praefect)](https://docs.gitlab.com/administration/gitaly/praefect/#migrate-to-gitaly-cluster-praefect) peuvent ensuite être suivies pour déplacer les données du stockage `default` vers `virtualStorage2`. Si des stockages supplémentaires ont été définis sous `global.gitaly.internal.names`, veillez à migrer également les dépôts de ces stockages.
 

@@ -268,7 +268,8 @@ Activez ce CronJob en définissant la valeur `databaseReindex.cron.enabled` sur 
 
 Définissez la planification du CronJob en utilisant la valeur `databaseReindex.cron.schedule`. Vous devez exécuter la réindexation pendant les périodes de faible trafic. Par exemple, la réindexation de la base de données s'exécute pour GitLab.com le samedi et le dimanche.
 
-> [!note] Si vous êtes administrateur d'une instance du paquet Linux, vous pouvez activer la réindexation périodique de la base de données en [suivant les instructions correspondantes](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing).
+> [!note]
+> Si vous êtes administrateur d'une instance du paquet Linux, vous pouvez activer la réindexation périodique de la base de données en [suivant les instructions correspondantes](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing).
 
 ## Configuration de la persistance {#persistence-configuration}
 

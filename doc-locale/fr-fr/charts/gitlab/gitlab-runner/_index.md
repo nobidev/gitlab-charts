@@ -14,7 +14,8 @@ title: Utilisation du chart GitLab Runner
 
 Le sous-chart GitLab Runner fournit un GitLab Runner pour l'exécution des jobs CI. Il est activé par défaut et devrait fonctionner immédiatement avec la prise en charge de la mise en cache utilisant un stockage d'objets compatible s3.
 
-> [!note] Le GitLab Runner fourni en bundle est proposé à des fins d'évaluation uniquement. Pour les déploiements en production, installez GitLab Runner sur une machine distincte pour des [raisons de sécurité et de performances](https://docs.gitlab.com/install/requirements/#gitlab-runner). Pour plus d'informations, consultez la [documentation sur les architectures de référence](../../../installation/_index.md#use-the-reference-architectures).
+> [!note]
+> Le GitLab Runner fourni en bundle est proposé à des fins d'évaluation uniquement. Pour les déploiements en production, installez GitLab Runner sur une machine distincte pour des [raisons de sécurité et de performances](https://docs.gitlab.com/install/requirements/#gitlab-runner). Pour plus d'informations, consultez la [documentation sur les architectures de référence](../../../installation/_index.md#use-the-reference-architectures).
 
 ## Prérequis {#requirements}
 

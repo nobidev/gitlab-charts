@@ -21,7 +21,8 @@ title: Chart OpenBao
 
 {{< /history >}}
 
-> [!flag] La disponibilité de cette fonctionnalité est contrôlée par un feature flag. Pour plus d'informations, consultez l'historique.
+> [!flag]
+> La disponibilité de cette fonctionnalité est contrôlée par un feature flag. Pour plus d'informations, consultez l'historique.
 
 Vous pouvez utiliser le [chart OpenBao](https://gitlab.com/gitlab-org/cloud-native/charts/openbao) pour installer OpenBao, qui est requis pour activer le [gestionnaire de secrets GitLab](https://docs.gitlab.com/ci/secrets/secrets_manager/).
 
@@ -197,7 +198,8 @@ ingress:
   sslPassthroughNginx: true
 ```
 
-> [!note] L'activation du passage SSL nécessite que cert-manager crée un autre Ingress pour compléter les défis HTTP01. Si vous utilisez certmanager intégré et `Issuer`, assurez-vous que l'émetteur définit le bon `IngressClass` en configurant [`global.ingress.useNewIngressForCerts`](../globals.md#globalingressusenewingressforcerts).
+> [!note]
+> L'activation du passage SSL nécessite que cert-manager crée un autre Ingress pour compléter les défis HTTP01. Si vous utilisez certmanager intégré et `Issuer`, assurez-vous que l'émetteur définit le bon `IngressClass` en configurant [`global.ingress.useNewIngressForCerts`](../globals.md#globalingressusenewingressforcerts).
 
 ### Gateway API {#gateway-api}
 

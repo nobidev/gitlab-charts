@@ -57,7 +57,8 @@ Utilisez ces charts comme ajouts facultatifs :
 
 `affinity` est un paramètre facultatif dans tous les sous-charts Helm GitLab. Lorsque vous le définissez, il prend la priorité sur la valeur [globale `affinity`](../globals.md#affinity). Pour plus d'informations sur `affinity`, consultez [la documentation Kubernetes correspondante](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity).
 
-> [!note] Les charts Helm `webservice` et `sidekiq` ne peuvent utiliser que la valeur [globale `affinity`](../globals.md#affinity). Suivez l'ticket [25403](https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/issues/25403) pour savoir quand l'`affinity` local sera implémenté pour `webservice` et `sidekiq`.
+> [!note]
+> Les charts Helm `webservice` et `sidekiq` ne peuvent utiliser que la valeur [globale `affinity`](../globals.md#affinity). Suivez l'ticket [25403](https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/issues/25403) pour savoir quand l'`affinity` local sera implémenté pour `webservice` et `sidekiq`.
 
 Avec `affinity`, vous pouvez définir l'un ou l'autre, ou les deux :
 

@@ -12,7 +12,8 @@ title: "Utilisation de MinIO pour le stockage d'objets"
 
 {{< /details >}}
 
-> [!note] Le chart MinIO intégré n'est pas prêt pour la production. Pour un déploiement de chart GitLab prêt pour la production, utilisez une solution de stockage d'objets externe.
+> [!note]
+> Le chart MinIO intégré n'est pas prêt pour la production. Pour un déploiement de chart GitLab prêt pour la production, utilisez une solution de stockage d'objets externe.
 >
 > Pour obtenir des informations sur la migration depuis le chart MinIO intégré, consultez [migrer depuis Redis, PostgreSQL et MinIO intégrés](../../installation/migration/bundled_chart_migration.md).
 

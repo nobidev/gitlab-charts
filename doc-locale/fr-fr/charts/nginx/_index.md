@@ -12,7 +12,8 @@ title: Utilisation de NGINX
 
 {{< /details >}}
 
-> [!warning] NGINX Ingress est obsolète et ne recevra plus de correctifs de sécurité après mars 2026. Dans GitLab 19.0, le NGINX Ingress intégré sera désactivé par défaut et sa suppression complète est prévue pour la version 20.0.
+> [!warning]
+> NGINX Ingress est obsolète et ne recevra plus de correctifs de sécurité après mars 2026. Dans GitLab 19.0, le NGINX Ingress intégré sera désactivé par défaut et sa suppression complète est prévue pour la version 20.0.
 >
 > Pour plus d'informations, consultez l'[annonce de dépréciation](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress). Vous devriez migrer vers la [passerelle Envoy intégrée](../envoygateway/_index.md) ou un [contrôleur Ingress externe](../../advanced/external-ingress/_index.md) dès que possible.
 
@@ -71,7 +72,8 @@ Consultez également [les erreurs « Invalid Word » dans les journaux `nginx-co
 
 ## Ajustements apportés à la duplication NGINX {#adjustments-to-the-nginx-fork}
 
-> [!note] Notre [duplication](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/nginx-ingress) du chart NGINX a été extraite depuis [GitHub](https://github.com/kubernetes/ingress-nginx).
+> [!note]
+> Notre [duplication](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/nginx-ingress) du chart NGINX a été extraite depuis [GitHub](https://github.com/kubernetes/ingress-nginx).
 
 Les ajustements suivants ont été apportés à la duplication NGINX :
 

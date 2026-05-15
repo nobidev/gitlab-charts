@@ -323,7 +323,8 @@ Pour bénéficier de l'accès TLS à la fonctionnalité GitLab Pages, vous devez
 
 {{< /history >}}
 
-> [!warning] GitLab Pages ne prend en charge qu'un seul schéma d'URL à la fois :  Soit avec un DNS générique, soit sans DNS générique. Si vous activez `namespaceInPath`, les sites web GitLab Pages existants ne seront accessibles que sur des domaines sans DNS générique.
+> [!warning]
+> GitLab Pages ne prend en charge qu'un seul schéma d'URL à la fois :  Soit avec un DNS générique, soit sans DNS générique. Si vous activez `namespaceInPath`, les sites web GitLab Pages existants ne seront accessibles que sur des domaines sans DNS générique.
 
 1. Activez `namespaceInPath` dans les paramètres globaux de Pages.
 
@@ -366,7 +367,8 @@ Pour bénéficier de l'accès TLS à la fonctionnalité GitLab Pages, vous devez
 
 1. Facultatif. Si [l'accès TLS](#tls-access-to-gitlab-pages-domain-without-wildcard-dns) est configuré, mettez à jour l'URI de redirection dans l'[application OAuth système](https://docs.gitlab.com/integration/oauth_provider/#create-an-instance-wide-application) de GitLab Pages pour utiliser le protocole HTTPS.
 
-> [!warning] GitLab Pages ne met pas à jour l'application OAuth, et la valeur `authRedirectUri` par défaut est mise à jour vers `https://pages.<yourdomaindomain>/projects/auth`. Lors de l'accès à un site Pages privé, si vous rencontrez l'erreur « L'URI de redirection incluse n'est pas valide », mettez à jour l'URI de redirection dans l'[application OAuth système](https://docs.gitlab.com/integration/oauth_provider/#create-an-instance-wide-application) de GitLab Pages vers `https://pages.<yourdomaindomain>/projects/auth`.
+> [!warning]
+> GitLab Pages ne met pas à jour l'application OAuth, et la valeur `authRedirectUri` par défaut est mise à jour vers `https://pages.<yourdomaindomain>/projects/auth`. Lors de l'accès à un site Pages privé, si vous rencontrez l'erreur « L'URI de redirection incluse n'est pas valide », mettez à jour l'URI de redirection dans l'[application OAuth système](https://docs.gitlab.com/integration/oauth_provider/#create-an-instance-wide-application) de GitLab Pages vers `https://pages.<yourdomaindomain>/projects/auth`.
 
 ### Limites de débit {#rate-limits}
 
