@@ -30,8 +30,8 @@ Un [script de bootstrap](https://gitlab.com/gitlab-org/charts/gitlab/blob/master
 Le script va :
 
 1. Créer un nouveau cluster GKE.
-1. Autoriser le cluster à modifier les enregistrements DNS.
-1. Configurer `kubectl` et le connecter au cluster.
+2. Autoriser le cluster à modifier les enregistrements DNS.
+3. Configurer `kubectl` et le connecter au cluster.
 
 Le script lit divers paramètres à partir des variables d'environnement et de l'argument `up` pour le démarrage ou `down` pour le nettoyage.
 
