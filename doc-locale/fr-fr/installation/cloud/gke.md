@@ -7,8 +7,8 @@ title: Préparation des ressources GKE pour le chart GitLab
 
 {{< details >}}
 
-- Édition : version gretuite, Premium, Ultimate
-- Offre : GitLab Self-Managed
+- Édition :  version gretuite, Premium, Ultimate
+- Offre :  GitLab Self-Managed
 
 {{< /details >}}
 
