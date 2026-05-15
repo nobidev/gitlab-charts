@@ -21,7 +21,7 @@ Avant la migration, vérifiez les prérequis suivants :
 - L'instance GitLab basée sur un paquet doit être opérationnelle. Exécutez `gitlab-ctl status` et confirmez qu'aucun service ne signale un état `down`.
 - Il est recommandé de [vérifier l'intégrité](https://docs.gitlab.com/administration/raketasks/check/) des dépôts Git avant la migration.
 - Un déploiement basé sur les charts Helm exécutant la même version de GitLab que l'installation basée sur un paquet est requis.
-- Le stockage d'objets doit être configuré comme service externe avant de déployer le chart Helm GitLab. Consultez l'article [Configurer le stockage d'objets externe](https://docs.gitlab.com/charts/advanced/external-object-storage/) pour en savoir plus.
+- Le stockage d'objets doit être configuré comme service externe avant de déployer le chart Helm GitLab. Consultez l'article [Configurer le stockage d'objets externe](../../advanced/external-object-storage/_index.md) pour en savoir plus.
 - PostgreSQL et Redis doivent être configurés en tant que services externes avant de déployer le chart Helm GitLab. Consultez [la base de données externe](../../advanced/external-db/_index.md) et [Redis externe](../../advanced/external-redis/_index.md).
 
 ## Étapes de migration {#migration-steps}

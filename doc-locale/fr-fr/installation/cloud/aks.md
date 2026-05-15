@@ -39,8 +39,8 @@ Il accepte un argument `up`, `down` ou `creds`, avec des paramètres facultatifs
   Cette opération va :
 
   1. Créer un nouveau groupe de ressources (facultatif).
-  2. Créer un nouveau cluster AKS.
-  3. Créer une nouvelle adresse IP publique (facultatif).
+  1. Créer un nouveau cluster AKS.
+  1. Créer une nouvelle adresse IP publique (facultatif).
 
 - Pour nettoyer les ressources AKS créées :
 
@@ -51,8 +51,8 @@ Il accepte un argument `up`, `down` ou `creds`, avec des paramètres facultatifs
   Cette opération va :
 
   1. Supprimer le groupe de ressources spécifié (facultatif).
-  2. Supprimer le cluster AKS.
-  3. Supprimer le groupe de ressources créé par le cluster.
+  1. Supprimer le cluster AKS.
+  1. Supprimer le groupe de ressources créé par le cluster.
 
   L'argument `down` envoie la commande pour supprimer toutes les ressources et se termine instantanément. La suppression effective peut prendre plusieurs minutes.
 
