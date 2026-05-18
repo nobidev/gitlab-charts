@@ -5,7 +5,8 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Configurer le chart GitLab avec un contrôleur NGINX Ingress externe
 ---
 
-> [!warning] Le chart GitLab utilise par défaut l'API Gateway et Envoy Gateway depuis la version 19.0. Le NGINX Ingress intégré est obsolète et sera supprimé dans GitLab 20.0. Consultez l'[avis d'obsolescence](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haproxy-and-traefik-charts) et l'[annonce de retrait](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/) pour plus d'informations.
+> [!warning]
+> Le chart GitLab utilise par défaut l'API Gateway et Envoy Gateway depuis la version 19.0. Le NGINX Ingress intégré est obsolète et sera supprimé dans GitLab 20.0. Consultez l'[avis d'obsolescence](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress-haproxy-and-traefik-charts) et l'[annonce de retrait](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/) pour plus d'informations.
 
 Le chart GitLab gère et intègre actuellement un NGINX Ingress dupliqué. Ce guide vous aide à configurer un NGINX Ingress externe à utiliser avec le chart GitLab à la place de celui intégré.
 

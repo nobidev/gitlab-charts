@@ -16,7 +16,8 @@ Pour installer une version cloud-native de GitLab, utilisez le chart Helm GitLab
 
 Pour les installations basées sur OpenShift, utilisez [GitLab Operator](https://docs.gitlab.com/operator/), sinon vous devez mettre à jour vous-même les [contraintes de contexte de sécurité](https://docs.gitlab.com/operator/security_context_constraints/).
 
-> [!note] Le chart Helm GitLab nécessite un PostgreSQL externe, Redis et un stockage d'objets pour les déploiements en production. Les versions intégrées de ces services sont incluses à des fins d'évaluation uniquement. Pour la production, suivez les [architectures de référence Cloud Native Hybrid](installation/_index.md#use-the-reference-architectures).
+> [!note]
+> Le chart Helm GitLab nécessite un PostgreSQL externe, Redis et un stockage d'objets pour les déploiements en production. Les versions intégrées de ces services sont incluses à des fins d'évaluation uniquement. Pour la production, suivez les [architectures de référence Cloud Native Hybrid](installation/_index.md#use-the-reference-architectures).
 
 Pour un déploiement en production, vous devez avoir une solide connaissance pratique de Kubernetes. Cette méthode de déploiement implique une gestion, une observabilité et des concepts différents de ceux des déploiements traditionnels.
 

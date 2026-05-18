@@ -15,13 +15,15 @@ Installez Ubuntu Server sur la VM que vous avez créée. Assurez-vous que `opens
 
 Suivez les instructions d'installation du [package Linux](https://docs.gitlab.com/install/package/ubuntu/).
 
-> [!note] Lorsque vous effectuez l'installation du package, ne fournissez pas la valeur `EXTERNAL_URL=`. Nous ne souhaitons pas que la configuration automatique se produise, car nous fournirons une configuration très spécifique à l'étape suivante.
+> [!note]
+> Lorsque vous effectuez l'installation du package, ne fournissez pas la valeur `EXTERNAL_URL=`. Nous ne souhaitons pas que la configuration automatique se produise, car nous fournirons une configuration très spécifique à l'étape suivante.
 
 ## Configurer l'installation du package Linux {#configure-linux-package-installation}
 
 Créez un fichier `gitlab.rb` minimal à placer dans `/etc/gitlab/gitlab.rb`. Soyez _très_ explicite sur ce qui est activé sur ce nœud, utilisez le contenu ci-dessous.
 
-> [!note] Cet exemple n'est pas destiné à fournir [Redis pour la mise à l'échelle](https://docs.gitlab.com/administration/redis/).
+> [!note]
+> Cet exemple n'est pas destiné à fournir [Redis pour la mise à l'échelle](https://docs.gitlab.com/administration/redis/).
 
 - `REDIS_PASSWORD` doit être remplacé par la valeur dans le [secret `gitlab-redis`](../../installation/secrets.md#redis-password).
 

@@ -37,4 +37,5 @@ Cette commande peut également être utilisée pour vérifier toutes les configu
 
 Il existe un [exemple de fichier de valeurs](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/custom-images/values.yaml) qui montre comment configurer un registre/dépôt Docker personnalisé et un tag. Vous pouvez copier les sections pertinentes de ce fichier pour vos propres releases.
 
-> [!note] Certains des charts (notamment les charts tiers) ont parfois des conventions légèrement différentes pour spécifier le registre/dépôt d'images et le tag. Vous pouvez trouver la documentation des charts tiers sur le [Artifact Hub](https://artifacthub.io/).
+> [!note]
+> Certains des charts (notamment les charts tiers) ont parfois des conventions légèrement différentes pour spécifier le registre/dépôt d'images et le tag. Vous pouvez trouver la documentation des charts tiers sur le [Artifact Hub](https://artifacthub.io/).

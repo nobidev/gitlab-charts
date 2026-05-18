@@ -7,7 +7,8 @@ title: "Configurer le chart GitLab avec un stockage d'objets externe"
 
 Configurez le chart Helm GitLab avec un stockage d'objets externe, requis pour les déploiements en production.
 
-> [!note] À partir de GitLab 19.0, le chart Helm GitLab n'intégrera plus MinIO. Pour plus d'informations, consultez l'[annonce de dépréciation](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) et [migrez](../../installation/migration/bundled_chart_migration.md) vers une alternative externe.
+> [!note]
+> À partir de GitLab 19.0, le chart Helm GitLab n'intégrera plus MinIO. Pour plus d'informations, consultez l'[annonce de dépréciation](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) et [migrez](../../installation/migration/bundled_chart_migration.md) vers une alternative externe.
 
 GitLab s'appuie sur le stockage d'objets pour les données persistantes hautement disponibles dans Kubernetes. GitLab prend en charge deux types de méthodes d'authentification pour les principaux fournisseurs de stockage d'objets cloud : les identifiants statiques et les identifiants temporaires via des services spécifiques au cloud.
 
@@ -37,7 +38,8 @@ Ces mécanismes d'identifiants temporaires améliorent la sécurité en :
 
 ## Désactiver MinIO {#disable-minio}
 
-> [!warning] À partir de GitLab 19.0, le chart Helm GitLab n'intégrera plus MinIO. Pour plus d'informations, consultez l'[annonce de dépréciation](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) et [migrez](../../installation/migration/bundled_chart_migration.md) vers une alternative externe.
+> [!warning]
+> À partir de GitLab 19.0, le chart Helm GitLab n'intégrera plus MinIO. Pour plus d'informations, consultez l'[annonce de dépréciation](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart) et [migrez](../../installation/migration/bundled_chart_migration.md) vers une alternative externe.
 
 Par défaut, une solution de stockage compatible S3 nommée `minio` est déployée avec le chart. Pour les déploiements de qualité production, nous recommandons d'utiliser une solution de stockage d'objets hébergée telle que Google Cloud Storage ou AWS S3.
 
@@ -53,7 +55,8 @@ Un [exemple de la configuration complète](https://gitlab.com/gitlab-org/charts/
 
 La prise en charge directe du stockage Azure Blob est disponible pour les [pièces jointes téléchargées, les artefacts de job CI, LFS et d'autres types d'objets pris en charge via les paramètres consolidés](https://docs.gitlab.com/administration/object_storage/#storage-specific-configuration). Dans les versions précédentes de GitLab, une [passerelle Azure MinIO](azure-minio-gateway.md) était nécessaire.
 
-> [!note] GitLab [ne prend pas en charge](https://github.com/minio/minio/issues/9978) la passerelle Azure MinIO comme stockage pour le Docker Registry. Veuillez vous référer à l'[exemple Azure correspondant](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.azure.yaml) lors de la [configuration du Docker Registry](#docker-registry-images).
+> [!note]
+> GitLab [ne prend pas en charge](https://github.com/minio/minio/issues/9978) la passerelle Azure MinIO comme stockage pour le Docker Registry. Veuillez vous référer à l'[exemple Azure correspondant](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.azure.yaml) lors de la [configuration du Docker Registry](#docker-registry-images).
 
 Bien qu'Azure utilise le mot conteneur pour désigner une collection de blobs, GitLab standardise l'utilisation du terme bucket.
 
@@ -75,7 +78,8 @@ Ensuite, désactivez MinIO et définissez ces paramètres globaux :
 
 Assurez-vous de créer des conteneurs Azure pour les [noms par défaut ou définissez les noms de conteneurs dans la configuration des buckets](../../charts/globals.md#specify-buckets).
 
-> [!note] Si vous constatez des échecs de requêtes avec `Requests to the local network are not allowed`, consultez la [section Dépannage](#troubleshooting).
+> [!note]
+> Si vous constatez des échecs de requêtes avec `Requests to the local network are not allowed`, consultez la [section Dépannage](#troubleshooting).
 
 ## Images du Docker Registry {#docker-registry-images}
 
@@ -87,7 +91,8 @@ La configuration du stockage d'objets pour le chart `registry` s'effectue via la
 --set global.registry.bucket=bucket-name
 ```
 
-> [!note] Le nom du bucket doit être défini à la fois dans le secret et dans `global.registry.bucket`. Le secret est utilisé par le serveur de registre, et la variable globale est utilisée par les sauvegardes GitLab.
+> [!note]
+> Le nom du bucket doit être défini à la fois dans le secret et dans `global.registry.bucket`. Le secret est utilisé par le serveur de registre, et la variable globale est utilisée par les sauvegardes GitLab.
 
 Créez le secret conformément à la [documentation du chart de registre sur le stockage](../../charts/registry/_index.md#storage), puis configurez le chart pour utiliser ce secret.
 
@@ -242,7 +247,8 @@ Pour Azure Blob Storage :
 
 Consultez la [documentation sur le stockage d'objets pour la sauvegarde/restauration](../../backup-restore/_index.md#object-storage) pour tous les détails.
 
-> [!note] Pour sauvegarder ou restaurer des fichiers depuis d'autres emplacements de stockage d'objets, le fichier de configuration doit être configuré pour s'authentifier en tant qu'utilisateur disposant d'un accès suffisant en lecture/écriture sur tous les buckets GitLab.
+> [!note]
+> Pour sauvegarder ou restaurer des fichiers depuis d'autres emplacements de stockage d'objets, le fichier de configuration doit être configuré pour s'authentifier en tant qu'utilisateur disposant d'un accès suffisant en lecture/écriture sur tous les buckets GitLab.
 
 ### Exemple de stockage des sauvegardes {#backups-storage-example}
 

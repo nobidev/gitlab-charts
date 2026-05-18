@@ -9,7 +9,8 @@ Ce document vise à fournir une documentation sur la façon de configurer ce cha
 
 Si vous n'avez pas Gitaly configuré, pour un déploiement sur site ou sur une VM, envisagez d'utiliser notre [package Linux](external-omnibus-gitaly.md).
 
-> [!note] Les _services_ Gitaly externes peuvent être fournis par des nœuds Gitaly ou des clusters [Praefect](https://docs.gitlab.com/administration/gitaly/praefect/).
+> [!note]
+> Les _services_ Gitaly externes peuvent être fournis par des nœuds Gitaly ou des clusters [Praefect](https://docs.gitlab.com/administration/gitaly/praefect/).
 
 ## Configurer le chart {#configure-the-chart}
 
@@ -99,7 +100,8 @@ Pour plus d'informations sur la découverte de services avec Praefect, consultez
 
 Un exemple complet de configuration d'un service Praefect externe.
 
-> [!note] Le nom du service Praefect [doit être `default`](../../charts/globals.md#external).
+> [!note]
+> Le nom du service Praefect [doit être `default`](../../charts/globals.md#external).
 
 ```yaml
 global:
@@ -176,7 +178,8 @@ Si votre [serveur Gitaly externe écoute sur le port TLS](https://docs.gitlab.co
            tlsEnabled: true
    ```
 
-> [!note] Vous pouvez choisir n'importe quel nom de secret et clé valides pour cela, mais assurez-vous que la clé est unique parmi tous les secrets spécifiés dans `customCAs` pour éviter les collisions, car toutes les clés dans les secrets seront montées. Vous **n'avez pas besoin** de fournir la clé pour le certificat, car il s'agit du _côté client_.
+> [!note]
+> Vous pouvez choisir n'importe quel nom de secret et clé valides pour cela, mais assurez-vous que la clé est unique parmi tous les secrets spécifiés dans `customCAs` pour éviter les collisions, car toutes les clés dans les secrets seront montées. Vous **n'avez pas besoin** de fournir la clé pour le certificat, car il s'agit du _côté client_.
 
 ## Tester que GitLab peut se connecter à Gitaly {#test-that-gitlab-can-connect-to-gitaly}
 

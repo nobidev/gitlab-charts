@@ -11,7 +11,8 @@ Ce chart configure des ressources `Ingress` avec un NGINX Ingress intégré. Bie
 
 ### NGINX {#nginx}
 
-> [!warning] NGINX Ingress a été déprécié et ne recevra plus de correctifs de sécurité après mars 2026. Lisez l'[annonce officielle](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/) pour plus d'informations.
+> [!warning]
+> NGINX Ingress a été déprécié et ne recevra plus de correctifs de sécurité après mars 2026. Lisez l'[annonce officielle](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/) pour plus d'informations.
 
 Consultez la [documentation externe NGINX Ingress](nginx.md) pour configurer et préparer un déploiement NGINX Ingress externe à utiliser avec GitLab.
 

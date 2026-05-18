@@ -65,6 +65,7 @@ Ce document vise à fournir de la documentation sur la façon de configurer ce c
        PAGES_UPDATE_LEGACY_STORAGE: true  # Bypass automatic disabling of disk storage
    ```
 
-   > [!note] En définissant la variable d'environnement `PAGES_UPDATE_LEGACY_STORAGE` sur true, le feature flag `pages_update_legacy_storage` est activé, ce qui déploie Pages sur le disque local. Lorsque vous migrez vers le stockage d'objets, pensez à supprimer cette variable.
+   > [!note]
+   > En définissant la variable d'environnement `PAGES_UPDATE_LEGACY_STORAGE` sur true, le feature flag `pages_update_legacy_storage` est activé, ce qui déploie Pages sur le disque local. Lorsque vous migrez vers le stockage d'objets, pensez à supprimer cette variable.
 
 1. [Déployez le chart](../../installation/deployment.md#deploy-using-helm) en utilisant cette configuration.

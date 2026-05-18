@@ -15,7 +15,8 @@ Installez Ubuntu Server sur la VM que vous avez créée. Assurez-vous que `opens
 
 Suivez les instructions d'installation du [package Linux](https://docs.gitlab.com/install/package/ubuntu/).
 
-> [!note] Lorsque vous effectuez l'installation du package, ne fournissez pas la valeur `EXTERNAL_URL=`. Nous ne souhaitons pas que la configuration automatique se produise, car nous fournirons une configuration très spécifique à l'étape suivante.
+> [!note]
+> Lorsque vous effectuez l'installation du package, ne fournissez pas la valeur `EXTERNAL_URL=`. Nous ne souhaitons pas que la configuration automatique se produise, car nous fournirons une configuration très spécifique à l'étape suivante.
 
 ## Configurer l'installation du package Linux {#configure-linux-package-installation}
 

@@ -51,7 +51,8 @@ use_iam_profile: true
 region: us-east-1
 ```
 
-> [!note] N'incluez PAS `endpoint` dans cette configuration. IRSA utilise des [jetons STS, qui utilisent des points de terminaison spécialisés](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). Lorsque `endpoint` est fourni, le client AWS tentera [d'envoyer un message `AssumeRoleWithWebIdentity` à ce point de terminaison et échouera](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3148#note_889357676).
+> [!note]
+> N'incluez PAS `endpoint` dans cette configuration. IRSA utilise des [jetons STS, qui utilisent des points de terminaison spécialisés](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html). Lorsque `endpoint` est fourni, le client AWS tentera [d'envoyer un message `AssumeRoleWithWebIdentity` à ce point de terminaison et échouera](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3148#note_889357676).
 
 ### Sauvegardes {#backups}
 
