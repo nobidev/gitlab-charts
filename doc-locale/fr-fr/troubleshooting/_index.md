@@ -5,11 +5,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Dépannage du chart GitLab
 ---
 
-## UPGRADE FAILED : "$name" n'a pas de releases déployées {#upgrade-failed-name-has-no-deployed-releases}
+## ÉCHEC DE LA MISE À NIVEAU : "$name" n'a pas de releases déployées {#upgrade-failed-name-has-no-deployed-releases}
 
 Cette erreur se produit lors de votre deuxième installation/mise à niveau si votre installation initiale a échoué.
 
-Si votre installation initiale a complètement échoué et que GitLab n'a jamais été opérationnel, vous devez d'abord purger l'installation échouée avant de réinstaller.
+Si votre installation initiale a complètement échoué et que GitLab n'a jamais été opérationnelle, vous devez d'abord purger l'installation qui a échoué avant de réinstaller.
 
 ```shell
 helm uninstall <release-name>
@@ -17,7 +17,7 @@ helm uninstall <release-name>
 
 Si, au contraire, la commande d'installation initiale a expiré, mais que GitLab a quand même démarré avec succès, vous pouvez ajouter l'option `--force` à la commande `helm upgrade` pour ignorer l'erreur et tenter de mettre à jour la release.
 
-Sinon, si vous avez reçu cette erreur après avoir précédemment effectué des déploiements réussis du chart GitLab, vous êtes en présence d'un bug. Veuillez ouvrir un ticket sur notre [système de suivi des tickets](https://gitlab.com/gitlab-org/charts/gitlab/-/issues) , et consultez également [le ticket #630](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/630) où nous avons récupéré notre serveur CI de ce problème.
+Sinon, si vous avez reçu cette erreur après avoir précédemment effectué des déploiements réussis du chart GitLab, il s'agit d'un bogue. Veuillez ouvrir un ticket dans notre [système de suivi des tickets](https://gitlab.com/gitlab-org/charts/gitlab/-/issues) et consultez également [le ticket #630](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/630) où nous avons récupéré notre serveur CI suite à ce problème.
 
 ## Erreur : cette commande nécessite 2 arguments : nom de la release, chemin du chart {#error-this-command-needs-2-arguments-release-name-chart-path}
 
@@ -27,7 +27,7 @@ Une telle erreur peut se produire lorsque vous exécutez `helm upgrade` et qu'il
 helm upgrade gitlab gitlab/gitlab --timeout 600s --set global.email.display_name=Test Username ...
 ```
 
-Pour résoudre ce problème, passez les paramètres entre guillemets simples :
+Pour résoudre ce problème, transférez les paramètres entre guillemets simples :
 
 ```shell
 helm upgrade gitlab gitlab/gitlab --timeout 600s --set global.email.display_name='Test Username' ...
@@ -35,9 +35,9 @@ helm upgrade gitlab gitlab/gitlab --timeout 600s --set global.email.display_name
 
 ## Les conteneurs d'application s'initialisent en permanence {#application-containers-constantly-initializing}
 
-Si vous constatez que Sidekiq, Webservice ou d'autres conteneurs basés sur Rails sont en permanence dans un état d'initialisation, vous attendez probablement que le conteneur `dependencies` passe.
+Si vous constatez que Sidekiq, Webservice ou d'autres conteneurs basés sur Rails sont en permanence dans un état d'initialisation, vous attendez probablement que le conteneur `dependencies` soit transféré.
 
-Si vous vérifiez les logs d'un Pod donné spécifiquement pour le conteneur `dependencies`, vous pouvez voir les éléments suivants se répéter :
+Si vous vérifiez les logs d'un pod donné spécifiquement pour le conteneur `dependencies`, vous pouvez voir les éléments suivants se répéter :
 
 ```plaintext
 Checking database connection and schema version
@@ -47,10 +47,10 @@ Current version: 0
 Codebase version: 20190301182457
 ```
 
-Cela indique que le job `migrations` n'est pas encore terminé. L'objectif de ce job est à la fois de s'assurer que la base de données est initialisée et que toutes les migrations pertinentes sont en place. Les conteneurs d'application tentent d'attendre que la base de données soit à la version attendue ou au-dessus. Cela permet de s'assurer que l'application ne dysfonctionne pas en raison d'un schéma ne correspondant pas aux attentes de la base de code.
+Cela indique que le job `migrations` n'est pas encore terminé. L'objectif de ce job est à la fois de s'assurer que la base de données est initialisée et que toutes les migrations pertinentes sont en place. Les conteneurs d'application tentent d'attendre que la base de données soit à la version attendue ou supérieure. Cela permet de s'assurer que l'application ne dysfonctionne pas en raison d'un schéma ne correspondant pas aux attentes de la base de code.
 
 1. Trouvez le job `migrations`. `kubectl get job -lapp=migrations`
-1. Trouvez le Pod exécuté par le job. `kubectl get pod -lbatch.kubernetes.io/job-name=<job-name>`
+1. Trouvez le pod exécuté par le job. `kubectl get pod -lbatch.kubernetes.io/job-name=<job-name>`
 1. Examinez la sortie en vérifiant la colonne `STATUS`.
 
 Si `STATUS` est `Running`, continuez. Si `STATUS` est `Completed`, les conteneurs d'application devraient démarrer peu après la prochaine vérification réussie.
@@ -73,10 +73,10 @@ helm upgrade <release name> <chart path> -f gitlab.yaml
 
 ## Le GitLab Runner inclus ne parvient pas à s'enregistrer {#included-gitlab-runner-failing-to-register}
 
-Cela peut se produire lorsque le jeton d'enregistrement du runner a été modifié dans GitLab. (Cela se produit souvent après la restauration d'une sauvegarde)
+Cela peut se produire lorsque le token d'enregistrement du runner a été modifié dans GitLab. (Cela se produit souvent après la restauration d'une sauvegarde)
 
-1. Trouvez le nouveau jeton de runner partagé sur la page Web `admin/runners` de votre installation GitLab.
-1. Trouvez le nom du Secret du jeton de runner existant stocké dans Kubernetes
+1. Trouvez le nouveau token de runner partagé sur la page Web `admin/runners` de votre installation GitLab.
+1. Trouvez le nom du secret du token de runner existant stocké dans Kubernetes
 
    ```shell
    kubectl get secrets | grep gitlab-runner-secret
@@ -88,7 +88,7 @@ Cela peut se produire lorsque le jeton d'enregistrement du runner a été modifi
    kubectl delete secret <runner-secret-name>
    ```
 
-1. Créez le nouveau secret avec deux clés (`runner-registration-token` avec votre jeton partagé, et un `runner-token` vide)
+1. Créez le nouveau secret avec deux clés (`runner-registration-token` avec votre token partagé, et un `runner-token` vide)
 
    ```shell
    kubectl create secret generic <runner-secret-name> --from-literal=runner-registration-token=<new-shared-runner-token> --from-literal=runner-token=""
@@ -96,7 +96,7 @@ Cela peut se produire lorsque le jeton d'enregistrement du runner a été modifi
 
 ## Trop de redirections {#too-many-redirects}
 
-Cela peut se produire lorsque vous avez une terminaison TLS avant l'Ingress NGINX et que les tls-secrets sont spécifiés dans la configuration.
+Cela peut se produire lorsque vous avez une terminaison TLS avant l'Ingress NGINX et que les secrets TLS sont spécifiés dans la configuration.
 
 1. Mettez à jour vos valeurs pour définir `global.ingress.annotations."nginx.ingress.kubernetes.io/ssl-redirect": "false"`
 
@@ -124,11 +124,11 @@ Cela peut se produire lorsque vous avez une terminaison TLS avant l'Ingress NGIN
 
 ### spec.clusterIP {#specclusterip}
 
-Avant la version 3.0.0 de ces charts, la propriété `spec.clusterIP` [avait été renseignée dans plusieurs Services](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1710) malgré l'absence de valeur réelle (`""`). C'était un bug, et cela cause des problèmes avec la fusion tripartite des propriétés de Helm 3.
+Avant la version 3.0.0 de ces charts, la propriété `spec.clusterIP` [avait été renseignée dans plusieurs services](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1710) malgré l'absence de valeur réelle (`""`). Ce bogue causait des problèmes avec la fusion tripartite des propriétés de Helm 3.
 
-Une fois le chart déployé avec Helm 3, il n'y aurait _aucun chemin de mise à niveau possible_ sans récupérer les propriétés `clusterIP` des différents Services et les intégrer dans les valeurs fournies à Helm, ou sans supprimer les services concernés de Kubernetes.
+Une fois le chart déployé avec Helm 3, il n'y aurait _aucun chemin de mise à niveau possible_ sans récupérer les propriétés `clusterIP` des différents services et les intégrer dans les valeurs fournies à Helm, ou sans supprimer les services concernés de Kubernetes.
 
-La [version 3.0.0 de ce chart a corrigé cette erreur](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1710), mais cela nécessite une correction manuelle.
+La [version 3.0.0 de ce chart a corrigé cette erreur](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1710), mais une correction manuelle est nécessaire.
 
 Ce problème peut être résolu en supprimant simplement tous les services concernés.
 
@@ -145,7 +145,7 @@ Ce problème peut être résolu en supprimant simplement tous les services conce
 
 ### spec.selector {#specselector}
 
-Les pods Sidekiq ne recevaient pas de sélecteur unique avant la version `3.0.0` du chart. [Les problèmes liés à ceci ont été documentés dans](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/663).
+Les pods Sidekiq ne recevaient pas de sélecteur unique avant la version `3.0.0` du chart. [Les problèmes associés ont été documentés](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/663).
 
 Les mises à niveau vers `3.0.0` via Helm suppriment automatiquement les anciens déploiements Sidekiq et en créent de nouveaux en ajoutant `-v1` au nom des `Deployments`, `HPAs` et `Pods` Sidekiq.
 
@@ -159,9 +159,9 @@ Si vous continuez à rencontrer cette erreur sur le déploiement Sidekiq lors de
 
 1. Effectuez une mise à niveau via Helm.
 
-### cannot patch "RELEASE-NAME-cert-manager" with kind Deployment {#cannot-patch-release-name-cert-manager-with-kind-deployment}
+### Impossible d'appliquer le patch "RELEASE-NAME-cert-manager" de type Deployment {#cannot-patch-release-name-cert-manager-with-kind-deployment}
 
-La mise à niveau depuis **CertManager** version `0.10` a introduit un certain nombre de changements incompatibles. Les anciennes définitions de ressources personnalisées (Custom Resource Definitions) doivent être désinstallées, supprimées du suivi de Helm, puis réinstallées.
+La mise à niveau depuis la version `0.10` de **CertManager** a introduit un certain nombre de changements incompatibles. Les anciennes définitions de ressources personnalisées (Custom Resource Definitions) doivent être désinstallées, supprimées du suivi de Helm, puis réinstallées.
 
 Le chart Helm tente de le faire par défaut, mais si vous rencontrez cette erreur, vous devrez peut-être effectuer une action manuelle.
 
@@ -179,13 +179,13 @@ Si ce message d'erreur est apparu, la mise à niveau nécessite une étape suppl
    helm upgrade --install --values - YOUR-RELEASE-NAME gitlab/gitlab < <(helm get values YOUR-RELEASE-NAME)
    ```
 
-### cannot patch `gitlab-kube-state-metrics` with kind Deployment {#cannot-patch-gitlab-kube-state-metrics-with-kind-deployment}
+### Impossible d'appliquer le patch `gitlab-kube-state-metrics` de type Deployment {#cannot-patch-gitlab-kube-state-metrics-with-kind-deployment}
 
-La mise à niveau depuis **Prometheus** version `11.16.9` vers `15.0.4` modifie les labels de sélecteur utilisés sur le [déploiement kube-state-metrics](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-state-metrics), qui est désactivé par défaut (`prometheus.kubeStateMetrics.enabled=false`).
+La mise à niveau depuis la version `11.16.9` de **Prometheus** vers `15.0.4` modifie les labels de sélecteur utilisés sur le [Deployment kube-state-metrics](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-state-metrics), qui est désactivé par défaut (`prometheus.kubeStateMetrics.enabled=false`).
 
 Si ce message d'erreur est rencontré, ce qui signifie `prometheus.kubeStateMetrics.enabled=true`, la mise à niveau nécessite [une étape supplémentaire](https://artifacthub.io/packages/helm/prometheus-community/prometheus#to-15-0) :
 
-1. Supprimez l'ancien déploiement **kube-state-metrics**.
+1. Supprimez l'ancien Deployment **kube-state-metrics**.
 
    ```shell
    kubectl delete deployments.apps -l app.kubernetes.io/instance=RELEASE_NAME,app.kubernetes.io/name=kube-state-metrics --cascade=orphan
@@ -197,13 +197,13 @@ Si ce message d'erreur est rencontré, ce qui signifie `prometheus.kubeStateMetr
 
 Si vous utilisez [`global.gitlabVersion`](../charts/globals.md#gitlab-version), commencez par supprimer cette propriété. Vérifiez les [correspondances de versions entre le chart et GitLab](../installation/version_mappings.md) et spécifiez une version compatible du chart `gitlab/gitlab` dans votre commande `helm`.
 
-## UPGRADE FAILED : "cannot patch ..." après `helm 2to3 convert` {#upgrade-failed-cannot-patch--after-helm-2to3-convert}
+## ÉCHEC DE LA MISE À NIVEAU : "cannot patch ..." après `helm 2to3 convert` {#upgrade-failed-cannot-patch--after-helm-2to3-convert}
 
-Il s'agit d'un problème connu. Après la migration d'une release Helm 2 vers Helm 3, les mises à niveau suivantes peuvent échouer. Vous pouvez trouver l'explication complète et la solution de contournement dans [Migration de Helm v2 vers Helm v3](../installation/migration/helm.md#known-issues).
+Il s'agit d'un problème connu. Après la migration d'une release Helm 2 vers Helm 3, les mises à niveau ultérieures peuvent échouer. Vous pouvez trouver l'explication complète et la solution de contournement en [migrant de Helm v2 vers Helm v3](../installation/migration/helm.md#known-issues).
 
-## UPGRADE FAILED : type mismatch on mailroom: `%!t(<nil>)` {#upgrade-failed-type-mismatch-on-mailroom-tnil}
+## ÉCHEC DE LA MISE À NIVEAU : incompatibilité de type sur mailroom: `%!t(<nil>)` {#upgrade-failed-type-mismatch-on-mailroom-tnil}
 
-Une telle erreur peut se produire si vous ne fournissez pas une map valide pour une clé qui attend une map.
+Une telle erreur peut se produire si vous ne fournissez pas un mappage valide pour une clé qui attend une mappage.
 
 Par exemple, la configuration ci-dessous provoquera cette erreur :
 
@@ -214,10 +214,10 @@ gitlab:
 
 Pour résoudre ce problème, vous pouvez :
 
-1. Fournir une map valide pour `gitlab.mailroom`.
+1. Fournir un mappage valide pour `gitlab.mailroom`.
 1. Supprimer entièrement la clé `mailroom`.
 
-Notez que pour les clés optionnelles, une map vide (`{}`) est une valeur valide.
+Notez que pour les clés optionnelles, un mappage vide (`{}`) est une valeur valide.
 
 ## Le pod NGINX Ingress intégré ne parvient pas à démarrer : `Failed to watch *v1beta1.Ingress` {#bundled-nginx-ingress-pod-fails-to-start-failed-to-watch-v1beta1ingress}
 
@@ -231,7 +231,7 @@ Pour remédier à cela, assurez-vous que la version de Kubernetes est 1.21 ou an
 
 ## Charge accrue sur le point de terminaison `/api/v4/jobs/request` {#increased-load-on-apiv4jobsrequest-endpoint}
 
-Vous pouvez rencontrer ce problème si l'option `workhorse.keywatcher` a été définie sur `false` pour le déploiement gérant `/api/*`. Utilisez les étapes suivantes pour vérifier :
+Vous pouvez rencontrer ce problème si l'option `workhorse.keywatcher` a été définie sur `false` pour le déploiement gérant `/api/*`. Utilisez les étapes suivantes pour effectuer une vérification :
 
 1. Accédez au conteneur `gitlab-workhorse` dans le pod gérant `/api/*` :
 
@@ -245,7 +245,7 @@ Vous pouvez rencontrer ce problème si l'option `workhorse.keywatcher` a été d
    grep '\[redis\]' /srv/gitlab/config/workhorse-config.toml
    ```
 
-Si la configuration `[redis]` n'est pas présente, l'indicateur `workhorse.keywatcher` a été défini sur `false` lors du déploiement, provoquant ainsi la charge supplémentaire sur le point de terminaison `/api/v4/jobs/request`. Pour résoudre ce problème, activez `keywatcher` dans le chart `webservice` :
+Si la configuration `[redis]` n'est pas présente, l'indicateur `workhorse.keywatcher` a été défini sur `false` lors du déploiement, ce qui provoque une charge supplémentaire sur le point de terminaison `/api/v4/jobs/request`. Pour résoudre ce problème, activez `keywatcher` dans le chart `webservice` :
 
 ```yaml
 workhorse:
@@ -264,7 +264,7 @@ fatal: index-pack failed
 
 Cette erreur peut avoir plusieurs causes potentielles :
 
-- **Network timeouts** :
+- **Délai d'attente dépassé du réseau** :
 
   Les clients Git ouvrent parfois une connexion et la laissent inactive, comme lors de la compression d'objets. Des paramètres comme `timeout client` dans HAProxy peuvent provoquer la fermeture de ces connexions inactives.
 
@@ -281,7 +281,7 @@ Cette erreur peut avoir plusieurs causes potentielles :
 
   Par défaut, le chart ne définit pas de limite sur la mémoire de GitLab Shell. Si `gitlab.gitlab-shell.resources.limits.memory` est défini trop bas, les opérations Git via SSH peuvent échouer avec ces erreurs.
 
-  Exécutez `kubectl describe nodes` pour confirmer que cela est causé par des limites de mémoire plutôt que par des délais d'expiration réseau.
+  Exécutez `kubectl describe nodes` pour confirmer que cette erreur est causée par des limites de mémoire plutôt que par des délais d'attente dépassés du réseau.
 
   ```plaintext
   System OOM encountered, victim process: gitlab-shell
@@ -296,7 +296,7 @@ L'erreur suivante peut apparaître dans les logs de GitLab Shell :
 subcomponent":"ssh","time":"2025-02-21T19:07:52Z","message":"kex_exchange_identification: Connection closed by remote host\r"}
 ```
 
-Cette erreur est causée par OpenSSH `sshd` qui ne parvient pas à gérer les sondes de disponibilité et de vivacité. Pour résoudre cette erreur, utilisez [`gitlab-sshd`](../charts/gitlab/gitlab-shell/_index.md#configuration) à la place en remplaçant `sshDaemon: openssh` par `sshDaemon: gitlab-ssd` dans la configuration :
+Cette erreur est causée par l'incapacité d'OpenSSH `sshd` à gérer les sondes de disponibilité (readiness) et d'activité (liveness). Pour résoudre cette erreur, utilisez [`gitlab-sshd`](../charts/gitlab/gitlab-shell/_index.md#configuration) à la place en remplaçant `sshDaemon: openssh` par `sshDaemon: gitlab-ssd` dans la configuration :
 
 ```yaml
 gitlab:
@@ -315,16 +315,16 @@ template: /var/opt/gitlab/templates/workhorse-config.toml.tpl:16:98:
       yaml: line 2: mapping values are not allowed in this context
 ```
 
-Pour remédier à cela, assurez-vous qu'il n'y a pas d'espaces en début de ligne dans la configuration.
+Pour remédier à cette erreur, assurez-vous qu'il n'y a pas d'espaces en début de ligne dans la configuration.
 
-Par exemple, modifiez ceci :
+Par exemple, modifiez les éléments ci-dessous :
 
 ```yaml
   key1: value1
   key2: value2
 ```
 
-... en cela :
+... de cette manière :
 
 ```yaml
 key1: value1
@@ -344,7 +344,7 @@ Une confiance partielle des certificats signés par des autorités de certificat
 - Les certificats fournis ne sont pas dans des fichiers séparés.
 - Le conteneur init des certificats n'effectue pas toutes les étapes requises.
 
-De plus, GitLab est principalement écrit en Ruby on Rails et en Go, et les bibliothèques TLS de chaque langage fonctionnent différemment. Cette différence peut entraîner des problèmes comme des job logs qui ne s'affichent pas dans l'interface GitLab, mais dont les job logs bruts peuvent être téléchargés sans problème.
+De plus, GitLab est principalement écrit en Ruby on Rails et en Go, et les bibliothèques TLS de chaque langage fonctionnent différemment. Cette différence peut entraîner des problèmes comme des job logs qui ne s'affichent pas dans l'interface utilisateur GitLab, mais dont les job logs bruts peuvent être téléchargés sans problème.
 
 De plus, selon la configuration `proxy_download`, votre navigateur est redirigé vers le stockage d'objets sans problème si le magasin de confiance est correctement configuré. Dans le même temps, les liaisons TLS par un ou plusieurs composants GitLab pourraient toujours échouer.
 
@@ -352,7 +352,7 @@ De plus, selon la configuration `proxy_download`, votre navigateur est redirigé
 
 Dans le cadre du dépannage des problèmes de certificats, assurez-vous de :
 
-- Créer des secrets pour chaque certificat dont vous avez besoin de faire confiance.
+- Créer des secrets pour chaque certificat en lequel vous devez avoir confiance.
 - Fournir un seul certificat par fichier.
 
   ```plaintext
@@ -361,7 +361,7 @@ Dans le cadre du dépannage des problèmes de certificats, assurez-vous de :
 
   Dans cet exemple, le certificat est stocké en utilisant le nom de clé `unique_name`
 
-Si vous fournissez un bundle ou une chaîne, certains composants GitLab ne fonctionneront pas.
+Si vous fournissez un paquet ou une chaîne, certains composants GitLab ne fonctionneront pas.
 
 Interrogez les secrets avec `kubectl get secrets` et `kubectl describe secrets/secretname`, qui affiche le nom de clé du certificat sous `Data`.
 
@@ -374,8 +374,8 @@ Les certificats supplémentaires sont montés dans le conteneur à `/usr/local/s
 Le conteneur init exécute `/scripts/bundle-certificates` ([source](https://gitlab.com/gitlab-org/build/CNG-mirror/-/blob/master/certificates/scripts/bundle-certificates)). Dans ce script, `update-ca-certificates` :
 
 1. Copie les certificats personnalisés depuis `/usr/local/share/ca-certificates` vers `/etc/ssl/certs`.
-1. Compile un bundle `ca-certificates.crt`.
-1. Génère des hachages pour chaque certificat et crée un lien symbolique en utilisant le hachage, ce qui est requis pour Rails. Les bundles de certificats sont ignorés avec un avertissement :
+1. Compile un paquet `ca-certificates.crt`.
+1. Génère des hashes pour chaque certificat et crée un lien symbolique en utilisant le hash, ce qui est requis pour Rails. Les paquets de certificats sont ignorés avec un avertissement :
 
    ```plaintext
    WARNING: unique_name does not contain exactly one certificate or CRL: skipping
@@ -476,7 +476,7 @@ Exécutez le conteneur des certificats avec Docker.
      -rw-r--r--   1 root root    1948 Oct  7 11:34 corporate_root.pem
      ```
 
-## `308: Permanent Redirect` provoquant une boucle de redirection {#308-permanent-redirect-causing-a-redirect-loop}
+## `308: Permanent Redirect` provoque une boucle de redirection {#308-permanent-redirect-causing-a-redirect-loop}
 
 `308: Permanent Redirect` peut se produire si votre équilibreur de charge est configuré pour envoyer du trafic non chiffré (HTTP) vers NGINX. Comme NGINX redirige par défaut `HTTP` vers `HTTPS`, vous pouvez vous retrouver dans une « boucle de redirection ».
 
@@ -496,13 +496,13 @@ gitlab-nginx-ingress-controller-899b7d6bf-lqcks controller W1116 19:03:13.161640
 gitlab-nginx-ingress-controller-899b7d6bf-lqcks controller W1116 19:03:13.465425       6 store.go:846] skipping ingress gitlab/gitlab-registry: nginx.ingress.kubernetes.io/configuration-snippet annotation contains invalid word proxy_pass
 ```
 
-Dans ce cas, examinez vos valeurs GitLab et tous les objets Ingress tiers pour l'utilisation de [snippets de configuration](https://kubernetes.github.io/ingress-nginx/examples/customization/configuration-snippets/). Vous devrez peut-être ajuster ou modifier le paramètre `nginx-ingress.controller.config.annotation-value-word-blocklist`.
+Dans ce cas, examinez vos valeurs GitLab et tous les objets Ingress tiers pour l'utilisation d'[extraits de code de configuration](https://kubernetes.github.io/ingress-nginx/examples/customization/configuration-snippets/). Vous devrez peut-être ajuster ou modifier le paramètre `nginx-ingress.controller.config.annotation-value-word-blocklist`.
 
-Consultez [Annotation value word blocklist](../charts/nginx/_index.md#annotation-value-word-blocklist) pour plus de détails.
+Consultez la [liste de mots bloqués dans les valeurs d'annotations](../charts/nginx/_index.md#annotation-value-word-blocklist) pour plus de détails.
 
 ### Le montage d'un volume prend beaucoup de temps {#volume-mount-takes-a-long-time}
 
-Le montage de volumes volumineux, tels que les volumes du chart `gitaly` ou `toolbox`, peut prendre beaucoup de temps car Kubernetes modifie récursivement les permissions du contenu du volume pour correspondre au `securityContext` du Pod.
+Le montage de volumes volumineux, tels que les volumes du chart `gitaly` ou `toolbox`, peut prendre beaucoup de temps, car Kubernetes modifie régulièrement les permissions du contenu du volume pour correspondre au `securityContext` du Pod.
 
 À partir de Kubernetes 1.23, vous pouvez définir `securityContext.fsGroupChangePolicy` sur `OnRootMismatch` pour atténuer ce problème. Cet indicateur est pris en charge par tous les sous-charts GitLab.
 
@@ -517,7 +517,7 @@ gitlab:
 
 Consultez la [documentation Kubernetes](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#configure-volume-permission-and-ownership-change-policy-for-pods) pour plus de détails.
 
-Pour les versions de Kubernetes ne prenant pas en charge `fsGroupChangePolicy`, vous pouvez atténuer le problème en modifiant ou en supprimant complètement les paramètres du `securityContext`.
+Pour les versions de Kubernetes qui ne prennent pas en charge `fsGroupChangePolicy`, vous pouvez atténuer le problème en modifiant ou en supprimant complètement les paramètres du `securityContext`.
 
 ```yaml
 gitlab:
@@ -531,7 +531,7 @@ gitlab:
 
 ### Erreurs 502 intermittentes {#intermittent-502-errors}
 
-Lorsqu'une requête traitée par un worker Puma dépasse le seuil de limite de mémoire, elle est terminée par l'OOMKiller du nœud. Cependant, l'arrêt de la requête ne tue ni ne redémarre nécessairement le pod webservice lui-même. Cette situation entraîne le retour d'un délai d'expiration `502` par la requête. Dans les logs, cela apparaît comme un worker Puma créé peu après l'enregistrement de l'erreur `502`.
+Lorsqu'une requête traitée par un worker Puma dépasse le seuil de limite de mémoire, celui-ci est arrêté par l'OOMKiller du nœud. Cependant, l'arrêt de la requête ne termine ni ne redémarre nécessairement le pod webservice lui-même. Cette situation entraîne le retour d'un délai d'attente dépassé `502` par la requête. Dans les logs, cela apparaît comme un worker Puma créé peu après l'enregistrement de l'erreur `502`.
 
 ```shell
 2024-01-19T14:12:08.949263522Z {"correlation_id":"XXXXXXXXXXXX","duration_ms":1261,"error":"badgateway: failed to receive response: context canceled"....
@@ -577,7 +577,7 @@ Pour résoudre ce problème, mettez à niveau votre client Helm vers `v3.18.1` o
 
 Cela est dû à un [problème Helm 30878](https://github.com/helm/helm/issues/30878).
 
-## Migrations en échec : `TypeError: Invalid type for configuration.` {#migrations-failing-typeerror-invalid-type-for-configuration}
+## Échec de migrations : `TypeError: Invalid type for configuration.` {#migrations-failing-typeerror-invalid-type-for-configuration}
 
 Par défaut, le chart GitLab configure deux connexions à la base de données :
 
