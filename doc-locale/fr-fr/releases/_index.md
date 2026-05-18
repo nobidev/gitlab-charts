@@ -5,7 +5,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Notes de mise à niveau du chart Helm GitLab
 ---
 
-Notes de mise à niveau pour les versions récentes du chart Helm GitLab. Pour les notes de mise à niveau des versions plus anciennes, consultez les [archives de la documentation GitLab](https://archives.docs.gitlab.com).
+Vous trouverez ci-dessous les notes de mise à niveau pour les versions récentes du chart Helm GitLab. Pour consulter les notes de mise à niveau des versions plus anciennes, accédez aux [archives de la documentation GitLab](https://archives.docs.gitlab.com).
 
 {{< cards >}}
 
