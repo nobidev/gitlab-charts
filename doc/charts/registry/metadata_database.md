@@ -464,24 +464,25 @@ After the command completes successfully, the registry is now fully migrated to 
 
 {{< /history >}}
 
-If an import is interrupted, re-running the import command automatically skips
-repositories that were pre-imported in the last 72 hours. The
-`--pre-import-skip-recent` flag controls this duration.
+If a pre-import is interrupted, re-running the pre-import command automatically
+skips repositories that were pre-imported in the last 72 hours. The
+`--pre-import-skip-recent` flag controls this duration. It applies only to
+the pre-import phase (`--step-one` or the pre-import portion of a one-step
+import).
 
-To customize the skip duration, add `--pre-import-skip-recent` to your import
-command (works with any import variant, including `--step-one`, `--step-two`,
-`--step-three`, or a one-step import):
+To customize the skip duration, add `--pre-import-skip-recent` to your
+pre-import command:
 
 - Skip repositories imported in the last 6 hours:
 
   ```shell
-  /usr/bin/registry database import --pre-import-skip-recent 6h /etc/docker/registry/config.yml
+  /usr/bin/registry database import --step-one --pre-import-skip-recent 6h /etc/docker/registry/config.yml
   ```
 
 - Disable skipping (re-import everything):
 
   ```shell
-  /usr/bin/registry database import --pre-import-skip-recent 0 /etc/docker/registry/config.yml
+  /usr/bin/registry database import --step-one --pre-import-skip-recent 0 /etc/docker/registry/config.yml
   ```
 
 For valid duration units, see [Go duration strings](https://pkg.go.dev/time#ParseDuration).
