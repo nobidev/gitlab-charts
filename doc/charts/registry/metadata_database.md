@@ -464,7 +464,7 @@ After the command completes successfully, the registry is now fully migrated to 
 
 {{< /history >}}
 
-If a pre-import is interrupted, re-running the pre-import command automatically
+If a import is interrupted, re-running the import command automatically
 skips repositories that were pre-imported in the last 72 hours. The
 `--pre-import-skip-recent` flag controls this duration. It applies only to
 the pre-import phase (`--step-one` or the pre-import portion of a one-step
