@@ -175,6 +175,35 @@ If you configure multiple webservice deployments, the route rules (including fil
 customized per rule. Check the [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#gateway-api)
 for details.
 
+#### HTTP-only mode
+
+To expose GitLab over HTTP (for example when TLS is terminated upstream), set the chart-managed
+Gateway to HTTP:
+
+```yaml
+global:
+  hosts:
+    https: false
+gatewayApiResources:
+  gateway:
+    protocol: HTTP
+```
+
+When the bundled Envoy Gateway is used, also configure `KeepUnchanged` on the gateway-wide
+`ClientTrafficPolicy`:
+
+```yaml
+gatewayApiResources:
+  envoy:
+    clientTrafficPolicySpec:
+      path:
+        escapedSlashesAction: KeepUnchanged
+```
+
+This is required because when multiple HTTP listeners share the same port, Envoy Gateway does
+not accept section-scoped `ClientTrafficPolicy` resources that the chart renders for HTTPS.
+As a result, the escaped-slash handling must be configured globally.
+
 ### TLS between Gateway and backend services
 
 When TLS is enabled on a backend service (Webservice, KAS, or Registry), the chart creates a
