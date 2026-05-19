@@ -21,11 +21,11 @@ describe 'image configuration' do
   end
 
   let(:global_image_registry_values) do
-    YAML.safe_load(%(
+    default_values.deep_merge(YAML.safe_load(%(
     global:
       image:
         registry: custom.registry.com
-    )).deep_merge(default_values)
+    )))
   end
 
   context 'using default values' do

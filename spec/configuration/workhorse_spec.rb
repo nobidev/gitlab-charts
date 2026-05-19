@@ -183,13 +183,13 @@ CFG
 
     context 'with default redis database' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               auth:
                 enabled: true
                 secret: global-secret
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'renders the global redis config' do
@@ -211,14 +211,14 @@ CFG
 
     context 'with global redis' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               database: 3
               auth:
                 enabled: true
                 secret: global-secret
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'renders the global redis config' do
@@ -240,7 +240,7 @@ CFG
 
     context 'with standalone redis' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.redis
@@ -252,7 +252,7 @@ CFG
                 password:
                   enabled: true
                   secret: workhorse
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'overrides global redis config' do
@@ -289,7 +289,7 @@ CFG
 
     context 'with global Redis user' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.redis
@@ -297,7 +297,7 @@ CFG
                 enabled: true
                 secret: global-secret
               user: redis-user
-        )).deep_merge!(default_values)
+        )))
 
         it "adds the username to the URL" do
           toml = render_toml(raw_toml)
@@ -317,7 +317,7 @@ CFG
 
     context 'with Workhorse Redis user' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.redis
@@ -332,7 +332,7 @@ CFG
                   enabled: true
                   secret: workhorse
                 user: workhorse-redis-user
-        )).deep_merge!(default_values)
+        )))
       end
 
       it "overrides global redis config" do
@@ -352,7 +352,7 @@ CFG
 
     context 'with redis sentinel and database' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.redis
@@ -370,7 +370,7 @@ CFG
                 password:
                   enabled: true
                   secret: workhorse
-        )).deep_merge!(default_values)
+        )))
       end
 
       let(:webservice_config) { template.dig('ConfigMap/test-webservice', 'data') }
@@ -428,7 +428,7 @@ CFG
 
       context 'with redis sentinel authentication' do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
             global:
               redis:
                 host: global.redis
@@ -453,7 +453,7 @@ CFG
                     enabled: true
                     secret: workhorse-redis-sentinel-secret
                     key: password
-          )).deep_merge!(default_values)
+          )))
         end
 
         it 'uses global redis config' do
@@ -845,7 +845,7 @@ CFG
   context 'Sentinel TLS support' do
     context 'with Sentinel TLS enabled via sentinelTLS' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.redis
@@ -862,7 +862,7 @@ CFG
                 caFile:
                   secret: sentinel-ca
                   key: ca.crt
-        )).deep_merge!(default_values)
+        )))
       end
 
       let(:template) { HelmTemplate.new(values) }
@@ -884,7 +884,7 @@ CFG
 
     context 'with Sentinel TLS disabled' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.redis
@@ -898,7 +898,7 @@ CFG
                 port: 26379
               sentinelTLS:
                 enabled: false
-        )).deep_merge!(default_values)
+        )))
       end
 
       let(:template) { HelmTemplate.new(values) }
@@ -917,7 +917,7 @@ CFG
 
     context 'with Sentinel TLS enabled via ssl flag' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.redis
@@ -931,7 +931,7 @@ CFG
               - host: s2.global.redis
                 port: 26379
                 ssl: true
-        )).deep_merge!(default_values)
+        )))
       end
 
       let(:template) { HelmTemplate.new(values) }
@@ -947,7 +947,7 @@ CFG
 
     context 'with mixed Sentinel SSL settings' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.redis
@@ -961,7 +961,7 @@ CFG
               - host: s2.global.redis
                 port: 26379
                 ssl: false
-        )).deep_merge!(default_values)
+        )))
       end
 
       let(:template) { HelmTemplate.new(values) }
@@ -974,7 +974,7 @@ CFG
 
     context 'with both Redis TLS and Sentinel TLS enabled' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               scheme: rediss
@@ -1008,7 +1008,7 @@ CFG
                 key:
                   secret: sentinel-key
                   key: key
-        )).deep_merge!(default_values)
+        )))
       end
 
       let(:template) { HelmTemplate.new(values) }
@@ -1076,14 +1076,14 @@ CFG
 
     context 'with rediss scheme but no TLS certificates' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               scheme: rediss
               auth:
                 enabled: true
                 secret: redis-password
-        )).deep_merge!(default_values)
+        )))
       end
 
       let(:template) { HelmTemplate.new(values) }

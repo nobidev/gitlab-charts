@@ -46,11 +46,11 @@ describe 'gitlab-exporter configuration' do
 
   context 'with custom Redis database value' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           redis:
             database: 4
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'configures Redis' do
@@ -61,7 +61,7 @@ describe 'gitlab-exporter configuration' do
 
   context 'When customer provides additional labels' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           common:
             labels:
@@ -85,7 +85,7 @@ describe 'gitlab-exporter configuration' do
             serviceLabels:
               service: true
               global: service
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'Populates the additional labels in the expected manner' do
@@ -108,7 +108,7 @@ describe 'gitlab-exporter configuration' do
 
   context 'with Redis Sentinel' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           redis:
             sentinels:
@@ -116,7 +116,7 @@ describe 'gitlab-exporter configuration' do
               port: 26379
             - host: sentinel2.example.com
               port: 26379
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'configures Sentinels' do
@@ -131,7 +131,7 @@ describe 'gitlab-exporter configuration' do
 
     context 'when Redis Sentinel is defined for the queues config' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
         global:
           redis:
             queues:
@@ -143,7 +143,7 @@ describe 'gitlab-exporter configuration' do
               - host: sentinel2.example.com
                 port: 26379
                 ssl: false
-      )).deep_merge(default_values)
+      )))
       end
 
       it 'configures Sentinels' do
@@ -159,7 +159,7 @@ describe 'gitlab-exporter configuration' do
 
     context 'with Sentinel password as secret' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               sentinels:
@@ -171,7 +171,7 @@ describe 'gitlab-exporter configuration' do
                 enabled: true
                 secret: test-redis-sentinel-secret
                 key: password
-        )).deep_merge(default_values)
+        )))
       end
 
       let(:volumes) { template.dig('Deployment/test-gitlab-exporter', 'spec', 'template', 'spec', 'volumes') }
@@ -195,13 +195,13 @@ describe 'gitlab-exporter configuration' do
 
   context 'When customer enables TLS' do
     let(:template) do
-      values = YAML.safe_load(%(
+      values = default_values.deep_merge(YAML.safe_load(%(
       gitlab:
         gitlab-exporter:
           tls:
             enabled: true
             secretName: exporter-tls-secret
-      )).deep_merge(default_values)
+      )))
       HelmTemplate.new values
     end
 
@@ -228,7 +228,7 @@ describe 'gitlab-exporter configuration' do
   context 'with Redis TLS' do
     context 'when Redis scheme is rediss with TLS certificates' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               scheme: rediss
@@ -242,7 +242,7 @@ describe 'gitlab-exporter configuration' do
                 key:
                   secret: redis-key
                   key: key
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'should render the template without error' do
@@ -277,7 +277,7 @@ describe 'gitlab-exporter configuration' do
   context 'with Sentinel TLS' do
     context 'when Sentinel TLS is enabled with mutual TLS' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.host
@@ -297,7 +297,7 @@ describe 'gitlab-exporter configuration' do
                 key:
                   secret: sentinel-key
                   key: key
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders the template without error' do

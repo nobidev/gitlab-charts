@@ -46,7 +46,7 @@ describe 'cells configuration' do
       }
     end
     let(:helm_template) do
-      HelmTemplate.new(cell_values.deep_merge!(default_values))
+      HelmTemplate.new(default_values.deep_merge(cell_values))
     end
 
     it 'generates cell configuration in the gitlab.yml file' do
@@ -95,7 +95,7 @@ describe 'cells configuration' do
     end
 
     let(:helm_template) do
-      HelmTemplate.new(cell_values.deep_merge!(default_values))
+      HelmTemplate.new(default_values.deep_merge(cell_values))
     end
 
     it 'generates configuration in the gitlab.yml file with TLS' do

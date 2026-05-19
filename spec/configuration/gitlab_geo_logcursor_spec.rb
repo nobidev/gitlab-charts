@@ -30,7 +30,7 @@ describe 'geo-logcursor configuration' do
 
   context 'When customer provides additional labels' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           common:
             labels:
@@ -48,7 +48,7 @@ describe 'geo-logcursor configuration' do
             podLabels:
               pod: true
               global: pod
-      )).deep_merge(default_values)
+      )))
     end
     it 'Populates the additional labels in the expected manner' do
       t = HelmTemplate.new(values)

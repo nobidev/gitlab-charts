@@ -19,7 +19,7 @@ describe 'migrations configuration' do
 
   context 'When customer provides additional labels' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           common:
             labels:
@@ -39,7 +39,7 @@ describe 'migrations configuration' do
             podLabels:
               pod: true
               global: pod
-      )).deep_merge(default_values)
+      )))
     end
     it 'Populates the additional labels in the expected manner' do
       t = HelmTemplate.new(values)
@@ -57,7 +57,7 @@ describe 'migrations configuration' do
 
   context 'When customer provides additional annotations' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           job:
             nameSuffixOverride: '1'
@@ -69,7 +69,7 @@ describe 'migrations configuration' do
             podAnnotations:
               foo: foo
               baz: baz
-      )).deep_merge(default_values)
+      )))
     end
     it 'Populates the additional annotations in the expected manner' do
       t = HelmTemplate.new(values)

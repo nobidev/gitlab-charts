@@ -57,12 +57,14 @@ describe 'GitLab Pages' do
 
     describe 'when network policy is enabled' do
       let(:enable_network_policy) do
-        YAML.safe_load(%(
-          gitlab:
-            gitlab-pages:
-              networkpolicy:
-                enabled: true
-        )).deep_merge(pages_enabled_values).deep_merge(values)
+        values
+          .deep_merge(pages_enabled_values)
+          .deep_merge(YAML.safe_load(%(
+            gitlab:
+              gitlab-pages:
+                networkpolicy:
+                  enabled: true
+          )))
       end
 
       it 'creates a network policy object' do

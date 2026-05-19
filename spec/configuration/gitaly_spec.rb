@@ -38,14 +38,14 @@ describe 'Gitaly configuration' do
 
   context 'When disabled and provided external instances' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           gitaly:
             enabled: false
             external:
             - name: default
               hostname: git.example.com
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'populates external instances to gitlab.yml' do
@@ -57,7 +57,7 @@ describe 'Gitaly configuration' do
 
     context 'when external is configured with tlsEnabled' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             gitaly:
               enabled: false
@@ -65,7 +65,7 @@ describe 'Gitaly configuration' do
               - name: default
                 hostname: git.example.com
                 tlsEnabled: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'populates a tls uri' do
@@ -78,7 +78,7 @@ describe 'Gitaly configuration' do
 
     context 'when tls is enabled' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             gitaly:
               enabled: false
@@ -87,7 +87,7 @@ describe 'Gitaly configuration' do
                 hostname: git.example.com
               tls:
                 enabled: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'populates a tls uri' do
@@ -100,7 +100,7 @@ describe 'Gitaly configuration' do
 
     context 'when tls is enabled, and instance disables tls' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             gitaly:
               enabled: false
@@ -110,7 +110,7 @@ describe 'Gitaly configuration' do
                 tlsEnabled: false
               tls:
                 enabled: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'populates a tcp uri' do
@@ -123,14 +123,14 @@ describe 'Gitaly configuration' do
 
     context 'when external is configured with address' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             gitaly:
               enabled: false
               external:
               - name: default
                 address: dns://8.8.8.8:53/gitaly.consul.internal
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'populates the address uri' do
@@ -143,7 +143,7 @@ describe 'Gitaly configuration' do
 
     context 'when external is configured with address and tlsEnabled' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             gitaly:
               enabled: false
@@ -151,7 +151,7 @@ describe 'Gitaly configuration' do
               - name: default
                 address: dns://8.8.8.8:53/gitaly.consul.internal
                 tlsEnabled: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'populates the address uri (ignoring tlsEnabled)' do
@@ -165,12 +165,12 @@ describe 'Gitaly configuration' do
 
   context 'When gitaly host is specified with address' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           gitaly:
             host: gitaly.example.com
             address: dns://8.8.8.8:53/gitaly.consul.internal
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'populates the address uri in gitlab.yml' do
@@ -197,14 +197,14 @@ describe 'Gitaly configuration' do
 
       with_them do
         let(:values) do
-          YAML.safe_load(%(
+          default_values.deep_merge(YAML.safe_load(%(
               gitlab:
                 gitaly:
                   securityContext:
                     #{"fsGroup: #{fsGroup}" unless fsGroup.nil?}
                     #{"fsGroupChangePolicy: #{fsGroupChangePolicy}" unless fsGroupChangePolicy.nil?}
                     #{"runAsUser: #{runAsUser}" unless runAsUser.nil?}
-          )).deep_merge(default_values)
+          )))
         end
 
         it 'should render securityContext correctly' do
@@ -217,14 +217,14 @@ describe 'Gitaly configuration' do
 
   context 'With additional gitconfig' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitaly:
             git:
               config:
               - {key: "pack.threads", value: "4"}
               - {key: "fetch.fsckObjects", value: "false"}
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'populates [[git.config]] sections' do
@@ -277,7 +277,7 @@ describe 'Gitaly configuration' do
       ))
     end
 
-    let(:values) { labeled_values.deep_merge(default_values) }
+    let(:values) { default_values.deep_merge(labeled_values) }
 
     context 'with only gitaly' do
       it 'Populates the additional labels in the expected manner' do
@@ -311,14 +311,14 @@ describe 'Gitaly configuration' do
 
     context 'with praefect enabled' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             praefect:
               enabled: true
               virtualStorages:
               - name: default
                 gitalyReplicas: 3
-        )).deep_merge(default_values).deep_merge(labeled_values)
+        ))).deep_merge(labeled_values)
       end
 
       let(:configmap_name) { 'ConfigMap/test-gitaly-praefect' }
@@ -355,7 +355,7 @@ describe 'Gitaly configuration' do
 
   context 'packObjectsCache' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitaly:
             packObjectsCache:
@@ -363,7 +363,7 @@ describe 'Gitaly configuration' do
               dir: #{pack_objects_cache_dir}
               max_age: #{pack_objects_cache_max_age}
               min_occurrences: #{pack_objects_cache_min_occurrences}
-      )).deep_merge(default_values)
+      )))
     end
 
     context 'when enabled' do
@@ -400,13 +400,13 @@ describe 'Gitaly configuration' do
   context 'timeout' do
     context 'when enabled' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitaly:
               timeout:
                 uploadPackNegotiation: 10m
                 uploadArchiveNegotiation: 20m
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'populates a timeout section in config.toml.tpl' do
@@ -422,10 +422,10 @@ describe 'Gitaly configuration' do
 
     context 'when not enabled' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitaly: {}
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'does not populate a timeout section in config.toml.tpl' do
@@ -469,12 +469,12 @@ describe 'Gitaly configuration' do
 
   context 'with extraVolumes' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitaly:
             extraVolumes: |-
              - name: #{volume_name}
-      )).deep_merge(default_values)
+      )))
     end
 
     shared_examples 'a deprecated gitconfig volume' do
@@ -514,12 +514,12 @@ describe 'Gitaly configuration' do
 
   context 'server side backups' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitaly:
             backup:
               goCloudUrl: 'gs://gitaly-backups'
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'renders the template' do
@@ -538,7 +538,7 @@ describe 'Gitaly configuration' do
 
   context 'gomemlimit' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitaly:
             resources:
@@ -546,7 +546,7 @@ describe 'Gitaly configuration' do
                 memory: #{resources_limits_memory}
             gomemlimit:
               enabled: #{gomemlimit_enabled}
-      )).deep_merge(default_values)
+      )))
     end
 
     context 'when enabled' do
@@ -575,11 +575,11 @@ describe 'Gitaly configuration' do
 
   context 'shareProcessNamespace' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitaly:
             shareProcessNamespace: #{share_process_namespace_enabled}
-      )).deep_merge(default_values)
+      )))
     end
 
     context 'when enabled' do
@@ -603,7 +603,7 @@ describe 'Gitaly configuration' do
 
   context 'concurrency' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitaly:
             shell:
@@ -612,7 +612,7 @@ describe 'Gitaly configuration' do
                 foo: bar
               - rpc: AnotherTestRPC
                 max_queue_size: 10
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -632,7 +632,7 @@ describe 'Gitaly configuration' do
 
     context 'with mixed Camel and Snake case values' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitaly:
               shell:
@@ -640,7 +640,7 @@ describe 'Gitaly configuration' do
                 - rpc: CamelCaseTest
                   MaxQueueSize: 10
                   rpc_timeout: 5s
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders the template' do
@@ -656,7 +656,7 @@ describe 'Gitaly configuration' do
 
     context 'when concurrency has numeric values' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitaly:
               shell:
@@ -664,7 +664,7 @@ describe 'Gitaly configuration' do
                 - rpc: TestRPC
                   maxQueueSize: 100
                   maxQueueWait: 5
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders numeric values without decimal points' do
@@ -681,7 +681,7 @@ describe 'Gitaly configuration' do
 
     context 'when concurrency has fractional numeric values' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitaly:
               shell:
@@ -689,7 +689,7 @@ describe 'Gitaly configuration' do
                 - rpc: TestRPC
                   imaginaryConcurrencyFloatSetting: 1.2
                   anotherImaginaryValue: 1.24
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'preserves fractional values as floats' do
@@ -705,7 +705,7 @@ describe 'Gitaly configuration' do
 
     context 'when concurrency has string values with special characters' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitaly:
               shell:
@@ -713,7 +713,7 @@ describe 'Gitaly configuration' do
                 - rpc: TestRPC
                   rpcTimeout: "30s"
                   description: "handles git-upload-pack"
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'properly quotes string values' do
@@ -724,7 +724,7 @@ describe 'Gitaly configuration' do
 
     context 'when concurrency has boolean values' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitaly:
               shell:
@@ -733,7 +733,7 @@ describe 'Gitaly configuration' do
                   enabled: true
                 - rpc: AnotherRPC
                   enabled: false
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders boolean values correctly' do
@@ -749,12 +749,12 @@ describe 'Gitaly configuration' do
 
     context 'when concurrency array is empty' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitaly:
               shell:
                 concurrency: []
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'does not render concurrency sections' do
@@ -764,7 +764,7 @@ describe 'Gitaly configuration' do
 
     context 'when concurrency has multiple entries with mixed types' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitaly:
               shell:
@@ -776,7 +776,7 @@ describe 'Gitaly configuration' do
                 - rpc: SecondRPC
                   maxQueueSize: 100
                   maxQueueWait: 1
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders all entries with correct TOML array syntax' do
@@ -789,12 +789,12 @@ describe 'Gitaly configuration' do
 
   context 'bundleUri' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitaly:
             bundleUri:
               goCloudUrl: 'gs://<bucket>'
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -812,7 +812,7 @@ describe 'Gitaly configuration' do
 
   context 'cgroups' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitaly:
             cgroups:
@@ -833,7 +833,7 @@ describe 'Gitaly configuration' do
                 cpuShares: 512
                 cpuQuotaUs: 200000
                 maxCgroupsPerRepo: 2
-      )).deep_merge(default_values)
+      )))
     end
 
     context 'when enabled' do
@@ -891,7 +891,7 @@ describe 'Gitaly configuration' do
 
   context 'startupProbe' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitaly:
             statefulset:
@@ -902,7 +902,7 @@ describe 'Gitaly configuration' do
                 timeoutSeconds: 2
                 successThreshold: 1
                 failureThreshold: 60
-      )).deep_merge(default_values)
+      )))
     end
 
     context 'when enabled' do
@@ -955,7 +955,7 @@ describe 'Gitaly configuration' do
     let(:values) do
       vals = { 'gitlab' => { 'gitaly' => {} } }
       vals['gitlab']['gitaly']['gracefulRestartTimeout'] = graceful_restart_timeout unless graceful_restart_timeout.nil?
-      vals.deep_merge(default_values)
+      default_values.deep_merge(vals)
     end
 
     context 'when default' do
@@ -997,7 +997,7 @@ describe 'Gitaly configuration' do
 
   context 'daily maintenace is configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
       global:
         gitaly:
           enabled: true
@@ -1009,7 +1009,7 @@ describe 'Gitaly configuration' do
             startMinute: 59
             duration: 5m
             storages: ["default", "custom"]
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'renders the template' do
@@ -1030,7 +1030,7 @@ describe 'Gitaly configuration' do
 
   context 'gitaly service' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
       global:
         gitaly:
           enabled: true
@@ -1040,7 +1040,7 @@ describe 'Gitaly configuration' do
             type: #{gitaly_service_type}
             #{"clusterIP: #{gitaly_cluster_ip_address}" unless gitaly_cluster_ip_address.nil?}
             #{"loadBalancerIP: #{gitaly_lb_ip_address}" unless gitaly_lb_ip_address.nil?}
-      )).deep_merge(default_values)
+      )))
     end
 
     context 'when service.clusterIP is given' do
@@ -1104,7 +1104,7 @@ describe 'Gitaly configuration' do
   context 'initContainers' do
     context 'when custom initContainers are provided' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               gitaly:
                 extraInitContainers: |
@@ -1128,7 +1128,7 @@ describe 'Gitaly configuration' do
                       - sh
                       - -c
                       - echo "Another init container"
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders the template successfully' do
@@ -1167,11 +1167,11 @@ describe 'Gitaly configuration' do
 
     context 'when initContainers list is empty' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               gitaly:
                 extraInitContainers: ""
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'does not add custom initContainers' do
@@ -1197,7 +1197,7 @@ describe 'Gitaly configuration' do
 
     context 'when initContainers with resources are provided' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               gitaly:
                 extraInitContainers: |
@@ -1210,7 +1210,7 @@ describe 'Gitaly configuration' do
                       limits:
                         cpu: 500m
                         memory: 512Mi
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'sets resource requests and limits' do
@@ -1224,7 +1224,7 @@ describe 'Gitaly configuration' do
 
     context 'when initContainers with volumeMounts are provided' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               gitaly:
                 extraInitContainers: |
@@ -1233,7 +1233,7 @@ describe 'Gitaly configuration' do
                     volumeMounts:
                       - name: init-volume
                         mountPath: /tmp/init
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'sets volumeMounts' do
@@ -1247,7 +1247,7 @@ describe 'Gitaly configuration' do
 
     context 'when initContainers with securityContext (privileged, allowPrivilegeEscalation, runAsNonRoot)' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               gitaly:
                 extraInitContainers: |
@@ -1264,7 +1264,7 @@ describe 'Gitaly configuration' do
                       allowPrivilegeEscalation: false
                       runAsNonRoot: true
                       runAsUser: 1000
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders the template successfully' do
@@ -1293,7 +1293,7 @@ describe 'Gitaly configuration' do
 
     context 'when pod securityContext includes new properties (privileged, allowPrivilegeEscalation, runAsNonRoot)' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               gitaly:
                 securityContext:
@@ -1302,7 +1302,7 @@ describe 'Gitaly configuration' do
                   runAsNonRoot: true
                   fsGroup: 1000
                   runAsUser: 1000
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders the template successfully' do
@@ -1323,13 +1323,13 @@ describe 'Gitaly configuration' do
 
     context 'when securityContext properties are nil (not specified)' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
             gitlab:
               gitaly:
                 securityContext:
                   fsGroup: 1000
                   runAsUser: 1000
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'does not include privileged, allowPrivilegeEscalation, or runAsNonRoot' do

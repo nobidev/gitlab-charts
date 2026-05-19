@@ -21,7 +21,7 @@ describe 'gitlab.yml.erb configuration' do
 
   context 'when CSP is enabled' do
     let(:required_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           appConfig:
             contentSecurityPolicy:
@@ -35,16 +35,16 @@ describe 'gitlab.yml.erb configuration' do
                 object_src: "'none'"
                 script_src: "'self' 'unsafe-inline' 'unsafe-eval'"
                 style_src: "'self'"
-      )).deep_merge!(default_values)
+      )))
     end
 
     let(:no_directives) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           appConfig:
             contentSecurityPolicy:
               enabled: true
-      )).deep_merge!(default_values)
+      )))
     end
 
     it 'populates the gitlab.yml.erb' do
@@ -68,12 +68,12 @@ describe 'gitlab.yml.erb configuration' do
 
   context 'matomoDisableCookies' do
     let(:required_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           appConfig:
             extra:
               matomoDisableCookies: #{value}
-      )).deep_merge!(default_values)
+      )))
     end
 
     context 'when true' do
@@ -122,12 +122,12 @@ describe 'gitlab.yml.erb configuration' do
 
   context 'oneTrustId' do
     let(:required_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           appConfig:
             extra:
               oneTrustId: #{value}
-      )).deep_merge!(default_values)
+      )))
     end
 
     context 'when configured' do
@@ -161,12 +161,12 @@ describe 'gitlab.yml.erb configuration' do
 
   context 'bizible' do
     let(:required_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           appConfig:
             extra:
               bizible: #{value}
-      )).deep_merge!(default_values)
+      )))
     end
 
     context 'when true' do
@@ -215,11 +215,11 @@ describe 'gitlab.yml.erb configuration' do
 
   context 'cdnHost' do
     let(:required_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           appConfig:
             cdnHost: #{value}
-      )).deep_merge!(default_values)
+      )))
     end
 
     context 'when configured' do
@@ -273,7 +273,7 @@ describe 'gitlab.yml.erb configuration' do
 
   context 'sidekiq.routingRules on web' do
     let(:required_values) do
-      value.deep_merge!(default_values)
+      default_values.deep_merge(value)
     end
 
     context 'when empty array' do
@@ -343,7 +343,7 @@ describe 'gitlab.yml.erb configuration' do
 
   context 'sidekiq.routingRules on Sidekiq' do
     let(:required_values) do
-      value.deep_merge!(default_values)
+      default_values.deep_merge(value)
     end
 
     context 'when empty array' do
@@ -886,11 +886,11 @@ describe 'gitlab.yml.erb configuration' do
 
   context 'relativeUrlRoot configuration' do
     let(:required_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           appConfig:
             relativeUrlRoot: #{value}
-      )).deep_merge!(default_values)
+      )))
     end
 
     context 'when configured' do
@@ -964,11 +964,11 @@ describe 'gitlab.yml.erb configuration' do
 
   context 'ActionCable allowed origins' do
     let(:required_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
       global:
         appConfig:
           actionCableAllowedOrigins: #{value}
-    )).deep_merge!(default_values)
+    )))
     end
 
     context 'when configured with array of origins' do
@@ -1009,7 +1009,7 @@ describe 'gitlab.yml.erb configuration' do
 
     context 'when Geo is disabled' do
       let(:required_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
         global:
           geo:
             enabled: false
@@ -1017,7 +1017,7 @@ describe 'gitlab.yml.erb configuration' do
             host: foo
             password:
               secret: bar
-      )).deep_merge!(default_values)
+      )))
       end
 
       it 'does not populate geo configuration in gitlab.yml.erb' do
