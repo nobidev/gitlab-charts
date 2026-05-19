@@ -187,10 +187,6 @@ include:
   - local: '/.gitlab/ci/environments/eks.134.amd64.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "eks134"'
-  # k3d 1.35 (per-job isolation) — runs alongside vcluster for comparison
-  - local: '/.gitlab/ci/environments/k3d.135.amd64.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "k3d135"'
   - local: /.gitlab/ci/scanners.gitlab-ci.yml
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
