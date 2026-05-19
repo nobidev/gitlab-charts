@@ -508,6 +508,24 @@ k3d_arm64:
       when: manual
       allow_failure: true
 
+# Manual: run the k3d suite with NGINX ingress instead of Envoy Gateway.
+# Single version (v1.35) — sanity check on the NGINX path, not a matrix.
+k3d_nginx:
+  extends: .trigger_review_job
+  variables:
+    LIMIT_TO: k3d_version
+    K3D_USE_NGINX_INGRESS: "true"
+  parallel:
+    matrix:
+      - K3D_K8S_IMAGE: "rancher/k3s:v1.35.0-k3s1"
+  rules:
+    - !reference [.rule:skip_if_fork]
+    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+      when: manual
+      allow_failure: true
+
 # Jobs using auto_stop_in that exit with a failure will not execute the on_stop
 # action. We get frequent failures during review_* jobs. Their accompanying
 # partially deployed environments then hang around forever which may eventually
