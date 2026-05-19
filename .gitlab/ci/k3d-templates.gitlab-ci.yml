@@ -81,12 +81,14 @@
       gitlab-qa Test::Instance::Any --qa-image $QA_IMAGE EE ${PROTOCOL:-https}://$GITLAB_URL -- $TEST_SUITE
   after_script:
     - source scripts/ci/k3d.sh
+    - k3d_collect_debug
     - k3d_delete
   artifacts:
     when: always
     expire_in: 7d
     paths:
       - ./gitlab-qa-run-*
+      - ./k3d-debug/
   retry: 1
   allow_failure: true
 
@@ -120,4 +122,10 @@
     - ./scripts/ci/run_specs.sh
   after_script:
     - source scripts/ci/k3d.sh
+    - k3d_collect_debug
     - k3d_delete
+  artifacts:
+    when: always
+    expire_in: 7d
+    paths:
+      - ./k3d-debug/
