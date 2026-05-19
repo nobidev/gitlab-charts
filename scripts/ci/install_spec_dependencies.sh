@@ -49,8 +49,9 @@ if command -v gomplate; then
 fi
 
 if [ "${STRICT_VERSIONS:-false}" == "true" ] && [ "${GOMPLATE_INSTALLED_VERSION}" != "${GOMPLATE_VERSION}" ] || [ -z "${GOMPLATE_INSTALLED_VERSION}" ]; then
-    echo "Installing gomplate-${GOMPLATE_VERSION}"
-    curl -o gomplate -sSL https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-amd64
+    GOMPLATE_ARCH=$(uname -m); case "$GOMPLATE_ARCH" in x86_64) GOMPLATE_ARCH="amd64";; aarch64) GOMPLATE_ARCH="arm64";; esac
+    echo "Installing gomplate-${GOMPLATE_VERSION} (${GOMPLATE_ARCH})"
+    curl -o gomplate -sSL https://github.com/hairyhenderson/gomplate/releases/download/${GOMPLATE_VERSION}/gomplate_linux-${GOMPLATE_ARCH}
     chmod +x gomplate
     mv gomplate ${TARGET_DIR}/gomplate
 fi
@@ -65,11 +66,12 @@ if command -v helm; then
 fi
 
 if [ "${STRICT_VERSIONS:-false}" == "true" ] && [ "${HELM_INSTALLED_VERSION}" != "${HELM_VERSION}" ] || [ -z "${HELM_INSTALLED_VERSION}" ]; then
-    echo "Installing helm-${HELM_VERSION}"
-    curl -Ls https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz | tar zxf -
-    chmod +x linux-amd64/helm
-    mv linux-amd64/helm ${TARGET_DIR}/helm
-    rm -rf linux-amd64/
+    HELM_ARCH=$(uname -m); case "$HELM_ARCH" in x86_64) HELM_ARCH="amd64";; aarch64) HELM_ARCH="arm64";; esac
+    echo "Installing helm-${HELM_VERSION} (${HELM_ARCH})"
+    curl -Ls https://get.helm.sh/helm-v${HELM_VERSION}-linux-${HELM_ARCH}.tar.gz | tar zxf -
+    chmod +x linux-${HELM_ARCH}/helm
+    mv linux-${HELM_ARCH}/helm ${TARGET_DIR}/helm
+    rm -rf linux-${HELM_ARCH}/
 fi
 helm version --template 'Effective: {{.Version}}' 2>/dev/null || echo "helm installation failed"
 
@@ -82,8 +84,9 @@ if command -v kubectl; then
 fi
 
 if [ "${STRICT_VERSIONS:-false}" == "true" ] && [ "${KUBECTL_INSTALLED_VERSION}" != "${KUBECTL_VERSION}" ] || [ -z "${KUBECTL_INSTALLED_VERSION}" ]; then
-    echo "Installing kubectl-${KUBECTL_VERSION}"
-    curl -LsO https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+    KUBECTL_ARCH=$(uname -m); case "$KUBECTL_ARCH" in x86_64) KUBECTL_ARCH="amd64";; aarch64) KUBECTL_ARCH="arm64";; esac
+    echo "Installing kubectl-${KUBECTL_VERSION} (${KUBECTL_ARCH})"
+    curl -LsO https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${KUBECTL_ARCH}/kubectl
     chmod +x kubectl
     mv kubectl ${TARGET_DIR}/kubectl
 fi

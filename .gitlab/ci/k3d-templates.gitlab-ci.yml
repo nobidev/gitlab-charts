@@ -1,0 +1,123 @@
+# Shared templates for k3d per-job review environments.
+# Included by .gitlab-ci.yml for the child pipeline layer (LIMIT_TO=k3d_version or k3d_version_arm64).
+# These templates rely on .specs and .dind being defined by .gitlab-ci.yml.
+
+.k3d_base:
+  interruptible: true
+  tags:
+    - e2e
+  variables:
+    K3D_MODE: "true"
+    KUBE_NAMESPACE: "default"
+    NAMESPACE: "${KUBE_NAMESPACE}"
+    HOST_SUFFIX: "${CI_JOB_ID}"
+    VARIABLES_FILE: "variables/k3d_deploy"
+    # Allow Docker (DinD) to push/pull from the in-cluster registry over HTTP.
+    # nip.io registry hostnames resolve to private IPs in 172.16.0.0/12.
+    DOCKER_OPTIONS: "--registry-mirror ${DOCKER_MIRROR} --insecure-registry 172.16.0.0/12"
+    # Override GIT_CLONE_PATH with a literal path. The global .gitlab-ci.yml sets
+    # it to $CI_BUILDS_DIR/gitlab, but $CI_BUILDS_DIR is a runner-only variable
+    # (not available at pipeline-creation time) so it evaluates to /gitlab in child
+    # pipelines — a known GitLab bug (gitlab-org/gitlab#220047). Using a literal
+    # /builds/gitlab avoids this; all e2e runner instances use /builds as builds_dir.
+    GIT_CLONE_PATH: /builds/gitlab
+
+.k3d_qa_template:
+  extends:
+    - .specs
+    - .k3d_base
+  stage: qa
+  variables:
+    VARIABLES_FILE: "variables/k3d_deploy"
+    QA_GENERATE_ALLURE_REPORT: "true"
+    QA_ARTIFACTS_DIR: $CI_PROJECT_DIR
+    QA_CAN_TEST_PRAEFECT: "false"
+  rules:
+    - if: '$PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
+    - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
+    - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
+    - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
+  before_script:
+    - source scripts/ci/autodevops.sh
+    - source scripts/ci/k3d.sh
+    - k3d_install
+  script:
+    - source scripts/ci/qa.sh
+    - qa_export_passwords
+    - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+    - gem install gitlab-qa -v "${GITLAB_QA_VERSION}"
+    - mkdir -p "$(dirname "${VARIABLES_FILE}")"
+    - k3d_create
+    - k3d_info
+    - kubectl version --output=json
+    - ./scripts/ci/k3d_deploy.sh
+    - source "${VARIABLES_FILE}"
+    # GITLAB_QA_ADMIN_ACCESS_TOKEN is baked at job-setup time from the CI variable
+    # GITLAB_ADMIN_TOKEN (which holds the shared vcluster token). Re-export it here
+    # so gitlab-qa picks up the fresh PAT created against this k3d instance.
+    - export GITLAB_QA_ADMIN_ACCESS_TOKEN="${GITLAB_ADMIN_TOKEN}"
+    - |
+      http_code=$(curl -sSo /dev/null -w "%{http_code}" \
+        --header "PRIVATE-TOKEN: ${GITLAB_ADMIN_TOKEN}" \
+        "http://${GITLAB_URL}/api/v4/user")
+      if [ "${http_code}" != "200" ]; then
+        echo "Pre-flight check failed: GET /api/v4/user returned HTTP ${http_code} (expected 200)"
+        exit 1
+      fi
+    - |
+      if [ -n "$QA_GITLAB_REVISION" ]; then
+        QA_IMAGE="registry.gitlab.com/gitlab-org/gitlab/gitlab-ee-qa:$QA_GITLAB_REVISION"
+      else
+        QA_IMAGE="gitlab/gitlab-ee-qa:nightly"
+      fi
+    - echo "Running - 'gitlab-qa Test::Instance::Any --qa-image $QA_IMAGE EE ${PROTOCOL:-https}://$GITLAB_URL -- $TEST_SUITE'"
+    - |
+      SIGNUP_DISABLED=true \
+      QA_DEBUG=true \
+      GITLAB_USERNAME=root \
+      GITLAB_PASSWORD=$ROOT_PASSWORD \
+      GITLAB_ADMIN_USERNAME=root \
+      GITLAB_ADMIN_PASSWORD=$ROOT_PASSWORD \
+      gitlab-qa Test::Instance::Any --qa-image $QA_IMAGE EE ${PROTOCOL:-https}://$GITLAB_URL -- $TEST_SUITE
+  after_script:
+    - source scripts/ci/k3d.sh
+    - k3d_delete
+  artifacts:
+    when: always
+    expire_in: 7d
+    paths:
+      - ./gitlab-qa-run-*
+  retry: 1
+  allow_failure: true
+
+.k3d_review_specs_template:
+  extends:
+    - .specs
+    - .k3d_base
+  variables:
+    RSPEC_TAGS: type:feature
+  # Override rules: k3d provisions its own cluster inside the job, so there is
+  # no pre-existing KUBECONFIG to check (skip_if_no_cluster would silently skip us).
+  rules:
+    - if: '$PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
+    - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
+    - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
+    - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
+  before_script:
+    - source scripts/ci/autodevops.sh
+    - source scripts/ci/k3d.sh
+    - k3d_install
+  script:
+    - ./scripts/ci/install_spec_dependencies.sh
+    - mkdir -p "$(dirname "${VARIABLES_FILE}")"
+    # Create isolated k3d cluster (also exports KUBE_INGRESS_BASE_DOMAIN via nip.io)
+    - k3d_create
+    - k3d_info
+    - kubectl version --output=json
+    # Deploy GitLab chart + external services (Valkey, CNPG, Garage)
+    - ./scripts/ci/k3d_deploy.sh
+    # Run feature specs against the deployed instance
+    - ./scripts/ci/run_specs.sh
+  after_script:
+    - source scripts/ci/k3d.sh
+    - k3d_delete
