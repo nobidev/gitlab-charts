@@ -3,7 +3,7 @@ stage: GitLab Delivery
 group: Operate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
 title: Configure MinIO with the GitLab chart
-remove_date: '2022-07-31'
+remove_date: '2027-07-31'
 redirect_to: '_index.md'
 ---
 
