@@ -245,27 +245,18 @@ generate_secret_if_needed {{ template "gitlab.appConfig.iamAuthService.authToken
 {{ if index .Values "ai-gateway" "install" -}}
 # AI Gateway JWT signing keys
 
-{{- if not (index .Values "ai-gateway" "duoWorkflowSigningKey" "secret") }}
 # Duo workflow signing key
 openssl genrsa -out duo_workflow_signing.key 4096
 generate_secret_if_needed {{ template "ai-gateway.duoWorkflowSigningKey.secret" . }} --from-file={{ template "ai-gateway.duoWorkflowSigningKey.key" . }}=duo_workflow_signing.key
-{{ end }}
 
-{{- if not (index .Values "ai-gateway" "duoWorkflowValidationKey" "secret") }}
 # Duo workflow validation key
 openssl genrsa -out duo_workflow_validation.key 4096
 generate_secret_if_needed {{ template "ai-gateway.duoWorkflowValidationKey.secret" . }} --from-file={{ template "ai-gateway.duoWorkflowValidationKey.key" . }}=duo_workflow_validation.key
-{{ end }}
 
-{{- if not (index .Values "ai-gateway" "aigwSigningKey" "secret") }}
 openssl genrsa -out aigw_signing.key 4096
 generate_secret_if_needed {{ template "ai-gateway.aigwSigningKey.secret" . }} --from-file={{ template "ai-gateway.aigwSigningKey.key" . }}=aigw_signing.key
-{{ end }}
 
-{{- if not (index .Values "ai-gateway" "aigwValidationKey" "secret") }}
 # AI Gateway validation key
 openssl genrsa -out aigw_validation.key 4096
 generate_secret_if_needed {{ template "ai-gateway.aigwValidationKey.secret" . }} --from-file={{ template "ai-gateway.aigwValidationKey.key" . }}=aigw_validation.key
-{{ end }}
-
 {{ end }}

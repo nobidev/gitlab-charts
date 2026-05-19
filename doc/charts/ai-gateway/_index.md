@@ -56,39 +56,3 @@ To configure and deploy the chart:
       For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
 1. Select **Save changes**.
 1. On the **GitLab Duo** page (`/admin/gitlab_duo`), select **Run health check** to verify that everything is working correctly.
-
-### JWT signing keys
-
-The AI Gateway uses JWT signing and validation keys for secure communication
-with GitLab. These keys are **automatically generated** by the shared secrets
-job when the AI Gateway is installed, so no manual configuration is required.
-
-The following keys are auto-generated as Kubernetes secrets if not explicitly configured:
-
-- `duoWorkflowSigningKey` - Duo Workflow signing key (RSA 4096-bit)
-- `duoWorkflowValidationKey` - Duo Workflow validation key (RSA 4096-bit)
-- `aigwSigningKey` - AI Gateway signing key (RSA 4096-bit)
-- `aigwValidationKey` - AI Gateway validation key (RSA 4096-bit)
-
-To provide your own keys instead, set the corresponding `secret` and `key` values under
-`ai-gateway` in your Helm values. For example:
-
-```yaml
-ai-gateway:
-  install: true
-  duoWorkflowSigningKey:
-    secret: custom-duo-workflow-signing-secret
-    key: custom-duo-workflow-signing-key
-  duoWorkflowValidationKey:
-    secret: custom-duo-workflow-validation-secret
-    key: custom-duo-workflow-validation-secret
-  aigwSigningKey:
-    secret: custom-aigw-signing-secret
-    key: custom-aigw-signing-key
-  aigwValidationKey:
-    secret: custom-aigw-validation-secret
-    key: custom-aigw-validation-key
-```
-
-When a custom secret name is provided, the shared secrets job skips
-auto-generation for that key. The secret you reference must already exist in the cluster.

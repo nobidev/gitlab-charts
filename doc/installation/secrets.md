@@ -325,6 +325,28 @@ kubectl create secret generic <name>-registry-notification --from-literal=secret
 
 This secret is referenced by the `global.registry.notificationSecret.secret` setting.
 
+### AI Gateway secret
+
+Generate RSA 4096-bit keys for the duo workflow signing key, the duo workflow validation key, 
+the AI Gateway signing key and the AI Gateway validation key. You can generate those keys with the following openssl commands:
+
+```shell
+openssl genrsa -out duo_workflow_signing.key 4096
+openssl genrsa -out duo_workflow_validation.key 4096
+openssl genrsa -out ai_gateway_signing.key 4096
+openssl genrsa -out ai_gateway_validation.key 4096
+```
+
+You can then generate a secret for each of them. Replace `<name>` with
+the name of the release:
+
+```shell
+kubectl create secret generic <name>-ai-gateway-duo-workflow-signing-secret --from-file=duoWorkflowSigningKey=duo_workflow_signing.key
+kubectl create secret generic <name>-ai-gateway-duo-workflow-validation-secret --from-file=duoWorkflowValidationKey=duo_workflow_validation.key
+kubectl create secret generic <name>-ai-gateway-aigw-signing-secret --from-file=aigwSigningKey=ai_gateway_signing.key
+kubectl create secret generic <name>-ai-gateway-aigw-validation-secret --from-file=aigwValidationKey=duo_workflow_signing.key
+```
+
 ### Praefect DB password
 
 Generate a random 64 character alpha-numeric password. Replace `<name>` with
