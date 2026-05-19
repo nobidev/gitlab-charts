@@ -56,7 +56,7 @@ To migrate from a Helm installation to a Linux package (Omnibus) installation:
      pointing to your object storage. For other configuration that might be required, see
      [provider-specific configuration examples](https://docs.gitlab.com/administration/object_storage/#provider-specific-configuration-examples).
    - You may re-use your old object storage with the new Linux package instance. In this case, you
-     do not need to sync data between two object storages. 
+     do not need to sync data between two object storages.
 
 1. Copy the GitLab Helm backup to `/var/opt/gitlab/backups` on your Linux package GitLab instance, and
    [perform the restore](https://docs.gitlab.com/administration/backup_restore/restore_gitlab/#restore-for-linux-package-installations).

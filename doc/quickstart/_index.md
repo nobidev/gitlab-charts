@@ -88,7 +88,7 @@ To install the chart, prepare a values file and run Helm:
 global:
   hosts:
     domain: example.com
-  redis: 
+  redis:
     host: redis.example.com
     auth:
       secret: psql-password
