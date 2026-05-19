@@ -25,12 +25,12 @@ describe 'gitlab-shell configuration' do
 
   context 'when service.type is LoadBalancer' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitlab-shell:
             service:
               type: LoadBalancer
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'renders the type' do
@@ -42,13 +42,13 @@ describe 'gitlab-shell configuration' do
 
     context 'when allocateLoadBalancerNodePorts is set' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitlab-shell:
             service:
               type: LoadBalancer
               allocateLoadBalancerNodePorts: false
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders allocateLoadBalancerNodePorts' do
@@ -71,7 +71,7 @@ describe 'gitlab-shell configuration' do
     let(:login_grace_time) { 60 }
 
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           gitlab-shell:
             sshDaemon: "gitlab-sshd"
@@ -83,7 +83,7 @@ describe 'gitlab-shell configuration' do
               proxyPolicy: #{proxy_policy}
               proxyHeaderTimeout: #{proxy_header_timeout}
               loginGraceTime: #{login_grace_time}
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:config) { t.dig('ConfigMap/test-gitlab-shell', 'data', 'config.yml.tpl') }
@@ -114,7 +114,7 @@ describe 'gitlab-shell configuration' do
 
     context 'when algorithms are configured' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitlab-shell:
               sshDaemon: "gitlab-sshd"
@@ -134,7 +134,7 @@ describe 'gitlab-shell configuration' do
                   - hmac-sha2-256-etm@openssh.com
                 publicKeyAlgorithms:
                   - ssh-rsa
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders gitlab-sshd config' do
@@ -174,7 +174,7 @@ describe 'gitlab-shell configuration' do
 
     with_them do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             shell:
               tcp:
@@ -185,7 +185,7 @@ describe 'gitlab-shell configuration' do
               config:
                 proxyProtocol: #{out_proxy_protocol}
                 proxyPolicy: #{proxy_policy}
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'should render NGINX ingress TCP data correctly' do
@@ -201,7 +201,7 @@ describe 'gitlab-shell configuration' do
 
   context 'When customer provides additional labels' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           common:
             labels:
@@ -225,7 +225,7 @@ describe 'gitlab-shell configuration' do
             serviceLabels:
               service: true
               global: service
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'Populates the additional labels in the expected manner' do
@@ -256,7 +256,7 @@ describe 'gitlab-shell configuration' do
       vals = { 'gitlab' => { 'gitlab-shell' => { 'config' => { 'lfs' => {} } } } }
       vals['gitlab']['gitlab-shell']['config']['lfs']['pureSSHProtocol'] = lfs_pure_ssh_protocol unless lfs_pure_ssh_protocol.nil?
 
-      vals.deep_merge(default_values)
+      default_values.deep_merge(vals)
     end
 
     let(:config) { t.dig('ConfigMap/test-gitlab-shell', 'data', 'config.yml.tpl') }
@@ -304,7 +304,7 @@ describe 'gitlab-shell configuration' do
       vals['gitlab']['gitlab-shell']['config']['pat']['enabled'] = enabled unless enabled.nil?
       vals['gitlab']['gitlab-shell']['config']['pat']['allowedScopes'] = allowed_scopes unless allowed_scopes.nil?
 
-      vals.deep_merge(default_values)
+      default_values.deep_merge(vals)
     end
 
     let(:config) { t.dig('ConfigMap/test-gitlab-shell', 'data', 'config.yml.tpl') }
@@ -367,11 +367,11 @@ describe 'gitlab-shell configuration' do
 
     context 'when unset (default)' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitlab-shell:
               sshDaemon: "gitlab-sshd"
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'does not render trusted_user_ca_keys in sshd config' do
@@ -392,7 +392,7 @@ describe 'gitlab-shell configuration' do
 
     context 'when secret is set but keys is empty' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitlab-shell:
               sshDaemon: "gitlab-sshd"
@@ -400,7 +400,7 @@ describe 'gitlab-shell configuration' do
                 trustedUserCAKeys:
                   secret: my-ca-keys-secret
                   keys: []
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'does not render trusted_user_ca_keys in sshd config' do
@@ -421,7 +421,7 @@ describe 'gitlab-shell configuration' do
 
     context 'when secret is configured with keys' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             gitlab-shell:
               sshDaemon: "gitlab-sshd"
@@ -431,7 +431,7 @@ describe 'gitlab-shell configuration' do
                   keys:
                     - ca1.pub
                     - ca2.pub
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders trusted_user_ca_keys with correct file paths' do

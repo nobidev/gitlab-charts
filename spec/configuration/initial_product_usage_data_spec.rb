@@ -22,12 +22,12 @@ describe 'initial_gitlab_product_usage_data configuration' do
 
   context 'when gitlabProductUsageData is set to false' do
     let(:test_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           appConfig:
             initialDefaults:
               gitlabProductUsageData: false
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'sets initial_gitlab_product_usage_data to false in configmaps' do
@@ -44,12 +44,12 @@ describe 'initial_gitlab_product_usage_data configuration' do
 
   context 'when gitlabProductUsageData is set to true' do
     let(:test_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           appConfig:
             initialDefaults:
               gitlabProductUsageData: true
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'sets initial_gitlab_product_usage_data to true in configmaps' do

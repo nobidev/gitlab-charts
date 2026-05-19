@@ -26,14 +26,14 @@ describe 'toolbox openbao database configuration' do
 
   context 'when global.openbao.psql.host is set' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           openbao:
             psql:
               host: openbao-db.example.com
               port: 5432
               database: openbao
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -147,7 +147,7 @@ describe 'toolbox openbao database configuration' do
 
   context 'when backupUser and restoreUser are configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           openbao:
             psql:
@@ -159,7 +159,7 @@ describe 'toolbox openbao database configuration' do
                 database:
                   backupUser: openbao_backup
                   restoreUser: openbao_restore
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -178,12 +178,12 @@ describe 'toolbox openbao database configuration' do
 
   context 'when neither backupUser nor restoreUser is configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           openbao:
             psql:
               host: openbao-db.example.com
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -196,7 +196,7 @@ describe 'toolbox openbao database configuration' do
 
   context 'when custom password secret is configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           openbao:
             psql:
@@ -210,7 +210,7 @@ describe 'toolbox openbao database configuration' do
                     secret: custom-openbao-secret
                     backupPasswordKey: myBackupKey
                     restorePasswordKey: myRestoreKey
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -231,12 +231,12 @@ describe 'toolbox openbao database configuration' do
 
   context 'when using the default password secret' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           openbao:
             psql:
               host: openbao-db.example.com
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -257,13 +257,13 @@ describe 'toolbox openbao database configuration' do
 
   context 'when sslMode is configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           openbao:
             psql:
               host: openbao-db.example.com
               sslMode: require
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -276,12 +276,12 @@ describe 'toolbox openbao database configuration' do
 
   context 'when sslMode is not configured (defaults to disable)' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           openbao:
             psql:
               host: openbao-db.example.com
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -294,13 +294,13 @@ describe 'toolbox openbao database configuration' do
 
   context 'when connectTimeout is configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           openbao:
             psql:
               host: openbao-db.example.com
               connectTimeout: "5"
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -313,12 +313,12 @@ describe 'toolbox openbao database configuration' do
 
   context 'when connectTimeout is not configured' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           openbao:
             psql:
               host: openbao-db.example.com
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -331,7 +331,7 @@ describe 'toolbox openbao database configuration' do
 
   context 'when global.psql.ssl is set and sslMode is non-disable' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           psql:
             ssl:
@@ -343,7 +343,7 @@ describe 'toolbox openbao database configuration' do
             psql:
               host: openbao-db.example.com
               sslMode: verify-full
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -358,7 +358,7 @@ describe 'toolbox openbao database configuration' do
 
   context 'when global.psql.ssl is set but sslMode is disable' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           psql:
             ssl:
@@ -370,7 +370,7 @@ describe 'toolbox openbao database configuration' do
             psql:
               host: openbao-db.example.com
               sslMode: disable
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }
@@ -385,7 +385,7 @@ describe 'toolbox openbao database configuration' do
 
   context 'when global.psql.ssl is set and sslMode is not configured (defaults to disable)' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           psql:
             ssl:
@@ -396,7 +396,7 @@ describe 'toolbox openbao database configuration' do
           openbao:
             psql:
               host: openbao-db.example.com
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(values) }

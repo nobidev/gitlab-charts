@@ -18,7 +18,7 @@ describe 'Webservice Deployments configuration' do
 
   context 'When customer provides additional labels' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           ingress:
             enabled: true
@@ -58,7 +58,7 @@ describe 'Webservice Deployments configuration' do
               foo: webservice_service
               ws_service: true
               global: service
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:web_deployment) do
@@ -239,7 +239,7 @@ describe 'Webservice Deployments configuration' do
 
   context 'gitlab.webservice.deployments has entries' do
     let(:deployments_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
       gitlab:
         webservice:
           ingress:
@@ -254,7 +254,7 @@ describe 'Webservice Deployments configuration' do
             internal:
                ingress:
                   path:
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:chart_deployments) { HelmTemplate.new(deployments_values) }
@@ -307,7 +307,7 @@ describe 'Webservice Deployments configuration' do
 
     context 'extraEnv configuration for deployments' do
       let(:extra_env_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
         global:
           extraEnv:
             GLOBAL_VAR: "global_value"
@@ -328,7 +328,7 @@ describe 'Webservice Deployments configuration' do
                 extraEnv:
                   API_SPECIFIC_VAR: "api_value"
                   GODEBUG: "foo=bar"
-        )).deep_merge(default_values)
+        )))
       end
 
       let(:chart_extra_env) { HelmTemplate.new(extra_env_values) }
@@ -364,21 +364,21 @@ describe 'Webservice Deployments configuration' do
 
   context 'deployments datamodel' do
     let(:test_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
       gitlab:
         webservice:
           deployments:
             test:
               ingress:
                 path: /
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:datamodel) { HelmTemplate.new(test_values) }
 
     context 'when no Ingress has "path: /"' do
       let(:test_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           webservice:
             ingress:
@@ -387,7 +387,7 @@ describe 'Webservice Deployments configuration' do
               test:
                 ingress:
                   path:
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'template fails' do
@@ -397,7 +397,7 @@ describe 'Webservice Deployments configuration' do
 
     context 'value inheritance and merging' do
       let(:test_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
         global:
           extraEnv:
             GLOBAL: present
@@ -496,7 +496,7 @@ describe 'Webservice Deployments configuration' do
                     secretKeyRef:
                       key: "SecretOverridden"
                       name: "SecretOverridden"
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'templates successfully' do
@@ -654,7 +654,7 @@ describe 'Webservice Deployments configuration' do
 
     context 'local ingress provider annotations' do
       let(:deployments_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             webservice:
               ingress:
@@ -667,7 +667,7 @@ describe 'Webservice Deployments configuration' do
                   ingress:
                     path: /second
                     provider: second-provider
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'properly sets the ingress providers' do
@@ -681,7 +681,7 @@ describe 'Webservice Deployments configuration' do
 
     context 'global ingress provider annotations' do
       let(:deployments_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             ingress:
               provider: global-provider
@@ -697,7 +697,7 @@ describe 'Webservice Deployments configuration' do
                   ingress:
                     path: /second
                     provider: second-provider
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'properly sets the ingress providers' do
@@ -712,7 +712,7 @@ describe 'Webservice Deployments configuration' do
 
   context 'shutdown.blackoutSeconds' do
     let(:chart_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           webservice:
             shutdown:
@@ -728,7 +728,7 @@ describe 'Webservice Deployments configuration' do
               c:
                 ingress:
                   path: /c
-        )).deep_merge(default_values)
+        )))
     end
 
     let(:deployment_values) do
@@ -767,7 +767,7 @@ describe 'Webservice Deployments configuration' do
 
   context 'when workhorse keywatcher flag is enabled' do
     let(:deployments_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           webservice:
             deployments:
@@ -784,7 +784,7 @@ describe 'Webservice Deployments configuration' do
                   keywatcher: false
                 ingress:
                   path:
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'configmap is generated' do
@@ -806,7 +806,7 @@ describe 'Webservice Deployments configuration' do
 
   context 'when emptyDir is customized' do
     let(:deployments_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           webservice:
             sharedTmpDir:
@@ -814,7 +814,7 @@ describe 'Webservice Deployments configuration' do
             sharedUploadDir:
               sizeLimit: 2G
               medium: Memory
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'properly sets values' do
@@ -874,7 +874,7 @@ describe 'Webservice Deployments configuration' do
   context 'when HTTPS is active' do
     let(:http_enabled) { true }
     let(:deployments_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           webservice:
             http:
@@ -885,7 +885,7 @@ describe 'Webservice Deployments configuration' do
               tls:
                 externalPort: 8081
                 internalPort: 8081
-      )).deep_merge(default_values)
+      )))
     end
 
     context 'with both HTTPS and HTTP' do
@@ -996,13 +996,13 @@ describe 'Webservice Deployments configuration' do
 
   context 'when workhorse health check is enabled' do
     let(:deployments_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           webservice:
             workhorse:
               healthcheckListener:
                 enabled: true
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'preStop hooks and readiness probes configured properly for workhorse and gitlab-workhorse containers' do
@@ -1022,13 +1022,13 @@ describe 'Webservice Deployments configuration' do
 
   context "Gateway API" do
     let(:deployment_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           gatewayApi:
             enabled: true
           ingress:
             enabled: false
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:template) { HelmTemplate.new(deployment_values) }

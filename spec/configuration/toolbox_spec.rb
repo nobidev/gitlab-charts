@@ -28,7 +28,7 @@ describe 'toolbox configuration' do
 
   context 'When customer provides additional labels' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           common:
             labels:
@@ -48,7 +48,7 @@ describe 'toolbox configuration' do
             podLabels:
               pod: true
               global: pod
-      )).deep_merge(default_values)
+      )))
     end
     it 'Populates the additional labels in the expected manner' do
       t = HelmTemplate.new(values)
@@ -117,12 +117,12 @@ describe 'toolbox configuration' do
     context 'on custom fsGroupChangePolicy' do
       let(:fs_gc_policy) { 'OnRootMismatch' }
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           gitlab:
             toolbox:
               securityContext:
                 fsGroupChangePolicy: #{fs_gc_policy}
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'fsGroupChangePolicy should be populated' do
@@ -289,7 +289,7 @@ describe 'toolbox configuration' do
 
     context 'when the global value is set' do
       let(:global_values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             extraEnvFrom:
               EXTRA_ENV_VAR_B:
@@ -304,7 +304,7 @@ describe 'toolbox configuration' do
                 secretKeyRef:
                   key: "keyD"
                   name: "nameD"
-        )).deep_merge(default_values)
+        )))
       end
 
       let(:global_template) { HelmTemplate.new(global_values) }

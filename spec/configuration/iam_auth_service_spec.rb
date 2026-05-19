@@ -37,7 +37,7 @@ describe 'iamAuthService templates' do
   describe 'gitlab.appConfig.iamAuthService.authToken.key' do
     context 'when no custom key name provided' do
       let(:values) do
-        enabled_values.deep_merge!(default_values)
+        default_values.deep_merge(enabled_values)
       end
 
       it 'returns the default key name' do
@@ -50,13 +50,13 @@ describe 'iamAuthService templates' do
 
     context 'when custom key name provided' do
       let(:values) do
-        enabled_values.deep_merge!(YAML.safe_load(%(
+        default_values.deep_merge(enabled_values.deep_merge(YAML.safe_load(%(
           global:
             appConfig:
               iamAuthService:
                 authToken:
                   key: custom-iam-key
-        ))).deep_merge!(default_values)
+        ))))
       end
 
       it 'returns the custom key name' do
@@ -71,7 +71,7 @@ describe 'iamAuthService templates' do
   describe 'gitlab.appConfig.iamAuthService.authToken.secret' do
     context 'when no custom secret name provided' do
       let(:values) do
-        enabled_values.deep_merge!(default_values)
+        default_values.deep_merge(enabled_values)
       end
 
       it 'returns the default secret name' do
@@ -84,13 +84,13 @@ describe 'iamAuthService templates' do
 
     context 'when iamAuthService is enabled with custom secret' do
       let(:values) do
-        enabled_values.deep_merge!(YAML.safe_load(%(
+        default_values.deep_merge(enabled_values.deep_merge(YAML.safe_load(%(
           global:
             appConfig:
               iamAuthService:
                 authToken:
                   secret: custom-iam-auth-secret
-        ))).deep_merge!(default_values)
+        ))))
       end
 
       it 'returns the custom secret name' do
@@ -119,12 +119,12 @@ describe 'iamAuthService templates' do
 
     context 'when iamAuthService is disabled' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             appConfig:
               iamAuthService:
                 enabled: false
-        )).deep_merge!(default_values)
+        )))
       end
 
       it 'does not mount any secrets' do
@@ -138,7 +138,7 @@ describe 'iamAuthService templates' do
 
     context 'when iamAuthService is enabled' do
       let(:values) do
-        enabled_values.deep_merge!(default_values)
+        default_values.deep_merge(enabled_values)
       end
 
       it 'mounts shared secret on webservice, sidekiq, and toolbox deployments' do

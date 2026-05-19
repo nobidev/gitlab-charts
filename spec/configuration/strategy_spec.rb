@@ -9,7 +9,7 @@ describe 'Strategy configuration' do
   end
 
   let(:chart_values) do
-    YAML.safe_load(%(
+    default_values.deep_merge(YAML.safe_load(%(
       global:
         kas:
           enabled: true
@@ -86,7 +86,7 @@ describe 'Strategy configuration' do
         deployment:
           strategy:
             type: Recreate
-    )).deep_merge(default_values)
+    )))
   end
 
   let(:ignored_charts) do

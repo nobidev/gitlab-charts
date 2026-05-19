@@ -290,7 +290,7 @@ describe 'Mailroom configuration' do
 
   context 'When using sidekiq deliveryMethod' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           redis:
             host: external-redis
@@ -303,7 +303,7 @@ describe 'Mailroom configuration' do
               incomingEmail:
                 enabled: true
                 deliveryMethod: sidekiq
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'does not include the resque:gitlab namespace' do
@@ -314,7 +314,7 @@ describe 'Mailroom configuration' do
 
   context 'When global.redis is present' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           redis:
             port: 9999
@@ -322,7 +322,7 @@ describe 'Mailroom configuration' do
               enable: true
               secret: external-redis-secret
               key: external-redis-key
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'Populates configured external host, port, password' do
@@ -369,7 +369,7 @@ describe 'Mailroom configuration' do
 
     context 'when Sentinel password is used' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: external-redis
@@ -387,7 +387,7 @@ describe 'Mailroom configuration' do
                 enabled: true
                 secret: redis-sentinel-secret
                 key: password
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'populates Sentinel password' do
@@ -413,7 +413,7 @@ describe 'Mailroom configuration' do
 
   context 'When global.redis.queues is present' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           redis:
             host: resque.redis
@@ -427,7 +427,7 @@ describe 'Mailroom configuration' do
               password:
                 secret: redis-queues-secret
                 key: redis-queues-key
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'populates the Queues host, port, password (without Sentinels)' do
@@ -466,12 +466,12 @@ describe 'Mailroom configuration' do
 
   context 'When customer provides additional annotations' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         gitlab:
           mailroom:
             annotations:
               test-annotation: mailroom-annotation-value
-      )).deep_merge(default_values)
+      )))
     end
     it 'Populates the additional annotations in the expected manner' do
       t = HelmTemplate.new(values)
@@ -482,7 +482,7 @@ describe 'Mailroom configuration' do
 
   context 'When customer provides additional labels' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           common:
             labels:
@@ -505,7 +505,7 @@ describe 'Mailroom configuration' do
             serviceAccount:
               create: true
               enabled: true
-      )).deep_merge(default_values)
+      )))
     end
     it 'Populates the additional labels in the expected manner' do
       t = HelmTemplate.new(values)
@@ -819,7 +819,7 @@ describe 'Mailroom configuration' do
   context 'with Redis TLS' do
     context 'when Redis scheme is rediss with TLS certificates' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               scheme: rediss
@@ -836,7 +836,7 @@ describe 'Mailroom configuration' do
             appConfig:
               incomingEmail:
                 enabled: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders the template without error' do
@@ -872,7 +872,7 @@ describe 'Mailroom configuration' do
   context 'with Sentinel TLS' do
     context 'when Sentinel TLS is enabled with mutual TLS' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               host: global.host
@@ -895,7 +895,7 @@ describe 'Mailroom configuration' do
             appConfig:
               incomingEmail:
                 enabled: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders the template without error' do
@@ -937,7 +937,7 @@ describe 'Mailroom configuration' do
   context 'with both Redis TLS and Sentinel TLS enabled' do
     context 'when both Redis and Sentinel TLS are enabled with mutual TLS' do
       let(:values) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             redis:
               scheme: rediss
@@ -971,7 +971,7 @@ describe 'Mailroom configuration' do
             appConfig:
               incomingEmail:
                 enabled: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'renders the template without error' do

@@ -73,11 +73,11 @@ describe 'some feature' do
 
   describe 'global.feature.enabled' do
     let(:values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           feature:
             enabled: true
-      )).deep_merge(default_values)
+      )))
     end
 
     ...

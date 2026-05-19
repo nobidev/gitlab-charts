@@ -29,7 +29,7 @@ describe 'global configuration' do
 
     context 'global enabled, local unset' do
       let(:global_service_account) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             serviceAccount:
               enabled: true
@@ -37,7 +37,7 @@ describe 'global configuration' do
           gitlab:
             gitaly:
               serviceAccount: {}
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'serviceaccount token for gitaly' do
@@ -51,7 +51,7 @@ describe 'global configuration' do
 
     context 'global enabled, local disabled' do
       let(:global_service_account) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             serviceAccount:
               enabled: true
@@ -60,7 +60,7 @@ describe 'global configuration' do
             gitaly:
               serviceAccount:
                 automountServiceAccountToken: false
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'serviceaccount token for gitaly' do
@@ -74,7 +74,7 @@ describe 'global configuration' do
 
     context 'global enabled, local enabled' do
       let(:global_service_account) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             serviceAccount:
               enabled: true
@@ -83,7 +83,7 @@ describe 'global configuration' do
             gitaly:
               serviceAccount:
                 automountServiceAccountToken: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'serviceaccount token for gitaly' do
@@ -97,7 +97,7 @@ describe 'global configuration' do
 
     context 'global disabled, local enabled' do
       let(:global_service_account) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             serviceAccount:
               enabled: true
@@ -106,7 +106,7 @@ describe 'global configuration' do
             gitaly:
               serviceAccount:
                 automountServiceAccountToken: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'serviceaccount token for gitaly' do
@@ -125,7 +125,7 @@ describe 'global configuration' do
 
     context 'global enabled, local unset' do
       let(:nginx_service_account) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             serviceAccount:
               enabled: true
@@ -136,7 +136,7 @@ describe 'global configuration' do
             defaultBackend:
               enabled: true
               serviceAccount: {}
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'serviceaccount token for nginx-ingress' do
@@ -152,7 +152,7 @@ describe 'global configuration' do
 
     context 'global enabled, local disabled' do
       let(:nginx_service_account) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             serviceAccount:
               enabled: true
@@ -165,7 +165,7 @@ describe 'global configuration' do
               enabled: true
               serviceAccount:
                 automountServiceAccountToken: false
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'serviceaccount token for nginx-ingress' do
@@ -181,7 +181,7 @@ describe 'global configuration' do
 
     context 'global disable, local enabled' do
       let(:nginx_service_account) do
-        YAML.safe_load(%(
+        default_values.deep_merge(YAML.safe_load(%(
           global:
             serviceAccount:
               enabled: true
@@ -194,7 +194,7 @@ describe 'global configuration' do
               enabled: true
               serviceAccount:
                 automountServiceAccountToken: true
-        )).deep_merge(default_values)
+        )))
       end
 
       it 'serviceaccount token for nginx-ingress' do
@@ -211,7 +211,7 @@ describe 'global configuration' do
 
   describe 'registry and geo sync enabled' do
     let(:registry_notifications) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           geo:
             enabled: true
@@ -226,7 +226,7 @@ describe 'global configuration' do
             password:
               secret: geo
               key: postgresql-password
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'configures the notification endpoint' do
@@ -248,7 +248,7 @@ describe 'global configuration' do
 
   describe 'registry and geo sync enabled with other notifiers' do
     let(:registry_notifications) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           geo:
             enabled: true
@@ -279,7 +279,7 @@ describe 'global configuration' do
                     SpecificPassword:
                       secret: gitlab-registry-specific-password
                       key: password
-      )).deep_merge(default_values)
+      )))
     end
 
     it 'all notifications are included' do
@@ -300,11 +300,11 @@ describe 'global configuration' do
 
   describe 'global.shell.port: SSH is to be use on an alternate port' do
     let(:shell_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         global:
           shell:
             port: 9999
-      )).deep_merge(default_values)
+      )))
     end
 
     # We need to look for any ConfigMap that has `gitlab.yml.erb` and ensure it contains the necessary strings
@@ -324,7 +324,7 @@ describe 'global configuration' do
 
   describe 'global.image.tagSuffix: add a string to the end of all image tags' do
     let(:shell_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         installCertmanager: false
         global:
           image:
@@ -350,7 +350,7 @@ describe 'global configuration' do
           controller:
             image:
               tag: fixed-version
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:ignored_deployments) do
@@ -400,7 +400,7 @@ describe 'global configuration' do
 
   describe 'global.time_zone: set timezone for each GitLab pod' do
     let(:tz_values) do
-      YAML.safe_load(%(
+      default_values.deep_merge(YAML.safe_load(%(
         installCertmanager: false
         global:
           time_zone: "America/Chicago"
@@ -412,7 +412,7 @@ describe 'global configuration' do
             configureCertmanager: false
           job:
             nameSuffixOverride: '1'
-      )).deep_merge(default_values)
+      )))
     end
 
     let(:ignored_deployments) do
