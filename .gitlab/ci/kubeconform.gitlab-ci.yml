@@ -1,5 +1,5 @@
 .kubeconform:
-  stage: preflight
+  stage: test
   when: always
   script:
     - kubectl version --client=true --output=json
@@ -21,7 +21,6 @@
     - if: '$PIPELINE_TYPE =~ /_MR_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE == "NIGHTLY_PIPELINE"'
-  needs: ['lint_package']
 kubeconform:
   extends: .kubeconform
   parallel:
