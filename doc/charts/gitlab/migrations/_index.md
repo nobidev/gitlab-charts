@@ -58,7 +58,7 @@ Table below contains all the possible charts configurations that can be supplied
 | `enabled`                                                | `true`                                                       | Migrations enable flag |
 | `tolerations`                                            | `[]`                                                         | Toleration labels for pod assignment |
 | `affinity`                                               | `{}`                                                         | [Affinity rules](../_index.md#affinity) for pod assignment |
-| `annotations`                                            | `{}`                                                         | Annotations for the job spec |
+| `annotations`                                            | `{}`                                                         | Annotations for the job and ConfigMap spec |
 | `podAnnotations`                                         | `{}`                                                         | Annotations for the pod spec |
 | `podLabels`                                              |                                                              | Supplemental Pod labels. Will not be used for selectors. |
 | `psql.password.secret`                                   | `gitlab-postgres`                                            | `psql` secret |
