@@ -298,7 +298,8 @@ gitlab:
 
 The default secret name is `RELEASE-toolbox-openbao-database-password`, where
 `RELEASE` is replaced by the Helm release name (usually `gitlab`). Create the
-Kubernetes secret before deploying:
+Kubernetes secret with the backup and restore passwords. Any backup that runs
+before the secret is setup, skips the OpenBao database with a warning.
 
 ```shell
 kubectl create secret generic <RELEASE>-toolbox-openbao-database-password \

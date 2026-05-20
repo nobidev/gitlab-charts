@@ -95,10 +95,8 @@ For more information, see [OpenBao upgrade documentation](https://openbao.org/do
 
 A complete OpenBao backup includes:
 
-- The unseal key Kubernetes secret. With static auto-unseal (the default), back up the
-  `<release>-openbao-static-unseal` secret. With AWS KMS auto-unseal there is no Kubernetes
-  unseal secret to back up; preserve the AWS KMS key itself instead.
-- The OpenBao PostgreSQL database.
+- OpenBao unseal key
+- OpenBao PostgreSQL database
 
 The Toolbox backs up the OpenBao database as part of the standard GitLab backup, when backup
 credentials are configured. See
