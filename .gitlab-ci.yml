@@ -475,8 +475,11 @@ k3d:
   parallel:
     matrix:
       - K3D_K8S_IMAGE: "rancher/k3s:v1.33.3-k3s1"
+        K3D_K8S_VERSION_SLUG: "v133"
       - K3D_K8S_IMAGE: "rancher/k3s:v1.34.1-k3s1"
+        K3D_K8S_VERSION_SLUG: "v134"
       - K3D_K8S_IMAGE: "rancher/k3s:v1.35.0-k3s1"
+        K3D_K8S_VERSION_SLUG: "v135"
         K3D_PRIMARY: "primary"
   rules:
     - !reference [.rule:skip_if_fork]
@@ -497,6 +500,7 @@ k3d_arm64:
   parallel:
     matrix:
       - K3D_K8S_IMAGE: "rancher/k3s:v1.35.0-k3s1"
+        K3D_K8S_VERSION_SLUG: "v135-arm64"
   rules:
     - !reference [.rule:skip_if_fork]
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
@@ -518,6 +522,7 @@ k3d_nginx:
   parallel:
     matrix:
       - K3D_K8S_IMAGE: "rancher/k3s:v1.35.0-k3s1"
+        K3D_K8S_VERSION_SLUG: "v135-nginx"
   rules:
     - !reference [.rule:skip_if_fork]
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'

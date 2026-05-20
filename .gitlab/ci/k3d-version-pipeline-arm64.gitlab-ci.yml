@@ -6,8 +6,12 @@
 include:
   - component: "gitlab.com/gitlab-org/quality/pipeline-common/allure-report@9.6.3"
     inputs:
-      job_name: "e2e-report-k3d-arm64"
+      job_name: "e2e-report-k3d"
       job_stage: "qa-report"
+      # ALLURE_JOB_NAME keys the S3 prefix and MR comment marker. The bridge sets
+      # K3D_K8S_VERSION_SLUG (e.g. v135-arm64) per matrix row so the report
+      # posts a distinct section to the MR and never collides with AMD64 reports.
+      allure_job_name: "e2e-report-k3d-${K3D_K8S_VERSION_SLUG}"
       gitlab_auth_token_variable_name: "DANGER_GITLAB_API_TOKEN"
       aws_access_key_id_variable_name: "QA_ALLURE_AWS_ACCESS_KEY_ID"
       aws_secret_access_key_variable_name: "QA_ALLURE_AWS_SECRET_ACCESS_KEY"
