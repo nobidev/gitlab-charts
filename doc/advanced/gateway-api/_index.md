@@ -177,7 +177,7 @@ for details.
 
 #### HTTP-only mode
 
-To expose GitLab over HTTP (for example when TLS is terminated upstream), set the chart-managed
+To expose GitLab over HTTP (for example, when TLS is terminated upstream), set the chart-managed
 Gateway to HTTP:
 
 ```yaml
