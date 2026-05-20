@@ -252,4 +252,11 @@ generate_secret_if_needed {{ template "ai-gateway.duoWorkflowSigningKey.secret" 
 # Duo workflow validation key
 openssl genrsa -out duo_workflow_validation.key 4096
 generate_secret_if_needed {{ template "ai-gateway.duoWorkflowValidationKey.secret" . }} --from-file={{ template "ai-gateway.duoWorkflowValidationKey.key" . }}=duo_workflow_validation.key
+
+openssl genrsa -out aigw_signing.key 4096
+generate_secret_if_needed {{ template "ai-gateway.aigwSigningKey.secret" . }} --from-file={{ template "ai-gateway.aigwSigningKey.key" . }}=aigw_signing.key
+
+# AI Gateway validation key
+openssl genrsa -out aigw_validation.key 4096
+generate_secret_if_needed {{ template "ai-gateway.aigwValidationKey.secret" . }} --from-file={{ template "ai-gateway.aigwValidationKey.key" . }}=aigw_validation.key
 {{ end }}

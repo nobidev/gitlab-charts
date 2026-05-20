@@ -61,6 +61,7 @@ documentation.
   - [Praefect DB password](#praefect-db-password)
   - [Registry HTTP secret](#registry-http-secret)
   - [Registry notification secret](#registry-notification-secret)
+  - [AI Gateway secret](#ai-gateway-secret)
   - [GitLab Pages secret](#gitlab-pages-secret)
   - [GitLab incoming email auth token](#gitlab-incoming-email-auth-token)
   - [GitLab Service Desk email auth token](#gitlab-service-desk-email-auth-token)
@@ -324,6 +325,28 @@ kubectl create secret generic <name>-registry-notification --from-literal=secret
 ```
 
 This secret is referenced by the `global.registry.notificationSecret.secret` setting.
+
+### AI Gateway secret
+
+Generate RSA 4096-bit keys for the duo workflow signing key, the duo workflow validation key, 
+the AI Gateway signing key and the AI Gateway validation key. You can generate those keys with the following openssl commands:
+
+```shell
+openssl genrsa -out duo_workflow_signing.key 4096
+openssl genrsa -out duo_workflow_validation.key 4096
+openssl genrsa -out aigw_signing.key 4096
+openssl genrsa -out aigw_validation.key 4096
+```
+
+You can then generate a secret for each of them. Replace `<name>` with
+the name of the release:
+
+```shell
+kubectl create secret generic <name>-ai-gateway-duo-workflow-signing-secret --from-file=duoWorkflowSigningKey=duo_workflow_signing.key
+kubectl create secret generic <name>-ai-gateway-duo-workflow-validation-secret --from-file=duoWorkflowValidationKey=duo_workflow_validation.key
+kubectl create secret generic <name>-ai-gateway-aigw-signing-secret --from-file=aigwSigningKey=aigw_signing.key
+kubectl create secret generic <name>-ai-gateway-aigw-validation-secret --from-file=aigwValidationKey=aigw_validation.key
+```
 
 ### Praefect DB password
 
