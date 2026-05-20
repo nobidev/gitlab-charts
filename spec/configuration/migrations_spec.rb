@@ -77,6 +77,7 @@ describe 'migrations configuration' do
       expect(t.dig('Job/test-migrations-1', 'metadata', 'annotations')).to include('foo' => 'bar')
       expect(t.dig('Job/test-migrations-1', 'metadata', 'annotations')).to include('bar' => 'foo')
       expect(t.dig('Job/test-migrations-1', 'metadata', 'annotations')).not_to include('baz' => 'baz')
+      expect(t.dig('ConfigMap/test-migrations', 'metadata', 'annotations')).to include('foo' => 'bar')
       expect(t.dig('Job/test-migrations-1', 'spec', 'template', 'metadata', 'annotations')).to include('foo' => 'foo')
       expect(t.dig('Job/test-migrations-1', 'spec', 'template', 'metadata', 'annotations')).to include('bar' => 'foo')
       expect(t.dig('Job/test-migrations-1', 'spec', 'template', 'metadata', 'annotations')).to include('baz' => 'baz')
