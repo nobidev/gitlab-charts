@@ -416,6 +416,10 @@ global:
       enabled: false
       bucket: gitlab-ci-secure-files
       connection: {}
+    agentPlanContent:
+      enabled: false
+      bucket: gitlab-agent-plan-content
+      connection: {}
     dependencyProxy:
       enabled: false
       proxy_download: true

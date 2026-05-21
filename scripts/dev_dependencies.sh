@@ -81,6 +81,9 @@ global:
     ciSecureFiles:
       enabled: true
       bucket: gitlab-ci-secure-files
+    agentPlanContent:
+      enabled: true
+      bucket: gitlab-agent-plan-content
     dependencyProxy:
       enabled: true
       bucket: gitlab-dependency-proxy

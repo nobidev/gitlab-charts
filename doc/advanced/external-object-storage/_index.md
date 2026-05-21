@@ -106,10 +106,12 @@ Examples for [S3](https://distribution.github.io/distribution/storage-drivers/s3
 1. Follow [registry chart documentation on storage](../../charts/registry/_index.md#storage) for creating the secret.
 1. Configure the chart as documented.
 
-## LFS, Artifacts, Uploads, Packages, External Diffs, Terraform State, Dependency Proxy, Secure Files
+<!-- markdownlint-disable MD013 -->
+## LFS, Artifacts, Uploads, Packages, External Diffs, Terraform State, Dependency Proxy, Secure Files, Agent Plans
+<!-- markdownlint-enable MD013 -->
 
 Configuration of object storage for LFS, artifacts, uploads, packages, external
-diffs, Terraform state, Secure Files, and pseudonymizer is done via the following keys:
+diffs, Terraform state, Secure Files, Agent Plans, and pseudonymizer is done via the following keys:
 
 - `global.appConfig.lfs`
 - `global.appConfig.artifacts`
@@ -119,6 +121,7 @@ diffs, Terraform state, Secure Files, and pseudonymizer is done via the followin
 - `global.appConfig.dependencyProxy`
 - `global.appConfig.terraformState`
 - `global.appConfig.ciSecureFiles`
+- `global.appConfig.agentPlanContent`
 
 Note also that:
 
@@ -166,6 +169,10 @@ Below is an example of the configuration options:
 --set global.appConfig.ciSecureFiles.bucket=gitlab-ci-secure-files
 --set global.appConfig.ciSecureFiles.connection.secret=object-storage
 --set global.appConfig.ciSecureFiles.connection.key=connection
+
+--set global.appConfig.agentPlanContent.bucket=gitlab-agent-plan-content
+--set global.appConfig.agentPlanContent.connection.secret=object-storage
+--set global.appConfig.agentPlanContent.connection.key=connection
 ```
 
 See the [charts/globals documentation on appConfig](../../charts/globals.md#configure-appconfig-settings) for full details.
