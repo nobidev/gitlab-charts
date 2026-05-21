@@ -276,11 +276,11 @@ CREATE ROLE registry_restore WITH LOGIN PASSWORD '<restore_password>'
 ### OpenBao database credentials
 
 If you use the [OpenBao chart](../../openbao/_index.md), configure the Toolbox with OpenBao
-database credentials for backup and restore. Connection parameters (host, port, database name,
-SSL mode) are sourced from `global.openbao.psql`; when SSL is enabled, the certificates
-themselves come from `global.psql.ssl`. Assuming `global.openbao.psql` is already configured for
-the OpenBao chart, you only need to supply the database usernames and password secret in the
-Toolbox values:
+database credentials for backup and restore. Connection parameters (host, port, database name, SSL mode)
+are sourced from `global.openbao.psql`. When SSL is enabled, the certificates come from `global.psql.ssl`.
+
+Assuming `global.openbao.psql` is already configured for the OpenBao chart, you only need to supply
+the database usernames and password secret in the Toolbox values:
 
 ```yaml
 gitlab:
@@ -297,7 +297,7 @@ gitlab:
 ```
 
 The default secret name is `RELEASE-toolbox-openbao-database-password`, where
-`RELEASE` is replaced by the Helm release name (usually `gitlab`). Create the
+`RELEASE` is replaced by the Helm release name (defaults to `gitlab`). Create the
 Kubernetes secret with the backup and restore passwords.
 
 ```shell
@@ -307,7 +307,7 @@ kubectl create secret generic <RELEASE>-toolbox-openbao-database-password \
 ```
 
 The credentials are mounted into the Toolbox pod at `/etc/gitlab/openbao-db/`. They are
-available in the long-running Toolbox deployment, and in the backup CronJob when
+available in the long-running Toolbox deployment, and in the backup cron job when
 `backups.cron.enabled` is `true`.
 
 If the credential files are missing, the OpenBao database backup is skipped with a warning.
@@ -318,7 +318,7 @@ If the files exist but the password file is unreadable or empty, the backup fail
 The backup and restore users require different privilege levels on the OpenBao database.
 Create these users in PostgreSQL before running a backup or restore.
 
-The **backup user** needs read-only access for `pg_dump`:
+The backup user needs read-only access for `pg_dump`:
 
 ```sql
 CREATE ROLE openbao_backup WITH LOGIN PASSWORD '<backup_password>'
@@ -336,13 +336,12 @@ ALTER DEFAULT PRIVILEGES FOR ROLE openbao IN SCHEMA public
 ```
 
 The `ALTER DEFAULT PRIVILEGES` statements ensure the backup user automatically receives
-`SELECT` on any tables or sequences the OpenBao owner creates in the future. The example
-uses `openbao` as the owner role; replace it with whatever you set as
-`global.openbao.psql.username`.
+`SELECT` on any tables or sequences the OpenBao owner creates in the future. Replace `openbao` as the owner role
+in the example with whatever you set as `global.openbao.psql.username`.
 
-The **restore user** needs `SUPERUSER` because the dump produced by `pg_dump` includes
+The restore user needs `SUPERUSER` because the dump produced by `pg_dump` includes
 `ALTER TABLE ... OWNER TO <owner>` statements (`pg_dump` runs without `--no-owner`). Applying
-these requires either the original owner role or `SUPERUSER`; `SUPERUSER` is the simplest option
+these requires either the original owner role or `SUPERUSER`, but `SUPERUSER` is the simplest option
 for the restore user.
 
 ```sql

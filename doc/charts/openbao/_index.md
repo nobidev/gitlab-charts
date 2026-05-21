@@ -93,14 +93,13 @@ For more information, see [OpenBao upgrade documentation](https://openbao.org/do
 
 ## Back up OpenBao
 
-A complete OpenBao backup includes:
+A complete OpenBao backup includes the:
 
 - OpenBao unseal key
 - OpenBao PostgreSQL database
 
-The Toolbox backs up the OpenBao database as part of the standard GitLab backup, when backup
-credentials are configured. See
-[OpenBao database credentials](../gitlab/toolbox/_index.md#openbao-database-credentials).
+The Toolbox backs up the OpenBao database as part of the standard GitLab backup, when
+backup [credentials](../gitlab/toolbox/_index.md#openbao-database-credentials) are configured.
 
 Back up the OpenBao database at the same time as the main GitLab PostgreSQL database to avoid
 data inconsistencies.
@@ -111,14 +110,13 @@ The Toolbox restores the OpenBao database as part of the standard GitLab restore
 [OpenBao database credentials](../gitlab/toolbox/_index.md#openbao-database-credentials) to
 configure restore credentials.
 
-Before restoring an OpenBao backup, note the current replica count so you can restore it
-afterward, then scale down OpenBao so the running pod does not race the `DROP TABLE` and
-`CREATE TABLE` statements in the dump:
+1. Note the current replica count so you can restore it afterward.
+1. Scale down OpenBao so the running pod does not race the `DROP TABLE` and `CREATE TABLE` statements in the dump:
 
-```shell
-kubectl get deploy -lapp.kubernetes.io/name=openbao,app.kubernetes.io/instance=<helm release name> -n <namespace>
-kubectl scale deploy -lapp.kubernetes.io/name=openbao,app.kubernetes.io/instance=<helm release name> -n <namespace> --replicas=0
-```
+   ```shell
+   kubectl get deploy -lapp.kubernetes.io/name=openbao,app.kubernetes.io/instance=<helm release name> -n <namespace>
+   kubectl scale deploy -lapp.kubernetes.io/name=openbao,app.kubernetes.io/instance=<helm release name> -n <namespace> --replicas=0
+   ```
 
 After the restore completes, scale OpenBao back to its previous replica count so it reads from
 the restored database:
