@@ -84,7 +84,8 @@ title: 컨테이너 레지스트리 메타데이터 데이터베이스
 
 ## 기본 제공 메타데이터 데이터베이스 생성 {#create-a-built-in-metadata-database}
 
-> [!warning] 기본 제공 클라우드 네이티브 메타데이터 데이터베이스는 평가판 용도로만 사용할 수 있습니다. 프로덕션에서는 사용하지 마세요.
+> [!warning]
+> 기본 제공 클라우드 네이티브 메타데이터 데이터베이스는 평가판 용도로만 사용할 수 있습니다. 프로덕션에서는 사용하지 마세요.
 
 ## 메타데이터 데이터베이스 활성화 {#enable-the-metadata-database}
 
@@ -101,7 +102,8 @@ title: 컨테이너 레지스트리 메타데이터 데이터베이스
 
 또한 Registry 관리 가이드의 [시작하기 전에](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/#before-you-start) 섹션을 읽으세요.
 
-> [!note] 다양한 테스트 및 사용자 레지스트리에 대한 가져오기 시간 목록은 [문제 423459의 이 테이블](https://gitlab.com/gitlab-org/gitlab/-/issues/423459#completed-tests-and-user-reports)을 참조하세요. 레지스트리 배포는 고유하며 가져오기 시간이 문제에서 보고된 것보다 길 수 있습니다.
+> [!note]
+> 다양한 테스트 및 사용자 레지스트리에 대한 가져오기 시간 목록은 [문제 423459의 이 테이블](https://gitlab.com/gitlab-org/gitlab/-/issues/423459#completed-tests-and-user-reports)을 참조하세요. 레지스트리 배포는 고유하며 가져오기 시간이 문제에서 보고된 것보다 길 수 있습니다.
 
 ### 새 레지스트리에 대해 활성화 {#enable-for-new-registries}
 
@@ -165,7 +167,8 @@ title: 컨테이너 레지스트리 메타데이터 데이터베이스
 - 클러스터에서 실행 중인 레지스트리 팟(Pod)의 개수.
 - 레지스트리, PostgreSQL 및 구성된 Object Storage 간의 네트워크 지연.
 
-> [!note] 가져오기 프로세스를 자동화하는 작업은 [문제 5293](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/5293)에서 추적 중입니다.
+> [!note]
+> 가져오기 프로세스를 자동화하는 작업은 [문제 5293](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/5293)에서 추적 중입니다.
 
 한 단계 또는 세 단계 가져오기를 시도하기 전에 릴리스의 현재 Helm 값을 가져와 파일로 저장하세요. 예를 들어 `gitlab`이라는 릴리스와 `values.yml`이라는 파일의 경우:
 
@@ -272,13 +275,15 @@ helm get values gitlab > values.yml
 1. 모든 저장소 데이터 가져오기
 1. 일반 BLOB 가져오기
 
-> [!note] 사용자는 1단계 가져오기가 [시간당 2~4TB의 속도](https://gitlab.com/gitlab-org/gitlab/-/issues/423459)로 완료되었다고 보고했습니다. 더 느린 속도로 100TB 이상의 데이터가 있는 레지스트리는 48시간 이상이 소요될 수 있습니다.
+> [!note]
+> 사용자는 1단계 가져오기가 [시간당 2~4TB의 속도](https://gitlab.com/gitlab-org/gitlab/-/issues/423459)로 완료되었다고 보고했습니다. 더 느린 속도로 100TB 이상의 데이터가 있는 레지스트리는 48시간 이상이 소요될 수 있습니다.
 
 ##### 단계 1. 저장소 사전 가져오기 {#step-1-pre-import-repositories}
 
 더 큰 인스턴스의 경우 이 프로세스는 레지스트리 크기에 따라 몇 시간 또는 심지어 며칠이 걸릴 수 있습니다. 이 프로세스 중에 레지스트리를 계속 사용할 수 있습니다.
 
-> [!note] 가져오기가 중단되면 처음부터 다시 시작하지 않고도 재개할 수 있습니다. [중단된 가져오기 재개](#resume-interrupted-imports)를 참조하세요.
+> [!note]
+> 가져오기가 중단되면 처음부터 다시 시작하지 않고도 재개할 수 있습니다. [중단된 가져오기 재개](#resume-interrupted-imports)를 참조하세요.
 
 1. `registry:` 섹션을 `values.yml` 파일에서 찾고 `database` 섹션을 추가하세요. 설정:
    - `database.configure`을 `true`로 설정하세요.
@@ -327,7 +332,8 @@ helm get values gitlab > values.yml
 
 1단계는 `registry import complete`이 표시될 때 완료됩니다.
 
-> [!note] 다음 단계를 가능한 한 빨리 예약하여 필요한 다운타임의 양을 줄이는 것이 좋습니다. 이상적으로 1단계가 완료된 후 1주일 미만. 다음 단계 전에 레지스트리에 기록된 새 데이터로 인해 해당 단계가 더 오래 걸립니다.
+> [!note]
+> 다음 단계를 가능한 한 빨리 예약하여 필요한 다운타임의 양을 줄이는 것이 좋습니다. 이상적으로 1단계가 완료된 후 1주일 미만. 다음 단계 전에 레지스트리에 기록된 새 데이터로 인해 해당 단계가 더 오래 걸립니다.
 
 ##### 단계 2. 모든 저장소 데이터 가져오기 {#step-2-import-all-repository-data}
 
@@ -483,7 +489,8 @@ cd ~
    registry database migrate up /etc/docker/registry/config.yml
    ```
 
-> [!note] `migrate up` 명령은 마이그레이션 적용 방법을 제어하는 데 사용할 수 있는 몇 가지 추가 플래그를 제공합니다. 자세한 내용은 `registry database migrate up --help`을(를) 실행하세요.
+> [!note]
+> `migrate up` 명령은 마이그레이션 적용 방법을 제어하는 데 사용할 수 있는 몇 가지 추가 플래그를 제공합니다. 자세한 내용은 `registry database migrate up --help`을(를) 실행하세요.
 
 ## 문제 해결 {#troubleshooting}
 

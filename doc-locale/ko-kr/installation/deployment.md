@@ -14,7 +14,8 @@ title: GitLab Helm 차트 배포
 
 `helm install`를 실행하기 전에 GitLab을 어떻게 실행할지에 대해 몇 가지 결정을 내려야 합니다. Helm의 `--set option.name=value` 명령줄 옵션을 사용하여 옵션을 지정할 수 있습니다. 이 가이드는 필수 값과 일반적인 옵션을 다룹니다. 옵션의 전체 목록을 보려면 [설치 명령줄 옵션](command-line-options.md)을 읽으세요.
 
-> [!note] GitLab Helm 차트는 프로덕션 배포를 위해 외부 PostgreSQL, Redis 및 객체 저장소가 필요합니다. 이 서비스의 번들 버전은 평가 목적으로만 포함되어 있습니다. 프로덕션의 경우 [Cloud Native Hybrid 참조 아키텍처](_index.md#use-the-reference-architectures)를 따르세요.
+> [!note]
+> GitLab Helm 차트는 프로덕션 배포를 위해 외부 PostgreSQL, Redis 및 객체 저장소가 필요합니다. 이 서비스의 번들 버전은 평가 목적으로만 포함되어 있습니다. 프로덕션의 경우 [Cloud Native Hybrid 참조 아키텍처](_index.md#use-the-reference-architectures)를 따르세요.
 
 프로덕션 배포의 경우 Kubernetes에 대한 강력한 실무 지식이 있어야 합니다. 이 배포 방법은 기존 배포와는 다른 관리, 관찰성 및 개념을 가지고 있습니다.
 

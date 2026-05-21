@@ -107,7 +107,8 @@ helm install gitlab gitlab/gitlab \
   --set gitlab.kas.ingress.tls.secretName=RELEASE-kas-tls
 ```
 
-> [!note] GitLab 인스턴스가 다른 서비스와 통신하도록 구성하는 경우 Helm 차트를 통해 이러한 서비스에 대한 [인증서 체인을 제공](../charts/globals.md#custom-certificate-authorities)해야 할 수도 있습니다.
+> [!note]
+> GitLab 인스턴스가 다른 서비스와 통신하도록 구성하는 경우 Helm 차트를 통해 이러한 서비스에 대한 [인증서 체인을 제공](../charts/globals.md#custom-certificate-authorities)해야 할 수도 있습니다.
 
 ## 옵션 4:  자동 생성된 자체 서명된 와일드카드 인증서 사용 {#option-4-use-auto-generated-self-signed-wildcard-certificate}
 

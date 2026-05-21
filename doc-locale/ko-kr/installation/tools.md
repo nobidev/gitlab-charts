@@ -64,7 +64,8 @@ SSH 키와 같은 일부 비밀을 만들어야 합니다. 기본적으로 이�
 
 [`external-dns`](https://github.com/kubernetes-sigs/external-dns)와 같은 자동 DNS 등록 서비스를 사용하려면, GitLab에 대한 추가 DNS 구성이 필요하지 않습니다. 그러나 `external-dns`을 클러스터에 배포해야 합니다. 프로젝트 페이지는 각 지원되는 공급자에 대한 [포괄적인 가이드를 제공합니다](https://github.com/kubernetes-sigs/external-dns#deploying-to-a-cluster).
 
-> [!note] GitLab 페이지에 대한 사용자 정의 도메인 지원을 활성화하면, `external-dns`은 더 이상 페이지 도메인(`pages.<global.hosts.domain>` 기본값)에 대해 작동하지 않습니다. 도메인을 페이지 전용 외부 IP 주소로 가리키도록 DNS 항목을 수동으로 구성해야 합니다.
+> [!note]
+> GitLab 페이지에 대한 사용자 정의 도메인 지원을 활성화하면, `external-dns`은 더 이상 페이지 도메인(`pages.<global.hosts.domain>` 기본값)에 대해 작동하지 않습니다. 도메인을 페이지 전용 외부 IP 주소로 가리키도록 DNS 항목을 수동으로 구성해야 합니다.
 
 제공된 스크립트를 사용하여 [GKE 클러스터](cloud/gke.md)를 프로비저닝하면, `external-dns`가 클러스터에 자동으로 설치됩니다.
 
@@ -90,7 +91,8 @@ Gitaly 및 KAS는 gRPC를 사용하지만 [문제 #3822](https://gitlab.com/gitl
 
 기본적으로 GitLab 차트는 동적 프로비저너가 기본 영구 볼륨을 생성할 것으로 예상하여 볼륨 클레임을 생성합니다. `storageClass`을 사용자 정의하거나 볼륨을 수동으로 생성하고 할당하려면 [스토리지 설명서](storage.md)를 검토하십시오.
 
-> [!note] 초기 배포 후 스토리지 설정을 변경하려면 Kubernetes 객체를 수동으로 편집해야 합니다. 따라서 프로덕션 인스턴스를 배포하기 전에 미리 계획하여 추가 스토리지 마이그레이션 작업을 피하는 것이 가장 좋습니다.
+> [!note]
+> 초기 배포 후 스토리지 설정을 변경하려면 Kubernetes 객체를 수동으로 편집해야 합니다. 따라서 프로덕션 인스턴스를 배포하기 전에 미리 계획하여 추가 스토리지 마이그레이션 작업을 피하는 것이 가장 좋습니다.
 
 ### TLS 인증서 {#tls-certificates}
 

@@ -68,7 +68,8 @@ title: GitLab 차트를 위한 EKS 리소스 준비
 
 관리자는 또한 이 프로세스를 단순화하기 위해 [새로운 AWS Service Operator for Kubernetes](https://aws.amazon.com/blogs/opensource/aws-service-operator-kubernetes-available/)를 고려할 수 있습니다.
 
-> [!note] AWS Service Operator를 활성화하려면 클러스터 내에서 역할을 관리하는 방법이 필요합니다. 해당 관리 작업을 처리하는 초기 서비스는 타사 개발자에 의해 제공됩니다. 관리자는 배포를 계획할 때 이를 염두에 두어야 합니다.
+> [!note]
+> AWS Service Operator를 활성화하려면 클러스터 내에서 역할을 관리하는 방법이 필요합니다. 해당 관리 작업을 처리하는 초기 서비스는 타사 개발자에 의해 제공됩니다. 관리자는 배포를 계획할 때 이를 염두에 두어야 합니다.
 
 ## 지속형 볼륨 관리 {#persistent-volume-management}
 
@@ -104,7 +105,8 @@ kubectl annotate serviceaccount ebs-csi-controller-sa -n kube-system eks.amazona
 
 [자신의 인증서 사용](../tls.md#option-2-use-your-own-wildcard-certificate)을 권장하며, 그 다음 CNAME 레코드를 사용하여 원하는 DNS 이름을 생성된 ELB에 매핑합니다. ELB는 호스트명을 검색할 수 있기 전에 먼저 생성되어야 하므로, 다음 지침을 따라 GitLab을 설치합니다.
 
-> [!note] AWS LoadBalancer가 필요한 환경의 경우, [Amazon's Elastic Load Balancers](https://docs.aws.amazon.com/eks/latest/userguide/load-balancing.html)는 특별한 구성이 필요합니다. [Cloud provider LoadBalancers](../../charts/globals.md#cloud-provider-loadbalancers)를 참조하세요.
+> [!note]
+> AWS LoadBalancer가 필요한 환경의 경우, [Amazon's Elastic Load Balancers](https://docs.aws.amazon.com/eks/latest/userguide/load-balancing.html)는 특별한 구성이 필요합니다. [Cloud provider LoadBalancers](../../charts/globals.md#cloud-provider-loadbalancers)를 참조하세요.
 
 ## 다음 단계 {#next-steps}
 

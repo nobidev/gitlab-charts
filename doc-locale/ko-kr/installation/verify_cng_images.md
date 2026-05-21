@@ -9,7 +9,8 @@ CNG 이미지가 레지스트리로 푸시된 후 변조되지 않도록 보장�
 
 이러한 다이제스트는 다음에 설명된 대로 `cosign verify` 명령을 사용하여 검증할 수 있습니다:
 
-> [!note] 이미지는 개인 키를 사용하여 서명되며 해당 공개 키를 사용하여 로컬에서만 검증할 수 있습니다. GitLab.com OIDC 제공자를 사용한 키 없는 서명/검증으로의 이동이 [이슈 638](https://gitlab.com/gitlab-org/build/CNG/-/issues/638)에서 논의 중입니다.
+> [!note]
+> 이미지는 개인 키를 사용하여 서명되며 해당 공개 키를 사용하여 로컬에서만 검증할 수 있습니다. GitLab.com OIDC 제공자를 사용한 키 없는 서명/검증으로의 이동이 [이슈 638](https://gitlab.com/gitlab-org/build/CNG/-/issues/638)에서 논의 중입니다.
 
 1. <https://charts.gitlab.io/cosign.pub>에서 서명에 사용된 공개 키를 다운로드합니다:
 

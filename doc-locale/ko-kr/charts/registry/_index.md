@@ -897,7 +897,8 @@ storage:
 
 복원력과 단순성을 위해 `s3`, `gcs`, `azure` 또는 기타 호환 가능한 객체 스토리지와 같은 외부 서비스를 사용하는 것이 좋습니다.
 
-> [!note] 차트는 사용자가 지정하지 않으면 기본적으로 이 구성에 `delete.enabled: true`를 채웁니다. 이는 MinIO의 기본 사용 및 Linux 패키지와 일치하도록 예상된 동작을 유지합니다. 사용자가 제공한 모든 값이 이 기본값을 대체합니다.
+> [!note]
+> 차트는 사용자가 지정하지 않으면 기본적으로 이 구성에 `delete.enabled: true`를 채웁니다. 이는 MinIO의 기본 사용 및 Linux 패키지와 일치하도록 예상된 동작을 유지합니다. 사용자가 제공한 모든 값이 이 기본값을 대체합니다.
 
 ### `middleware.storage` {#middlewarestorage}
 
@@ -938,7 +939,8 @@ kubectl create secret generic cloudfront-secret-name --type=kubernetes.io/ssh-au
 | Google CDN | `keyname`  |
 | CloudFront | `keypairid` |
 
-> [!note] 현재는 `middleware.storage` 섹션의 구성만 지원됩니다.
+> [!note]
+> 현재는 `middleware.storage` 섹션의 구성만 지원됩니다.
 
 ### `debug` {#debug}
 
@@ -1004,7 +1006,8 @@ profiling:
 
 이 기능을 활성화하기 전에 [관리 설명서](https://docs.gitlab.com/administration/packages/container_registry_metadata_database/)를 참조하세요.
 
-> [!note] 이 기능은 PostgreSQL 13 이상을 필요로 합니다.
+> [!note]
+> 이 기능은 PostgreSQL 13 이상을 필요로 합니다.
 
 ```yaml
 database:
@@ -1043,7 +1046,8 @@ database:
 
 #### 로드 밸런싱 {#load-balancing}
 
-> [!warning] 이는 활발히 개발 중인 실험 기능이므로 프로덕션에서 사용할 수 없습니다.
+> [!warning]
+> 이는 활발히 개발 중인 실험 기능이므로 프로덕션에서 사용할 수 없습니다.
 
 `loadBalancing` 섹션은 [데이터베이스 로드 밸런싱](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#loadbalancing) 구성을 허용합니다. 이 기능을 작동하려면 해당 [Redis 연결](#redis-for-database-load-balancing)을 활성화해야 합니다.
 
@@ -1075,7 +1079,8 @@ gc:
 
 ### Redis 캐시 {#redis-cache}
 
-> [!note] Redis 캐시는 버전 16.4 이상의 베타 기능입니다. 이 기능을 활성화하기 전에 [피드백 문제](https://gitlab.com/gitlab-org/gitlab/-/issues/423459) 및 관련 설명서를 검토하세요.
+> [!note]
+> Redis 캐시는 버전 16.4 이상의 베타 기능입니다. 이 기능을 활성화하기 전에 [피드백 문제](https://gitlab.com/gitlab-org/gitlab/-/issues/423459) 및 관련 설명서를 검토하세요.
 
 `redis.cache` 속성은 선택사항이며 [Redis 캐시](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#cache-1)와 관련된 옵션을 제공합니다. 레지스트리와 함께 `redis.cache`을 사용하려면 [메타데이터 데이터베이스](#database)를 활성화해야 합니다.
 
@@ -1163,7 +1168,8 @@ redis:
 
 ### Redis 속도 제한기 {#redis-rate-limiter}
 
-> [!warning] Redis 속도 제한은 [개발 중](https://gitlab.com/groups/gitlab-org/-/epics/13237)입니다. 더 많은 기능 세부 정보가 사용 가능해지면 이 섹션에 추가될 것입니다.
+> [!warning]
+> Redis 속도 제한은 [개발 중](https://gitlab.com/groups/gitlab-org/-/epics/13237)입니다. 더 많은 기능 세부 정보가 사용 가능해지면 이 섹션에 추가될 것입니다.
 
 `redis.rateLimiting` 속성은 선택사항이며 [Redis 속도 제한기](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#ratelimiter)와 관련된 옵션을 제공합니다.
 
@@ -1206,7 +1212,8 @@ redis:
 
 {{< /history >}}
 
-> [!warning] [데이터베이스 로드 밸런싱](#load-balancing)은 활발히 개발 중인 실험 기능이므로 프로덕션에서 사용할 수 없습니다. [에픽 8591](https://gitlab.com/groups/gitlab-org/-/epics/8591)을 사용하여 진행 상황을 추적하고 피드백을 공유하세요.
+> [!warning]
+> [데이터베이스 로드 밸런싱](#load-balancing)은 활발히 개발 중인 실험 기능이므로 프로덕션에서 사용할 수 없습니다. [에픽 8591](https://gitlab.com/groups/gitlab-org/-/epics/8591)을 사용하여 진행 상황을 추적하고 피드백을 공유하세요.
 
 `redis.loadBalancing` 속성은 선택사항이며 [데이터베이스 로드 밸런싱을 위한 Redis 연결](https://gitlab.com/gitlab-org/container-registry/-/blob/b4d71f24a9ae31288401a3459228aa7f8d3dd8f0/docs/configuration.md#loadbalancing-1)과 관련된 옵션을 제공합니다.
 
@@ -1239,7 +1246,8 @@ redis:
 
 Docker Registry는 시간이 지남에 따라 불필요한 데이터를 쌓아 [가비지 컬렉션](https://distribution.github.io/distribution/about/garbage-collection/)을 사용하여 해제할 수 있습니다. [현재](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1586) 기준으로 이 차트를 사용하여 가비지 컬렉션을 실행하는 완전히 자동화되거나 예약된 방법이 없습니다.
 
-> [!warning] [메타데이터 데이터베이스](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#gc) 와 함께 [온라인 가비지 컬렉션](#database)을 사용해야 합니다. 메타데이터 데이터베이스와 함께 수동 가비지 컬렉션을 사용하면 데이터 손실이 발생합니다. 온라인 가비지 컬렉션은 수동으로 가비지 컬렉션을 실행할 필요를 완전히 대체합니다.
+> [!warning]
+> [메타데이터 데이터베이스](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#gc) 와 함께 [온라인 가비지 컬렉션](#database)을 사용해야 합니다. 메타데이터 데이터베이스와 함께 수동 가비지 컬렉션을 사용하면 데이터 손실이 발생합니다. 온라인 가비지 컬렉션은 수동으로 가비지 컬렉션을 실행할 필요를 완전히 대체합니다.
 
 ### 수동 가비지 컬렉션 {#manual-garbage-collection}
 

@@ -74,7 +74,8 @@ OpenShift 클러스터를 생성하려면:
 | `LOG_LEVEL`                      | `info`                                       | `openshift-install` 출력의 상세함 |
 | `INSTALL_DIR`                    | `install-$CLUSTER_NAME`                      | 설치 자산용 디렉터리, 여러 클러스터를 시작하는 데 유용함 |
 
-> [!note] `CLUSTER_NAME` 및 `BASE_DOMAIN` 변수를 조합하여 클러스터의 도메인 이름을 구성합니다.
+> [!note]
+> `CLUSTER_NAME` 및 `BASE_DOMAIN` 변수를 조합하여 클러스터의 도메인 이름을 구성합니다.
 
 ## OpenShift 클러스터 삭제 {#destroy-your-openshift-cluster}
 

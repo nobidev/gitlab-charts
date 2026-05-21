@@ -137,7 +137,8 @@ kubectl create secret generic <name>-gitlab-shell-host-keys --from-file hostKeys
 
 ### 초기 엔터프라이즈 라이선스 {#initial-enterprise-license}
 
-> [!warning] 이 방법은 설치 시에만 라이선스를 추가합니다. 웹 사용자 인터페이스의 관리자 영역을 사용하여 라이선스를 갱신하거나 업그레이드합니다.
+> [!warning]
+> 이 방법은 설치 시에만 라이선스를 추가합니다. 웹 사용자 인터페이스의 관리자 영역을 사용하여 라이선스를 갱신하거나 업그레이드합니다.
 
 GitLab 인스턴스의 엔터프라이즈 라이선스를 저장할 Kubernetes 비밀을 생성합니다. `<name>`을(를) 릴리스의 이름으로 바꿉니다.
 
@@ -365,7 +366,8 @@ kubectl create secret generic ldap-main-password --from-literal=password=yourpas
 
 그런 다음 `--set global.appConfig.ldap.servers.main.password.secret=ldap-main-password`을(를) 사용하여 구성에 암호를 주입합니다.
 
-> [!note] `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
+> [!note]
+> `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
 
 ### SMTP 암호 {#smtp-password}
 
@@ -377,7 +379,8 @@ kubectl create secret generic smtp-password --from-literal=password=yourpassword
 
 그런 다음 Helm 명령에서 `--set global.smtp.password.secret=smtp-password`을(를) 사용합니다.
 
-> [!note] `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
+> [!note]
+> `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
 
 ### 수신 이메일용 IMAP 암호 {#imap-password-for-incoming-emails}
 
@@ -391,7 +394,8 @@ kubectl create secret generic incoming-email-password --from-literal="password=a
 
 그런 다음 Helm 명령에서 `--set global.appConfig.incomingEmail.password.secret=incoming-email-password`을(를) 사용하고 [문서](command-line-options.md#incoming-email-configuration)에 지정된 대로 다른 필수 설정을 함께 사용합니다.
 
-> [!note] `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
+> [!note]
+> `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
 
 ### Service Desk 이메일용 IMAP 암호 {#imap-password-for-service-desk-emails}
 
@@ -405,7 +409,8 @@ kubectl create secret generic service-desk-email-password --from-literal="passwo
 
 그런 다음 Helm 명령에서 `--set global.appConfig.serviceDeskEmail.password.secret=service-desk-email-password`을(를) 사용하고 [문서](command-line-options.md#service-desk-email-configuration)에 지정된 대로 다른 필수 설정을 함께 사용합니다.
 
-> [!note] `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
+> [!note]
+> `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
 
 ### GitLab 수신 이메일 인증 토큰 {#gitlab-incoming-email-auth-token}
 
@@ -456,7 +461,8 @@ kubectl create secret generic incoming-email-client-secret --from-literal=secret
 
 그런 다음 Helm 명령에서 `--set global.appConfig.incomingEmail.clientSecret.secret=incoming-email-client-secret`을(를) 사용하고 [문서](command-line-options.md#incoming-email-configuration)에 지정된 대로 다른 필수 설정을 함께 사용합니다.
 
-> [!note] `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
+> [!note]
+> `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
 
 ### Service Desk 이메일용 Microsoft Graph 클라이언트 비밀 {#microsoft-graph-client-secret-for-service-desk-emails}
 
@@ -468,7 +474,8 @@ kubectl create secret generic service-desk-email-client-secret --from-literal=se
 
 그런 다음 Helm 명령에서 `--set global.appConfig.serviceDeskEmail.clientSecret.secret=service-desk-email-client-secret`을(를) 사용하고 [문서](command-line-options.md#service-desk-email-configuration)에 지정된 대로 다른 필수 설정을 함께 사용합니다.
 
-> [!note] `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
+> [!note]
+> `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
 
 ### 발신 이메일용 Microsoft Graph 클라이언트 비밀 {#microsoft-graph-client-secret-for-outgoing-emails}
 
@@ -480,7 +487,8 @@ kubectl create secret generic microsoft-graph-mailer-client-secret --from-litera
 
 그런 다음 Helm 명령에서 `--set global.appConfig.microsoft_graph_mailer.client_secret.secret=microsoft-graph-mailer-client-secret`을(를) 사용합니다.
 
-> [!note] `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
+> [!note]
+> `Secret` 이름을 사용하고, Helm 속성을 구성할 때 _실제 암호_를 사용하지 마세요.
 
 ### S/MIME 인증서 {#smime-certificate}
 

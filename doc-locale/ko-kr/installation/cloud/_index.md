@@ -38,7 +38,8 @@ GitLab Helm 차트는 한 번에 3개의 Kubernetes 마이너 버전을 지원�
 
 일부 구성 요소(예: [Kubernetes용 에이전트](https://docs.gitlab.com/user/clusters/agent/) 및 [GitLab Operator](https://docs.gitlab.com/operator/installation/))의 경우 GitLab은 다양한 클러스터 릴리스를 지원할 수 있습니다.
 
-> [!warning] [GitLab 컨테이너 이미지](../_index.md#container-images)는 x86-64 및 ARM64 아키텍처에 배포할 수 있습니다. FIPS 검증 이미지는 x86-64에서만 사용할 수 있습니다. ARM64 FIPS 상태는 [이슈 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285)를 참조하세요.
+> [!warning]
+> [GitLab 컨테이너 이미지](../_index.md#container-images)는 x86-64 및 ARM64 아키텍처에 배포할 수 있습니다. FIPS 검증 이미지는 x86-64에서만 사용할 수 있습니다. ARM64 FIPS 상태는 [이슈 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285)를 참조하세요.
 
 - 환경에 대한 클러스터 토폴로지 권장사항은 [참조 아키텍처](https://docs.gitlab.com/administration/reference_architectures/#available-reference-architectures)를 참조하세요.
 - 3개의 vCPU 12GB 클러스터에 맞도록 리소스를 조정하는 예제는 [최소 GKE 예제 값 파일](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/values-gke-minimum.yaml)을 참조하세요.
