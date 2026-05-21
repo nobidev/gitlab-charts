@@ -29,7 +29,7 @@ default:
 variables:
   AUTO_DEPLOY_TAG_REGEX: '^[0-9]+\.[0-9]+\.[0-9]+\+[a-z0-9]{7,}$'
   DOCKER_VERSION: "28.0.1"
-  HELM_VERSION: "4.1.4"
+  HELM_VERSION: "4.2.0"
   HELM_MINOR_VERSION: "4.1"
   KUBECTL_VERSION: "1.33.1"
   VCLUSTER_VERSION: "0.30.4"
