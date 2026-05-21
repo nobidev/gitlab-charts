@@ -62,6 +62,10 @@ function cnpg_cluster_secret() {
   echo -n "$(cnpg_cluster_name)-app"
 }
 
+function cnpg_cluster_registry_secret() {
+  echo -n "$(cnpg_cluster_name)-registry-app"
+}
+
 function use_external_valkey() {
   [[ "${SKIP_EXTERNAL_VALKEY}" != "true" ]]
 }
