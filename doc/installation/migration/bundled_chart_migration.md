@@ -204,9 +204,10 @@ Prerequisites:
    > previously, adjust them accordingly here and in the steps below.
 
    ```shell
-   buckets=("git-lfs" "gitlab-artifacts" "gitlab-backups" "gitlab-ci-secure-files" \
-            "gitlab-dependency-proxy" "gitlab-mr-diffs" "gitlab-packages" "gitlab-pages" \
-            "gitlab-terraform-state" "gitlab-uploads" "registry" "runner-cache" "tmp" )
+   buckets=("git-lfs" "gitlab-agent-plan-content" "gitlab-artifacts" "gitlab-backups" \
+            "gitlab-ci-secure-files" "gitlab-dependency-proxy" "gitlab-mr-diffs" \
+            "gitlab-packages" "gitlab-pages" "gitlab-terraform-state" "gitlab-uploads" \
+            "registry" "runner-cache" "tmp" )
    for bucket in "${buckets[@]}"; do
      kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage bucket create "${bucket}";
    done
@@ -345,6 +346,9 @@ PostgreSQL.
        ciSecureFiles:
          enabled: true
          bucket: gitlab-ci-secure-files
+       agentPlanContent:
+         enabled: true
+         bucket: gitlab-agent-plan-content
        dependencyProxy:
          enabled: true
          bucket: gitlab-dependency-proxy

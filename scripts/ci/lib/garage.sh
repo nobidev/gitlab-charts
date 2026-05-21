@@ -64,6 +64,7 @@ function deploy_external_garage() {
     # https://docs.gitlab.com/charts/installation/migration/bundled_chart_migration/
     local buckets=(
         "git-lfs"
+        "gitlab-agent-plan-content"
         "gitlab-artifacts"
         "gitlab-backups"
         "gitlab-ci-secure-files"

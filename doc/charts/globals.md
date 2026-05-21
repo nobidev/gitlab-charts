@@ -1029,6 +1029,10 @@ global:
       enabled: false
       bucket: gitlab-ci-secure-files
       connection: {}
+    agentPlanContent:
+      enabled: false
+      bucket: gitlab-agent-plan-content
+      connection: {}
     dependencyProxy:
       enabled: false
       bucket: gitlab-dependency-proxy
@@ -1281,17 +1285,22 @@ When using this consolidated configuration, this feature is automatically enable
 Each object type should be stored in different buckets.
 By default, GitLab uses these bucket names for each type:
 
-| Object type                  | Bucket Name |
-|------------------------------|-------------|
-| CI artifacts                 | `gitlab-artifacts` |
-| Git LFS                      | `git-lfs`   |
-| Packages                     | `gitlab-packages` |
-| Uploads                      | `gitlab-uploads` |
-| External merge request diffs | `gitlab-mr-diffs` |
-| Terraform State              | `gitlab-terraform-state` |
-| CI Secure Files              | `gitlab-ci-secure-files` |
-| Dependency Proxy             | `gitlab-dependency-proxy` |
-| Pages                        | `gitlab-pages` |
+> [!note]
+> The Agent Plan Content bucket is currently in development and is used only on
+> GitLab.com. Self-managed users do not need to provision this bucket yet.
+
+| Object type                    | Bucket Name |
+|--------------------------------|-------------|
+| CI artifacts                   | `gitlab-artifacts` |
+| Git LFS                        | `git-lfs`   |
+| Packages                       | `gitlab-packages` |
+| Uploads                        | `gitlab-uploads` |
+| External merge request diffs   | `gitlab-mr-diffs` |
+| Terraform State                | `gitlab-terraform-state` |
+| CI Secure Files                | `gitlab-ci-secure-files` |
+| Agent Plan Content (optional)  | `gitlab-agent-plan-content` |
+| Dependency Proxy               | `gitlab-dependency-proxy` |
+| Pages                          | `gitlab-pages` |
 
 You can use these defaults or configure the bucket names:
 
@@ -1303,6 +1312,7 @@ You can use these defaults or configure the bucket names:
 --set global.appConfig.externalDiffs.bucket=<BUCKET NAME> \
 --set global.appConfig.terraformState.bucket=<BUCKET NAME> \
 --set global.appConfig.ciSecureFiles.bucket=<BUCKET NAME> \
+--set global.appConfig.agentPlanContent.bucket=<BUCKET NAME> \
 --set global.appConfig.dependencyProxy.bucket=<BUCKET NAME>
 ```
 
