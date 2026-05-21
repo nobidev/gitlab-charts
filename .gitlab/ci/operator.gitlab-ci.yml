@@ -2,7 +2,7 @@ trigger_operator_test:
   stage: approve-review-apps
   trigger:
     project: 'gitlab-org/cloud-native/gitlab-operator'
-    branch: ci-bump-chart-version-for-chart-mrs
+    branch: master
   variables:
     TRIGGER_PROJECT: "${CI_PROJECT_PATH}"
     # Ref used by Operator to pull chart for unittests
