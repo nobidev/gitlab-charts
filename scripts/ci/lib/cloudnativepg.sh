@@ -45,6 +45,24 @@ function install_cnpg_operator {
 
 function create_cnpg_cluster {
   local image="ghcr.io/cloudnative-pg/postgresql:${CNPG_POSTGRESQL_TAG}"
+
+  # Pre-create the Secret holding the container registry metadata DB user's
+  # password. Bootstrap's postInitSQL creates a matching `registry` role +
+  # `registry` database below, and the registry sub-chart mounts this Secret
+  # as the database password (via registry.database.password.secret).
+  # Reuse an existing password on rerun: postInitSQL only runs on first
+  # bootstrap, so regenerating here would desync the Secret from the role.
+  local registry_secret_name registry_password
+  registry_secret_name="$(cnpg_cluster_registry_secret)"
+  if registry_password=$(kubectl get secret "${registry_secret_name}" -n "${NAMESPACE}" -o jsonpath='{.data.password}' 2>/dev/null | base64 -d) && [ -n "${registry_password}" ]; then
+    echo "Reusing existing registry DB password Secret ${registry_secret_name}"
+  else
+    registry_password=$(openssl rand -hex 16)
+    kubectl create secret generic "${registry_secret_name}" \
+      --namespace="${NAMESPACE}" \
+      --from-literal=password="${registry_password}"
+  fi
+
   local cluster_cr=$(cat <<EOF
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
@@ -70,6 +88,8 @@ spec:
         - CREATE EXTENSION IF NOT EXISTS plpgsql;
         - CREATE EXTENSION IF NOT EXISTS amcheck;
         - CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+        - CREATE ROLE registry LOGIN PASSWORD '${registry_password}';
+        - CREATE DATABASE registry OWNER registry;
 EOF
 )
 

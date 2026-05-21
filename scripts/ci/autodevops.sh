@@ -137,6 +137,7 @@ function prepare_values() {
       VALKEY_AUTH_SECRET_KEY="$(valkey_auth_secret_key)" \
       CNPG_CLUSTER_HOST="$(cnpg_cluster_host)" \
       CNPG_CLUSTER_SECRET="$(cnpg_cluster_secret)" \
+      CNPG_CLUSTER_REGISTRY_SECRET="$(cnpg_cluster_registry_secret)" \
       GARAGE_RELEASE_NAME="$(garage_release_name)" \
         envsubst < "$f" > "${VALUES_DIR}/$(basename $f)"
   done
