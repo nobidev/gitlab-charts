@@ -58,10 +58,13 @@ variables:
   GITLAB_QA_VERSION: "15.7.2"
   # Valkey deployed to CI review envionments
   VALKEY_CHART_VERSION: "0.9.4"
-  GARAGE_APP_VERSION: "2.2.0"
+  GARAGE_APP_VERSION: "2.3.0"
   # CloudNativePg (PostgreSQL) deployed to CI envionments
   CNPG_CHART_VERSION: "0.28.2"
   CNPG_POSTGRESQL_TAG: "17"
+  # gitlab-dev-stack umbrella chart — replaces VALKEY/CNPG/GARAGE installers
+  # when USE_DEV_STACK=true is set on the environment (e.g. gke135).
+  DEV_STACK_CHART_VERSION: "1.4.0"
   # STRICT_VERSIONS is used in RSpecs to ensure exact version match for tools like "helm" and "kubectl"
   STRICT_VERSIONS: "true"
   KUBE_CRD_SCHEMA_URL: "https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/v3/apis__apiextensions.k8s.io__v1_openapi.json"

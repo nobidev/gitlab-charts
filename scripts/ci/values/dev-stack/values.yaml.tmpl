@@ -1,0 +1,66 @@
+# Values passed to `helm install gitlab-dev-stack`. Rendered by
+# render_dev_stack_values in scripts/ci/lib/dev_stack.sh via envsubst —
+# placeholders like DEV_STACK_RELEASE_NAME / CNPG_POSTGRESQL_TAG / GARAGE_APP_VERSION
+# are substituted before the rendered file is written to .values/dev-stack/values.yaml.
+#
+# nats/clickhouse are not consumed by the GitLab chart — turn them off so the
+# umbrella deploys in well under the GitLab chart's 900s wait window.
+nats:
+  enabled: false
+clickhouse:
+  enabled: false
+
+postgres:
+  # Mirrors cloudnativepg.sh: a single CNPG cluster holding both the GitLab
+  # application DB and an extra `registry` DB for the container registry's
+  # metadata database. Each `databases[]` entry is provisioned by the chart
+  # as a CNPG `Database` CR plus a dedicated owner role (managed.roles[]),
+  # with a per-DB `${cluster}-${db}-conn` Secret containing PGPASSWORD/etc.
+  clusters:
+    - name: gitlab
+      image: ghcr.io/cloudnative-pg/postgresql:${CNPG_POSTGRESQL_TAG}
+      instances: 1
+      storage:
+        size: 5Gi
+      databases:
+        - name: gitlabhq_production
+          owner: gitlab
+          # Match the postInitSQL the per-component cloudnativepg.sh ran.
+          # plpgsql is in PG by default — omit it.
+          extensions:
+            - pg_trgm
+            - btree_gist
+            - amcheck
+            - pg_stat_statements
+        - name: registry
+          owner: registry
+
+garage:
+  image: dxflrs/garage:v${GARAGE_APP_VERSION}
+  # Block install until buckets are provisioned so the GitLab chart deploy
+  # that follows can rely on them existing.
+  waitInit: true
+  buckets:
+    - default
+    - gitlab-lfs
+    - gitlab-artifacts
+    - gitlab-backups
+    - gitlab-ci-secure-files
+    - gitlab-dependency-proxy
+    - gitlab-mr-diffs
+    - gitlab-packages
+    - gitlab-pages
+    - gitlab-terraform-state
+    - gitlab-uploads
+    - registry
+    - runner-cache
+    - tmp
+
+valkey:
+  auth:
+    enabled: true
+    aclUsers:
+      default:
+        permissions: "~* &* +@all"
+    # Release-unique so multiple pipelines can coexist in the same namespace.
+    usersExistingSecret: ${DEV_STACK_RELEASE_NAME}-valkey-auth

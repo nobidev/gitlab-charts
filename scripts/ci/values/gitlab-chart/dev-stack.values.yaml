@@ -1,0 +1,79 @@
+# Wires the GitLab chart to the Secrets and Services emitted by the
+# gitlab-dev-stack umbrella release. Replaces external-postgresql,
+# external-valkey, and external-garage when USE_DEV_STACK=true.
+global:
+  psql:
+    host: ${DEV_STACK_RELEASE_NAME}-gitlab-rw.${NAMESPACE}.svc
+    port: 5432
+    username: gitlab
+    database: gitlabhq_production
+    password:
+      useSecret: true
+      secret: ${DEV_STACK_RELEASE_NAME}-gitlab-gitlabhq-production-conn
+      key: PGPASSWORD
+
+  redis:
+    host: ${DEV_STACK_RELEASE_NAME}-valkey.${NAMESPACE}.svc
+    port: 6379
+    auth:
+      enabled: true
+      secret: ${DEV_STACK_RELEASE_NAME}-valkey-conn
+      key: password
+
+  appConfig:
+    object_store:
+      enabled: true
+      proxy_download: true
+      connection:
+        secret: ${DEV_STACK_RELEASE_NAME}-garage-conn
+        key: connection
+    artifacts:
+      bucket: gitlab-artifacts
+    lfs:
+      bucket: gitlab-lfs
+    uploads:
+      bucket: gitlab-uploads
+    packages:
+      bucket: gitlab-packages
+    pages:
+      bucket: gitlab-pages
+    externalDiffs:
+      enabled: true
+      bucket: gitlab-mr-diffs
+    terraformState:
+      enabled: true
+      bucket: gitlab-terraform-state
+    ciSecureFiles:
+      enabled: true
+      bucket: gitlab-ci-secure-files
+    dependencyProxy:
+      enabled: true
+      bucket: gitlab-dependency-proxy
+
+gitlab:
+  toolbox:
+    backups:
+      objectStorage:
+        config:
+          secret: ${DEV_STACK_RELEASE_NAME}-garage-conn
+          key: s3cmd
+      registry:
+        database:
+          backupUser: registry
+          restoreUser: registry
+          password:
+            secret: ${DEV_STACK_RELEASE_NAME}-gitlab-registry-conn
+            backupPasswordKey: PGPASSWORD
+            restorePasswordKey: PGPASSWORD
+
+registry:
+  database:
+    enabled: true
+    password:
+      secret: ${DEV_STACK_RELEASE_NAME}-gitlab-registry-conn
+      key: PGPASSWORD
+  storage:
+    secret: ${DEV_STACK_RELEASE_NAME}-garage-conn
+    key: registry_connection
+    redirect:
+      disable: true

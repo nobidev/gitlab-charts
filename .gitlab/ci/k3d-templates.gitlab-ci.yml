@@ -21,6 +21,7 @@
     # pipelines — a known GitLab bug (gitlab-org/gitlab#220047). Using a literal
     # /builds/gitlab avoids this; all e2e runner instances use /builds as builds_dir.
     GIT_CLONE_PATH: /builds/gitlab
+    USE_DEV_STACK: "true"
 
 .k3d_qa_template:
   extends:

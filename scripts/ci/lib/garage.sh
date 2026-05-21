@@ -19,7 +19,7 @@ function deploy_external_garage() {
    if ! helm plugin ls | grep -q helm-git; then
       helm plugin install https://github.com/aslafy-z/helm-git --verify=false
    fi
-    GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.2.0}"
+    GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.3.0}"
     helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v${GARAGE_APP_VERSION}"
     helm repo update
 

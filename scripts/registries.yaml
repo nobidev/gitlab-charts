@@ -1,0 +1,7 @@
+mirrors:
+  "quay.io":
+    endpoint:
+      - http://k3d-quay-cache:5000
+  "registry.gitlab.com":
+    endpoint:
+      - http://k3d-gitlab-cache:5000

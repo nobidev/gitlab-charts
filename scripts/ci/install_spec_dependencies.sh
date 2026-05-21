@@ -1,6 +1,16 @@
 #!/bin/bash
 set -e
 
+# Refuse to mutate the host outside CI. The rest of this script does
+# apt-get install + curl-and-mv into /usr/local/bin, which would
+# trample a Linux developer's box. Pass CI_PIPELINE_ID=local if you
+# really want the install path (e.g. provisioning a fresh Debian VM
+# to mimic the CI runner image).
+if [ -z "${CI_PIPELINE_ID:-}" ]; then
+    echo "install_spec_dependencies.sh: CI_PIPELINE_ID unset (local run), skipping."
+    exit 0
+fi
+
 export DEBIAN_FRONTEND=noninteractive
 HELM_VERSION=${HELM_VERSION:-4.2.0}
 GOMPLATE_VERSION=${GOMPLATE_VERSION:-v5.0.0}
