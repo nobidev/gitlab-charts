@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# ARTIFACTS_DIR is the parent of everything a CI job (or a local dev run)
+# emits onto disk — rendered values files, debug bundles, skopeo error logs.
+# Defaults to the CI project root (so existing CI artifact paths like
+# `./k3d-debug/` and `./.values/` keep landing where they always did) or
+# the current working directory when running locally without CI envvars.
+: "${ARTIFACTS_DIR:=${CI_PROJECT_DIR:-$(pwd)}}"
+export ARTIFACTS_DIR
+
 function is_ci_deployment() {
   [[ -n "${CI_PIPELINE_ID}" ]]
 }
@@ -83,6 +91,16 @@ function garage_release_name() {
 
 function use_external_garage() {
   [[ "${SKIP_EXTERNAL_GARAGE}" != "true" ]]
+}
+
+function dev_stack_release_name() {
+  echo -n "$(release_name_base)-stack"
+}
+
+# When true, provision Postgres/Valkey/Garage via the gitlab-dev-stack umbrella
+# chart instead of the per-component installers in valkey.sh/cloudnativepg.sh/garage.sh.
+function use_dev_stack() {
+  [[ "${USE_DEV_STACK}" == "true" ]]
 }
 
 # common_openshift_values returns values needed to deploy Garage

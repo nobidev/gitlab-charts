@@ -1,5 +1,8 @@
 #!/bin/bash
-set -e
+
+# Strict mode only when executed directly, not when sourced. Same rationale
+# as scripts/ci/run_specs.sh — see local-ci-spike.md §"Friction-point catalog".
+(return 0 2>/dev/null) || set -e
 
 MAX_HELM_REPO_UPDATE_ATTEMPTS=3
 HELM_REPO_WAIT_TIMER=5

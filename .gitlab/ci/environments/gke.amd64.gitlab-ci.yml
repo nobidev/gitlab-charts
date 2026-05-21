@@ -18,6 +18,8 @@ include:
   KUBE_INGRESS_BASE_DOMAIN: "cloud-native-v135.helm-charts.win"
   KUBE_NAMESPACE: "helm-charts-win"
   USE_NGINX_INGRESS: "true"
+  # Provision Postgres/Valkey/Garage via the gitlab-dev-stack umbrella chart.
+  USE_DEV_STACK: "true"
 
 create_review_gke:
   stage: review

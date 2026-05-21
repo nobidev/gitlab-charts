@@ -16,7 +16,7 @@ source "${SCRIPT_DIR}/ci/lib/cloudnativepg.sh"
 source "${SCRIPT_DIR}/ci/lib/garage.sh"
 
 NAMESPACE="${NAMESPACE:-gitlab}"
-GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.2.0}"
+GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.3.0}"
 CNPG_POSTGRESQL_TAG="${CNPG_POSTGRESQL_TAG:-17}"
 
 GENERATED_VALUES="${VALUES_DIR}/dev-external.values.yaml"

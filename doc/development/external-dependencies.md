@@ -93,7 +93,7 @@ helm uninstall gitlab --namespace gitlab
 | Variable              | Default | Description                                |
 |-----------------------|---------|--------------------------------------------|
 | `NAMESPACE`           | `gitlab` | Kubernetes namespace for all services     |
-| `GARAGE_APP_VERSION`  | `2.2.0` | Garage version to install                  |
+| `GARAGE_APP_VERSION`  | `2.3.0` | Garage version to install                  |
 | `CNPG_POSTGRESQL_TAG` | `17`    | PostgreSQL image tag used by CloudNativePG |
 
 ## Further reading
