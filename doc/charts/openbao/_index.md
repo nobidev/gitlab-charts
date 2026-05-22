@@ -94,35 +94,38 @@ For more information, see [OpenBao upgrade documentation](https://openbao.org/do
 
 ## Back up OpenBao
 
-To completely back up OpenBao, you require:
+A complete OpenBao backup includes the:
 
-- Unseal keys. These keys are essential for accessing your OpenBao data after restoration. Follow the
-  [secret backup procedures](../../backup-restore/backup.md#back-up-the-secrets) for OpenBao secrets.
-- The PostgreSQL database.
+- OpenBao unseal key
+- OpenBao PostgreSQL database
 
-By default, the OpenBao PostgreSQL data is backed up as part of the chart's
-built-in backup procedure.
+The Toolbox backs up the OpenBao database as part of the standard GitLab backup, when
+backup [credentials](../gitlab/toolbox/_index.md#openbao-database-credentials) are configured.
 
-If you've configured OpenBao to use a different database (logical or physical), this
-database must be backed up manually. The default backup tooling only covers the standard
-PostgreSQL setup because the tooling has no awareness of other external databases.
-To avoid any synchronisation issues, the GitLab and OpenBao database should be backed up
-at the same time.
+Back up the OpenBao database at the same time as the main GitLab PostgreSQL database to avoid
+data inconsistencies.
 
 ## Restore OpenBao
 
-By default, the OpenBao PostgreSQL data is restored as part of the chart's
-built-in restore procedure.
+The Toolbox restores the OpenBao database as part of the standard GitLab restore. See
+[OpenBao database credentials](../gitlab/toolbox/_index.md#openbao-database-credentials) to
+configure restore credentials.
 
-If you've configured OpenBao to use a different database (logical or physical), the
-OpenBao database backup cannot be restored by the built-in backup utility, and must
-be restored manually.
+Before restoring an OpenBao backup:
 
-Before restoring a OpenBao backup, make sure OpenBao is scaled down because it will try to
-recreate its database schema, which can lead to unexpected errors. To scale down OpenBao, run:
+1. Note the current replica count so you can restore it afterward.
+1. Scale down OpenBao so the running pod does not race the `DROP TABLE` and `CREATE TABLE` statements in the dump:
+
+   ```shell
+   kubectl get deploy -lapp.kubernetes.io/name=openbao,app.kubernetes.io/instance=<helm release name> -n <namespace>
+   kubectl scale deploy -lapp.kubernetes.io/name=openbao,app.kubernetes.io/instance=<helm release name> -n <namespace> --replicas=0
+   ```
+
+After the restore completes, scale OpenBao back to its previous replica count so it reads from
+the restored database:
 
 ```shell
-kubectl scale deploy -lapp=openbao,release=<helm release name> -n <namespace> --replicas=0
+kubectl scale deploy -lapp.kubernetes.io/name=openbao,app.kubernetes.io/instance=<helm release name> -n <namespace> --replicas=<previous count>
 ```
 
 ## OpenBao configuration options
