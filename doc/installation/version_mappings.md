@@ -29,6 +29,7 @@ The table below maps supported GitLab Helm chart versions to supported GitLab ve
 
 | Chart version | GitLab version |
 |---------------|----------------|
+| 9.7.7 | 18.7.7 |
 | 9.7.6 | 18.7.6 |
 | 9.7.5 | 18.7.5 |
 | 9.7.4 | 18.7.4 |
