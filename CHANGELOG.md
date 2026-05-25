@@ -408,6 +408,10 @@ No changes.
 - [Update Helm release gitlab-zoekt to v3.6.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bc26720416f3bdec8e02b3772df379343293dc9d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4563))
 - [Update dependency container-registry to v4.28.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b6ad075821eb5a68056f37607c87c1d04b3e34ef) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4530))
 
+## 9.5.6 (2026-05-25)
+
+No changes.
+
 ## 9.5.5 (2026-01-07)
 
 No changes.
