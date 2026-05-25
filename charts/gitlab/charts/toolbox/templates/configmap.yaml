@@ -159,6 +159,6 @@ data:
       # If the backup config is not configured, assume that
       # Application Default Credentials are used with a service account.
       # This enables GKE Workload Identity Federation to work.
-      echo '[GoogleCompute]\nservice_account = default' > ~/.boto
+      printf '[GoogleCompute]\nservice_account = default\n' > ~/.boto
     fi
 {{- end }}
