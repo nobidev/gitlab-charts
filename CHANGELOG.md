@@ -298,6 +298,10 @@ No changes.
 
 - [Remove suggested reviewers secret and config](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bcdce46616a5f76a12514615497e7d290b22a11b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4643))
 
+## 9.7.7 (2026-05-25)
+
+No changes.
+
 ## 9.7.6 (2026-03-10)
 
 No changes.
