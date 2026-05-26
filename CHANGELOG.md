@@ -2,6 +2,16 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.0.1 (2026-05-26)
+
+### Fixed (1 change)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/4a2594215a1cf57d5f357c093a2dfe5b70d0a128)
+
+### fixes (1 change)
+
+- [Update container-registry to v4.40.1-gitlab](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/59a332a45f33fc77752c206d105a6107886cd75b)
+
 ## 10.0.0 (2026-05-21)
 
 ### Added (4 changes)
