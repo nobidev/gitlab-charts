@@ -48,6 +48,13 @@ entry.
 - [Breaking: Drop bundled MinIO chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/26820c4955e839d5c3af080307c4006951218bd6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4964))
 - [Breaking: Drop bundled Redis and PostgreSQL charts](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/08560add29dc61dd782ceea0730ff1fdcc40e1da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4950))
 
+## 9.11.5 (2026-05-26)
+
+### Fixed (2 changes)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/f79c362451298a4bfc3a888e33440a4ae31d6823)
+- [Revert make kerberos keytab updates dynamic](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/3022ff18281ab97b846d7610aece464c6525d378)
+
 ## 9.11.4 (2026-05-13)
 
 ### Added (1 change)
