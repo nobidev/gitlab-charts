@@ -110,6 +110,17 @@ No changes.
 - [Update container-registry to v4.39.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/be5ece2d4387f2d561000c549c2cc754ed95feb9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4886))
 - [Gateway API: Unglobalize Gateway API resources](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fb5977af6be6eb874f6be1f2fee7d74d03c27665) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4862))
 
+## 9.10.7 (2026-05-26)
+
+### Fixed (2 changes)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/038dcac41a6bff8c527c227e8339bfdc2dac587a)
+- [Revert make kerberos keytab updates dynamic](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/426c481af8c20560622a51e2a6582adf4cb3507b)
+
+### Changed (1 change)
+
+- [chore: bump gitlab-zoekt chart to 3.10.0](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/c1264745b50a0e02d01335371f7ee14c7e2eb27d)
+
 ## 9.10.6 (2026-05-13)
 
 ### Changed (1 change)
