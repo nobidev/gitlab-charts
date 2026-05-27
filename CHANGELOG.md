@@ -2,6 +2,17 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.10.7 (2026-05-26)
+
+### Fixed (2 changes)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/038dcac41a6bff8c527c227e8339bfdc2dac587a)
+- [Revert make kerberos keytab updates dynamic](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/426c481af8c20560622a51e2a6582adf4cb3507b)
+
+### Changed (1 change)
+
+- [chore: bump gitlab-zoekt chart to 3.10.0](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/c1264745b50a0e02d01335371f7ee14c7e2eb27d)
+
 ## 9.10.6 (2026-05-13)
 
 ### Changed (1 change)
