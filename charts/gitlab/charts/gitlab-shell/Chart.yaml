@@ -1,8 +1,8 @@
 ---
 apiVersion: v2
 name: gitlab-shell
-version: 9.11.4
-appVersion: 14.49.0
+version: 9.11.5
+appVersion: 14.50.0
 description: sshd for Gitlab
 keywords:
 - gitlab

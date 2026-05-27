@@ -2,6 +2,13 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.11.5 (2026-05-26)
+
+### Fixed (2 changes)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/f79c362451298a4bfc3a888e33440a4ae31d6823)
+- [Revert make kerberos keytab updates dynamic](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/3022ff18281ab97b846d7610aece464c6525d378)
+
 ## 9.11.4 (2026-05-13)
 
 ### Added (1 change)
