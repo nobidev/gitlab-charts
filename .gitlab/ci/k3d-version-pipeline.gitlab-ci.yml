@@ -1,0 +1,49 @@
+# Child pipeline for a single k3d K8s version (AMD64).
+# Triggered by the k3d bridge matrix defined directly in .gitlab-ci.yml
+# (LIMIT_TO=k3d_version). K3D_K8S_IMAGE, PARENT_PIPELINE_ID, and PIPELINE_TYPE
+# are passed explicitly by the bridge. DANGER_GITLAB_API_TOKEN and QA_ALLURE_* are CI/CD
+# project variables available in all pipelines automatically.
+# .k3d_review_specs_template and .k3d_qa_template are provided by k3d-templates.gitlab-ci.yml,
+# which .gitlab-ci.yml includes for LIMIT_TO=k3d_version.
+
+include:
+  - component: "gitlab.com/gitlab-org/quality/pipeline-common/allure-report@9.6.3"
+    inputs:
+      job_name: "e2e-report-k3d"
+      job_stage: "qa-report"
+      # ALLURE_JOB_NAME keys the S3 prefix and MR comment marker. The bridge sets
+      # K3D_K8S_VERSION_SLUG per matrix row (v133/v134/v135/v135-nginx) so each
+      # child pipeline posts a distinct report section to the MR.
+      allure_job_name: "e2e-report-k3d-${K3D_K8S_VERSION_SLUG}"
+      gitlab_auth_token_variable_name: "DANGER_GITLAB_API_TOKEN"
+      aws_access_key_id_variable_name: "QA_ALLURE_AWS_ACCESS_KEY_ID"
+      aws_secret_access_key_variable_name: "QA_ALLURE_AWS_SECRET_ACCESS_KEY"
+      allure_results_glob: "gitlab-qa-run-*/**/allure-results"
+    rules:
+      - if: '$CI_SERVER_HOST != "gitlab.com"'
+        when: never
+      - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+
+# Both jobs share the "specs" stage so they start simultaneously.
+# The allure report job runs after both complete in the "qa-report" stage.
+
+review_specs_k3d:
+  extends: .k3d_review_specs_template
+  stage: specs
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: pin_image_versions
+  rules:
+    - when: on_success
+
+qa_k3d:
+  extends: .k3d_qa_template
+  stage: specs
+  variables:
+    TEST_SUITE: $QA_SANITY_SUITE_OPTIONS
+  parallel: 5
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: pin_image_versions
+  rules:
+    - when: on_success
