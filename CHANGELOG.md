@@ -2,6 +2,16 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.0.1 (2026-05-26)
+
+### Fixed (1 change)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/4a2594215a1cf57d5f357c093a2dfe5b70d0a128)
+
+### fixes (1 change)
+
+- [Update container-registry to v4.40.1-gitlab](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/59a332a45f33fc77752c206d105a6107886cd75b)
+
 ## 10.0.0 (2026-05-21)
 
 ### Added (4 changes)
@@ -37,6 +47,13 @@ entry.
 - [Breaking: Remove spamcheck subchart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7dababe2cefe0699131a1ce8d18b3b85c8b99641) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5035))
 - [Breaking: Drop bundled MinIO chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/26820c4955e839d5c3af080307c4006951218bd6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4964))
 - [Breaking: Drop bundled Redis and PostgreSQL charts](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/08560add29dc61dd782ceea0730ff1fdcc40e1da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4950))
+
+## 9.11.5 (2026-05-26)
+
+### Fixed (2 changes)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/f79c362451298a4bfc3a888e33440a4ae31d6823)
+- [Revert make kerberos keytab updates dynamic](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/3022ff18281ab97b846d7610aece464c6525d378)
 
 ## 9.11.4 (2026-05-13)
 
@@ -92,6 +109,17 @@ No changes.
 - [Update gitlab-exporter to v16.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/37981d9e8b352c9d62908df776a248c41c316901) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4866))
 - [Update container-registry to v4.39.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/be5ece2d4387f2d561000c549c2cc754ed95feb9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4886))
 - [Gateway API: Unglobalize Gateway API resources](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fb5977af6be6eb874f6be1f2fee7d74d03c27665) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4862))
+
+## 9.10.7 (2026-05-26)
+
+### Fixed (2 changes)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/038dcac41a6bff8c527c227e8339bfdc2dac587a)
+- [Revert make kerberos keytab updates dynamic](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/426c481af8c20560622a51e2a6582adf4cb3507b)
+
+### Changed (1 change)
+
+- [chore: bump gitlab-zoekt chart to 3.10.0](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/c1264745b50a0e02d01335371f7ee14c7e2eb27d)
 
 ## 9.10.6 (2026-05-13)
 
