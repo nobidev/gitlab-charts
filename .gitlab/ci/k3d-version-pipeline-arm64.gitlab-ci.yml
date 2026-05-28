@@ -56,7 +56,7 @@ qa_k3d:
 
 qa_k3d_manual_full_suite:
   extends: .k3d_qa_manual_full_suite_template
-  image: "ruby:3.3.7"
+  image: "${RUBY_IMAGE_DEBIAN}"
   tags:
     - saas-linux-large-arm64
   variables:
