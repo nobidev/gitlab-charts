@@ -13,7 +13,7 @@ dependencies:
   version: v1.20.2
 - name: prometheus
   repository: oci://ghcr.io/prometheus-community/charts
-  version: 29.7.0
+  version: 29.9.0
 - name: gitlab-runner
   repository: https://charts.gitlab.io/
   version: 0.88.3
@@ -41,5 +41,5 @@ dependencies:
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   version: 0.12.0
-digest: sha256:a1804876beb690f44f737b10d392033bcd55a83721b17bf3bf7cc47752a58c33
-generated: "2026-05-21T15:14:33.324013023Z"
+digest: sha256:d3223ea4c27006a35552bb849184bafa85db24431b5dff0ce6e180528e0eb798
+generated: "2026-05-28T23:19:13.269257232Z"
