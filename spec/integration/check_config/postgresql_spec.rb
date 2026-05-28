@@ -20,6 +20,22 @@ describe 'checkConfig postgresql' do
                      error_description: 'when PostgreSQL is not configured globally'
   end
 
+  describe 'database with decomposed main' do
+    let(:success_values) do
+      v = default_required_values.clone
+      v["global"]["psql"] = {
+        "main" => {
+          "host" => "psql-main.example.com",
+          "password" => { "secret" => "psql-secret", "key" => "password" }
+        }
+      }
+      v
+    end
+
+    include_examples 'config validation',
+                     success_description: 'when only `global.psql.main` host and password are configured'
+  end
+
   describe 'database.externaLoadBalancing' do
     let(:success_values) do
       YAML.safe_load(%(
