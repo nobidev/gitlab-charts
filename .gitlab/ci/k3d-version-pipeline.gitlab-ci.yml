@@ -47,3 +47,10 @@ qa_k3d:
       job: pin_image_versions
   rules:
     - when: on_success
+
+qa_k3d_manual_full_suite:
+  extends: .k3d_qa_manual_full_suite_template
+  parallel: 7
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: pin_image_versions
