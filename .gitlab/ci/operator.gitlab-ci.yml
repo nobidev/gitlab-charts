@@ -9,8 +9,13 @@ trigger_operator_test:
     CHARTS_REF: "${CI_COMMIT_SHA}"
     # Ref used by Operator to pull scripts to provision Valkey, PostgreSQL, and Garage.
     CHART_CI_LIB_REF: "${CI_COMMIT_SHA}"
+    # Branch context for Operator to decide whether to bump the chart version.
+    # Concatenation of two mutually exclusive variables: CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    # is set only in MR pipelines; CI_COMMIT_BRANCH is set only in branch pipelines.
+    # Exactly one will be non-empty, so the result is always the effective branch name.
+    CHARTS_BRANCH: "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME$CI_COMMIT_BRANCH"
   inherit:
-    variables: 
+    variables:
       - CANONICAL_PROJECT_PATH
       - SECURITY_PROJECT_PATH
   allow_failure: true
