@@ -90,30 +90,15 @@ The configuration for these CI pipelines is managed in:
 We use [Review apps](https://docs.gitlab.com/ci/review_apps/) in CI to
 deploy running instances of the Helm Charts and test against them.
 
-We deploy these Review apps to our EKS and GKE clusters, confirm that the Helm
-release is created successfully, and then run [GitLab QA](gitlab-qa/_index.md)
-and other [RSpec tests](rspec.md).
+We deploy these Review apps to k3d clusters running in the runner and one
+remote GKE cluster, confirm that the Helm release is created successfully,
+and then run [GitLab QA](gitlab-qa/_index.md) and other [RSpec tests](rspec.md).
 
-We also use the [`vCluster`](https://www.vcluster.com) tool to create ephemeral
-virtual clusters. There are two types of vCluster pipelines: a headless chart
-deploy that simply checks the chart's [readiness probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/) and a full deploy that runs the QA suite.
+We run k3d envionments for:
 
-The number of combinations of each supported
-[Kubernetes version](../installation/cloud/_index.md) and all available
-platforms would be large so only a subset is implemented in the CI pipelines.
-These pipelines are further classified as either `current` or `secondary`. The
-`current` pipelines test the most recent supported Kubernetes version on the
-GKE platform only.
-
-| Minor version | GKE       | EKS       | vCluster  | Note |
-| ---           | ---       | ---       | ---       | ---  |
-| 1.35          | current   | NA        | secondary |      |
-| 1.35 Flux     | NA        | NA        | current   | Deploys Envoy Gateway instead of NGINX Ingress. |
-| 1.35 ARM      | NA        | NA        | secondary | Virtual arm64 cluster by only syncing arm nodes to the vcluster. |
-| 1.34          | NA        | current   | secondary |      |
-| 1.33          | NA        | NA        | current   |      |
-
-This table is in development and subject to change.
+1. Each Kubernetes version supported by GitLab chart.
+1. One envionment to test arm64 deployments.
+1. One envionment to test Ingress behavior (instead of Gateway API).
 
 ### Managing Review apps
 

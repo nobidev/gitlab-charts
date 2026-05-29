@@ -8,6 +8,9 @@ function is_local_deployment() {
   ! is_ci_deployment
 }
 
+# Note: GitLab chart has no vcluster review envionment anymore.
+# This is kept for GitLab Operator which sources this script and
+# still has vcluster envionments.
 function is_vcluster_deployment() {
   [[ -n "${VCLUSTER_K8S_VERSION}" ]]
 }
