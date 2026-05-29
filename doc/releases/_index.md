@@ -10,6 +10,7 @@ Upgrade notes for recent GitLab Helm chart versions. For upgrade notes for older
 
 {{< cards >}}
 
+- [GitLab Helm chart 10.0 upgrade notes](10_0.md)
 - [GitLab Helm chart 9.0 upgrade notes](9_0.md)
 - [GitLab Helm chart 8.0 upgrade notes](8_0.md)
 
