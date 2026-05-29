@@ -25,7 +25,7 @@ We aim to support the scaling and self-healing capabilities of Kubernetes:
 
 - Readiness and Health checks to ensure pods are functioning, and if not to recycle them
 - Tracks to support canary and rolling deployments
-- [Auto-scaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
+- [Auto-scaling](https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/)
 
 We will try to leverage standard Kubernetes features:
 

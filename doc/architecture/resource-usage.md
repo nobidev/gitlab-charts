@@ -134,4 +134,4 @@ default to scale up.
   - memory: `100M`
 
 For more information on how these numbers were calculated, see the
-[issue discussion](https://gitlab.com/gitlab-org/gitlab/-/issues/296789#note_542196438).
+[issue discussion](https://gitlab.com/gitlab-org/gitlab/-/work_items/296789#note_542196438).

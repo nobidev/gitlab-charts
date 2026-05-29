@@ -43,7 +43,7 @@ or use the GitLab-provided scripts to [automate the cluster creation](../install
 > [!warning]
 > Kubernetes nodes support x86-64 and ARM64 architectures.
 > FIPS-validated images are only available for x86-64.
-> See [issue 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285) for ARM64 FIPS status.
+> See [issue 2285](https://gitlab.com/gitlab-org/build/CNG/-/work_items/2285) for ARM64 FIPS status.
 
 ### Install kubectl
 
@@ -52,7 +52,7 @@ The documentation covers most operating systems and the Google
 Cloud SDK, which you may have installed during the previous step.
 
 After you create the cluster, you must
-[configure `kubectl`](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#generate_kubeconfig_entry)
+[configure `kubectl`](https://docs.cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#generate_kubeconfig_entry)
 before you can interact with the cluster from the command line.
 
 ### Install Helm

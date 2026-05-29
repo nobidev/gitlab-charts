@@ -36,7 +36,7 @@ to support new Kubernetes releases three months after their initial release.
 
 For more details [refer to our Kubernetes support policy](https://handbook.gitlab.com/handbook/engineering/infrastructure/core-platform/systems/distribution/k8s-release-support-policy/).
 
-We welcome reports made to our [issue tracker](https://gitlab.com/gitlab-org/charts/gitlab/-/issues) about compatibility issues in releases newer than those listed above.
+We welcome reports made to our [issue tracker](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items) about compatibility issues in releases newer than those listed above.
 
 Some GitLab features might not work on deprecated releases or releases older than the releases listed above.
 
@@ -45,7 +45,7 @@ For some components, like the [agent for Kubernetes](https://docs.gitlab.com/use
 > [!warning]
 > The [GitLab container images](../_index.md#container-images) can be deployed on x86-64 and ARM64 architectures.
 > FIPS-validated images are only available for x86-64.
-> See [issue 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285) for ARM64 FIPS status.
+> See [issue 2285](https://gitlab.com/gitlab-org/build/CNG/-/work_items/2285) for ARM64 FIPS status.
 
 - For cluster topology recommendations for an environment, see the
   [reference architectures](https://docs.gitlab.com/administration/reference_architectures/#available-reference-architectures).

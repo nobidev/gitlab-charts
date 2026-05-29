@@ -298,7 +298,7 @@ your password in the [secrets documentation](secrets.md#smtp-password).
 You can disable authentication settings with `--set global.smtp.authentication=""`.
 
 If your Kubernetes cluster is on GKE, be aware that SMTP
-[port 25 is blocked](https://cloud.google.com/compute/docs/tutorials/sending-mail/#using_standard_email_ports).
+[port 25 is blocked](https://docs.cloud.google.com/compute/docs/tutorials/sending-mail#using_standard_email_ports).
 
 ### Incoming email
 
