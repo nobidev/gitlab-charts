@@ -1186,7 +1186,7 @@ test the configuration.
 > Configuring a relative URL for GitLab has [known issues with Geo](https://gitlab.com/gitlab-org/gitlab/-/issues/456427) and
 > [testing limitations](https://gitlab.com/gitlab-org/gitlab/-/issues/439943).
 > If you are already using a relative URL and want to migrate to a subdomain, see the
-> [migration guide](https://docs.gitlab.com/administration/operations/migrate_to_subdomain).
+> [migration guide](https://docs.gitlab.com/administration/operations/migrate_to_subdomain/).
 
 Though you should install GitLab on its own domain or subdomain, you can install under a relative URL if required. For example,
 `https://example.com/gitlab`.
@@ -1781,7 +1781,7 @@ omniauth:
     - secret: gitlab-cas3
 ```
 
-[Group SAML](https://docs.gitlab.com/integration/saml/#configuring-group-saml-on-a-self-managed-gitlab-instance) configuration example:
+[Group SAML](https://docs.gitlab.com/integration/saml/#configure-group-saml-sso-on-gitlab-self-managed) configuration example:
 
 ```yaml
 omniauth:
@@ -1981,7 +1981,7 @@ global:
 
 ### Bootsnap Cache
 
-Our Rails codebase makes use of [Shopify Bootsnap](https://github.com/Shopify/bootsnap) Gem. Settings here are used to configure that behavior.
+Our Rails codebase makes use of the [Bootsnap](https://github.com/rails/bootsnap) Gem. Settings here are used to configure that behavior.
 
 `bootsnap.enabled` controls the activation of this feature. It defaults to `true`.
 
@@ -2191,7 +2191,7 @@ The Secrets and ConfigMaps can be named in any fashion, but they *must not* cont
 
 GitLab can optionally include an [Application resource](https://github.com/kubernetes-sigs/application),
 which can be created to identify the GitLab application within the cluster. Requires the
-[Application CRD](https://github.com/kubernetes-sigs/application#installing-the-crd),
+[Application CRD](https://github.com/kubernetes-sigs/application),
 version `v1beta1`, to already be deployed to the cluster.
 
 To enable, set `global.application.create` to `true`:

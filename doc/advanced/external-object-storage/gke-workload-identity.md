@@ -12,7 +12,7 @@ title: Workload Identity Federation for GKE using the GitLab chart
 {{< /history >}}
 
 The default configuration for external object storage in the charts uses
-secret keys. [Workload Identity Federation for GKE](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity)
+secret keys. [Workload Identity Federation for GKE](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/workload-identity)
 makes it possible to grant access to object storage to the Kubernetes cluster using short-lived
 tokens. If you have an existing GKE cluster, read the [Google documentation on how to update the node pool to use Workload Identity Federation](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity#option_2_node_pool_modification).
 

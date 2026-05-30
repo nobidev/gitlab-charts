@@ -144,7 +144,7 @@ However, bundling provides critical advantages for GitLabs use case, but also ca
   from the bundled NGINX Ingress, which GitLab currently offers FIPS builds for.
 - Envoy Gateway offers powerful extensions to the standard Gateway API. These extensions
   enable advanced configuration not available with the standard Gateway API.
-- Enables adoption of Envoy, which other [GitLab functionalities](https://gitlab.com/gitlab-org/architecture/auth-architecture/design-doc/-/blob/0d779e8aae72db3f1f045c69d0e693739f2f5fc8/decisions/005_adopt_envoy.md)
+- Enables adoption of Envoy, which other GitLab functionalities
   will depend on.
 - Customers can still choose to deploy their preferred Gateway API controller
   to use instead of the bundled Envoy Gateway.
@@ -163,7 +163,7 @@ and WSS traffic for KAS, or for Smartcard support.
 ### Considerations
 
 - Gateway API and Envoy Gateway require specific Cluster Resource Definitions.
-  Since [Helm doesn't support CRD upgrades](https://helm.sh/docs/v3/chart_best_practices/custom_resource_definitions),
+  Since [Helm doesn't support CRD upgrades](https://helm.sh/docs/v3/chart_best_practices/custom_resource_definitions/),
   manual intervention may be necessary.
 - Packaging a Gateway API controller alongside an application diverges from the
   intended [separation of user personas](https://gateway-api.sigs.k8s.io/).

@@ -42,6 +42,6 @@ each of which can be installed separately.
 - [View architectural decisions](architecture/_index.md)
 - Contribute to development by viewing the [developer documentation](development/_index.md) and
   [contribution guidelines](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/CONTRIBUTING.md)
-- Create an [issue](https://gitlab.com/gitlab-org/charts/gitlab/-/issues)
+- Create an [issue](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items)
 - Create a [merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests)
 - View [troubleshooting](troubleshooting/_index.md) information

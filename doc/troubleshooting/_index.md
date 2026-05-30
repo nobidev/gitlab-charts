@@ -22,8 +22,8 @@ and attempt to update the release.
 
 Otherwise, if you received this error after having previously had successful deploys
 of the GitLab chart, then you are encountering a bug. Please open an issue on our
-[issue tracker](https://gitlab.com/gitlab-org/charts/gitlab/-/issues), and also check out
-[issue #630](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/630) where we recovered our
+[issue tracker](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items), and also check out
+[issue #630](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/630) where we recovered our
 CI server from this problem.
 
 ## Error: this command needs 2 arguments: release name, chart path
