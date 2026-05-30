@@ -56,7 +56,7 @@ When dealing with networking, storage, or other complex issues, a cloud Kubernet
 > [!warning]
 > GitLab images are built for x86-64 amd ARM64 architectures.
 > FIPS-validated images are only available for x86-64.
-> See [issue 2285](https://gitlab.com/gitlab-org/build/CNG/-/issues/2285) for ARM64 FIPS status.
+> See [issue 2285](https://gitlab.com/gitlab-org/build/CNG/-/work_items/2285) for ARM64 FIPS status.
 
 ### Local cluster
 

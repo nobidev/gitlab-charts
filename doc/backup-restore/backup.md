@@ -50,7 +50,7 @@ Follow these steps for backing up a GitLab Helm chart based installation.
 > This annotation can be changed by setting the `gitlab.toolbox.backups.cron.safeToEvict` parameter to `true`, which
 > will allow the Jobs to be created but at the risk of being evicted and corrupting the backup.
 
-Cron based backups can be enabled in this chart to happen at regular intervals as defined by the [Kubernetes schedule](https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs).
+Cron based backups can be enabled in this chart to happen at regular intervals as defined by the [Kubernetes schedule](https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs/).
 
 You need to set the following parameters:
 

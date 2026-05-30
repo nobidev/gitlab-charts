@@ -64,7 +64,7 @@ backup.
 The backup utility needs access to these buckets. There are two ways to grant access:
 
 - Specifying credentials in a Kubernetes secret.
-- Configuring [Workload Identity Federation for GKE](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity).
+- Configuring [Workload Identity Federation for GKE](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/workload-identity).
 
 #### GCS credentials
 
