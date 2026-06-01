@@ -66,3 +66,13 @@ dependencies:
   version: 0.12.0
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   condition: ai-gateway.install
+# Experimental/Demo only
+- name: gkg
+  version: 0.16.0
+  repository: oci://registry.gitlab.com/gitlab-org/orbit/gkg-helm-charts
+  condition: gkg.install
+- name: gitlab-clickhouse
+  alias: clickhouse
+  version: 0.2.0
+  repository: oci://registry.gitlab.com/gitlab-org/cloud-native/charts/gitlab-deps
+  condition: clickhouse.install

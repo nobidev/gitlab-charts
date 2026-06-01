@@ -1,0 +1,47 @@
+#repositories:
+#  - name: jetstack
+#    url: https://charts.jetstack.io
+
+releases:
+- name: cert-manager
+  namespace: cert-manager
+  createNamespace: true
+  # chart: oci://quay.io/jetstack/charts/cert-manager
+  # chart: jetstack/cert-manager
+  chart: /home/clemens/repos/gitlab-deps/charts/gitlab-deps-base/charts/cert-manager-v1.20.2.tgz
+  version: v1.20.2
+  set:
+  - name: crds.enabled
+    value: true
+- name: gitlab-deps
+  namespace: gitlab
+  chart: oci://registry.gitlab.com/gitlab-org/cloud-native/charts/gitlab-deps/gitlab-deps-base
+  needs:
+  - cert-manager/cert-manager
+  # chart: /home/clemens/repos/gitlab-deps/charts/gitlab-deps-base
+- name: gitlab
+  namespace: gitlab
+  chart: ../.. # todo: swap to main GitLab repo 
+  needs:
+  - gitlab/gitlab-deps
+  values:
+  - ../../.values/dev-external.values.yaml
+  set:
+  - name: installCertmanager
+    value: false
+  - name: gitlabDeps.releaseName
+    value: gitlab-deps
+  - name: gitlabDeps.namespace
+    value: gitlab
+  - name: gkg.install
+    value: true
+  - name: clickhouse.install
+    value: true
+  - name: certmanager-issuer.email
+    value: test@example.com
+  - name: global.hosts.domain
+    value: local.example.com
+  - name: gkg.nats.url
+    value: nats://tbd:4222
+  - name: gkg.existingSecret
+    value: gitlab

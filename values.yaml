@@ -1604,3 +1604,7 @@ envoy-gateway:
     envoyGateway:
       gateway:
         controllerName: gateway.envoyproxy.io/gitlab-gatewayclass-controller
+
+gitlabDeps:
+  releaseName: ""
+  namespace: ""

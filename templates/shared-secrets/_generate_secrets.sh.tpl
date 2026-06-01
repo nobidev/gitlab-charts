@@ -260,3 +260,11 @@ generate_secret_if_needed {{ template "ai-gateway.aigwSigningKey.secret" . }} --
 openssl genrsa -out aigw_validation.key 4096
 generate_secret_if_needed {{ template "ai-gateway.aigwValidationKey.secret" . }} --from-file={{ template "ai-gateway.aigwValidationKey.key" . }}=aigw_validation.key
 {{ end }}
+
+{{ if .Values.gkg.install }}
+gen_random_bytes 32 > gkg-sign
+generate_secret_if_needed {{ template "gitlab.gkg.signingSecret.name" . }} \
+  --from-file=signing-key=gkg-sign
+generate_secret_if_needed {{ template "gitlab.gkg.verifyingSecret.name" . }} \
+  --from-file=verifying-key=gkg-sign
+{{ end }}

@@ -41,5 +41,11 @@ dependencies:
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   version: 0.12.0
-digest: sha256:d3223ea4c27006a35552bb849184bafa85db24431b5dff0ce6e180528e0eb798
-generated: "2026-05-28T23:19:13.269257232Z"
+- name: gkg
+  repository: oci://registry.gitlab.com/gitlab-org/orbit/gkg-helm-charts
+  version: 0.16.0
+- name: gitlab-clickhouse
+  repository: oci://registry.gitlab.com/gitlab-org/cloud-native/charts/gitlab-deps
+  version: 0.2.0
+digest: sha256:741bc1af10d437a210b185014408fc67bdd66891e52f63f61ab331b1da73cdaf
+generated: "2026-06-01T09:42:38.732138983+02:00"
