@@ -94,11 +94,11 @@ We deploy these Review apps to k3d clusters running in the runner and one
 remote GKE cluster, confirm that the Helm release is created successfully,
 and then run [GitLab QA](gitlab-qa/_index.md) and other [RSpec tests](rspec.md).
 
-We run k3d envionments for:
+We run k3d environments for:
 
 1. Each Kubernetes version supported by GitLab chart.
-1. One envionment to test arm64 deployments.
-1. One envionment to test Ingress behavior (instead of Gateway API).
+1. One environment to test arm64 deployments.
+1. One environment to test Ingress behavior (instead of Gateway API).
 
 ### Managing Review apps
 
