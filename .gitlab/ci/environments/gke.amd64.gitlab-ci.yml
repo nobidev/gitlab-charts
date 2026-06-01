@@ -14,7 +14,7 @@ include:
 
 .review_gke_common_vars: &review_gke_common_vars
   DNS_PROVIDER: "google"
-  AGENT_NAME: "gke-ci-cluster"
+  AGENT_NAME: "gke135-ci-cluster"
   KUBE_INGRESS_BASE_DOMAIN: "cloud-native-v135.helm-charts.win"
   KUBE_NAMESPACE: "helm-charts-win"
   USE_NGINX_INGRESS: "true"
@@ -28,7 +28,7 @@ create_review_gke:
   script:
     - echo "Configuring gke_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA to automatically stop in $REVIEW_APPS_AUTO_STOP_IN."
   environment:
-    name: gke_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
+    name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
     on_stop: stop_review_gke
     auto_stop_in: $REVIEW_APPS_AUTO_STOP_IN
@@ -39,7 +39,7 @@ review_gke:
     <<: *review_gke_common_vars
   extends: .review_template
   environment:
-    name: gke_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
+    name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
     on_stop: stop_review_gke
     auto_stop_in: "${REVIEW_APPS_AUTO_STOP_IN}"
@@ -50,7 +50,7 @@ stop_review_gke:
     <<: *review_gke_common_vars
   extends: .stop_review_template
   environment:
-    name: gke_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
+    name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     action: stop
 
 review_specs_gke:
@@ -59,7 +59,7 @@ review_specs_gke:
     <<: *review_gke_common_vars
     VARIABLES_FILE: "variables/review_gke"
   environment:
-    name: gke_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
+    name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
     on_stop: stop_review_gke
     action: access
@@ -71,7 +71,7 @@ qa_gke:
     VARIABLES_FILE: "variables/review_gke"
     TEST_SUITE: $QA_SANITY_SUITE_OPTIONS
   environment:
-    name: gke_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
+    name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     on_stop: stop_review_gke
     action: access
   needs:
@@ -90,7 +90,7 @@ qa_gke_manual_full_suite:
     VARIABLES_FILE: "variables/review_gke"
     TEST_SUITE: $QA_FULL_SUITE_OPTIONS
   environment:
-    name: gke_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
+    name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     on_stop: stop_review_gke
     action: access
   needs: ["qa_gke_full_suite_manual_trigger"]
