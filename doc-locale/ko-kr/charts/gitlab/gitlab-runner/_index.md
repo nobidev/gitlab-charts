@@ -14,7 +14,8 @@ title: GitLab Runner 차트 사용
 
 GitLab Runner 서브차트는 CI 작업을 실행하기 위한 GitLab Runner를 제공합니다. 기본적으로 활성화되어 있으며 S3 호환 객체 저장소를 사용한 캐싱 지원과 함께 즉시 사용할 수 있습니다.
 
-> [!note] 번들로 제공되는 GitLab Runner는 평가 목적으로만 제공됩니다. 프로덕션 배포의 경우 [보안 및 성능상의 이유로](https://docs.gitlab.com/install/requirements/#gitlab-runner) GitLab Runner를 별도의 머신에 설치하세요. 자세한 정보는 [참조 아키텍처 설명서](../../../installation/_index.md#use-the-reference-architectures)를 참조하세요.
+> [!note]
+> 번들로 제공되는 GitLab Runner는 평가 목적으로만 제공됩니다. 프로덕션 배포의 경우 [보안 및 성능상의 이유로](https://docs.gitlab.com/install/requirements/#gitlab-runner) GitLab Runner를 별도의 머신에 설치하세요. 자세한 정보는 [참조 아키텍처 설명서](../../../installation/_index.md#use-the-reference-architectures)를 참조하세요.
 
 ## 요구 사항 {#requirements}
 

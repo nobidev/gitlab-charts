@@ -12,7 +12,8 @@ title: NGINX 사용
 
 {{< /details >}}
 
-> [!warning] NGINX Ingress는 더 이상 지원되지 않으며 2026년 3월 이후 보안 패치를 받지 않습니다. GitLab 19.0에서는 번들로 제공되는 NGINX Ingress가 기본적으로 비활성화되며 20.0에서 전체 제거가 계획되어 있습니다.
+> [!warning]
+> NGINX Ingress는 더 이상 지원되지 않으며 2026년 3월 이후 보안 패치를 받지 않습니다. GitLab 19.0에서는 번들로 제공되는 NGINX Ingress가 기본적으로 비활성화되며 20.0에서 전체 제거가 계획되어 있습니다.
 >
 > 자세한 내용은 [지원 중단 공지](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress)를 참조하세요. [번들로 제공되는 Envoy Gateway](../envoygateway/_index.md) 또는 [외부 Ingress 컨트롤러](../../advanced/external-ingress/_index.md)로 가능한 한 빨리 마이그레이션해야 합니다.
 
@@ -71,7 +72,8 @@ GitLab Ingress 구성에서 구성 스니펫을 사용하거나 구성 스니펫
 
 ## NGINX 포크 조정사항 {#adjustments-to-the-nginx-fork}
 
-> [!note] 우리의 [포크](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/nginx-ingress) 는 [GitHub](https://github.com/kubernetes/ingress-nginx)에서 가져온 것입니다.
+> [!note]
+> 우리의 [포크](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/nginx-ingress) 는 [GitHub](https://github.com/kubernetes/ingress-nginx)에서 가져온 것입니다.
 
 NGINX 포크에 다음 조정사항이 적용되었습니다:
 

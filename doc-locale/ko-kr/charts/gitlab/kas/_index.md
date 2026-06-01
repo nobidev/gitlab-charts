@@ -50,7 +50,8 @@ global.hosts.kas.name: kas.my-other-domain.com
 
 KAS 서비스는 WebSocket 트래픽과 동일한 포트를 통해 gRPC 트래픽을 지원하며, 두 프로토콜을 구분하기 위해 정규식 매칭을 사용한 경로 기반 라우팅을 사용합니다.
 
-> [!warning] [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root)이 비어 있지 않은 값으로 설정된 경우 gRPC Ingress는 지원되지 않습니다.
+> [!warning]
+> [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root)이 비어 있지 않은 값으로 설정된 경우 gRPC Ingress는 지원되지 않습니다.
 
 #### 컨트롤러 지원 {#controller-support}
 

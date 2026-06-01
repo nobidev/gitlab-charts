@@ -21,7 +21,8 @@ title: OpenBao 차트
 
 {{< /history >}}
 
-> [!flag] 이 기능의 가용성은 기능 플래그로 제어됩니다. 자세한 내용은 기록을 참조하십시오.
+> [!flag]
+> 이 기능의 가용성은 기능 플래그로 제어됩니다. 자세한 내용은 기록을 참조하십시오.
 
 [OpenBao 차트](https://gitlab.com/gitlab-org/cloud-native/charts/openbao) 를 사용하여 [GitLab 시크릿 관리자](https://docs.gitlab.com/ci/secrets/secrets_manager/)를 활성화하는 데 필요한 OpenBao를 설치할 수 있습니다.
 
@@ -197,7 +198,8 @@ ingress:
   sslPassthroughNginx: true
 ```
 
-> [!note] SSL 통과를 활성화하려면 cert-manager를 사용하여 다른 Ingress를 만들어 HTTP01 챌린지를 완료해야 합니다. 번들로 제공되는 certmanager 및 `Issuer`를 사용하는 경우 발급자가 [`global.ingress.useNewIngressForCerts`](../globals.md#globalingressusenewingressforcerts)를 구성하여 올바른 `IngressClass`를 설정하는지 확인하세요.
+> [!note]
+> SSL 통과를 활성화하려면 cert-manager를 사용하여 다른 Ingress를 만들어 HTTP01 챌린지를 완료해야 합니다. 번들로 제공되는 certmanager 및 `Issuer`를 사용하는 경우 발급자가 [`global.ingress.useNewIngressForCerts`](../globals.md#globalingressusenewingressforcerts)를 구성하여 올바른 `IngressClass`를 설정하는지 확인하세요.
 
 ### Gateway API {#gateway-api}
 

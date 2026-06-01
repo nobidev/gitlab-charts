@@ -57,7 +57,8 @@ gitlab:
 
 `affinity`은 모든 GitLab Helm 서브차트에서 선택적 매개변수입니다. 이를 설정하면 [전역 `affinity`](../globals.md#affinity) 값보다 우선합니다. `affinity`에 대한 자세한 내용은 [관련 Kubernetes 설명서](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity)를 참조하세요.
 
-> [!note] `webservice`과 `sidekiq` Helm 차트는 [전역 `affinity`](../globals.md#affinity) 값만 사용할 수 있습니다. [문제 25403](https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/issues/25403)을 팔로우하여 로컬 `affinity`이 `webservice`과 `sidekiq`에 구현되는 시기를 알아보세요.
+> [!note]
+> `webservice`과 `sidekiq` Helm 차트는 [전역 `affinity`](../globals.md#affinity) 값만 사용할 수 있습니다. [문제 25403](https://gitlab.com/gitlab-com/gl-infra/production-engineering/-/issues/25403)을 팔로우하여 로컬 `affinity`이 `webservice`과 `sidekiq`에 구현되는 시기를 알아보세요.
 
 `affinity`을 사용하면 다음 중 하나 또는 둘 다를 설정할 수 있습니다:
 

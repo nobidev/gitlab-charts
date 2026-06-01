@@ -268,7 +268,8 @@ CREATE ROLE registry_restore WITH LOGIN PASSWORD '<restore_password>'
 
 `databaseReindex.cron.schedule` 값을 사용하여 CronJob의 스케줄을 설정합니다. 트래픽이 적은 기간 동안 재인덱싱을 실행해야 합니다. 예를 들어 데이터베이스 재인덱싱은 GitLab.com에서 토요일과 일요일에 실행됩니다.
 
-> [!note] Linux 패키지 인스턴스 관리자인 경우 [관련 지침을 따라](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing) 수행하여 주기적인 데이터베이스 재인덱싱을 활성화할 수 있습니다.
+> [!note]
+> Linux 패키지 인스턴스 관리자인 경우 [관련 지침을 따라](https://docs.gitlab.com/omnibus/settings/database/#automatic-database-reindexing) 수행하여 주기적인 데이터베이스 재인덱싱을 활성화할 수 있습니다.
 
 ## 지속성 구성 {#persistence-configuration}
 

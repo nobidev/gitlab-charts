@@ -338,7 +338,8 @@ workhorse:
 
 다음 값은 Gitaly Pod을 구성하는 데 사용됩니다.
 
-> [!note] Gitaly는 Auth Token을 사용하여 Workhorse 및 Sidekiq 서비스로 인증합니다. Auth Token 암호 및 키는 `global.gitaly.authToken` 값에서 가져옵니다. 또한 Gitaly 컨테이너에는 GitLab Shell의 사본이 있으며 설정할 수 있는 구성이 있습니다. Shell authToken은 `global.shell.authToken` 값에서 가져옵니다.
+> [!note]
+> Gitaly는 Auth Token을 사용하여 Workhorse 및 Sidekiq 서비스로 인증합니다. Auth Token 암호 및 키는 `global.gitaly.authToken` 값에서 가져옵니다. 또한 Gitaly 컨테이너에는 GitLab Shell의 사본이 있으며 설정할 수 있는 구성이 있습니다. Shell authToken은 `global.shell.authToken` 값에서 가져옵니다.
 
 ### Git 리포지토리 지속성 {#git-repository-persistence}
 
@@ -373,7 +374,8 @@ persistence:
 
 ### TLS을 통해 Gitaly 실행 {#running-gitaly-over-tls}
 
-> [!note] 이 섹션은 Helm 차트를 사용하여 클러스터 내부에서 Gitaly가 실행되는 것을 말합니다. 외부 Gitaly 인스턴스를 사용하고 있고 TLS를 사용하여 이와 통신하려는 경우 [외부 Gitaly 문서](../../../advanced/external-gitaly/_index.md#connecting-to-external-gitaly-over-tls)를 참조하세요.
+> [!note]
+> 이 섹션은 Helm 차트를 사용하여 클러스터 내부에서 Gitaly가 실행되는 것을 말합니다. 외부 Gitaly 인스턴스를 사용하고 있고 TLS를 사용하여 이와 통신하려는 경우 [외부 Gitaly 문서](../../../advanced/external-gitaly/_index.md#connecting-to-external-gitaly-over-tls)를 참조하세요.
 
 Gitaly는 TLS를 통해 다른 구성 요소와 통신하도록 지원합니다. 이는 설정 `global.gitaly.tls.enabled` 및 `global.gitaly.tls.secretName`에 의해 제어됩니다. TLS를 통해 Gitaly를 실행하는 단계를 따릅니다:
 

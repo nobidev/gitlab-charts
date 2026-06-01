@@ -13,7 +13,8 @@ title: Praefect 차트 사용
 
 {{< /details >}}
 
-> [!warning] Praefect 차트는 아직 개발 중입니다. 이 실험 버전은 아직 프로덕션 사용에 적합하지 않습니다. 업그레이드에는 상당한 수동 개입이 필요할 수 있습니다. 자세한 정보는 [Praefect GA 릴리스 Epic](https://gitlab.com/groups/gitlab-org/charts/-/epics/33)을 참조하세요.
+> [!warning]
+> Praefect 차트는 아직 개발 중입니다. 이 실험 버전은 아직 프로덕션 사용에 적합하지 않습니다. 업그레이드에는 상당한 수동 개입이 필요할 수 있습니다. 자세한 정보는 [Praefect GA 릴리스 Epic](https://gitlab.com/groups/gitlab-org/charts/-/epics/33)을 참조하세요.
 
 Praefect 차트는 [Gitaly Cluster (Praefect)](https://docs.gitlab.com/administration/gitaly/praefect/)를 관리하는 데 사용되며, Helm 차트로 배포된 GitLab 설치 내에서 사용됩니다.
 
@@ -118,7 +119,8 @@ global:
 
 ### Praefect로 마이그레이션 {#migrating-to-praefect}
 
-> [!note] 그룹 Wiki는 [API를 사용하여 이동할 수 없습니다](https://docs.gitlab.com/api/project_repository_storage_moves/).
+> [!note]
+> 그룹 Wiki는 [API를 사용하여 이동할 수 없습니다](https://docs.gitlab.com/api/project_repository_storage_moves/).
 
 독립형 Gitaly 인스턴스에서 Praefect 설정으로 마이그레이션할 때 `global.praefect.replaceInternalGitaly`을 `false`로 설정할 수 있습니다. 이렇게 하면 기존 Gitaly 인스턴스가 보존되고 새로운 Praefect 관리 Gitaly 인스턴스가 생성됩니다.
 
@@ -133,7 +135,8 @@ global:
       maxUnavailable: 2
 ```
 
-> [!note] Praefect로 마이그레이션할 때 Praefect의 가상 스토리지 중 어느 것도 `default`라고 명명할 수 없습니다. 항상 `default`라는 이름의 스토리지가 최소 하나는 있어야 하므로 이 이름은 이미 비-Praefect 구성에서 사용 중입니다.
+> [!note]
+> Praefect로 마이그레이션할 때 Praefect의 가상 스토리지 중 어느 것도 `default`라고 명명할 수 없습니다. 항상 `default`라는 이름의 스토리지가 최소 하나는 있어야 하므로 이 이름은 이미 비-Praefect 구성에서 사용 중입니다.
 
 [Gitaly Cluster (Praefect)로 마이그레이션](https://docs.gitlab.com/administration/gitaly/praefect/#migrate-to-gitaly-cluster-praefect)하기 위한 지침을 따라 `default` 스토리지에서 `virtualStorage2`로 데이터를 이동할 수 있습니다. `global.gitaly.internal.names` 아래에 정의된 추가 스토리지가 있으면 해당 스토리지에서도 저장소를 마이그레이션해야 합니다.
 

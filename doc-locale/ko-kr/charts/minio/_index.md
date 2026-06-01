@@ -12,7 +12,8 @@ title: 객체 스토리지용 MinIO 사용
 
 {{< /details >}}
 
-> [!note] 번들 MinIO 차트는 프로덕션 준비가 되어 있지 않습니다. 프로덕션 준비가 된 GitLab 차트 배포의 경우 외부 객체 스토리지 솔루션을 사용하세요.
+> [!note]
+> 번들 MinIO 차트는 프로덕션 준비가 되어 있지 않습니다. 프로덕션 준비가 된 GitLab 차트 배포의 경우 외부 객체 스토리지 솔루션을 사용하세요.
 >
 > 번들 MinIO 차트에서 마이그레이션하는 방법은 [번들 Redis, PostgreSQL 및 MinIO에서 마이그레이션](../../installation/migration/bundled_chart_migration.md)을 참조하세요.
 

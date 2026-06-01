@@ -323,7 +323,8 @@ GitLab Pages 기능에 TLS 액세스를 하려면 다음을 수행해야 합니�
 
 {{< /history >}}
 
-> [!warning] GitLab Pages는 한 번에 하나의 URL 스키마만 지원합니다:  와일드카드 DNS를 사용하거나 와일드카드 DNS 없이. `namespaceInPath`를 활성화하면 기존 GitLab Pages 웹사이트는 와일드카드 DNS가 없는 도메인에서만 액세스할 수 있습니다.
+> [!warning]
+> GitLab Pages는 한 번에 하나의 URL 스키마만 지원합니다:  와일드카드 DNS를 사용하거나 와일드카드 DNS 없이. `namespaceInPath`를 활성화하면 기존 GitLab Pages 웹사이트는 와일드카드 DNS가 없는 도메인에서만 액세스할 수 있습니다.
 
 1. 전역 Pages 설정에서 `namespaceInPath`을 활성화합니다.
 
@@ -366,7 +367,8 @@ GitLab Pages 기능에 TLS 액세스를 하려면 다음을 수행해야 합니�
 
 1. 선택 사항입니다. [TLS 액세스](#tls-access-to-gitlab-pages-domain-without-wildcard-dns) 가 구성된 경우 GitLab Pages [System OAuth application](https://docs.gitlab.com/integration/oauth_provider/#create-an-instance-wide-application)의 리디렉션 URI를 업데이트하여 HTTPS 프로토콜을 사용합니다.
 
-> [!warning] GitLab Pages는 OAuth 애플리케이션을 업데이트하지 않으며, 기본 `authRedirectUri`는 `https://pages.<yourdomaindomain>/projects/auth`으로 업데이트됩니다. 비공개 Pages 사이트에 액세스하는 동안 '포함된 리디렉션 URI가 유효하지 않습니다' 오류가 발생하면 GitLab Pages [System OAuth application](https://docs.gitlab.com/integration/oauth_provider/#create-an-instance-wide-application)의 리디렉션 URI를 `https://pages.<yourdomaindomain>/projects/auth`으로 업데이트합니다.
+> [!warning]
+> GitLab Pages는 OAuth 애플리케이션을 업데이트하지 않으며, 기본 `authRedirectUri`는 `https://pages.<yourdomaindomain>/projects/auth`으로 업데이트됩니다. 비공개 Pages 사이트에 액세스하는 동안 '포함된 리디렉션 URI가 유효하지 않습니다' 오류가 발생하면 GitLab Pages [System OAuth application](https://docs.gitlab.com/integration/oauth_provider/#create-an-instance-wide-application)의 리디렉션 URI를 `https://pages.<yourdomaindomain>/projects/auth`으로 업데이트합니다.
 
 ### 속도 제한 {#rate-limits}
 

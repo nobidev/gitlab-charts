@@ -417,7 +417,8 @@ gitaly:
 | `maxReplicas`                | 정수 | `10`      | 최대 복제본 수 |
 | `maxUnavailable`             | 정수 | `1`       | 사용할 수 없는 Pod의 최대 개수 제한 |
 
-> [!note] [Sidekiq 메모리 킬러의 자세한 문서를 사용할 수 있습니다](https://docs.gitlab.com/administration/sidekiq/sidekiq_memory_killer/) Linux 패키지 문서에서.
+> [!note]
+> [Sidekiq 메모리 킬러의 자세한 문서를 사용할 수 있습니다](https://docs.gitlab.com/administration/sidekiq/sidekiq_memory_killer/) Linux 패키지 문서에서.
 
 ## HPA 확장 비활성화 {#disable-hpa-scaling}
 

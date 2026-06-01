@@ -25,7 +25,8 @@ title: Zoekt 차트
 
 {{< /history >}}
 
-> [!warning] 이 기능은 [제한된 가용성](https://docs.gitlab.com/policy/development_stages_support/#limited-availability) 상태입니다. 자세한 내용은 [에픽 9404](https://gitlab.com/groups/gitlab-org/-/epics/9404)를 참조하세요. [이슈 420920](https://gitlab.com/gitlab-org/gitlab/-/issues/420920)에서 피드백을 제공하세요.
+> [!warning]
+> 이 기능은 [제한된 가용성](https://docs.gitlab.com/policy/development_stages_support/#limited-availability) 상태입니다. 자세한 내용은 [에픽 9404](https://gitlab.com/groups/gitlab-org/-/epics/9404)를 참조하세요. [이슈 420920](https://gitlab.com/gitlab-org/gitlab/-/issues/420920)에서 피드백을 제공하세요.
 
 ## Linux 패키지 인스턴스가 있는 Zoekt 차트 {#zoekt-chart-with-a-linux-package-instance}
 
