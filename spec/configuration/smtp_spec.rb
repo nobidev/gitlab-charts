@@ -94,6 +94,28 @@ describe 'SMTP configuration' do
       it 'does not mount the password secret' do
         expect(smtp_secret).to eq(nil)
       end
+
+      context 'with user_name_secret set' do
+        let(:values) do
+          YAML.safe_load(%(
+            global:
+              smtp:
+                user_name_secret:
+                  secret: gitlab-smtp-username
+                  key: username
+          )).deep_merge(super())
+        end
+
+        it 'does not render user_name: File.read in smtp_settings.rb' do
+          configmap = template.dig('ConfigMap/test-webservice', 'data', 'smtp_settings.rb')
+          expect(configmap).not_to include('user_name: File.read("/etc/gitlab/smtp/smtp-username")')
+        end
+
+        it 'does not mount the user_name secret' do
+          username_secret = template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', 'gitlab-smtp-username')
+          expect(username_secret).to eq(nil)
+        end
+      end
     end
 
     context 'via none string' do

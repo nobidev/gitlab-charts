@@ -69,6 +69,7 @@ documentation.
 - [External Services](#external-services)
   - [OmniAuth](#omniauth)
   - [LDAP Password](#ldap-password)
+  - [SMTP Username](#smtp-username)
   - [SMTP Password](#smtp-password)
   - [IMAP Password for incoming email](#imap-password-for-incoming-emails)
   - [IMAP Password for Service Desk](#imap-password-for-service-desk-emails)
@@ -382,21 +383,7 @@ inject the password into your configuration.
 > [!note]
 > Use the `Secret` name, not the _actual password_ when configuring the Helm property.
 
-### SMTP password
-
-If you are using an SMTP server that requires authentication, store the password
-in a Kubernetes secret.
-
-```shell
-kubectl create secret generic smtp-password --from-literal=password=yourpasswordhere
-```
-
-Then use `--set global.smtp.password.secret=smtp-password` in your Helm command.
-
-> [!note]
-> Use the `Secret` name, not the _actual password_ when configuring the Helm property.
-
-### SMTP username
+### SMTP Username
 
 Some SMTP providers (such as AWS SES) use credentials where the username is sensitive
 (for example, an AWS Access Key ID) and should not be stored in plain text in Helm values.
@@ -427,6 +414,20 @@ When `global.smtp.user_name_secret.secret` is set, it takes precedence over `glo
 
 > [!note]
 > Use the `Secret` name, not the _actual username_ when configuring the Helm property.
+
+### SMTP Password
+
+If you are using an SMTP server that requires authentication, store the password
+in a Kubernetes secret.
+
+```shell
+kubectl create secret generic smtp-password --from-literal=password=yourpasswordhere
+```
+
+Then use `--set global.smtp.password.secret=smtp-password` in your Helm command.
+
+> [!note]
+> Use the `Secret` name, not the _actual password_ when configuring the Helm property.
 
 ### IMAP password for incoming emails
 
