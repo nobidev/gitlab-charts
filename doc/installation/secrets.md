@@ -69,6 +69,7 @@ documentation.
 - [External Services](#external-services)
   - [OmniAuth](#omniauth)
   - [LDAP Password](#ldap-password)
+  - [SMTP Username](#smtp-username)
   - [SMTP Password](#smtp-password)
   - [IMAP Password for incoming email](#imap-password-for-incoming-emails)
   - [IMAP Password for Service Desk](#imap-password-for-service-desk-emails)
@@ -382,7 +383,39 @@ inject the password into your configuration.
 > [!note]
 > Use the `Secret` name, not the _actual password_ when configuring the Helm property.
 
-### SMTP password
+### SMTP Username
+
+Some SMTP providers (such as AWS SES) use credentials where the username is sensitive
+(for example, an AWS Access Key ID) and should not be stored in plain text in Helm values.
+You can store the SMTP username in a Kubernetes secret instead:
+
+```shell
+kubectl create secret generic smtp-username --from-literal=username=yourusernamehere
+```
+
+Then configure the chart to read the username from the secret:
+
+```yaml
+global:
+  smtp:
+    user_name_secret:
+      secret: smtp-username
+      key: username
+```
+
+Or with `--set`:
+
+```shell
+--set global.smtp.user_name_secret.secret=smtp-username \
+--set global.smtp.user_name_secret.key=username
+```
+
+When `global.smtp.user_name_secret.secret` is set, it takes precedence over `global.smtp.user_name`.
+
+> [!note]
+> Use the `Secret` name, not the _actual username_ when configuring the Helm property.
+
+### SMTP Password
 
 If you are using an SMTP server that requires authentication, store the password
 in a Kubernetes secret.

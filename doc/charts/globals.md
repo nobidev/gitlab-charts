@@ -2531,6 +2531,10 @@ global:
     tls: true
     authentication: 'plain'
     user_name: 'example'
+    # Alternatively, read the username from a Kubernetes Secret:
+    # user_name_secret:
+    #   secret: 'smtp-username'
+    #   key: 'username'
     password:
       secret: 'smtp-password'
       key: 'password'

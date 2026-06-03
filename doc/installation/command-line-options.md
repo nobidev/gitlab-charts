@@ -87,7 +87,9 @@ helm inspect values gitlab/gitlab
 | `global.smtp.port`                | `2525`                | Port for SMTP |
 | `global.smtp.starttls_auto`       | `false`               | Use STARTTLS if enabled on the mail server |
 | `global.smtp.tls`                 | _none_                | Enables SMTP/TLS (SMTPS: SMTP over direct TLS connection) |
-| `global.smtp.user_name`           | `""`                  | Username for SMTP authentication https |
+| `global.smtp.user_name`           | `""`                  | Username for SMTP authentication (plain text; use `global.smtp.user_name_secret` to read from a Kubernetes Secret instead) |
+| `global.smtp.user_name_secret.key`    | `username`        | Key in `global.smtp.user_name_secret.secret` that contains the SMTP username |
+| `global.smtp.user_name_secret.secret` | `""`              | Name of a `Secret` containing the SMTP username; when set, takes precedence over `global.smtp.user_name` |
 | `global.smtp.open_timeout`        | `30`                  | Seconds to wait while attempting to open a connection. |
 | `global.smtp.read_timeout`        | `60`                  | Seconds to wait while reading one block. |
 | `global.smtp.pool`                | `false`               | Enables SMTP connection pooling |
