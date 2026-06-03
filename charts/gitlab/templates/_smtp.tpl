@@ -14,7 +14,11 @@ smtp_settings = {
   {{- end }}
   {{ if has .Values.global.smtp.authentication (list "login" "plain" "cram_md5") }}
   authentication: :{{.Values.global.smtp.authentication}},
+  {{- if .Values.global.smtp.user_name_secret.secret }}
+  user_name: File.read("/etc/gitlab/smtp/smtp-username").strip,
+  {{- else }}
   user_name: {{ .Values.global.smtp.user_name | quote }},
+  {{- end }}
   password: File.read("/etc/gitlab/smtp/smtp-password").strip,
   {{- end }}
   {{- if .Values.global.smtp.starttls_auto }}
@@ -105,6 +109,13 @@ email_smime:
     items:
       - key: {{ .password.key }}
         path: smtp/smtp-password
+{{-     if .user_name_secret.secret }}
+- secret:
+    name: {{ .user_name_secret.secret }}
+    items:
+      - key: {{ .user_name_secret.key }}
+        path: smtp/smtp-username
+{{-     end }}
 {{-   end }}
 {{- end }}
 {{- end }}

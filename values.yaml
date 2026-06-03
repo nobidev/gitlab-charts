@@ -817,6 +817,10 @@ global:
     address: smtp.mailgun.org
     port: 2525
     user_name: ""
+    ## Optional: read user_name from a Kubernetes Secret instead of plain text
+    user_name_secret:
+      secret: ""
+      key: username
     ## https://docs.gitlab.com/charts/installation/secrets#smtp-password
     password:
       secret: ""
