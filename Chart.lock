@@ -25,7 +25,7 @@ dependencies:
   version: '*.*.*'
 - name: gitlab-zoekt
   repository: https://charts.gitlab.io/
-  version: 3.8.2
+  version: 4.0.0
 - name: openbao
   repository: https://charts.gitlab.io/
   version: 0.15.0
@@ -41,5 +41,5 @@ dependencies:
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   version: 0.11.0
-digest: sha256:f2c5c2b049612ca0d942235b7c723a40861e00a0f53d9af632e6ff06cf2072ff
-generated: "2026-06-03T14:41:51.968280228+02:00"
+digest: sha256:228ffa6259425100463f66829c562cac17eba1fd754514bf85b367023c658ce3
+generated: "2026-06-03T14:52:54.804512-04:00"
