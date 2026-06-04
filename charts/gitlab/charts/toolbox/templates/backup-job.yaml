@@ -47,11 +47,6 @@ spec:
           {{- end }}
         spec:
           restartPolicy: {{ .Values.backups.cron.restartPolicy }}
-          {{- $tolerations := default .Values.tolerations .Values.backups.cron.tolerations }}
-          {{- if $tolerations }}
-          tolerations:
-            {{- toYaml $tolerations | nindent 12 }}
-          {{- end }}
           {{- include "gitlab.podSecurityContext" .Values.securityContext | nindent 10 }}
           {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
           serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
@@ -249,6 +244,12 @@ spec:
           nodeSelector:
             {{- toYaml .Values.backups.cron.nodeSelector | nindent 12 }}
           {{- else }}
-          {{-   include "gitlab.nodeSelector" . | nindent 10 }}
+          {{- include "gitlab.nodeSelector" . | nindent 10 }}
+          {{- end }}
+          {{- if .Values.backups.cron.tolerations }}
+          tolerations:
+            {{- toYaml .Values.backups.cron.tolerations | nindent 12 }}
+          {{- else }}
+          {{- include "gitlab.tolerations" . | nindent 10 }}
           {{- end }}
 {{- end }}

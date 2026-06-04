@@ -58,10 +58,6 @@ spec:
       {{- if .Values.shareProcessNamespace }}
       shareProcessNamespace: {{ .Values.shareProcessNamespace }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations:
-        {{- toYaml .Values.tolerations | nindent 8 }}
-      {{- end }}
       {{- include "gitlab.priorityClassName" . | nindent 6 }}
       terminationGracePeriodSeconds: {{ .Values.gracefulRestartTimeout | int | add 5 }}
       initContainers:
@@ -219,6 +215,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- include "gitlab.nodeSelector" . | nindent 6 }}
+      {{- include "gitlab.tolerations" . | nindent 6 }}
       volumes:
         {{- include "gitlab.extraVolumes" . | nindent 8 }}
         {{- if .Values.cgroups.enabled }}

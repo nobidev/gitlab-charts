@@ -52,12 +52,13 @@ spec:
       {{- else }}
       {{- include "gitlab.nodeSelector" . | nindent 6 }}
       {{- end }}
+      {{- if .Values.upgradeCheck.tolerations }}
+      tolerations: {{ toYaml .Values.upgradeCheck.tolerations | nindent 8 }}
+      {{- else }}
+      {{- include "gitlab.tolerations" . | nindent 6 }}
+      {{- end }}
       {{- if or $.Values.global.priorityClassName .Values.upgradeCheck.priorityClassName }}
       priorityClassName: {{ default $.Values.global.priorityClassName .Values.upgradeCheck.priorityClassName }}
-      {{- end }}
-      {{- if .Values.upgradeCheck.tolerations }}
-      tolerations:
-        {{- toYaml .Values.upgradeCheck.tolerations | nindent 8 }}
       {{- end }}
       {{- include "gitlab.podSecurityContext" .Values.upgradeCheck.securityContext | nindent 6 }}
       restartPolicy: Never

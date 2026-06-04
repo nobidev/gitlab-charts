@@ -13,7 +13,7 @@
 {{- $timeout := .Values.timeout -}}
 {{- $resources := .Values.resources -}}
 {{- $nodeSelector := default .Values.global.nodeSelector .Values.nodeSelector -}}
-{{- $tolerations := .Values.tolerations -}}
+{{- $tolerations := default .Values.global.tolerations .Values.tolerations -}}
 {{- $railsSecretName := include "gitlab.rails-secrets.secret" . -}}
 {{- $metricsEnabled := .Values.metrics.enabled -}}
 {{- $metricsPort := .Values.metrics.port -}}
