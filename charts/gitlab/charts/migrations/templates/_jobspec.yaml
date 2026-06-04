@@ -32,10 +32,6 @@ spec:
         {{- include "gitlab.commonLabels" . | nindent 8 }}
         {{- include "gitlab.podLabels" . | nindent 8 }}
     spec:
-      {{- if .Values.tolerations }}
-      tolerations:
-        {{- toYaml .Values.tolerations | nindent 8 }}
-      {{- end }}
       {{- include "gitlab.podSecurityContext" .Values.securityContext | nindent 6 }}
       {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
       serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
@@ -208,4 +204,5 @@ spec:
           medium: "Memory"
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
       {{- include "gitlab.nodeSelector" . | nindent 6 }}
+      {{- include "gitlab.tolerations" . | nindent 6 }}
 {{- end }}

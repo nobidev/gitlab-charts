@@ -52,6 +52,14 @@ nodeSelector:
 {{- end }}
 {{- end -}}
 
+{{- define "gitlab.tolerations" -}}
+{{- $tolerations := default .Values.global.tolerations .Values.tolerations -}}
+{{- if $tolerations }}
+tolerations:
+  {{- toYaml $tolerations | nindent 2 }}
+{{- end }}
+{{- end -}}
+
 {{/*
 Return priorityClassName for Pod definitions
 */}}

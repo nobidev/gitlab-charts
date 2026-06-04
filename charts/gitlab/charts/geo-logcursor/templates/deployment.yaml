@@ -43,10 +43,6 @@ spec:
       {{- if $.Values.topologySpreadConstraints }}
       topologySpreadConstraints: {{- toYaml $.Values.topologySpreadConstraints | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations:
-        {{- toYaml .Values.tolerations | nindent 8 }}
-      {{- end }}
       {{- include "gitlab.podSecurityContext" .Values.securityContext | nindent 6 }}
       {{- include "gitlab.affinity" . | nindent 6 }}
       {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
@@ -197,4 +193,5 @@ spec:
           medium: "Memory"
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
       {{- include "gitlab.nodeSelector" . | nindent 6 }}
+      {{- include "gitlab.tolerations" . | nindent 6 }}
 {{- end }}

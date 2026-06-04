@@ -2285,7 +2285,26 @@ global:
 > [!note]
 > Charts that are maintained externally do not respect the `global.nodeSelector`
 > at this time and might need to be configured separately based on available chart values.
-> This includes Prometheus, cert-manager, Redis, etc.
+> This includes Prometheus, cert-manager, and other subcharts.
+
+## Tolerations
+
+Custom `tolerations` can be applied to all components globally. Any global defaults
+can also be overridden on each subchart individually.
+
+```yaml
+global:
+  tolerations:
+    - key: "key1"
+      operator: "Equal"
+      value: "value1"
+      effect: "NoSchedule"
+```
+
+> [!note]
+> Charts that are maintained externally do not respect the `global.tolerations`
+> at this time and might need to be configured separately based on available chart values.
+> This includes Prometheus, cert-manager, and other subcharts.
 
 ## Labels
 

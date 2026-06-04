@@ -34,6 +34,8 @@ spec:
       {{- if $sharedSecretValues.tolerations }}
       tolerations:
         {{- toYaml $sharedSecretValues.tolerations | nindent 8 }}
+      {{- else }}
+      {{- include "gitlab.tolerations" . | nindent 6 }}
       {{- end }}
       {{- include "gitlab.podSecurityContext" $sharedSecretValues.securityContext | nindent 6 }}
       {{- if or $sharedSecretValues.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
