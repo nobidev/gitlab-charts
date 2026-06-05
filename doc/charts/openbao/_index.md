@@ -131,6 +131,7 @@ kubectl scale deploy -lapp.kubernetes.io/name=openbao,app.kubernetes.io/instance
 ## OpenBao configuration options
 
 The following tables list all available OpenBao configuration options.
+Global chart settings, such as [Ingress configuration](../globals.md#configure-ingress-settings) and [image tag suffixes](../globals.md#adding-suffix-to-all-image-tags), also apply to OpenBao.
 
 ### Installation command-line options
 
@@ -139,9 +140,11 @@ the `helm install` command using the `--set` flags.
 
 | Parameter                                                | Default                                                 | Description |
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
-| `logLevel`                                               | info                                                    | OpenBao log level. |
-| `logRequestLevel`                                        | off                                                     | OpenBao request log level. To enable request logging set this to the same value as `logLevel` or a higher level. |
-| `logFormat`                                              | `json`                                                  | OpenBao log format. Either `json` or `standard`. |
+| `config.logLevel`                                        | info                                                    | OpenBao log level. |
+| `config.logRequestsLevel`                                | off                                                     | OpenBao request log level. To enable request logging set this to the same value as `config.logLevel` or a higher level. |
+| `config.logFormat`                                       | `json`                                                  | OpenBao log format. Either `json` or `standard`. |
+| `nameOverride`                                           |                                                         | Override the chart name. |
+| `fullnameOverride`                                       |                                                         | Override the fully qualified app name. |
 | `serviceAccount.create`                                  | true                                                    | Create a service account for OpenBao. |
 | `serviceAccount.automount`                               | true                                                    | |
 | `serviceAccount.annotations`                             | `{}`                                                    | Additional service account annotations. |
@@ -150,10 +153,10 @@ the `helm install` command using the `--set` flags.
 | `securityContext.capabilities`                           | `{ drop: ["ALL"] }`                                     | |
 | `securityContext.runAsNonRoot`                           | true                                                    | |
 | `securityContext.allowPrivilegeEscalation`               | false                                                   | |
-| `securityContext.runAsUser`                              | 65532                                                   | |
+| `securityContext.runAsUser`                              | 1000                                                    | |
 | `podSecurityContext.seccompProfile`                      | `RuntimeDefault`                                        | |
-| `podSecurityContext.runAsUser`                           | 65532                                                   | |
-| `podSecurityContext.fsGroup`                             | 65532                                                   | |
+| `podSecurityContext.runAsUser`                           | 1000                                                    | |
+| `podSecurityContext.fsGroup`                             | 1000                                                    | |
 | `serviceActive.type`                                     | ClusterIP                                               | Service type of the active OpenBao pod. |
 | `serviceActive.annotations`                              | `{}`                                                    | Service annotations of the active OpenBao pod. |
 | `serviceInactive.type`                                   | ClusterIP                                               | Service type of the standby OpenBao pods. |
@@ -168,10 +171,14 @@ the `helm install` command using the `--set` flags.
 | `nodeSelector`                                           | {}                                                      | Node selector labels. |
 | `tolerations`                                            | []                                                      | Toleration labels for pod assignment. |
 | `affinity`                                               | {}                                                      | Affinity labels for pod assignment. |
+| `podAnnotations`                                         | `{}`                                                    | Annotations to add to the OpenBao pods. |
+| `podLabels`                                              | `{}`                                                    | Labels to add to the OpenBao pods. |
+| `extraVolumes`                                           |                                                         | Additional volumes for the OpenBao pods. |
+| `extraVolumeMounts`                                      |                                                         | Additional volume mounts for the OpenBao container. |
 | `config.ui`                                              | false                                                   | Enable the OpenBao UI. |
 | `config.clusterPort`                                     | 8201                                                    | OpenBao cluster port. |
 | `config.apiPort`                                         | 8200                                                    | OpenBao API port. |
-| `config.cacheSize`                                       | 8200                                                    | Size of the read cache used by the physical storage subsystem as a number of entries. |
+| `config.cacheSize`                                       | 2560                                                    | Size of the read cache used by the physical storage subsystem as a number of entries. |
 | `config.maxRequestSize`                                  | 786432                                                  | Maximum request size in bytes. Default is 768KB. |
 | `config.maxRequestJsonMemory`                            | 1048576                                                 | Maximum size of the JSON-parsed request body in bytes. Default is 1MB. |
 
@@ -202,6 +209,7 @@ The OpenBao chart defaults to Ingress-terminated TLS encryption.
 | `ingress.hostname`                                       | External OpenBao host based on global hosts config.     | Hostname the Ingress should match. |
 | `ingress.tls.enabled`                                    | true                                                    | Enable Ingress TLS. |
 | `ingress.tls.secretName`                                 |                                                         | Name of the [Kubernetes TLS Secret](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls). Managed by certmanager by default. |
+| `tlsSecretName`                                          |                                                         | Name of the TLS secret mounted internally. Defaults to the Ingress TLS secret. |
 | `ingress.annotations`                                    | true                                                    | Annotations rendered to the Ingress. Use this to configure OpenBao for any non-NGINX Ingress controllers. |
 | `ingress.configureCertmanager`                           | Global certmanager config                               | Use certmanager to manage the TLS certificate. |
 | `ingress.certmanagerIssuer`                              | `<release>-issuer`                                       | Name of the certmanager issuer. |
@@ -252,6 +260,7 @@ OpenBao is preconfigured to expose Prometheus metrics which will be scraped by t
 | `config.telemetry.metricsPrefix`                         | `openbao`                                               | Prefix for all metrics. |
 | `config.telemetry.usageGaugePeriod`                      | 0                                                       | Interval at which high-cardinality usage data is collected, such as token counts, entity counts, and secret counts. |
 | `config.telemetry.numLeaseMetricsBuckets`                | 1                                                       | Number of expiry buckets for leases. |
+| `config.telemetry.prefixFilter`                          |                                                         | Metric prefixes to include (`+`) or exclude (`-`) from telemetry. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
 | `config.metricsListener.enabled`                         | true                                                    | Enable a second API port to serve requests for metrics. The listener can serve all API requests, but serves requests for metrics without authentication. |
 | `config.metricsListener.tlsDisable`                      | true                                                    | Disable internal TLS of the metrics listener. |
 | `config.metricsListener.port`                            | 8209                                                    | Port of the metrics listener. |
@@ -274,9 +283,9 @@ It also uses OpenBao declarative [self initialization](https://openbao.org/docs/
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
 | `config.unseal.static.enabled`                           | true                                                    | Enable static auto unsealing. |
 | `config.unseal.static.currentKeyId`                      | `static-unseal-0`                                       | ID of the current static unsealing key. |
-| `config.unseal.static.currentKey`                        | `/srv/openbao/keys/static-unseal-0`                     | Path of the current static unsealing key. |
+| `config.unseal.static.currentKey`                        | `/srv/openbao/keys/static-unseal-1`                     | Path of the current static unsealing key. |
 | `config.unseal.static.previousKeyId`                     |                                                         | ID of the previous static unsealing key. |
-| `config.unseal.static.previousKey`                       | `/srv/openbao/keys/static-unseal-1`                     | Path of the previous static unsealing key. Only rendered if previous key ID is also set. |
+| `config.unseal.static.previousKey`                       | `/srv/openbao/keys/static-unseal-0`                     | Path of the previous static unsealing key. Only rendered if previous key ID is also set. |
 | `config.unseal.awskms.enabled`                           | false                                                   | Enable AWS KMS auto-unsealing. |
 | `config.unseal.awskms.kmsKeyId`                          |                                                         | KMS key ID, ARN, or alias (for example, `alias/my-openbao-key`). Required when `config.unseal.awskms.enabled` is `true`. |
 | `config.unseal.awskms.region`                            |                                                         | AWS region where the KMS key resides. |
@@ -324,6 +333,7 @@ The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/)
 | `config.audit.http.enabled`                              | true                                                    | Enable streaming of auditing events by using HTTP to GitLab. |
 | `config.audit.http.streamingUri`                         | Internal workhorse URL                                  | Endpoint to stream auditing events to. |
 | `config.audit.http.authTokenPath`                        | `/srv/openbao/audit/gitlab-auth`                        | Path the token shared with GitLab is mounted at. |
+| `auditTpl`                                               |                                                         | Template that configures the OpenBao audit devices. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
 | `httpAuditSecret.generate`                               | false                                                   | Generate a secret to be shared with GitLab for authenticated auditing. Defaults to false as managed by GitLab charts shared-secret chart. |
 | `initializeTpl`                                          |                                                         | Template passed to configure OpenBao auditing. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
 
@@ -373,3 +383,22 @@ To configure an external database:
    `openbao.config.storage.postgresql.connection` alongside the global settings.
 
 1. Deploy or upgrade OpenBao. When starting, OpenBao automatically creates its database schema in the specified database.
+
+### PostgreSQL storage options
+
+The following options tune the OpenBao PostgreSQL storage backend.
+Set them under `openbao.config.storage.postgresql`, in addition to the connection details in `global.openbao.psql`.
+
+| Parameter                                                    | Default    | Description |
+|--------------------------------------------------------------|------------|-------------|
+| `config.storage.postgresql.haEnabled`                        | true       | Enable high availability mode for PostgreSQL storage. |
+| `config.storage.postgresql.haTable`                          | null       | Table used for high availability locks. Uses the OpenBao default when unset. |
+| `config.storage.postgresql.maxConnectRetries`                | 20         | Maximum number of database connection retry attempts. |
+| `config.storage.postgresql.maxIdleConnections`               | 2          | Maximum number of idle database connections. |
+| `config.storage.postgresql.maxParallel`                      | 5          | Maximum number of parallel database operations. |
+| `config.storage.postgresql.skipCreateTable`                  | null       | Skip automatic creation of the storage tables. Create them manually when set to `true`. |
+| `config.storage.postgresql.connection.keepalives`            | null       | Enable TCP keepalive probes. Set to `1` to enable or `0` to disable. |
+| `config.storage.postgresql.connection.keepalivesCount`       | null       | Number of TCP keepalive probes to send before dropping a connection. |
+| `config.storage.postgresql.connection.keepalivesIdle`        | null       | Seconds of inactivity before the first TCP keepalive probe. |
+| `config.storage.postgresql.connection.keepalivesInterval`    | null       | Seconds between TCP keepalive probes. |
+| `config.storage.postgresql.connection.sslMode`               | `disable`  | PostgreSQL SSL mode, such as `disable`, `require`, or `verify-full`. |
