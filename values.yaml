@@ -1601,6 +1601,8 @@ ai-gateway:
   install: false
   ingress:
     enabled: false
+  init:
+    containerSecurityContext: {}
 
 envoy-gateway:
   deployment:
