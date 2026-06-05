@@ -82,11 +82,6 @@ function deploy() {
       echo "NGINX Ingress deployment detected"
       NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress.values.yaml"
     fi
-
-    if is_vcluster_deployment; then
-      echo "VCLUSTER deployment detected"
-      NETWORKING_CONFIGURATION="${NETWORKING_CONFIGURATION} -f ${VALUES_DIR}/vcluster.externaldns.values.yaml"
-    fi
   fi
 
   if [ -n "${REVIEW_APPS_SENTRY_DSN}" ] && [ -n "${REVIEW_APPS_SENTRY_ENVIRONMENT}" ]; then
