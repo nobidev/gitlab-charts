@@ -1,7 +1,7 @@
 include:
   - component: "gitlab.com/gitlab-org/quality/pipeline-common/allure-report@9.6.3"
     inputs:
-      job_name: "e2e-test-gke135"
+      job_name: "e2e-test-gke"
       job_stage: "qa-report"
       gitlab_auth_token_variable_name: "DANGER_GITLAB_API_TOKEN"
       aws_access_key_id_variable_name: "QA_ALLURE_AWS_ACCESS_KEY_ID"
@@ -12,85 +12,85 @@ include:
         when: never
       - if: '$CI_PIPELINE_SOURCE == "pipeline" || $CI_PIPELINE_SOURCE == "parent_pipeline"'
 
-.review_gke135_common_vars: &review_gke135_common_vars
+.review_gke_common_vars: &review_gke_common_vars
   DNS_PROVIDER: "google"
   AGENT_NAME: "gke135-ci-cluster"
   KUBE_INGRESS_BASE_DOMAIN: "cloud-native-v135.helm-charts.win"
   KUBE_NAMESPACE: "helm-charts-win"
   USE_NGINX_INGRESS: "true"
 
-create_review_gke135:
+create_review_gke:
   stage: review
   image: ${BUSYBOX_IMAGE}
   variables:
-    <<: *review_gke135_common_vars
+    <<: *review_gke_common_vars
     GIT_STRATEGY: none
   script:
-    - echo "Configuring gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA to automatically stop in $REVIEW_APPS_AUTO_STOP_IN."
+    - echo "Configuring gke_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA to automatically stop in $REVIEW_APPS_AUTO_STOP_IN."
   environment:
     name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
-    on_stop: stop_review_gke135
+    on_stop: stop_review_gke
     auto_stop_in: $REVIEW_APPS_AUTO_STOP_IN
     action: start
 
-review_gke135:
+review_gke:
   variables:
-    <<: *review_gke135_common_vars
+    <<: *review_gke_common_vars
   extends: .review_template
   environment:
     name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
-    on_stop: stop_review_gke135
+    on_stop: stop_review_gke
     auto_stop_in: "${REVIEW_APPS_AUTO_STOP_IN}"
     action: access
 
-stop_review_gke135:
+stop_review_gke:
   variables:
-    <<: *review_gke135_common_vars
+    <<: *review_gke_common_vars
   extends: .stop_review_template
   environment:
     name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     action: stop
 
-review_specs_gke135:
+review_specs_gke:
   extends: .review_specs
   variables:
-    <<: *review_gke135_common_vars
-    VARIABLES_FILE: "variables/review_gke135"
+    <<: *review_gke_common_vars
+    VARIABLES_FILE: "variables/review_gke"
   environment:
     name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
-    on_stop: stop_review_gke135
+    on_stop: stop_review_gke
     action: access
-  needs: ["review_gke135"]
+  needs: ["review_gke"]
 
-qa_gke135:
+qa_gke:
   extends: .qa_branch
   variables:
-    VARIABLES_FILE: "variables/review_gke135"
+    VARIABLES_FILE: "variables/review_gke"
     TEST_SUITE: $QA_SANITY_SUITE_OPTIONS
   environment:
     name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
-    on_stop: stop_review_gke135
+    on_stop: stop_review_gke
     action: access
   needs:
-    - review_gke135
-    - job: review_specs_gke135
+    - review_gke
+    - job: review_specs_gke
       artifacts: false
 
-qa_gke135_full_suite_manual_trigger:
+qa_gke_full_suite_manual_trigger:
   extends: .qa_full_suite_manual_trigger
-  script: echo 'The job will trigger Full E2E suite against GKE135'
+  script: echo 'The job will trigger Full E2E suite against GKE'
 
-qa_gke135_manual_full_suite:
+qa_gke_manual_full_suite:
   extends: .qa_branch
   parallel: 7
   variables:
-    VARIABLES_FILE: "variables/review_gke135"
+    VARIABLES_FILE: "variables/review_gke"
     TEST_SUITE: $QA_FULL_SUITE_OPTIONS
   environment:
     name: gke135_review/$REVIEW_REF_PREFIX$CI_COMMIT_SHORT_SHA
-    on_stop: stop_review_gke135
+    on_stop: stop_review_gke
     action: access
-  needs: ["qa_gke135_full_suite_manual_trigger"]
+  needs: ["qa_gke_full_suite_manual_trigger"]
