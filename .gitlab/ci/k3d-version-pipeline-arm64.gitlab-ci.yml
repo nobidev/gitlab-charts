@@ -1,0 +1,67 @@
+# ARM64 child pipeline for a single k3d K8s version.
+# Same structure as k3d-version-pipeline.gitlab-ci.yml with ARM64 runner/image overrides.
+# Triggered by the k3d_arm64 bridge matrix defined directly in .gitlab-ci.yml
+# (LIMIT_TO=k3d_version_arm64).
+
+include:
+  - component: "gitlab.com/gitlab-org/quality/pipeline-common/allure-report@9.6.3"
+    inputs:
+      job_name: "e2e-report-k3d"
+      job_stage: "qa-report"
+      # ALLURE_JOB_NAME keys the S3 prefix and MR comment marker. The bridge sets
+      # K3D_K8S_VERSION_SLUG (e.g. v135-arm64) per matrix row so the report
+      # posts a distinct section to the MR and never collides with AMD64 reports.
+      allure_job_name: "e2e-report-k3d-${K3D_K8S_VERSION_SLUG}"
+      gitlab_auth_token_variable_name: "DANGER_GITLAB_API_TOKEN"
+      aws_access_key_id_variable_name: "QA_ALLURE_AWS_ACCESS_KEY_ID"
+      aws_secret_access_key_variable_name: "QA_ALLURE_AWS_SECRET_ACCESS_KEY"
+      allure_results_glob: "gitlab-qa-run-*/**/allure-results"
+    rules:
+      - if: '$CI_SERVER_HOST != "gitlab.com"'
+        when: never
+      - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+
+review_specs_k3d:
+  extends: .k3d_review_specs_template
+  stage: specs
+  # Builder image has no ARM variant; use a Debian-based ruby image because
+  # the CI scripts source bash-isms (BASH_SOURCE, here-strings) and install
+  # apt packages — neither work on the alpine RUBY_IMAGE.
+  image: "${RUBY_IMAGE_DEBIAN}"
+  tags:
+    - saas-linux-large-arm64
+  variables:
+    REVIEW_ARCH: "arm64"
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: pin_image_versions
+  rules:
+    - when: on_success
+
+qa_k3d:
+  extends: .k3d_qa_template
+  stage: specs
+  image: "${RUBY_IMAGE_DEBIAN}"
+  tags:
+    - saas-linux-large-arm64
+  variables:
+    REVIEW_ARCH: "arm64"
+    TEST_SUITE: $QA_SANITY_SUITE_OPTIONS
+  parallel: 5
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: pin_image_versions
+  rules:
+    - when: on_success
+
+qa_k3d_manual_full_suite:
+  extends: .k3d_qa_manual_full_suite_template
+  image: "${RUBY_IMAGE_DEBIAN}"
+  tags:
+    - saas-linux-large-arm64
+  variables:
+    REVIEW_ARCH: "arm64"
+  parallel: 7
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: pin_image_versions

@@ -6,8 +6,9 @@
 #   1. Avoid CRD conflicts.
 #   2. Avoid resource conflicts in native review environments where mutliple review deploysments exist in the same namespace.
 function deploy_external_postgresql() {
-  # Skip install for native CI review envionments which use a shared CNPG Operator installation.
-  if is_ci_deployment && is_vcluster_deployment; then
+  # Install operator for isolated clusters (vcluster, k3d) that don't have a
+  # shared CNPG operator. Native GKE/EKS environments use a cluster-wide install.
+  if is_ci_deployment && (is_vcluster_deployment || is_k3d_deployment); then
     echo "Installing CloudNativePG"
     install_cnpg_operator
   fi
@@ -28,7 +29,18 @@ function install_cnpg_operator {
     --namespace ${NAMESPACE} \
     --set config.clusterWide=false \
     --wait \
+    --timeout 600s \
     --hide-notes
+  # Wait for ALL CNPG CRDs to be Established before creating any CRs.
+  # Helm --wait ensures the operator pod is Ready, but the CRD Established
+  # condition can lag on k3d, causing "no matches for kind Cluster" races.
+  kubectl wait --for=condition=Established --timeout=120s \
+    crd/backups.postgresql.cnpg.io \
+    crd/clusterimagecatalogs.postgresql.cnpg.io \
+    crd/clusters.postgresql.cnpg.io \
+    crd/imagecatalogs.postgresql.cnpg.io \
+    crd/poolers.postgresql.cnpg.io \
+    crd/scheduledbackups.postgresql.cnpg.io
 }
 
 function create_cnpg_cluster {
