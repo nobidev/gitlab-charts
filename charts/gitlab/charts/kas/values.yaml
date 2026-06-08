@@ -93,7 +93,6 @@ ingress:
   agentPath: /
   workspacesServerApiPath: /workspaces
   k8sApiPath: /k8s-proxy
-  autoflowCodecServerApiPath: /autoflow/codec-server
   grpc:
     enabled: false
 maxReplicas: 10
@@ -117,7 +116,6 @@ service:
   apiInternalPort: 8153
   kubernetesApiPort: 8154
   privateApiPort: 8155
-  autoflowCodecServerApiPort: 8142
   type: ClusterIP
   # loadBalancerIP:
   # loadBalancerSourceRanges:
@@ -160,19 +158,6 @@ customConfig: {}
 websocketToken: {}
   # secret:
   # key:
-
-## Configure AutoFlow. AutoFlow is a GitLab internal-use experiment.
-autoflow: {}
-  # enabled: true
-  # temporal:
-  #   namespace: 'xxx'
-  #   workerMtls:
-  #     secretName:
-  #   workflowDataEncryption:
-  #     secret:
-  #     key:
-  #     codecServer:
-  #       authorizedUserEmails: ["maintainer@gitlab.example.com"]
 
 privateApi: {}
   # secret:

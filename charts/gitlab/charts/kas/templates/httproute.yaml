@@ -48,24 +48,6 @@ spec:
     {{/* GRPC connections are long living. */}}
     timeouts:
       request: 0s
-  {{- if (.Values.autoflow).enabled }}
-  - backendRefs:
-    - kind: Service
-      name: {{ template "gitlab.kas.serviceName" . }}
-      port: {{ .Values.service.autoflowCodecServerApiPort }}
-      weight: 1
-    {{- with .Values.gatewayRoute.filters }}
-    filters:
-      {{- . | toYaml | nindent 6 }}
-    {{- end }}
-    matches:
-    - path:
-        type: PathPrefix
-        value: {{ .Values.ingress.autoflowCodecServerApiPath | quote }}
-    {{/* GRPC connections are long living. */}}
-    timeouts:
-      request: 0s
-  {{- end }}
   {{- if .Values.global.workspaces.enabled }}
   - backendRefs:
     - kind: Service
