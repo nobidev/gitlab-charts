@@ -42,12 +42,6 @@ spec:
       protocol: TCP
       name: http-metrics
   {{- end }}
-  {{- if (.Values.autoflow).enabled }}
-    - port: {{ .Values.service.autoflowCodecServerApiPort }}
-      targetPort: {{ .Values.service.autoflowCodecServerApiPort }}
-      protocol: TCP
-      name: tcp-{{ template "name" . }}-autoflow-codec-server-api
-  {{- end }}
   {{- if (.Values.workspaces).enabled }}
     - port: {{ .Values.service.workspacesServerPort }}
       targetPort: {{ .Values.service.workspacesServerPort }}

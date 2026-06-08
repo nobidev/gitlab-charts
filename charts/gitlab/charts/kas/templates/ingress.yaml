@@ -64,21 +64,6 @@ spec:
               serviceName: {{ template "gitlab.kas.serviceName" . }}
               servicePort: {{ .Values.service.externalPort }}
             {{- end }}
-          {{ if (.Values.autoflow).enabled }}
-          - path: "{{ trimSuffix "/" $.Values.ingress.autoflowCodecServerApiPath }}{{ $.Values.global.ingress.path }}"
-            {{ if or ($.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress") (eq $.Values.global.ingress.apiVersion "networking.k8s.io/v1") -}}
-            pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
-            backend:
-              service:
-                name: {{ template "gitlab.kas.serviceName" . }}
-                port:
-                  number: {{ .Values.service.autoflowCodecServerApiPort }}
-            {{- else -}}
-            backend:
-              serviceName: {{ template "gitlab.kas.serviceName" . }}
-              servicePort: {{ .Values.service.autoflowCodecServerApiPort }}
-            {{- end }}
-          {{- end }}
           {{ if .Values.global.workspaces.enabled }}
           - path: "{{ trimSuffix "/" $.Values.ingress.workspacesServerApiPath }}{{ $.Values.global.ingress.path }}"
             pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
