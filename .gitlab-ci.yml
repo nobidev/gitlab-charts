@@ -32,7 +32,6 @@ variables:
   HELM_VERSION: "4.1.4"
   HELM_MINOR_VERSION: "4.1"
   KUBECTL_VERSION: "1.33.1"
-  VCLUSTER_VERSION: "0.30.4"
   K3D_VERSION: "5.8.3"
   STABLE_REPO_URL: "https://charts.helm.sh/stable"
   GOOGLE_APPLICATION_CREDENTIALS: ${CI_PROJECT_DIR}/.google_keyfile.json
@@ -120,6 +119,9 @@ variables:
   DOCKERHUB_PREFIX: "docker.io" # Optionally change to dependency proxy if DockerHub rate limits become a problem.
   BUSYBOX_IMAGE: "${DOCKERHUB_PREFIX}/busybox:${BUSYBOX_VERSION}"
   RUBY_IMAGE: "${DOCKERHUB_PREFIX}/ruby:${RUBY_VERSION}-alpine"
+  # Debian-based Ruby image used by the arm64 k3d review_specs/qa jobs (the
+  # gitlab-build-images .specs builder image has no ARM variant).
+  RUBY_IMAGE_DEBIAN: "${DOCKERHUB_PREFIX}/ruby:${RUBY_VERSION}"
   KUBE_SCORE_IMAGE: "${DOCKERHUB_PREFIX}/zegl/kube-score:v1.19.0@sha256:94137f32ce139dc9fbdbbd380249025e4d378c282ff151a100b981cdeeb923b6"
   DOCKER_DIND_IMAGE: "${DOCKERHUB_PREFIX}/docker:${DOCKER_VERSION}-dind"
 
@@ -146,43 +148,22 @@ stages:
 
 include:
   - local: '/.gitlab/ci/rules.gitlab-ci.yml'
-  - local: '/.gitlab/ci/vcluster-review-apps.gitlab-ci.yml'
-  - local: '/.gitlab/ci/k3d-review-apps.gitlab-ci.yml'
+  - local: '/.gitlab/ci/k3d-templates.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "k3d_version" || $LIMIT_TO == "k3d_version_arm64"'
+  - local: '/.gitlab/ci/k3d-version-pipeline.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "k3d_version"'
+  - local: '/.gitlab/ci/k3d-version-pipeline-arm64.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "k3d_version_arm64"'
   - local: '/.gitlab/ci/operator.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
-  # Vcluster 1.33
-  - local: '/.gitlab/ci/environments/vcluster.133.amd64.gitlab-ci.yml'
+  # GKE
+  - local: '/.gitlab/ci/environments/gke.amd64.gitlab-ci.yml'
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v133"'
-  # Vcluster 1.34
-  - local: '/.gitlab/ci/environments/vcluster.134.amd64.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v134"'
-  # Vcluster 1.35
-  - local: '/.gitlab/ci/environments/vcluster.135.amd64.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v135"'
-  # Vcluster 1.35 ARM
-  - local: '/.gitlab/ci/environments/vcluster.135.arm64.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "v135a"'
-  # Vcluster 1.35 Flux
-  - local: '/.gitlab/ci/environments/vcluster.135.amd64.flux.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "flux"'
-  # GKE 1.35
-  - local: '/.gitlab/ci/environments/gke.135.amd64.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke135"'
-  # EKS 1.34
-  - local: '/.gitlab/ci/environments/eks.134.amd64.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "eks134"'
-  # k3d 1.35 (per-job isolation) — runs alongside vcluster for comparison
-  - local: '/.gitlab/ci/environments/k3d.135.amd64.gitlab-ci.yml'
-    rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == "k3d135"'
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == "gke"'
   - local: /.gitlab/ci/scanners.gitlab-ci.yml
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
@@ -312,65 +293,6 @@ pin_image_versions:
     - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE == "QA_KNAPSACK_UPDATE_PIPELINE"'
 
-trigger_review_current:
-  stage: approve-review-apps
-  image: ${BUSYBOX_IMAGE}
-  script:
-    - echo "Testing current platform."
-  rules:
-    - !reference [.rule:skip_if_not_canonical_or_security]
-    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/ '
-    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/ '
-    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
-      when: manual
-      allow_failure: true
-    # Triggered from CNG
-    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
-
-.trigger_review_current:
-  rules:
-    - !reference [.rule:skip_if_not_canonical_or_security]
-    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
-    # Triggered from CNG
-    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
-
-
-trigger_review_secondary:
-  stage: approve-review-apps
-  image: ${BUSYBOX_IMAGE}
-  script:
-    - echo "Testing secondary platforms."
-  rules:
-    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
-      when: never
-    - !reference [.rule:skip_if_not_canonical_or_security]
-    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
-      when: manual
-      allow_failure: true
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
-      allow_failure: true
-      # Triggered from CNG
-    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
-      when: manual
-      allow_failure: true
-
-.trigger_review_secondary:
-  rules:
-    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
-      when: never
-    - !reference [.rule:skip_if_not_canonical_or_security]
-    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    # Triggered from CNG
-    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
-      when: manual
-      allow_failure: true
-
 .trigger_review_job:
   stage: review
   trigger:
@@ -393,94 +315,90 @@ trigger_review_secondary:
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
 
-trigger-v133:
+trigger-gke:
   extends: .trigger_review_job
-  needs:
-    - trigger_review_current
   variables:
-    LIMIT_TO: v133
+    LIMIT_TO: gke
   rules:
-    - !reference [.trigger_review_current, rules]
-
-trigger-v134:
-  extends: .trigger_review_job
-  needs:
-    - trigger_review_secondary
-  variables:
-    LIMIT_TO: v134
-  rules:
-    - !reference [.trigger_review_secondary, rules]
-
-trigger-v135:
-  extends: .trigger_review_job
-  needs:
-    - trigger_review_secondary
-  variables:
-    LIMIT_TO: v135
-  rules:
-    - !reference [.trigger_review_secondary, rules]
-
-trigger-v135a:
-  extends: .trigger_review_job
-  needs:
-    - trigger_review_secondary
-  variables:
-    LIMIT_TO: v135a
-  rules:
-    - !reference [.trigger_review_secondary, rules]
-
-trigger-flux:
-  extends: .trigger_review_job
-  needs:
-    - trigger_review_current
-  variables:
-    LIMIT_TO: flux
-  rules:
-    - !reference [.trigger_review_current, rules]
-
-trigger-gke135:
-  extends: .trigger_review_job
-  needs:
-    - trigger_review_current
-  variables:
-    LIMIT_TO: gke135
-  rules:
-    - !reference [.trigger_review_current, rules]
-
-trigger-eks134:
-  extends: .trigger_review_job
-  needs:
-    # TODO revert to current
-    - trigger_review_secondary
-  variables:
-    LIMIT_TO: eks134
-  rules:
-    - !reference [.trigger_review_secondary, rules]
-
-# k3d PoC: runs automatically on MR and default branch pipelines
-trigger-k3d135:
-  extends: .trigger_review_job
-  interruptible: true
-  variables:
-    LIMIT_TO: k3d135
-  rules:
-    - !reference [.rule:skip_if_not_canonical_or_security]
-    - if: '$CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /MR_PIPELINE$/'
-    - if: '$CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
-
-# Manual trigger: run k3d v1.35 suite with NGINX ingress instead of Envoy Gateway
-trigger-k3d135-nginx:
-  extends: .trigger_review_job
-  interruptible: true
-  variables:
-    LIMIT_TO: k3d135
-    K3D_USE_NGINX_INGRESS: "true"
-  rules:
-    - !reference [.rule:skip_if_not_canonical_or_security]
-    - if: '$CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /MR_PIPELINE$/'
+    - !reference [.rule:skip_if_fork]
+    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
+      when: never
+    - if: '$PIPELINE_TYPE == "NIGHTLY_PIPELINE"'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
+    - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
       when: manual
       allow_failure: true
-    - if: '$CI_PIPELINE_SOURCE != "parent_pipeline" && $PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+      when: manual
+      allow_failure: true
+
+# ---------------------------------------------------------------------------
+# k3d review environments — parallel:matrix, one child pipeline per K8s version.
+# k3d: v1.35 (K3D_PRIMARY="primary") auto-runs on MR/DEFAULT; v1.33/v1.34 are manual.
+# k3d_arm64: all manual on MR/DEFAULT, auto on nightly/stable.
+# To add/remove a version: add/remove a matrix row below.
+# ---------------------------------------------------------------------------
+
+k3d:
+  extends: .trigger_review_job
+  variables:
+    LIMIT_TO: k3d_version
+  parallel:
+    matrix:
+      - K3D_K8S_IMAGE: "rancher/k3s:v1.33.3-k3s1"
+        K3D_K8S_VERSION_SLUG: "v133"
+      - K3D_K8S_IMAGE: "rancher/k3s:v1.34.1-k3s1"
+        K3D_K8S_VERSION_SLUG: "v134"
+      - K3D_K8S_IMAGE: "rancher/k3s:v1.35.0-k3s1"
+        K3D_K8S_VERSION_SLUG: "v135"
+        K3D_PRIMARY: "primary"
+  rules:
+    - !reference [.rule:skip_if_fork]
+    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
+      when: never
+    - if: '$K3D_PRIMARY == "primary" && $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+    - if: '$PIPELINE_TYPE == "NIGHTLY_PIPELINE"'
+    - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+      when: manual
+      allow_failure: true
+
+k3d_arm64:
+  extends: .trigger_review_job
+  variables:
+    LIMIT_TO: k3d_version_arm64
+  parallel:
+    matrix:
+      - K3D_K8S_IMAGE: "rancher/k3s:v1.35.0-k3s1"
+        K3D_K8S_VERSION_SLUG: "v135-arm64"
+  rules:
+    - !reference [.rule:skip_if_fork]
+    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
+      when: never
+    - if: '$PIPELINE_TYPE == "NIGHTLY_PIPELINE"'
+    - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+      when: manual
+      allow_failure: true
+
+# Manual: run the k3d suite with NGINX ingress instead of Envoy Gateway.
+# Single version (v1.35) — sanity check on the NGINX path, not a matrix.
+k3d_nginx:
+  extends: .trigger_review_job
+  variables:
+    LIMIT_TO: k3d_version
+    K3D_USE_NGINX_INGRESS: "true"
+  parallel:
+    matrix:
+      - K3D_K8S_IMAGE: "rancher/k3s:v1.35.0-k3s1"
+        K3D_K8S_VERSION_SLUG: "v135-nginx"
+  rules:
+    - !reference [.rule:skip_if_fork]
+    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
       when: manual
       allow_failure: true
 

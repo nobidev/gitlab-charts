@@ -1,8 +1,6 @@
-# Base templates for k3d per-job review environments.
-# Each job that extends these templates creates its own isolated k3d cluster,
-# deploys the full GitLab chart, runs its test slice, and destroys the cluster.
-# This eliminates shared host cluster contention that causes helm/rollout timeouts.
-# See: https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6421
+# Shared templates for k3d per-job review environments.
+# Included by .gitlab-ci.yml for the child pipeline layer (LIMIT_TO=k3d_version or k3d_version_arm64).
+# These templates rely on .specs and .dind being defined by .gitlab-ci.yml.
 
 .k3d_base:
   interruptible: true
@@ -12,13 +10,17 @@
     K3D_MODE: "true"
     KUBE_NAMESPACE: "default"
     NAMESPACE: "${KUBE_NAMESPACE}"
-    # HOST_SUFFIX must be unique per job; use CI_JOB_ID (set per environment config)
-    # K3D_K8S_IMAGE and K3D_HOST_SUFFIX are set in environment-specific configs
-    # KUBE_INGRESS_BASE_DOMAIN is set dynamically by k3d_create() via nip.io
-    VARIABLES_FILE: "variables/${CI_JOB_NAME}"
+    HOST_SUFFIX: "${CI_JOB_ID}"
+    VARIABLES_FILE: "variables/k3d_deploy"
     # Allow Docker (DinD) to push/pull from the in-cluster registry over HTTP.
     # nip.io registry hostnames resolve to private IPs in 172.16.0.0/12.
     DOCKER_OPTIONS: "--registry-mirror ${DOCKER_MIRROR} --insecure-registry 172.16.0.0/12"
+    # Override GIT_CLONE_PATH with a literal path. The global .gitlab-ci.yml sets
+    # it to $CI_BUILDS_DIR/gitlab, but $CI_BUILDS_DIR is a runner-only variable
+    # (not available at pipeline-creation time) so it evaluates to /gitlab in child
+    # pipelines — a known GitLab bug (gitlab-org/gitlab#220047). Using a literal
+    # /builds/gitlab avoids this; all e2e runner instances use /builds as builds_dir.
+    GIT_CLONE_PATH: /builds/gitlab
 
 .k3d_qa_template:
   extends:
@@ -26,7 +28,7 @@
     - .k3d_base
   stage: qa
   variables:
-    VARIABLES_FILE: "variables/${CI_JOB_NAME}"
+    VARIABLES_FILE: "variables/k3d_deploy"
     QA_GENERATE_ALLURE_REPORT: "true"
     QA_ARTIFACTS_DIR: $CI_PROJECT_DIR
     QA_CAN_TEST_PRAEFECT: "false"
@@ -92,11 +94,18 @@
   retry: 1
   allow_failure: true
 
+.k3d_qa_manual_full_suite_template:
+  extends: .k3d_qa_template
+  stage: qa-manual
+  when: manual
+  retry: 0
+  variables:
+    TEST_SUITE: $QA_FULL_SUITE_OPTIONS
+
 .k3d_review_specs_template:
   extends:
     - .specs
     - .k3d_base
-  stage: review-specs
   variables:
     RSPEC_TAGS: type:feature
   # Override rules: k3d provisions its own cluster inside the job, so there is

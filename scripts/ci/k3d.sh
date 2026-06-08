@@ -101,7 +101,7 @@ function k3d_create() {
   echo "DinD/Docker host IP for port mapping: ${docker_ip}"
 
   k3d cluster create "${cluster_name}" \
-    --image "${K3D_K8S_IMAGE}" \
+    --image "${DOCKERHUB_PREFIX:-docker.io}/${K3D_K8S_IMAGE}" \
     --api-port "${docker_ip}:6443" \
     --port "22:22@loadbalancer" \
     --port "80:80@loadbalancer" \
