@@ -29,13 +29,19 @@ title: OpenBao chart
 You can use the [OpenBao chart](https://gitlab.com/gitlab-org/cloud-native/charts/openbao) to install
 OpenBao, which is required to enable the [GitLab secrets manager](https://docs.gitlab.com/ci/secrets/secrets_manager/).
 
-## Known issues
+## Known limitations
 
 - You can't upgrade OpenBao without downtime. Zero downtime upgrades are proposed in
   [OpenBao chart issue 13](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/issues/13).
 - You can't deploy OpenBao with [GitLab Operator](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator).
 - A FIPS variant of the OpenBao image is already being build, but OpenBao is not FIPS validated.
   FIPS validation is tracked in [GitLab issue 574875](https://gitlab.com/gitlab-org/gitlab/-/issues/574875).
+- When failing over to a Geo secondary site that uses a different domain
+  (instead of updating DNS to point the primary domain to the secondary site), OpenBao requires manual
+  re-provisioning of JWT authentication for all projects and groups where GitLab Secrets Manager is enabled.
+  This process can be time-consuming for large deployments. A migration tool is being proposed in
+  [GitLab issue 595722](https://gitlab.com/gitlab-org/gitlab/-/issues/595722). Until then, the recommended
+  approach is to update DNS records so the primary domain points to the promoted secondary site.
 
 ## Setup GitLab secret manager and OpenBao
 
@@ -55,32 +61,6 @@ OpenBao, which is required to enable the [GitLab secrets manager](https://docs.g
 1. Select **Settings > General**.
 1. Expand **Visibility, project features, permissions**.
 1. Turn on the **Secrets Manager** toggle, and wait for the Secrets Manager to be provisioned.
-
-## Geo configuration
-
-{{< history >}}
-
-- `jwt_audience` was [introduced](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4837) in GitLab 18.10.
-
-{{< /history >}}
-
-In [GitLab Geo](https://docs.gitlab.com/ee/administration/geo/) deployments, secondary sites may use different URLs to reach OpenBao than the primary site. The JWT audience claim in the GitLab OpenBao authentication must match the `bound_audiences` configured in OpenBao. When each site has a different OpenBao URL, set `jwt_audience` to the shared value (typically the primary site's OpenBao URL) so that JWTs are accepted by OpenBao regardless of which site generated them.
-
-Configure the secondary site:
-
-```yaml
-global:
-  openbao:
-    enabled: true
-    # Site-specific URL for this Geo secondary
-    url: https://openbao.secondary.example.com:8200
-    # Shared audience - must match OpenBao bound_audiences (e.g. primary site URL)
-    jwt_audience: https://openbao.shared.example.com:8200
-```
-
-Ensure OpenBao `config.initialize.boundAudiences` includes the `jwt_audience` value. When using the bundled OpenBao chart, `boundAudiences` defaults to the external OpenBao hostname; for Geo you may need to override it to include the shared URL used as `jwt_audience`.
-
-In failover scenarios, when a secondary site is promoted to primary, omit `jwt_audience` from the configuration. The promoted primary uses its own URL, and the audience defaults to that URL.
 
 ## Rolling back OpenBao upgrades
 
@@ -203,7 +183,7 @@ The OpenBao chart defaults to Ingress-terminated TLS encryption.
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
 | `global.openbao.host`                                    | `openbao.<GitLab Domain>`                                 | OpenBao host. Used to configure GitLab webservice and the OpenBao chart. |
 | `global.openbao.url`                                     | Derived from host                                       | OpenBao URL for GitLab. If present, must be a complete URI. |
-| `global.openbao.jwt_audience`                            | Same as `url`                                           | JWT audience claim for OpenBao authentication. Set for [Geo deployments](#geo-configuration) when sites use different URLs. Must match OpenBao `bound_audiences`. |
+| `global.openbao.jwt_audience`                            | Same as `url`                                           | JWT audience claim for OpenBao authentication. Must match OpenBao `bound_audiences`. For Geo deployments, see [Geo deployment](https://docs.gitlab.com/administration/secrets_manager/#geo-deployment). |
 | `global.openbao.psql`                                    | `{}`                                                    | OpenBao database config (host, database, username, password). |
 | `ingress.enabled`                                        | true                                                    | Enable the OpenBao Ingress to allow Runner to reach OpenBao. |
 | `ingress.hostname`                                       | External OpenBao host based on global hosts config.     | Hostname the Ingress should match. |
