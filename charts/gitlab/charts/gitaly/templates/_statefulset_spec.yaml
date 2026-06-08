@@ -61,7 +61,7 @@ spec:
       {{- include "gitlab.priorityClassName" . | nindent 6 }}
       terminationGracePeriodSeconds: {{ .Values.gracefulRestartTimeout | int | add 5 }}
       initContainers:
-      {{- if .Values.cgroups.enabled }}
+      {{- if and .Values.cgroups.enabled .Values.cgroups.initContainer.enabled }}
         - name: init-cgroups
           image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.cgroups.initContainer.image) | quote }}
           {{- include "gitlab.image.pullPolicy" $initCgroupsImageCfg | indent 10 }}
@@ -160,7 +160,11 @@ spec:
             {{- include "gitlab.certificates.volumeMount" . | nindent 12 }}
             {{- if .Values.cgroups.enabled }}
             - name: cgroup
+              {{- if .Values.cgroups.initContainer.enabled }}
               mountPath: '/run/gitaly/cgroup'
+              {{- else }}
+              mountPath: '/sys/fs/cgroup'
+              {{- end }}
             {{- end }}
             - name: gitaly-config
               mountPath: '/etc/gitaly/templates'

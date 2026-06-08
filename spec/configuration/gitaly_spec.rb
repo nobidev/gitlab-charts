@@ -822,7 +822,6 @@ describe 'Gitaly configuration' do
                   repository: registry.gitlab.com/gitlab-org/build/cng/gitaly-init-cgroups
                   tag: master
                   pullPolicy: IfNotPresent
-              mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
               hierarchyRoot: gitaly
               memoryBytes: 64424509440
               cpuShares: 1024
@@ -871,6 +870,66 @@ describe 'Gitaly configuration' do
         expect(gitaly_init_container['imagePullPolicy']).to eq('IfNotPresent')
         expect(gitaly_init_container['securityContext']).to include('runAsUser' => 0, 'runAsGroup' => 0)
         expect(gitaly_init_container_env.map { |env| env['name'] }).to match_array(%w[GITALY_POD_UID CGROUP_PATH OUTPUT_PATH TZ])
+      end
+
+      it 'mounts the cgroup hostPath volume into the gitaly container' do
+        pod_spec = statefulset['spec']['template']['spec']
+
+        cgroup_volume = pod_spec['volumes'].find { |v| v['name'] == 'cgroup' }
+        expect(cgroup_volume).to include('hostPath' => { 'path' => '/sys/fs/cgroup', 'type' => 'Directory' })
+
+        gitaly_container = pod_spec['containers'].find { |c| c['name'] == 'gitaly' }
+        expect(gitaly_container['volumeMounts']).to include(
+          include('name' => 'cgroup', 'mountPath' => '/run/gitaly/cgroup')
+        )
+      end
+
+      context 'when initContainer is disabled' do
+        let(:values) do
+          super().deep_merge(YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                cgroups:
+                  initContainer:
+                    enabled: false
+          )))
+        end
+
+        it 'does not add the init-cgroups initContainer to gitaly' do
+          expect(statefulset['spec']['template']['spec']['initContainers'].map { |c| c['name'] })
+            .not_to include('init-cgroups')
+        end
+
+        it 'defaults the cgroups mountpoint to /sys/fs/cgroup' do
+          expect(config_toml).to include('mountpoint = "/sys/fs/cgroup"')
+        end
+
+        it 'mounts the cgroup hostPath volume at /sys/fs/cgroup' do
+          pod_spec = statefulset['spec']['template']['spec']
+
+          cgroup_volume = pod_spec['volumes'].find { |v| v['name'] == 'cgroup' }
+          expect(cgroup_volume).to include('hostPath' => { 'path' => '/sys/fs/cgroup', 'type' => 'Directory' })
+
+          gitaly_container = pod_spec['containers'].find { |c| c['name'] == 'gitaly' }
+          expect(gitaly_container['volumeMounts']).to include(
+            include('name' => 'cgroup', 'mountPath' => '/sys/fs/cgroup')
+          )
+        end
+
+        context 'when a mountpoint is specified' do
+          let(:values) do
+            super().deep_merge(YAML.safe_load(%(
+              gitlab:
+                gitaly:
+                  cgroups:
+                    mountpoint: /custom/cgroup
+            )))
+          end
+
+          it 'uses the specified mountpoint' do
+            expect(config_toml).to include('mountpoint = "/custom/cgroup"')
+          end
+        end
       end
     end
 

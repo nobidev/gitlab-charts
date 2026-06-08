@@ -55,12 +55,16 @@ init:
 cgroups:
   enabled: false
   initContainer:
+    enabled: true
     image:
       repository: registry.gitlab.com/gitlab-org/build/cng/gitaly-init-cgroups
     securityContext:
       runAsUser: 0
       runAsGroup: 0
-  mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
+  # When unset, mountpoint defaults to the pod cgroup path computed by the
+  # init-cgroups container (read from /etc/gitlab-secrets/gitaly-pod-cgroup) when
+  # initContainer.enabled is true, or to /sys/fs/cgroup when it is disabled.
+  # mountpoint:
   hierarchyRoot: gitaly
   # memoryBytes:
   # cpuShares:

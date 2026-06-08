@@ -195,8 +195,16 @@ data:
     {{- if .Values.cgroups.enabled }}
     {{-   with .Values.cgroups }}
     [cgroups]
-    {{-     if .mountpoint }}
-    mountpoint = "{{ .mountpoint }}"
+    {{-     $mountpoint := .mountpoint }}
+    {{-     if not $mountpoint }}
+    {{-       if .initContainer.enabled }}
+    {{-         $mountpoint = `{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}` }}
+    {{-       else }}
+    {{-         $mountpoint = "/sys/fs/cgroup" }}
+    {{-       end }}
+    {{-     end }}
+    {{-     if $mountpoint }}
+    mountpoint = "{{ $mountpoint }}"
     {{-     end }}
     {{-     if .hierarchyRoot }}
     hierarchy_root = {{ .hierarchyRoot | quote }}
