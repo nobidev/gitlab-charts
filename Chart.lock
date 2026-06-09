@@ -37,9 +37,9 @@ dependencies:
   version: 1.39.4
 - name: gateway-helm
   repository: oci://registry-1.docker.io/envoyproxy
-  version: 1.8.0
+  version: 1.8.1
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   version: 0.12.0
-digest: sha256:4e1845f8d746e46f6dd5fc8c24386e9d2482ada4f943a98f0dde18ae7c0ead43
-generated: "2026-06-08T10:11:53.960357+02:00"
+digest: sha256:ce43ac6acf31ce617a4d68591141cb2d9c719001fccb27cb1a906d2f15682981
+generated: "2026-06-08T09:09:09.179243622Z"
