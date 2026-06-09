@@ -1,33 +1,33 @@
-# Cloud Native First - Large (L) - ≤500 RPS
-# https://docs.gitlab.com/administration/reference_architectures/cloud_native_first.html
+# Cloud Native - Large (L) - ≤500 RPS
+# https://docs.gitlab.com/administration/reference_architectures/cloud_native.html
 
 gitlab:
   webservice:
-    maxReplicas: 84
-    minReplicas: 56
-    maxUnavailable: 42
+    maxReplicas: 42
+    minReplicas: 28 # Min pods set to ~2/3 of max to accommodate autoscaling behavior
+    maxUnavailable: 21
     hpa:
       cpu:
-        targetAverageValue: 1600m
+        targetAverageValue: 1600m # Increased to stabilize scaling and accommodate higher CPU load
     resources:
       limits:
-        memory: 4G
+        memory: 7G
       requests:
-        cpu: 2
-        memory: 3G
-    workerProcesses: 2
+        cpu: 4 # requests.cpu <= workerProcesses
+        memory: 5G
+    workerProcesses: 4
     ingress:
-      proxyBodySize: 0
+      proxyBodySize: 0 # To allow large file uploads like imports
     nodeSelector:
       workload: webservice
 
   sidekiq:
     maxReplicas: 48
-    minReplicas: 32
+    minReplicas: 32 # Min pods set to ~2/3 of max to accommodate autoscaling behavior
     maxUnavailable: 24
     hpa:
       cpu:
-        targetAverageValue: 700m
+        targetAverageValue: 700m # Increased to stabilize scaling and accommodate higher CPU load
     resources:
       limits:
         memory: 4G
@@ -49,7 +49,7 @@ gitlab:
         memory: 126G
     persistence:
       storageClass: "standard"
-      size: "1Ti"
+      size: "1Ti" # Adjust based on repository size requirements
     packObjectsCache:
       enabled: true
     cgroups:
@@ -57,7 +57,7 @@ gitlab:
       memoryBytes: 120000000000
       cpuShares: '1024'
       repositories:
-        count: 1
+        count: 1 # Starting point; tune based on repository workload patterns
     antiAffinity: hard
     securityContext:
       fsGroupChangePolicy: OnRootMismatch
@@ -65,6 +65,8 @@ gitlab:
 
   toolbox:
     backups:
+      # GCS is used as an example here. See the reference architecture documentation
+      # for all supported object storage options and configuration.
       objectStorage:
         backend: gcs
         config:
@@ -72,6 +74,7 @@ gitlab:
           key: config
 
   migrations:
+    # Migrations pod must point directly to the PostgreSQL primary
     psql:
       host: postgresql.example.com
       port: 5432
@@ -80,6 +83,9 @@ gitlab:
         key: password
 
 global:
+  # Set pods to deploy on support node pool by default.
+  # This ensures only Webservice, Sidekiq, and Gitaly workloads
+  # are deployed to their respective node pools.
   nodeSelector:
     workload: support
 
@@ -88,6 +94,8 @@ global:
     https: true
 
   appConfig:
+    # For object storage configuration options, see:
+    # https://docs.gitlab.com/administration/reference_architectures/cloud_native/
     object_store:
       enabled: true
       connection:
@@ -163,6 +171,7 @@ global:
   minio:
     enabled: false
 
+# Run nginx pods on Webservice nodes as DaemonSet
 nginx-ingress:
   controller:
     kind: DaemonSet
@@ -176,11 +185,14 @@ registry:
     secret: gitlab-registry-storage
     key: config
 
+# Run Redis outside of cluster
 redis:
   install: false
 
+# Run PostgreSQL outside of cluster
 postgresql:
   install: false
 
+# https://docs.gitlab.com/ci/runners/configure_runners/
 gitlab-runner:
   install: false
