@@ -88,7 +88,7 @@ spec:
                 {{- if eq .Values.backups.objectStorage.backend "s3" }}
                 - cp /etc/gitlab/.s3cfg $HOME/.s3cfg && backup-utility {{ .Values.backups.cron.extraArgs }} # alpine sleep has no infinity
                 {{- else if eq .Values.backups.objectStorage.backend "gcs" }}
-                - sh /var/opt/gitlab/templates/configure-gsutil && backup-utility {{ .Values.backups.cron.extraArgs }}
+                - sh /var/opt/gitlab/templates/configure-gcloud-storage && backup-utility {{ .Values.backups.cron.extraArgs }}
                 {{- else if eq .Values.backups.objectStorage.backend "azure" }}
                 - backup-utility {{ .Values.backups.cron.extraArgs }}
                  {{- end }}
