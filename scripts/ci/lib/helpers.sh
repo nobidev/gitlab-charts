@@ -94,3 +94,16 @@ function common_openshift_values() {
 function use_nginx_ingress() {
   [[ "${USE_NGINX_INGRESS}" == "true" ]]
 }
+
+# external_protocol returns the protocol used for external access.
+# Defaults to "http" for k3d deployments (no TLS) and "https" otherwise.
+# Can be overridden by setting EXTERNAL_PROTOCOL explicitly.
+function external_protocol() {
+  if [ -n "${EXTERNAL_PROTOCOL}" ]; then
+    echo -n "${EXTERNAL_PROTOCOL}"
+  elif is_k3d_deployment; then
+    echo -n "http"
+  else
+    echo -n "https"
+  fi
+}
