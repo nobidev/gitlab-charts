@@ -79,6 +79,8 @@ gatewayRoute:
 traefik:
   entrypoint: gitlab-shell
   apiVersion: ""
+  # ingressClassName for the IngressRouteTCP. Set it when Traefik's kubernetesCRD provider is scoped to a class (see docs)
+  ingressClassName: ""
   tcpAnnotations: {}
   tcpMiddlewares: []
 

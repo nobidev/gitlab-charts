@@ -1,6 +1,7 @@
 {{- if .Values.enabled -}}
 {{- if eq .Values.global.ingress.provider "traefik" -}}
 {{- $traefikApiVersion := dict "global" .Values.global.traefik "local" .Values.traefik "context" . -}}
+{{- $ingressClassName := coalesce .Values.traefik.ingressClassName .Values.global.ingress.class -}}
 apiVersion: "{{ template "traefik.apiVersion" $traefikApiVersion }}"
 kind: IngressRouteTCP
 metadata:
@@ -14,6 +15,9 @@ metadata:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
 spec:
+  {{- if $ingressClassName }}
+  ingressClassName: {{ $ingressClassName | quote }}
+  {{- end }}
   entryPoints:
     - {{ .Values.traefik.entrypoint }}
   routes:

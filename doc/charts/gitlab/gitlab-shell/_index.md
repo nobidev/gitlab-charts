@@ -144,6 +144,7 @@ controlled by `global.shell.port`.
 | `sshDaemon`                                              | `openssh`                                               | Selects which SSH daemon would be run, possible values (`openssh`, `gitlab-sshd`) |
 | `tolerations`                                            | `[]`                                                    | Toleration labels for pod assignment |
 | `traefik.entrypoint`                                     | `gitlab-shell`                                          | When using traefik, which traefik entrypoint to use for GitLab Shell. Defaults to `gitlab-shell` |
+| `traefik.ingressClassName`                               | `""`                                                    | When using traefik, the `ingressClassName` to set on the IngressRouteTCP. Falls back to `global.ingress.class`; when both are empty the field is omitted. See [Traefik `ingressClassName`](#traefik-ingressclassname) |
 | `traefik.tcpAnnotations`                                 | `{}`                                                    | When using traefik, which annotations to add to IngressRouteTCP resource. No annotations by default |
 | `traefik.tcpMiddlewares`                                 | `[]`                                                    | When using traefik, which TCP Middlewares to add to IngressRouteTCP resource. No middlewares by default |
 | `workhorse.serviceName`                                  | `webservice`                                            | Workhorse service name (by default, Workhorse is a part of the webservice Pods / Service) |
@@ -301,6 +302,26 @@ Below is an example use of `annotations`
 annotations:
   kubernetes.io/example-annotation: annotation-value
 ```
+
+### Traefik `ingressClassName`
+
+When `global.ingress.provider` is `traefik`, the chart renders an `IngressRouteTCP`
+for GitLab Shell. Its `spec.ingressClassName` is taken from the first non-empty of
+`traefik.ingressClassName`, then `global.ingress.class`. When neither is set, the
+field is omitted, which is correct for a default Traefik install.
+
+Set the class when Traefik's `kubernetesCRD` provider is scoped to a specific class
+with `providers.kubernetescrd.ingressClass`. With that filter active, a route whose
+`ingressClassName` does not match is silently ignored, leaving GitLab Shell
+unreachable, so the class must match the one the provider is scoped to:
+
+```yaml
+traefik:
+  ingressClassName: my-traefik-class
+```
+
+A default Traefik install leaves `providers.kubernetescrd.ingressClass` empty, in
+which case routes with no class are processed, so this value can be left unset.
 
 ## External Services
 
