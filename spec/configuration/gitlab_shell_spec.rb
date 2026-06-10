@@ -60,6 +60,68 @@ describe 'gitlab-shell configuration' do
     end
   end
 
+  context 'when the traefik ingress provider is enabled' do
+    let(:traefik_values) do
+      default_values.deep_merge(YAML.safe_load(%(
+        global:
+          ingress:
+            provider: traefik
+      )))
+    end
+
+    let(:route_spec) { t.dig('IngressRouteTCP/test-gitlab-shell', 'spec') }
+
+    context 'with default values' do
+      let(:values) { traefik_values }
+
+      # With no class configured the field is omitted rather than rendered empty.
+      # A default Traefik install leaves providers.kubernetescrd.ingressClass
+      # empty, so a classless route is processed; rendering an empty string would
+      # instead be dropped by a scoped provider.
+      it 'omits ingressClassName' do
+        expect_successful_exit_code
+
+        expect(route_spec).not_to have_key('ingressClassName')
+      end
+    end
+
+    context 'when global.ingress.class is set' do
+      let(:values) do
+        traefik_values.deep_merge(YAML.safe_load(%(
+          global:
+            ingress:
+              class: global-class
+        )))
+      end
+
+      it 'inherits the global ingress class' do
+        expect_successful_exit_code
+
+        expect(route_spec['ingressClassName']).to eq('global-class')
+      end
+    end
+
+    context 'when gitlab-shell.traefik.ingressClassName is set' do
+      let(:values) do
+        traefik_values.deep_merge(YAML.safe_load(%(
+          global:
+            ingress:
+              class: global-class
+          gitlab:
+            gitlab-shell:
+              traefik:
+                ingressClassName: shell-class
+        )))
+      end
+
+      it 'prefers the gitlab-shell specific class over the global default' do
+        expect_successful_exit_code
+
+        expect(route_spec['ingressClassName']).to eq('shell-class')
+      end
+    end
+  end
+
   context 'when gitlab-sshd is enabled' do
     using RSpec::Parameterized::TableSyntax
 
