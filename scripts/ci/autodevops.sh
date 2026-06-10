@@ -88,6 +88,10 @@ function remove_external_components() {
   fi
 }
 
+function is_k3d_deployment() {
+  [[ "${K3D_MODE:-false}" == "true" ]]
+}
+
 function deploy() {
   if [ -z "${NAMESPACE}" ]; then
     echo "Error: NAMESPACE is not set"
@@ -186,20 +190,20 @@ CIYAML
 CIYAML
 
   DOMAIN="-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"
-  envsubst < ./scripts/ci/values/vcluster.externaldns.values.yaml > ./vcluster.externaldns.values.yaml
   envsubst < ./scripts/ci/values/ingress.values.yaml > ./ingress.values.yaml
   envsubst < ./scripts/ci/values/gatewayapi.values.yaml > ./gatewayapi.values.yaml
   envsubst < ./scripts/ci/values/external-valkey.values.yaml > ./external-valkey.values.yaml
 
-  NETWORKING_CONF="-f ingress.values.yaml"
-  if [ -n "${USE_GATEWAY_API}" ]; then
-    echo "USE_GATEWAY_API detected"
-    NETWORKING_CONF="-f gatewayapi.values.yaml"
-  fi
-
-  if [ -n "${VCLUSTER_NAME}" ]; then
-    echo "VCLUSTER deployment detected"
-    NETWORKING_CONF="${NETWORKING_CONF} -f vcluster.externaldns.values.yaml"
+  if is_k3d_deployment; then
+    echo "K3D deployment detected — using NGINX ingress"
+    envsubst < ./scripts/ci/values/k3d.ingress.values.yaml > ./k3d.ingress.values.yaml
+    NETWORKING_CONF="-f k3d.ingress.values.yaml"
+  else
+    NETWORKING_CONF="-f ingress.values.yaml"
+    if [ -n "${USE_GATEWAY_API}" ]; then
+      echo "USE_GATEWAY_API detected"
+      NETWORKING_CONF="-f gatewayapi.values.yaml"
+    fi
   fi
 
   # PostgreSQL max_connection defaults to 100, which is apparently not enough to pass QA.
@@ -265,7 +269,7 @@ CIYAML
     -f ci.digests.yaml \
     -f ci.prometheus.yaml \
     --set releaseOverride="$RELEASE_NAME" \
-    --set global.hosts.hostSuffix="$HOST_SUFFIX" \
+    --set-string global.hosts.hostSuffix="$HOST_SUFFIX" \
     --set global.hosts.domain="$KUBE_INGRESS_BASE_DOMAIN" \
     --set global.appConfig.initialDefaults.signupEnabled=false \
     --set installCertmanager=false \
@@ -324,6 +328,10 @@ function ensure_namespace() {
 }
 
 function set_context() {
+  if is_k3d_deployment; then
+    echo "K3D_MODE: using local k3d kubeconfig (${KUBECONFIG})"
+    return
+  fi
   if [ -z ${AGENT_NAME+x} ] || [ -z ${AGENT_PROJECT_PATH+x} ]; then
     echo "No AGENT_NAME or AGENT_PROJECT_PATH set, using the default"
   else
