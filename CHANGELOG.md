@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.0.2 (2026-06-10)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.89.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/e1f905697f042b2afd68de63555ccf9ae2dd886c)
+
 ## 10.0.1 (2026-05-26)
 
 ### Fixed (1 change)
@@ -47,6 +53,10 @@ entry.
 - [Breaking: Remove spamcheck subchart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7dababe2cefe0699131a1ce8d18b3b85c8b99641) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5035))
 - [Breaking: Drop bundled MinIO chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/26820c4955e839d5c3af080307c4006951218bd6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4964))
 - [Breaking: Drop bundled Redis and PostgreSQL charts](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/08560add29dc61dd782ceea0730ff1fdcc40e1da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4950))
+
+## 9.11.6 (2026-06-10)
+
+No changes.
 
 ## 9.11.5 (2026-05-26)
 
@@ -109,6 +119,10 @@ No changes.
 - [Update gitlab-exporter to v16.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/37981d9e8b352c9d62908df776a248c41c316901) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4866))
 - [Update container-registry to v4.39.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/be5ece2d4387f2d561000c549c2cc754ed95feb9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4886))
 - [Gateway API: Unglobalize Gateway API resources](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fb5977af6be6eb874f6be1f2fee7d74d03c27665) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4862))
+
+## 9.10.8 (2026-06-10)
+
+No changes.
 
 ## 9.10.7 (2026-05-26)
 
