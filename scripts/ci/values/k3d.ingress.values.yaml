@@ -1,0 +1,19 @@
+# NGINX ingress overrides for k3d per-job review environments (18.10).
+# k3d jobs use NGINX ingress over HTTP (no TLS) — the 18.10 chart's bundled
+# envoy-gateway is too old for the Gateway API review path. The NGINX ingress
+# controller is deployed by the GitLab chart itself; k3d's default Traefik is
+# disabled at cluster creation time.
+nginx-ingress:
+  enabled: true
+
+global:
+  hosts:
+    https: false
+  ingress:
+    enabled: true
+    configureCertmanager: false
+    tls:
+      enabled: false
+  gatewayApi:
+    enabled: false
+    installEnvoy: false

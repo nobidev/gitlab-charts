@@ -25,11 +25,13 @@
 .gitlab-ci.yml
 .markdownlint.json
 .helmignore
+.values
 argo_translation.yml
 Dangerfile
 Rakefile
 Gemfile
 Gemfile.lock
+gems/
 knapsack_rspec_report.json
 mise.toml
 ci/

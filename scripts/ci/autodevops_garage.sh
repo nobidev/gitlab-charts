@@ -17,8 +17,17 @@ function deploy_external_garage() {
     helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v${GARAGE_APP_VERSION}"
     helm repo update
 
+    # Garage publishes per-arch images by name (no multi-arch manifest); the chart
+    # defaults to dxflrs/amd64_garage, which won't run on arm64 nodes (the
+    # StatefulSet never becomes Ready). Pick the matching image for the arch.
+    GARAGE_IMAGE_REPOSITORY="dxflrs/amd64_garage"
+    if [ "${REVIEW_ARCH}" == "arm64" ]; then
+        GARAGE_IMAGE_REPOSITORY="dxflrs/arm64_garage"
+    fi
+
     helm upgrade --install garage garage/garage \
         -n "${NAMESPACE}" \
+        --set image.repository="${GARAGE_IMAGE_REPOSITORY}" \
         --set garage.replicationFactor=1 \
         --set deployment.replicaCount=1 \
         --set persistence.enabled=false \

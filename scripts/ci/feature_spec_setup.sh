@@ -1,7 +1,11 @@
 #!/bin/bash
 set -e
 
-mkdir -p /etc/gitlab/minio
-
-kubectl get secret ${RELEASE_NAME}-minio-secret -o jsonpath='{.data.accesskey}' | base64 --decode > /etc/gitlab/minio/accesskey
-kubectl get secret ${RELEASE_NAME}-minio-secret -o jsonpath='{.data.secretkey}' | base64 --decode > /etc/gitlab/minio/secretkey
+# No-op for the k3d review environment.
+#
+# This previously fetched the bundled MinIO credentials
+# (${RELEASE_NAME}-minio-secret) into /etc/gitlab/minio. The k3d review env uses
+# external Garage object storage (USE_EXTERNAL_GARAGE) — there is no bundled
+# minio-secret — and the backup specs reach object storage via the chart config,
+# not these files. master/9-11 carry an empty feature_spec_setup.sh for the same
+# reason.
