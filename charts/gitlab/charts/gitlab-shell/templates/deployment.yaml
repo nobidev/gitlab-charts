@@ -206,6 +206,7 @@ spec:
                     path: ssh/trusted-ca-keys/{{ . }}
                   {{- end }}
             {{- end }}
+            {{- include "gitlab.gitlab-shell.topologyService.mountSecrets" $ | nindent 12 }}
       # Actual config dirs that will be used in the container
       - name: shell-secrets
         emptyDir:
