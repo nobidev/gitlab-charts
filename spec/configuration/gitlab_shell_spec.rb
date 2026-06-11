@@ -528,4 +528,88 @@ describe 'gitlab-shell configuration' do
       end
     end
   end
+
+  describe 'Topology Service mTLS client' do
+    let(:config) { t.dig('ConfigMap/test-gitlab-shell', 'data', 'config.yml.tpl') }
+
+    let(:rendered_config) do
+      rendered = RuntimeTemplate.gomplate(raw_template: config)
+      YAML.safe_load(rendered, aliases: true)
+    end
+
+    context 'when Cells and topology service TLS are disabled (default)' do
+      let(:values) { default_values }
+
+      it 'does not render a topology_service block (protects self-managed/GDK)' do
+        expect_successful_exit_code
+
+        expect(rendered_config).not_to have_key('topology_service')
+      end
+
+      it 'does not add the topology service secret to the projected volume' do
+        expect_successful_exit_code
+
+        volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
+        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
+        ts_source = init_secrets_volume['projected']['sources'].find do |s|
+          s.dig('secret', 'name').to_s.include?('topology-service')
+        end
+        expect(ts_source).to be_nil
+      end
+    end
+
+    context 'when Cells and topology service TLS are enabled' do
+      let(:values) do
+        default_values.deep_merge(YAML.safe_load(%(
+          global:
+            appConfig:
+              cell:
+                enabled: true
+                id: 1
+                topologyServiceClient:
+                  address: "topology-grpc.staging.runway.gitlab.net:443"
+                  tls:
+                    enabled: true
+                    secret: cell-1-staging-mtls-cert
+        )))
+      end
+
+      it 'renders the topology_service mTLS config' do
+        expect_successful_exit_code
+
+        expect(rendered_config['topology_service']).to eq(
+          'enabled' => true,
+          'address' => 'topology-grpc.staging.runway.gitlab.net:443',
+          'tls' => {
+            'enabled' => true,
+            'cert_file' => '/etc/gitlab-secrets/shell/topology-service/tls.crt',
+            'key_file' => '/etc/gitlab-secrets/shell/topology-service/tls.key'
+          }
+        )
+      end
+
+      it 'adds the topology service secret to the shell-init-secrets projected volume' do
+        expect_successful_exit_code
+
+        volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
+        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
+        ts_source = init_secrets_volume['projected']['sources'].find do |s|
+          s.dig('secret', 'name') == 'cell-1-staging-mtls-cert'
+        end
+        expect(ts_source).not_to be_nil
+        expect(ts_source['secret']['items']).to contain_exactly(
+          { 'key' => 'tls.crt', 'path' => 'shell/topology-service/tls.crt' },
+          { 'key' => 'tls.key', 'path' => 'shell/topology-service/tls.key' }
+        )
+      end
+
+      it 'includes topology service cert copy commands in the configure script' do
+        expect_successful_exit_code
+
+        configure_script = t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure')
+        expect(configure_script).to include('shell/topology-service/tls.crt')
+        expect(configure_script).to include('shell/topology-service/tls.key')
+      end
+    end
+  end
 end

@@ -564,12 +564,16 @@ global:
       database:
         skipSequenceAlteration: false
       topologyServiceClient:
+        # Topology Service gRPC endpoint to connect to, as "host:port".
+        # address:
         tls:
           enabled: false
-        # address:
-        # caFile:
-        # privateKeyFile:
-        # certificateFile:
+          # Name of the Kubernetes secret holding the mTLS client certificate
+          # (tls.crt) and key (tls.key). Consumed by Rails
+          # (webservice/sidekiq/toolbox) and GitLab Shell for the gRPC client.
+          # secret:
+          # privateKeyFile:
+          # certificateFile:
 
     ## https://docs.gitlab.com/charts/charts/globals#omniauth
     omniauth:

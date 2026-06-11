@@ -701,3 +701,46 @@ Usage: {{ include "gitlab.topologyService.configureScript" $ | nindent 4 }}
   fi
 {{- end }}
 {{- end -}}
+
+{{/*
+Return whether the Topology Service mTLS client is enabled for GitLab Shell.
+True only when Cells is enabled and the topology service client TLS is enabled.
+Usage: {{ if eq (include "gitlab.gitlab-shell.topologyService.enabled" $) "true" }}
+*/}}
+{{- define "gitlab.gitlab-shell.topologyService.enabled" -}}
+{{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Configure script fragment that materializes the Topology Service mTLS cert/key
+into the GitLab Shell secrets directory. Mirrors the SSH host key handling.
+Usage: {{ include "gitlab.gitlab-shell.topologyService.configureScript" $ | nindent 4 }}
+*/}}
+{{- define "gitlab.gitlab-shell.topologyService.configureScript" -}}
+{{- if eq (include "gitlab.gitlab-shell.topologyService.enabled" $) "true" }}
+mkdir -p /${secret_dir}/shell/topology-service
+cp -v -L /${config_dir}/shell/topology-service/tls.crt /${secret_dir}/shell/topology-service/tls.crt
+cp -v -L /${config_dir}/shell/topology-service/tls.key /${secret_dir}/shell/topology-service/tls.key
+chmod 0400 /${secret_dir}/shell/topology-service/tls.key
+{{- end }}
+{{- end -}}
+
+{{/*
+Projected volume source that provides the Topology Service mTLS secret to the
+GitLab Shell init container. The secret is expected to contain tls.crt and tls.key
+(the cert-manager / Vault PKI client certificate, e.g. cell-1-<env>-mtls-cert).
+Usage: {{ include "gitlab.gitlab-shell.topologyService.mountSecrets" $ | nindent 12 }}
+*/}}
+{{- define "gitlab.gitlab-shell.topologyService.mountSecrets" -}}
+{{- if eq (include "gitlab.gitlab-shell.topologyService.enabled" $) "true" }}
+- secret:
+    name: {{ template "topology-service.tls.secret" $ }}
+    items:
+      - key: "tls.crt"
+        path: "shell/topology-service/tls.crt"
+      - key: "tls.key"
+        path: "shell/topology-service/tls.key"
+{{- end }}
+{{- end -}}

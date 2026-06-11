@@ -23,6 +23,38 @@ global:
 
 This aligns with how other sensitive settings (e.g., `client_secret`) are stored under `appConfig`.
 
+### Consumers
+
+The `global.appConfig.cell.topologyServiceClient` block is shared by multiple
+components that talk to the Topology Service:
+
+- **Rails** (`webservice`, `sidekiq`, `toolbox`, `migrations`): mounts the
+  secret as `tls.crt` / `tls.key` under `/srv/gitlab/config/topology-service/`
+  and renders the `topology_service_client` block in `gitlab.yml`.
+- **GitLab Shell** (SSH router → Topology Service gRPC): mounts the same
+  secret into the GitLab Shell pod and renders a `topology_service` block in
+  `config.yml` with:
+
+  ```yaml
+  topology_service:
+    enabled: true
+    address: <topologyServiceClient.address>
+    tls:
+      enabled: true
+      cert_file: /etc/gitlab-secrets/shell/topology-service/tls.crt
+      key_file: /etc/gitlab-secrets/shell/topology-service/tls.key
+  ```
+
+  GitLab Shell only renders this block when **both** `global.appConfig.cell.enabled`
+  and `global.appConfig.cell.topologyServiceClient.tls.enabled` are `true`. When
+  unset (the default), no `topology_service` config is emitted, so self-managed
+  and GDK deployments are unaffected.
+
+  > **Certificate rotation:** GitLab Shell loads the client certificate once at
+  > startup (no hot-reload). After the mounted certificate is rotated (for
+  > example by cert-manager), the GitLab Shell pods must be restarted (rolling
+  > update) to pick up the new certificate.
+
 ---
 
 ## Design Discussion & Known Deviation
