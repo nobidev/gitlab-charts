@@ -1,5 +1,5 @@
-# Envoy Gateway (Gateway API) overrides for k3d per-job review environments.
-# Replaces k3d.ingress.values.yaml — uses HTTPRoute/TCPRoute instead of NGINX Ingress.
+# Envoy Gateway (Gateway API) overrides for HTTP-only deployments (e.g. k3d per-job review environments).
+# Replaces ingress-http.values.yaml — uses HTTPRoute/TCPRoute instead of NGINX Ingress.
 # Values commented out below are now master defaults; left here to document intent
 # and to test that the defaults are correctly applied.
 # nginx-ingress:

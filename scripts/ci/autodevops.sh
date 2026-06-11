@@ -67,21 +67,12 @@ function deploy() {
     CI_CONFIGURATION="-f ${VALUES_DIR}/ci-base.values.yaml -f ${VALUES_DIR}/ci-scale.values.yaml -f ${VALUES_DIR}/ci-license.values.yaml -f ci.digests.yaml"
   fi
 
-  if is_k3d_deployment; then
-    echo "K3D deployment detected"
-    if [ -n "${K3D_USE_NGINX_INGRESS}" ]; then
-      echo "K3D_USE_NGINX_INGRESS set: using NGINX ingress"
-      NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/k3d.ingress.values.yaml"
-    else
-      echo "Using Envoy Gateway API (default for k3d)"
-      NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/k3d.gatewayapi.values.yaml"
-    fi
+  if use_nginx_ingress; then
+    echo "Exposing GitLab via NGINX Ingress in $(external_protocol) mode"
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress-$(external_protocol).values.yaml"
   else
-    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi.values.yaml"
-    if use_nginx_ingress; then
-      echo "NGINX Ingress deployment detected"
-      NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress.values.yaml"
-    fi
+    echo "Exposing GitLab via Gateway API in $(external_protocol) mode"
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi-$(external_protocol).values.yaml"
   fi
 
   if [ -n "${REVIEW_APPS_SENTRY_DSN}" ] && [ -n "${REVIEW_APPS_SENTRY_ENVIRONMENT}" ]; then

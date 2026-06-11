@@ -398,7 +398,7 @@ k3d_nginx:
   extends: .trigger_review_job
   variables:
     LIMIT_TO: k3d_version
-    K3D_USE_NGINX_INGRESS: "true"
+    USE_NGINX_INGRESS: "true"
   parallel:
     matrix:
       - K3D_K8S_IMAGE: "rancher/k3s:v1.35.0-k3s1"
