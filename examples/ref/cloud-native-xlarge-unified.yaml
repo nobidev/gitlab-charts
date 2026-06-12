@@ -1,0 +1,197 @@
+# Cloud Native - Extra Large (XL) - ≤1000 RPS - Unified Application Pool
+# https://docs.gitlab.com/administration/reference_architectures/cloud_native.html
+#
+# This example uses a single unified application node pool for Webservice,
+# Sidekiq, and Supporting workloads. Gitaly uses a dedicated node pool.
+# See cloud-native-xlarge.yaml for the segmented node pool variant.
+
+gitlab:
+  webservice:
+    maxReplicas: 84
+    minReplicas: 56 # Min pods set to ~2/3 of max to accommodate autoscaling behavior
+    maxUnavailable: 42
+    hpa:
+      cpu:
+        targetAverageValue: 1600m # Increased to stabilize scaling and accommodate higher CPU load
+    resources:
+      limits:
+        memory: 7G
+      requests:
+        cpu: 4 # requests.cpu <= workerProcesses
+        memory: 5G
+    workerProcesses: 4
+    ingress:
+      proxyBodySize: 0 # To allow large file uploads like imports
+
+  sidekiq:
+    maxReplicas: 96
+    minReplicas: 64 # Min pods set to ~2/3 of max to accommodate autoscaling behavior
+    maxUnavailable: 48
+    hpa:
+      cpu:
+        targetAverageValue: 700m # Increased to stabilize scaling and accommodate higher CPU load
+    resources:
+      limits:
+        memory: 4G
+      requests:
+        cpu: 900m
+        memory: 2G
+
+  gitaly:
+    nodeSelector:
+      workload: gitaly # Gitaly requires its own dedicated node pool
+    resources:
+      limits:
+        cpu: 63
+        memory: 254G
+      requests:
+        cpu: 63
+        memory: 254G
+    persistence:
+      storageClass: "standard"
+      size: "2Ti" # Adjust based on repository size requirements
+    packObjectsCache:
+      enabled: true
+    cgroups:
+      enabled: true
+      memoryBytes: 248000000000
+      cpuShares: '1024'
+      repositories:
+        count: 1 # Starting point; tune based on repository workload patterns
+    antiAffinity: hard
+    securityContext:
+      fsGroupChangePolicy: OnRootMismatch
+    gracefulRestartTimeout: 1
+
+  toolbox:
+    backups:
+      # GCS is used as an example here. See the reference architecture documentation
+      # for all supported object storage options and configuration.
+      objectStorage:
+        backend: gcs
+        config:
+          secret: gitlab-object-storage
+          key: config
+
+  migrations:
+    # Migrations pod must point directly to the PostgreSQL primary
+    psql:
+      host: postgresql.example.com
+      port: 5432
+      password:
+        secret: gitlab-postgres-password
+        key: password
+
+global:
+  # All pods default to the unified application node pool.
+  # Gitaly overrides this with its own dedicated pool above.
+  nodeSelector:
+    workload: application
+
+  hosts:
+    domain: example.com
+    https: true
+
+  appConfig:
+    # For object storage configuration options, see:
+    # https://docs.gitlab.com/administration/reference_architectures/cloud_native/
+    object_store:
+      enabled: true
+      connection:
+        secret: gitlab-object-storage
+        key: connection
+    artifacts:
+      bucket: gitlab-artifacts
+      proxy_download: false
+    lfs:
+      bucket: gitlab-lfs
+      proxy_download: false
+    packages:
+      bucket: gitlab-packages
+      proxy_download: false
+    uploads:
+      bucket: gitlab-uploads
+      proxy_download: false
+    externalDiffs:
+      enabled: true
+      bucket: gitlab-external-diffs
+      when: outdated
+      proxy_download: false
+    dependencyProxy:
+      enabled: true
+      bucket: gitlab-dependency-proxy
+      proxy_download: false
+    terraformState:
+      enabled: true
+      bucket: gitlab-terraform-state
+      proxy_download: false
+    ciSecureFiles:
+      bucket: gitlab-ci-secure-files
+      enabled: true
+    backups:
+      bucket: gitlab-backups
+
+  psql:
+    host: postgresql.example.com
+    port: 5432
+    password:
+      secret: gitlab-postgres-password
+      key: password
+    # Read replicas optional but recommended for improved stability
+    # load_balancing:
+    #   hosts:
+    #     - postgresql-replica-1.example.com
+    #     - postgresql-replica-2.example.com
+
+  redis:
+    cache:
+      host: redis-cache.example.com
+      port: 6379
+      password:
+        secret: gitlab-redis-cache-password
+        key: password
+    host: redis-persistent.example.com
+    port: 6379
+    auth:
+      secret: gitlab-redis-persistent-password
+      key: password
+
+  gitaly:
+    enabled: true
+    internal:
+      names:
+        - default
+        - storage1
+        - storage2
+
+  registry:
+    bucket: gitlab-registry
+
+  minio:
+    enabled: false
+
+# Run nginx pods on application nodes as DaemonSet
+nginx-ingress:
+  controller:
+    kind: DaemonSet
+    nodeSelector:
+      workload: application
+    scope:
+      enabled: false
+
+registry:
+  storage:
+    secret: gitlab-registry-storage
+    key: config
+
+# Run Redis outside of cluster
+redis:
+  install: false
+
+# Run PostgreSQL outside of cluster
+postgresql:
+  install: false
+
+# https://docs.gitlab.com/ci/runners/configure_runners/
+gitlab-runner:
+  install: false
