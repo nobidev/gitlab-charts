@@ -61,7 +61,6 @@ gitlab:
     antiAffinity: hard
     securityContext:
       fsGroupChangePolicy: OnRootMismatch
-    gracefulRestartTimeout: 1
 
   toolbox:
     backups:
