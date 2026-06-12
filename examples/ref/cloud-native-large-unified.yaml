@@ -92,6 +92,14 @@ global:
     domain: example.com
     https: true
 
+  ingress:
+    enabled: false # Replaced by Gateway API
+
+  gatewayApi:
+    enabled: true
+    installEnvoy: true
+    configureCertmanager: true
+
   appConfig:
     # For object storage configuration options, see:
     # https://docs.gitlab.com/administration/reference_architectures/cloud_native/
@@ -170,14 +178,16 @@ global:
   minio:
     enabled: false
 
-# Run nginx pods on application nodes as DaemonSet
+# Disable bundled NGINX Ingress controller
 nginx-ingress:
-  controller:
-    kind: DaemonSet
-    nodeSelector:
-      workload: application
-    scope:
-      enabled: false
+  enabled: false
+
+# Configure bundled cert-manager for Gateway API support
+certmanager:
+  config:
+    apiVersion: controller.config.cert-manager.io/v1alpha1
+    kind: ControllerConfiguration
+    enableGatewayAPI: true
 
 registry:
   storage:
