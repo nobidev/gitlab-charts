@@ -200,7 +200,7 @@ certmanager:
     kind: ControllerConfiguration
     enableGatewayAPI: true
 
-# Run Envoy proxy as a DaemonSet on application nodes
+# Run one Envoy proxy pod per application node; scales automatically as the node pool grows
 gatewayApiResources:
   envoy:
     proxySpec:
