@@ -22,6 +22,8 @@ gitlab:
     workerProcesses: 4
     ingress:
       proxyBodySize: 0 # To allow large file uploads like imports
+    # Spread pods across availability zones - needed because all components
+    # share the same node pool without per-component node isolation.
     antiAffinity: soft
     affinity:
       podAntiAffinity:
@@ -40,6 +42,8 @@ gitlab:
       requests:
         cpu: 900m
         memory: 2G
+    # Spread pods across availability zones - needed because all components
+    # share the same node pool without per-component node isolation.
     antiAffinity: soft
     affinity:
       podAntiAffinity:
@@ -195,6 +199,24 @@ certmanager:
     apiVersion: controller.config.cert-manager.io/v1alpha1
     kind: ControllerConfiguration
     enableGatewayAPI: true
+
+# Run Envoy proxy as a DaemonSet on application nodes
+gatewayApiResources:
+  envoy:
+    proxySpec:
+      provider:
+        type: Kubernetes
+        kubernetes:
+          envoyService:
+            type: LoadBalancer
+          envoyDaemonSet:
+            pod:
+              annotations:
+                gitlab.com/prometheus_scrape: "true"
+                gitlab.com/prometheus_port: "19001"
+                gitlab.com/prometheus_path: "/stats/prometheus"
+              nodeSelector:
+                workload: application
 
 registry:
   storage:
