@@ -22,6 +22,10 @@ gitlab:
     workerProcesses: 4
     ingress:
       proxyBodySize: 0 # To allow large file uploads like imports
+    antiAffinity: soft
+    affinity:
+      podAntiAffinity:
+        topologyKey: topology.kubernetes.io/zone # Spread pods across AZs in the shared pool
 
   sidekiq:
     maxReplicas: 48
@@ -36,6 +40,10 @@ gitlab:
       requests:
         cpu: 900m
         memory: 2G
+    antiAffinity: soft
+    affinity:
+      podAntiAffinity:
+        topologyKey: topology.kubernetes.io/zone # Spread pods across AZs in the shared pool
 
   gitaly:
     nodeSelector:
