@@ -189,6 +189,24 @@ certmanager:
     kind: ControllerConfiguration
     enableGatewayAPI: true
 
+# Run Envoy proxy as a DaemonSet on webservice nodes, mirroring the previous nginx approach
+gatewayApiResources:
+  envoy:
+    proxySpec:
+      provider:
+        type: Kubernetes
+        kubernetes:
+          envoyService:
+            type: LoadBalancer
+          envoyDaemonSet:
+            pod:
+              annotations:
+                gitlab.com/prometheus_scrape: "true"
+                gitlab.com/prometheus_port: "19001"
+                gitlab.com/prometheus_path: "/stats/prometheus"
+              nodeSelector:
+                workload: webservice
+
 registry:
   storage:
     secret: gitlab-registry-storage
