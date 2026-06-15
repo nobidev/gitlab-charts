@@ -721,8 +721,8 @@ Usage: {{ include "gitlab.gitlab-shell.topologyService.configureScript" $ | nind
 {{- define "gitlab.gitlab-shell.topologyService.configureScript" -}}
 {{- if eq (include "gitlab.gitlab-shell.topologyService.enabled" $) "true" }}
 mkdir -p /${secret_dir}/shell/topology-service
-cp -v -L /${config_dir}/shell/topology-service/tls.crt /${secret_dir}/shell/topology-service/tls.crt
-cp -v -L /${config_dir}/shell/topology-service/tls.key /${secret_dir}/shell/topology-service/tls.key
+cp -f -v -L /${config_dir}/shell/topology-service/tls.crt /${secret_dir}/shell/topology-service/tls.crt
+cp -f -v -L /${config_dir}/shell/topology-service/tls.key /${secret_dir}/shell/topology-service/tls.key
 chmod 0400 /${secret_dir}/shell/topology-service/tls.key
 {{- end }}
 {{- end -}}
