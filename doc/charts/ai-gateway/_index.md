@@ -46,7 +46,7 @@ To configure and deploy the chart:
 1. Select **Change configuration** and:
    - Change the **Local AI Gateway URL** to `http://<RELEASE_NAME>-ai-gateway`.
    - Change the **Local URL for the GitLab Duo Agent Platform service** to `<RELEASE_NAME>-ai-gateway:50052`.
-   - Clear the **Use TLS for the GitLab Duo Agent Platform service**.
+   - Clear the checkbox **Use TLS for the GitLab Duo Agent Platform service**.
    - If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab Duo Agent Platform** features.
    For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
 1. Select **Save changes**.
@@ -62,7 +62,7 @@ To configure and deploy the chart:
 
 Prerequisites:
 
-- The `self-hosted-v19.1.X-ee` or later for the
+- The `self-hosted-v19.1.X-ee` or later tag for the
   AI-Gateway [container image](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/container_registry/3809284?orderBy=PUBLISHED_AT&search%5B%5D=self-hosted).
 - Generate a certificate for the `<RELEASE_NAME>-ai-gateway` hostname with a certificate authority trusted by rails.
   Make sure the certificate SAN matches the hostname rails uses to connect to AI Gateway.
@@ -87,7 +87,7 @@ To configure TLS:
 
    ai-gateway:
      image:
-       # A 19.1 or later is required
+       # A 19.1 or later tag is required
        tag: self-hosted-v19.1.0-ee
      install: true
      # Make sure the probes access the service under the right scheme
