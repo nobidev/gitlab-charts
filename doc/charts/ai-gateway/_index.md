@@ -52,7 +52,13 @@ To configure and deploy the chart:
 1. Select **Save changes**.
 1. On the **GitLab Duo** page (`/admin/gitlab_duo`), select **Run health check** to verify that everything is working correctly.
 
-## Configure TLS
+## Configure internal TLS
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/distribution/team-tasks/-/work_items/1842) in GitLab 19.1.
+
+{{< /history >}}
 
 Prerequisites:
 
