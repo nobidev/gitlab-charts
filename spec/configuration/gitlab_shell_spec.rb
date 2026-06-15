@@ -610,6 +610,35 @@ describe 'gitlab-shell configuration' do
         expect(configure_script).to include('shell/topology-service/tls.crt')
         expect(configure_script).to include('shell/topology-service/tls.key')
       end
+
+      # Regression test for INC-11083 / !5119: the topology-service copies write
+      # files that are subsequently chmod 0400'd into the shared init-secrets
+      # emptyDir. Without `cp -f`, a re-run of the configure script (init-container
+      # retry or rollout overlap) cannot overwrite the previously written 0400
+      # files and fails with "Permission denied", crash-looping the init container.
+      it 'copies topology service certs with the force flag (idempotent re-run)' do
+        expect_successful_exit_code
+
+        configure_script = t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure')
+        expect(configure_script).to match(%r{cp\s+(-\w+\s+)*-f(\s+-\w+)*\s+/\$\{config_dir\}/shell/topology-service/tls\.crt})
+        expect(configure_script).to match(%r{cp\s+(-\w+\s+)*-f(\s+-\w+)*\s+/\$\{config_dir\}/shell/topology-service/tls\.key})
+      end
+    end
+  end
+
+  describe 'configure script idempotency (INC-11083 regression)' do
+    let(:values) { default_values }
+
+    let(:configure_script) { t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure') }
+
+    # The SSH host keys are copied and then chmod 0400'd into the shared
+    # init-secrets emptyDir. Without `cp -f`, a second execution of the configure
+    # script against the same emptyDir cannot overwrite the 0400 files and exits
+    # non-zero under `set -e`, causing Init:CrashLoopBackOff (INC-11083 / !5119).
+    it 'copies SSH host keys with the force flag so re-runs do not fail with Permission denied' do
+      expect_successful_exit_code
+
+      expect(configure_script).to match(%r{cp\s+(-\w+\s+)*-f(\s+-\w+)*\s+/\$\{config_dir\}/ssh_host_\*})
     end
   end
 end
