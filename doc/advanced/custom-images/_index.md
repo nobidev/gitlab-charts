@@ -38,7 +38,7 @@ This command can also be used to verify any custom configurations.
 
 ## Example values file
 
-There is an [example values file](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/custom-images/values.yaml) that demonstrates how to configure a custom Docker registry/repository and tag. You can copy relevant sections of this file for your own releases.
+There is an [example values file](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/custom-images/values.yaml) that demonstrates how to configure a custom Docker registry/repository and tag. You can copy relevant sections of this file for your own releases.
 
 > [!note]
 > Some of the charts (especially third party charts) sometimes have slightly different conventions for specifying the image registry/repository and tag. You can find documentation for third party charts on the [Artifact Hub](https://artifacthub.io/).

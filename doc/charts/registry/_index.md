@@ -14,7 +14,7 @@ title: Using the Container Registry
 
 The `registry` sub-chart provides the Registry component to a complete cloud-native
 GitLab deployment on Kubernetes. This sub-chart is based on the
-[upstream chart](https://github.com/docker/distribution-library-image)
+[upstream chart](https://github.com/distribution/distribution-library-image)
 and contains the GitLab [Container Registry](https://gitlab.com/gitlab-org/container-registry).
 
 This chart is composed of 3 primary parts:
@@ -27,11 +27,11 @@ All configuration is handled according to the
 [Registry configuration documentation](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md?ref_type=heads)
 using `/etc/docker/registry/config.yml` variables provided to the `Deployment` populated
 from the `ConfigMap`. The `ConfigMap` overrides the upstream defaults, but is
-[based on them](https://github.com/docker/distribution-library-image/blob/master/config-example.yml).
+[based on them](https://github.com/distribution/distribution-library-image/blob/master/config-example.yml).
 See below for more details:
 
-- [`distribution/cmd/registry/config-example.yml`](https://github.com/docker/distribution/blob/master/cmd/registry/config-example.yml)
-- [`distribution-library-image/config-example.yml`](https://github.com/docker/distribution-library-image/blob/master/config-example.yml)
+- [`distribution/cmd/registry/config-example.yml`](https://github.com/distribution/distribution/blob/main/cmd/registry/config-example.yml)
+- [`distribution-library-image/config-example.yml`](https://github.com/distribution/distribution-library-image/blob/master/config-example.yml)
 
 ## Design Choices
 
@@ -56,7 +56,7 @@ This chart makes use of two required secrets and one optional:
   you need to provide explicit service account credentials, then the value in this secret
   (in the `credentials` key by default) is the GCP service account JSON credentials.
   If you are using GKE and are providing service accounts to your workloads using
-  [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
+  [Workload Identity](https://docs.cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
   (or node service accounts, although this is not recommended), then this secret is not required
   and should not be supplied. In either case, the service account requires the role
   `roles/cloudprofiler.agent` or equivalent [manual permissions](https://cloud.google.com/profiler/docs/iam#roles)
@@ -742,7 +742,7 @@ networkpolicy:
 The following properties of this chart pertain to the configuration of the underlying
 [registry](https://hub.docker.com/_/registry/) container. Only the most critical values
 for integration with GitLab are exposed. For this integration, we make use of the `auth.token.x`
-settings of [Docker Distribution](https://github.com/docker/distribution), controlling
+settings of [Docker Distribution](https://github.com/distribution/distribution), controlling
 authentication to the registry via JWT [authentication tokens](https://distribution.github.io/distribution/spec/auth/token/).
 
 ### `httpSecret`
@@ -1431,8 +1431,8 @@ To run administrative commands:
 For further details and other available commands, refer to the relevant
 documentation:
 
-- [General Registry documentation](https://docs.docker.com/registry/)
-- [GitLab-specific Registry documentation](https://gitlab.com/gitlab-org/container-registry/-/tree/master/docs-gitlab)
+- [General Registry documentation](https://distribution.github.io/distribution/)
+- [GitLab-specific Registry documentation](https://gitlab.com/gitlab-org/container-registry/-/tree/master/docs)
 
 ## Registry Rate Limiter Configuration
 

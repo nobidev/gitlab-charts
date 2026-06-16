@@ -50,7 +50,7 @@ For some components, like the [agent for Kubernetes](https://docs.gitlab.com/use
 - For cluster topology recommendations for an environment, see the
   [reference architectures](https://docs.gitlab.com/administration/reference_architectures/#available-reference-architectures).
 - For an example of tuning the resources to fit in a 3 vCPU 12 GB cluster, see the
-  [minimal GKE example values file](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/values-gke-minimum.yaml).
+  [minimal GKE example values file](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/values-gke-minimum.yaml).
 
 ## Instructions for specific Cloud providers
 

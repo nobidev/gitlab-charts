@@ -24,7 +24,7 @@ Alternatively, a cluster can be created manually as well.
 Prerequisites:
 
 - Install the [prerequisites](../tools.md).
-- Install the [Google SDK](https://cloud.google.com/sdk/docs/install).
+- Install the [Google SDK](https://docs.cloud.google.com/sdk/docs/install-sdk).
 
 ### Scripted cluster creation
 
@@ -48,7 +48,7 @@ The table below describes all variables.
 | `AUTOSCALE_MAX_NODES` | `NUM_NODES`                       | The maximum number of nodes the autoscaler should scale up to. |
 | `AUTOSCALE_MIN_NODES` | `0`                               | The minimum number of nodes the autoscaler should scale down to. |
 | `CLUSTER_NAME`        | `gitlab-cluster`                  | The name of the cluster. |
-| `CLUSTER_VERSION`     | GKE default, check the [GKE release notes](https://cloud.google.com/kubernetes-engine/docs/release-notes) | The version of your GKE cluster. |
+| `CLUSTER_VERSION`     | GKE default, check the [GKE release notes](https://docs.cloud.google.com/kubernetes-engine/docs/release-notes) | The version of your GKE cluster. |
 | `INT_NETWORK`         | default                           | The IP space to use within this cluster. |
 | `MACHINE_TYPE`        | `n2d-standard-4`                  | The cluster instances' type. |
 | `NUM_NODES`           | `2`                               | The number of nodes required. |
@@ -82,7 +82,7 @@ Two resources need to be created in GCP, a Kubernetes cluster and an external IP
 #### Creating the Kubernetes cluster
 
 To provision the Kubernetes cluster manually, follow the
-[GKE instructions](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster).
+[GKE instructions](https://docs.cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster).
 
 - We recommend a cluster with at least 2 nodes, each with 4vCPU and 15GB of RAM.
 - Make a note of the cluster's region, it will be needed in the following step.
@@ -108,7 +108,7 @@ We will use this IP to bind with a DNS name in the next section.
 If you created your cluster manually or used the `USE_STATIC_IP` option with the scripted creation,
 you'll need a public domain with an A record wild card DNS entry pointing to the IP we just created.
 
-Follow the [Google DNS quickstart guide](https://cloud.google.com/dns/docs/set-up-dns-records-domain-name)
+Follow the [Google DNS quickstart guide](https://docs.cloud.google.com/dns/docs/set-up-dns-records-domain-name)
 to create the DNS entry.
 
 ## Next Steps

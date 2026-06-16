@@ -17,7 +17,7 @@ future GitLab updates, you will need to migrate to Helm v3.
 
 ## Changes between Helm v2 and Helm v3
 
-Helm v3 introduces a lot of changes that are not backwards compatible with Helm v2. Some of the major changes include the removal of Tiller requirements and how they store releases information on the cluster. Read more in the [Helm v3 changes overview](https://helm.sh/docs/topics/v2_v3_migration/#overview-of-helm-3-changes) and the [changes since Helm v2 FAQ](https://helm.sh/docs/faq/changes_since_helm2/).
+Helm v3 introduces a lot of changes that are not backwards compatible with Helm v2. Some of the major changes include the removal of Tiller requirements and how they store releases information on the cluster. Read more in the [Helm v3 changes overview](https://helm.sh/docs/topics/v2_v3_migration/#overview-of-helm-3-changes) and the [changes since Helm v2 FAQ](https://helm.sh/docs/v3/faq/changes_since_helm2/).
 
 The Helm chart you use to deploy the application might not be compatible with the newer / older versions of Helm. If you have multiple applications deployed and managed with Helm v2, you will need to find out if they are compatible with Helm v3 in case you want to convert them as well. GitLab Helm chart supports Helm v3.0.2 or higher starting with version v3.0.0 of GitLab Helm chart. Helm v2 is no longer supported.
 

@@ -11,7 +11,7 @@ Prerequisites:
 
 - A deployment of [required version of PostgreSQL](https://docs.gitlab.com/install/requirements/#postgresql). If you do not have one, consider
   a cloud provided solution like [AWS RDS PostgreSQL](https://aws.amazon.com/rds/postgresql/)
-  or [GCP Cloud SQL](https://cloud.google.com/sql/). For an alternative solution,
+  or [GCP Cloud SQL](https://cloud.google.com/sql). For an alternative solution,
   consider [the Linux package](external-omnibus-psql.md).
 - An empty database named `gitlabhq_production` by default.
 - A user with full database access. See the
@@ -27,7 +27,7 @@ Networking prerequisites:
 - If you plan to use PostgreSQL as a load balancing cluster and Kubernetes
   DNS for service discovery, configure the PostgreSQL secondary service as a headless service to
   allow DNS `A` records to be created for each secondary instance. For an example, see
-  [`examples/database/values-loadbalancing-discover.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/database/values-loadbalancing-discover.yaml).
+  [`examples/database/values-loadbalancing-discover.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/database/values-loadbalancing-discover.yaml).
 
 To configure the GitLab chart to use an external database:
 

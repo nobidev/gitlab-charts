@@ -27,7 +27,7 @@ objects, which are deployed by the GitLab Shell chart when [`global.ingress.prov
 See the [Traefik Helm chart documentation](https://github.com/traefik/traefik-helm-chart/tree/master/traefik)
 for configuration details.
 
-See the [Traefik example configuration](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/values-traefik-ingress.yaml)
+See the [Traefik example configuration](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/values-traefik-ingress.yaml)
 for detailed YAML for values tested with the GitLab Helm Charts.
 
 ### Global Settings
@@ -46,4 +46,4 @@ Following are links for more information on Traefik Enterprise:
 - [Traefik Enterprise FIPS image](https://doc.traefik.io/traefik-enterprise/operations/fips-image/)
 - [Traefik Enterprise Helm chart](https://doc.traefik.io/traefik-enterprise/installing/kubernetes/helm/)
 - [Traefik Enterprise Operator on ArtifactHub](https://artifacthub.io/packages/olm/community-operators/traefikee-operator)
-- [Traefik Enterprise Certified OpenShift Operator on RedHat Catalog](https://catalog.redhat.com/software/container-stacks/detail/5e98745a6c5dcb34dfbb1a0a)
+- [Traefik Enterprise Certified OpenShift Operator on RedHat Catalog](https://catalog.redhat.com/en/software/container-stacks/detail/5e98745a6c5dcb34dfbb1a0a)

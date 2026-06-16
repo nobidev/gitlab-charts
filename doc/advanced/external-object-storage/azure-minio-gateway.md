@@ -5,7 +5,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Azure MinIO gateway when using the GitLab chart
 ---
 
-[MinIO](https://min.io/) is an object storage server that exposes S3-compatible APIs and it has a gateway feature that allows proxying requests to Azure Blob Storage. To set up our gateway, we will make use of Azure's Web App on Linux.
+[MinIO](https://www.min.io/) is an object storage server that exposes S3-compatible APIs and it has a gateway feature that allows proxying requests to Azure Blob Storage. To set up our gateway, we will make use of Azure's Web App on Linux.
 
 To get started, make sure you have installed Azure CLI and you are logged in (`az login`). Proceed to create a [Resource group](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/overview#resource-groups), if you don't have one already:
 
@@ -91,6 +91,6 @@ You can proceed to use this gateway with any client with s3-compability. Your we
 
 <!-- vale gitlab.Spelling = NO -->
 
-This guide was adapted for posterity from [Alessandro Segala's blog post on same topic.](https://withblue.ink/2017/10/29/how-to-use-s3cmd-and-any-other-amazon-s3-compatible-app-with-azure-blob-storage.html)
+This guide was adapted for posterity from [Alessandro Segala's blog post on same topic.](https://withblue.ink/2017/10/how-to-use-s3cmd-and-any-other-amazon-s3-compatible-app-with-azure-blob-storage)
 
 <!-- vale gitlab.Spelling = YES -->

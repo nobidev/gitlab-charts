@@ -28,7 +28,7 @@ See the [HAProxy Helm chart documentation](https://www.haproxy.com/documentation
 or the [Helm values file](https://github.com/haproxytech/helm-charts/blob/main/kubernetes-ingress/values.yaml).
 for configuration details.
 
-See the [HAProxy example configuration](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/values-haproxy-ingress.yaml)
+See the [HAProxy example configuration](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/values-haproxy-ingress.yaml)
 for detailed YAML for values tested with the GitLab Helm Charts.
 
 ### Global Settings
@@ -45,6 +45,6 @@ Following are links for more information on HAProxy Enterprise:
 
 - [HAProxy Enterprise landing page](https://www.haproxy.com/products/haproxy-enterprise)
 - [HAProxy FIPS compliance blog post](https://www.haproxy.com/blog/become-fips-compliant-with-haproxy-enterprise-on-red-hat-enterprise-linux-8)
-- [Certified OpenShift Operator](https://catalog.redhat.com/software/container-stacks/detail/5ec3f9fc110f56bd24f2dd57)
+- [Certified OpenShift Operator](https://catalog.redhat.com/en/software/container-stacks/detail/5ec3f9fc110f56bd24f2dd57)
 - [How to use an image from a private registry](https://github.com/haproxytech/helm-charts/blob/kubernetes-ingress-1.22.0/haproxy/README.md#installing-from-a-private-registry)
 - [How to find the HAProxy Enterprise image](https://www.haproxy.com/documentation/haproxy-enterprise/getting-started/installation/docker/)
