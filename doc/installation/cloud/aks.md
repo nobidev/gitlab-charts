@@ -23,7 +23,7 @@ Alternatively, a cluster can be created manually as well.
 Prerequisites:
 
 - Install the [prerequisites](../tools.md).
-- Install the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+- Install the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
   and use it to [sign into Azure](https://learn.microsoft.com/en-us/cli/azure/get-started-with-azure-cli#how-to-sign-into-the-azure-cli).
 - [Install `jq`](https://stedolan.github.io/jq/download/).
 

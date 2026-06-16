@@ -140,5 +140,5 @@ If you see a 401 or 403 error, check your managed identity settings. Here are so
 1. Check the spelling of the Azure storage account and blob container names.
 1. With `kubectl describe pod <pod>`, check that the pod has the correct Kubernetes service account and `azure.workload.identity/use: "true"` pod label.
 1. For the managed identity, ensure that the settings for federated credentials have the right issuer URL, namespace, and associated Kubernetes service account.
-   You can check this in the Azure portal or using the [`az` command-line interface](https://learn.microsoft.com/en-us/cli/azure/identity).
+   You can check this in the Azure portal or using the [`az` command-line interface](https://learn.microsoft.com/en-us/cli/azure/identity?view=azure-cli-latest).
 1. Check that the managed identity has the `Storage Blob Data Contributor` for the blob storage container.

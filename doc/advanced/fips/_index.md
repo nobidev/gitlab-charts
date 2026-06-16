@@ -14,7 +14,7 @@ To function in fully-compliant FIPS mode, it is expected that all hosts are conf
 ## Sample values
 
 We provide an example for GitLab chart values in
-[`examples/fips/values.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/fips/values.yaml)
+[`examples/fips/values.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/fips/values.yaml)
 which can help you to build a FIPS-compatible GitLab deployment.
 
 Note the comment under the `nginx-ingress.controller` key that provides the

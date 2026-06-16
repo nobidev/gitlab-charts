@@ -93,7 +93,7 @@ configurations that can compromise the security of your GitLab installation
 and the cluster itself, including exposing serviceaccount tokens and secrets.
 
 See [CVE-2021-25742](https://nvd.nist.gov/vuln/detail/CVE-2021-25742) and
-[this upstream `ingress-nginx` issue](https://github.com/kubernetes/ingress-nginx/issues/7837)
+[this upstream issue](https://github.com/kubernetes/kubernetes/issues/126811)
 for additional details.
 
 In order to mitigate CVE-2021-25742 in Helm chart deployments of GitLab - we

@@ -41,7 +41,7 @@ Use these charts as optional additions:
 
 - [Prometheus](https://artifacthub.io/packages/helm/prometheus-community/prometheus)
 - [_Unprivileged_](https://docs.gitlab.com/runner/install/kubernetes_helm_chart_configuration/#access-gitlab-with-a-custom-certificate) [GitLab Runner](https://docs.gitlab.com/runner/) that uses the Kubernetes executor
-- Automatically provisioned SSL from [Let's Encrypt](https://letsencrypt.org/), which uses [Jetstack](https://venafi.com/jetstack-consult/)'s [cert-manager](https://cert-manager.io/docs/) with [certmanager-issuer](../certmanager-issuer/_index.md)
+- Automatically provisioned SSL from [Let's Encrypt](https://letsencrypt.org/), which uses [Jetstack](https://www.cyberark.com/services-support/cloud-native-consulting/)'s [cert-manager](https://cert-manager.io/docs/) with [certmanager-issuer](../certmanager-issuer/_index.md)
 
 ## GitLab Helm subchart optional parameters
 

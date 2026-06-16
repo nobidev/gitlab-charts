@@ -18,13 +18,13 @@ instead of the bundled one.
 ## TCP services in the external Ingress Controller
 
 The GitLab Shell component requires TCP traffic to pass through on
-port 22 (by default; this can be changed). Ingress does not directly support TCP services, so some additional configuration is necessary. Your NGINX Ingress Controller may have been [deployed directly](https://github.com/kubernetes/ingress-nginx/blob/master/docs/deploy/index.md) (i.e. with a Kubernetes spec file) or through the [official Helm chart](https://github.com/kubernetes/ingress-nginx). The configuration of the TCP pass through will differ depending on the deployment approach.
+port 22 (by default; this can be changed). Ingress does not directly support TCP services, so some additional configuration is necessary. Your NGINX Ingress Controller may have been [deployed directly](https://github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/index.md) (i.e. with a Kubernetes spec file) or through the [official Helm chart](https://github.com/kubernetes/ingress-nginx). The configuration of the TCP pass through will differ depending on the deployment approach.
 
 ### Direct deployment
 
 In a direct deployment, the NGINX Ingress Controller handles configuring TCP services with a
 `ConfigMap`. For more information, see
-[exposing TCP and UDP services](https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/exposing-tcp-udp-services.md)
+[exposing TCP and UDP services](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md)
 in the Ingress NGINX Controller documentation.
 Assuming your GitLab chart is deployed to the namespace `gitlab` and your Helm
 release is named `mygitlab`, your `ConfigMap` should be something like this:
@@ -39,7 +39,7 @@ data:
 ```
 
 After you have that `ConfigMap`, you can enable it as described in the NGINX
-Ingress Controller [docs](https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/exposing-tcp-udp-services.md)
+Ingress Controller [docs](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md)
 using the `--tcp-services-configmap` option.
 
 ```yaml

@@ -41,7 +41,7 @@ Direct support for Azure Blob storage is available for
 
 > [!note]
 > GitLab [does not support](https://github.com/minio/minio/issues/9978) the Azure MinIO gateway as the storage for the Docker Registry.
-> Please refer to the [corresponding Azure example](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.azure.yaml) when [setting up the Docker Registry](#docker-registry-images).
+> Please refer to the [corresponding Azure example](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/registry.azure.yaml) when [setting up the Docker Registry](#docker-registry-images).
 
 Although Azure uses the word container to denote a collection of blobs,
 GitLab standardizes on the term bucket.
@@ -53,7 +53,7 @@ Azure blob containers. Customizing individual `connection` settings by
 object type (for example, `artifacts`, `uploads`, and so on) is not permitted.
 
 To enable Azure Blob storage, see
-[`rails.azurerm.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.azurerm.yaml)
+[`rails.azurerm.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.azurerm.yaml)
 as an example to define the Azure `connection`. You can load this as a
 secret via:
 
@@ -94,9 +94,9 @@ Create the secret per [registry chart documentation on storage](../../charts/reg
 Examples for [S3](https://distribution.github.io/distribution/storage-drivers/s3/)(S3 compatible storages, but Azure MinIO gateway not supported, see [Azure Blob Storage](#azure-blob-storage)), [Azure](https://distribution.github.io/distribution/storage-drivers/azure/) and [GCS](https://distribution.github.io/distribution/storage-drivers/gcs/) drivers can be found in
 [`examples/objectstorage`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage).
 
-- [`registry.s3.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.s3.yaml)
-- [`registry.gcs.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.gcs.yaml)
-- [`registry.azure.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.azure.yaml)
+- [`registry.s3.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/registry.s3.yaml)
+- [`registry.gcs.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/registry.gcs.yaml)
+- [`registry.azure.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/registry.azure.yaml)
 
 ### Registry configuration
 
@@ -182,10 +182,10 @@ Create the secret(s) per the [connection details documentation](../../charts/glo
 Examples for [AWS](https://fog.github.io/storage/#using-amazon-s3-and-fog) (any S3 compatible like [Azure using MinIO](azure-minio-gateway.md)) and [Google](https://fog.github.io/storage/#google-cloud-storage) providers can be found in
 [`examples/objectstorage`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage).
 
-- [`rails.s3.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.s3.yaml)
-- [`rails.gcs.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.gcs.yaml)
-- [`rails.azure.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.azure.yaml)
-- [`rails.azurerm.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.azurerm.yaml)
+- [`rails.s3.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.s3.yaml)
+- [`rails.gcs.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.gcs.yaml)
+- [`rails.azure.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.azure.yaml)
+- [`rails.azurerm.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.azurerm.yaml)
 
 ### S3 encryption
 
@@ -193,7 +193,7 @@ GitLab supports [Amazon KMS](https://aws.amazon.com/kms/)
 to [encrypt data stored in S3 buckets](https://docs.gitlab.com/administration/object_storage/#encrypted-s3-buckets).
 You can enable this in two ways:
 
-- In AWS, [configure the S3 bucket to use default encryption](https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html).
+- In AWS, [configure the S3 bucket to use default encryption](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-encryption.html).
 - In GitLab, enable [server side encryption headers](../../charts/globals.md#storage_options).
 
 These two options are not mutually exclusive. You can set a default encryption
@@ -247,7 +247,7 @@ For Google Cloud Storage (GCS) with a secret:
 
 For Google Cloud Storage (GCS) with [Workload Identity Federation for GKE](gke-workload-identity.md), only the backend and buckets need to be set.
 Make sure `gitlab.toolbox.backups.objectStorage.config.secret` and `gitlab.toolbox.backups.objectStorage.config.key` are not set,
-so that the cluster uses [Google's Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials):
+so that the cluster uses [Google's Application Default Credentials](https://docs.cloud.google.com/docs/authentication/application-default-credentials):
 
 ```shell
 --set global.appConfig.backups.bucket=gitlab-backup-storage
@@ -344,10 +344,10 @@ Configuration of Cloud CDN is done via the following keys:
 
 To use Cloud CDN:
 
-1. Set up [Cloud CDN to use the artifacts bucket as the backend](https://cloud.google.com/cdn/docs/setting-up-cdn-with-bucket).
-1. Create a [key for signed URLs](https://cloud.google.com/cdn/docs/using-signed-urls).
-1. Give the [Cloud CDN service account permission to read from the bucket](https://cloud.google.com/cdn/docs/using-signed-urls#configuring_permissions).
-1. Prepare a YAML file with the parameters using the example in [`rails.googlecdn.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/cdn/rails.googlecdn.yaml).
+1. Set up [Cloud CDN to use the artifacts bucket as the backend](https://docs.cloud.google.com/cdn/docs/setting-up-cdn-with-bucket).
+1. Create a [key for signed URLs](https://docs.cloud.google.com/cdn/docs/using-signed-urls).
+1. Give the [Cloud CDN service account permission to read from the bucket](https://docs.cloud.google.com/cdn/docs/using-signed-urls#configuring_permissions).
+1. Prepare a YAML file with the parameters using the example in [`rails.googlecdn.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/cdn/rails.googlecdn.yaml).
    You will need to fill in the following information:
    - `url`: Base URL of the CDN host from step 1
    - `key_name`: Key name from step 2

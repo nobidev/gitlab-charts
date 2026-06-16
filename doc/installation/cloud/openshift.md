@@ -19,7 +19,7 @@ This document walks you through using the automation scripts in this project to 
 First, you should have a Red Hat account associated with your GitLab email.
 Contact our Red Hat Alliance liaison; they will arrange to send you an account invitation email. Once you activate your Red Hat account, you will have access the to licenses and subscriptions needed to run OpenShift.
 
-To launch a cluster in Google Cloud, a public Cloud DNS zone must be connected to a registered domain and configured in Google Cloud DNS. If a domain is not already available, follow the steps [in this guide](https://github.com/openshift/installer/blob/master/docs/user/gcp/dns.md) to create one.
+To launch a cluster in Google Cloud, a public Cloud DNS zone must be connected to a registered domain and configured in Google Cloud DNS. If a domain is not already available, follow the steps [in this guide](https://github.com/openshift/installer/blob/main/docs/user/gcp/dns.md) to create one.
 
 ### Get the CLI tools and Pull Secret
 
@@ -28,7 +28,7 @@ Two CLI tools are required to create an OpenShift cluster (`openshift-install`) 
 A pull secret is required to fetch images from Red Hat's private Docker registry.
 Every developer has a different pull secret associated with their Red Hat account.
 
-To get the CLI tools and your pull secret, go to [Red Hat's cloud](https://cloud.redhat.com/openshift/install/gcp/installer-provisioned) and log in with your Red Hat account.
+To get the CLI tools and your pull secret, go to [Red Hat's cloud](https://console.redhat.com/openshift/install/gcp/installer-provisioned) and log in with your Red Hat account.
 On this page, download the latest version of the installer and command-line tools with the links provided. Extract these packages and place `openshift-install` and `oc` in your `PATH`.
 
 Copy the pull secret to your clipboard and write the content to a file `pull_secret` in the root of this repository. This file is gitignored.
@@ -60,7 +60,7 @@ The process takes around 40 minutes. Follow the instructions at the end of the
 console output to connect to the cluster.
 
 Once created, you should be able to see your cluster registered in
-[Red Hat cloud](https://cloud.redhat.com/openshift/). All installation logs and
+[Red Hat cloud](https://console.redhat.com/openshift/). All installation logs and
 metadata will be stored in the `install-$CLUSTER_NAME/` directory in this repository.
 This directory is gitignored.
 

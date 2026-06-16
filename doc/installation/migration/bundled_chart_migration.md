@@ -40,7 +40,7 @@ Before you begin migrating from the bundled Redis, MinIO, or PostgreSQL:
 - As a result of this migration, upgrading the GitLab chart will no longer upgrade your Redis or
   PostgreSQL deployments. Major GitLab upgrades may require newer versions of Valkey/Redis or PostgreSQL.
   Before following this guide, or before doing a major GitLab upgrade, check the
-  [requirements](https://docs.gitlab.com/install/requirements) for your GitLab version.
+  [requirements](https://docs.gitlab.com/install/requirements/) for your GitLab version.
 - Check the current size and data usage of your MinIO, Redis, and PostgreSQL persistent volume claims.
   The guide configures 5 GiB for PostgreSQL, 2 GiB for Valkey, and 5 GiB (replicated 3 times) for Garage
   which might need adjustment.
@@ -98,7 +98,7 @@ and make sure they meet the [current minimum requirements](https://docs.gitlab.c
 
 ### Provision external PostgreSQL
 
-Provision your external PostgreSQL service. For example, by using [CloudNativePG](https://cloudnative-pg.io/docs/1.28/installation_upgrade):
+Provision your external PostgreSQL service. For example, by using [CloudNativePG](https://cloudnative-pg.io/docs/1.28/installation_upgrade/):
 
 1. Install the CloudNativePG Operator:
 

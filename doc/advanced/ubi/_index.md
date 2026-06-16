@@ -26,5 +26,5 @@ The services must be disabled are:
 
 ## Sample values
 
-We provide an example for GitLab chart values in [`examples/ubi/values.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/ubi/values.yaml)
+We provide an example for GitLab chart values in [`examples/ubi/values.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/ubi/values.yaml)
 which can help you to build a pure UBI GitLab deployment.

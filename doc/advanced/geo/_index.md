@@ -223,7 +223,7 @@ After the configuration above is prepared:
 
 _This section is performed on the Primary site's Kubernetes cluster._
 
-To deploy this chart as a Geo Primary, start [from this example configuration](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/geo/primary.yaml):
+To deploy this chart as a Geo Primary, start [from this example configuration](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/geo/primary.yaml):
 
 1. Create a secret containing the database password for the
    chart to consume. Replace `PASSWORD` below with the password for the `gitlab`
@@ -233,7 +233,7 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
    kubectl --namespace gitlab create secret generic geo --from-literal=postgresql-password=PASSWORD
    ```
 
-1. Create a `primary.yaml` file based on the [example configuration](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/geo/primary.yaml)
+1. Create a `primary.yaml` file based on the [example configuration](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/geo/primary.yaml)
    and update the configuration to reflect the correct values:
 
    ```yaml
@@ -586,9 +586,9 @@ kubectl --namespace gitlab create secret generic geo \
 
 _This section is performed on the Secondary site's Kubernetes cluster._
 
-To deploy this chart as a Geo Secondary site, start [from this example configuration](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/geo/secondary.yaml).
+To deploy this chart as a Geo Secondary site, start [from this example configuration](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/geo/secondary.yaml).
 
-1. Create a `secondary.yaml` file based on the [example configuration](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/geo/secondary.yaml)
+1. Create a `secondary.yaml` file based on the [example configuration](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/geo/secondary.yaml)
    and update the configuration to reflect the correct values:
 
    ```yaml

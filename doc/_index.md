@@ -41,7 +41,7 @@ each of which can be installed separately.
 - [View advanced configuration options](advanced/_index.md)
 - [View architectural decisions](architecture/_index.md)
 - Contribute to development by viewing the [developer documentation](development/_index.md) and
-  [contribution guidelines](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/CONTRIBUTING.md)
+  [contribution guidelines](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/CONTRIBUTING.md)
 - Create an [issue](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items)
 - Create a [merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests)
 - View [troubleshooting](troubleshooting/_index.md) information

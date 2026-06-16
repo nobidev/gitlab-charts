@@ -26,7 +26,7 @@ Prerequisites:
 - Install [`eksctl`](https://github.com/weaveworks/eksctl#installation).
 
 To create the cluster manually, see [Amazon AWS Getting started with Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html).
-Use EC2 managed nodes for the EKS cluster, and not [Fargate](https://docs.aws.amazon.com/en_us/eks/latest/userguide/fargate.html). Fargate has a number of limitations and is not supported for use with the GitLab Helm chart.
+Use EC2 managed nodes for the EKS cluster, and not [Fargate](https://docs.aws.amazon.com/eks/latest/userguide/fargate.html). Fargate has a number of limitations and is not supported for use with the GitLab Helm chart.
 
 ### Scripted cluster creation
 
@@ -130,7 +130,7 @@ retrieved, follow the next instructions to install GitLab.
 
 > [!note]
 > For environments where AWS LoadBalancers are required,
-> [Amazon's Elastic Load Balancers](https://docs.aws.amazon.com/eks/latest/userguide/load-balancing.html)
+> [Amazon's Elastic Load Balancers](https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html)
 > require specialized configuration. See [Cloud provider LoadBalancers](../../charts/globals.md#cloud-provider-loadbalancers)
 
 ## Next Steps
