@@ -2,6 +2,29 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.1.0 (2026-06-17)
+
+### Added (2 changes)
+
+- [Add Topology Service mTLS support to GitLab Shell](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/d2d4b487b651ef914ac6b94c1889d69854d676c3) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5111))
+- [feat(smtp): support reading SMTP username from a Kubernetes Secret](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4e97064c5577328944de34be677ce8350e6f3279) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5083))
+
+### Fixed (1 change)
+
+- [Toolbox: Fix boto config when using Workload Identity](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/d59e3ac36385049e5e2d2d08b88e5f0b64c0d26b) by @alanrichman ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5074))
+
+### Changed (9 changes)
+
+- [gitlab-shell: add ingressClassName to IngressRouteTCP](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/d944bbea1ca21e0f53834384824b98ef32d36fc4) by @ioanalytica ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5084))
+- [Update Envoy Gateway to v1.8.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0a4f4de2514cf582f6d14b6103052e720e61e864) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5105))
+- [Update gitlab-zoekt to v4](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ab49fcd89c9954323c4477a8d1274e3786daf9ac) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5026))
+- [Update gitlab-runner to v0.89.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5e024be82a74917a0856ac1dd622dc6e6840cfc5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5081))
+- [Update prometheus to v29.9.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5d8e835a0ffcf70529918014e4e7c9ad2d56fbd8) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5082))
+- [Update container-registry to v4.40.1-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a0180e805dc02d1a3a98ef83eb7ee1c6b73d3b14) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5079))
+- [Update prometheus to v29.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c51ebff848d1b22e82ee67eb3c4dc5569a5af5e2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5070))
+- [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
+- [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
+
 ## 10.0.2 (2026-06-10)
 
 ### Changed (1 change)
