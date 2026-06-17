@@ -329,7 +329,7 @@ This secret is referenced by the `global.registry.notificationSecret.secret` set
 
 ### AI Gateway secret
 
-Generate RSA 4096-bit keys for the duo workflow signing key, the duo workflow validation key, 
+Generate RSA 4096-bit keys for the duo workflow signing key, the duo workflow validation key,
 the AI Gateway signing key and the AI Gateway validation key. You can generate those keys with the following openssl commands:
 
 ```shell
