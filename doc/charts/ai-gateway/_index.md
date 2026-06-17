@@ -41,11 +41,18 @@ To configure and deploy the chart:
      install: true
    ```
 
+1. Get the service hostname of the AI-Gateway with the following command:
+
+   ```shell
+   kubectl get svc -n <NAMESPACE> -l app.kubernetes.io/name=ai-gateway \
+   -o jsonpath='{range .items[*]}{.metadata.name}.{.metadata.namespace}.svc{"\n"}{end}'
+   ```
+
 1. After the chart is deployed and your instance is available, on in the upper-right corner of your GitLab instance, select **Admin**.
 1. In the left sidebar, select **GitLab Duo**.
 1. Select **Change configuration** and:
-   - Change the **Local AI Gateway URL** to `http://<RELEASE_NAME>-ai-gateway`.
-   - Change the **Local URL for the GitLab Duo Agent Platform service** to `<RELEASE_NAME>-ai-gateway:50052`.
+   - Change the **Local AI Gateway URL** to `http://<SERVICE_HOST_NAME>`.
+   - Change the **Local URL for the GitLab Duo Agent Platform service** to `<SERVICE_HOST_NAME>:50052`.
    - Clear the checkbox **Use TLS for the GitLab Duo Agent Platform service**.
    - If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab Duo Agent Platform** features.
    For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
@@ -64,15 +71,15 @@ Prerequisites:
 
 - The `self-hosted-v19.1.X-ee` or later tag for the
   AI-Gateway [container image](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/container_registry/3809284?orderBy=PUBLISHED_AT&search%5B%5D=self-hosted).
-- A certificate for the right hostname. `<RELEASE_NAME>-ai-gateway` by default.
+- A certificate for both possible service hostnames `<RELEASE_NAME>-ai-gateway` and `<RELEASE_NAME>-ai-gateway.<NAMESPACE>.svc`.
 
 To configure TLS:
 
-1. Add the certificate to the secrets of your cluster with the following command:
+1. Add the issuing certificate to the secrets of your cluster with the following command:
 
    `kubectl create secret tls aigw-tls --cert=<PATH-TO-CERT-FILE> --key=<PATH-TO-KEY-FILE> -n gitlab`
 
-1. Add the certificate in the [Custom Certificate Authorities](../globals.md#custom-certificate-authorities).
+1. Add the issuing certificate in the [Custom Certificate Authorities](../globals.md#custom-certificate-authorities).
 1. Deploy the chart with the following configuration:
 
    ```yaml
@@ -102,8 +109,8 @@ To configure TLS:
    ```
 
 1. Go to your GitLab Duo configuration page and change the following:
-   - Change the **Local AI Gateway URL** to `https://<RELEASE_NAME>-ai-gateway`.
-   - Change the **Local URL for the GitLab Duo Agent Platform service** to `<RELEASE_NAME>-ai-gateway:50052`.
+   - Change the **Local AI Gateway URL** to `https://<SERVICE_HOST_NAME>`.
+   - Change the **Local URL for the GitLab Duo Agent Platform service** to `<SERVICE_HOST_NAME>:50052`.
    - Enable the **Use TLS for the GitLab Duo Agent Platform service**.
    - If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab
    Duo Agent Platform** features. For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
