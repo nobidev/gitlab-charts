@@ -64,8 +64,7 @@ Prerequisites:
 
 - The `self-hosted-v19.1.X-ee` or later tag for the
   AI-Gateway [container image](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/container_registry/3809284?orderBy=PUBLISHED_AT&search%5B%5D=self-hosted).
-- Generate a certificate for the `<RELEASE_NAME>-ai-gateway` hostname with a certificate authority trusted by rails.
-  Make sure the certificate SAN matches the hostname rails uses to connect to AI Gateway.
+- A certificate for the right hostname. `<RELEASE_NAME>-ai-gateway` by default.
 
 To configure TLS:
 
@@ -73,7 +72,7 @@ To configure TLS:
 
    `kubectl create secret tls aigw-tls --cert=<PATH-TO-CERT-FILE> --key=<PATH-TO-KEY-FILE> -n gitlab`
 
-1. Add the certificate authority in the [Custom Certificate Authorities](../globals.md#custom-certificate-authorities).
+1. Add the certificate in the [Custom Certificate Authorities](../globals.md#custom-certificate-authorities).
 1. Deploy the chart with the following configuration:
 
    ```yaml
