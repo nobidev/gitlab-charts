@@ -44,7 +44,7 @@ global:
 |--------|------|---------|-------------|
 | `grpc.host` | string |  | Hostname of the gRPC endpoint. Setting this configures the service. |
 | `grpc.port` | integer |  | Port number of the gRPC endpoint. Required when `grpc.host` is set. |
-| `authToken.secret` | string |  | Kubernetes secret name containing the authentication token |
+| `authToken.secret` | string | `<Release.Name>-iam-data-access-secret` | Kubernetes secret name containing the authentication token |
 | `authToken.key` | string | `iam_data_access_service_token` | Key within the secret containing the authentication token |
 
 ## Secret generation

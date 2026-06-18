@@ -113,7 +113,7 @@ describe 'iamDataAccessService templates' do
     def find_secret_mount(template, deployment, volume_name)
       template.projected_volume_sources(deployment, volume_name)&.find do |item|
         item.dig('secret', 'name') == 'test-iam-data-access-secret' &&
-          item.dig('secret', 'items')[0]['key'] == 'iam_data_access_service_token'
+          item.dig('secret', 'items', 0, 'key') == 'iam_data_access_service_token'
       end
     end
 
