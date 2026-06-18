@@ -131,6 +131,7 @@ data:
       {{- include "gitlab.appConfig.databaseTrafficCapture" . | nindent 6 }}
       {{- include "gitlab.appConfig.cell" . | nindent 6 }}
       {{- include "gitlab.appConfig.iamAuthService" . | nindent 6 }}
+      {{- include "gitlab.appConfig.iamDataAccessService" . | nindent 6 }}
       {{- include "gitlab.appConfig.shell" . | nindent 6 }}
         {{- include "gitlab.appConfig.shell.ssh_port" . | nindent 8 }}
       workhorse:
