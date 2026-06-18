@@ -77,7 +77,9 @@ To configure TLS:
 
 1. Add the issuing certificate to the secrets of your cluster with the following command:
 
-   `kubectl create secret tls aigw-tls --cert=<PATH-TO-CERT-FILE> --key=<PATH-TO-KEY-FILE> -n gitlab`
+   ```shell
+   kubectl create secret tls aigw-tls --cert=<PATH-TO-CERT-FILE> --key=<PATH-TO-KEY-FILE> -n gitlab
+   ```
 
 1. Add the issuing certificate in the [Custom Certificate Authorities](../globals.md#custom-certificate-authorities).
 1. Deploy the chart with the following configuration:
@@ -108,9 +110,10 @@ To configure TLS:
        secretName: aigw-tls
    ```
 
-1. Go to your GitLab Duo configuration page and change the following:
-   - Change the **Local AI Gateway URL** to `https://<SERVICE_HOST_NAME>`.
-   - Change the **Local URL for the GitLab Duo Agent Platform service** to `<SERVICE_HOST_NAME>:50052`.
-   - Enable the **Use TLS for the GitLab Duo Agent Platform service**.
-   - If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab
+Go to your GitLab Duo configuration page and change the following:
+
+- Change the **Local AI Gateway URL** to `https://<SERVICE_HOST_NAME>`.
+- Change the **Local URL for the GitLab Duo Agent Platform service** to `<SERVICE_HOST_NAME>:50052`.
+- Enable the **Use TLS for the GitLab Duo Agent Platform service**.
+- If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab
    Duo Agent Platform** features. For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
