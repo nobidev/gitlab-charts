@@ -32,9 +32,10 @@ OpenBao, which is required to enable the [GitLab secrets manager](https://docs.g
 ## Known limitations
 
 - You can't upgrade OpenBao without downtime. Zero downtime upgrades are proposed in
-  [OpenBao chart issue 13](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/issues/13).
+  [issue 595721](https://gitlab.com/gitlab-org/gitlab/-/work_items/595721).
 - You can't deploy OpenBao with [GitLab Operator](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator).
-- A FIPS variant of the OpenBao image is already being build, but OpenBao is not FIPS validated.
+  Support is proposed in [issue 1933](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator/-/work_items/1933).
+- A FIPS variant of the OpenBao image is already being built, but OpenBao is not FIPS validated.
   FIPS validation is tracked in [GitLab issue 574875](https://gitlab.com/gitlab-org/gitlab/-/issues/574875).
 - When failing over to a Geo secondary site that uses a different domain
   (instead of updating DNS to point the primary domain to the secondary site), OpenBao requires manual
@@ -45,13 +46,21 @@ OpenBao, which is required to enable the [GitLab secrets manager](https://docs.g
 
 ## Setup GitLab secret manager and OpenBao
 
-1. On an existing GitLab instance, enable OpenBao:
+1. On an existing GitLab instance, enable OpenBao and configure its database connection.
+   OpenBao requires a separate PostgreSQL database that you must create first.
+   For the database and password secret, see [Database configuration](#database-configuration).
 
    ```yaml
    # Enable OpenBao integration
    global:
      openbao:
        enabled: true
+       # Connect to the separate OpenBao database you created
+       psql:
+         host: "psql.openbao.example.com"
+         password:
+           secret: openbao-db-password
+           key: password
    # Install bundled OpenBao
    openbao:
      install: true
@@ -258,6 +267,10 @@ The OpenBao chart supports two mutually exclusive auto-unseal methods:
 - [AWS KMS unsealing](https://openbao.org/docs/configuration/seal/awskms/)
 
 It also uses OpenBao declarative [self initialization](https://openbao.org/docs/configuration/self-init/).
+
+During initialization, OpenBao generates recovery keys for emergency access when JWT authentication
+is unavailable. To store and use them, see
+[recovery key management](https://docs.gitlab.com/administration/secrets_manager/recovery_key/).
 
 | Parameter                                                | Default                                                 | Description |
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
