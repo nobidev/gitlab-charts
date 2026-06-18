@@ -6,7 +6,6 @@
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git commit*)",
             "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/rubocop-staged.sh\"",
             "timeout": 180,
             "statusMessage": "Running RuboCop on staged Ruby files"

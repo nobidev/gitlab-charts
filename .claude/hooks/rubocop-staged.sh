@@ -1,22 +1,56 @@
 #!/usr/bin/env bash
 #
-# Claude Code PreToolUse hook (matcher: Bash, filter: "git commit*").
+# Claude Code PreToolUse hook (matcher: Bash).
 #
-# Before a commit is created, run RuboCop against the Ruby files that are
-# staged for that commit. If RuboCop reports offenses, the commit is blocked
-# (exit 2) and the offense report is fed back to Claude so it can autocorrect
-# or fix the offenses and re-stage before committing again.
+# When Claude is about to run a command that creates a commit, run RuboCop
+# against the Ruby files staged for that commit. If RuboCop reports offenses
+# the commit is blocked (exit 2) and the report is returned to Claude so it
+# can autocorrect or fix the offenses and re-stage before committing again.
 #
-# The hook is intentionally conservative: if there are no staged Ruby files,
-# or the Ruby/Bundler toolchain is not usable in the current environment, it
-# exits 0 and lets the commit proceed instead of wedging unrelated work.
+# Why detect `git commit` here instead of with a settings-level filter:
+# a prefix filter such as "Bash(git commit*)" only matches the START of the
+# command string, so a compound command like `git add -A && git commit -m ...`
+# (which starts with `git add`) would silently bypass the hook. This script
+# receives the full command on stdin and inspects every segment, so chained
+# and `git -C <path> commit` forms are covered too.
+#
+# The hook is conservative: it is a no-op for non-commit commands and when no
+# Ruby files are staged, and it does not block commits when the Ruby/Bundler
+# toolchain is unavailable locally.
 #
 # Exit codes:
-#   0  nothing to check / RuboCop clean / toolchain unavailable (commit allowed)
+#   0  not a commit / nothing to check / RuboCop clean / toolchain unavailable
 #   2  RuboCop reported offenses (commit blocked; stderr returned to Claude)
 
 set -u
 
+# --- Extract the command Claude is about to run from the hook payload. -------
+payload=$(cat 2>/dev/null || true)
+if command -v jq >/dev/null 2>&1; then
+  cmd=$(printf '%s' "$payload" | jq -r '.tool_input.command // empty' 2>/dev/null)
+else
+  cmd=$payload   # no jq: fall back to scanning the raw payload
+fi
+[ -z "${cmd:-}" ] && exit 0
+
+# --- Does any segment of the command invoke `git commit`? --------------------
+# Strip parentheses (subshells) and split on &&, ||, ;, | and newlines.
+segments=$(printf '%s' "$cmd" | sed -E 's/[()]//g; s/(&&|\|\||[;|])/\n/g')
+is_commit=0
+while IFS= read -r seg; do
+  seg=$(printf '%s' "$seg" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+  [ -z "$seg" ] && continue
+  if [ "$(printf '%s' "$seg" | awk '{print $1}')" = "git" ] \
+     && printf '%s' "$seg" | grep -Eq '(^|[[:space:]])commit([[:space:]]|$)'; then
+    is_commit=1
+    break
+  fi
+done <<EOF
+$segments
+EOF
+[ "$is_commit" -eq 0 ] && exit 0
+
+# --- Lint the staged Ruby files. ---------------------------------------------
 root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 cd "$root" || exit 0
 
