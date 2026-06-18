@@ -11,8 +11,15 @@
 # a prefix filter such as "Bash(git commit*)" only matches the START of the
 # command string, so a compound command like `git add -A && git commit -m ...`
 # (which starts with `git add`) would silently bypass the hook. This script
-# receives the full command on stdin and inspects every segment, so chained
-# and `git -C <path> commit` forms are covered too.
+# receives the full command on stdin and inspects each segment (split on the
+# shell operators &&, ||, ;, |), so chained and `git -C <path> commit` forms
+# are covered. Plumbing subcommands such as `git commit-graph` and
+# `git commit-tree` are intentionally NOT treated as commits.
+#
+# Enforcement: this check runs for every commit form. The one exception is an
+# explicit `git commit --no-verify`, which bypasses it (mirroring git's own
+# hook-bypass convention). Note that `--no-verify` only skips git hooks; this
+# Claude Code hook honours the flag deliberately so there is an escape hatch.
 #
 # The hook is conservative: it is a no-op for non-commit commands and when no
 # Ruby files are staged, and it does not block commits when the Ruby/Bundler
@@ -40,6 +47,8 @@ is_commit=0
 while IFS= read -r seg; do
   seg=$(printf '%s' "$seg" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
   [ -z "$seg" ] && continue
+  # First token is `git` and `commit` appears as a whole word (so `commit-graph`
+  # and `commit-tree` do not match).
   if [ "$(printf '%s' "$seg" | awk '{print $1}')" = "git" ] \
      && printf '%s' "$seg" | grep -Eq '(^|[[:space:]])commit([[:space:]]|$)'; then
     is_commit=1
@@ -50,14 +59,25 @@ $segments
 EOF
 [ "$is_commit" -eq 0 ] && exit 0
 
+# Explicit opt-out: `git commit --no-verify` bypasses the check.
+if printf '%s' "$cmd" | grep -Eq '(^|[[:space:]])--no-verify([[:space:]]|$)'; then
+  echo "RuboCop pre-commit hook skipped: --no-verify requested." >&2
+  exit 0
+fi
+
 # --- Lint the staged Ruby files. ---------------------------------------------
 root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 cd "$root" || exit 0
 
-# Only Ruby-relevant files that are staged (added/copied/modified).
-files=$(git diff --cached --name-only --diff-filter=ACM \
-  | grep -E '\.(rb|rake)$|(^|/)(Gemfile|Rakefile|Dangerfile)$') || true
-[ -z "$files" ] && exit 0
+# Collect Ruby-relevant staged files (added/copied/modified) into an array so
+# paths are passed to RuboCop individually and safely, even if one contains a
+# space. A read-loop is used instead of `mapfile` for Bash 3.2 compatibility.
+files=()
+while IFS= read -r f; do
+  [ -n "$f" ] && files+=("$f")
+done < <(git diff --cached --name-only --diff-filter=ACM \
+  | grep -E '\.(rb|rake)$|(^|/)(Gemfile|Rakefile|Dangerfile)$')
+[ ${#files[@]} -eq 0 ] && exit 0
 
 command -v bundle >/dev/null 2>&1 || exit 0
 
@@ -69,8 +89,8 @@ if ! bundle exec ruby -e 'exit 0' >/dev/null 2>&1; then
   exit 0
 fi
 
-# shellcheck disable=SC2086  # staged paths are newline-separated and space-free
-output=$(bundle exec rubocop --force-exclusion --no-server $files 2>&1)
+# `--` terminates options so a path beginning with `-` is never read as a flag.
+output=$(bundle exec rubocop --force-exclusion --no-server -- "${files[@]}" 2>&1)
 status=$?
 
 [ "$status" -eq 0 ] && exit 0
