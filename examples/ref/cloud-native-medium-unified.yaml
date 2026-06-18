@@ -73,6 +73,9 @@ gitlab:
     antiAffinity: hard
     securityContext:
       fsGroupChangePolicy: OnRootMismatch
+    # Short timeout is intentional: rely on client-side retry rather than blocking new requests.
+    # See https://docs.gitlab.com/administration/gitaly/kubernetes/#gitaly-graceful-shutdown-timeout
+    gracefulRestartTimeout: 1
 
   toolbox:
     backups:
