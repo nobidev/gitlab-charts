@@ -125,7 +125,7 @@ to the `helm install` command using the `--set` flags.
 | `global.registry.api.port`                                    | `5000`                                                          | Registry port |
 | `global.registry.api.protocol`                                | `http`                                                          | Registry protocol |
 | `global.registry.api.serviceName`                             | `registry`                                                      | Registry service name |
-| `global.registry.enabled`                                     | `true`                                                          | Add/Remove registry link in all projects menu |
+| `global.registry.enabled`                                     | `true`                                                          | Enable the GitLab&nbsp;↔&nbsp;Registry integration (controls the registry link in the projects menu and whether the GitLab application contacts the Registry, for example when deleting or transferring projects). Set to `false` to fully disable Container Registry features. |
 | `global.registry.tokenIssuer`                                 | `gitlab-issuer`                                                 | Registry token issuer |
 | `replicaCount`                                                | `1`                                                             | Webservice number of replicas |
 | `resources.requests.cpu`                                      | `300m`                                                          | Webservice minimum CPU |
