@@ -547,9 +547,9 @@ global:
 
     ## IAM Data Access service configuration
     ## Shared secret for authenticating calls from GitLab Rails to the iam-data-access service.
-    ## Optional for self-managed: the service is only configured when grpc.host is set
-    ## (e.g. on GitLab.com, via its own deployment values).
-    iamDataAccessService: {}
+    ## Optional for self-managed; GitLab.com enables it via its own deployment values.
+    iamDataAccessService:
+      enabled: false
       # grpc:
         # host:
         # port:

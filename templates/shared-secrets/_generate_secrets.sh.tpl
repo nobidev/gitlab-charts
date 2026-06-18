@@ -235,7 +235,7 @@ generate_secret_if_needed {{ template "gitlab.openbao.authenticationTokenSecretF
 generate_secret_if_needed {{ template "gitlab.appConfig.iamAuthService.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.iamAuthService.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
 {{ end }}
 
-{{ if (include "gitlab.appConfig.iamDataAccessService.configured" .) -}}
+{{ if .Values.global.appConfig.iamDataAccessService.enabled -}}
 # Service token used by GitLab to authenticate internal API requests to the iam-data-access service
 generate_secret_if_needed {{ template "gitlab.appConfig.iamDataAccessService.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.iamDataAccessService.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
 {{ end }}

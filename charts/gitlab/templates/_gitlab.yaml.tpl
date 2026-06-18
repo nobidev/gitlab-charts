@@ -77,15 +77,14 @@ iam_auth_service:
 {{- end }}
 
 {{- define "gitlab.appConfig.iamDataAccessService" -}}
-{{- if (include "gitlab.appConfig.iamDataAccessService.configured" .) }}
-{{- with .Values.global.appConfig.iamDataAccessService }}
 iam_data_access_service:
+  {{- with .Values.global.appConfig.iamDataAccessService }}
+  enabled: {{ eq .enabled true }}
   secret_file: /etc/gitlab/iam-data-access/.gitlab_iam_data_access_secret
   grpc:
     host: {{ dig "grpc" "host" "" . | quote }}
     port: {{ dig "grpc" "port" 0 . | int }}
-{{- end }}
-{{- end }}
+  {{- end }}
 {{- end }}
 
 {{- define "gitlab.appConfig.workspaces" -}}

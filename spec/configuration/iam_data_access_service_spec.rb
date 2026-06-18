@@ -6,13 +6,21 @@ require 'yaml'
 require 'hash_deep_merge'
 
 describe 'iamDataAccessService templates' do
-  let(:default_values) { HelmTemplate.defaults }
+  let(:default_values) do
+    HelmTemplate.with_defaults(%(
+      gitlab:
+        appConfig:
+          iamDataAccessService:
+            enabled: false
+    ))
+  end
 
-  let(:configured_values) do
+  let(:enabled_values) do
     default_values.deep_merge(YAML.safe_load(%(
       global:
         appConfig:
           iamDataAccessService:
+            enabled: true
             grpc:
               host: iam-data-access.example.com
               port: 5005
@@ -28,27 +36,26 @@ describe 'iamDataAccessService templates' do
   end
 
   describe 'gitlab.yml.erb rendering' do
-    context 'when not configured (default for self-managed)' do
-      it 'does not render the block' do
+    context 'when disabled (default for self-managed)' do
+      it 'renders the block with enabled false and the secret_file' do
         t = HelmTemplate.new(default_values)
-        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
-
-        configmaps.each do |configmap|
-          config = t.dig(configmap, 'data', 'gitlab.yml.erb')
-          expect(config).not_to include('iam_data_access_service'), "Unexpected iam_data_access_service in #{configmap}"
-        end
-      end
-    end
-
-    context 'when grpc is configured' do
-      it 'renders the block with the secret_file, grpc host and port' do
-        t = HelmTemplate.new(configured_values)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
 
         configmaps.each do |configmap|
           config = t.dig(configmap, 'data', 'gitlab.yml.erb')
           expect(config).to include('iam_data_access_service'), "Expected iam_data_access_service in #{configmap}"
           expect(config).to include('/etc/gitlab/iam-data-access/.gitlab_iam_data_access_secret')
+        end
+      end
+    end
+
+    context 'when enabled with grpc configured' do
+      it 'renders the grpc host and port' do
+        t = HelmTemplate.new(enabled_values)
+        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+        configmaps.each do |configmap|
+          config = t.dig(configmap, 'data', 'gitlab.yml.erb')
           expect(config).to include('iam-data-access.example.com')
           expect(config).to include('5005')
         end
@@ -57,9 +64,9 @@ describe 'iamDataAccessService templates' do
   end
 
   describe 'gitlab.appConfig.iamDataAccessService.authToken' do
-    context 'when configured with no custom secret/key' do
+    context 'when enabled with no custom secret/key' do
       it 'generates the default secret and key' do
-        t = HelmTemplate.new(configured_values)
+        t = HelmTemplate.new(enabled_values)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
 
         generate_secrets = t.dig('ConfigMap/test-shared-secrets', 'data', 'generate-secrets')
@@ -68,9 +75,9 @@ describe 'iamDataAccessService templates' do
       end
     end
 
-    context 'when configured with custom secret/key' do
+    context 'when enabled with custom secret/key' do
       let(:values) do
-        configured_values.deep_merge(YAML.safe_load(%(
+        enabled_values.deep_merge(YAML.safe_load(%(
           global:
             appConfig:
               iamDataAccessService:
@@ -90,7 +97,7 @@ describe 'iamDataAccessService templates' do
       end
     end
 
-    context 'when not configured' do
+    context 'when disabled' do
       it 'does not generate the secret' do
         t = HelmTemplate.new(default_values)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
@@ -117,7 +124,7 @@ describe 'iamDataAccessService templates' do
       end
     end
 
-    context 'when not configured' do
+    context 'when disabled' do
       it 'does not mount any secrets' do
         t = HelmTemplate.new(default_values)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
@@ -128,9 +135,9 @@ describe 'iamDataAccessService templates' do
       end
     end
 
-    context 'when configured' do
+    context 'when enabled' do
       it 'mounts the shared secret on webservice, sidekiq, and toolbox deployments' do
-        t = HelmTemplate.new(configured_values)
+        t = HelmTemplate.new(enabled_values)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
 
         deployments.each do |deployment, volume_name|
@@ -141,19 +148,20 @@ describe 'iamDataAccessService templates' do
   end
 
   describe 'checkConfig' do
-    context 'when not configured' do
+    context 'when disabled with no grpc' do
       it 'does not error' do
         t = HelmTemplate.new(default_values)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
       end
     end
 
-    context 'when grpc.host is set without grpc.port' do
+    context 'when enabled without grpc.port' do
       let(:values) do
         default_values.deep_merge(YAML.safe_load(%(
           global:
             appConfig:
               iamDataAccessService:
+                enabled: true
                 grpc:
                   host: iam-data-access.example.com
         )))
@@ -162,16 +170,17 @@ describe 'iamDataAccessService templates' do
       it 'errors that grpc.port is required' do
         t = HelmTemplate.new(values)
         expect(t.exit_code).not_to eq(0)
-        expect(t.stderr).to include('grpc.port is required when iamDataAccessService grpc is configured')
+        expect(t.stderr).to include('grpc.port is required when iamDataAccessService is enabled')
       end
     end
 
-    context 'when grpc.port is set without grpc.host' do
+    context 'when enabled without grpc.host' do
       let(:values) do
         default_values.deep_merge(YAML.safe_load(%(
           global:
             appConfig:
               iamDataAccessService:
+                enabled: true
                 grpc:
                   port: 5005
         )))
@@ -180,7 +189,7 @@ describe 'iamDataAccessService templates' do
       it 'errors that grpc.host is required' do
         t = HelmTemplate.new(values)
         expect(t.exit_code).not_to eq(0)
-        expect(t.stderr).to include('grpc.host is required when iamDataAccessService grpc is configured')
+        expect(t.stderr).to include('grpc.host is required when iamDataAccessService is enabled')
       end
     end
   end

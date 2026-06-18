@@ -19,10 +19,9 @@ The IAM Data Access Service integration is an **experimental feature** currently
 
 The IAM Data Access Service can be configured through the Helm chart values under `global.appConfig.iamDataAccessService`.
 
-The service is optional: it is only configured when `grpc.host` is set. Self-managed
-installations that leave it unset render no configuration, generate no secret, and are
-not subject to its configuration checks. GitLab.com configures the gRPC endpoint through
-its own deployment values.
+The service is optional and disabled by default, so self-managed installations are not
+required to configure it or supply the gRPC endpoint. GitLab.com enables it through its
+own deployment values.
 
 ### Basic configuration
 
@@ -30,6 +29,7 @@ its own deployment values.
 global:
   appConfig:
     iamDataAccessService:
+      enabled: true
       grpc:
         host: iam-data-access.example.com
         port: 5005
@@ -42,14 +42,15 @@ global:
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `grpc.host` | string |  | Hostname of the gRPC endpoint. Setting this configures the service. |
-| `grpc.port` | integer |  | Port number of the gRPC endpoint. Required when `grpc.host` is set. |
+| `enabled` | boolean | `false` | Enable or disable IAM Data Access Service integration |
+| `grpc.host` | string |  | Hostname of the gRPC endpoint. Required when enabled. |
+| `grpc.port` | integer |  | Port number of the gRPC endpoint. Required when enabled. |
 | `authToken.secret` | string | `<Release.Name>-iam-data-access-secret` | Kubernetes secret name containing the authentication token |
 | `authToken.key` | string | `iam_data_access_service_token` | Key within the secret containing the authentication token |
 
 ## Secret generation
 
-When the IAM Data Access Service is configured (`grpc.host` is set), the Helm chart automatically generates a service authentication token and stores it in a Kubernetes secret. The token is generated using cryptographically secure random bytes and converted to alpha-numeric text.
+When the IAM Data Access Service is enabled, the Helm chart automatically generates a service authentication token and stores it in a Kubernetes secret. The token is generated using cryptographically secure random bytes and converted to alpha-numeric text.
 
 The secret is created during the initial deployment and persists across upgrades. If the secret already exists, it will not be regenerated.
 
