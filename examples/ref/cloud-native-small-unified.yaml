@@ -203,21 +203,17 @@ certmanager:
     kind: ControllerConfiguration
     enableGatewayAPI: true
 
-# Run one Envoy proxy pod per application node; scales automatically as the node pool grows
+# Run one Envoy proxy pod per application node; scales automatically as the node pool grows.
+# For cloud-provider-specific configuration (load balancer annotations, etc.), see:
+# https://docs.gitlab.com/charts/advanced/gateway-api/
 gatewayApiResources:
   envoy:
     proxySpec:
       provider:
         type: Kubernetes
         kubernetes:
-          envoyService:
-            type: LoadBalancer
           envoyDaemonSet:
             pod:
-              annotations:
-                gitlab.com/prometheus_scrape: "true"
-                gitlab.com/prometheus_port: "19001"
-                gitlab.com/prometheus_path: "/stats/prometheus"
               nodeSelector:
                 workload: application
 
