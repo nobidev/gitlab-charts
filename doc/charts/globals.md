@@ -633,10 +633,14 @@ global:
     sentinels:
       - host: sentinel1.example.com
         port: 26379
+      - host: sentinel2.example.com
+        port: 26379
     cache:
       host: mymaster
       sentinels:
         - host: sentinel1.example.com
+          port: 26379
+        - host: sentinel2.example.com
           port: 26379
       auth:
         enabled: true
