@@ -22,6 +22,7 @@ spec:
     spec:
       {{- include "gitlab.nodeSelector" . | nindent 6 }}
       {{- include "gitlab.tolerations" . | nindent 6 }}
+      {{- include "gitlab.dnsConfig" . | nindent 6 }}
       {{- include "gitlab.podSecurityContext" .Values.global.kubectl.securityContext | nindent 6 }}
       {{- if .Values.rbac.create }}
       serviceAccountName: {{ template "fullname" . }}

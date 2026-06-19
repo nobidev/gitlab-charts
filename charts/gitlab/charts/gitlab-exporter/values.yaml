@@ -35,6 +35,10 @@ tls:
 # Tolerations for pod scheduling
 tolerations: []
 
+# Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
+# See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+
 annotations: {}
 
 # Priority class assigned to pods

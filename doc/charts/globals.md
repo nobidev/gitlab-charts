@@ -2306,6 +2306,49 @@ global:
 > at this time and might need to be configured separately based on available chart values.
 > This includes Prometheus, cert-manager, and other subcharts.
 
+## DNS Configuration
+
+A pod-level [`dnsConfig`](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config)
+can be applied to all GitLab components globally. The most common use case is
+lowering `ndots` to reduce the number of NXDOMAIN responses Kubernetes generates
+when resolving fully-qualified external hostnames (for example, S3 endpoints),
+which can significantly improve DNS performance.
+
+```yaml
+global:
+  dnsConfig:
+    options:
+      - name: ndots
+        value: "2"
+```
+
+The global default can be overridden on any GitLab subchart by setting
+`dnsConfig` at the subchart level. For example, to leave the global default
+in place for everything except Sidekiq:
+
+```yaml
+global:
+  dnsConfig:
+    options:
+      - name: ndots
+        value: "2"
+
+gitlab:
+  sidekiq:
+    dnsConfig:
+      options:
+        - name: ndots
+          value: "3"
+```
+
+When unset (the default), no `dnsConfig` is emitted and Kubernetes defaults
+apply, preserving existing cluster behavior.
+
+> [!note]
+> Charts that are maintained externally do not respect the `global.dnsConfig`
+> at this time and might need to be configured separately based on available chart values.
+> This includes Prometheus, cert-manager, and other subcharts.
+
 ## Labels
 
 ### Common Labels

@@ -22,6 +22,12 @@ init:
 # Tolerations for pod scheduling
 tolerations: []
 
+# Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
+# May also be overridden per-cron via `backups.cron.dnsConfig` and
+# `databaseReindex.cron.dnsConfig`.
+# See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+
 extraEnv: {}
 extraEnvFrom: {}
 

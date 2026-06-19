@@ -28,6 +28,11 @@ init:
 # Tolerations for pod scheduling
 tolerations: []
 
+# Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
+# May also be overridden per-pod via `pods[].dnsConfig`.
+# See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+
 enabled: true
 
 annotations: {}
@@ -342,6 +347,7 @@ pods:
     # terminationGracePeriodSeconds: 30
     # nodeSelector: {}
     # tolerations: []
+    # dnsConfig: {}
 
 ## Allow to overwrite under which User and Group the Pod will be running.
 securityContext:

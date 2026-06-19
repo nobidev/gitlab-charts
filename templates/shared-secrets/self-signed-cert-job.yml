@@ -37,6 +37,12 @@ spec:
       {{- else }}
       {{- include "gitlab.tolerations" . | nindent 6 }}
       {{- end }}
+      {{- if $sharedSecretValues.dnsConfig }}
+      dnsConfig:
+        {{- toYaml $sharedSecretValues.dnsConfig | nindent 8 }}
+      {{- else }}
+      {{- include "gitlab.dnsConfig" . | nindent 6 }}
+      {{- end }}
       {{- include "gitlab.podSecurityContext" $sharedSecretValues.securityContext | nindent 6 }}
       {{- if or $sharedSecretValues.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
       serviceAccountName: {{ template "shared-secrets.serviceAccountName" . }}

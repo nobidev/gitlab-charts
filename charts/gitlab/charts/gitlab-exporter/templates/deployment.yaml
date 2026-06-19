@@ -161,4 +161,5 @@ spec:
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
       {{- include "gitlab.nodeSelector" . | nindent 6 }}
       {{- include "gitlab.tolerations" . | nindent 6 }}
+      {{- include "gitlab.dnsConfig" . | nindent 6 }}
 {{- end }}
