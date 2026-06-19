@@ -47,6 +47,20 @@ This documentation does not include SSL from application to database, support
 for other database providers, or
 [promoting a secondary site to primary](https://docs.gitlab.com/administration/geo/disaster_recovery/).
 
+> [!note]
+> This guide uses single-node Linux package PostgreSQL databases. If you need a
+> highly available database (a "cloud-native hybrid" topology with the GitLab
+> chart for the application and a [Patroni](https://docs.gitlab.com/administration/postgresql/replication_and_failover/#patroni)
+> cluster for the database), follow
+> [Multi-node database replication](https://docs.gitlab.com/administration/geo/setup/database/#multi-node-database-replication)
+> for the Patroni primary cluster, standby cluster, internal load balancer, and
+> PgBouncer setup, then set the chart's `global.psql.host` and
+> `global.geo.psql.host` values to the secondary site's PgBouncer or internal
+> load balancer endpoints (not a single database node). On the Patroni nodes,
+> use `patroni_role`; do not use the `geo_primary_role` or `geo_secondary_role`
+> convenience roles shown in this guide, which are intended only for single-node
+> databases.
+
 The outline below should be followed in order:
 
 1. [Set up Linux package database nodes](#set-up-linux-package-database-nodes)
