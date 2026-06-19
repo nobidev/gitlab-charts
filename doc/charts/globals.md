@@ -2161,12 +2161,12 @@ To configure a Secret or ConfigMap, or both, specify them in globals:
 global:
   certificates:
     customCAs:
-      - secret: secret-custom-CAs           # Mount all keys of a Secret
-      - secret: secret-custom-CAs           # Mount only the specified keys of a Secret
+      - secret: secret-custom-ca           # Mount all keys of a Secret
+      - secret: secret-custom-ca           # Mount only the specified keys of a Secret
         keys:
           - unique_name.crt
-      - configMap: cm-custom-CAs            # Mount all keys of a ConfigMap
-      - configMap: cm-custom-CAs            # Mount only the specified keys of a ConfigMap
+      - configMap: cm-custom-ca            # Mount all keys of a ConfigMap
+      - configMap: cm-custom-ca            # Mount only the specified keys of a ConfigMap
         keys:
           - unique_name_1.crt
           - unique_name_2.crt
