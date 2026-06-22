@@ -62,11 +62,6 @@ Ensure consolidate and type-specific object store configuration are not mixed.
 {{-         end -}}
 {{-       end -}}
 {{-     end -}}
-{{/*    Pages object storage lives under `global.pages.objectStore`, not `global.appConfig`. */}}
-{{-     $pages := $.Values.global.pages -}}
-{{-     if and $pages.enabled $pages.objectStore.enabled (or (not (empty $pages.objectStore.connection)) (empty $pages.objectStore.bucket)) -}}
-{{-       $problematicTypes = append $problematicTypes "pages" -}}
-{{-     end -}}
 {{-     if not (empty $problematicTypes) }}
 Object Storage:
   When consolidated object storage is enabled, for each item `bucket` must be specified and the `connection` must be empty. Check the following object storage configuration(s): {{ join "," $problematicTypes }}
