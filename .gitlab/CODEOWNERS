@@ -35,7 +35,7 @@
 /scripts/ci/ @gitlab-org/maintainers/helm-charts-gitlab @balasankarc
 .gitlab-ci.yml @gitlab-org/maintainers/helm-charts-gitlab @balasankarc
 
-[Chart Dependencies] @gitlab-org/maintainers/helm-charts-gitlab @DylanGriffith @dgruzd @terrichu @johnmason @hswimelar @jdrpereira @jaime @suleimiahmed
+[Chart Dependencies] @gitlab-org/maintainers/helm-charts-gitlab @rkumar555 @sdungarwal @dgruzd @terrichu @johnmason @hswimelar @jdrpereira @jaime @suleimiahmed
 /Chart.yaml
 /Chart.lock
 
