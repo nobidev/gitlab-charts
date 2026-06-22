@@ -54,9 +54,10 @@ for other database providers, or
 > cluster for the database), follow
 > [Multi-node database replication](https://docs.gitlab.com/administration/geo/setup/database/#multi-node-database-replication)
 > for the Patroni primary cluster, standby cluster, internal load balancer, and
-> PgBouncer setup, then set the chart's `global.psql.host` and
-> `global.geo.psql.host` values to the secondary site's PgBouncer or internal
-> load balancer endpoints (not a single database node). On the Patroni nodes,
+> PgBouncer setup, then set each chart's `global.psql.host` to that site's
+> PgBouncer or internal load balancer endpoint (not a single database node),
+> and set the secondary chart's `global.geo.psql.host` to the secondary site's
+> PgBouncer or internal load balancer endpoint.
 > use `patroni_role`; do not use the `geo_primary_role` or `geo_secondary_role`
 > convenience roles shown in this guide, which are intended only for single-node
 > databases.
