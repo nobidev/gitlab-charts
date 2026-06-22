@@ -14,7 +14,8 @@ title: バンドルされたRedis、PostgreSQL、MinIOチャートから移行�
 
 本番システムを設定する際は、バンドルされたRedis、MinIO、PostgreSQLから、外部で管理されている代替手段に移行する必要があります。
 
-> [!warning]バンドルされたRedis、MinIO、およびPostgreSQLは[非推奨](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)であり、GitLab 19.0で削除されます。
+> [!warning]
+> バンドルされたRedis、MinIO、およびPostgreSQLは[非推奨](https://docs.gitlab.com/update/deprecations/#support-for-bundled-postgresql-redis-and-minio-in-gitlab-helm-chart)であり、GitLab 19.0で削除されます。
 
 このガイドでは、[Valkey](https://valkey.io/)、[Garage](https://garagehq.deuxfleurs.fr/)、[CloudNativePG](https://cloudnative-pg.io/)といったクラウドネイティブの代替手段に移行することを前提としています。
 
@@ -155,7 +156,8 @@ title: バンドルされたRedis、PostgreSQL、MinIOチャートから移行�
 
 1. クラスターのレイアウトを初期化します。
 
-   > [!note]この例では、Garageのレイアウトを3つのゾーン、ゾーンごとに1つのノードでプロビジョニングし、デフォルトの3つのレプリケーションファクターを使用します。[Garageの本番環境における推奨事項](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/)を確認し、要件に合わせてこれらの設定を調整してください。
+   > [!note]
+   > この例では、Garageのレイアウトを3つのゾーン、ゾーンごとに1つのノードでプロビジョニングし、デフォルトの3つのレプリケーションファクターを使用します。[Garageの本番環境における推奨事項](https://garagehq.deuxfleurs.fr/documentation/cookbook/real-world/)を確認し、要件に合わせてこれらの設定を調整してください。
 
    GitLabは、プライマリのオブジェクトデータとバックアップの両方を同じストレージバックエンド（この例ではGarage）に保存します。そのため、オブジェクトストレージまたは永続化レイヤーで障害が発生すると、両方のデータセットに影響する可能性があります。したがって、定期的に[GitLabをバックアップ](../../backup-restore/_index.md)することに加え、[Garageの障害からの回復](https://garagehq.deuxfleurs.fr/documentation/operations/recovering/)についても把握しておく必要があります。
 
@@ -174,7 +176,8 @@ title: バンドルされたRedis、PostgreSQL、MinIOチャートから移行�
 
 1. GitLabバケットを作成します:
 
-   > [!note]次のコマンドは、GitLabチャートのデフォルトのバケット名を使用します。以前にバケット名をカスタマイズした場合は、必要に応じてこれ以降の手順で調整してください。
+   > [!note]
+   > 次のコマンドは、GitLabチャートのデフォルトのバケット名を使用します。以前にバケット名をカスタマイズした場合は、必要に応じてこれ以降の手順で調整してください。
 
    ```shell
    buckets=("git-lfs" "gitlab-artifacts" "gitlab-backups" "gitlab-ci-secure-files" \
@@ -267,7 +270,8 @@ title: バンドルされたRedis、PostgreSQL、MinIOチャートから移行�
    kubectl annotate pvc <RELEASE>-minio --list
    ```
 
-   > [!note] RedisとPostgreSQLの永続ボリュームは、Helmではなく、そのStatefulSetによって管理されます。デフォルトの保持ポリシーは[`Retain`](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention)です。このポリシーを変更していない限り、StatefulSetを削除してもこれら2つのボリュームは削除されません。
+   > [!note]
+   > RedisとPostgreSQLの永続ボリュームは、Helmではなく、そのStatefulSetによって管理されます。デフォルトの保持ポリシーは[`Retain`](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention)です。このポリシーを変更していない限り、StatefulSetを削除してもこれら2つのボリュームは削除されません。
 
 1. 新しくプロビジョニングしたサービスを指すように値を更新します:
 

@@ -340,7 +340,8 @@ redis:
 | `sentinels.[].host` | 文字列  |         | Redis HA設定用のRedis Sentinelサーバーのホスト名。 |
 | `sentinels.[].port` | 整数 | `26379` | Redis Sentinelサーバーへの接続に使用するポート。 |
 
-> [!note]現在のRedis Sentinelサポートは、GitLabチャートとは別にデプロイされたSentinelsのみをサポートしています。そのため、`redis.install=false`に設定して、GitLabチャートによるRedisのデプロイを無効にする必要があります。GitLabチャートをデプロイする前に、Redisパスワードを含むシークレットを手動で作成する必要があります。
+> [!note]
+> 現在のRedis Sentinelサポートは、GitLabチャートとは別にデプロイされたSentinelsのみをサポートしています。そのため、`redis.install=false`に設定して、GitLabチャートによるRedisのデプロイを無効にする必要があります。GitLabチャートをデプロイする前に、Redisパスワードを含むシークレットを手動で作成する必要があります。
 
 ### PostgreSQL {#postgresql}
 
@@ -423,7 +424,8 @@ gitaly:
 | `maxReplicas`                | 整数 | `10`      | 最大レプリカ数 |
 | `maxUnavailable`             | 整数 | `1`       | 利用できないポッドの最大数 |
 
-> [!note] Sidekiqメモリキラーの[詳細ドキュメント](https://docs.gitlab.com/administration/sidekiq/sidekiq_memory_killer/)は、Linuxパッケージドキュメントで入手できます。
+> [!note]
+> Sidekiqメモリキラーの[詳細ドキュメント](https://docs.gitlab.com/administration/sidekiq/sidekiq_memory_killer/)は、Linuxパッケージドキュメントで入手できます。
 
 ## HPAスケールの無効化 {#disable-hpa-scaling}
 

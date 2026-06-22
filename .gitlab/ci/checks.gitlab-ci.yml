@@ -156,7 +156,7 @@ docs-i18n-fix-alert-boxes:
     - scripts/i18n_fix_alert_box.sh --ci
   rules:
     - !reference [.rule:skip_if_dev]
-    - if: '$GITLAB_ARGO_BOT_TOKEN == null'
+    - if: '$GITLAB_ARGO_BOT_TOKEN == null || $GITLAB_ARGO_BOT_TOKEN == ""'
       when: never
     - if: '$PIPELINE_TYPE == "DOCS_PIPELINE_LOCALIZATION" && $CI_PIPELINE_SOURCE == "merge_request_event"'
 

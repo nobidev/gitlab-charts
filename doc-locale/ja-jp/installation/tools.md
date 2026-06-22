@@ -32,13 +32,15 @@ GitLabチャートは、公式EOL（[estimated in July 2026](https://helm.sh/com
 
 サポートされているPostgreSQLバージョンについては、[the GitLab requirements](https://docs.gitlab.com/install/requirements/#postgresql)を確認してください。
 
-> [!note] GitLabチャートには、評価目的でのみ[`bitnami/PostgreSQL`](https://artifacthub.io/packages/helm/bitnami/postgresql)によって提供されるバンドルされたPostgreSQLデプロイが含まれています。
+> [!note]
+> GitLabチャートには、評価目的でのみ[`bitnami/PostgreSQL`](https://artifacthub.io/packages/helm/bitnami/postgresql)によって提供されるバンドルされたPostgreSQLデプロイが含まれています。
 
 ### Redis {#redis}
 
 本番環境のデプロイには、[external Redis instance](../advanced/external-redis/_index.md)を設定します。利用可能なすべての設定については、[Redis globals documentation](../charts/globals.md#configure-redis-settings)を参照してください。
 
-> [!note] GitLabチャートには、評価目的でのみ[`bitnami/Redis`](https://artifacthub.io/packages/helm/bitnami/redis)によって提供されるバンドルされたRedisデプロイが含まれています。
+> [!note]
+> GitLabチャートには、評価目的でのみ[`bitnami/Redis`](https://artifacthub.io/packages/helm/bitnami/redis)によって提供されるバンドルされたRedisデプロイが含まれています。
 
 ### Gitaly {#gitaly}
 
@@ -74,7 +76,8 @@ SSHキーのようなシークレットを作成する必要があります。�
 
 [`external-dns`](https://github.com/kubernetes-sigs/external-dns)のような自動DNS登録サービスを使用する予定がある場合は、GitLabの追加の設定は必要ありません。ただし、`external-dns`をクラスターにデプロイする必要があります。プロジェクトページには、サポートされている各プロバイダー向けの[has a comprehensive guide](https://github.com/kubernetes-sigs/external-dns#deploying-to-a-cluster)があります。
 
-> [!note] GitLab Pagesのカスタムドメインサポートを有効にすると、`external-dns`はPagesドメイン（デフォルトでは`pages.<global.hosts.domain>`）では機能しなくなります。ドメインをPages専用の外部IPアドレスにポイントするように、DNSレコードを手動で設定する必要があります。
+> [!note]
+> GitLab Pagesのカスタムドメインサポートを有効にすると、`external-dns`はPagesドメイン（デフォルトでは`pages.<global.hosts.domain>`）では機能しなくなります。ドメインをPages専用の外部IPアドレスにポイントするように、DNSレコードを手動で設定する必要があります。
 
 [GKE cluster](cloud/gke.md)をプロビジョニングする場合、`external-dns`がクラスターに自動的にインストールされます。
 
@@ -100,7 +103,8 @@ GitalyとKASはgRPCを使用しますが、[Issue #3822](https://gitlab.com/gitl
 
 デフォルトでは、GitLabチャートは、動的なプロビジョナーが基盤となる永続ボリュームを作成することを期待してボリュームクレームを作成します。`storageClass`をカスタマイズしたり、ボリュームを手動で作成および割り当てたりする場合は、[storage documentation](storage.md)を参照してください。
 
-> [!note]初期のデプロイ後、ストレージ設定を変更するには、Kubernetesオブジェクトを手動で編集する必要があります。したがって、追加のストレージ移行作業を避けるため、本番環境インスタンスをデプロイする前に事前に計画を立てるのが最善です。
+> [!note]
+> 初期のデプロイ後、ストレージ設定を変更するには、Kubernetesオブジェクトを手動で編集する必要があります。したがって、追加のストレージ移行作業を避けるため、本番環境インスタンスをデプロイする前に事前に計画を立てるのが最善です。
 
 ### TLS証明書 {#tls-certificates}
 

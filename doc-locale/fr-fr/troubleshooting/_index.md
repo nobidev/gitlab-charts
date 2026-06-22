@@ -118,7 +118,8 @@ Cela peut se produire lorsque vous avez une terminaison TLS avant l'Ingress NGIN
 
 1. Appliquez la modification.
 
-> [!note] Lors de l'utilisation d'un service externe pour la terminaison SSL, ce service est responsable de la redirection vers https (si souhaité).
+> [!note]
+> Lors de l'utilisation d'un service externe pour la terminaison SSL, ce service est responsable de la redirection vers https (si souhaité).
 
 ## Les mises à niveau échouent avec une erreur de champ immuable {#upgrades-fail-with-immutable-field-error}
 
@@ -141,7 +142,8 @@ Ce problème peut être résolu en supprimant simplement tous les services conce
 1. Effectuez une mise à niveau via Helm.
 1. Les futures mises à niveau ne rencontreront pas cette erreur.
 
-> [!note] Cela modifiera toute valeur dynamique du `LoadBalancer` pour l'Ingress NGINX de ce chart, si utilisé. Consultez la [documentation des paramètres Ingress globaux](../charts/globals.md#configure-ingress-settings) pour plus de détails concernant `externalIP`. Vous devrez peut-être mettre à jour les enregistrements DNS !
+> [!note]
+> Cela modifiera toute valeur dynamique du `LoadBalancer` pour l'Ingress NGINX de ce chart, si utilisé. Consultez la [documentation des paramètres Ingress globaux](../charts/globals.md#configure-ingress-settings) pour plus de détails concernant `externalIP`. Vous devrez peut-être mettre à jour les enregistrements DNS !
 
 ### spec.selector {#specselector}
 
@@ -527,7 +529,8 @@ gitlab:
       runAsUser: ""
 ```
 
-> [!note] L'exemple de syntaxe élimine entièrement le paramètre `securityContext`. La définition de `securityContext: {}` ou `securityContext:` ne fonctionne pas en raison de la façon dont Helm fusionne les valeurs par défaut avec la configuration fournie par l'utilisateur.
+> [!note]
+> L'exemple de syntaxe élimine entièrement le paramètre `securityContext`. La définition de `securityContext: {}` ou `securityContext:` ne fonctionne pas en raison de la façon dont Helm fusionne les valeurs par défaut avec la configuration fournie par l'utilisateur.
 
 ### Erreurs 502 intermittentes {#intermittent-502-errors}
 

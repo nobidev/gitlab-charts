@@ -220,7 +220,8 @@ Redisの`password`属性には2つのサブキーがあります:
 - `host`はSentinelサービスのホスト名を定義します
 - `port`はSentinelサービスに接続するためのポート番号を定義し、`26379`にデフォルト設定されます
 
-> [!note]現在のRedis Sentinelサポートは、GitLabチャートとは別にデプロイされたSentinelのみをサポートしています。そのため、`redis.install=false`に設定して、GitLabチャートによるRedisのデプロイを無効にする必要があります。Redisパスワードを含むシークレットは、GitLabチャートをデプロイする前に手動で作成する必要があります。
+> [!note]
+> 現在のRedis Sentinelサポートは、GitLabチャートとは別にデプロイされたSentinelのみをサポートしています。そのため、`redis.install=false`に設定して、GitLabチャートによるRedisのデプロイを無効にする必要があります。Redisパスワードを含むシークレットは、GitLabチャートをデプロイする前に手動で作成する必要があります。
 
 ### PostgreSQL {#postgresql}
 

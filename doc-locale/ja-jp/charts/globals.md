@@ -185,7 +185,8 @@ Gateway APIおよびバンドルされたEnvoy Gatewayに関連するすべて�
 
 ## GitLabバージョン {#gitlab-version}
 
-> [!note]この値は開発目的でのみ使用するか、GitLabサポートからの明示的なリクエストがあった場合にのみ使用してください。本番環境の設定ファイルでは、この値を使用しないでください。代わりに、[Helmを使用したデプロイ](../installation/deployment.md#deploy-using-helm)の説明に従ってバージョンを設定してください。
+> [!note]
+> この値は開発目的でのみ使用するか、GitLabサポートからの明示的なリクエストがあった場合にのみ使用してください。本番環境の設定ファイルでは、この値を使用しないでください。代わりに、[Helmを使用したデプロイ](../installation/deployment.md#deploy-using-helm)の説明に従ってバージョンを設定してください。
 
 チャートのデフォルトイメージタグで使用されているGitLabのバージョンは、`global.gitlabVersion`キーを使用して変更できます。
 
@@ -1129,7 +1130,8 @@ CSPルールを不適切に設定すると、GitLabが正常に動作しなく�
 
 {{< /details >}}
 
-> [!warning]GitLabの相対URLを設定すると、[Geoに関する既知のイシュー](https://gitlab.com/gitlab-org/gitlab/-/issues/456427)と[テストの制限](https://gitlab.com/gitlab-org/gitlab/-/issues/439943)があります。すでに相対URLを使用しており、サブドメインに移行する場合は、[移行ガイド](https://docs.gitlab.com/administration/operations/migrate_to_subdomain)を参照してください。
+> [!warning]
+> GitLabの相対URLを設定すると、[Geoに関する既知のイシュー](https://gitlab.com/gitlab-org/gitlab/-/issues/456427)と[テストの制限](https://gitlab.com/gitlab-org/gitlab/-/issues/439943)があります。すでに相対URLを使用しており、サブドメインに移行する場合は、[移行ガイド](https://docs.gitlab.com/administration/operations/migrate_to_subdomain)を参照してください。
 
 GitLabは独自のドメインまたはサブドメインにインストールする必要がありますが、必要に応じて相対URLでインストールできます。例: `https://example.com/gitlab`。
 
@@ -1205,7 +1207,8 @@ object_store:
 
 プロパティの構造は共有されており、ここに示されているすべてのプロパティは、以下の個々の項目によってオーバーライドできます。`connection`プロパティの構造は同じです。
 
-> [!note] `bucket`、`enabled`、および`proxy_download`プロパティは、デフォルト値から逸脱する場合に、アイテムごとのレベル（`global.appConfig.artifacts.bucket`など）で設定する必要がある唯一のプロパティです。
+> [!note]
+> `bucket`、`enabled`、および`proxy_download`プロパティは、デフォルト値から逸脱する場合に、アイテムごとのレベル（`global.appConfig.artifacts.bucket`など）で設定する必要がある唯一のプロパティです。
 
 [接続](#connection)に`AWS`プロバイダー（同梱されているMinIOなどのS3互換プロバイダー）を使用する場合、GitLab Workhorseはストレージ関連のすべてのアップロードをオフロードできます。この統合設定を使用する場合、これは自動的に有効になります。
 
@@ -1481,7 +1484,8 @@ ldap:
 --set global.appConfig.ldap.servers.main.password.key='the-key-containing-the-password'
 ```
 
-> [!note]カンマはHelm `--set`項目内では[特殊文字](https://helm.sh/docs/intro/using_helm/#the-format-and-limitations-of---set)と見なされます。`bind_dn`のような値のカンマはエスケープしてください: `--set global.appConfig.ldap.servers.main.bind_dn='cn=administrator\,cn=Users\,dc=domain\,dc=net'`。
+> [!note]
+> カンマはHelm `--set`項目内では[特殊文字](https://helm.sh/docs/intro/using_helm/#the-format-and-limitations-of---set)と見なされます。`bind_dn`のような値のカンマはエスケープしてください: `--set global.appConfig.ldap.servers.main.bind_dn='cn=administrator\,cn=Users\,dc=domain\,dc=net'`。
 
 #### LDAP Webサインインを無効にする {#disable-ldap-web-sign-in}
 
@@ -1988,7 +1992,8 @@ gitlab:
 
 ## カスタム認証局 {#custom-certificate-authorities}
 
-> [!note]これらの設定は、バンドルされているサードパーティのチャートには影響しません。
+> [!note]
+> これらの設定は、バンドルされているサードパーティのチャートには影響しません。
 
 社内で発行されたSSL証明書をTLSサービスで使用する場合など、カスタム認証局（CA）を追加する必要が生じることがあります。この機能を提供するため、シークレットまたはConfigMapを通じて、アプリケーションにカスタムルート認証局を適用するためのメカニズムが用意されています。
 
@@ -2019,7 +2024,8 @@ global:
           - unique_name_2.crt
 ```
 
-> [!note]シークレットのキー名にある`.crt`拡張子は、[Debian update-ca-certificatesパッケージ](https://manpages.debian.org/bullseye/ca-certificates/update-ca-certificates.8.en.html)にとって重要です。この手順を実行すれば、カスタムCAファイルがその拡張子でマウントされ、証明書`initContainers`で処理されることが保証されます。以前は、[ドキュメント](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)の記述とは異なり、証明書ヘルパーイメージがalpineベースだった場合、実際にはファイル拡張子が必須ではありませんでした。UBIベースの`update-ca-trust`ユーティリティには、同じ要件はないようです。
+> [!note]
+> シークレットのキー名にある`.crt`拡張子は、[Debian update-ca-certificatesパッケージ](https://manpages.debian.org/bullseye/ca-certificates/update-ca-certificates.8.en.html)にとって重要です。この手順を実行すれば、カスタムCAファイルがその拡張子でマウントされ、証明書`initContainers`で処理されることが保証されます。以前は、[ドキュメント](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)の記述とは異なり、証明書ヘルパーイメージがalpineベースだった場合、実際にはファイル拡張子が必須ではありませんでした。UBIベースの`update-ca-trust`ユーティリティには、同じ要件はないようです。
 
 任意の数のシークレットまたはConfigMapを指定し、それぞれに、PEMエンコードのCA証明書を保持するキーを必要な数だけ設定できます。これらは、`global.certificates.customCAs`の下のエントリとして設定します。マウントする特定のキーのリストを`keys:`に指定しない限り、すべてのキーがマウントされます。すべてのシークレットおよびConfigMapにわたるマウント対象のキーは、いずれも一意でなければなりません。シークレットとConfigMapには任意の名前を付けることができますが、キー名が*競合してはいけません*。
 
@@ -2075,7 +2081,8 @@ global:
 - `global.serviceAccount.name`の設定は、サービスアカウントのオブジェクト名と、各コンポーネントが参照する名前を制御します。
 - `global.serviceAccount.automountServiceAccountToken`の設定は、デフォルトのServiceAccountアクセストークンをポッドにマウントする必要があるかどうかを制御します。これは、特定のサイドカーが正常に機能するために必要という場合（Istioなど）を除き、有効にしないようにしてください。
 
-> [!note] `global.serviceAccount.create=true`を`global.serviceAccount.name`と一緒に使用しないでください。これは、チャートが同じ名前のServiceAccountオブジェクトを複数作成するように指示するためです。グローバル名を指定する場合は、代わりに`global.serviceAccount.create=false`を使用します。
+> [!note]
+> `global.serviceAccount.create=true`を`global.serviceAccount.name`と一緒に使用しないでください。これは、チャートが同じ名前のServiceAccountオブジェクトを複数作成するように指示するためです。グローバル名を指定する場合は、代わりに`global.serviceAccount.create=false`を使用します。
 
 ## アノテーション {#annotations}
 
@@ -2106,7 +2113,8 @@ global:
     disktype: ssd
 ```
 
-> [!note]外部で管理されているチャートは現在`global.nodeSelector`を尊重しないため、利用可能なチャート値に基づいて別途設定が必要になる場合があります。これには、Prometheus、cert-manager、Redisなどが含まれます。
+> [!note]
+> 外部で管理されているチャートは現在`global.nodeSelector`を尊重しないため、利用可能なチャート値に基づいて別途設定が必要になる場合があります。これには、Prometheus、cert-manager、Redisなどが含まれます。
 
 ## ラベル {#labels}
 
@@ -2220,7 +2228,8 @@ gitlab:
           # optional: boolean
 ```
 
-> [!note]この実装は、異なるコンテンツタイプで値名を再利用することをサポートしていません。同じ名前を類似の内容でオーバーライドすることは可能ですが、`secretKeyRef`や`configMapKeyRef`などのソースが混在しないようにしてください。
+> [!note]
+> この実装は、異なるコンテンツタイプで値名を再利用することをサポートしていません。同じ名前を類似の内容でオーバーライドすることは可能ですが、`secretKeyRef`や`configMapKeyRef`などのソースが混在しないようにしてください。
 
 ## OAuthを設定する {#configure-oauth-settings}
 
@@ -2306,7 +2315,8 @@ global:
 
 これにより、GitLab UIでKerberosネゴシエーション専用の追加クローンURLが有効になります。`https: true`の設定はURL生成専用であり、追加のTLS設定は公開されていません。TLSは、Ingressの中でGitLab用に終端処理され、設定されます。
 
-> [!note] [`nginx-ingress` Helmチャートのフォーク](nginx/_index.md)における現在の制限により、`dedicatedPort`を指定しても、現在のところチャートの`nginx-ingress`コントローラーで使用するポートは公開されません。クラスターのオペレーターが、このポートを自分で公開する必要があります。詳細および可能な回避策については、[こちらのチャートイシュー](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3531)を参照してください。
+> [!note]
+> [`nginx-ingress` Helmチャートのフォーク](nginx/_index.md)における現在の制限により、`dedicatedPort`を指定しても、現在のところチャートの`nginx-ingress`コントローラーで使用するポートは公開されません。クラスターのオペレーターが、このポートを自分で公開する必要があります。詳細および可能な回避策については、[こちらのチャートイシュー](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3531)を参照してください。
 
 ### LDAPカスタム許可レルム {#ldap-custom-allowed-realms}
 

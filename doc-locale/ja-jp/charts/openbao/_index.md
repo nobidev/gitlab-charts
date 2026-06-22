@@ -21,7 +21,8 @@ title: OpenBaoチャート
 
 {{< /history >}}
 
-> [!flag] この機能の利用可否は、機能フラグによって制御されます。詳細については、履歴を参照してください。
+> [!flag]
+> この機能の利用可否は、機能フラグによって制御されます。詳細については、履歴を参照してください。
 
 [OpenBaoチャート](https://gitlab.com/gitlab-org/cloud-native/charts/openbao)を使用してOpenBaoをインストールできます。OpenBaoは、[GitLab Secrets Manager](https://docs.gitlab.com/ci/secrets/secrets_manager/)を有効にするために必要です。
 
@@ -197,7 +198,8 @@ ingress:
   sslPassthroughNginx: true
 ```
 
-> [!note] SSLパススルーを有効にするには、cert-managerがHTTP01チャレンジを完了するために別のIngressを作成する必要があります。バンドルされているcertmanagerと`Issuer`を使用する場合は、[`global.ingress.useNewIngressForCerts`](../globals.md#globalingressusenewingressforcerts)を設定して、発行者によって正しい`IngressClass`が設定されるようにしてください。
+> [!note]
+> SSLパススルーを有効にするには、cert-managerがHTTP01チャレンジを完了するために別のIngressを作成する必要があります。バンドルされているcertmanagerと`Issuer`を使用する場合は、[`global.ingress.useNewIngressForCerts`](../globals.md#globalingressusenewingressforcerts)を設定して、発行者によって正しい`IngressClass`が設定されるようにしてください。
 
 ### ゲートウェイAPI {#gateway-api}
 

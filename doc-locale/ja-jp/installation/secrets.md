@@ -137,7 +137,8 @@ kubectl create secret generic <name>-gitlab-shell-host-keys --from-file hostKeys
 
 ### 初期Enterpriseライセンス {#initial-enterprise-license}
 
-> [!warning]この方法は、インストール時にのみライセンスを追加します。ライセンスを更新またはアップグレードするには、ウェブユーザーインターフェースの管理者エリアを使用してください。
+> [!warning]
+> この方法は、インストール時にのみライセンスを追加します。ライセンスを更新またはアップグレードするには、ウェブユーザーインターフェースの管理者エリアを使用してください。
 
 GitLabインスタンスのEnterpriseライセンスを保存するためのKubernetesシークレットを作成します。`<name>`をリリース名に置き換えてください。
 
@@ -308,7 +309,8 @@ kubectl create secret generic <name>-postgresql-password \
 
 #### バンドルされているPostgreSQLサブチャートのPostgreSQLパスワードの変更 {#changing-the-postgresql-password-for-the-bundled-postgresql-subchart}
 
-> [!note]バンドルされているPostgreSQLサブチャートは、評価目的でのみ提供されます。本番環境では、[外部PostgreSQLインスタンス](../advanced/external-db/_index.md)を使用してください。
+> [!note]
+> バンドルされているPostgreSQLサブチャートは、評価目的でのみ提供されます。本番環境では、[外部PostgreSQLインスタンス](../advanced/external-db/_index.md)を使用してください。
 
 バンドルされているPostgreSQLサブチャートは、データベースが最初に作成されるときにのみ、シークレットからのパスワードでデータベースを設定します。既存のデータベースのパスワードを変更するには、追加の手順を実行する必要があります。
 
@@ -394,7 +396,8 @@ kubectl create secret generic ldap-main-password --from-literal=password=yourpas
 
 次に、`--set global.appConfig.ldap.servers.main.password.secret=ldap-main-password`を使用してパスワードを設定に注入します。
 
-> [!note] Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
+> [!note]
+> Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
 
 ### SMTPパスワード {#smtp-password}
 
@@ -406,7 +409,8 @@ kubectl create secret generic smtp-password --from-literal=password=yourpassword
 
 次に、`--set global.smtp.password.secret=smtp-password`をHelmコマンドで使用します。
 
-> [!note] Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
+> [!note]
+> Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
 
 ### 受信メール用IMAPパスワード {#imap-password-for-incoming-emails}
 
@@ -420,7 +424,8 @@ kubectl create secret generic incoming-email-password --from-literal="password=a
 
 次に、`--set global.appConfig.incomingEmail.password.secret=incoming-email-password`をHelmコマンドで、[ドキュメント](command-line-options.md#incoming-email-configuration)で指定されている他の必要な設定とともに使用します。
 
-> [!note] Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
+> [!note]
+> Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
 
 ### サービスデスクメール用IMAPパスワード {#imap-password-for-service-desk-emails}
 
@@ -434,7 +439,8 @@ kubectl create secret generic service-desk-email-password --from-literal="passwo
 
 次に、`--set global.appConfig.serviceDeskEmail.password.secret=service-desk-email-password`をHelmコマンドで、[ドキュメント](command-line-options.md#service-desk-email-configuration)で指定されている他の必要な設定とともに使用します。
 
-> [!note] Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
+> [!note]
+> Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
 
 ### GitLab受信メール認証トークン {#gitlab-incoming-email-auth-token}
 
@@ -485,7 +491,8 @@ kubectl create secret generic incoming-email-client-secret --from-literal=secret
 
 次に、`--set global.appConfig.incomingEmail.clientSecret.secret=incoming-email-client-secret`をHelmコマンドで、[ドキュメント](command-line-options.md#incoming-email-configuration)で指定されている他の必要な設定とともに使用します。
 
-> [!note] Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
+> [!note]
+> Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
 
 ### サービスデスクメール用Microsoft Graphクライアントシークレット {#microsoft-graph-client-secret-for-service-desk-emails}
 
@@ -497,7 +504,8 @@ kubectl create secret generic service-desk-email-client-secret --from-literal=se
 
 次に、`--set global.appConfig.serviceDeskEmail.clientSecret.secret=service-desk-email-client-secret`をHelmコマンドで、[ドキュメント](command-line-options.md#service-desk-email-configuration)で指定されている他の必要な設定とともに使用します。
 
-> [!note] Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
+> [!note]
+> Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
 
 ### 送信メール用Microsoft Graphクライアントシークレット {#microsoft-graph-client-secret-for-outgoing-emails}
 
@@ -509,7 +517,8 @@ kubectl create secret generic microsoft-graph-mailer-client-secret --from-litera
 
 次に、`--set global.appConfig.microsoft_graph_mailer.client_secret.secret=microsoft-graph-mailer-client-secret`をHelmコマンドで使用します。
 
-> [!note] Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
+> [!note]
+> Helmプロパティを設定する際は、_実際のパスワード_ではなく`Secret`名を使用してください。
 
 ### S/MIME証明書 {#smime-certificate}
 

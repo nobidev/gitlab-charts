@@ -13,7 +13,8 @@ GitLab Geoは、地理的に分散されたアプリケーションデプロイ�
 
 既知のイシューについては、[Geoのドキュメント](https://docs.gitlab.com/administration/geo/#known-issues)を参照してください。
 
-> [!note] [定義された用語](https://docs.gitlab.com/administration/geo/glossary/)でGeoのすべての側面（主に`site`サイトと`node`ノードの区別）について説明しています。
+> [!note]
+> [定義された用語](https://docs.gitlab.com/administration/geo/glossary/)でGeoのすべての側面（主に`site`サイトと`node`ノードの区別）について説明しています。
 
 ## 要件 {#requirements}
 
@@ -277,7 +278,8 @@ _このセクションは、プライマリサイトのKubernetesクラスター
    helm upgrade --install gitlab-geo gitlab/gitlab --namespace gitlab -f primary.yaml
    ```
 
-   > [!note]これは、`gitlab`ネームスペースを使用していることを前提としています。別のネームスペースを使用する場合は、このドキュメントの残りの部分でも`--namespace gitlab`内のそれを置き換える必要があります。
+   > [!note]
+   > これは、`gitlab`ネームスペースを使用していることを前提としています。別のネームスペースを使用する場合は、このドキュメントの残りの部分でも`--namespace gitlab`内のそれを置き換える必要があります。
 
 1. デプロイが完了し、アプリケーションがオンラインになるまで待ちます。アプリケーションにアクセス可能になったら、ログインします。
 
