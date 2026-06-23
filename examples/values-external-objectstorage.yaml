@@ -38,8 +38,6 @@ global:
     objectStore:
       enabled: true
       bucket: gitlab-pages-storage
-      connection:
-        secret: objectstore-pages
   registry:
     bucket: gitlab-registry-storage
 gitlab:

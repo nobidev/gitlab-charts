@@ -14,10 +14,14 @@ Registry Object Storage:
 
 {{/*
 Ensure Pages object store secret is configured.
+
+Only required when consolidated object storage is disabled. When consolidated
+object storage is enabled, Pages inherits the shared `object_store.connection`,
+so a per-Pages connection is neither needed nor rendered.
 */}}
 {{- define "gitlab.checkConfig.objectStorage.pages.configured" -}}
 {{-   with $.Values.global.pages -}}
-{{-     if and .enabled .objectStore.enabled (empty .objectStore.connection) }}
+{{-     if and .enabled .objectStore.enabled (empty .objectStore.connection) (not $.Values.global.appConfig.object_store.enabled) }}
 Pages Object Storage:
   The chart provides no longer bundled object storage solution. Please
   prepare an external object storage solution for Pages by following
