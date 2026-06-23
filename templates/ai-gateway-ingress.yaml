@@ -1,0 +1,55 @@
+{{- $aiGatewayValues := index .Values "ai-gateway" -}}
+{{- if dig "externalAccess" "enabled" false $aiGatewayValues -}}
+{{- if .Values.global.ingress.enabled -}}
+{{- $hostname := include "ai-gateway.hostname" . -}}
+{{- $tlsSecret := include "gitlab.aiGateway.tlsSecret" . -}}
+{{- $ingressCfg := dict "global" .Values.global.ingress "local" (dig "ingress" (dict) $aiGatewayValues) "context" . -}}
+apiVersion: {{ template "gitlab.ingress.apiVersion" $ingressCfg }}
+kind: Ingress
+metadata:
+  name: {{ template "fullname" . }}-ai-gateway
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+  annotations:
+    {{ include "ingress.class.annotation" $ingressCfg }}
+    kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" $ingressCfg }}"
+    {{- if eq "nginx" .Values.global.ingress.provider }}
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/custom-http-errors: ""
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    {{- end }}
+    {{- include "gitlab.certmanager_annotations" . | nindent 4 }}
+  {{- range $key, $value := merge (dig "ingress" "annotations" (dict) $aiGatewayValues) .Values.global.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+spec:
+  {{ include "ingress.class.field" $ingressCfg }}
+  rules:
+    - host: {{ $hostname }}
+      http:
+        paths:
+          - path: "{{ $.Values.global.ingress.path }}"
+            {{ if or ($.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress") (eq $.Values.global.ingress.apiVersion "networking.k8s.io/v1") -}}
+            pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
+            backend:
+              service:
+                name: {{ template "gitlab.aiGateway.serviceName" . }}
+                port:
+                  number: 443
+            {{- else -}}
+            backend:
+              serviceName: {{ template "gitlab.aiGateway.serviceName" . }}
+              servicePort: 443
+            {{- end }}
+  {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true")) }}
+  tls:
+    - hosts:
+      - {{ $hostname }}
+      secretName: {{ $tlsSecret }}
+  {{- else }}
+  tls: []
+  {{- end }}
+{{- end -}}
+{{- end -}}

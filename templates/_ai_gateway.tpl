@@ -1,4 +1,41 @@
 {{/*
+Returns the AI Gateway hostname.
+Reads ai-gateway.host.name directly (operator-specified FQDN).
+Fails with a clear error if empty when external access is enabled.
+*/}}
+{{- define "ai-gateway.hostname" -}}
+{{- $aiGatewayValues := index .Values "ai-gateway" -}}
+{{- $hostname := dig "host" "name" "" $aiGatewayValues -}}
+{{- if and (empty $hostname) (dig "externalAccess" "enabled" false $aiGatewayValues) -}}
+{{-   fail "ai-gateway.host.name must be set when ai-gateway.externalAccess.enabled is true" -}}
+{{- end -}}
+{{- $hostname -}}
+{{- end -}}
+
+{{/*
+Returns the AI Gateway service name (for use in Ingress/HTTPRoute backends).
+*/}}
+{{- define "gitlab.aiGateway.serviceName" -}}
+{{- include "gitlab.other.fullname" (dict "context" . "chartName" "ai-gateway") -}}
+{{- end -}}
+
+{{/*
+Returns the TLS secret name for the AI Gateway ingress.
+Uses ai-gateway.host.tls.secretName first, then falls back to cert-manager or wildcard self-signed.
+*/}}
+{{- define "gitlab.aiGateway.tlsSecret" -}}
+{{- $aiGatewayValues := index .Values "ai-gateway" -}}
+{{- $localSecretName := dig "host" "tls" "secretName" "" $aiGatewayValues -}}
+{{- if $localSecretName -}}
+{{-   $localSecretName -}}
+{{- else if .Values.global.ingress.configureCertmanager -}}
+{{-   printf "%s-ai-gateway-tls" .Release.Name -}}
+{{- else -}}
+{{-   include "gitlab.wildcard-self-signed-cert-name" . -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Override ai-gateway.gitlab.url helper
 In production mode the AIGW requires the gitlab url to be https for the key exachange to work
 Other it will fail for security reason

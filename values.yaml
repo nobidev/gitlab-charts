@@ -1601,6 +1601,13 @@ ai-gateway:
   install: false
   ingress:
     enabled: false
+  host:
+    name: ""        # Required when externalAccess.enabled. Set to the FQDN, e.g. aigw.example.com
+    https: true
+    tls: {}
+      # secretName:
+  externalAccess:
+    enabled: false  # Set to true to expose AIGW externally for runner direct connections
   init:
     containerSecurityContext: {}
 

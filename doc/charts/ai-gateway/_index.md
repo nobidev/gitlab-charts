@@ -78,7 +78,7 @@ To configure TLS:
 1. Add the issuing certificate to the secrets of your cluster with the following command:
 
    ```shell
-   kubectl create secret tls aigw-tls --cert=<PATH-TO-CERT-FILE> --key=<PATH-TO-KEY-FILE> -n gitlab
+   kubectl create secret tls aigw-tls --cert=<PATH-TO-CERT-FILE> --key=<PATH-TO-KEY-FILE> -n <NAMESPACE>
    ```
 
 1. Add the issuing certificate in the [Custom Certificate Authorities](../globals.md#custom-certificate-authorities).
@@ -117,3 +117,67 @@ Go to your GitLab Duo configuration page and change the following:
 - Enable the **Use TLS for the GitLab Duo Agent Platform service**.
 - If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab
   Duo Agent Platform** features. For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
+
+## Configure external access for GitLab Duo Workflow runners
+
+GitLab Duo Workflow runners connect to the AI Gateway over gRPC from outside the cluster.
+To expose the AI Gateway externally, enable the `externalAccess` option.
+This creates either a Gateway API `HTTPRoute` (when `global.gatewayApi.enabled: true`)
+or a Kubernetes `Ingress` (when `global.ingress.enabled: true`).
+
+### Prerequisites
+
+- Set `ai-gateway.host.name` to the fully qualified domain name (FQDN) for the AI Gateway.
+  This hostname is deployment-specific and is not derived from `global.hosts.domain`.
+- The AI Gateway service listens on port 443 (HTTPS/TLS).
+
+### Configure with Gateway API (Envoy)
+
+Use this configuration when `global.gatewayApi.enabled: true`:
+
+```yaml
+global:
+  hosts:
+    domain: <YOUR_DOMAIN>
+  gatewayApi:
+    enabled: true
+
+ai-gateway:
+  install: true
+  host:
+    name: aigw.example.com   # Required: FQDN for external access
+    tls: {}
+      # secretName: my-aigw-tls  # Optional: custom TLS secret
+  externalAccess:
+    enabled: true
+```
+
+### Configure with Kubernetes Ingress (NGINX)
+
+Use this configuration when `global.ingress.enabled: true`:
+
+```yaml
+global:
+  hosts:
+    domain: <YOUR_DOMAIN>
+  ingress:
+    enabled: true
+    provider: nginx
+
+ai-gateway:
+  install: true
+  host:
+    name: aigw.example.com   # Required: FQDN for external access
+    tls: {}
+      # secretName: my-aigw-tls  # Optional: custom TLS secret
+  externalAccess:
+    enabled: true
+```
+
+### Configuration values
+
+| Value | Description |
+|-------|-------------|
+| `ai-gateway.host.name` | Required when `externalAccess.enabled: true`. The FQDN for the AI Gateway external endpoint, for example `aigw.example.com`. |
+| `ai-gateway.host.tls.secretName` | Optional. Name of the Kubernetes TLS secret for the ingress. Falls back to the cert-manager generated secret or the wildcard self-signed certificate. |
+| `ai-gateway.externalAccess.enabled` | Set to `true` to expose the AI Gateway externally. Defaults to `false`. |
