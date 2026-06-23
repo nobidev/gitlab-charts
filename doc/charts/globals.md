@@ -621,6 +621,33 @@ configurations **are not shared** and needs to be specified for each
 instance that uses Sentinels. Please refer to the [Sentinel configuration](#redis-sentinel-support)
 for the attributes that are used to configure Sentinel servers.
 
+For example, when defining the `cache` instance separately, the `sentinels`
+list must be repeated under that instance. It is **not** inherited from
+`global.redis.sentinels`. Omitting it causes the instance to connect directly
+instead of through Sentinel:
+
+```yaml
+global:
+  redis:
+    host: mymaster
+    sentinels:
+      - host: sentinel1.example.com
+        port: 26379
+      - host: sentinel2.example.com
+        port: 26379
+    cache:
+      host: mymaster
+      sentinels:
+        - host: sentinel1.example.com
+          port: 26379
+        - host: sentinel2.example.com
+          port: 26379
+      auth:
+        enabled: true
+        secret: cache-secret
+        key: cache-password
+```
+
 ### Specify secure Redis scheme (SSL)
 
 To connect to Redis with SSL:
