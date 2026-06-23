@@ -529,7 +529,7 @@ describe 'gitlab-shell configuration' do
     end
   end
 
-  describe 'Topology Service mTLS client' do
+  describe 'Topology Service client' do
     let(:config) { t.dig('ConfigMap/test-gitlab-shell', 'data', 'config.yml.tpl') }
 
     let(:rendered_config) do
@@ -537,7 +537,39 @@ describe 'gitlab-shell configuration' do
       YAML.safe_load(rendered, aliases: true)
     end
 
-    context 'when Cells and topology service TLS are disabled (default)' do
+    # Helper that builds values with the global topology service address
+    # configured, plus the GitLab Shell opt-in toggle and the global Cells
+    # setting. The two are separate concerns: `config.topologyService.enabled`
+    # turns on GitLab Shell's use of the service, while the global Cells setting
+    # (`global.appConfig.cell.enabled`) drives mTLS.
+    def topology_values(shell_enabled:, cell_enabled:)
+      default_values.deep_merge(YAML.safe_load(%(
+        global:
+          appConfig:
+            cell:
+              enabled: #{cell_enabled}
+              id: 1
+              topologyServiceClient:
+                address: "topology-grpc.staging.runway.gitlab.net:443"
+                tls:
+                  secret: cell-1-staging-mtls-cert
+        gitlab:
+          gitlab-shell:
+            config:
+              topologyService:
+                enabled: #{shell_enabled}
+      )))
+    end
+
+    def topology_service_secret_source
+      volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
+      init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
+      init_secrets_volume['projected']['sources'].find do |s|
+        (s.dig('secret', 'items') || []).any? { |i| i['path'].to_s.include?('shell/topology-service') }
+      end
+    end
+
+    context 'when GitLab Shell does not opt in (default)' do
       let(:values) { default_values }
 
       it 'does not render a topology_service block (protects self-managed/GDK)' do
@@ -549,32 +581,32 @@ describe 'gitlab-shell configuration' do
       it 'does not add the topology service secret to the projected volume' do
         expect_successful_exit_code
 
-        volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
-        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
-        ts_source = init_secrets_volume['projected']['sources'].find do |s|
-          s.dig('secret', 'name').to_s.include?('topology-service')
-        end
-        expect(ts_source).to be_nil
+        expect(topology_service_secret_source).to be_nil
       end
     end
 
-    context 'when Cells and topology service TLS are enabled' do
-      let(:values) do
-        default_values.deep_merge(YAML.safe_load(%(
-          global:
-            appConfig:
-              cell:
-                enabled: true
-                id: 1
-                topologyServiceClient:
-                  address: "topology-grpc.staging.runway.gitlab.net:443"
-                  tls:
-                    enabled: true
-                    secret: cell-1-staging-mtls-cert
-        )))
+    # GitLab Shell does not inherit the global setting; the topology service
+    # client must be explicitly enabled via config.topologyService.enabled.
+    context 'when the global topology service is configured but GitLab Shell does not opt in' do
+      let(:values) { topology_values(shell_enabled: false, cell_enabled: true) }
+
+      it 'does not render a topology_service block' do
+        expect_successful_exit_code
+
+        expect(rendered_config).not_to have_key('topology_service')
       end
 
-      it 'renders the topology_service mTLS config' do
+      it 'does not add the topology service secret to the projected volume' do
+        expect_successful_exit_code
+
+        expect(topology_service_secret_source).to be_nil
+      end
+    end
+
+    context 'when GitLab Shell opts in with global Cells enabled' do
+      let(:values) { topology_values(shell_enabled: true, cell_enabled: true) }
+
+      it 'renders the topology_service config with the mTLS section' do
         expect_successful_exit_code
 
         expect(rendered_config['topology_service']).to eq(
@@ -591,12 +623,9 @@ describe 'gitlab-shell configuration' do
       it 'adds the topology service secret to the shell-init-secrets projected volume' do
         expect_successful_exit_code
 
-        volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
-        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
-        ts_source = init_secrets_volume['projected']['sources'].find do |s|
-          s.dig('secret', 'name') == 'cell-1-staging-mtls-cert'
-        end
+        ts_source = topology_service_secret_source
         expect(ts_source).not_to be_nil
+        expect(ts_source['secret']['name']).to eq('cell-1-staging-mtls-cert')
         expect(ts_source['secret']['items']).to contain_exactly(
           { 'key' => 'tls.crt', 'path' => 'shell/topology-service/tls.crt' },
           { 'key' => 'tls.key', 'path' => 'shell/topology-service/tls.key' }
@@ -622,6 +651,52 @@ describe 'gitlab-shell configuration' do
         configure_script = t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure')
         expect(configure_script).to match(%r{cp\s+(-\w+\s+)*-f(\s+-\w+)*\s+/\$\{config_dir\}/shell/topology-service/tls\.crt})
         expect(configure_script).to match(%r{cp\s+(-\w+\s+)*-f(\s+-\w+)*\s+/\$\{config_dir\}/shell/topology-service/tls\.key})
+      end
+    end
+
+    # Separation of concerns: GitLab Shell can use the topology service without
+    # mTLS. The global Cells setting drives mTLS, so when Cells is disabled the
+    # client config omits the tls section and no certs are mounted or copied.
+    context 'when GitLab Shell opts in with global Cells disabled' do
+      let(:values) { topology_values(shell_enabled: true, cell_enabled: false) }
+
+      it 'renders the topology_service config without the mTLS section' do
+        expect_successful_exit_code
+
+        expect(rendered_config['topology_service']).to eq(
+          'enabled' => true,
+          'address' => 'topology-grpc.staging.runway.gitlab.net:443'
+        )
+      end
+
+      it 'does not add the topology service secret to the projected volume' do
+        expect_successful_exit_code
+
+        expect(topology_service_secret_source).to be_nil
+      end
+
+      it 'does not include topology service cert copy commands in the configure script' do
+        expect_successful_exit_code
+
+        configure_script = t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure')
+        expect(configure_script).not_to include('shell/topology-service')
+      end
+    end
+
+    context 'when GitLab Shell opts in without a topology service address' do
+      let(:values) do
+        default_values.deep_merge(YAML.safe_load(%(
+          gitlab:
+            gitlab-shell:
+              config:
+                topologyService:
+                  enabled: true
+        )))
+      end
+
+      it 'fails rendering with a clear error about the missing address' do
+        expect(t.exit_code).not_to eq(0)
+        expect(t.stderr).to include('global.appConfig.cell.topologyServiceClient.address must be set')
       end
     end
   end

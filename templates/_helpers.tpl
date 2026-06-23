@@ -703,12 +703,17 @@ Usage: {{ include "gitlab.topologyService.configureScript" $ | nindent 4 }}
 {{- end -}}
 
 {{/*
-Return whether the Topology Service mTLS client is enabled for GitLab Shell.
-True only when Cells is enabled and the topology service client TLS is enabled.
-Usage: {{ if eq (include "gitlab.gitlab-shell.topologyService.enabled" $) "true" }}
+Return whether the GitLab Shell Topology Service client uses mTLS.
+
+GitLab Shell's use of the Topology Service is controlled directly by
+`config.topologyService.enabled`. mTLS is a separate concern: it is enabled
+only when GitLab Shell opts in AND the global Cells setting is enabled. The
+global Cells configuration owns the mTLS certificates, which are shared with
+the Rails components (webservice/sidekiq/toolbox).
+Usage: {{ if eq (include "gitlab.gitlab-shell.topologyService.tls.enabled" $) "true" }}
 */}}
-{{- define "gitlab.gitlab-shell.topologyService.enabled" -}}
-{{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled -}}
+{{- define "gitlab.gitlab-shell.topologyService.tls.enabled" -}}
+{{- if and $.Values.config.topologyService.enabled $.Values.global.appConfig.cell.enabled -}}
 true
 {{- end -}}
 {{- end -}}
@@ -719,7 +724,7 @@ into the GitLab Shell secrets directory. Mirrors the SSH host key handling.
 Usage: {{ include "gitlab.gitlab-shell.topologyService.configureScript" $ | nindent 4 }}
 */}}
 {{- define "gitlab.gitlab-shell.topologyService.configureScript" -}}
-{{- if eq (include "gitlab.gitlab-shell.topologyService.enabled" $) "true" }}
+{{- if eq (include "gitlab.gitlab-shell.topologyService.tls.enabled" $) "true" }}
 mkdir -p /${secret_dir}/shell/topology-service
 cp -f -v -L /${config_dir}/shell/topology-service/tls.crt /${secret_dir}/shell/topology-service/tls.crt
 cp -f -v -L /${config_dir}/shell/topology-service/tls.key /${secret_dir}/shell/topology-service/tls.key
@@ -734,7 +739,7 @@ GitLab Shell init container. The secret is expected to contain tls.crt and tls.k
 Usage: {{ include "gitlab.gitlab-shell.topologyService.mountSecrets" $ | nindent 12 }}
 */}}
 {{- define "gitlab.gitlab-shell.topologyService.mountSecrets" -}}
-{{- if eq (include "gitlab.gitlab-shell.topologyService.enabled" $) "true" }}
+{{- if eq (include "gitlab.gitlab-shell.topologyService.tls.enabled" $) "true" }}
 - secret:
     name: {{ template "topology-service.tls.secret" $ }}
     items:

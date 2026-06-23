@@ -115,16 +115,20 @@ data:
     pat:
       enabled: {{ .Values.config.pat.enabled }}
       allowed_scopes: {{- .Values.config.pat.allowedScopes | toYaml | nindent 8 }}
-    {{- if eq (include "gitlab.gitlab-shell.topologyService.enabled" $) "true" }}
-    # Topology Service gRPC client (Cells routing). mTLS client cert/key are
-    # mounted from the topology service TLS secret via the configure init script.
+    {{- if .Values.config.topologyService.enabled }}
+    # Topology Service gRPC client (Cells routing). mTLS is a separate concern,
+    # gated by the global topology service TLS setting; when enabled, the client
+    # cert/key are mounted from the topology service TLS secret via the configure
+    # init script.
     topology_service:
       enabled: true
       address: {{ required "global.appConfig.cell.topologyServiceClient.address must be set when topology service is enabled" .Values.global.appConfig.cell.topologyServiceClient.address | quote }}
+      {{- if eq (include "gitlab.gitlab-shell.topologyService.tls.enabled" $) "true" }}
       tls:
         enabled: true
         cert_file: "/etc/gitlab-secrets/shell/topology-service/tls.crt"
         key_file: "/etc/gitlab-secrets/shell/topology-service/tls.key"
+      {{- end }}
     {{- end }}
   krb5.conf: |
     {{- .Values.config.gssapi.krb5Config | nindent 4 }}

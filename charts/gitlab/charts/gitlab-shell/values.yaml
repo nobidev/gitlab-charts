@@ -164,6 +164,15 @@ config:
   pat:
     enabled: true
     allowedScopes: []
+  # Topology Service gRPC client (Cells routing) for GitLab Shell.
+  # This `enabled` flag controls whether GitLab Shell uses the Topology Service.
+  # It must be set explicitly; it does not inherit the global Cells setting.
+  # The Topology Service address is read from
+  # global.appConfig.cell.topologyServiceClient.address. Whether the client uses
+  # mTLS is a separate concern: it is enabled when the global Cells setting
+  # (global.appConfig.cell.enabled) is enabled.
+  topologyService:
+    enabled: false
   # Trusted user CA keys for instance-level SSH certificate authentication (gitlab-sshd only)
   trustedUserCAKeys:
     secret: ""

@@ -171,6 +171,17 @@
           "title": "Personal access token (PAT) related settings",
           "type": "object"
         },
+        "topologyService": {
+          "properties": {
+            "enabled": {
+              "title": "Enable the Topology Service gRPC client (Cells routing) for GitLab Shell",
+              "description": "Must be explicitly enabled for GitLab Shell; it does not inherit the global Cells setting. When true, the global Cells topology service (address and mTLS) must also be configured.",
+              "type": "boolean"
+            }
+          },
+          "title": "Topology Service gRPC client (Cells routing) settings for GitLab Shell",
+          "type": "object"
+        },
         "trustedUserCAKeys": {
           "properties": {
             "secret": {
