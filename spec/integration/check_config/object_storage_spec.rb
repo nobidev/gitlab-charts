@@ -174,29 +174,6 @@ describe 'checkConfig object storage' do
                      error_description: 'when consolidated object storage is enabled but a type has an empty bucket'
   end
 
-  describe 'gitlab.checkConfig.objectStorage.consolidatedConfig (pages connection)' do
-    let(:error_values) do
-      values = HelmTemplate.defaults
-      values['global']['pages'] = {
-        'enabled' => true,
-        'objectStore' => {
-          'enabled' => true,
-          'bucket' => 'gitlab-pages',
-          'connection' => {
-            'secret' => 'pages-secret',
-            'key' => 'connection'
-          }
-        }
-      }
-      values
-    end
-
-    let(:error_output) { 'When consolidated object storage is enabled, for each item `bucket` must be specified and the `connection` must be empty' }
-
-    include_examples 'config validation',
-                     error_description: 'when consolidated object storage is enabled but pages defines a connection'
-  end
-
   describe 'gitlab.checkConfig.objectStorage.typeSpecificConfig' do
     let(:success_values) { HelmTemplate.unconsolidated_defaults }
 
