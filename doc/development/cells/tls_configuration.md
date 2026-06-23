@@ -45,10 +45,11 @@ components that talk to the Topology Service:
       key_file: /etc/gitlab-secrets/shell/topology-service/tls.key
   ```
 
-  GitLab Shell only renders this block when **both** `global.appConfig.cell.enabled`
-  and `global.appConfig.cell.topologyServiceClient.tls.enabled` are `true`. When
-  unset (the default), no `topology_service` config is emitted, so self-managed
-  and GDK deployments are unaffected.
+  GitLab Shell only renders this block when **all** of `gitlab-shell.config.topologyService.enabled`,
+  `global.appConfig.cell.enabled`, and `global.appConfig.cell.topologyServiceClient.tls.enabled`
+  are `true`. The `gitlab-shell.config.topologyService.enabled` flag defaults to `false`, so the
+  Topology Service client must be opted in explicitly for GitLab Shell. When unset (the default),
+  no `topology_service` config is emitted, so self-managed and GDK deployments are unaffected.
 
   > **Certificate rotation:** GitLab Shell loads the client certificate once at
   > startup (no hot-reload). After the mounted certificate is rotated (for

@@ -138,6 +138,8 @@ logging:
 
 config:
   clientAliveInterval: 0
+  topologyService:
+    enabled: false # disabled by default
   loginGraceTime: 60
   maxStartups:
     start: 10

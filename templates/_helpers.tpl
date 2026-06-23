@@ -704,11 +704,12 @@ Usage: {{ include "gitlab.topologyService.configureScript" $ | nindent 4 }}
 
 {{/*
 Return whether the Topology Service mTLS client is enabled for GitLab Shell.
-True only when Cells is enabled and the topology service client TLS is enabled.
+True only when GitLab Shell topology service is explicitly enabled, Cells is
+enabled, and the topology service client TLS is enabled.
 Usage: {{ if eq (include "gitlab.gitlab-shell.topologyService.enabled" $) "true" }}
 */}}
 {{- define "gitlab.gitlab-shell.topologyService.enabled" -}}
-{{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled -}}
+{{- if and $.Values.config.topologyService.enabled $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled -}}
 true
 {{- end -}}
 {{- end -}}

@@ -558,9 +558,48 @@ describe 'gitlab-shell configuration' do
       end
     end
 
+    context 'when Cells and topology service TLS are enabled but GitLab Shell topology service is not explicitly enabled' do
+      let(:values) do
+        default_values.deep_merge(YAML.safe_load(%(
+          global:
+            appConfig:
+              cell:
+                enabled: true
+                id: 1
+                topologyServiceClient:
+                  address: "topology-grpc.staging.runway.gitlab.net:443"
+                  tls:
+                    enabled: true
+                    secret: cell-1-staging-mtls-cert
+        )))
+      end
+
+      it 'does not render a topology_service block (requires explicit opt-in)' do
+        expect_successful_exit_code
+
+        expect(rendered_config).not_to have_key('topology_service')
+      end
+
+      it 'does not add the topology service secret to the projected volume' do
+        expect_successful_exit_code
+
+        volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
+        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
+        ts_source = init_secrets_volume['projected']['sources'].find do |s|
+          s.dig('secret', 'name') == 'cell-1-staging-mtls-cert'
+        end
+        expect(ts_source).to be_nil
+      end
+    end
+
     context 'when Cells and topology service TLS are enabled' do
       let(:values) do
         default_values.deep_merge(YAML.safe_load(%(
+          gitlab:
+            gitlab-shell:
+              config:
+                topologyService:
+                  enabled: true
           global:
             appConfig:
               cell:
