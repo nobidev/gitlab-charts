@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.1.1 (2026-06-23)
+
+### Fixed (1 change)
+
+- [Fix Pages object storage validation under consolidated config](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/d069e0afef34f3c8700b45d37cd2d76dc0701c4d)
+
 ## 10.1.0 (2026-06-17)
 
 ### Added (2 changes)
