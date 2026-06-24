@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.1.1 (2026-06-23)
+
+### Fixed (1 change)
+
+- [Fix Pages object storage validation under consolidated config](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/d069e0afef34f3c8700b45d37cd2d76dc0701c4d)
+
 ## 10.1.0 (2026-06-17)
 
 ### Added (2 changes)
@@ -24,6 +30,12 @@ entry.
 - [Update prometheus to v29.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c51ebff848d1b22e82ee67eb3c4dc5569a5af5e2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5070))
 - [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
 - [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
+
+## 10.0.3 (2026-06-23)
+
+### Fixed (1 change)
+
+- [Fix Pages object storage validation under consolidated config](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/cf0f171906b6348c62c21be2958e6e98ab86f78a)
 
 ## 10.0.2 (2026-06-10)
 
@@ -76,6 +88,10 @@ entry.
 - [Breaking: Remove spamcheck subchart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7dababe2cefe0699131a1ce8d18b3b85c8b99641) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5035))
 - [Breaking: Drop bundled MinIO chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/26820c4955e839d5c3af080307c4006951218bd6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4964))
 - [Breaking: Drop bundled Redis and PostgreSQL charts](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/08560add29dc61dd782ceea0730ff1fdcc40e1da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4950))
+
+## 9.11.7 (2026-06-23)
+
+No changes.
 
 ## 9.11.6 (2026-06-10)
 
