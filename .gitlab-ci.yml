@@ -356,11 +356,17 @@ k3d:
     - !reference [.rule:skip_if_fork]
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
       when: never
-    - if: '$K3D_PRIMARY == "primary" && $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+    # k3d/k3d_arm64 are trigger jobs that spawn child pipelines (.trigger_review_job
+    # re-includes .gitlab-ci.yml). They must never run inside a child
+    # (source=parent_pipeline) or they recurse — bail out early so the rules below
+    # don't each need the guard.
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: never
+    - if: '$K3D_PRIMARY == "primary" && $CI_PIPELINE_SOURCE != "pipeline"'
     - if: '$PIPELINE_TYPE == "NIGHTLY_PIPELINE"'
     - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
     - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
-    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+    - if: '$CI_PIPELINE_SOURCE != "pipeline"'
       when: manual
       allow_failure: true
 
@@ -376,10 +382,14 @@ k3d_arm64:
     - !reference [.rule:skip_if_fork]
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
       when: never
+    # See the k3d job above: these trigger jobs must never run inside a child
+    # pipeline (source=parent_pipeline) or they recurse.
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: never
     - if: '$PIPELINE_TYPE == "NIGHTLY_PIPELINE"'
     - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
     - if: '$CI_PIPELINE_SOURCE == "pipeline" && $TEST_BRANCH == "true"'
-    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+    - if: '$CI_PIPELINE_SOURCE != "pipeline"'
       when: manual
       allow_failure: true
 
