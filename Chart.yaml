@@ -30,7 +30,7 @@ dependencies:
   repository: oci://ghcr.io/prometheus-community/charts
   condition: prometheus.install
 - name: gitlab-runner
-  version: 0.89.1
+  version: 0.90.1
   repository: https://charts.gitlab.io/
   condition: gitlab-runner.install
 - name: nginx-ingress
