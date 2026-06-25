@@ -254,7 +254,7 @@ See [Configure the GitLab chart with an external Redis](../advanced/external-red
 | Parameter                                           | Default                                     | Description |
 |-----------------------------------------------------|---------------------------------------------|-------------|
 | `registry.authEndpoint`                             | Undefined by default                        | Auth endpoint |
-| `registry.enabled`                                  | `true`                                      | Enable Docker registry |
+| `registry.enabled`                                  | `true`                                      | Deploy the bundled Container Registry. This only controls the Registry deployment; the Container Registry integration is controlled by `global.registry.enabled`. |
 | `registry.httpSecret`                               |                                             | Https secret |
 | `registry.service.annotations`                      | `{}`                                        | Annotations to add to the `Service` |
 | `registry.securityContext.fsGroup`                  | `1000`                                      | Group ID under which the pod should be started |
@@ -408,7 +408,7 @@ See [Configure the GitLab chart with an external Redis](../advanced/external-red
 | `gitlab.webservice.psql.password.key`                      | `psql-password`                                                 | Key to PostgreSQL password in PostgreSQL secret |
 | `gitlab.webservice.psql.password.secret`                   | `gitlab-postgres`                                               | PostgreSQL secret name |
 | `gitlab.webservice.psql.port`                              |                                                                 | Set PostgreSQL server port. Takes precedence over `global.psql.port` |
-| `global.registry.enabled`                                  | `true`                                                          | Enable registry. Mirrors `registry.enabled` |
+| `global.registry.enabled`                                  | `true`                                                          | Enable the Container Registry integration used by the GitLab application (for example, when deleting or transferring projects). Set to `false` to fully disable Container Registry features. This is independent of `registry.enabled`, which only controls the bundled Registry deployment. |
 | `global.registry.api.port`                                 | `5000`                                                          | Registry port |
 | `global.registry.api.protocol`                             | `http`                                                          | Registry protocol |
 | `global.registry.api.serviceName`                          | `registry`                                                      | Registry service name |
