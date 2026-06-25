@@ -1,0 +1,34 @@
+# Custom instructions for GitLab Duo Code Review.
+# See https://docs.gitlab.com/user/gitlab_duo/customize_duo/review_instructions/
+instructions:
+  - name: Global values enabling features
+    fileFilters:
+      - "charts/**/templates/**"
+      - "templates/**"
+      - "**/*.tpl"
+    instructions: |
+      Flag any change where a sub-chart starts gating behavior on a `global.*`
+      value. Global values are correct for genuinely shared configuration (TLS
+      secrets, hosts, tokens) but must NOT be the trigger that turns a
+      component's feature on.
+
+      Raise a concern when this merge request:
+      1. Adds a new reference to an existing `global.*` flag (especially
+         `*.enabled`) inside a chart template, conditional, or helper. This
+         widens what that flag does and can silently enable the feature in
+         environments (such as GitLab.com) that already set it for another
+         reason.
+      2. Enables a feature without a local, default-`false` opt-in flag in that
+         chart's `values.yaml`. The local flag must be the source of truth for
+         "is this feature on". Global values may only supply details (an
+         address, mTLS, a shared secret) AFTER the local flag opts in.
+      3. Lacks a regression test proving the feature stays OFF by default even
+         when related `global.*` flags are set to `true`.
+
+      Reference pattern: GitLab Shell's Topology Service client uses
+      `config.topologyService.enabled` (default `false`) and does NOT inherit
+      `global.appConfig.cell.enabled`. See
+      doc/development/cells/tls_configuration.md.
+
+      Ask the author: "If GitLab.com already sets this global value to true,
+      does this change activate the feature there unintentionally?"
