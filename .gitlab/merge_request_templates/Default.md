@@ -20,7 +20,9 @@ For anything in this list which will not be completed, please provide a reason i
 - [ ] MR targeting the appropriate branch.
 - [ ] MR has a green pipeline.
 - [ ] Documentation created/updated.
-- [ ] Tests added/updated, and test plan for scenarios not covered by automated tests.
+- [ ] Tests added/updated.
+- [ ] Have you validated that your change works end-to-end on a real cluster deployment?
+   - Describe how you did it in a comment.
 - [ ] Equivalent MR/issue for [omnibus-gitlab](https://gitlab.com/gitlab-org/omnibus-gitlab) opened.
 
 ## Reviewers checklist
