@@ -101,7 +101,7 @@ to the `helm install` command using the `--set` flags.
 | `keda.triggers`                                               |                                                                 | List of triggers to activate scaling of the target resource, defaults to triggers computed from `hpa.cpu` and `hpa.memory` |
 | `metrics.enabled`                                             | `true`                                                          | If a metrics endpoint should be made available for scraping |
 | `metrics.port`                                                | `8083`                                                          | Metrics endpoint port |
-| `metrics.listenAddr`                                          | `0.0.0.0`                                                       | Metrics listen address. |
+| `metrics.listenAddr`                                          | `null`                                                          | Metrics listen address. Defaults to null which results in binding both IPv4 and IPv6. |
 | `metrics.path`                                                | `/metrics`                                                      | Metrics endpoint path |
 | `metrics.serviceMonitor.enabled`                              | `false`                                                         | If a ServiceMonitor should be created to enable Prometheus Operator to manage the metrics scraping, note that enabling this removes the `prometheus.io` scrape annotations |
 | `metrics.serviceMonitor.additionalLabels`                     | `{}`                                                            | Additional labels to add to the ServiceMonitor |
@@ -110,7 +110,7 @@ to the `helm install` command using the `--set` flags.
 | `metrics.tls.enabled`                                         |                                                                 | TLS enabled for the metrics/web_exporter endpoint. Defaults to `tls.enabled`. |
 | `metrics.tls.secretName`                                      |                                                                 | Secret for the metrics/web_exporter endpoint TLS cert and key. Defaults to `tls.secretName`. |
 | `monitoring.ipWhitelist`                                      | `[0.0.0.0/0, ::/0]`                                             | List of IPs to whitelist for the monitoring endpoints |
-| `monitoring.exporter.listenAddr`                              | `0.0.0.0`                                                       | Metrics listen address. |
+| `monitoring.exporter.listenAddr`                              | `null`                                                          | Metrics listen address. Defaults to null which results in binding both IPv4 and IPv6. |
 | `monitoring.exporter.enabled`                                 | `false`                                                         | Enable webserver to expose Prometheus metrics, this is overridden by `metrics.enabled` if the metrics port is set to the monitoring exporter port |
 | `monitoring.exporter.port`                                    | `8083`                                                          | Port number to use for the metrics exporter |
 | `psql.password.key`                                           | `psql-password`                                                 | Key to psql password in psql secret |
@@ -120,7 +120,7 @@ to the `helm install` command using the `--set` flags.
 | `puma.workerMaxMemory`                                        |                                                                 | The maximum memory (in megabytes) for the Puma worker killer |
 | `puma.threads.min`                                            | `4`                                                             | The minimum amount of Puma threads |
 | `puma.threads.max`                                            | `4`                                                             | The maximum amount of Puma threads |
-| `puma.bindIp6`                                                | `false`                                                         | Bind IPv6 addresses with Puma. Currently defaults to false due to a [known issue](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6084) related to rate limiting. |
+| `puma.bindIp6`                                                | `true`                                                          | Bind IPv6 addresses with Puma. |
 | `rack_attack.git_basic_auth`                                  | `{}`                                                            | See [GitLab documentation](https://docs.gitlab.com/administration/settings/protected_paths/) for details |
 | `global.registry.api.port`                                    | `5000`                                                          | Registry port |
 | `global.registry.api.protocol`                                | `http`                                                          | Registry protocol |

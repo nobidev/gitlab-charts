@@ -355,7 +355,7 @@ describe 'Sidekiq configuration' do
             'sidekiq_exporter' => {
               'enabled' => true,
               'log_enabled' => false,
-              'address' => '*',
+              'address' => nil,
               'port' => 3807
             }
           )
@@ -432,7 +432,7 @@ describe 'Sidekiq configuration' do
           expect(monitoring).to include(
             'sidekiq_health_checks' => {
               'enabled' => true,
-              'address' => '*',
+              'address' => nil,
               'port' => 3808
             }
           )
