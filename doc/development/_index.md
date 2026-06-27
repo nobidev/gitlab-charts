@@ -158,6 +158,9 @@ Note that adding the certificate is more secure than the insecure registry solut
 1. IAM Auth Service configuration (GitLab.com only)
    - IAM Auth Service integration is currently experimental and available only on GitLab.com for testing a pre-release service. This feature is subject to change and should not be used in production environments. For details, see: [IAM Auth Service configuration](iam_auth_service.md)
 
+1. IAM Data Access Service configuration (GitLab.com only)
+   - IAM Data Access Service integration is currently experimental and available only on GitLab.com for testing a pre-release service. This feature is subject to change and should not be used in production environments. For details, see: [IAM Data Access Service configuration](iam_data_access_service.md)
+
 ## Troubleshooting a development environment
 
 Developers may encounter unique issues while working on new chart features.

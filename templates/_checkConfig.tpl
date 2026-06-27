@@ -125,6 +125,10 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.grpc.port" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.iamAuthService.jwtIssuer" .) -}}
 
+{{/* _checkConfig_iam_data_access.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.host" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.port" .) -}}
+
 {{/* other checks */}}
 {{- $messages = append $messages (include "gitlab.checkConfig.sentry" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.gitlab_docs" .) -}}
