@@ -545,6 +545,18 @@ global:
         # secret:
         # key:
 
+    ## IAM Data Access service configuration
+    ## Shared secret for authenticating calls from GitLab Rails to the iam-data-access service.
+    ## Optional for self-managed; GitLab.com enables it via its own deployment values.
+    iamDataAccessService:
+      enabled: false
+      # grpc:
+        # host:
+        # port:
+      # authToken:
+        # secret:
+        # key:
+
     workspaces: {}
 
     ## Configure Database Traffic Capture. This is a Gitlab internal-use experiment.
