@@ -1,7 +1,7 @@
 [tools]
 kubectl = "1.35.3"
 minikube = "1.38.1"
-helm = "4.2.0"
+helm = "4.2.2"
 stern = "1.23.0"
 yq = "4.53.2"
 gomplate = "5.0.0"
