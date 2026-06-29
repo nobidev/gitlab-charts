@@ -1,5 +1,9 @@
 # vim: set filetype=sh:
 
+# Fail fast on errors.
+set -e
+set -o pipefail
+
 namespace={{ .Release.Namespace }}
 release={{ .Release.Name }}
 env={{ index .Values "shared-secrets" "env" }}
