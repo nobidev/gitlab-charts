@@ -306,6 +306,10 @@ No changes.
 - [Add support for Kubernetes 1.35](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c56c1f65688a13b350c7b70600a768ca37255ea4) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4742))
 - [Update dependency container-registry to v4.34.0-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6a38e5c3e8926cd3ee20926e95b6d85123666fed) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4743))
 
+## 9.8.12 (2026-06-29)
+
+No changes.
+
 ## 9.8.11 (2026-05-25)
 
 ### Fixed (1 change)
