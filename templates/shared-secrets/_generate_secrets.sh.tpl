@@ -1,5 +1,9 @@
 # vim: set filetype=sh:
 
+# Fail fast on errors.
+set -e
+set -o pipefail
+
 namespace={{ .Release.Namespace }}
 release={{ .Release.Name }}
 env={{ index .Values "shared-secrets" "env" }}
@@ -213,7 +217,7 @@ generate_secret_if_needed {{ template "gitlab.registry.notificationSecret.secret
 {{ if .Values.global.praefect.enabled -}}
 {{   if not .Values.global.praefect.psql.host -}}
 # Praefect DB password
-generate_secret_if_needed {{ template "gitlab.praefect.dbSecret.secret" . }} --from-literal={{ template "gitlab.praefect.dbSecret.key" . }}=$(gen_random 'a-zA-Z0-9', 32)
+generate_secret_if_needed {{ template "gitlab.praefect.dbSecret.secret" . }} --from-literal={{ template "gitlab.praefect.dbSecret.key" . }}=$(gen_random 'a-zA-Z0-9' 32)
 {{   end }}
 
 # Praefect auth token
