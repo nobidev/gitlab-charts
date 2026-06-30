@@ -333,6 +333,10 @@ specification leaves implementation-defined:
   gRPC and HTTP (including WebSocket) endpoints on the same hostname and port. With the bundled
   Envoy Gateway, the chart sets `useClientProtocol: true` on a `BackendTrafficPolicy`. Other
   providers must forward gRPC as HTTP/2 to the backend while still accepting HTTP/1.1 from clients.
+  The KAS Kubernetes API proxy (`ingress.k8sApiPath`, default `/k8s-proxy`) serves only HTTP/1.1,
+  so the chart exposes it through a separate `HTTPRoute` (`{release}-kas-k8s-proxy`) that the
+  `BackendTrafficPolicy` does not target. This prevents the proxy backend from receiving cleartext
+  HTTP/2 (`h2c`). Other providers must keep this path on HTTP/1.1.
 - **Smartcard mutual TLS** (if `global.appConfig.smartcard.enabled` is `true`). The provider must
   validate client certificates on the smartcard listener and forward the certificate to Workhorse
   in the `X-Forwarded-Client-Cert` header (the bundled Envoy Gateway configures this through a
