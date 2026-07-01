@@ -52,7 +52,7 @@ networkpolicy:
 
 metrics:
   enabled: true
-  listenAddr: "*"
+  listenAddr: null # binds IPv4 and IPv6
   port: 3807
   path: /metrics
   log_enabled: false
@@ -67,7 +67,7 @@ metrics:
     # secretName:
 
 health_checks:
-  listenAddr: "*"
+  listenAddr: null # binds IPv4 and IPv6
   port: 3808
 
 redis:

@@ -33,7 +33,7 @@ monitoring:
   exporter:
     enabled: false
     port: 8083
-    listenAddr: '0.0.0.0'
+    listenAddr: null # binds IPv4 and IPv6
 
 # Shutdown settings
 # Defines an interval to block healthcheck,
@@ -66,7 +66,7 @@ sshHostKeys:
 
 metrics:
   enabled: true
-  listenAddr: '0.0.0.0'
+  listenAddr: null # binds IPv4 and IPv6
   port: 8083
   path: /metrics
   tls: {}
@@ -163,7 +163,7 @@ puma:
     max: 4
   disableWorkerKiller: true
   # workerMaxMemory: 1024 # in MB units
-  bindIp6: false
+  bindIp6: true
   controlPort: 9293
 
 hpa:
