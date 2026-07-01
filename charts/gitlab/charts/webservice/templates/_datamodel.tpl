@@ -81,6 +81,12 @@ gatewayRoute:
     - path:
         type: RegularExpression
         value: ^/.*/ssh-upload-pack$
+    - path:
+        type: RegularExpression
+        value: ^/.*/git-receive-pack$
+    - path:
+        type: RegularExpression
+        value: ^/.*/git-upload-pack$
     timeouts:
       request: 0s
       backendRequest: 0s
