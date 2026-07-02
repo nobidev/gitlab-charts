@@ -1063,6 +1063,12 @@ describe 'Webservice Deployments configuration' do
             - path:
                 type: RegularExpression
                 value: "^/.*/ssh-upload-pack$"
+            - path:
+                type: RegularExpression
+                value: "^/.*/git-receive-pack$"
+            - path:
+                type: RegularExpression
+                value: "^/.*/git-upload-pack$"
             name: default-long-running
             timeouts:
               backendRequest: 0s
@@ -1101,6 +1107,12 @@ describe 'Webservice Deployments configuration' do
                     - path:
                         type: RegularExpression
                         value: "^/.*/ssh-upload-pack$"
+                    - path:
+                        type: RegularExpression
+                        value: "^/.*/git-receive-pack$"
+                    - path:
+                        type: RegularExpression
+                        value: "^/.*/git-upload-pack$"
                     timeouts:
                       request: 0s
                       backendRequest: 0s
