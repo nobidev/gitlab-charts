@@ -16,7 +16,7 @@ dependencies:
   version: 29.9.0
 - name: gitlab-runner
   repository: https://charts.gitlab.io/
-  version: 0.90.0
+  version: 0.90.1
 - name: nginx-ingress
   repository: ""
   version: '*.*.*'
@@ -41,5 +41,5 @@ dependencies:
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   version: 0.14.0
-digest: sha256:3dbf7d1a5a25f54d6e7e2e508e55b988dbd7793924b2d9ad493985e9eb262da9
-generated: "2026-06-24T10:33:16.726691+02:00"
+digest: sha256:9687263b6abd526dd1dfde48b30d07979c0ebe9ecf338fdca4d4bf5fa4a05478
+generated: "2026-06-25T23:18:53.455524168Z"
