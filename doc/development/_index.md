@@ -97,6 +97,7 @@ and then run [GitLab QA](gitlab-qa/_index.md) and other [RSpec tests](rspec.md).
 We run k3d environments for:
 
 1. Each Kubernetes version supported by GitLab chart.
+   - Note: The 1.34 envionment also tests GitLab with the next PostgreSQL major version (18).
 1. One environment to test arm64 deployments.
 1. One environment to test Ingress behavior (instead of Gateway API).
 
