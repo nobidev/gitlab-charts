@@ -381,6 +381,21 @@ PostgreSQL.
    and [object storage](../../advanced/external-object-storage/_index.md) documentation for more
    information.
 
+1. Optional. To migrate GitLab Pages, add the following configuration under global.
+   Pages is disabled by default. Add this only if your installation uses GitLab Pages.
+
+   ```yaml
+   global:
+     pages:
+       enabled: true
+       objectStore:
+         enabled: true
+         bucket: gitlab-pages
+         connection:
+           secret: gitlab-object-storage
+           key: config
+   ```
+
 1. If you are migrating PostgreSQL, upgrade your GitLab instance with migrations disabled:
 
    ```shell
