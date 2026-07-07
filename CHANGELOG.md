@@ -2,6 +2,16 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.1.2 (2026-07-07)
+
+### Fixed (1 change)
+
+- [fix: add HTTP git paths to long-running HTTPRoute](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/618c725118f4c7127151d139c35712bc1a6c289a)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.90.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/036606cac1f8e0017cdef0a4cde894ddef37d9ab)
+
 ## 10.1.1 (2026-06-23)
 
 ### Fixed (1 change)
