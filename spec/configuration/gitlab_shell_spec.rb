@@ -539,9 +539,9 @@ describe 'gitlab-shell configuration' do
 
     let(:rendered_config_text) { RuntimeTemplate.gomplate(raw_template: config) }
 
-    def topology_values(shell_enabled:, cell_enabled:, cell_endpoint: { 'scheme' => 'https', 'port' => 8181 })
+    def topology_values(shell_enabled:, cell_enabled:, cell_endpoint: :default)
       topology_service = { 'enabled' => shell_enabled }
-      topology_service['cellEndpoint'] = cell_endpoint unless cell_endpoint.nil?
+      topology_service['cellEndpoint'] = cell_endpoint unless cell_endpoint == :default
 
       default_values.deep_merge(
         {
@@ -611,7 +611,7 @@ describe 'gitlab-shell configuration' do
     context 'when GitLab Shell opts in with global Cells enabled' do
       let(:values) { topology_values(shell_enabled: true, cell_enabled: true) }
 
-      it 'renders the topology_service config with the mTLS section', :aggregate_failures do
+      it 'renders the topology_service config with the mTLS section and default cell endpoint', :aggregate_failures do
         expect_successful_exit_code
 
         expect(rendered_config['topology_service']).to eq(
@@ -630,6 +630,28 @@ describe 'gitlab-shell configuration' do
         expect(rendered_config['topology_service']['cell_endpoint']['port']).to be_an(Integer)
         expect(rendered_config_text).to match(/scheme: "https"/)
         expect(rendered_config_text).to match(/port: 8181\b/)
+      end
+
+      context 'with a custom cell endpoint' do
+        let(:values) do
+          topology_values(
+            shell_enabled: true,
+            cell_enabled: true,
+            cell_endpoint: { 'scheme' => 'http', 'port' => 8182 }
+          )
+        end
+
+        it 'renders the custom cell endpoint', :aggregate_failures do
+          expect_successful_exit_code
+
+          expect(rendered_config['topology_service']['cell_endpoint']).to eq(
+            'scheme' => 'http',
+            'port' => 8182
+          )
+          expect(rendered_config['topology_service']['cell_endpoint']['port']).to be_an(Integer)
+          expect(rendered_config_text).to match(/scheme: "http"/)
+          expect(rendered_config_text).to match(/port: 8182\b/)
+        end
       end
 
       it 'adds the topology service secret to the shell-init-secrets projected volume' do
@@ -720,8 +742,8 @@ describe 'gitlab-shell configuration' do
       end
     end
 
-    context 'when GitLab Shell opts in without a cell_endpoint' do
-      context 'with a missing scheme' do
+    context 'when GitLab Shell opts in with an invalid cell endpoint' do
+      context 'with an explicit null scheme' do
         using RSpec::Parameterized::TableSyntax
 
         where(:cell_enabled, :expected_error) do
@@ -734,18 +756,18 @@ describe 'gitlab-shell configuration' do
             topology_values(
               shell_enabled: true,
               cell_enabled: cell_enabled,
-              cell_endpoint: { 'port' => 8181 }
+              cell_endpoint: { 'scheme' => nil, 'port' => 8181 }
             )
           end
 
-          it 'fails rendering with a clear error about the missing scheme', :aggregate_failures do
+          it 'fails rendering with a clear error about the null scheme', :aggregate_failures do
             expect(t.exit_code).not_to eq(0)
             expect(t.stderr).to include(expected_error)
           end
         end
       end
 
-      context 'with a missing port' do
+      context 'with an explicit null port' do
         using RSpec::Parameterized::TableSyntax
 
         where(:cell_enabled, :expected_error) do
@@ -758,11 +780,11 @@ describe 'gitlab-shell configuration' do
             topology_values(
               shell_enabled: true,
               cell_enabled: cell_enabled,
-              cell_endpoint: { 'scheme' => 'https' }
+              cell_endpoint: { 'scheme' => 'https', 'port' => nil }
             )
           end
 
-          it 'fails rendering with a clear error about the missing port', :aggregate_failures do
+          it 'fails rendering with a clear error about the null port', :aggregate_failures do
             expect(t.exit_code).not_to eq(0)
             expect(t.stderr).to include(expected_error)
           end

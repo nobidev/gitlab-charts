@@ -182,13 +182,13 @@
               "properties": {
                 "scheme": {
                   "title": "URL scheme for resolved cell internal API requests",
-                  "description": "http or https. Required when topologyService.enabled is true.",
+                  "description": "Defaults to https. Use http or https.",
                   "type": ["string", "null"],
                   "enum": ["http", "https", null]
                 },
                 "port": {
                   "title": "Internal API port for resolved cell requests",
-                  "description": "Always overrides any port returned by the Topology Service. Required when topologyService.enabled is true.",
+                  "description": "Defaults to 8181. Always overrides any port returned by the Topology Service.",
                   "type": ["integer", "null"],
                   "minimum": 1,
                   "maximum": 65535

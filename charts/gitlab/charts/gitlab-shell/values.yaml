@@ -174,16 +174,14 @@ config:
   topologyService:
     enabled: false
     # cellEndpoint describes how GitLab Shell reaches the cell internal API
-    # resolved by the Topology Service. Both fields are REQUIRED when
-    # topologyService.enabled is true; rendering fails otherwise. The port
-    # always overrides any port returned by the Topology Service.
+    # resolved by the Topology Service. Defaults match CellsDev and CellsProd.
+    # Override these values if a deployment uses a different internal API
+    # endpoint. The port always overrides any port returned by the Topology Service.
     cellEndpoint:
       # URL scheme for resolved cell internal API requests: http or https
-      # scheme: "https"
-      scheme:
-      # Internal API port (e.g. 8181)
-      # port: 8181
-      port:
+      scheme: "https"
+      # Internal API port
+      port: 8181
   # Trusted user CA keys for instance-level SSH certificate authentication (gitlab-sshd only)
   trustedUserCAKeys:
     secret: ""
