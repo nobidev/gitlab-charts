@@ -177,6 +177,25 @@
               "title": "Enable the Topology Service gRPC client (Cells routing) for GitLab Shell",
               "description": "Must be explicitly enabled for GitLab Shell; it does not inherit the global Cells setting. When true, the global Cells topology service (address and mTLS) must also be configured.",
               "type": "boolean"
+            },
+            "cellEndpoint": {
+              "properties": {
+                "scheme": {
+                  "title": "URL scheme for resolved cell internal API requests",
+                  "description": "http or https. Required when topologyService.enabled is true.",
+                  "type": ["string", "null"],
+                  "enum": ["http", "https", null]
+                },
+                "port": {
+                  "title": "Internal API port for resolved cell requests",
+                  "description": "Always overrides any port returned by the Topology Service. Required when topologyService.enabled is true.",
+                  "type": ["integer", "null"],
+                  "minimum": 1,
+                  "maximum": 65535
+                }
+              },
+              "title": "Cell internal API endpoint used with the Topology Service",
+              "type": "object"
             }
           },
           "title": "Topology Service gRPC client (Cells routing) settings for GitLab Shell",

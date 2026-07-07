@@ -44,6 +44,11 @@ components that talk to the Topology Service:
     the `tls` section and the mTLS cert/key are mounted and copied. When
     `global.appConfig.cell.enabled` is `false`, the `tls` section is omitted
     and no certs are mounted.
+  - `config.topologyService.cellEndpoint.scheme` and
+    `config.topologyService.cellEndpoint.port` are required when
+    `config.topologyService.enabled` is `true`. The port always overrides any
+    port returned by the Topology Service. For more information, see
+    [GitLab Shell merge request 1505](https://gitlab.com/gitlab-org/gitlab-shell/-/merge_requests/1505).
 
   Example with mTLS enabled (`global.appConfig.cell.enabled: true`):
 
@@ -55,6 +60,9 @@ components that talk to the Topology Service:
       enabled: true
       cert_file: /etc/gitlab-secrets/shell/topology-service/tls.crt
       key_file: /etc/gitlab-secrets/shell/topology-service/tls.key
+    cell_endpoint:
+      scheme: https   # http | https
+      port: 8181      # internal API port
   ```
 
   Example without mTLS (`global.appConfig.cell.enabled: false`):
@@ -63,6 +71,9 @@ components that talk to the Topology Service:
   topology_service:
     enabled: true
     address: <topologyServiceClient.address>
+    cell_endpoint:
+      scheme: https   # http | https
+      port: 8181      # internal API port
   ```
 
   When `config.topologyService.enabled` is `false` (the default), no
