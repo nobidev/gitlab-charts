@@ -41,6 +41,12 @@ entry.
 - [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
 - [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
 
+## 10.0.4 (2026-07-07)
+
+### Fixed (1 change)
+
+- [fix: add HTTP git paths to long-running HTTPRoute](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/bc35dde02943ad434ca49aa9515dacc5a1722a9b)
+
 ## 10.0.3 (2026-06-23)
 
 ### Fixed (1 change)
