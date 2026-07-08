@@ -1,0 +1,30 @@
+# GitLab Duo Agent Platform execution config.
+# https://docs.gitlab.com/user/duo_agent_platform/flows/execution/
+#
+# Runs flows for this project inside our own duo-workflow-sandbox image (which
+# ships mise), pre-installs the repo's mise toolset, and caches it between runs.
+# NOTE: this file is only read from the default branch.
+image: registry.gitlab.com/gitlab-com/gl-infra/common-ci-tasks-images/duo-workflow-sandbox:latest
+
+setup_script:
+  # Keep mise's data + cache inside the project dir so the `cache:` block below
+  # can capture them (caching only reliably covers paths under the project dir).
+  - export MISE_DATA_DIR="${CI_PROJECT_DIR}/.cache/mise/data"
+  - export MISE_CACHE_DIR="${CI_PROJECT_DIR}/.cache/mise/cache"
+  - mise trust --yes
+  - mise install --yes
+
+cache:
+  # Re-use installed tools as long as the version pins are unchanged.
+  key:
+    files:
+      - .tool-versions
+      - .mise.toml
+  paths:
+    - .cache/mise/data
+    - .cache/mise/cache
+
+network_policy:
+  # Allow the Sandbox Runtime's recommended allowlist (GitLab, package
+  # registries, etc.) so flows can reach the services they normally need.
+  include_recommended_allowed: true

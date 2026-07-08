@@ -1,0 +1,273 @@
+# GitLab Duo Code Review Instructions
+#
+# This file provides instructions for GitLab Duo Code Review to focus on higher-order code quality
+# concerns that cannot be easily verified by automated linters.
+#
+# IMPORTANT: This file is NOT intended to reimplement checks that are already performed by the
+# various linters managed by common-ci-tasks (such as golangci-lint, rubocop, shellcheck, tflint,
+# yamllint, etc.). Those linters handle syntax, formatting, and basic style issues.
+#
+# Instead, these instructions focus on:
+# - Architectural and design patterns
+# - Code organization and structure
+# - Security best practices
+# - Documentation quality
+# - Higher-level style concerns that require human judgment
+#
+# Wherever possible, instructions reference official GitLab Style Guide documents or other
+# authoritative resources to provide context and rationale for the guidelines.
+#
+instructions:
+  - name: helm-chart-review
+    fileFilters:
+      - "chart/**/*.yaml"
+      - "chart/**/*.tpl"
+    instructions: |
+      When reviewing Helm charts, check for:
+
+      Note: YAML syntax is validated by yamllint, and security issues by Checkov (configured in `.checkov.yaml`).
+      Focus on chart design, security issues, and Kubernetes best practices.
+
+      **Chart Structure:**
+      1. **Template validation**: Verify templates render correctly with default values
+      2. **Values schema**: Ensure all template variables have corresponding entries in values.yaml
+      3. **Values schema JSON**: Use a [values.schema.json](https://helm.sh/docs/topics/charts/#schema-files) file to validate values.yaml structure and types; this provides automatic validation and improves user experience
+      4. **Chart.yaml completeness**: Ensure Chart.yaml contains accurate version, description, and dependencies
+
+      **Kubernetes Best Practices:**
+      5. **Resource naming**: Use consistent naming patterns with .Release.Name and .Chart.Name helpers
+      6. **Labels and annotations**: Apply standard Kubernetes labels (app.kubernetes.io/*)
+      7. **Security**: Set appropriate securityContext, avoid privileged containers unless necessary
+      8. **Resource limits**: Define reasonable resource requests and limits for all containers
+      9. **Conditionals**: Use proper Helm conditionals for optional features
+
+  - name: helm-tests-review
+    fileFilters:
+      - "chart/tests/**/*.yaml"
+    instructions: |
+      When reviewing Helm tests, check for:
+      1. **Test coverage**: Verify tests cover important chart functionality and variations
+      2. **helmunit syntax**: Ensure tests follow proper helmunit framework syntax
+      3. **Assertions**: Include meaningful assertions that validate rendered output
+
+  - name: helm-explicit-feature-gates
+    fileFilters:
+      - "Chart.yaml"
+      - "values.yaml"
+      - "values.schema.json"
+      - "templates/**/*.yaml"
+      - "templates/**/*.tpl"
+      - "**/Chart.yaml"
+      - "**/values.yaml"
+      - "**/values.schema.json"
+      - "**/templates/**/*.yaml"
+      - "**/templates/**/*.tpl"
+    instructions: |
+      1. Review any new or changed Helm switch for implicit enablement paths. Flag cases where a feature becomes active because another setting is present, instead of because a dedicated on/off value was set explicitly.
+      2. Prefer a single explicit boolean such as `<feature>.enabled` to control activation. Other values like hosts, secrets, certificates, endpoints, or global settings should configure the feature only after that explicit gate is enabled.
+      3. In helper and template logic, pay special attention to `default`, `or`, `coalesce`, `ternary`, `hasKey`, `empty`, and similar presence-based checks. Call out any path where "not explicitly false" effectively becomes "enabled".
+      4. If backward compatibility requires inferred behavior, ask for the MR to document the exact enablement conditions, the default behavior, and why an explicit gate could not be used.
+      5. When a feature is safety-sensitive, security-relevant, or not yet production-proven, prefer fail-closed defaults: disabled unless the dedicated enable flag is set.
+      6. When explaining why this matters, you may reference https://gitlab.com/gitlab-com/gl-infra/production/-/work_items/22364 as an example of a multi-hour S1 incident caused due to double-latch defaults with difficult-to-reason-about behaviours.
+
+
+  - name: shell-script-review
+    fileFilters:
+      - "**/*.sh"
+      - "**/*.bash"
+      - "scripts/**/*"
+      - "bin/**/*"
+    instructions: |
+      When reviewing shell scripts, follow the
+      [Shell Style Guide](https://gitlab.com/gitlab-com/gl-infra/gitlab-dedicated/team/-/blob/main/engineering/styleguides/shell.md) and check for:
+
+      Note: Formatting is handled by `shfmt --simplify --indent 2`, and linting by shellcheck.
+      Focus on script architecture, security and design.
+
+      **Shell Selection and Structure:**
+      1. **Use bash or POSIX shell only**: Use Bourne-Again Shell (`bash`) or POSIX Shell (`/bin/sh`) only; avoid other shells
+      2. **Bash version 5+**: Require bash version 5 or higher (MacOS ships with bash 3 which is insufficient)
+      3. **Correct shebang for bash**: Use `#!/usr/bin/env bash` for bash scripts (not `#!/bin/bash`) to support MacOS compatibility
+      4. **Correct shebang for POSIX**: Use `#!/bin/sh` for POSIX shell scripts
+      5. **Scripts should be executable**: Scripts should be set to executable and run with `./script.sh`
+
+      **Strict Mode:**
+      6. **Bash strict mode**: All bash scripts must include strict mode at the top: `set -euo pipefail` and `IFS=$'\n\t'`
+      7. **POSIX shell strict mode**: POSIX shell scripts should use: `set -o errexit`, `set -o nounset`, and `IFS=$(printf '\n\t')`
+
+      **Program Structure:**
+      8. **Follow recommended structure**: Scripts should follow this order: header, descriptive comment, strict mode, `main()` function, `err()` logging function, other functions, `main "$@"` invocation
+      9. **Main function at top**: Place `main()` function declaration early so maintainers can quickly review program flow
+      10. **Use err() function**: Include an `err()` function for timestamped stderr logging
+
+      **File Organization and Size:**
+      11. **Scripts exceeding 100 lines are a code smell**: If a script exceeds 100 lines, consider moving functionality to a more appropriate tool (like Jsonnet or a dedicated application)
+      12. **bin/ vs scripts/ convention**: Runtime binaries go in `bin/`, development/build tooling goes in `scripts/`
+      13. **Use .sh extension**: Favour `.sh` extension on shell scripts (exception: `bin/` scripts referenced externally may omit extension)
+
+      **Conditionals and Syntax:**
+      14. **Use [[ ]] in bash**: Always use `[[ ]]` for test conditionals in bash scripts (never use `[ ]` in bash)
+      15. **Use [ ] in POSIX shell**: Use `[ ]` for conditionals in POSIX shell scripts
+      16. **Avoid subshells in while loops**: Use process substitution `while read -r line; do ...; done < <(command)` instead of piping to while
+
+      **Best Practices:**
+      17. **Favour long-form arguments**: Use `--long-form` arguments over `-short` form for self-documenting code when both are available cross-platform
+      18. **Consider using exec**: For wrapper scripts, use `exec` to replace the shell process with the target program (more resource-efficient)
+
+  - name: gitlab-ci-review
+    fileFilters:
+      - ".gitlab-ci.yml"
+      - ".gitlab-ci*.yml"
+      - "**/.gitlab-ci*.yml"
+      - ".gitlab/ci/**"
+    instructions: |
+      When reviewing GitLab CI/CD configuration, follow the
+      [GitLab CI Style Guide](https://gitlab.com/gitlab-com/gl-infra/gitlab-dedicated/team/-/blob/main/engineering/styleguides/gitlab-ci.md) and check for:
+
+      Note: YAML syntax and formatting are validated by yamllint. Focus on CI/CD design patterns.
+
+      **Job Sequencing and Structure:**
+      1. **Prefer DAG over stages**: Favour Directed Acyclic Graph (DAG) approach using `needs:` over stage-by-stage sequencing for faster pipelines and quicker feedback
+      2. **Avoid YAML anchors**: Use `extends:` instead of YAML anchors; when `!reference` is unavoidable, only reference anchors in the local file
+      3. **Avoid being too DRY**: Watch for signs of over-abstraction (4+ extends clauses, chains >4 levels deep, jobs overriding most base properties, order-dependent extends)
+      4. **Keep base jobs local**: Where possible, define base jobs in the same file as the jobs that use them
+
+      **File Organization:**
+      5. **Keep additional configs in `.gitlab/ci/`**: Avoid storing job definition CI configs in root (except variable-only files like `.gitlab-ci-asdf-versions.yml`)
+      6. **Break up large configs**: Group jobs together by stage or common factor; avoid CI YAML files exceeding 500 lines
+      7. **Use `include:rules`**: For groups of jobs sharing common conditional logic, extract to separate file and use `include:rules`
+      8. **Extract complex scripts**: Move complex scripts from YAML into `scripts/*.sh` files for better linting, reusability, and reduced complexity
+
+      **Best Practices:**
+      9. **Use `rules:` not `only:/except:`**: Migrate to `rules:` syntax; consider `workflow:rules` for streamlined definitions
+      10. **Favour `parallel:matrix`**: Use `parallel:matrix` over repeated job declarations when possible
+      11. **Job naming**: Keep first 14 characters distinctive (GitLab UI crops longer names); use consistent word separators
+      12. **Stage names**: Use default stage names from common-ci-tasks; avoid overriding unless necessary for backwards compatibility
+      13. **Component versions**: Verify component includes use specific version tags (e.g., @v3.3) not latest
+      14. **Secret handling**: Ensure CI/CD variables containing secrets are masked and protected
+      15. **CI Components**: Rely on common templates in [`common-ci-tasks`](https://gitlab.com/gitlab-com/gl-infra/common-ci-tasks) and avoid reimplementing common tasks
+
+  - name: markdown-review
+    fileFilters:
+      - "**/*.md"
+    instructions: |
+      When reviewing Markdown files, follow the
+      [GitLab Documentation Style Guide](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/documentation/styleguide/_index.md) and
+      [GitLab Brand Voice](https://gitlab.com/gitlab-org/gitlab-services/design.gitlab.com/-/blob/main/contents/brand-messaging/brand-voice.md) and check for:
+
+      Note: Markdown syntax and formatting are validated by markdownlint. Focus on content quality, voice, and documentation structure.
+
+      **Writing Style:**
+      1. **GitLab voice**: Write conversationally but briefly, friendly but succinctly; be concise, direct, and precise
+      2. **Active voice**: Use active voice instead of passive (e.g., "The developer writes code" not "Code is written")
+      3. **Customer perspective**: Focus on user benefits; use "you" and speak directly to users; avoid "allows" and "enables"
+      4. **Building trust**: Avoid "easily" or "simply"; focus on facts and specific, achievable goals
+      5. **Avoid self-referential writing**: Don't use "This page shows..." or "This guide explains..."; get to the point
+      6. **Docs-first methodology**: Documentation is the single source of truth; link to existing docs rather than rephrasing
+
+      **Writing for Localization:**
+      7. **Avoid "there is/are"**: Use clear subjects instead of hiding them with "there is/are"
+      8. **Avoid ambiguous "it"**: Be specific about what you're referring to; don't use "it" ambiguously
+      9. **Avoid -ing words**: Use simple verb forms instead of gerunds when possible
+      10. **No Latin abbreviations**: Use "for example" or "that is" instead of "e.g." or "i.e."
+      11. **No culture-specific references**: Avoid idioms like "kill two birds with one stone"
+
+      **Document Structure:**
+      12. **Single H1 in front matter**: Document title goes in `title` front matter attribute; do not add H1 (`#`) in Markdown
+      13. **Heading hierarchy**: Use H2-H5 only; don't skip levels (H2 → H3 → H4); avoid headings beyond H5
+      14. **Line structure**: Split long lines at ~100 characters (except links); start each sentence on new line
+
+      **Capitalization and Naming:**
+      15. **Topic titles**: Use sentence case (e.g., "Use variables to configure pipelines")
+      16. **Feature names**: Use lowercase unless proper names in word list
+      17. **UI text**: Match UI capitalization; if all uppercase in UI, use sentence case in docs
+      18. **No possessives for proper nouns**: Use "the Docker CLI" not "Docker's CLI"
+
+      **Text and Punctuation:**
+      19. **Numbers**: Spell out zero through nine; use numerals for 10+
+      20. **Contractions encouraged**: Use contractions for friendly tone, but not with proper nouns, for emphasis, in reference docs, or error messages
+      21. **Oxford comma**: Use serial commas before final "and"/"or"
+      22. **One space between sentences**: Never use two spaces
+      23. **Placeholder text**: Use `<` and `>` for placeholders (e.g., `<your_access_token>`)
+
+      **Fake Data:**
+      24. **Fake user info**: Use diverse names (Sidney Jones, Zhang Wei); emails end in `example.com`
+      25. **Fake URLs**: Use `example.com` or `gitlab.example.com` for Self-Managed
+      26. **Fake tokens**: Use standard placeholders like `<your_access_token>`
+
+      **Links:**
+      27. **Inline links**: Use inline links, not reference links; put entire link on single line
+      28. **Descriptive link text**: Use "For more information, see [link text](link.md)"; avoid "here" or "click here"
+      29. **Relative paths**: Use relative file paths for same-repository links
+      30. **Limit links**: Don't duplicate links on same page; try not to exceed 15 links per page
+
+      **GitLab Brand Voice - Visionary:**
+      31. **Share expertise with value**: Present technical content as inspirational and sophisticated, not arrogant or inaccessible
+      32. **Provide data and examples**: Give clear examples and data; ensure recommendations are accurate and provable
+      33. **Innovative but practical**: Present innovative solutions that are helpful and actionable, not impractical
+
+      **GitLab Brand Voice - Empathetic:**
+      34. **Meet readers where they are**: Don't assume prior knowledge; explain without patronizing
+      35. **Be inclusive**: Use inclusive language; be thoughtful and collaborative
+      36. **Approachable tone**: Write collaboratively and approachably without being overeager
+
+      **GitLab Brand Voice - Intentional:**
+      37. **Use plain language**: Be clear, focused, and transparent; be honest about limitations
+      38. **Give needed information**: Provide information readers need without being pushy or rigid
+      39. **Reliable and transparent**: Communicate reliably and transparently without being reckless
+
+      **Special Considerations:**
+      40. **README.md**: Should include project description, installation, usage, and contribution guidelines
+      41. **Keep docs updated**: When code changes, update corresponding documentation
+
+  - name: dependency-management
+    fileFilters:
+      - "Gemfile"
+      - "go.mod"
+      - "requirements.txt"
+      - "package.json"
+      - "renovate.json"
+      - "pyproject.toml"
+      - "jsonnetfile.json"
+    instructions: |
+      When reviewing dependency changes, check for:
+      1. **Version pinning**: Dependencies should have appropriate version constraints (not overly loose)
+      2. **Security updates**: Verify security updates are applied promptly
+      3. **Breaking changes**: Check changelogs for breaking changes in dependency updates
+      4. **Licensing**: Ensure new dependencies have compatible licenses
+      5. **Necessity**: Verify new dependencies are truly needed and not adding unnecessary bloat
+
+  - name: mise-en-place
+    fileFilters:
+      - ".tool-versions"
+      - ".mise.toml"
+      - ".gitlab-ci-asdf-versions.yml"
+    instructions: |
+      When reviewing mise/asdf configuration, check for:
+      1. **Configuration separation**: Use .mise.toml for plugin repositories, registries and mise-specific configuration; use .tool-versions for dependency versions
+      2. **CI synchronization**: Ensure .gitlab-ci-asdf-versions.yml is generated from .tool-versions using scripts/update-asdf-version-variables.sh
+      3. **Version consistency**: Verify .tool-versions and CI dependency versions are synced
+
+  - name: Copier Managed Files
+    fileFilters:
+      - "scripts/prepare-dev-env.sh"
+      - "scripts/update-asdf-version-variables.sh"
+      - ".gitlab/duo/mr-review-instructions.yaml"
+      - ".pre-commit-config.yaml"
+      - "renovate.json"
+    instructions: |
+      These files are managed using the [common-template-copier](https://gitlab.com/gitlab-com/gl-infra/common-template-copier)
+      template for [Copier](https://copier.readthedocs.io/).
+
+      Changes to the template will automatically be applied to these files. Making project-local changes can lead to
+      conflicts in this process. Please consider making the change upstream in the common-template-copier project,
+      if the change is of a global nature, as all projects using the template could benefit.
+      If the change is not global, consider adding your deltas to the end of the file, if that's
+      possible.
+
+####################################################################
+#   🌊✨ PLEASE ADD PROJECT SPECIFIC RULES BELOW THIS LINE ✨🌊   #
+#   Note, that you can add filters by adding instructions with     #
+#   the same fileFilters as above. Doing this allows these         #
+#   instructions to be updated through the copier template         #
+####################################################################
