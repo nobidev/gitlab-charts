@@ -1,0 +1,24 @@
+{
+  "branches": [
+    {
+      "name": "+([0-9])-+([0-9])-stable",
+      "range": "${name.replace(/^(\\d+)-(\\d+)-stable$/, '$1.$2.x')}"
+    },
+    "main"
+  ],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits"
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits"
+      }
+    ],
+    "@semantic-release/gitlab"
+  ]
+}

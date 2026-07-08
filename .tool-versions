@@ -1,0 +1,7 @@
+# Note: Install plugins by running `mise install`
+helm 4.2.2 # datasource=github-releases depName=helm/helm
+pre-commit 4.6.0 # datasource=github-releases depName=pre-commit/pre-commit
+python system
+ruby 4.0.5 # datasource=ruby-version depName=ruby/ruby
+shellcheck 0.11.0 # datasource=docker depName=registry.gitlab.com/gitlab-com/gl-infra/common-ci-tasks-images/shellcheck
+shfmt 3.13.1 # datasource=docker depName=registry.gitlab.com/gitlab-com/gl-infra/common-ci-tasks-images/shfmt

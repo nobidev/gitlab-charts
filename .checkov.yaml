@@ -1,0 +1,11 @@
+directory:
+  - "chart/"
+evaluate-variables: true
+framework: all
+skip-path:
+skip-framework:
+  - cloudformation
+  - gitlab_configuration
+skip-check:
+  - CKV_GITLABCI_2  # "Avoid creating rules that generate double pipelines"
+quiet: true

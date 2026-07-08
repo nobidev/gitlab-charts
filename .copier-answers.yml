@@ -1,0 +1,21 @@
+# This project was initially generated with
+# https://gitlab.com/gitlab-com/gl-infra/common-template-copier
+# See the project for instructions on how to update the project
+#
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v1.61.0
+_src_path: https://gitlab.com/gitlab-com/gl-infra/common-template-copier.git
+ee_licensed: false
+gitlab_namespace: gitlab-org/charts
+golang: false
+helm: true
+initial_codeowners: '@gitlab-org/maintainers/helm-charts-gitlab'
+jsonnet: false
+measure_performance: false
+project_name: gitlab
+release_platform: false
+ruby: true
+rubygem: false
+rust: false
+terraform: false
+truncated_tags: false

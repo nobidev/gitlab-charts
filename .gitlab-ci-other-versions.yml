@@ -1,0 +1,6 @@
+# This file should contain dependency versions not managed directly by mise
+# Use Renovate annotation comments to manage dependencies. Renovate is configured
+# to read this file automatically.
+
+variables:
+  GL_ASDF_CHECKOV_VERSION: 3.2.440  # datasource=github-releases depName=bridgecrewio/checkov
