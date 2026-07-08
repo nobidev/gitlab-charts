@@ -1,0 +1,211 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// GeoLogcursorValues is the top-level schema for the geo-logcursor sub-chart values.
+message GeoLogcursorValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image configuration.
+  GeoLogcursorImage image = 1;
+
+  // Init container configuration.
+  GeoLogcursorInit init = 2;
+
+  // Whether the geo-logcursor sub-chart is enabled.
+  bool enabled = 3;
+
+  // Number of pod replicas to run.
+  uint32 replica_count = 4;
+
+  // Global settings consumed by the sub-chart.
+  GlobalConfig global = 5;
+
+  // Redis connection configuration.
+  GeoLogcursorRedis redis = 6;
+
+  // PostgreSQL connection overrides (opaque passthrough).
+  google.protobuf.Struct psql = 7;
+
+  // Gitaly connection configuration.
+  GeoLogcursorGitaly gitaly = 8;
+
+  // Pod resource requests and limits.
+  google.protobuf.Struct resources = 9;
+
+  // Deployment settings.
+  GeoLogcursorDeployment deployment = 10;
+
+  // Node selector for pod scheduling.
+  google.protobuf.Struct node_selector = 11;
+
+  // Tolerations for pod scheduling.
+  repeated google.protobuf.Struct tolerations = 12;
+
+  // Pod affinity/anti-affinity rules.
+  google.protobuf.Struct affinity = 13;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 14;
+
+  // Common chart settings.
+  GeoLogcursorCommon common = 15;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 16;
+
+  // Pod-level security context.
+  google.protobuf.Struct security_context = 17;
+
+  // Container-level security context.
+  google.protobuf.Struct container_security_context = 18;
+
+  // ServiceAccount configuration.
+  GeoLogcursorServiceAccount service_account = 19;
+
+  // Topology spread constraints for pod scheduling.
+  repeated google.protobuf.Struct topology_spread_constraints = 20;
+}
+
+// GeoLogcursorImage configures the container image.
+message GeoLogcursorImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+
+  // Container image tag.
+  string tag = 2;
+
+  // Image pull policy.
+  string pull_policy = 3 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets.
+  repeated google.protobuf.Struct pull_secrets = 4;
+}
+
+// GeoLogcursorInit configures the init container.
+message GeoLogcursorInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image configuration.
+  GeoLogcursorInitImage image = 1;
+
+  // Init container resource requests and limits.
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context.
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// GeoLogcursorInitImage configures the init container image.
+message GeoLogcursorInitImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image repository.
+  string repository = 1;
+
+  // Init container image tag.
+  string tag = 2;
+}
+
+// GeoLogcursorSecretRef references a key within a Kubernetes secret.
+message GeoLogcursorSecretRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the Kubernetes secret.
+  string secret = 1;
+
+  // Key within the secret.
+  string key = 2;
+}
+
+// GeoLogcursorHost overrides an individual hostname.
+message GeoLogcursorHost {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Fully qualified hostname.
+  string name = 1;
+
+  // Whether the host uses HTTPS.
+  bool https = 2;
+}
+
+// GeoLogcursorRedis configures the Redis connection.
+message GeoLogcursorRedis {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Redis authentication configuration.
+  google.protobuf.Struct auth = 1;
+}
+
+// GeoLogcursorGitaly configures the Gitaly connection.
+message GeoLogcursorGitaly {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Reference to the Gitaly auth token secret.
+  GeoLogcursorSecretRef auth_token = 1;
+}
+
+// GeoLogcursorDeployment configures the Deployment.
+message GeoLogcursorDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Liveness probe configuration.
+  GeoLogcursorProbe liveness_probe = 1;
+
+  // Readiness probe configuration.
+  GeoLogcursorProbe readiness_probe = 2;
+
+  // Deployment update strategy.
+  google.protobuf.Struct strategy = 3;
+}
+
+// GeoLogcursorProbe configures a health probe.
+message GeoLogcursorProbe {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Delay before the probe is first triggered.
+  uint32 initial_delay_seconds = 1;
+
+  // Interval between probe checks.
+  uint32 period_seconds = 2;
+
+  // Probe timeout.
+  uint32 timeout_seconds = 3;
+
+  // Consecutive successes required to be considered successful.
+  uint32 success_threshold = 4;
+
+  // Consecutive failures required to be considered failed.
+  uint32 failure_threshold = 5;
+}
+
+// GeoLogcursorCommon holds settings shared across chart resources.
+message GeoLogcursorCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Common labels applied to resources.
+  google.protobuf.Struct labels = 1;
+}
+
+// GeoLogcursorServiceAccount configures the ServiceAccount.
+message GeoLogcursorServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the sub-chart uses a ServiceAccount.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // Annotations applied to the ServiceAccount.
+  google.protobuf.Struct annotations = 3;
+}

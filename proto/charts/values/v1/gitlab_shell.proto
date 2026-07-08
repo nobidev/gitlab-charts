@@ -1,0 +1,527 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// ShellValues is the top-level schema for the gitlab-shell sub-chart values.
+message ShellValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image configuration.
+  ShellImage image = 1;
+
+  // Kubernetes Service configuration.
+  ShellService service = 2;
+
+  // Init container configuration.
+  ShellInit init = 3;
+
+  // Tolerations for pod scheduling.
+  repeated google.protobuf.Struct tolerations = 4;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 5;
+
+  // Global settings shared across all sub-charts.
+  GlobalConfig global = 6;
+
+  // Whether the gitlab-shell sub-chart is enabled.
+  bool enabled = 7;
+
+  // Annotations applied to gitlab-shell resources.
+  google.protobuf.Struct annotations = 8;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 9;
+
+  // Common settings such as shared labels.
+  ShellCommon common = 10;
+
+  // Labels applied to the Service.
+  google.protobuf.Struct service_labels = 11;
+
+  // Workhorse connection settings (defaults to being part of Webservice).
+  google.protobuf.Struct workhorse = 12;
+
+  // Compute resource requests and limits.
+  google.protobuf.Struct resources = 13;
+
+  // Maximum number of pods unavailable during a disruption.
+  uint32 max_unavailable = 14;
+
+  // Minimum number of replicas.
+  uint32 min_replicas = 15;
+
+  // Maximum number of replicas.
+  uint32 max_replicas = 16;
+
+  // Gateway API route configuration.
+  ShellGatewayRoute gateway_route = 17;
+
+  // Traefik ingress configuration.
+  ShellTraefik traefik = 18;
+
+  // Horizontal Pod Autoscaler configuration.
+  ShellHpa hpa = 19;
+
+  // KEDA autoscaling configuration.
+  ShellKeda keda = 20;
+
+  // Deployment configuration.
+  ShellDeployment deployment = 21;
+
+  // Logging configuration.
+  ShellLogging logging = 22;
+
+  // gitlab-shell SSH daemon configuration.
+  ShellConfig config = 23;
+
+  // Pod-level security context.
+  google.protobuf.Struct security_context = 24;
+
+  // Container-level security context.
+  google.protobuf.Struct container_security_context = 25;
+
+  // ServiceAccount configuration.
+  ShellServiceAccount service_account = 26;
+
+  // Metrics and ServiceMonitor configuration.
+  ShellMetrics metrics = 27;
+
+  // NetworkPolicy configuration.
+  ShellNetworkPolicy networkpolicy = 28;
+
+  // SSH daemon implementation to run in the container.
+  string ssh_daemon = 29 [(buf.validate.field).string = {in: ["openssh", "gitlab-sshd"]}];
+
+  // Pod affinity/anti-affinity rules.
+  google.protobuf.Struct affinity = 30;
+
+  // Topology spread constraints for pod scheduling.
+  repeated google.protobuf.Struct topology_spread_constraints = 31;
+}
+
+// ShellImage configures the container image.
+message ShellImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+
+  // Image pull policy.
+  string pull_policy = 2 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets.
+  repeated google.protobuf.Struct pull_secrets = 3;
+
+  // Container image tag.
+  string tag = 4;
+}
+
+// ShellService configures the Kubernetes Service.
+message ShellService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Service name.
+  string name = 1;
+
+  // Service type.
+  string type = 2;
+
+  // Internal port for SSH traffic.
+  uint32 internal_port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // External traffic policy.
+  string external_traffic_policy = 4;
+}
+
+// ShellInit configures the init container.
+message ShellInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image override.
+  google.protobuf.Struct image = 1;
+
+  // Init container resource requests and limits.
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context.
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// ShellCommon holds settings shared across gitlab-shell resources.
+message ShellCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Labels applied to all resources.
+  google.protobuf.Struct labels = 1;
+}
+
+// ShellGatewayRoute configures the Gateway API route.
+message ShellGatewayRoute {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the Gateway API route is enabled.
+  bool enabled = 1;
+
+  // Gateway listener section name.
+  string section_name = 2;
+
+  // Gateway name.
+  string gateway_name = 3;
+
+  // Gateway namespace.
+  string gateway_namespace = 4;
+
+  // Annotations applied to the route.
+  google.protobuf.Struct annotations = 5;
+}
+
+// ShellTraefik configures Traefik ingress integration.
+message ShellTraefik {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Traefik entrypoint.
+  string entrypoint = 1;
+
+  // Traefik apiVersion override.
+  string api_version = 2;
+
+  // IngressClassName for the IngressRouteTCP.
+  string ingress_class_name = 3;
+
+  // Annotations applied to the IngressRouteTCP.
+  google.protobuf.Struct tcp_annotations = 4;
+
+  // Middlewares applied to the IngressRouteTCP.
+  repeated google.protobuf.Struct tcp_middlewares = 5;
+}
+
+// ShellHpa configures the Horizontal Pod Autoscaler.
+message ShellHpa {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // CPU-based scaling target.
+  ShellHpaCpu cpu = 1;
+
+  // Overrides the HPA metrics definition.
+  repeated google.protobuf.Struct custom_metrics = 2;
+
+  // Scaling behavior configuration.
+  ShellHpaBehavior behavior = 3;
+}
+
+// ShellHpaCpu configures CPU-based autoscaling.
+message ShellHpaCpu {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Target type: Utilization or AverageValue.
+  string target_type = 1;
+
+  // Target average CPU value.
+  string target_average_value = 2;
+}
+
+// ShellHpaBehavior configures scaling behavior.
+message ShellHpaBehavior {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Scale-down behavior.
+  ShellHpaScaleDown scale_down = 1;
+}
+
+// ShellHpaScaleDown configures scale-down behavior.
+message ShellHpaScaleDown {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Stabilization window, in seconds, before scaling down.
+  uint32 stabilization_window_seconds = 1;
+}
+
+// ShellKeda configures KEDA autoscaling.
+message ShellKeda {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether KEDA autoscaling is enabled.
+  bool enabled = 1;
+
+  // Polling interval, in seconds.
+  uint32 polling_interval = 2;
+
+  // Cooldown period, in seconds.
+  uint32 cooldown_period = 3;
+}
+
+// ShellDeployment configures the Deployment.
+message ShellDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Grace period, in seconds, for pod termination.
+  uint32 termination_grace_period_seconds = 1;
+
+  // Liveness probe configuration.
+  ShellProbe liveness_probe = 2;
+
+  // Readiness probe configuration.
+  ShellProbe readiness_probe = 3;
+
+  // Deployment update strategy.
+  google.protobuf.Struct strategy = 4;
+}
+
+// ShellProbe configures a liveness or readiness probe.
+message ShellProbe {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Delay, in seconds, before the probe is first run.
+  uint32 initial_delay_seconds = 1;
+
+  // How often, in seconds, to run the probe.
+  uint32 period_seconds = 2;
+
+  // Timeout, in seconds, for the probe.
+  uint32 timeout_seconds = 3;
+
+  // Consecutive successes required for the probe to pass.
+  uint32 success_threshold = 4;
+
+  // Consecutive failures required for the probe to fail.
+  uint32 failure_threshold = 5;
+}
+
+// ShellLogging configures logging output.
+message ShellLogging {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Log output format.
+  string format = 1;
+
+  // Log level for the SSH daemon.
+  string sshd_log_level = 2;
+}
+
+// ShellConfig configures the gitlab-shell SSH daemon.
+message ShellConfig {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Interval, in seconds, between client alive messages.
+  uint32 client_alive_interval = 1;
+
+  // Grace time, in seconds, allowed for login.
+  uint32 login_grace_time = 2;
+
+  // Maximum concurrent unauthenticated connections.
+  ShellConfigMaxStartups max_startups = 3;
+
+  // Whether to enable PROXY protocol support.
+  bool proxy_protocol = 4;
+
+  // PROXY protocol policy.
+  string proxy_policy = 5;
+
+  // Timeout for reading the PROXY protocol header.
+  string proxy_header_timeout = 6;
+
+  // Allowed ciphers.
+  repeated string ciphers = 7;
+
+  // Allowed key exchange algorithms.
+  repeated string kex_algorithms = 8;
+
+  // Allowed MAC algorithms.
+  repeated string macs = 9;
+
+  // Allowed public key algorithms.
+  repeated string public_key_algorithms = 10;
+
+  // GSSAPI authentication configuration.
+  ShellConfigGssapi gssapi = 11;
+
+  // Git LFS configuration.
+  ShellConfigLfs lfs = 12;
+
+  // Personal access token configuration.
+  ShellConfigPat pat = 13;
+
+  // Topology Service gRPC client (Cells routing) configuration.
+  ShellConfigTopologyService topology_service = 14;
+
+  // Trusted user CA keys for SSH certificate authentication (gitlab-sshd only).
+  ShellConfigTrustedUserCaKeys trusted_user_ca_keys = 15 [(gitlab.config.helm_name) = "trustedUserCAKeys"];
+}
+
+// ShellConfigMaxStartups configures unauthenticated connection throttling.
+message ShellConfigMaxStartups {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Number of unauthenticated connections before throttling begins.
+  uint32 start = 1;
+
+  // Percentage rate at which connections are dropped once throttling begins.
+  uint32 rate = 2;
+
+  // Number of unauthenticated connections at which all new ones are dropped.
+  uint32 full = 3;
+}
+
+// ShellConfigGssapi configures GSSAPI authentication.
+message ShellConfigGssapi {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether GSSAPI authentication is enabled.
+  bool enabled = 1;
+
+  // Path to the GSSAPI library.
+  string libpath = 2;
+
+  // Keytab secret reference.
+  ShellConfigGssapiKeytab keytab = 3;
+
+  // Path to the Kerberos configuration.
+  string krb5_config = 4;
+
+  // Service principal name.
+  string service_principal_name = 5;
+}
+
+// ShellConfigGssapiKeytab references the GSSAPI keytab secret.
+message ShellConfigGssapiKeytab {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the secret holding the keytab.
+  string secret = 1;
+
+  // Key within the secret holding the keytab.
+  string key = 2;
+}
+
+// ShellConfigLfs configures Git LFS handling.
+message ShellConfigLfs {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to use the pure SSH protocol for LFS.
+  bool pure_ssh_protocol = 1 [(gitlab.config.helm_name) = "pureSSHProtocol"];
+}
+
+// ShellConfigPat configures personal access token support.
+message ShellConfigPat {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether personal access tokens are enabled.
+  bool enabled = 1;
+
+  // Allowed token scopes.
+  repeated string allowed_scopes = 2;
+}
+
+// ShellConfigTopologyService configures the Topology Service gRPC client.
+message ShellConfigTopologyService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether GitLab Shell uses the Topology Service.
+  bool enabled = 1;
+}
+
+// ShellConfigTrustedUserCaKeys configures trusted user CA keys.
+message ShellConfigTrustedUserCaKeys {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the secret holding the trusted user CA keys.
+  string secret = 1;
+
+  // Trusted user CA keys.
+  repeated string keys = 2;
+}
+
+// ShellServiceAccount configures the ServiceAccount.
+message ShellServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the deployment uses a ServiceAccount.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // Annotations applied to the ServiceAccount.
+  google.protobuf.Struct annotations = 3;
+}
+
+// ShellMetrics configures metrics and the ServiceMonitor.
+message ShellMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics are enabled.
+  bool enabled = 1;
+
+  // Metrics port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Metrics path.
+  string path = 3;
+
+  // ServiceMonitor configuration.
+  ShellMetricsServiceMonitor service_monitor = 4;
+
+  // Annotations applied to metrics resources (deprecated).
+  google.protobuf.Struct annotations = 5 [(gitlab.config.lifecycle_stage) = LIFECYCLE_STAGE_DEPRECATED];
+}
+
+// ShellMetricsServiceMonitor configures the Prometheus ServiceMonitor.
+message ShellMetricsServiceMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the ServiceMonitor is enabled.
+  bool enabled = 1;
+
+  // Additional labels applied to the ServiceMonitor.
+  google.protobuf.Struct additional_labels = 2;
+
+  // Additional endpoint configuration.
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// ShellNetworkPolicy configures the NetworkPolicy.
+message ShellNetworkPolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the NetworkPolicy is enabled.
+  bool enabled = 1;
+
+  // Egress rules.
+  ShellNetworkPolicyEgress egress = 2;
+
+  // Ingress rules.
+  ShellNetworkPolicyIngress ingress = 3;
+
+  // Annotations applied to the NetworkPolicy.
+  google.protobuf.Struct annotations = 4;
+}
+
+// ShellNetworkPolicyEgress configures egress rules.
+message ShellNetworkPolicyEgress {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether egress restrictions are enabled.
+  bool enabled = 1;
+
+  // Egress rules.
+  repeated google.protobuf.Struct rules = 2;
+}
+
+// ShellNetworkPolicyIngress configures ingress rules.
+message ShellNetworkPolicyIngress {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether ingress restrictions are enabled.
+  bool enabled = 1;
+
+  // Ingress rules.
+  repeated google.protobuf.Struct rules = 2;
+}

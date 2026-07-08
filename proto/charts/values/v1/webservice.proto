@@ -1,0 +1,1334 @@
+syntax = "proto3";
+
+// Package charts.values.v1 is the single source of truth for the GitLab Helm
+// chart values surface. This file models the webservice sub-chart values
+// (charts/gitlab/charts/webservice/values.yaml).
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// WebserviceValues is the top-level schema for the webservice sub-chart values.
+message WebserviceValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image configuration.
+  WebserviceImage image = 1;
+
+  // Init container configuration.
+  WebserviceInit init = 2;
+
+  // Tolerations for pod scheduling.
+  repeated google.protobuf.Struct tolerations = 3;
+
+  // Monitoring configuration.
+  WebserviceMonitoring monitoring = 4;
+
+  // Shutdown settings. Defines an interval to block healthcheck while still
+  // accepting application requests.
+  WebserviceShutdown shutdown = 5;
+
+  // Additional environment variables passed to the container.
+  google.protobuf.Struct extra_env = 6;
+
+  // Additional environment variables sourced from ConfigMaps/Secrets.
+  google.protobuf.Struct extra_env_from = 7;
+
+  // Annotations applied to resources.
+  google.protobuf.Struct annotations = 8;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 9;
+
+  // Common settings.
+  WebserviceCommon common = 10;
+
+  // Labels applied to the service.
+  google.protobuf.Struct service_labels = 11;
+
+  // SSH host key mounting configuration.
+  WebserviceSshHostKeys ssh_host_keys = 12;
+
+  // Metrics endpoint configuration.
+  WebserviceMetrics metrics = 13;
+
+  // NetworkPolicy configuration.
+  WebserviceNetworkpolicy networkpolicy = 14;
+
+  // HTTP listener configuration.
+  WebserviceHttp http = 15;
+
+  // TLS listener configuration.
+  WebserviceTls tls = 16;
+
+  // Kubernetes Service configuration.
+  WebserviceService service = 17;
+
+  // Whether the webservice sub-chart is enabled.
+  bool enabled = 18;
+
+  // Gateway API route configuration.
+  WebserviceGatewayRoute gateway_route = 19;
+
+  // Backend TLS policy configuration.
+  WebserviceBackendTlsPolicy backend_tls_policy = 20 [(gitlab.config.helm_name) = "backendTLSPolicy"];
+
+  // Ingress configuration.
+  WebserviceIngress ingress = 21;
+
+  // Additional ingress configuration.
+  WebserviceExtraIngress extra_ingress = 22;
+
+  // Number of worker processes.
+  uint32 worker_processes = 23;
+
+  // Puma web server configuration.
+  WebservicePuma puma = 24;
+
+  // HorizontalPodAutoscaler configuration.
+  WebserviceHpa hpa = 25;
+
+  // KEDA autoscaling configuration.
+  WebserviceKeda keda = 26;
+
+  // Deployment configuration.
+  WebserviceDeployment deployment = 27;
+
+  // Workhorse configuration.
+  WebserviceWorkhorse workhorse = 28;
+
+  // PostgreSQL connection overrides for this sub-chart.
+  WebservicePsql psql = 29;
+
+  // Global settings propagated from the parent chart.
+  GlobalConfig global = 30;
+
+  // Redis connection overrides for this sub-chart.
+  WebserviceRedis redis = 31;
+
+  // Gitaly connection overrides for this sub-chart.
+  WebserviceGitaly gitaly = 32;
+
+  // Extra freeform configuration injected into gitlab.yml.
+  google.protobuf.Struct extra = 33;
+
+  // Rack::Attack configuration.
+  WebserviceRackAttack rack_attack = 34 [(gitlab.config.helm_name) = "rack_attack"];
+
+  // List of trusted proxies.
+  repeated string trusted_proxies = 35 [(gitlab.config.helm_name) = "trusted_proxies"];
+
+  // Pod resource requests and limits.
+  google.protobuf.Struct resources = 36;
+
+  // Maximum number of unavailable pods during disruption.
+  uint32 max_unavailable = 37;
+
+  // Minimum number of replicas.
+  uint32 min_replicas = 38;
+
+  // Maximum number of replicas.
+  uint32 max_replicas = 39;
+
+  // Helm test configuration.
+  WebserviceHelmTests helm_tests = 40;
+
+  // Web server to use (for example, puma).
+  string web_server = 41;
+
+  // Shared emptyDir mounted at /tmp between Webservice and Workhorse.
+  WebserviceSharedDir shared_tmp_dir = 42;
+
+  // Shared emptyDir mounted at the uploads tmp path.
+  WebserviceSharedDir shared_upload_dir = 43;
+
+  // Pod-level security context.
+  google.protobuf.Struct security_context = 44;
+
+  // Container-level security context.
+  google.protobuf.Struct container_security_context = 45;
+
+  // ServiceAccount configuration.
+  WebserviceServiceAccount service_account = 46;
+
+  // PriorityClass name applied to pods.
+  string priority_class_name = 47;
+
+  // Named deployment configs, splitting service classes across deployments.
+  map<string, google.protobuf.Struct> deployments = 48;
+
+  // Anti-affinity mode. Options: "hard", "soft".
+  string anti_affinity = 49 [(buf.validate.field).string = {in: ["", "hard", "soft"]}];
+
+  // Pod affinity rules.
+  google.protobuf.Struct affinity = 50;
+
+  // Topology spread constraints.
+  google.protobuf.Struct topology_spread_constraints = 51;
+}
+
+// WebserviceImage defines container image settings.
+message WebserviceImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Image pull policy.
+  string pull_policy = 1 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets.
+  repeated google.protobuf.Struct pull_secrets = 2;
+
+  // Container image repository.
+  string repository = 3;
+
+  // Container image tag.
+  string tag = 4;
+}
+
+// WebserviceInit configures the init container.
+message WebserviceInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image.
+  WebserviceImage image = 1;
+
+  // Init container resource requests and limits.
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context.
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// WebserviceMonitoring configures monitoring endpoints.
+message WebserviceMonitoring {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Monitoring IP whitelist.
+  repeated string ip_whitelist = 1;
+
+  // Prometheus exporter configuration.
+  WebserviceExporter exporter = 2;
+}
+
+// WebserviceExporter configures a Prometheus metrics exporter.
+message WebserviceExporter {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the exporter is enabled.
+  bool enabled = 1;
+
+  // Exporter listen port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Address the exporter binds to. Null binds IPv4 and IPv6.
+  string listen_addr = 3;
+}
+
+// WebserviceShutdown configures graceful shutdown behavior.
+message WebserviceShutdown {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Interval to block healthcheck while still accepting requests.
+  uint32 blackout_seconds = 1;
+}
+
+// WebserviceCommon holds common settings.
+message WebserviceCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Common labels applied to resources.
+  google.protobuf.Struct labels = 1;
+}
+
+// WebserviceSshHostKeys configures mounting of SSH host keys.
+message WebserviceSshHostKeys {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to mount SSH host keys.
+  bool mount = 1;
+
+  // Name of the secret to mount.
+  string mount_name = 2;
+
+  // Types of public SSH host keys to mount.
+  repeated string types = 3;
+}
+
+// WebserviceMetrics configures the metrics endpoint.
+message WebserviceMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics are enabled.
+  bool enabled = 1;
+
+  // Address to bind to. Null binds IPv4 and IPv6.
+  string listen_addr = 2;
+
+  // Metrics listen port.
+  uint32 port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Metrics HTTP path.
+  string path = 4;
+
+  // TLS settings for the metrics endpoint.
+  WebserviceMetricsTls tls = 5;
+
+  // ServiceMonitor configuration.
+  WebserviceServiceMonitor service_monitor = 6;
+
+  // Annotations applied to the metrics service. DEPRECATED.
+  google.protobuf.Struct annotations = 7 [(gitlab.config.lifecycle_stage) = LIFECYCLE_STAGE_DEPRECATED];
+}
+
+// WebserviceMetricsTls configures TLS for the metrics endpoint.
+message WebserviceMetricsTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether TLS is enabled.
+  bool enabled = 1;
+
+  // Name of the TLS secret.
+  string secret_name = 2;
+}
+
+// WebserviceServiceMonitor configures a Prometheus ServiceMonitor.
+message WebserviceServiceMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the ServiceMonitor is enabled.
+  bool enabled = 1;
+
+  // Additional labels for the ServiceMonitor.
+  google.protobuf.Struct additional_labels = 2;
+
+  // Additional endpoint configuration.
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// WebserviceNetworkpolicy configures a Kubernetes NetworkPolicy.
+message WebserviceNetworkpolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the NetworkPolicy is enabled.
+  bool enabled = 1;
+
+  // Egress rules.
+  WebserviceNetworkpolicyRule egress = 2;
+
+  // Ingress rules.
+  WebserviceNetworkpolicyRule ingress = 3;
+
+  // Annotations applied to the NetworkPolicy.
+  google.protobuf.Struct annotations = 4;
+}
+
+// WebserviceNetworkpolicyRule configures a direction of network traffic.
+message WebserviceNetworkpolicyRule {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether this rule set is enabled.
+  bool enabled = 1;
+
+  // Rule definitions.
+  google.protobuf.Struct rules = 2;
+}
+
+// WebserviceHttp configures the HTTP listener.
+message WebserviceHttp {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the HTTP listener is enabled.
+  bool enabled = 1;
+}
+
+// WebserviceTls configures the TLS listener.
+message WebserviceTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the TLS listener is enabled.
+  bool enabled = 1;
+}
+
+// WebserviceService configures the Kubernetes Service.
+message WebserviceService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Service type.
+  string type = 1;
+
+  // External port.
+  uint32 external_port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Internal port.
+  uint32 internal_port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Workhorse external port.
+  uint32 workhorse_external_port = 4 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Workhorse internal port.
+  uint32 workhorse_internal_port = 5 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // TLS service ports.
+  WebserviceServiceTls tls = 6;
+
+  // Static load balancer IP.
+  string load_balancer_ip = 7 [(gitlab.config.helm_name) = "loadBalancerIP"];
+
+  // Allowed source ranges for the load balancer.
+  repeated string load_balancer_source_ranges = 8;
+}
+
+// WebserviceServiceTls configures TLS service ports.
+message WebserviceServiceTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // External TLS port.
+  uint32 external_port = 1 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Internal TLS port.
+  uint32 internal_port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// WebserviceGatewayRoute configures the Gateway API route.
+message WebserviceGatewayRoute {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the gateway route is enabled.
+  bool enabled = 1;
+
+  // Section name for the primary route.
+  string section_name = 2;
+
+  // Section name for the Geo route.
+  string geo_section_name = 3;
+
+  // Section name for the smartcard route.
+  string smartcard_section_name = 4;
+
+  // Name of the referenced Gateway.
+  string gateway_name = 5;
+
+  // Namespace of the referenced Gateway.
+  string gateway_namespace = 6;
+
+  // Annotations applied to the route.
+  google.protobuf.Struct annotations = 7;
+}
+
+// WebserviceBackendTlsPolicy configures the backend TLS policy.
+message WebserviceBackendTlsPolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Hostname used to validate the backend certificate.
+  string hostname = 1;
+}
+
+// WebserviceIngress configures the primary Ingress.
+message WebserviceIngress {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Ingress API version override.
+  string api_version = 1;
+
+  // Whether the ingress is enabled.
+  bool enabled = 2;
+
+  // Proxy connect timeout in seconds.
+  uint32 proxy_connect_timeout = 3;
+
+  // Proxy read timeout in seconds.
+  uint32 proxy_read_timeout = 4;
+
+  // Maximum proxied request body size.
+  string proxy_body_size = 5;
+
+  // TLS settings.
+  WebserviceIngressTls tls = 6;
+
+  // Whether to route traffic directly to the service upstream.
+  bool service_upstream = 7;
+
+  // Annotations applied to the ingress.
+  google.protobuf.Struct annotations = 8;
+
+  // Whether to configure cert-manager for this ingress.
+  bool configure_certmanager = 9;
+
+  // Whether a base path is required. Use with .deployments.
+  bool require_base_path = 10;
+
+  // Whether to use the Geo ingress class.
+  bool use_geo_class = 11;
+}
+
+// WebserviceIngressTls configures ingress TLS.
+message WebserviceIngressTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the TLS secret.
+  string secret_name = 1;
+
+  // Name of the smartcard TLS secret.
+  string smartcard_secret_name = 2;
+
+  // Whether TLS is enabled.
+  bool enabled = 3;
+}
+
+// WebserviceExtraIngress configures an additional Ingress.
+message WebserviceExtraIngress {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the extra ingress is enabled.
+  bool enabled = 1;
+
+  // Ingress API version override.
+  string api_version = 2;
+
+  // Proxy connect timeout in seconds.
+  uint32 proxy_connect_timeout = 3;
+
+  // Proxy read timeout in seconds.
+  uint32 proxy_read_timeout = 4;
+
+  // Maximum proxied request body size.
+  string proxy_body_size = 5;
+
+  // Hostname for the extra ingress.
+  string hostname = 6;
+
+  // TLS settings.
+  WebserviceIngressTls tls = 7;
+
+  // Whether to route traffic directly to the service upstream.
+  bool service_upstream = 8;
+
+  // Annotations applied to the ingress.
+  google.protobuf.Struct annotations = 9;
+
+  // Whether to configure cert-manager for this ingress.
+  bool configure_certmanager = 10;
+
+  // Whether a base path is required. Use with .deployments.
+  bool require_base_path = 11;
+
+  // Whether to use the Geo ingress class.
+  bool use_geo_class = 12;
+}
+
+// WebservicePuma configures the Puma web server.
+message WebservicePuma {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Puma thread pool configuration.
+  WebservicePumaThreads threads = 1;
+
+  // Whether the worker killer is disabled.
+  bool disable_worker_killer = 2;
+
+  // Maximum worker memory in MB before the worker killer restarts it.
+  uint32 worker_max_memory = 3;
+
+  // Whether to bind to IPv6.
+  bool bind_ip6 = 4;
+
+  // Puma control server port.
+  uint32 control_port = 5 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// WebservicePumaThreads configures Puma's thread pool.
+message WebservicePumaThreads {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Minimum number of threads.
+  uint32 min = 1;
+
+  // Maximum number of threads.
+  uint32 max = 2;
+}
+
+// WebserviceHpa configures the HorizontalPodAutoscaler.
+message WebserviceHpa {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // CPU-based autoscaling metric.
+  WebserviceHpaMetric cpu = 1;
+
+  // Memory-based autoscaling metric.
+  WebserviceHpaMetric memory = 2;
+
+  // Overrides the HPA metrics definition.
+  repeated google.protobuf.Struct custom_metrics = 3;
+
+  // Scaling behavior configuration.
+  google.protobuf.Struct behavior = 4;
+}
+
+// WebserviceHpaMetric configures a single HPA target metric.
+message WebserviceHpaMetric {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Target type. Utilization or AverageValue.
+  string target_type = 1 [(buf.validate.field).string = {in: ["Utilization", "AverageValue"]}];
+
+  // Target average value (numeric quantity or string such as "1G").
+  google.protobuf.Value target_average_value = 2;
+
+  // Target average utilization percentage.
+  uint32 target_average_utilization = 3;
+}
+
+// WebserviceKeda configures KEDA-based autoscaling.
+message WebserviceKeda {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether KEDA autoscaling is enabled.
+  bool enabled = 1;
+
+  // Polling interval in seconds.
+  uint32 polling_interval = 2;
+
+  // Cooldown period in seconds.
+  uint32 cooldown_period = 3;
+
+  // Minimum replica count.
+  uint32 min_replica_count = 4;
+
+  // Maximum replica count.
+  uint32 max_replica_count = 5;
+
+  // Fallback configuration.
+  WebserviceKedaFallback fallback = 6;
+
+  // Name of the generated HPA.
+  string hpa_name = 7;
+
+  // Whether to restore the original replica count on deletion.
+  bool restore_to_original_replica_count = 8;
+
+  // Scaling behavior configuration.
+  google.protobuf.Struct behavior = 9;
+
+  // Scaling triggers.
+  repeated google.protobuf.Struct triggers = 10;
+}
+
+// WebserviceKedaFallback configures KEDA fallback behavior.
+message WebserviceKedaFallback {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Number of failures before falling back.
+  uint32 failure_threshold = 1;
+
+  // Replica count to use during fallback.
+  uint32 replicas = 2;
+}
+
+// WebserviceDeployment configures the Deployment.
+message WebserviceDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Termination grace period in seconds.
+  uint32 termination_grace_period_seconds = 1;
+
+  // Startup probe configuration.
+  WebserviceProbe startup_probe = 2;
+
+  // Liveness probe configuration.
+  WebserviceProbe liveness_probe = 3;
+
+  // Readiness probe configuration.
+  WebserviceProbe readiness_probe = 4;
+
+  // Deployment upgrade strategy.
+  google.protobuf.Struct strategy = 5;
+
+  // Number of old ReplicaSets to retain.
+  uint32 revision_history_limit = 6;
+}
+
+// WebserviceProbe configures a Kubernetes probe.
+message WebserviceProbe {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Initial delay before the probe starts, in seconds.
+  uint32 initial_delay_seconds = 1;
+
+  // How often to perform the probe, in seconds.
+  uint32 period_seconds = 2;
+
+  // Probe timeout, in seconds.
+  uint32 timeout_seconds = 3;
+
+  // Consecutive successes required for the probe to be considered successful.
+  uint32 success_threshold = 4;
+
+  // Consecutive failures required for the probe to be considered failed.
+  uint32 failure_threshold = 5;
+}
+
+// WebserviceWorkhorse configures the Workhorse sidecar.
+message WebserviceWorkhorse {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the keywatcher is enabled.
+  bool keywatcher = 1;
+
+  // Trusted CIDRs for header propagation.
+  repeated string trusted_cidrs_for_propagation = 2 [(gitlab.config.helm_name) = "trustedCIDRsForPropagation"];
+
+  // Trusted CIDRs for X-Forwarded-For.
+  repeated string trusted_cidrs_for_x_forwarded_for = 3 [(gitlab.config.helm_name) = "trustedCIDRsForXForwardedFor"];
+
+  // Sentry DSN.
+  string sentry_dsn = 4 [(gitlab.config.helm_name) = "sentryDSN"];
+
+  // Extra arguments passed to workhorse.
+  string extra_args = 5;
+
+  // Log output format. Valid values: json, structured, text.
+  string log_format = 6 [(buf.validate.field).string = {in: ["json", "structured", "text"]}];
+
+  // Resource requests and limits.
+  google.protobuf.Struct resources = 7;
+
+  // Container security context.
+  google.protobuf.Struct container_security_context = 8;
+
+  // Shutdown timeout.
+  string shutdown_timeout = 9;
+
+  // Workhorse container image.
+  string image = 10;
+
+  // Startup probe configuration.
+  WebserviceProbe startup_probe = 11;
+
+  // Liveness probe configuration.
+  WebserviceProbe liveness_probe = 12;
+
+  // Readiness probe configuration.
+  WebserviceProbe readiness_probe = 13;
+
+  // Monitoring configuration.
+  WebserviceWorkhorseMonitoring monitoring = 14;
+
+  // Metrics configuration.
+  WebserviceWorkhorseMetrics metrics = 15;
+
+  // Healthcheck listener configuration.
+  WebserviceHealthcheckListener healthcheck_listener = 16;
+
+  // Load shedding configuration.
+  WebserviceLoadShedding load_shedding = 17;
+
+  // Image scaler configuration.
+  WebserviceImageScaler image_scaler = 18;
+
+  // TLS configuration.
+  WebserviceWorkhorseTls tls = 19;
+
+  // Circuit breaker configuration.
+  WebserviceCircuitBreaker circuit_breaker = 20;
+}
+
+// WebserviceWorkhorseMonitoring configures workhorse monitoring.
+message WebserviceWorkhorseMonitoring {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Prometheus exporter configuration.
+  WebserviceWorkhorseExporter exporter = 1;
+}
+
+// WebserviceWorkhorseExporter configures the workhorse metrics exporter.
+message WebserviceWorkhorseExporter {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the exporter is enabled.
+  bool enabled = 1;
+
+  // Exporter listen port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // TLS configuration for the exporter.
+  google.protobuf.Struct tls = 3;
+}
+
+// WebserviceWorkhorseMetrics configures the workhorse metrics endpoint.
+message WebserviceWorkhorseMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics are enabled.
+  bool enabled = 1;
+
+  // Metrics listen port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Metrics HTTP path.
+  string path = 3;
+
+  // ServiceMonitor configuration.
+  WebserviceServiceMonitor service_monitor = 4;
+}
+
+// WebserviceHealthcheckListener configures the workhorse healthcheck listener.
+message WebserviceHealthcheckListener {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the healthcheck listener is enabled.
+  bool enabled = 1;
+
+  // Listener port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Whether to use the puma control URL for health checks.
+  bool puma_control = 3;
+
+  // Interval between checks.
+  string check_interval = 4;
+
+  // Check timeout.
+  string timeout = 5;
+
+  // Maximum consecutive failures before marking unhealthy.
+  uint32 max_consecutive_failures = 6;
+
+  // Minimum successful probes before marking healthy.
+  uint32 min_successful_probes = 7;
+
+  // Interval to skip Rails health checks.
+  string rails_skip_interval = 8;
+}
+
+// WebserviceLoadShedding configures workhorse load shedding.
+message WebserviceLoadShedding {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether load shedding is enabled.
+  bool enabled = 1;
+
+  // Backlog threshold that triggers shedding.
+  uint32 backlog_threshold = 2;
+
+  // Backlog hysteresis factor.
+  double backlog_hysteresis = 3;
+
+  // Retry-After header value in seconds.
+  uint32 retry_after_seconds = 4;
+
+  // HTTP status code returned when shedding.
+  uint32 status_code = 5;
+
+  // Shedding strategy.
+  string strategy = 6;
+
+  // Interval between backlog checks.
+  string check_interval = 7;
+
+  // Check timeout.
+  string timeout = 8;
+}
+
+// WebserviceImageScaler configures the workhorse image scaler.
+message WebserviceImageScaler {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Maximum concurrent scaling processes.
+  uint32 max_procs = 1;
+
+  // Maximum file size in bytes eligible for scaling.
+  uint32 max_file_size_bytes = 2;
+}
+
+// WebserviceWorkhorseTls configures workhorse TLS.
+message WebserviceWorkhorseTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to verify the peer certificate.
+  bool verify = 1;
+
+  // Name of the TLS secret.
+  string secret_name = 2;
+
+  // Name of the CA secret.
+  string ca_secret_name = 3;
+}
+
+// WebserviceCircuitBreaker configures the workhorse circuit breaker.
+message WebserviceCircuitBreaker {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the circuit breaker is enabled.
+  bool enabled = 1;
+
+  // Circuit open timeout in seconds.
+  uint32 timeout = 2;
+
+  // Rolling window interval in seconds.
+  uint32 interval = 3;
+
+  // Maximum requests allowed while half-open.
+  uint32 max_requests = 4;
+
+  // Consecutive failures before opening the circuit.
+  uint32 consecutive_failures = 5;
+}
+
+// WebservicePsql configures PostgreSQL overrides for this sub-chart.
+message WebservicePsql {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // PostgreSQL port.
+  uint32 port = 1 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// WebserviceHosts configures external hostnames.
+message WebserviceHosts {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Base domain.
+  string domain = 1;
+
+  // Suffix appended to hostnames.
+  string host_suffix = 2;
+
+  // Whether to use HTTPS.
+  bool https = 3;
+
+  // GitLab host configuration.
+  WebserviceHostConfig gitlab = 4;
+
+  // Registry host configuration.
+  WebserviceHostConfig registry = 5;
+}
+
+// WebserviceHostConfig configures a single external host.
+message WebserviceHostConfig {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Fully qualified hostname.
+  string name = 1;
+
+  // Whether to use HTTPS for this host.
+  bool https = 2;
+}
+
+// WebservicePsqlSsl configures PostgreSQL SSL settings.
+message WebservicePsqlSsl {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the secret holding SSL material.
+  string secret = 1;
+
+  // Key within the secret for the client key.
+  string client_key = 2;
+
+  // Key within the secret for the client certificate.
+  string client_certificate = 3;
+
+  // Key within the secret for the server CA.
+  string server_ca = 4 [(gitlab.config.helm_name) = "serverCA"];
+}
+
+// WebserviceRedisSentinel configures a single Redis Sentinel endpoint.
+message WebserviceRedisSentinel {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Sentinel host.
+  string host = 1;
+
+  // Sentinel port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// WebserviceSentinelTls configures Redis Sentinel TLS.
+message WebserviceSentinelTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Sentinel TLS is enabled.
+  bool enabled = 1;
+
+  // Client certificate reference.
+  WebserviceSecretRef cert = 2;
+
+  // Client key reference.
+  WebserviceSecretRef key = 3;
+
+  // CA file reference.
+  WebserviceSecretRef ca_file = 4;
+}
+
+// WebserviceRedisTls configures Redis TLS.
+message WebserviceRedisTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Client certificate reference.
+  WebserviceSecretRef cert = 1;
+
+  // Client key reference.
+  WebserviceSecretRef key = 2;
+
+  // CA file reference.
+  WebserviceSecretRef ca_file = 3;
+}
+
+// WebserviceGitalyInternal configures internal Gitaly nodes.
+message WebserviceGitalyInternal {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Names of internal Gitaly nodes.
+  repeated string names = 1;
+}
+
+// WebserviceAppConfig configures application-level settings.
+message WebserviceAppConfig {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Microsoft Graph mailer configuration.
+  WebserviceMicrosoftGraphMailer microsoft_graph_mailer = 1 [(gitlab.config.helm_name) = "microsoft_graph_mailer"];
+
+  // Incoming email configuration.
+  WebserviceIncomingEmail incoming_email = 2;
+
+  // Service Desk email configuration.
+  WebserviceServiceDeskEmail service_desk_email = 3;
+
+  // Object store configuration.
+  WebserviceObjectStore object_store = 4 [(gitlab.config.helm_name) = "object_store"];
+
+  // LFS object storage configuration.
+  WebserviceObjectStorageConfig lfs = 5;
+
+  // Artifacts object storage configuration.
+  WebserviceArtifacts artifacts = 6;
+
+  // Uploads object storage configuration.
+  WebserviceObjectStorageConfig uploads = 7;
+
+  // Packages object storage configuration.
+  WebserviceObjectStorageConfig packages = 8;
+
+  // External diffs object storage configuration.
+  WebserviceExternalDiffs external_diffs = 9;
+
+  // Terraform state object storage configuration.
+  WebserviceTerraformState terraform_state = 10;
+
+  // Dependency proxy object storage configuration.
+  WebserviceObjectStorageConfig dependency_proxy = 11;
+
+  // LDAP configuration.
+  WebserviceLdap ldap = 12;
+
+  // OmniAuth configuration.
+  WebserviceOmniauth omniauth = 13;
+
+  // Sentry configuration.
+  WebserviceSentry sentry = 14;
+
+  // GitLab Docs configuration.
+  WebserviceGitlabDocs gitlab_docs = 15 [(gitlab.config.helm_name) = "gitlab_docs"];
+
+  // OIDC provider configuration.
+  WebserviceOidcProvider oidc_provider = 16;
+}
+
+// WebserviceMicrosoftGraphMailer configures the Microsoft Graph mailer.
+message WebserviceMicrosoftGraphMailer {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the Microsoft Graph mailer is enabled.
+  bool enabled = 1;
+}
+
+// WebserviceIncomingEmail configures incoming email.
+message WebserviceIncomingEmail {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether incoming email is enabled.
+  bool enabled = 1;
+
+  // Incoming email address.
+  string address = 2;
+}
+
+// WebserviceServiceDeskEmail configures Service Desk email.
+message WebserviceServiceDeskEmail {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Service Desk email is enabled.
+  bool enabled = 1;
+
+  // Service Desk email address.
+  string address = 2;
+}
+
+// WebserviceObjectStore configures the default object store connection.
+message WebserviceObjectStore {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Object storage connection settings.
+  google.protobuf.Struct connection = 1;
+
+  // Additional storage options.
+  google.protobuf.Struct storage_options = 2 [(gitlab.config.helm_name) = "storage_options"];
+}
+
+// WebserviceObjectStorageConfig configures object storage for a feature.
+message WebserviceObjectStorageConfig {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether this object storage feature is enabled.
+  bool enabled = 1;
+
+  // Whether to proxy downloads through the application.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Bucket name.
+  string bucket = 3;
+
+  // Connection settings.
+  google.protobuf.Struct connection = 4;
+}
+
+// WebserviceArtifacts configures artifacts object storage.
+message WebserviceArtifacts {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether artifacts object storage is enabled.
+  bool enabled = 1;
+
+  // Whether to proxy downloads through the application.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Bucket name.
+  string bucket = 3;
+
+  // Connection settings.
+  google.protobuf.Struct connection = 4;
+
+  // CDN configuration reference.
+  WebserviceSecretRef cdn = 5;
+}
+
+// WebserviceExternalDiffs configures external diffs object storage.
+message WebserviceExternalDiffs {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // When to store external diffs (for example, "outdated").
+  string when = 1;
+
+  // Whether to proxy downloads through the application.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Bucket name.
+  string bucket = 3;
+
+  // Connection settings.
+  google.protobuf.Struct connection = 4;
+}
+
+// WebserviceTerraformState configures Terraform state object storage.
+message WebserviceTerraformState {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Terraform state object storage is enabled.
+  bool enabled = 1;
+
+  // Bucket name.
+  string bucket = 2;
+
+  // Connection settings.
+  google.protobuf.Struct connection = 3;
+}
+
+// WebserviceLdap configures LDAP servers.
+message WebserviceLdap {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // LDAP server definitions keyed by provider ID.
+  google.protobuf.Struct servers = 1;
+}
+
+// WebserviceOmniauth configures OmniAuth.
+message WebserviceOmniauth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether OmniAuth is enabled.
+  bool enabled = 1;
+
+  // Provider to automatically sign in with.
+  string auto_sign_in_with_provider = 2;
+
+  // Providers to sync the profile from.
+  repeated string sync_profile_from_provider = 3;
+
+  // Profile attributes to sync.
+  repeated string sync_profile_attributes = 4;
+
+  // Providers allowed for single sign-on.
+  repeated string allow_single_sign_on = 5;
+
+  // Whether to block auto-created users.
+  bool block_auto_created_users = 6;
+
+  // Whether to auto-link LDAP users.
+  bool auto_link_ldap_user = 7;
+
+  // Whether to auto-link SAML users.
+  bool auto_link_saml_user = 8;
+
+  // Providers eligible for user auto-linking.
+  repeated string auto_link_user = 9;
+
+  // External providers.
+  repeated string external_providers = 10;
+
+  // Providers that may bypass two-factor authentication.
+  repeated string allow_bypass_two_factor = 11;
+
+  // OmniAuth provider definitions.
+  repeated google.protobuf.Struct providers = 12;
+}
+
+// WebserviceSentry configures Sentry error tracking.
+message WebserviceSentry {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Sentry is enabled.
+  bool enabled = 1;
+
+  // Server-side Sentry DSN.
+  string dsn = 2;
+
+  // Client-side Sentry DSN.
+  string clientside_dsn = 3 [(gitlab.config.helm_name) = "clientside_dsn"];
+
+  // Sentry environment name.
+  string environment = 4;
+}
+
+// WebserviceGitlabDocs configures the bundled GitLab Docs.
+message WebserviceGitlabDocs {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether GitLab Docs are enabled.
+  bool enabled = 1;
+
+  // GitLab Docs host.
+  string host = 2;
+}
+
+// WebserviceOidcProvider configures the OIDC provider.
+message WebserviceOidcProvider {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // OpenID ID token expiry in seconds.
+  uint32 openid_id_token_expire_in_seconds = 1;
+}
+
+// WebserviceRedis configures Redis overrides for this sub-chart.
+message WebserviceRedis {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Redis authentication settings.
+  google.protobuf.Struct auth = 1;
+}
+
+// WebserviceGitaly configures Gitaly overrides for this sub-chart.
+message WebserviceGitaly {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Gitaly host.
+  string host = 1;
+
+  // Gitaly port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Gitaly service name.
+  string service_name = 3;
+
+  // Gitaly auth token reference.
+  google.protobuf.Struct auth_token = 4;
+}
+
+// WebserviceRackAttack configures Rack::Attack throttling.
+message WebserviceRackAttack {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Git basic auth throttling configuration.
+  WebserviceGitBasicAuth git_basic_auth = 1 [(gitlab.config.helm_name) = "git_basic_auth"];
+}
+
+// WebserviceGitBasicAuth configures git basic auth throttling.
+message WebserviceGitBasicAuth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether git basic auth throttling is enabled.
+  bool enabled = 1;
+
+  // IP whitelist exempt from throttling.
+  repeated string ip_whitelist = 2 [(gitlab.config.helm_name) = "ip_whitelist"];
+
+  // Maximum retries before banning.
+  uint32 maxretry = 3;
+
+  // Window during which retries are counted, in seconds.
+  uint32 findtime = 4;
+
+  // Ban duration in seconds.
+  uint32 bantime = 5;
+}
+
+// WebserviceHelmTests configures Helm test hooks.
+message WebserviceHelmTests {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Helm tests are enabled.
+  bool enabled = 1;
+}
+
+// WebserviceSharedDir configures a shared emptyDir volume.
+message WebserviceSharedDir {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Size limit for the emptyDir.
+  string size_limit = 1;
+
+  // Storage medium for the emptyDir (for example, "Memory").
+  string medium = 2;
+}
+
+// WebserviceServiceAccount configures the ServiceAccount.
+message WebserviceServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to use a ServiceAccount.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // Annotations applied to the ServiceAccount.
+  google.protobuf.Struct annotations = 3;
+
+  // Local override for ServiceAccount token mounting.
+  bool automount_service_account_token = 4;
+
+  // Name of the ServiceAccount. Defaults to the chart fullname.
+  string name = 5;
+}
+
+// WebserviceSecretRef references a value stored in a Kubernetes Secret.
+message WebserviceSecretRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the secret.
+  string secret = 1;
+
+  // Key within the secret.
+  string key = 2;
+}

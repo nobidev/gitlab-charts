@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// CertmanagerIssuerValues is the top-level schema for the certmanager-issuer
+// sub-chart values.yaml. It configures an ACME Issuer in cert-manager, only
+// used when global.ingress.configureCertmanager is true.
+message CertmanagerIssuerValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // ACME directory server URL used by the Issuer.
+  string server = 1;
+
+  // Email to associate with issued TLS certificates.
+  string email = 2;
+
+  // RBAC settings for the issuer.
+  CertmanagerIssuerRbac rbac = 3;
+
+  // Pod resource requests and limits (opaque passthrough).
+  google.protobuf.Struct resources = 4;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 5;
+
+  // Container-level security context (opaque passthrough).
+  google.protobuf.Struct container_security_context = 6;
+
+  // Common settings shared across rendered resources.
+  CertmanagerIssuerCommon common = 7;
+
+  // Whether to use the new Ingress mechanism for certificate provisioning.
+  bool use_new_ingress_for_certs = 8;
+
+  // Seconds to retain the completed Job before cleanup.
+  uint32 ttl_seconds_after_finished = 9;
+}
+
+// CertmanagerIssuerRbac controls RBAC resource creation.
+message CertmanagerIssuerRbac {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to create RBAC resources.
+  bool create = 1;
+}
+
+// CertmanagerIssuerCommon holds settings shared across rendered resources.
+message CertmanagerIssuerCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Additional labels applied to resources (opaque passthrough).
+  google.protobuf.Struct labels = 1;
+}

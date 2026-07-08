@@ -1,0 +1,515 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// PagesValues is the top-level schema for the gitlab-pages sub-chart values.
+message PagesValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Global settings shared with the gitlab-pages sub-chart.
+  GlobalConfig global = 1;
+
+  // Horizontal Pod Autoscaler configuration.
+  PagesHpa hpa = 2;
+
+  // KEDA autoscaling configuration.
+  PagesKeda keda = 3;
+
+  // NetworkPolicy configuration.
+  PagesNetworkPolicy networkpolicy = 4;
+
+  // Container image configuration.
+  PagesImage image = 5;
+
+  // Kubernetes Service configuration.
+  PagesService service = 6;
+
+  // Init container configuration.
+  PagesInit init = 7;
+
+  // Deployment configuration.
+  PagesDeployment deployment = 8;
+
+  // Ingress configuration.
+  PagesIngress ingress = 9;
+
+  // Gateway API route configuration.
+  PagesGatewayRoute gateway_route = 10;
+
+  // Tolerations for pod scheduling.
+  repeated google.protobuf.Struct tolerations = 11;
+
+  // Whether pages runs in cluster mode.
+  bool cluster = 12;
+
+  // Annotations applied to pages resources.
+  google.protobuf.Struct annotations = 13;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 14;
+
+  // Common settings such as shared labels.
+  PagesCommon common = 15;
+
+  // Labels applied to the Service.
+  google.protobuf.Struct service_labels = 16;
+
+  // Additional environment variables to set.
+  google.protobuf.Struct extra_env = 17;
+
+  // Maximum number of pods unavailable during a disruption.
+  uint32 max_unavailable = 18;
+
+  // Compute resource requests and limits.
+  google.protobuf.Struct resources = 19;
+
+  // Pod-level security context.
+  google.protobuf.Struct security_context = 20;
+
+  // Container-level security context.
+  google.protobuf.Struct container_security_context = 21;
+
+  // ServiceAccount configuration.
+  PagesServiceAccount service_account = 22;
+
+  // Pod priorityClassName used for eviction ordering.
+  string priority_class_name = 23;
+
+  // Timeout, in seconds, for requests to the artifacts server.
+  uint32 artifacts_server_timeout = 24;
+
+  // URL of the artifacts server.
+  string artifacts_server_url = 25;
+
+  // HTTP client timeout for requests to the GitLab server.
+  string gitlab_client_http_timeout = 26;
+
+  // Expiry for the GitLab client JWT.
+  string gitlab_client_jwt_expiry = 27;
+
+  // Public GitLab server URL.
+  string gitlab_server = 28;
+
+  // Extra HTTP response headers, as a list of strings.
+  repeated string headers = 29;
+
+  // Whether to allow insecure ciphers.
+  bool insecure_ciphers = 30;
+
+  // Internal GitLab server URL.
+  string internal_gitlab_server = 31;
+
+  // Log output format.
+  string log_format = 32;
+
+  // Whether to enable verbose logging.
+  bool log_verbose = 33;
+
+  // Maximum number of concurrent connections.
+  uint32 max_connections = 34;
+
+  // Whether to redirect HTTP requests to HTTPS.
+  bool redirect_http = 35;
+
+  // Sentry error reporting configuration.
+  PagesSentry sentry = 36;
+
+  // URI used for the readiness/status endpoint.
+  string status_uri = 37;
+
+  // TLS version bounds.
+  PagesTls tls = 38;
+
+  // Whether to use an HTTP proxy.
+  bool use_http_proxy = 39 [(gitlab.config.helm_name) = "useHTTPProxy"];
+
+  // Whether to use the PROXY protocol v2.
+  bool use_proxy_v2 = 40;
+
+  // Metrics and ServiceMonitor configuration.
+  PagesMetrics metrics = 41;
+
+  // Workhorse connection settings (defaults to being part of Webservice).
+  google.protobuf.Struct workhorse = 42;
+
+  // Pod affinity/anti-affinity rules.
+  google.protobuf.Struct affinity = 43;
+
+  // Topology spread constraints for pod scheduling.
+  repeated google.protobuf.Struct topology_spread_constraints = 44;
+}
+
+// PagesHpa configures the Horizontal Pod Autoscaler.
+message PagesHpa {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Maximum number of replicas.
+  uint32 max_replicas = 1;
+
+  // Minimum number of replicas.
+  uint32 min_replicas = 2;
+
+  // CPU-based scaling target.
+  PagesHpaCpu cpu = 3;
+
+  // Overrides the HPA metrics definition.
+  repeated google.protobuf.Struct custom_metrics = 4;
+
+  // Scaling behavior configuration.
+  PagesHpaBehavior behavior = 5;
+}
+
+// PagesHpaCpu configures CPU-based autoscaling.
+message PagesHpaCpu {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Target type: Utilization or AverageValue.
+  string target_type = 1;
+
+  // Target average CPU value.
+  string target_average_value = 2;
+}
+
+// PagesHpaBehavior configures scaling behavior.
+message PagesHpaBehavior {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Scale-down behavior.
+  PagesHpaScaleDown scale_down = 1;
+}
+
+// PagesHpaScaleDown configures scale-down behavior.
+message PagesHpaScaleDown {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Stabilization window, in seconds, before scaling down.
+  uint32 stabilization_window_seconds = 1;
+}
+
+// PagesKeda configures KEDA autoscaling.
+message PagesKeda {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether KEDA autoscaling is enabled.
+  bool enabled = 1;
+
+  // Polling interval, in seconds.
+  uint32 polling_interval = 2;
+
+  // Cooldown period, in seconds.
+  uint32 cooldown_period = 3;
+}
+
+// PagesNetworkPolicy configures the NetworkPolicy.
+message PagesNetworkPolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the NetworkPolicy is enabled.
+  bool enabled = 1;
+
+  // Egress rules.
+  PagesNetworkPolicyEgress egress = 2;
+
+  // Ingress rules.
+  PagesNetworkPolicyIngress ingress = 3;
+
+  // Annotations applied to the NetworkPolicy.
+  google.protobuf.Struct annotations = 4;
+}
+
+// PagesNetworkPolicyEgress configures egress rules.
+message PagesNetworkPolicyEgress {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether egress restrictions are enabled.
+  bool enabled = 1;
+
+  // Egress rules.
+  repeated google.protobuf.Struct rules = 2;
+}
+
+// PagesNetworkPolicyIngress configures ingress rules.
+message PagesNetworkPolicyIngress {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether ingress restrictions are enabled.
+  bool enabled = 1;
+
+  // Ingress rules.
+  repeated google.protobuf.Struct rules = 2;
+}
+
+// PagesImage configures the container image.
+message PagesImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+
+  // Container image tag.
+  string tag = 2;
+
+  // Image pull policy.
+  string pull_policy = 3 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets.
+  repeated google.protobuf.Struct pull_secrets = 4;
+}
+
+// PagesService configures the Kubernetes Service.
+message PagesService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Service type.
+  string type = 1;
+
+  // External port.
+  uint32 external_port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Internal port.
+  uint32 internal_port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Annotations applied to the Service.
+  google.protobuf.Struct annotations = 4;
+
+  // Custom domains Service configuration.
+  PagesServiceCustomDomains custom_domains = 5;
+
+  // Metrics Service configuration.
+  PagesServiceMetrics metrics = 6;
+
+  // Primary Service configuration.
+  PagesServicePrimary primary = 7;
+
+  // Session affinity mode.
+  string session_affinity = 8;
+
+  // Session affinity configuration.
+  google.protobuf.Struct session_affinity_config = 9;
+}
+
+// PagesServiceCustomDomains configures the custom domains Service.
+message PagesServiceCustomDomains {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Service type.
+  string type = 1;
+
+  // Internal HTTPS port.
+  uint32 internal_https_port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // NodePort configuration.
+  google.protobuf.Struct node_port = 3;
+
+  // Annotations applied to the Service.
+  google.protobuf.Struct annotations = 4;
+}
+
+// PagesServiceMetrics configures the metrics Service.
+message PagesServiceMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Annotations applied to the metrics Service.
+  google.protobuf.Struct annotations = 1;
+}
+
+// PagesServicePrimary configures the primary Service.
+message PagesServicePrimary {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Annotations applied to the primary Service.
+  google.protobuf.Struct annotations = 1;
+}
+
+// PagesInit configures the init container.
+message PagesInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image override.
+  google.protobuf.Struct image = 1;
+
+  // Init container resource requests and limits.
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context.
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// PagesDeployment configures the Deployment.
+message PagesDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Deployment update strategy.
+  google.protobuf.Struct strategy = 1;
+
+  // Readiness probe configuration.
+  PagesReadinessProbe readiness_probe = 2;
+}
+
+// PagesReadinessProbe configures the readiness probe.
+message PagesReadinessProbe {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Delay, in seconds, before the probe is first run.
+  uint32 initial_delay_seconds = 1;
+
+  // How often, in seconds, to run the probe.
+  uint32 period_seconds = 2;
+
+  // Timeout, in seconds, for the probe.
+  uint32 timeout_seconds = 3;
+
+  // Consecutive successes required to be considered ready.
+  uint32 success_threshold = 4;
+
+  // Consecutive failures required to be considered not ready.
+  uint32 failure_threshold = 5;
+}
+
+// PagesIngress configures the Ingress.
+message PagesIngress {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Ingress apiVersion override.
+  string api_version = 1;
+
+  // Annotations applied to the Ingress.
+  google.protobuf.Struct annotations = 2;
+
+  // Whether to configure cert-manager for the Ingress.
+  bool configure_certmanager = 3;
+
+  // TLS configuration.
+  google.protobuf.Struct tls = 4;
+
+  // Ingress path.
+  string path = 5;
+}
+
+// PagesGatewayRoute configures the Gateway API route.
+message PagesGatewayRoute {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the Gateway API route is enabled.
+  bool enabled = 1;
+
+  // Gateway listener section name.
+  string section_name = 2;
+
+  // Gateway name.
+  string gateway_name = 3;
+
+  // Gateway namespace.
+  string gateway_namespace = 4;
+
+  // Annotations applied to the route.
+  google.protobuf.Struct annotations = 5;
+
+  // Route timeouts.
+  google.protobuf.Struct timeouts = 6;
+
+  // Route filters.
+  repeated google.protobuf.Struct filters = 7;
+}
+
+// PagesCommon holds settings shared across pages resources.
+message PagesCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Labels applied to all resources.
+  google.protobuf.Struct labels = 1;
+}
+
+// PagesSentry configures Sentry error reporting.
+message PagesSentry {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Sentry reporting is enabled.
+  bool enabled = 1;
+
+  // Sentry DSN.
+  string dsn = 2;
+
+  // Sentry environment.
+  string environment = 3;
+}
+
+// PagesTls configures TLS version bounds.
+message PagesTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Minimum TLS version.
+  string min_version = 1;
+
+  // Maximum TLS version.
+  string max_version = 2;
+}
+
+// PagesMetrics configures metrics and the ServiceMonitor.
+message PagesMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics are enabled.
+  bool enabled = 1;
+
+  // Metrics port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Metrics path.
+  string path = 3;
+
+  // Metrics TLS configuration.
+  PagesMetricsTls tls = 4;
+
+  // ServiceMonitor configuration.
+  PagesMetricsServiceMonitor service_monitor = 5;
+
+  // Annotations applied to metrics resources (deprecated).
+  google.protobuf.Struct annotations = 6 [(gitlab.config.lifecycle_stage) = LIFECYCLE_STAGE_DEPRECATED];
+}
+
+// PagesMetricsTls configures TLS for the metrics endpoint.
+message PagesMetricsTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics TLS is enabled.
+  bool enabled = 1;
+
+  // Name of the secret holding the metrics TLS certificate.
+  string secret_name = 2;
+}
+
+// PagesMetricsServiceMonitor configures the Prometheus ServiceMonitor.
+message PagesMetricsServiceMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the ServiceMonitor is enabled.
+  bool enabled = 1;
+
+  // Additional labels applied to the ServiceMonitor.
+  google.protobuf.Struct additional_labels = 2;
+
+  // Additional endpoint configuration.
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// PagesServiceAccount configures the ServiceAccount.
+message PagesServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the deployment uses a ServiceAccount.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // Annotations applied to the ServiceAccount.
+  google.protobuf.Struct annotations = 3;
+}

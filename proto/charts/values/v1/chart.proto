@@ -1,0 +1,186 @@
+syntax = "proto3";
+
+// Chart-level (parent) values that are not part of any GitLab sub-chart:
+// upgradeCheck, shared-secrets, and gatewayApiResources. These live in the
+// top-level values.yaml and are owned by the Operate team.
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// UpgradeCheckImage configures the image used by the pre-upgrade check hook.
+message UpgradeCheckImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  string repository = 1;
+  string tag = 2;
+  string pull_policy = 3 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+  repeated google.protobuf.Struct pull_secrets = 4;
+}
+
+// UpgradeCheck runs a hook that prevents unsupported version upgrades.
+message UpgradeCheck {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  bool enabled = 1;
+  UpgradeCheckImage image = 2;
+  google.protobuf.Struct security_context = 3;
+  google.protobuf.Struct container_security_context = 4;
+  repeated google.protobuf.Struct tolerations = 5;
+  google.protobuf.Struct annotations = 6;
+  google.protobuf.Struct config_map_annotations = 7;
+  google.protobuf.Struct resources = 8;
+  string priority_class_name = 9;
+}
+
+// SharedSecretsImage configures the cfssl self-sign image.
+message SharedSecretsImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  string repository = 1;
+  string tag = 2;
+  string pull_policy = 3 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+  repeated google.protobuf.Struct pull_secrets = 4;
+}
+
+// SharedSecretsSelfsign configures self-signed certificate generation.
+message SharedSecretsSelfsign {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  SharedSecretsImage image = 1;
+  string key_algorithm = 2;
+  // Key size, expressed as a string (for example "4096").
+  string key_size = 3;
+  string expiry = 4;
+  string ca_subject = 5;
+}
+
+// SharedSecretsRbac toggles RBAC object creation for shared-secrets jobs.
+message SharedSecretsRbac {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  bool create = 1;
+}
+
+// SharedSecretsServiceAccount configures the shared-secrets ServiceAccount.
+message SharedSecretsServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  bool enabled = 1;
+  bool create = 2;
+  // Pre-existing ServiceAccount name to use.
+  string name = 3;
+}
+
+// SharedSecrets generates the shared secrets used across the installation.
+message SharedSecrets {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  bool enabled = 1;
+  SharedSecretsRbac rbac = 2;
+  SharedSecretsSelfsign selfsign = 3;
+  string env = 4;
+  SharedSecretsServiceAccount service_account = 5;
+  google.protobuf.Struct resources = 6;
+  google.protobuf.Struct security_context = 7;
+  google.protobuf.Struct container_security_context = 8;
+  repeated google.protobuf.Struct tolerations = 9;
+  google.protobuf.Struct pod_labels = 10;
+  google.protobuf.Struct annotations = 11;
+}
+
+// GatewayApiClass configures the GatewayClass created for the installation.
+message GatewayApiClass {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  string name = 1;
+  string controller_name = 2;
+}
+
+// GatewayApiCertificateRef references a TLS certificate secret.
+message GatewayApiCertificateRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  string name = 1;
+}
+
+// GatewayApiListenerTls configures TLS termination for a listener.
+message GatewayApiListenerTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  string mode = 1;
+  repeated GatewayApiCertificateRef certificate_refs = 2;
+}
+
+// GatewayApiListener configures a single Gateway listener.
+message GatewayApiListener {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  string protocol = 1;
+  GatewayApiListenerTls tls = 2;
+}
+
+// GatewayApiGateway configures the Gateway resource.
+message GatewayApiGateway {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  google.protobuf.Struct annotations = 1;
+  google.protobuf.Struct infrastructure = 2;
+  repeated google.protobuf.Struct addresses = 3;
+  string protocol = 4;
+  // Listener configuration keyed by listener name (for example "gitlab-web").
+  map<string, GatewayApiListener> listeners = 5;
+}
+
+// GatewayApiMonitor configures a ServiceMonitor or PodMonitor.
+message GatewayApiMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  bool enabled = 1;
+  google.protobuf.Struct additional_labels = 2;
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// GatewayApiEnvoyGatewayMetrics wraps the Envoy Gateway ServiceMonitor.
+message GatewayApiEnvoyGatewayMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  GatewayApiMonitor service_monitor = 1;
+}
+
+// GatewayApiEnvoyProxyMetrics wraps the Envoy Proxy PodMonitor.
+message GatewayApiEnvoyProxyMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  GatewayApiMonitor pod_monitor = 1;
+}
+
+// GatewayApiEnvoyMetrics groups the Envoy monitoring configuration.
+message GatewayApiEnvoyMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  GatewayApiEnvoyGatewayMetrics envoy_gateway = 1;
+  GatewayApiEnvoyProxyMetrics envoy_proxy = 2;
+}
+
+// GatewayApiEnvoy configures the bundled Envoy proxy.
+message GatewayApiEnvoy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  google.protobuf.Struct proxy_spec = 1;
+  google.protobuf.Struct client_traffic_policy_spec = 2;
+  google.protobuf.Struct security_policy_spec = 3;
+  GatewayApiEnvoyMetrics metrics = 4;
+}
+
+// GatewayApiResources configures the Gateway API objects created by the chart.
+message GatewayApiResources {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  GatewayApiClass class = 1;
+  GatewayApiGateway gateway = 2;
+  GatewayApiEnvoy envoy = 3;
+}

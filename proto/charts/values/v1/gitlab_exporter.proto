@@ -1,0 +1,215 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// ExporterValues is the top-level schema for the gitlab-exporter sub-chart values.
+message ExporterValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image configuration.
+  ExporterImage image = 1;
+
+  // Address the exporter listens on.
+  string listen_addr = 2;
+
+  // Kubernetes Service configuration.
+  ExporterService service = 3;
+
+  // Metrics and ServiceMonitor configuration.
+  ExporterMetrics metrics = 4;
+
+  // Whether the gitlab-exporter sub-chart is enabled.
+  bool enabled = 5;
+
+  // TLS configuration.
+  ExporterTls tls = 6;
+
+  // Tolerations for pod scheduling.
+  repeated google.protobuf.Struct tolerations = 7;
+
+  // Annotations applied to gitlab-exporter resources.
+  google.protobuf.Struct annotations = 8;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 9;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 10;
+
+  // Common settings such as shared labels.
+  ExporterCommon common = 11;
+
+  // Labels applied to the Service.
+  google.protobuf.Struct service_labels = 12;
+
+  // Init container configuration.
+  ExporterInit init = 13;
+
+  // Global settings shared with the gitlab-exporter sub-chart.
+  GlobalConfig global = 14;
+
+  // Redis configuration.
+  ExporterRedis redis = 15;
+
+  // PostgreSQL configuration.
+  google.protobuf.Struct psql = 16;
+
+  // Compute resource requests and limits.
+  google.protobuf.Struct resources = 17;
+
+  // Pod-level security context.
+  google.protobuf.Struct security_context = 18;
+
+  // Container-level security context.
+  google.protobuf.Struct container_security_context = 19;
+
+  // ServiceAccount configuration.
+  ExporterServiceAccount service_account = 20;
+
+  // Additional environment variables to set.
+  google.protobuf.Struct extra_env = 21;
+
+  // Deployment configuration.
+  ExporterDeployment deployment = 22;
+
+  // Pod affinity/anti-affinity rules.
+  google.protobuf.Struct affinity = 23;
+}
+
+// ExporterImage configures the container image.
+message ExporterImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+
+  // Image pull policy.
+  string pull_policy = 2 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets.
+  repeated google.protobuf.Struct pull_secrets = 3;
+
+  // Container image tag.
+  string tag = 4;
+}
+
+// ExporterService configures the Kubernetes Service.
+message ExporterService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Service name.
+  string name = 1;
+
+  // Service type.
+  string type = 2;
+
+  // External port.
+  uint32 external_port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Internal port.
+  uint32 internal_port = 4 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// ExporterMetrics configures metrics and the ServiceMonitor.
+message ExporterMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics are enabled.
+  bool enabled = 1;
+
+  // Metrics port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Metrics path.
+  string path = 3;
+
+  // ServiceMonitor configuration.
+  ExporterMetricsServiceMonitor service_monitor = 4;
+
+  // Annotations applied to metrics resources (deprecated).
+  google.protobuf.Struct annotations = 5 [(gitlab.config.lifecycle_stage) = LIFECYCLE_STAGE_DEPRECATED];
+}
+
+// ExporterMetricsServiceMonitor configures the Prometheus ServiceMonitor.
+message ExporterMetricsServiceMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the ServiceMonitor is enabled.
+  bool enabled = 1;
+
+  // Additional labels applied to the ServiceMonitor.
+  google.protobuf.Struct additional_labels = 2;
+
+  // Additional endpoint configuration.
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// ExporterTls configures TLS.
+message ExporterTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether TLS is enabled.
+  bool enabled = 1;
+
+  // Name of the secret holding the TLS certificate.
+  string secret_name = 2;
+}
+
+// ExporterCommon holds settings shared across gitlab-exporter resources.
+message ExporterCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Labels applied to all resources.
+  google.protobuf.Struct labels = 1;
+}
+
+// ExporterInit configures the init container.
+message ExporterInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image override.
+  google.protobuf.Struct image = 1;
+
+  // Init container resource requests and limits.
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context.
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// ExporterRedis configures Redis access.
+message ExporterRedis {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Redis authentication configuration.
+  google.protobuf.Struct auth = 1;
+}
+
+// ExporterServiceAccount configures the ServiceAccount.
+message ExporterServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the deployment uses a ServiceAccount.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // Annotations applied to the ServiceAccount.
+  google.protobuf.Struct annotations = 3;
+}
+
+// ExporterDeployment configures the Deployment.
+message ExporterDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Deployment update strategy.
+  google.protobuf.Struct strategy = 1;
+}

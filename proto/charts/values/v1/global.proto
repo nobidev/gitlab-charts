@@ -1,0 +1,2237 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// GlobalConfig models the entire `global:` block of the GitLab Helm chart
+// values.yaml. These settings propagate to every sub-chart.
+// https://docs.gitlab.com/charts/charts/globals
+message GlobalConfig {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Common metadata (labels) applied broadly. Not used for selectors.
+  GlobalCommon common = 1;
+
+  // Container image defaults shared across supported charts.
+  GlobalImage image = 2;
+
+  // Supplemental pod labels. Not used for selectors.
+  GlobalPod pod = 3;
+
+  // GitLab edition to deploy.
+  string edition = 4 [(buf.validate.field).string = {in: ["ce", "ee"]}];
+
+  // Pin the GitLab version used for image tags.
+  string gitlab_version = 5;
+
+  // Application resource (CRD) settings.
+  GlobalApplication application = 6;
+
+  // Host / domain settings for the various GitLab endpoints.
+  GlobalHosts hosts = 7;
+
+  // Gateway API (Envoy) settings.
+  GlobalGatewayApi gateway_api = 8;
+
+  // Ingress settings (deprecated ingress-controller path).
+  GlobalIngress ingress = 9;
+
+  // Override the API version used for HorizontalPodAutoscaler.
+  GlobalHpa hpa = 10;
+
+  // Enable KEDA globally.
+  GlobalKeda keda = 11;
+
+  // Override the API version used for PodDisruptionBudget.
+  GlobalPdb pdb = 12;
+
+  // Override the API version used for CronJob.
+  GlobalBatch batch = 13;
+
+  // Override enablement of ServiceMonitor and PodMonitor objects.
+  GlobalMonitoring monitoring = 14;
+
+  // GitLab license secret reference.
+  GlobalGitlab gitlab = 15;
+
+  // Initial root password secret reference.
+  GlobalSecretRef initial_root_password = 16;
+
+  // PostgreSQL connection settings.
+  GlobalPsql psql = 17;
+
+  // Redis connection settings.
+  GlobalRedis redis = 18;
+
+  // Gitaly settings.
+  GlobalGitaly gitaly = 19;
+
+  // Praefect (Gitaly Cluster) settings.
+  GlobalPraefect praefect = 20;
+
+  // Shared Rails application configuration.
+  GlobalAppConfig app_config = 21;
+
+  // OAuth application settings.
+  GlobalOauth oauth = 22;
+
+  // GitLab Geo settings.
+  GlobalGeo geo = 23;
+
+  // Kubernetes Agent Server (KAS) settings.
+  GlobalKas kas = 24;
+
+  // Workspaces feature toggle.
+  GlobalWorkspaces workspaces = 25;
+
+  // GitLab Shell settings.
+  GlobalShell shell = 26;
+
+  // Rails secret reference.
+  GlobalSecretRef rails_secrets = 27;
+
+  // Generic Rails settings applicable to all Rails-based containers.
+  GlobalRails rails = 28;
+
+  // Container registry settings.
+  GlobalRegistry registry = 29;
+
+  // GitLab Pages settings.
+  GlobalPages pages = 30;
+
+  // GitLab Runner registration settings.
+  GlobalRunner runner = 31;
+
+  // Outgoing email (SMTP) server settings.
+  GlobalSmtp smtp = 32;
+
+  // Email persona settings used in outgoing email.
+  GlobalEmail email = 33;
+
+  // Timezone for containers.
+  string time_zone = 34 [(gitlab.config.helm_name) = "time_zone"];
+
+  // Global Service annotations and labels.
+  GlobalService service = 35;
+
+  // Global Deployment annotations.
+  GlobalDeployment deployment = 36;
+
+  // revisionHistoryLimit for all StatefulSets and Deployments.
+  uint32 revision_history_limit = 37;
+
+  // Global nodeAffinity (currently only honored by the registry chart).
+  google.protobuf.Struct node_affinity = 38;
+
+  // Anti-affinity mode for pods.
+  string anti_affinity = 39 [(buf.validate.field).string = {in: ["hard", "soft"]}];
+
+  // Affinity rules (freeform passthrough).
+  google.protobuf.Struct affinity = 40;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 41;
+
+  // Workhorse settings.
+  GlobalWorkhorse workhorse = 42;
+
+  // Webservice settings.
+  GlobalWebservice webservice = 43;
+
+  // Custom certificate authority injection settings.
+  GlobalCertificates certificates = 44;
+
+  // kubectl image used by hooks.
+  GlobalKubectl kubectl = 45;
+
+  // gitlab-base image settings.
+  GlobalGitlabBase gitlab_base = 46;
+
+  // ServiceAccount settings.
+  GlobalServiceAccount service_account = 47;
+
+  // Tracing settings.
+  GlobalTracing tracing = 48;
+
+  // Zoekt (code search) settings.
+  GlobalZoekt zoekt = 49;
+
+  // OpenBao (experimental secrets backend) settings.
+  GlobalOpenbao openbao = 50;
+
+  // Extra environment variables injected into containers (freeform).
+  google.protobuf.Struct extra_env = 51;
+
+  // Extra environment variables sourced from other objects (freeform).
+  google.protobuf.Struct extra_env_from = 52;
+
+  // Job settings.
+  GlobalJob job = 53;
+
+  // Traefik (deprecated ingress) settings.
+  GlobalTraefik traefik = 54;
+}
+
+// GlobalSecretRef is a reusable reference to a Kubernetes Secret key.
+message GlobalSecretRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the Kubernetes Secret.
+  string secret = 1;
+
+  // Key within the Secret.
+  string key = 2;
+}
+
+// GlobalImageConfig is a reusable container image definition.
+message GlobalImageConfig {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Image repository.
+  string repository = 1;
+
+  // Image tag.
+  string tag = 2;
+
+  // Image pull policy.
+  string pull_policy = 3;
+
+  // Image pull secrets (freeform list).
+  repeated google.protobuf.Struct pull_secrets = 4;
+}
+
+// GlobalHostPort is a reusable host/port pair.
+message GlobalHostPort {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Hostname.
+  string host = 1;
+
+  // Port.
+  uint32 port = 2;
+}
+
+// GlobalCommon holds common metadata applied broadly.
+message GlobalCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Supplemental labels (freeform).
+  google.protobuf.Struct labels = 1;
+}
+
+// GlobalImage holds the global container image defaults.
+message GlobalImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Registry host override.
+  string registry = 1;
+
+  // Image pull policy.
+  string pull_policy = 2;
+
+  // Image pull secrets (freeform list).
+  repeated google.protobuf.Struct pull_secrets = 3;
+
+  // Suffix appended to image tags.
+  string tag_suffix = 4;
+}
+
+// GlobalPod holds supplemental pod labels.
+message GlobalPod {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Supplemental pod labels (freeform).
+  google.protobuf.Struct labels = 1;
+}
+
+// GlobalApplication configures the Application CRD resource.
+message GlobalApplication {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to create the Application resource.
+  bool create = 1;
+
+  // Application links (freeform list).
+  repeated google.protobuf.Struct links = 2;
+
+  // Whether to allow cluster roles.
+  bool allow_cluster_roles = 3;
+}
+
+// GlobalHosts configures hostnames for the various GitLab endpoints.
+message GlobalHosts {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Base domain.
+  string domain = 1;
+
+  // Suffix appended to hostnames.
+  string host_suffix = 2;
+
+  // Whether to use HTTPS.
+  bool https = 3;
+
+  // External IP for services.
+  string external_ip = 4 [(gitlab.config.helm_name) = "externalIP"];
+
+  // SSH host.
+  string ssh = 5;
+
+  // Per-endpoint host overrides (freeform).
+  google.protobuf.Struct gitlab = 6;
+
+  // Registry host overrides (freeform).
+  google.protobuf.Struct registry = 7;
+
+  // TLS host overrides (freeform).
+  google.protobuf.Struct tls = 8;
+
+  // Smartcard host overrides (freeform).
+  google.protobuf.Struct smartcard = 9;
+
+  // KAS host overrides (freeform).
+  google.protobuf.Struct kas = 10;
+
+  // Pages host overrides (freeform).
+  google.protobuf.Struct pages = 11;
+
+  // OpenBao host overrides (freeform).
+  google.protobuf.Struct openbao = 12;
+
+  // Workspaces host overrides (freeform).
+  google.protobuf.Struct workspaces = 13;
+}
+
+// GlobalGatewayApi configures the Gateway API (Envoy) integration.
+message GlobalGatewayApi {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Gateway API is enabled.
+  bool enabled = 1;
+
+  // Reference to an existing Gateway.
+  GlobalGatewayRef gateway_ref = 2;
+
+  // Whether to install the bundled Envoy Gateway.
+  bool install_envoy = 3;
+
+  // Whether to configure cert-manager for the Gateway.
+  bool configure_certmanager = 4;
+
+  // Whether to redirect HTTP to HTTPS.
+  bool http_to_https_redirect = 5;
+}
+
+// GlobalGatewayRef references an existing Gateway resource.
+message GlobalGatewayRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Gateway name.
+  string name = 1;
+
+  // Gateway namespace.
+  string namespace = 2;
+}
+
+// GlobalIngress configures the deprecated ingress-controller path.
+message GlobalIngress {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Ingress API version override.
+  string api_version = 1;
+
+  // Whether to configure cert-manager.
+  bool configure_certmanager = 2;
+
+  // Whether to use the new ingress for certificates.
+  bool use_new_ingress_for_certs = 3;
+
+  // Ingress provider.
+  string provider = 4;
+
+  // Ingress class.
+  string class = 5;
+
+  // Ingress annotations (freeform).
+  google.protobuf.Struct annotations = 6;
+
+  // Whether ingress is enabled.
+  bool enabled = 7;
+
+  // TLS settings (freeform).
+  google.protobuf.Struct tls = 8;
+
+  // Ingress path.
+  string path = 9;
+
+  // Ingress path type.
+  string path_type = 10;
+}
+
+// GlobalHpa overrides the HorizontalPodAutoscaler API version.
+message GlobalHpa {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // API version override.
+  string api_version = 1;
+}
+
+// GlobalKeda toggles KEDA globally.
+message GlobalKeda {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether KEDA is enabled.
+  bool enabled = 1;
+}
+
+// GlobalPdb overrides the PodDisruptionBudget API version.
+message GlobalPdb {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // API version override.
+  string api_version = 1;
+}
+
+// GlobalBatch overrides the CronJob API version.
+message GlobalBatch {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // CronJob API version settings.
+  GlobalBatchCronJob cron_job = 1;
+}
+
+// GlobalBatchCronJob overrides the CronJob API version.
+message GlobalBatchCronJob {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // API version override.
+  string api_version = 1;
+}
+
+// GlobalMonitoring toggles ServiceMonitor/PodMonitor objects.
+message GlobalMonitoring {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether monitoring objects are enabled.
+  bool enabled = 1;
+}
+
+// GlobalGitlab holds the GitLab enterprise license reference.
+message GlobalGitlab {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Enterprise license secret reference.
+  GlobalSecretRef license = 1;
+}
+
+// GlobalPsql configures PostgreSQL connectivity.
+message GlobalPsql {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Known database decompositions (supports template handling).
+  repeated string known_decompositions = 1;
+
+  // Connection timeout in seconds.
+  uint32 connect_timeout = 2;
+
+  // TCP keepalives toggle (0/1).
+  uint32 keepalives = 3;
+
+  // TCP keepalives idle time.
+  uint32 keepalives_idle = 4;
+
+  // TCP keepalives interval.
+  uint32 keepalives_interval = 5;
+
+  // TCP keepalives count.
+  uint32 keepalives_count = 6;
+
+  // TCP user timeout.
+  uint32 tcp_user_timeout = 7;
+
+  // PostgreSQL password settings.
+  GlobalPsqlPassword password = 8;
+
+  // Database host.
+  string host = 9;
+
+  // Database port.
+  uint32 port = 10 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Database username.
+  string username = 11;
+
+  // Database name.
+  string database = 12;
+
+  // Application name reported to PostgreSQL.
+  string application_name = 13;
+
+  // Whether prepared statements are enabled.
+  bool prepared_statements = 14;
+
+  // Whether database (rake) tasks are enabled.
+  bool database_tasks = 15;
+
+  // Main decomposition overrides.
+  GlobalPsqlConnection main = 16;
+
+  // CI decomposition overrides.
+  GlobalPsqlConnection ci = 17;
+}
+
+// GlobalPsqlPassword configures how the PostgreSQL password is sourced.
+message GlobalPsqlPassword {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to read the password from a Secret.
+  bool use_secret = 1;
+
+  // Secret name.
+  string secret = 2;
+
+  // Secret key.
+  string key = 3;
+
+  // File path to read the password from.
+  string file = 4;
+}
+
+// GlobalPsqlConnection holds per-decomposition connection overrides.
+message GlobalPsqlConnection {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Database host.
+  string host = 1;
+
+  // Database port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Database username.
+  string username = 3;
+
+  // Database name.
+  string database = 4;
+
+  // Application name reported to PostgreSQL.
+  string application_name = 5;
+
+  // Whether prepared statements are enabled.
+  bool prepared_statements = 6;
+
+  // Whether database (rake) tasks are enabled.
+  bool database_tasks = 7;
+}
+
+// GlobalRedis configures Redis connectivity.
+message GlobalRedis {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Redis auth settings.
+  GlobalRedisAuth auth = 1;
+
+  // Connection timeout.
+  uint32 connect_timeout = 2;
+
+  // Read timeout.
+  uint32 read_timeout = 3;
+
+  // Write timeout.
+  uint32 write_timeout = 4;
+
+  // Redis host.
+  string host = 5;
+
+  // Redis port.
+  uint32 port = 6 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Redis database index.
+  uint32 database = 7;
+
+  // Redis user.
+  string user = 8;
+
+  // Sentinel endpoints.
+  repeated GlobalRedisSentinel sentinels = 9;
+
+  // Redis sentinel auth settings.
+  GlobalRedisAuth sentinel_auth = 10;
+}
+
+// GlobalRedisAuth configures Redis authentication.
+message GlobalRedisAuth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether auth is enabled.
+  bool enabled = 1;
+
+  // Secret name.
+  string secret = 2;
+
+  // Secret key.
+  string key = 3;
+}
+
+// GlobalRedisSentinel is a Redis Sentinel endpoint.
+message GlobalRedisSentinel {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Sentinel host.
+  string host = 1;
+
+  // Sentinel port.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// GlobalGitaly configures Gitaly.
+message GlobalGitaly {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Gitaly is enabled.
+  bool enabled = 1;
+
+  // Gitaly auth token secret reference.
+  GlobalSecretRef auth_token = 2;
+
+  // Service name override.
+  string service_name = 3;
+
+  // Internal Gitaly nodes.
+  GlobalGitalyInternal internal = 4;
+
+  // External Gitaly nodes (freeform list).
+  repeated google.protobuf.Struct external = 5;
+
+  // Gitaly Service settings.
+  GlobalGitalyService service = 6;
+
+  // Gitaly TLS settings.
+  GlobalGitalyTls tls = 7;
+
+  // Gitaly client settings.
+  GlobalGitalyClient client = 8;
+}
+
+// GlobalGitalyInternal lists the internal Gitaly storage names.
+message GlobalGitalyInternal {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Internal storage names.
+  repeated string names = 1;
+}
+
+// GlobalGitalyService configures the Gitaly (or Praefect) Service.
+message GlobalGitalyService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Service name.
+  string name = 1;
+
+  // Service type.
+  string type = 2;
+
+  // External port.
+  uint32 external_port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Internal port.
+  uint32 internal_port = 4 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // TLS port settings.
+  GlobalGitalyServiceTls tls = 5;
+}
+
+// GlobalGitalyServiceTls configures the TLS ports for the Gitaly Service.
+message GlobalGitalyServiceTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // External TLS port.
+  uint32 external_port = 1 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Internal TLS port.
+  uint32 internal_port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// GlobalGitalyTls configures Gitaly (or Praefect) TLS.
+message GlobalGitalyTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether TLS is enabled.
+  bool enabled = 1;
+
+  // TLS secret name.
+  string secret_name = 2;
+}
+
+// GlobalGitalyClient configures Gitaly client retry behavior.
+message GlobalGitalyClient {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Maximum retry attempts.
+  uint32 max_attempts = 1;
+
+  // Initial backoff (duration string).
+  string initial_backoff = 2;
+
+  // Maximum backoff (duration string).
+  string max_backoff = 3;
+}
+
+// GlobalPraefect configures Praefect (Gitaly Cluster).
+message GlobalPraefect {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Praefect is enabled.
+  bool enabled = 1;
+
+  // NTP host used for health checks.
+  string ntp_host = 2;
+
+  // Whether Praefect replaces internal Gitaly.
+  bool replace_internal_gitaly = 3;
+
+  // Praefect auth token secret reference.
+  GlobalSecretRef auth_token = 4;
+
+  // Whether to auto-migrate the Praefect database.
+  bool auto_migrate = 5;
+
+  // Praefect database secret reference.
+  GlobalSecretRef db_secret = 6;
+
+  // Virtual storages.
+  repeated GlobalPraefectVirtualStorage virtual_storages = 7;
+
+  // Praefect PostgreSQL settings.
+  GlobalPraefectPsql psql = 8;
+
+  // Service name override.
+  string service_name = 9;
+
+  // Praefect Service settings.
+  GlobalGitalyService service = 10;
+
+  // Praefect TLS settings.
+  GlobalGitalyTls tls = 11;
+}
+
+// GlobalPraefectVirtualStorage configures a Praefect virtual storage.
+message GlobalPraefectVirtualStorage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Virtual storage name.
+  string name = 1;
+
+  // Number of Gitaly replicas.
+  uint32 gitaly_replicas = 2;
+
+  // Maximum unavailable replicas.
+  uint32 max_unavailable = 3;
+}
+
+// GlobalPraefectPsql configures the Praefect PostgreSQL connection.
+message GlobalPraefectPsql {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // SSL mode.
+  string ssl_mode = 1;
+}
+
+// GlobalAppConfig models the shared Rails application configuration.
+message GlobalAppConfig {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // CDN host.
+  string cdn_host = 1;
+
+  // Relative URL root.
+  string relative_url_root = 2;
+
+  // Whether usage ping is enabled.
+  bool enable_usage_ping = 3;
+
+  // Whether seat link is enabled.
+  bool enable_seat_link = 4;
+
+  // Whether impersonation is enabled.
+  bool enable_impersonation = 5;
+
+  // Application settings cache TTL in seconds.
+  uint32 application_settings_cache_seconds = 6;
+
+  // Whether username changing is enabled.
+  bool username_changing_enabled = 7;
+
+  // Issue closing pattern (regex).
+  string issue_closing_pattern = 8;
+
+  // Default theme ID.
+  int32 default_theme = 9;
+
+  // Default color mode.
+  string default_color_mode = 10;
+
+  // Default syntax highlighting theme ID.
+  int32 default_syntax_highlighting_theme = 11;
+
+  // Default features for new projects.
+  GlobalDefaultProjectsFeatures default_projects_features = 12;
+
+  // Git import/fetch timeout in seconds.
+  uint32 git_timeout = 13;
+
+  // GraphQL timeout in seconds.
+  uint32 graph_ql_timeout = 14;
+
+  // Webhook timeout in seconds.
+  uint32 webhook_timeout = 15;
+
+  // Maximum request duration in seconds.
+  uint32 max_request_duration_seconds = 16;
+
+  // CI ID token settings.
+  GlobalCiIdTokens ci_id_tokens = 17;
+
+  // Cron job overrides (freeform).
+  google.protobuf.Struct cron_jobs = 18 [(gitlab.config.helm_name) = "cron_jobs"];
+
+  // Content Security Policy settings.
+  GlobalContentSecurityPolicy content_security_policy = 19;
+
+  // Gravatar/Libravatar settings.
+  GlobalGravatar gravatar = 20;
+
+  // Analytics/tracking service settings.
+  GlobalAppConfigExtra extra = 21;
+
+  // Default object storage settings.
+  GlobalObjectStore object_store = 22 [(gitlab.config.helm_name) = "object_store"];
+
+  // Git LFS object storage settings.
+  GlobalLfs lfs = 23;
+
+  // Artifacts object storage settings.
+  GlobalArtifacts artifacts = 24;
+
+  // Uploads object storage settings.
+  GlobalUploads uploads = 25;
+
+  // Packages object storage settings.
+  GlobalPackages packages = 26;
+
+  // External MR diffs object storage settings.
+  GlobalExternalDiffs external_diffs = 27;
+
+  // Terraform state object storage settings.
+  GlobalTerraformState terraform_state = 28;
+
+  // CI secure files object storage settings.
+  GlobalCiSecureFiles ci_secure_files = 29;
+
+  // Agent plan content object storage settings.
+  GlobalAgentPlanContent agent_plan_content = 30;
+
+  // Dependency proxy object storage settings.
+  GlobalDependencyProxy dependency_proxy = 31;
+
+  // Backup bucket settings.
+  GlobalBackups backups = 32;
+
+  // Microsoft Graph mailer settings.
+  GlobalMicrosoftGraphMailer microsoft_graph_mailer = 33 [(gitlab.config.helm_name) = "microsoft_graph_mailer"];
+
+  // Incoming email settings.
+  GlobalMailroomEmail incoming_email = 34;
+
+  // Service Desk email settings.
+  GlobalMailroomEmail service_desk_email = 35;
+
+  // LDAP settings.
+  GlobalLdap ldap = 36;
+
+  // GitLab Duo auth settings.
+  GlobalDuoAuth duo_auth = 37;
+
+  // Knowledge graph settings.
+  GlobalKnowledgeGraph knowledge_graph = 38;
+
+  // KAS-related appConfig settings.
+  GlobalAppConfigGitlabKas gitlab_kas = 39 [(gitlab.config.helm_name) = "gitlab_kas"];
+
+  // IAM-Auth service settings.
+  GlobalIamAuthService iam_auth_service = 40;
+
+  // IAM Data Access service settings.
+  GlobalIamDataAccessService iam_data_access_service = 41;
+
+  // Workspaces appConfig settings (freeform).
+  google.protobuf.Struct workspaces = 42;
+
+  // GitLab Cells settings (experimental).
+  GlobalCell cell = 43;
+
+  // OmniAuth settings.
+  GlobalOmniauth omniauth = 44;
+
+  // Kerberos settings.
+  GlobalKerberos kerberos = 45;
+
+  // Sentry settings.
+  GlobalSentry sentry = 46;
+
+  // GitLab Docs settings.
+  GlobalGitlabDocs gitlab_docs = 47 [(gitlab.config.helm_name) = "gitlab_docs"];
+
+  // OIDC provider settings.
+  GlobalOidcProvider oidc_provider = 48;
+
+  // Smartcard auth settings.
+  GlobalSmartcard smartcard = 49;
+
+  // Sidekiq appConfig settings.
+  GlobalAppConfigSidekiq sidekiq = 50;
+
+  // Config applied only to defaults on initial install (freeform).
+  google.protobuf.Struct initial_defaults = 51;
+
+  // ActionCable allowed request origins.
+  repeated string action_cable_allowed_origins = 52;
+}
+
+// GlobalDefaultProjectsFeatures sets default features for new projects.
+message GlobalDefaultProjectsFeatures {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Issues enabled by default.
+  bool issues = 1;
+
+  // Merge requests enabled by default.
+  bool merge_requests = 2;
+
+  // Wiki enabled by default.
+  bool wiki = 3;
+
+  // Snippets enabled by default.
+  bool snippets = 4;
+
+  // Builds (CI) enabled by default.
+  bool builds = 5;
+}
+
+// GlobalCiIdTokens configures CI ID tokens.
+message GlobalCiIdTokens {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Issuer URL.
+  string issuer_url = 1;
+}
+
+// GlobalContentSecurityPolicy configures the Content Security Policy.
+message GlobalContentSecurityPolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether CSP is enabled.
+  bool enabled = 1;
+
+  // Whether CSP is report-only.
+  bool report_only = 2 [(gitlab.config.helm_name) = "report_only"];
+
+  // CSP directives (freeform).
+  google.protobuf.Struct directives = 3;
+}
+
+// GlobalGravatar configures Gravatar/Libravatar.
+message GlobalGravatar {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Plain (HTTP) URL.
+  string plain_url = 1;
+
+  // SSL (HTTPS) URL.
+  string ssl_url = 2;
+}
+
+// GlobalAppConfigExtra configures analytics/tracking services.
+message GlobalAppConfigExtra {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Google Analytics ID.
+  string google_analytics_id = 1;
+
+  // Matomo URL.
+  string matomo_url = 2;
+
+  // Matomo site ID.
+  string matomo_site_id = 3;
+
+  // Whether Matomo cookies are disabled.
+  bool matomo_disable_cookies = 4;
+
+  // OneTrust ID.
+  string one_trust_id = 5;
+
+  // Google Tag Manager nonce ID.
+  string google_tag_manager_nonce_id = 6;
+
+  // Whether Bizible is enabled.
+  bool bizible = 7;
+}
+
+// GlobalObjectStore configures the default object storage connection.
+message GlobalObjectStore {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether consolidated object storage is enabled.
+  bool enabled = 1;
+
+  // Whether downloads are proxied through GitLab.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Storage options such as server-side encryption (freeform).
+  google.protobuf.Struct storage_options = 3 [(gitlab.config.helm_name) = "storage_options"];
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 4;
+}
+
+// GlobalLfs configures Git LFS object storage.
+message GlobalLfs {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether LFS storage is enabled.
+  bool enabled = 1;
+
+  // Whether downloads are proxied through GitLab.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Bucket name.
+  string bucket = 3;
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 4;
+}
+
+// GlobalArtifacts configures CI artifacts object storage.
+message GlobalArtifacts {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether artifacts storage is enabled.
+  bool enabled = 1;
+
+  // Whether downloads are proxied through GitLab.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Bucket name.
+  string bucket = 3;
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 4;
+}
+
+// GlobalUploads configures uploads object storage.
+message GlobalUploads {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether uploads storage is enabled.
+  bool enabled = 1;
+
+  // Whether downloads are proxied through GitLab.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Bucket name.
+  string bucket = 3;
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 4;
+}
+
+// GlobalPackages configures packages object storage.
+message GlobalPackages {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether packages storage is enabled.
+  bool enabled = 1;
+
+  // Whether downloads are proxied through GitLab.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Bucket name.
+  string bucket = 3;
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 4;
+}
+
+// GlobalExternalDiffs configures external MR diffs object storage.
+message GlobalExternalDiffs {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether external diffs storage is enabled.
+  bool enabled = 1;
+
+  // When to offload diffs to external storage.
+  string when = 2;
+
+  // Whether downloads are proxied through GitLab.
+  bool proxy_download = 3 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Bucket name.
+  string bucket = 4;
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 5;
+}
+
+// GlobalTerraformState configures Terraform state object storage.
+message GlobalTerraformState {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Terraform state storage is enabled.
+  bool enabled = 1;
+
+  // Bucket name.
+  string bucket = 2;
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 3;
+}
+
+// GlobalCiSecureFiles configures CI secure files object storage.
+message GlobalCiSecureFiles {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether CI secure files storage is enabled.
+  bool enabled = 1;
+
+  // Bucket name.
+  string bucket = 2;
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 3;
+}
+
+// GlobalAgentPlanContent configures agent plan content object storage.
+message GlobalAgentPlanContent {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether agent plan content storage is enabled.
+  bool enabled = 1;
+
+  // Bucket name.
+  string bucket = 2;
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 3;
+}
+
+// GlobalDependencyProxy configures dependency proxy object storage.
+message GlobalDependencyProxy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether dependency proxy storage is enabled.
+  bool enabled = 1;
+
+  // Whether downloads are proxied through GitLab.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Bucket name.
+  string bucket = 3;
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 4;
+}
+
+// GlobalBackups configures backup buckets.
+message GlobalBackups {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Backup bucket name.
+  string bucket = 1;
+
+  // Temporary bucket name.
+  string tmp_bucket = 2;
+}
+
+// GlobalMicrosoftGraphMailer configures the Microsoft Graph mailer.
+message GlobalMicrosoftGraphMailer {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the Microsoft Graph mailer is enabled.
+  bool enabled = 1;
+
+  // User ID.
+  string user_id = 2 [(gitlab.config.helm_name) = "user_id"];
+
+  // Azure tenant.
+  string tenant = 3;
+
+  // Client ID.
+  string client_id = 4 [(gitlab.config.helm_name) = "client_id"];
+
+  // Client secret reference.
+  GlobalSecretRef client_secret = 5 [(gitlab.config.helm_name) = "client_secret"];
+
+  // Azure AD endpoint.
+  string azure_ad_endpoint = 6 [(gitlab.config.helm_name) = "azure_ad_endpoint"];
+
+  // Microsoft Graph endpoint.
+  string graph_endpoint = 7 [(gitlab.config.helm_name) = "graph_endpoint"];
+}
+
+// GlobalMailroomEmail configures a Mailroom email inbox (incoming/service desk).
+message GlobalMailroomEmail {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether this mailbox is enabled.
+  bool enabled = 1;
+
+  // Email address.
+  string address = 2;
+
+  // IMAP host.
+  string host = 3;
+
+  // IMAP port.
+  uint32 port = 4 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Whether SSL is used.
+  bool ssl = 5;
+
+  // Whether STARTTLS is used.
+  bool start_tls = 6;
+
+  // Mailbox user.
+  string user = 7;
+
+  // Password secret reference.
+  GlobalSecretRef password = 8;
+
+  // Whether to delete messages after delivery.
+  bool delete_after_delivery = 9;
+
+  // Whether to expunge deleted messages.
+  bool expunge_deleted = 10;
+
+  // Logger settings.
+  GlobalEmailLogger logger = 11;
+
+  // Mailbox name.
+  string mailbox = 12;
+
+  // Idle timeout in seconds.
+  uint32 idle_timeout = 13;
+
+  // Inbox method.
+  string inbox_method = 14;
+
+  // OAuth client secret reference.
+  GlobalSecretRef client_secret = 15;
+
+  // Poll interval in seconds.
+  uint32 poll_interval = 16;
+
+  // Delivery method.
+  string delivery_method = 17;
+
+  // Auth token secret reference.
+  GlobalSecretRef auth_token = 18;
+}
+
+// GlobalEmailLogger configures Mailroom logging.
+message GlobalEmailLogger {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Log output path.
+  string log_path = 1;
+}
+
+// GlobalLdap configures LDAP integration.
+message GlobalLdap {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to prevent LDAP sign-in via web.
+  bool prevent_signin = 1;
+
+  // LDAP server definitions (freeform).
+  google.protobuf.Struct servers = 2;
+}
+
+// GlobalDuoAuth configures GitLab Duo authentication.
+message GlobalDuoAuth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Duo auth is enabled.
+  bool enabled = 1;
+
+  // Duo hostname.
+  string hostname = 2;
+
+  // Integration key.
+  string integration_key = 3;
+
+  // Secret key reference.
+  GlobalSecretRef secret_key = 4;
+}
+
+// GlobalKnowledgeGraph configures the knowledge graph service.
+message GlobalKnowledgeGraph {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the knowledge graph is enabled.
+  bool enabled = 1;
+
+  // JWT secret reference.
+  GlobalSecretRef jwt_secret = 2;
+
+  // gRPC endpoint.
+  string grpc_endpoint = 3;
+}
+
+// GlobalAppConfigGitlabKas configures KAS-related Rails settings.
+message GlobalAppConfigGitlabKas {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Secret name.
+  string secret = 1;
+
+  // Secret key.
+  string key = 2;
+
+  // Whether KAS integration is enabled.
+  bool enabled = 3;
+
+  // External URL.
+  string external_url = 4;
+
+  // Internal URL.
+  string internal_url = 5;
+
+  // Client timeout in seconds.
+  uint32 client_timeout_seconds = 6;
+}
+
+// GlobalIamAuthService configures the IAM-Auth service integration.
+message GlobalIamAuthService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the IAM-Auth service is enabled.
+  bool enabled = 1;
+
+  // HTTP endpoint.
+  GlobalHostPort http = 2;
+
+  // gRPC endpoint.
+  GlobalHostPort grpc = 3;
+
+  // JWT audience.
+  string jwt_audience = 4;
+
+  // JWT issuer.
+  string jwt_issuer = 5;
+
+  // Auth token secret reference.
+  GlobalSecretRef auth_token = 6;
+}
+
+// GlobalIamDataAccessService configures the IAM Data Access service.
+message GlobalIamDataAccessService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the IAM Data Access service is enabled.
+  bool enabled = 1;
+
+  // gRPC endpoint.
+  GlobalHostPort grpc = 2;
+
+  // Auth token secret reference.
+  GlobalSecretRef auth_token = 3;
+}
+
+// GlobalCell configures GitLab Cells (experimental).
+message GlobalCell {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Cells is enabled.
+  bool enabled = 1;
+
+  // Cell ID.
+  string id = 2;
+
+  // Cell database settings.
+  GlobalCellDatabase database = 3;
+
+  // Topology service client settings.
+  GlobalCellTopologyServiceClient topology_service_client = 4;
+}
+
+// GlobalCellDatabase configures Cell database behavior.
+message GlobalCellDatabase {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to skip sequence alteration.
+  bool skip_sequence_alteration = 1;
+}
+
+// GlobalCellTopologyServiceClient configures the topology service client.
+message GlobalCellTopologyServiceClient {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Topology service gRPC address ("host:port").
+  string address = 1;
+
+  // TLS settings for the topology service client.
+  GlobalCellTls tls = 2;
+}
+
+// GlobalCellTls configures mTLS for the topology service client.
+message GlobalCellTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether TLS is enabled.
+  bool enabled = 1;
+
+  // Secret holding the mTLS client certificate and key.
+  string secret = 2;
+
+  // Private key file name.
+  string private_key_file = 3;
+
+  // Certificate file name.
+  string certificate_file = 4;
+}
+
+// GlobalOmniauth configures OmniAuth.
+message GlobalOmniauth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether OmniAuth is enabled.
+  bool enabled = 1;
+
+  // Provider to auto sign in with.
+  string auto_sign_in_with_provider = 2;
+
+  // Providers to sync profile from.
+  repeated string sync_profile_from_provider = 3;
+
+  // Profile attributes to sync.
+  repeated string sync_profile_attributes = 4;
+
+  // Providers allowed for single sign-on.
+  repeated string allow_single_sign_on = 5;
+
+  // Whether to block auto-created users.
+  bool block_auto_created_users = 6;
+
+  // Whether to auto-link LDAP users.
+  bool auto_link_ldap_user = 7;
+
+  // Whether to auto-link SAML users.
+  bool auto_link_saml_user = 8;
+
+  // Providers for which to auto-link users.
+  repeated string auto_link_user = 9;
+
+  // External providers.
+  repeated string external_providers = 10;
+
+  // Providers allowed to bypass two-factor.
+  repeated string allow_bypass_two_factor = 11;
+
+  // OmniAuth provider definitions (freeform).
+  repeated google.protobuf.Struct providers = 12;
+}
+
+// GlobalKerberos configures Kerberos authentication.
+message GlobalKerberos {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Kerberos is enabled.
+  bool enabled = 1;
+
+  // Keytab secret reference.
+  GlobalSecretRef keytab = 2;
+
+  // Service principal name.
+  string service_principal_name = 3;
+
+  // krb5.conf contents.
+  string krb5_config = 4;
+
+  // Dedicated Kerberos port settings.
+  GlobalKerberosDedicatedPort dedicated_port = 5;
+
+  // Allowed realms for simple LDAP linking.
+  repeated string simple_ldap_linking_allowed_realms = 6;
+}
+
+// GlobalKerberosDedicatedPort configures a dedicated Kerberos port.
+message GlobalKerberosDedicatedPort {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the dedicated port is enabled.
+  bool enabled = 1;
+
+  // Port number.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Whether the dedicated port uses HTTPS.
+  bool https = 3;
+}
+
+// GlobalSentry configures Sentry error reporting.
+message GlobalSentry {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Sentry is enabled.
+  bool enabled = 1;
+
+  // Server-side DSN.
+  string dsn = 2;
+
+  // Client-side DSN.
+  string clientside_dsn = 3 [(gitlab.config.helm_name) = "clientside_dsn"];
+
+  // Sentry environment.
+  string environment = 4;
+}
+
+// GlobalGitlabDocs configures the GitLab Docs integration.
+message GlobalGitlabDocs {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether GitLab Docs is enabled.
+  bool enabled = 1;
+
+  // Docs host.
+  string host = 2;
+}
+
+// GlobalOidcProvider configures the OIDC provider.
+message GlobalOidcProvider {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // OpenID ID token expiry in seconds.
+  uint32 openid_id_token_expire_in_seconds = 1;
+}
+
+// GlobalSmartcard configures smartcard authentication.
+message GlobalSmartcard {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether smartcard auth is enabled.
+  bool enabled = 1;
+
+  // CA secret name.
+  string ca_secret = 2 [(gitlab.config.helm_name) = "CASecret"];
+
+  // Host requiring a client certificate.
+  string client_certificate_required_host = 3;
+
+  // Whether to use SAN extensions.
+  bool san_extensions = 4;
+
+  // Whether smartcard is required for git access.
+  bool required_for_git_access = 5;
+}
+
+// GlobalAppConfigSidekiq configures Sidekiq routing at the appConfig level.
+message GlobalAppConfigSidekiq {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Sidekiq routing rules (freeform).
+  repeated google.protobuf.Struct routing_rules = 1;
+}
+
+// GlobalOauth configures OAuth applications.
+message GlobalOauth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // GitLab Pages OAuth application settings (freeform).
+  google.protobuf.Struct gitlab_pages = 1 [(gitlab.config.helm_name) = "gitlab-pages"];
+}
+
+// GlobalGeo configures GitLab Geo.
+message GlobalGeo {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Geo is enabled.
+  bool enabled = 1;
+
+  // Geo role.
+  string role = 2 [(buf.validate.field).string = {in: ["primary", "secondary"]}];
+
+  // Node name (for load-balanced instances).
+  string node_name = 3;
+
+  // Ingress class.
+  string ingress_class = 4;
+
+  // Gateway API settings for Geo.
+  GlobalGeoGatewayApi gateway_api = 5;
+
+  // PostgreSQL connection details (secondary only).
+  GlobalGeoPsql psql = 6;
+
+  // Registry replication settings.
+  GlobalGeoRegistry registry = 7;
+}
+
+// GlobalGeoGatewayApi configures Gateway API hostnames for Geo.
+message GlobalGeoGatewayApi {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Additional hostname for Geo inter-site communication.
+  string additional_hostname = 1;
+}
+
+// GlobalGeoPsql configures the Geo secondary PostgreSQL connection.
+message GlobalGeoPsql {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Password secret reference.
+  GlobalSecretRef password = 1;
+
+  // Database host.
+  string host = 2;
+
+  // Database port.
+  uint32 port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Database username.
+  string username = 4;
+
+  // Database name.
+  string database = 5;
+
+  // SSL settings.
+  GlobalGeoPsqlSsl ssl = 6;
+}
+
+// GlobalGeoPsqlSsl configures SSL for the Geo PostgreSQL connection.
+message GlobalGeoPsqlSsl {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Secret holding the SSL materials.
+  string secret = 1;
+
+  // Client key file name.
+  string client_key = 2;
+
+  // Client certificate file name.
+  string client_certificate = 3;
+
+  // Server CA file name.
+  string server_ca = 4 [(gitlab.config.helm_name) = "serverCA"];
+}
+
+// GlobalGeoRegistry configures registry replication for Geo.
+message GlobalGeoRegistry {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Registry replication settings.
+  GlobalGeoRegistryReplication replication = 1;
+}
+
+// GlobalGeoRegistryReplication configures Geo registry replication.
+message GlobalGeoRegistryReplication {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether replication is enabled.
+  bool enabled = 1;
+
+  // Primary registry API URL.
+  string primary_api_url = 2;
+}
+
+// GlobalKas configures the Kubernetes Agent Server.
+message GlobalKas {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether KAS is enabled.
+  bool enabled = 1;
+
+  // KAS Service settings.
+  GlobalKasService service = 2;
+
+  // KAS TLS settings.
+  GlobalKasTls tls = 3;
+}
+
+// GlobalKasService configures the KAS Service.
+message GlobalKasService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Port for connections from the GitLab backend.
+  uint32 api_external_port = 1 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// GlobalKasTls configures KAS TLS.
+message GlobalKasTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether TLS is enabled.
+  bool enabled = 1;
+
+  // Whether to verify TLS.
+  bool verify = 2;
+
+  // TLS secret name.
+  string secret_name = 3;
+
+  // CA secret name.
+  string ca_secret_name = 4;
+}
+
+// GlobalWorkspaces toggles the workspaces feature.
+message GlobalWorkspaces {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether workspaces are enabled.
+  bool enabled = 1;
+}
+
+// GlobalShell configures GitLab Shell.
+message GlobalShell {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Auth token secret reference.
+  GlobalSecretRef auth_token = 1;
+
+  // Host keys secret reference.
+  GlobalSecretRef host_keys = 2;
+
+  // TCP proxy protocol settings.
+  GlobalShellTcp tcp = 3;
+}
+
+// GlobalShellTcp configures GitLab Shell TCP behavior.
+message GlobalShellTcp {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether PROXY protocol is enabled.
+  bool proxy_protocol = 1;
+}
+
+// GlobalRails configures generic Rails settings.
+message GlobalRails {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Bootsnap cache settings.
+  GlobalRailsBootsnap bootsnap = 1;
+
+  // Session store settings.
+  GlobalRailsSessionStore session_store = 2;
+}
+
+// GlobalRailsBootsnap configures the Bootsnap cache.
+message GlobalRailsBootsnap {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Bootsnap is enabled.
+  bool enabled = 1;
+}
+
+// GlobalRailsSessionStore configures the Rails session store.
+message GlobalRailsSessionStore {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Session cookie token prefix.
+  string session_cookie_token_prefix = 1;
+}
+
+// GlobalRegistry configures the container registry.
+message GlobalRegistry {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Registry storage bucket.
+  string bucket = 1;
+
+  // Registry certificate secret reference.
+  GlobalSecretRef certificate = 2;
+
+  // HTTP secret reference.
+  GlobalSecretRef http_secret = 3;
+
+  // Notification secret reference.
+  GlobalSecretRef notification_secret = 4;
+
+  // Registry database settings.
+  GlobalRegistryDatabase database = 5;
+
+  // Registry TLS settings.
+  GlobalRegistryTls tls = 6;
+
+  // Registry Redis settings.
+  GlobalRegistryRedis redis = 7;
+
+  // Registry notification settings (freeform).
+  google.protobuf.Struct notifications = 8;
+
+  // Whether the registry is enabled.
+  bool enabled = 9;
+
+  // Registry host.
+  string host = 10;
+
+  // Registry port.
+  uint32 port = 11;
+
+  // Registry API settings.
+  GlobalRegistryApi api = 12;
+
+  // Registry token issuer.
+  string token_issuer = 13;
+}
+
+// GlobalRegistryDatabase configures the registry database.
+message GlobalRegistryDatabase {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Database password secret reference.
+  GlobalSecretRef password = 1;
+
+  // Database user.
+  string user = 2;
+
+  // Database name.
+  string name = 3;
+}
+
+// GlobalRegistryTls configures registry TLS.
+message GlobalRegistryTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether TLS is enabled.
+  bool enabled = 1;
+
+  // TLS secret name.
+  string secret_name = 2;
+}
+
+// GlobalRegistryRedis configures the registry Redis pools.
+message GlobalRegistryRedis {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Cache pool.
+  GlobalRegistryRedisPool cache = 1;
+
+  // Rate limiting pool.
+  GlobalRegistryRedisPool rate_limiting = 2;
+
+  // Load balancing pool.
+  GlobalRegistryRedisPool load_balancing = 3;
+}
+
+// GlobalRegistryRedisPool configures a single registry Redis pool.
+message GlobalRegistryRedisPool {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Pool password secret reference.
+  GlobalSecretRef password = 1;
+}
+
+// GlobalRegistryApi configures the registry API endpoint.
+message GlobalRegistryApi {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // API protocol.
+  string protocol = 1;
+
+  // API service name.
+  string service_name = 2;
+
+  // API port.
+  uint32 port = 3;
+}
+
+// GlobalPages configures GitLab Pages.
+message GlobalPages {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Pages is enabled.
+  bool enabled = 1;
+
+  // Whether access control is enabled.
+  bool access_control = 2;
+
+  // Pages path.
+  string path = 3;
+
+  // Pages host.
+  string host = 4;
+
+  // Pages port.
+  uint32 port = 5;
+
+  // Whether Pages uses HTTPS.
+  bool https = 6;
+
+  // External HTTP addresses.
+  repeated string external_http = 7;
+
+  // External HTTPS addresses.
+  repeated string external_https = 8;
+
+  // Custom domain mode.
+  string custom_domain_mode = 9;
+
+  // Whether the artifacts server is enabled.
+  bool artifacts_server = 10;
+
+  // Local store settings.
+  GlobalPagesLocalStore local_store = 11;
+
+  // Object store settings.
+  GlobalPagesObjectStore object_store = 12;
+
+  // API secret reference.
+  GlobalSecretRef api_secret = 13;
+
+  // Auth secret reference.
+  GlobalSecretRef auth_secret = 14;
+
+  // Whether namespace is in the path.
+  bool namespace_in_path = 15;
+}
+
+// GlobalPagesLocalStore configures Pages local storage.
+message GlobalPagesLocalStore {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether local storage is enabled.
+  bool enabled = 1;
+
+  // Local storage path.
+  string path = 2;
+}
+
+// GlobalPagesObjectStore configures Pages object storage.
+message GlobalPagesObjectStore {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether object storage is enabled.
+  bool enabled = 1;
+
+  // Bucket name.
+  string bucket = 2;
+
+  // Whether downloads are proxied through GitLab.
+  bool proxy_download = 3 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Connection secret reference.
+  GlobalSecretRef connection = 4;
+}
+
+// GlobalRunner configures GitLab Runner registration.
+message GlobalRunner {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Registration token secret reference.
+  GlobalSecretRef registration_token = 1;
+}
+
+// GlobalSmtp configures the outgoing SMTP server.
+message GlobalSmtp {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether SMTP is enabled.
+  bool enabled = 1;
+
+  // SMTP server address.
+  string address = 2;
+
+  // SMTP server port.
+  uint32 port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // SMTP username.
+  string user_name = 4 [(gitlab.config.helm_name) = "user_name"];
+
+  // SMTP username secret reference.
+  GlobalSecretRef user_name_secret = 5 [(gitlab.config.helm_name) = "user_name_secret"];
+
+  // SMTP password secret reference.
+  GlobalSecretRef password = 6;
+
+  // SMTP HELO domain.
+  string domain = 7;
+
+  // SMTP authentication method.
+  string authentication = 8;
+
+  // Whether to auto-negotiate STARTTLS.
+  bool starttls_auto = 9 [(gitlab.config.helm_name) = "starttls_auto"];
+
+  // OpenSSL verify mode.
+  string openssl_verify_mode = 10 [(gitlab.config.helm_name) = "openssl_verify_mode"];
+
+  // Open timeout in seconds.
+  uint32 open_timeout = 11 [(gitlab.config.helm_name) = "open_timeout"];
+
+  // Read timeout in seconds.
+  uint32 read_timeout = 12 [(gitlab.config.helm_name) = "read_timeout"];
+
+  // Whether to use a connection pool.
+  bool pool = 13;
+}
+
+// GlobalEmail configures the email persona used in outgoing email.
+message GlobalEmail {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // From address.
+  string from = 1;
+
+  // Display name.
+  string display_name = 2 [(gitlab.config.helm_name) = "display_name"];
+
+  // Reply-to address.
+  string reply_to = 3 [(gitlab.config.helm_name) = "reply_to"];
+
+  // Subject suffix.
+  string subject_suffix = 4 [(gitlab.config.helm_name) = "subject_suffix"];
+
+  // S/MIME signing settings.
+  GlobalEmailSmime smime = 5;
+}
+
+// GlobalEmailSmime configures S/MIME email signing.
+message GlobalEmailSmime {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether S/MIME is enabled.
+  bool enabled = 1;
+
+  // Secret name.
+  string secret_name = 2;
+
+  // Key file name.
+  string key_name = 3;
+
+  // Certificate file name.
+  string cert_name = 4;
+}
+
+// GlobalService configures global Service annotations and labels.
+message GlobalService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Service labels (freeform).
+  google.protobuf.Struct labels = 1;
+
+  // Service annotations (freeform).
+  google.protobuf.Struct annotations = 2;
+}
+
+// GlobalDeployment configures global Deployment annotations.
+message GlobalDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Deployment annotations (freeform).
+  google.protobuf.Struct annotations = 1;
+}
+
+// GlobalWorkhorse configures Workhorse.
+message GlobalWorkhorse {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Service name.
+  string service_name = 1;
+
+  // Scheme.
+  string scheme = 2;
+
+  // Host.
+  string host = 3;
+
+  // Port.
+  uint32 port = 4;
+
+  // Secret name.
+  string secret = 5;
+
+  // Secret key.
+  string key = 6;
+
+  // Workhorse TLS settings.
+  GlobalWorkhorseTls tls = 7;
+}
+
+// GlobalWorkhorseTls configures Workhorse TLS.
+message GlobalWorkhorseTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether TLS is enabled.
+  bool enabled = 1;
+}
+
+// GlobalWebservice configures shared Webservice settings.
+message GlobalWebservice {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Worker timeout in seconds.
+  uint32 worker_timeout = 1;
+}
+
+// GlobalCertificates configures custom CA injection.
+message GlobalCertificates {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Certificates container image.
+  GlobalImageConfig image = 1;
+
+  // Custom CA sources (freeform list).
+  repeated google.protobuf.Struct custom_cas = 2 [(gitlab.config.helm_name) = "customCAs"];
+}
+
+// GlobalKubectl configures the kubectl image used by hooks.
+message GlobalKubectl {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // kubectl container image.
+  GlobalImageConfig image = 1;
+
+  // Security context settings.
+  GlobalKubectlSecurityContext security_context = 2;
+}
+
+// GlobalKubectlSecurityContext configures the kubectl pod security context.
+message GlobalKubectlSecurityContext {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // UID to run as.
+  uint32 run_as_user = 1;
+
+  // Filesystem group.
+  uint32 fs_group = 2;
+
+  // Seccomp profile settings.
+  GlobalSeccompProfile seccomp_profile = 3;
+}
+
+// GlobalSeccompProfile configures a seccomp profile.
+message GlobalSeccompProfile {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Seccomp profile type.
+  string type = 1;
+}
+
+// GlobalGitlabBase configures the gitlab-base image.
+message GlobalGitlabBase {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // gitlab-base container image.
+  GlobalImageConfig image = 1;
+}
+
+// GlobalServiceAccount configures the global ServiceAccount.
+message GlobalServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether ServiceAccount usage is enabled.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // ServiceAccount annotations (freeform).
+  google.protobuf.Struct annotations = 3;
+
+  // Whether to automount the ServiceAccount token.
+  bool automount_service_account_token = 4;
+
+  // ServiceAccount name override.
+  string name = 5;
+}
+
+// GlobalTracing configures distributed tracing.
+message GlobalTracing {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Tracing connection settings.
+  GlobalTracingConnection connection = 1;
+
+  // URL template for trace links.
+  string url_template = 2;
+}
+
+// GlobalTracingConnection configures the tracing connection string.
+message GlobalTracingConnection {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Connection string.
+  string string = 1;
+}
+
+// GlobalZoekt configures Zoekt code search.
+message GlobalZoekt {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Zoekt indexer settings.
+  GlobalZoektIndexer indexer = 1;
+}
+
+// GlobalZoektIndexer configures the Zoekt indexer.
+message GlobalZoektIndexer {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Internal API settings (freeform).
+  google.protobuf.Struct internal_api = 1;
+}
+
+// GlobalOpenbao configures the OpenBao secrets backend (experimental).
+message GlobalOpenbao {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether OpenBao is enabled.
+  bool enabled = 1;
+
+  // OpenBao host.
+  string host = 2;
+
+  // Whether OpenBao uses HTTPS.
+  bool https = 3;
+
+  // Complete OpenBao URI.
+  string url = 4;
+
+  // JWT audience claim.
+  string jwt_audience = 5 [(gitlab.config.helm_name) = "jwt_audience"];
+
+  // HTTP audit secret reference.
+  GlobalSecretRef http_audit = 6;
+
+  // OpenBao database settings.
+  GlobalOpenbaoPsql psql = 7;
+}
+
+// GlobalOpenbaoPsql configures the OpenBao database.
+message GlobalOpenbaoPsql {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Database name.
+  string database = 1;
+
+  // Database username.
+  string username = 2;
+}
+
+// GlobalJob configures shared job settings.
+message GlobalJob {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Suffix override for job names.
+  string name_suffix_override = 1;
+}
+
+// GlobalTraefik configures the deprecated Traefik ingress integration.
+message GlobalTraefik {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Traefik API version override.
+  string api_version = 1;
+}

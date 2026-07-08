@@ -1,6 +1,10 @@
 config.yaml
 template_settings.yaml
 charts/*.tgz
+# Compiled post-processor binary (built on demand by scripts/generate-values.sh)
+tools/helm-schema-postprocess/helm-schema-postprocess
+# Build intermediate: per-message JSON Schema bundles. Only out/values.schema.json is committed.
+out/jsonschema/
 .DS_Store
 tags
 .markdownlintrc

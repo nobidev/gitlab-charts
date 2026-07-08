@@ -1,0 +1,453 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// KasValues is the top-level schema for the gitlab-kas sub-chart values.yaml.
+message KasValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Annotations applied to the deployment.
+  google.protobuf.Struct annotations = 1;
+
+  // Global settings shared across sub-charts.
+  GlobalConfig global = 2;
+
+  // Init container configuration.
+  KasInit init = 3;
+
+  // Horizontal Pod Autoscaler configuration.
+  KasHpa hpa = 4;
+
+  // KEDA autoscaling configuration.
+  KasKeda keda = 5;
+
+  // Container image configuration.
+  KasImage image = 6;
+
+  // Gateway API route configuration.
+  KasGatewayRoute gateway_route = 7;
+
+  // Backend TLS policy configuration.
+  KasBackendTlsPolicy backend_tls_policy = 8 [(gitlab.config.helm_name) = "backendTLSPolicy"];
+
+  // Ingress configuration.
+  KasIngress ingress = 9;
+
+  // Maximum number of pod replicas.
+  uint32 max_replicas = 10;
+
+  // Maximum number of unavailable pods during disruption.
+  uint32 max_unavailable = 11;
+
+  // Minimum number of pod replicas.
+  uint32 min_replicas = 12;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 13;
+
+  // Common labels configuration.
+  KasCommon common = 14;
+
+  // Labels applied to the service.
+  google.protobuf.Struct service_labels = 15;
+
+  // Additional environment variables.
+  google.protobuf.Struct extra_env = 16;
+
+  // Additional environment variables sourced from references.
+  google.protobuf.Struct extra_env_from = 17;
+
+  // Resource requests and limits.
+  google.protobuf.Struct resources = 18;
+
+  // Service configuration.
+  KasService service = 19;
+
+  // Metrics/monitoring configuration.
+  KasMetrics metrics = 20;
+
+  // Observability endpoint configuration.
+  KasObservability observability = 21;
+
+  // Service account configuration.
+  KasServiceAccount service_account = 22;
+
+  // Tolerations for pod scheduling.
+  repeated google.protobuf.Struct tolerations = 23;
+
+  // Workhorse connection overrides.
+  google.protobuf.Struct workhorse = 24;
+
+  // Custom KAS configuration merged with the default config.
+  google.protobuf.Struct custom_config = 25;
+
+  // WebSocket token secret reference.
+  KasSecretRef websocket_token = 26;
+
+  // Private API secret reference.
+  KasSecretRef private_api = 27;
+
+  // Workspaces configuration.
+  KasWorkspaces workspaces = 28;
+
+  // Deployment configuration.
+  KasDeployment deployment = 29;
+
+  // Pod-level security context.
+  google.protobuf.Struct security_context = 30;
+
+  // Container-level security context.
+  google.protobuf.Struct container_security_context = 31;
+
+  // Network policy configuration.
+  KasNetworkPolicy networkpolicy = 32;
+
+  // Pod affinity/anti-affinity configuration.
+  google.protobuf.Struct affinity = 33;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 34;
+
+  // Topology spread constraints.
+  google.protobuf.Struct topology_spread_constraints = 35;
+}
+
+// KasInit configures the init container.
+message KasInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image configuration.
+  google.protobuf.Struct image = 1;
+
+  // Init container resource requests and limits.
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context.
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// KasHpa configures the Horizontal Pod Autoscaler.
+message KasHpa {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // CPU-based scaling target.
+  KasHpaMetric cpu = 1;
+
+  // Custom metrics overriding the default HPA metrics definition.
+  google.protobuf.Struct custom_metrics = 2;
+
+  // Scaling behavior configuration.
+  KasHpaBehavior behavior = 3;
+
+  // Cluster Autoscaler safe-to-evict annotation value.
+  string safe_to_evict = 4;
+}
+
+// KasHpaMetric configures a single HPA scaling metric.
+message KasHpaMetric {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Target type: "Utilization" or "AverageValue".
+  string target_type = 1;
+
+  // Target average value.
+  string target_average_value = 2;
+}
+
+// KasHpaBehavior configures HPA scaling behavior.
+message KasHpaBehavior {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Scale-down behavior.
+  KasHpaScaleDown scale_down = 1;
+}
+
+// KasHpaScaleDown configures HPA scale-down behavior.
+message KasHpaScaleDown {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Stabilization window in seconds for scaling down.
+  uint32 stabilization_window_seconds = 1;
+}
+
+// KasKeda configures KEDA-based autoscaling.
+message KasKeda {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether KEDA autoscaling is enabled.
+  bool enabled = 1;
+
+  // Polling interval in seconds.
+  uint32 polling_interval = 2;
+
+  // Cooldown period in seconds.
+  uint32 cooldown_period = 3;
+}
+
+// KasImage configures the container image.
+message KasImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+
+  // Container image tag.
+  string tag = 2;
+
+  // Image pull policy.
+  string pull_policy = 3 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets.
+  google.protobuf.Struct pull_secrets = 4;
+}
+
+// KasGatewayRoute configures the Gateway API route.
+message KasGatewayRoute {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the gateway route is enabled.
+  bool enabled = 1;
+
+  // Gateway listener section name.
+  string section_name = 2;
+
+  // Workspaces gateway listener section name.
+  string workspaces_section_name = 3;
+
+  // Name of the Gateway to attach to.
+  string gateway_name = 4;
+
+  // Namespace of the Gateway to attach to.
+  string gateway_namespace = 5;
+
+  // Annotations applied to the route.
+  google.protobuf.Struct annotations = 6;
+
+  // HTTPRoute filters.
+  google.protobuf.Struct filters = 7;
+}
+
+// KasBackendTlsPolicy configures the backend TLS policy.
+message KasBackendTlsPolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Hostname used to validate the backend certificate.
+  string hostname = 1;
+}
+
+// KasIngress configures the ingress.
+message KasIngress {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Ingress API version override.
+  string api_version = 1;
+
+  // Annotations applied to the ingress.
+  google.protobuf.Struct annotations = 2;
+
+  // TLS configuration.
+  google.protobuf.Struct tls = 3;
+
+  // Path for the agent endpoint.
+  string agent_path = 4;
+
+  // Path for the workspaces server API.
+  string workspaces_server_api_path = 5;
+
+  // Path for the Kubernetes API proxy.
+  string k8s_api_path = 6;
+
+  // gRPC ingress configuration.
+  KasIngressGrpc grpc = 7;
+}
+
+// KasIngressGrpc configures gRPC ingress support.
+message KasIngressGrpc {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether gRPC ingress is enabled.
+  bool enabled = 1;
+}
+
+// KasCommon holds labels shared across resources.
+message KasCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Common labels applied to resources.
+  google.protobuf.Struct labels = 1;
+}
+
+// KasService configures the KAS Kubernetes service.
+message KasService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // External port for the service.
+  uint32 external_port = 1 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Internal port for the service.
+  uint32 internal_port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Workspaces server port.
+  uint32 workspaces_server_port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Internal API port.
+  uint32 api_internal_port = 4 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Kubernetes API proxy port.
+  uint32 kubernetes_api_port = 5 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Private API port.
+  uint32 private_api_port = 6 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Service type (for example, ClusterIP).
+  string type = 7;
+}
+
+// KasMetrics configures metrics exposure and monitoring.
+message KasMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics are enabled.
+  bool enabled = 1;
+
+  // HTTP path for metrics.
+  string path = 2;
+
+  // ServiceMonitor configuration.
+  KasServiceMonitor service_monitor = 3;
+
+  // PodMonitor configuration.
+  KasPodMonitor pod_monitor = 4;
+}
+
+// KasServiceMonitor configures a Prometheus ServiceMonitor.
+message KasServiceMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the ServiceMonitor is enabled.
+  bool enabled = 1;
+
+  // Additional labels for the ServiceMonitor.
+  google.protobuf.Struct additional_labels = 2;
+
+  // Endpoint configuration for the ServiceMonitor.
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// KasPodMonitor configures a Prometheus PodMonitor.
+message KasPodMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the PodMonitor is enabled.
+  bool enabled = 1;
+
+  // Additional labels for the PodMonitor.
+  google.protobuf.Struct additional_labels = 2;
+
+  // Endpoint configuration for the PodMonitor.
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// KasObservability configures the observability endpoint.
+message KasObservability {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Port for the observability endpoint.
+  uint32 port = 1 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Liveness probe configuration.
+  KasProbePath liveness_probe = 2;
+
+  // Readiness probe configuration.
+  KasProbePath readiness_probe = 3;
+}
+
+// KasProbePath configures the HTTP path for a probe.
+message KasProbePath {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // HTTP path for the probe.
+  string path = 1;
+}
+
+// KasServiceAccount configures the service account.
+message KasServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to use a service account.
+  bool enabled = 1;
+
+  // Whether to create the service account.
+  bool create = 2;
+
+  // Annotations applied to the service account.
+  google.protobuf.Struct annotations = 3;
+}
+
+// KasWorkspaces configures workspace grace periods.
+message KasWorkspaces {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Grace period before the listener stops accepting connections.
+  string listen_grace_period = 1;
+
+  // Grace period before shutdown completes.
+  string shutdown_grace_period = 2;
+}
+
+// KasDeployment configures the deployment.
+message KasDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Grace period in seconds before pod termination.
+  uint32 termination_grace_period_seconds = 1;
+
+  // Deployment update strategy.
+  google.protobuf.Struct strategy = 2;
+}
+
+// KasNetworkPolicy configures the network policy.
+message KasNetworkPolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the network policy is enabled.
+  bool enabled = 1;
+
+  // Egress rules configuration.
+  KasNetworkPolicyRuleSet egress = 2;
+
+  // Ingress rules configuration.
+  KasNetworkPolicyRuleSet ingress = 3;
+
+  // Annotations applied to the network policy.
+  google.protobuf.Struct annotations = 4;
+}
+
+// KasNetworkPolicyRuleSet configures one direction of network rules.
+message KasNetworkPolicyRuleSet {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether this rule set is enabled.
+  bool enabled = 1;
+
+  // Network policy rules.
+  google.protobuf.Struct rules = 2;
+}
+
+// KasSecretRef references a value stored in a Kubernetes Secret.
+message KasSecretRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the Secret.
+  string secret = 1;
+
+  // Key within the Secret.
+  string key = 2;
+}

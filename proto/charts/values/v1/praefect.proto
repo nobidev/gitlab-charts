@@ -1,0 +1,204 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// PraefectValues is the top-level schema for the praefect sub-chart values.yaml.
+message PraefectValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Failover configuration.
+  PraefectFailover failover = 1;
+
+  // Container image configuration.
+  PraefectImage image = 2;
+
+  // Kubernetes Service configuration.
+  PraefectService service = 3;
+
+  // Init container configuration.
+  PraefectInit init = 4;
+
+  // Prometheus metrics configuration.
+  PraefectMetrics metrics = 5;
+
+  // Pod-level security context (opaque passthrough).
+  google.protobuf.Struct security_context = 6;
+
+  // Container-level security context (opaque passthrough).
+  google.protobuf.Struct container_security_context = 7;
+
+  // Number of pod replicas to run.
+  uint32 replicas = 8;
+
+  // Compute resource requests and limits (opaque passthrough).
+  google.protobuf.Struct resources = 9;
+
+  // For PodDisruptionBudget, how many pods can be unavailable at one time.
+  uint32 max_unavailable = 10;
+
+  // ServiceAccount configuration.
+  PraefectServiceAccount service_account = 11;
+
+  // Tolerations for pod scheduling (opaque passthrough).
+  repeated google.protobuf.Struct tolerations = 12;
+
+  // Gitaly connection configuration.
+  PraefectGitaly gitaly = 13;
+
+  // Common labels configuration.
+  PraefectCommon common = 14;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 15;
+
+  // Labels applied to the Service.
+  google.protobuf.Struct service_labels = 16;
+
+  // StatefulSet configuration.
+  PraefectStatefulset statefulset = 17;
+
+  // Pod affinity/anti-affinity rules (opaque passthrough).
+  google.protobuf.Struct affinity = 18;
+
+  // Topology spread constraints (opaque passthrough).
+  repeated google.protobuf.Struct topology_spread_constraints = 19;
+}
+
+// PraefectFailover configures failover behavior.
+message PraefectFailover {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether failover is enabled.
+  bool enabled = 1;
+
+  // Whether to switch to read-only mode after a failover.
+  bool readonly_after = 2;
+}
+
+// PraefectImage defines container image settings.
+message PraefectImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+
+  // Image pull policy.
+  string pull_policy = 2 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets (opaque passthrough).
+  repeated google.protobuf.Struct pull_secrets = 3;
+}
+
+// PraefectService configures the Kubernetes Service.
+message PraefectService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // TLS configuration (opaque passthrough).
+  google.protobuf.Struct tls = 1;
+}
+
+// PraefectInit configures the init container.
+message PraefectInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container resources (opaque passthrough).
+  google.protobuf.Struct resources = 1;
+
+  // Init container image overrides (opaque passthrough).
+  google.protobuf.Struct image = 2;
+
+  // Init container security context (opaque passthrough).
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// PraefectMetrics configures Prometheus metrics.
+message PraefectMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics are enabled.
+  bool enabled = 1;
+
+  // Port to scrape the container on.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Whether database metrics are served on a separate endpoint.
+  bool separate_database_metrics = 3 [(gitlab.config.helm_name) = "separate_database_metrics"];
+
+  // Metrics HTTP path.
+  string path = 4;
+
+  // ServiceMonitor configuration.
+  PraefectMetricsServiceMonitor service_monitor = 5;
+}
+
+// PraefectMetricsServiceMonitor configures a Prometheus ServiceMonitor.
+message PraefectMetricsServiceMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the ServiceMonitor is enabled.
+  bool enabled = 1;
+
+  // Additional labels for the ServiceMonitor (opaque passthrough).
+  google.protobuf.Struct additional_labels = 2;
+
+  // Endpoint configuration (opaque passthrough).
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// PraefectServiceAccount configures the ServiceAccount.
+message PraefectServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the deployment uses a ServiceAccount.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // Annotations for the ServiceAccount (opaque passthrough).
+  google.protobuf.Struct annotations = 3;
+
+  // Name to be used for the ServiceAccount; defaults to the chart fullname.
+  string name = 4;
+}
+
+// PraefectGitaly configures the connection to Gitaly.
+message PraefectGitaly {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Gitaly Service configuration.
+  PraefectGitalyService service = 1;
+}
+
+// PraefectGitalyService configures the Gitaly Service.
+message PraefectGitalyService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // TLS configuration (opaque passthrough).
+  google.protobuf.Struct tls = 1;
+}
+
+// PraefectCommon holds common labels configuration.
+message PraefectCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Common labels (opaque passthrough).
+  google.protobuf.Struct labels = 1;
+}
+
+// PraefectStatefulset configures the StatefulSet.
+message PraefectStatefulset {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Update strategy (opaque passthrough).
+  google.protobuf.Struct strategy = 1;
+
+  // Number of old ReplicaSets/revisions to retain.
+  uint32 revision_history_limit = 2;
+}

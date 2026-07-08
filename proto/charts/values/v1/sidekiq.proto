@@ -1,0 +1,615 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// SidekiqValues is the top-level schema for the sidekiq sub-chart values.yaml.
+message SidekiqValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image configuration (repository, tag, pullPolicy, pullSecrets).
+  google.protobuf.Struct image = 1;
+
+  // Init container configuration.
+  SidekiqInit init = 2;
+
+  // Tolerations for pod scheduling.
+  repeated google.protobuf.Struct tolerations = 3;
+
+  // Whether the sidekiq sub-chart is enabled.
+  bool enabled = 4;
+
+  // Annotations applied to the deployment.
+  google.protobuf.Struct annotations = 5;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 6;
+
+  // Common labels configuration.
+  SidekiqCommon common = 7;
+
+  // Logging configuration.
+  SidekiqLogging logging = 8;
+
+  // Network policy configuration.
+  SidekiqNetworkPolicy networkpolicy = 9;
+
+  // Metrics/monitoring configuration.
+  SidekiqMetrics metrics = 10;
+
+  // Health check listener configuration.
+  SidekiqHealthChecks health_checks = 11 [(gitlab.config.helm_name) = "health_checks"];
+
+  // Redis connection configuration.
+  SidekiqRedis redis = 12;
+
+  // PostgreSQL connection overrides.
+  google.protobuf.Struct psql = 13;
+
+  // Sidekiq memory killer configuration.
+  SidekiqMemoryKiller memory_killer = 14;
+
+  // Liveness probe configuration.
+  SidekiqProbe liveness_probe = 15;
+
+  // Readiness probe configuration.
+  SidekiqProbe readiness_probe = 16;
+
+  // Global settings shared across sub-charts.
+  GlobalConfig global = 17;
+
+  // Gitaly connection configuration.
+  SidekiqGitaly gitaly = 18;
+
+  // Additional freeform configuration passthrough.
+  google.protobuf.Struct extra = 19;
+
+  // Additional environment variables applied to every container in the pod.
+  google.protobuf.Struct extra_env = 20;
+
+  // Rack::Attack configuration.
+  SidekiqRackAttack rack_attack = 21 [(gitlab.config.helm_name) = "rack_attack"];
+
+  // Trusted proxies for the deployment.
+  repeated string trusted_proxies = 22 [(gitlab.config.helm_name) = "trusted_proxies"];
+
+  // Minimum number of pod replicas.
+  uint32 min_replicas = 23;
+
+  // Maximum number of pod replicas.
+  uint32 max_replicas = 24;
+
+  // Sidekiq concurrency (number of threads).
+  uint32 concurrency = 25;
+
+  // Deployment strategy configuration.
+  SidekiqDeployment deployment = 26;
+
+  // Horizontal Pod Autoscaler configuration.
+  SidekiqHpa hpa = 27;
+
+  // KEDA autoscaling configuration.
+  SidekiqKeda keda = 28;
+
+  // Sidekiq shutdown timeout in seconds.
+  uint32 timeout = 29;
+
+  // Resource requests and limits.
+  google.protobuf.Struct resources = 30;
+
+  // Maximum number of unavailable pods during disruption.
+  uint32 max_unavailable = 31;
+
+  // Queue groups partitioned into pods.
+  repeated SidekiqPod pods = 32;
+
+  // Pod-level security context.
+  google.protobuf.Struct security_context = 33;
+
+  // Container-level security context.
+  google.protobuf.Struct container_security_context = 34;
+
+  // Service account configuration.
+  SidekiqServiceAccount service_account = 35;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 36;
+
+  // Anti-affinity mode: "hard" or "soft".
+  string anti_affinity = 37;
+
+  // Pod affinity/anti-affinity configuration.
+  google.protobuf.Struct affinity = 38;
+
+  // Topology spread constraints.
+  google.protobuf.Struct topology_spread_constraints = 39;
+}
+
+// SidekiqInit configures the init container.
+message SidekiqInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image configuration.
+  google.protobuf.Struct image = 1;
+
+  // Init container resource requests and limits.
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context.
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// SidekiqCommon holds labels shared across resources.
+message SidekiqCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Common labels applied to resources.
+  google.protobuf.Struct labels = 1;
+}
+
+// SidekiqLogging configures log output.
+message SidekiqLogging {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Log format; set to "json" for structured logs.
+  string format = 1;
+}
+
+// SidekiqNetworkPolicy configures the network policy.
+message SidekiqNetworkPolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the network policy is enabled.
+  bool enabled = 1;
+
+  // Egress rules configuration.
+  SidekiqNetworkPolicyRuleSet egress = 2;
+
+  // Ingress rules configuration.
+  SidekiqNetworkPolicyRuleSet ingress = 3;
+
+  // Annotations applied to the network policy.
+  google.protobuf.Struct annotations = 4;
+}
+
+// SidekiqNetworkPolicyRuleSet configures one direction of network rules.
+message SidekiqNetworkPolicyRuleSet {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether this rule set is enabled.
+  bool enabled = 1;
+
+  // Network policy rules.
+  google.protobuf.Struct rules = 2;
+}
+
+// SidekiqMetrics configures metrics exposure and monitoring.
+message SidekiqMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics are enabled.
+  bool enabled = 1;
+
+  // Address the metrics endpoint binds to.
+  string listen_addr = 2 [(gitlab.config.helm_name) = "listenAddr"];
+
+  // Port the metrics endpoint listens on.
+  uint32 port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // HTTP path for metrics.
+  string path = 4;
+
+  // Whether metrics request logging is enabled.
+  bool log_enabled = 5 [(gitlab.config.helm_name) = "log_enabled"];
+
+  // PodMonitor configuration.
+  SidekiqPodMonitor pod_monitor = 6;
+
+  // DEPRECATED: annotations applied to the metrics service.
+  google.protobuf.Struct annotations = 7 [(gitlab.config.lifecycle_stage) = LIFECYCLE_STAGE_DEPRECATED];
+
+  // TLS configuration for the metrics endpoint.
+  SidekiqMetricsTls tls = 8;
+}
+
+// SidekiqPodMonitor configures a Prometheus PodMonitor.
+message SidekiqPodMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the PodMonitor is enabled.
+  bool enabled = 1;
+
+  // Additional labels for the PodMonitor.
+  google.protobuf.Struct additional_labels = 2;
+
+  // Endpoint configuration for the PodMonitor.
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// SidekiqMetricsTls configures TLS for the metrics endpoint.
+message SidekiqMetricsTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics TLS is enabled.
+  bool enabled = 1;
+}
+
+// SidekiqHealthChecks configures the health check listener.
+message SidekiqHealthChecks {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Address the health check endpoint binds to.
+  string listen_addr = 1 [(gitlab.config.helm_name) = "listenAddr"];
+
+  // Port the health check endpoint listens on.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// SidekiqRedis configures the Redis connection.
+message SidekiqRedis {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Redis authentication configuration.
+  google.protobuf.Struct auth = 1;
+}
+
+// SidekiqMemoryKiller configures the Sidekiq memory killer.
+message SidekiqMemoryKiller {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the memory killer runs in daemon mode.
+  bool daemon_mode = 1;
+
+  // Maximum RSS in bytes before a restart is triggered.
+  uint32 max_rss = 2;
+
+  // Grace time in seconds before the process is killed.
+  uint32 grace_time = 3;
+
+  // Time in seconds to wait after signalling shutdown.
+  uint32 shutdown_wait = 4;
+
+  // Interval in seconds between RSS checks.
+  uint32 check_interval = 5;
+}
+
+// SidekiqProbe configures a liveness or readiness probe.
+message SidekiqProbe {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Delay before the probe is initiated.
+  uint32 initial_delay_seconds = 1;
+
+  // Interval between probe attempts.
+  uint32 period_seconds = 2;
+
+  // Probe timeout.
+  uint32 timeout_seconds = 3;
+
+  // Consecutive successes for the probe to be considered successful.
+  uint32 success_threshold = 4;
+
+  // Consecutive failures for the probe to be considered failed.
+  uint32 failure_threshold = 5;
+}
+
+// SidekiqGitaly configures the Gitaly connection.
+message SidekiqGitaly {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Gitaly auth token secret reference.
+  google.protobuf.Struct auth_token = 1;
+}
+
+// SidekiqRackAttack configures Rack::Attack throttling.
+message SidekiqRackAttack {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Git basic auth throttling configuration.
+  SidekiqGitBasicAuth git_basic_auth = 1 [(gitlab.config.helm_name) = "git_basic_auth"];
+}
+
+// SidekiqGitBasicAuth configures git basic auth throttling.
+message SidekiqGitBasicAuth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether git basic auth throttling is enabled.
+  bool enabled = 1;
+}
+
+// SidekiqDeployment configures the deployment upgrade strategy.
+message SidekiqDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Deployment update strategy.
+  google.protobuf.Struct strategy = 1;
+
+  // Grace period in seconds before pod termination.
+  uint32 termination_grace_period_seconds = 2;
+}
+
+// SidekiqHpa configures the Horizontal Pod Autoscaler.
+message SidekiqHpa {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // CPU-based scaling target.
+  SidekiqHpaMetric cpu = 1;
+
+  // Custom metrics overriding the default HPA metrics definition.
+  google.protobuf.Struct custom_metrics = 2;
+
+  // Scaling behavior configuration.
+  SidekiqHpaBehavior behavior = 3;
+}
+
+// SidekiqHpaMetric configures a single HPA scaling metric.
+message SidekiqHpaMetric {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Target type: "Utilization" or "AverageValue".
+  string target_type = 1;
+
+  // Target average value.
+  string target_average_value = 2;
+}
+
+// SidekiqHpaBehavior configures HPA scaling behavior.
+message SidekiqHpaBehavior {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Scale-down behavior.
+  SidekiqHpaScaleDown scale_down = 1;
+}
+
+// SidekiqHpaScaleDown configures HPA scale-down behavior.
+message SidekiqHpaScaleDown {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Stabilization window in seconds for scaling down.
+  uint32 stabilization_window_seconds = 1;
+}
+
+// SidekiqKeda configures KEDA-based autoscaling.
+message SidekiqKeda {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether KEDA autoscaling is enabled.
+  bool enabled = 1;
+
+  // Polling interval in seconds.
+  uint32 polling_interval = 2;
+
+  // Cooldown period in seconds.
+  uint32 cooldown_period = 3;
+}
+
+// SidekiqServiceAccount configures the service account.
+message SidekiqServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to use a service account.
+  bool enabled = 1;
+
+  // Whether to create the service account.
+  bool create = 2;
+
+  // Annotations applied to the service account.
+  google.protobuf.Struct annotations = 3;
+}
+
+// SidekiqPod defines a queue-group pod configuration.
+message SidekiqPod {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the queue-group pod.
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+
+  // Sidekiq concurrency for this pod.
+  uint32 concurrency = 2;
+
+  // Memory killer overrides for this pod.
+  SidekiqMemoryKiller memory_killer = 3;
+
+  // Minimum replicas for this pod.
+  uint32 min_replicas = 4;
+
+  // Maximum replicas for this pod.
+  uint32 max_replicas = 5;
+
+  // Deployment strategy for this pod.
+  google.protobuf.Struct strategy = 6;
+
+  // Sidekiq queues handled by this pod.
+  string queues = 7;
+
+  // Additional volumes for this pod.
+  google.protobuf.Struct extra_volumes = 8;
+
+  // Additional volume mounts for this pod.
+  google.protobuf.Struct extra_volume_mounts = 9;
+
+  // Priority class for this pod.
+  string priority_class_name = 10;
+
+  // HPA configuration for this pod.
+  SidekiqHpa hpa = 11;
+
+  // KEDA configuration for this pod.
+  SidekiqKeda keda = 12;
+
+  // Common labels for this pod.
+  SidekiqCommon common = 13;
+
+  // Labels applied to this pod.
+  google.protobuf.Struct pod_labels = 14;
+
+  // Grace period in seconds before pod termination.
+  uint32 termination_grace_period_seconds = 15;
+
+  // Node selector for this pod.
+  google.protobuf.Struct node_selector = 16;
+
+  // Tolerations for this pod.
+  repeated google.protobuf.Struct tolerations = 17;
+}
+
+// SidekiqMicrosoftGraphMailer configures the Microsoft Graph mailer.
+message SidekiqMicrosoftGraphMailer {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the Microsoft Graph mailer is enabled.
+  bool enabled = 1;
+}
+
+// SidekiqIncomingEmail configures incoming email handling.
+message SidekiqIncomingEmail {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether incoming email is enabled.
+  bool enabled = 1;
+
+  // Incoming email address.
+  string address = 2;
+}
+
+// SidekiqServiceDeskEmail configures Service Desk email handling.
+message SidekiqServiceDeskEmail {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Service Desk email is enabled.
+  bool enabled = 1;
+
+  // Service Desk email address.
+  string address = 2;
+}
+
+// SidekiqObjectStorage configures an object storage backend.
+message SidekiqObjectStorage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether this object storage is enabled.
+  bool enabled = 1;
+
+  // Whether downloads are proxied through GitLab.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Storage bucket name.
+  string bucket = 3;
+
+  // Object storage connection configuration.
+  google.protobuf.Struct connection = 4;
+}
+
+// SidekiqExternalDiffs configures external merge request diff storage.
+message SidekiqExternalDiffs {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // When to store diffs externally.
+  string when = 1;
+
+  // Whether downloads are proxied through GitLab.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Storage bucket name.
+  string bucket = 3;
+
+  // Object storage connection configuration.
+  google.protobuf.Struct connection = 4;
+}
+
+// SidekiqTerraformState configures Terraform state storage.
+message SidekiqTerraformState {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Terraform state storage is enabled.
+  bool enabled = 1;
+
+  // Storage bucket name.
+  string bucket = 2;
+
+  // Object storage connection configuration.
+  google.protobuf.Struct connection = 3;
+}
+
+// SidekiqLdap configures LDAP servers.
+message SidekiqLdap {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // LDAP server definitions keyed by provider ID.
+  google.protobuf.Struct servers = 1;
+}
+
+// SidekiqOmniauth configures OmniAuth providers.
+message SidekiqOmniauth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether OmniAuth is enabled.
+  bool enabled = 1;
+
+  // Provider to automatically sign in with.
+  string auto_sign_in_with_provider = 2;
+
+  // Providers to sync profile from.
+  repeated string sync_profile_from_provider = 3;
+
+  // Profile attributes to sync.
+  repeated string sync_profile_attributes = 4;
+
+  // Providers allowed for single sign-on.
+  repeated string allow_single_sign_on = 5;
+
+  // Whether auto-created users are blocked.
+  bool block_auto_created_users = 6;
+
+  // Whether to auto-link LDAP users.
+  bool auto_link_ldap_user = 7;
+
+  // Whether to auto-link SAML users.
+  bool auto_link_saml_user = 8;
+
+  // Providers to auto-link users for.
+  repeated string auto_link_user = 9;
+
+  // External providers.
+  repeated string external_providers = 10;
+
+  // Providers allowed to bypass two-factor authentication.
+  repeated string allow_bypass_two_factor = 11;
+
+  // Provider configuration secret references.
+  repeated SidekiqSecretRef providers = 12;
+}
+
+// SidekiqSentry configures Sentry error reporting.
+message SidekiqSentry {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Sentry is enabled.
+  bool enabled = 1;
+
+  // Server-side Sentry DSN.
+  string dsn = 2;
+
+  // Client-side Sentry DSN.
+  string clientside_dsn = 3 [(gitlab.config.helm_name) = "clientside_dsn"];
+
+  // Sentry environment name.
+  string environment = 4;
+}
+
+// SidekiqSecretRef references a value stored in a Kubernetes Secret.
+message SidekiqSecretRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the Secret.
+  string secret = 1;
+
+  // Key within the Secret.
+  string key = 2;
+}

@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+// Package charts.values.v1 is the single source of truth for the GitLab Helm
+// chart values surface. One `buf generate` fans this package out to:
+//   - Go types (protoc-gen-go) the GitLab Operator imports for typed values,
+//   - protovalidate constraints (buf.validate) enforced at runtime in Go,
+//   - values.schema.json (protoschema-jsonschema) for Helm native validation.
+//
+// This file composes the top-level structure. Each in-repo sub-chart is modeled
+// in its own file (gitaly.proto, webservice.proto, global.proto, ...). Bundled
+// external charts (prometheus, nginx-ingress, gitlab-runner, gitlab-zoekt,
+// openbao, cert-manager, ai-gateway, envoy-gateway, traefik, haproxy) are out
+// of scope and intentionally not modeled here.
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "google/protobuf/struct.proto";
+import "charts/values/v1/chart.proto";
+import "charts/values/v1/global.proto";
+import "charts/values/v1/registry.proto";
+import "charts/values/v1/certmanager_issuer.proto";
+import "charts/values/v1/gitaly.proto";
+import "charts/values/v1/praefect.proto";
+import "charts/values/v1/gitlab_shell.proto";
+import "charts/values/v1/webservice.proto";
+import "charts/values/v1/sidekiq.proto";
+import "charts/values/v1/kas.proto";
+import "charts/values/v1/gitlab_pages.proto";
+import "charts/values/v1/gitlab_exporter.proto";
+import "charts/values/v1/geo_logcursor.proto";
+import "charts/values/v1/mailroom.proto";
+import "charts/values/v1/migrations.proto";
+import "charts/values/v1/toolbox.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// GitLabValues is the top-level schema for the GitLab Helm chart values.yaml.
+message GitLabValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Per-service sub-chart configuration (values under the `gitlab:` key).
+  GitLabServices gitlab = 1;
+
+  // Settings shared across all sub-charts (values under the `global:` key).
+  GlobalConfig global = 2;
+
+  // Container registry sub-chart configuration.
+  RegistryValues registry = 3;
+
+  // Let's Encrypt ACME issuer configuration.
+  CertmanagerIssuerValues certmanager_issuer = 4 [(gitlab.config.helm_name) = "certmanager-issuer"];
+
+  // Pre-upgrade compatibility check hook.
+  UpgradeCheck upgrade_check = 5;
+
+  // Automatic shared secret generation.
+  SharedSecrets shared_secrets = 6 [(gitlab.config.helm_name) = "shared-secrets"];
+
+  // Gateway API objects created by the chart.
+  GatewayApiResources gateway_api_resources = 7;
+
+  // Whether to install the bundled cert-manager dependency.
+  bool install_certmanager = 8;
+
+  // Bundled external sub-charts. Their values are passed through to the upstream
+  // chart and are maintained in their own repositories, so their contents are
+  // not validated here. They are listed only so the schema does not reject them
+  // as unknown top-level keys.
+  google.protobuf.Struct certmanager = 9;
+  google.protobuf.Struct nginx_ingress = 10 [(gitlab.config.helm_name) = "nginx-ingress"];
+  google.protobuf.Struct nginx_ingress_geo = 11 [(gitlab.config.helm_name) = "nginx-ingress-geo"];
+  google.protobuf.Struct haproxy = 12;
+  google.protobuf.Struct prometheus = 13;
+  google.protobuf.Struct gitlab_runner = 14 [(gitlab.config.helm_name) = "gitlab-runner"];
+  google.protobuf.Struct traefik = 15;
+  google.protobuf.Struct gitlab_zoekt = 16 [(gitlab.config.helm_name) = "gitlab-zoekt"];
+  google.protobuf.Struct openbao = 17;
+  google.protobuf.Struct ai_gateway = 18 [(gitlab.config.helm_name) = "ai-gateway"];
+  google.protobuf.Struct envoy_gateway = 19 [(gitlab.config.helm_name) = "envoy-gateway"];
+}
+
+// GitLabServices groups the per-service sub-chart configuration.
+message GitLabServices {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Git RPC service.
+  GitalyValues gitaly = 1;
+
+  // Gitaly cluster router.
+  PraefectValues praefect = 2;
+
+  // SSH access service.
+  ShellValues gitlab_shell = 3 [(gitlab.config.helm_name) = "gitlab-shell"];
+
+  // Rails web workers (Puma + Workhorse).
+  WebserviceValues webservice = 4;
+
+  // Background job workers.
+  SidekiqValues sidekiq = 5;
+
+  // Kubernetes Agent Server.
+  KasValues kas = 6;
+
+  // GitLab Pages.
+  PagesValues gitlab_pages = 7 [(gitlab.config.helm_name) = "gitlab-pages"];
+
+  // Prometheus metrics exporter.
+  ExporterValues gitlab_exporter = 8 [(gitlab.config.helm_name) = "gitlab-exporter"];
+
+  // Geo log cursor (Geo secondary sites).
+  GeoLogcursorValues geo_logcursor = 9 [(gitlab.config.helm_name) = "geo-logcursor"];
+
+  // Incoming email (Mailroom).
+  MailroomValues mailroom = 10;
+
+  // Database migration jobs.
+  MigrationsValues migrations = 11;
+
+  // Backup/restore toolbox pod.
+  ToolboxValues toolbox = 12;
+}

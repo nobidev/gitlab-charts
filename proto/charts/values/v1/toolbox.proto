@@ -1,0 +1,500 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// ToolboxValues is the top-level schema for the toolbox sub-chart values.
+message ToolboxValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image configuration.
+  ToolboxImage image = 1;
+
+  // Init container configuration.
+  ToolboxInit init = 2;
+
+  // Tolerations for pod scheduling.
+  repeated google.protobuf.Struct tolerations = 3;
+
+  // Extra environment variables.
+  google.protobuf.Struct extra_env = 4;
+
+  // Extra environment variables sourced from references.
+  google.protobuf.Struct extra_env_from = 5;
+
+  // Labels used for anti-affinity matching.
+  google.protobuf.Struct anti_affinity_labels = 6;
+
+  // Pod affinity/anti-affinity rules.
+  google.protobuf.Struct affinity = 7;
+
+  // Common chart settings.
+  ToolboxCommon common = 8;
+
+  // Whether the toolbox sub-chart is enabled.
+  bool enabled = 9;
+
+  // Number of pod replicas to run.
+  uint32 replicas = 10;
+
+  // Annotations applied to resources.
+  google.protobuf.Struct annotations = 11;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 12;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 13;
+
+  // PostgreSQL connection overrides (opaque passthrough).
+  google.protobuf.Struct psql = 14;
+
+  // Global settings consumed by the sub-chart.
+  GlobalConfig global = 15;
+
+  // Backup configuration.
+  ToolboxBackups backups = 16;
+
+  // Extra passthrough configuration.
+  google.protobuf.Struct extra = 17;
+
+  // Automatic database reindexing configuration.
+  ToolboxDatabaseReindex database_reindex = 18;
+
+  // Rack::Attack configuration.
+  ToolboxRackAttack rack_attack = 19 [(gitlab.config.helm_name) = "rack_attack"];
+
+  // List of trusted proxy addresses.
+  repeated string trusted_proxies = 20 [(gitlab.config.helm_name) = "trusted_proxies"];
+
+  // Redis connection configuration.
+  ToolboxRedis redis = 21;
+
+  // Gitaly connection configuration.
+  ToolboxGitaly gitaly = 22;
+
+  // Pod resource requests and limits.
+  google.protobuf.Struct resources = 23;
+
+  // Persistence configuration.
+  ToolboxPersistence persistence = 24;
+
+  // Pod-level security context.
+  google.protobuf.Struct security_context = 25;
+
+  // Container-level security context.
+  google.protobuf.Struct container_security_context = 26;
+
+  // ServiceAccount configuration.
+  ToolboxServiceAccount service_account = 27;
+
+  // Deployment settings.
+  ToolboxDeployment deployment = 28;
+
+  // Topology spread constraints for pod scheduling.
+  repeated google.protobuf.Struct topology_spread_constraints = 29;
+}
+
+// ToolboxImage configures the container image.
+message ToolboxImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+
+  // Container image tag.
+  string tag = 2;
+
+  // Image pull policy.
+  string pull_policy = 3 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets.
+  repeated google.protobuf.Struct pull_secrets = 4;
+}
+
+// ToolboxInit configures the init container.
+message ToolboxInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image configuration.
+  ToolboxInitImage image = 1;
+
+  // Init container resource requests and limits.
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context.
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// ToolboxInitImage configures the init container image.
+message ToolboxInitImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image repository.
+  string repository = 1;
+
+  // Init container image tag.
+  string tag = 2;
+
+  // Init container image pull policy.
+  string pull_policy = 3 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+}
+
+// ToolboxSecretRef references a key within a Kubernetes secret.
+message ToolboxSecretRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the Kubernetes secret.
+  string secret = 1;
+
+  // Key within the secret.
+  string key = 2;
+}
+
+// ToolboxCommon holds settings shared across chart resources.
+message ToolboxCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Common labels applied to resources.
+  google.protobuf.Struct labels = 1;
+}
+
+// ToolboxObjectStore configures object storage for a feature.
+message ToolboxObjectStore {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the feature is enabled.
+  bool enabled = 1;
+
+  // Whether to proxy downloads through GitLab.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Object storage bucket name.
+  string bucket = 3;
+
+  // Object storage connection configuration (opaque passthrough).
+  google.protobuf.Struct connection = 4;
+}
+
+// ToolboxExternalDiffs configures object storage for external merge request diffs.
+message ToolboxExternalDiffs {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // When external diffs are stored (for example, outdated).
+  string when = 1;
+
+  // Whether to proxy downloads through GitLab.
+  bool proxy_download = 2 [(gitlab.config.helm_name) = "proxy_download"];
+
+  // Object storage bucket name.
+  string bucket = 3;
+
+  // Object storage connection configuration (opaque passthrough).
+  google.protobuf.Struct connection = 4;
+}
+
+// ToolboxTerraformState configures object storage for Terraform state.
+message ToolboxTerraformState {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Terraform state storage is enabled.
+  bool enabled = 1;
+
+  // Object storage bucket name.
+  string bucket = 2;
+
+  // Object storage connection configuration (opaque passthrough).
+  google.protobuf.Struct connection = 3;
+}
+
+// ToolboxLdap configures LDAP authentication.
+message ToolboxLdap {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // LDAP servers configuration (opaque passthrough).
+  google.protobuf.Struct servers = 1;
+}
+
+// ToolboxOmniauth configures OmniAuth providers.
+message ToolboxOmniauth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether OmniAuth is enabled.
+  bool enabled = 1;
+
+  // Provider to automatically sign in with.
+  string auto_sign_in_with_provider = 2;
+
+  // Providers to sync the profile from.
+  repeated string sync_profile_from_provider = 3;
+
+  // Profile attributes to sync.
+  repeated string sync_profile_attributes = 4;
+
+  // Providers allowed for single sign-on.
+  repeated string allow_single_sign_on = 5;
+
+  // Whether to block auto-created users.
+  bool block_auto_created_users = 6;
+
+  // Whether to auto-link LDAP users.
+  bool auto_link_ldap_user = 7;
+
+  // Whether to auto-link SAML users.
+  bool auto_link_saml_user = 8;
+
+  // Providers eligible for automatic account linking.
+  repeated string auto_link_user = 9;
+
+  // External providers.
+  repeated string external_providers = 10;
+
+  // Providers allowed to bypass two-factor authentication.
+  repeated string allow_bypass_two_factor = 11;
+
+  // Provider definitions.
+  repeated google.protobuf.Struct providers = 12;
+}
+
+// ToolboxBackups configures backups.
+message ToolboxBackups {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Scheduled backup CronJob configuration.
+  ToolboxBackupsCron cron = 1;
+
+  // Backup object storage configuration.
+  ToolboxBackupsObjectStorage object_storage = 2;
+
+  // Registry database backup configuration.
+  ToolboxBackupsRegistry registry = 3;
+
+  // OpenBao database backup configuration.
+  ToolboxBackupsOpenbao openbao = 4;
+}
+
+// ToolboxBackupsCron configures the scheduled backup CronJob.
+message ToolboxBackupsCron {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the backup CronJob is enabled.
+  bool enabled = 1;
+
+  // Concurrency policy for the CronJob.
+  string concurrency_policy = 2;
+
+  // Number of failed jobs to retain in history.
+  uint32 failed_jobs_history_limit = 3;
+
+  // Cron schedule expression.
+  string schedule = 4;
+
+  // Starting deadline in seconds.
+  uint32 starting_deadline_seconds = 5;
+
+  // Number of successful jobs to retain in history.
+  uint32 successful_jobs_history_limit = 6;
+
+  // Whether the CronJob is suspended.
+  bool suspend = 7;
+
+  // Number of retries before the job is marked failed.
+  uint32 backoff_limit = 8;
+
+  // Whether the pod is safe to evict.
+  bool safe_to_evict = 9;
+
+  // Restart policy for the pod.
+  string restart_policy = 10;
+
+  // Extra arguments passed to the backup command.
+  string extra_args = 11;
+
+  // Pod resource requests and limits.
+  google.protobuf.Struct resources = 12;
+
+  // Persistence configuration for the backup job.
+  ToolboxBackupsCronPersistence persistence = 13;
+}
+
+// ToolboxBackupsCronPersistence configures persistence for the backup job.
+message ToolboxBackupsCronPersistence {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether persistence is enabled.
+  bool enabled = 1;
+
+  // Whether to use a generic ephemeral volume.
+  bool use_generic_ephemeral_volume = 2;
+
+  // Volume access mode.
+  string access_mode = 3;
+
+  // Volume size.
+  string size = 4;
+
+  // Sub-path within the volume to mount.
+  string sub_path = 5;
+
+  // Labels a bound volume must match.
+  google.protobuf.Struct match_labels = 6;
+
+  // Expressions a bound volume must match.
+  repeated google.protobuf.Struct match_expressions = 7;
+}
+
+// ToolboxBackupsObjectStorage configures backup object storage.
+message ToolboxBackupsObjectStorage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Object storage backend (for example, s3).
+  string backend = 1;
+
+  // Object storage config reference (opaque passthrough).
+  google.protobuf.Struct config = 2;
+}
+
+// ToolboxBackupsRegistry configures registry backup credentials.
+message ToolboxBackupsRegistry {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Registry metadata database backup configuration (opaque passthrough).
+  google.protobuf.Struct database = 1;
+}
+
+// ToolboxBackupsOpenbao configures OpenBao backup credentials.
+message ToolboxBackupsOpenbao {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // OpenBao database backup configuration (opaque passthrough).
+  google.protobuf.Struct database = 1;
+}
+
+// ToolboxDatabaseReindex configures automatic database reindexing.
+message ToolboxDatabaseReindex {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Reindexing CronJob configuration.
+  ToolboxDatabaseReindexCron cron = 1;
+}
+
+// ToolboxDatabaseReindexCron configures the reindexing CronJob.
+message ToolboxDatabaseReindexCron {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the reindexing CronJob is enabled.
+  bool enabled = 1;
+
+  // Concurrency policy for the CronJob.
+  string concurrency_policy = 2;
+
+  // Number of failed jobs to retain in history.
+  uint32 failed_jobs_history_limit = 3;
+
+  // Cron schedule expression.
+  string schedule = 4;
+
+  // Starting deadline in seconds.
+  uint32 starting_deadline_seconds = 5;
+
+  // Number of successful jobs to retain in history.
+  uint32 successful_jobs_history_limit = 6;
+
+  // Whether the CronJob is suspended.
+  bool suspend = 7;
+
+  // Number of retries before the job is marked failed.
+  uint32 backoff_limit = 8;
+
+  // Whether the pod is safe to evict.
+  bool safe_to_evict = 9;
+
+  // Restart policy for the pod.
+  string restart_policy = 10;
+
+  // Pod resource requests and limits.
+  google.protobuf.Struct resources = 11;
+}
+
+// ToolboxRackAttack configures Rack::Attack throttling.
+message ToolboxRackAttack {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Git basic auth throttling configuration.
+  ToolboxRackAttackGitBasicAuth git_basic_auth = 1 [(gitlab.config.helm_name) = "git_basic_auth"];
+}
+
+// ToolboxRackAttackGitBasicAuth configures git basic auth throttling.
+message ToolboxRackAttackGitBasicAuth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether git basic auth throttling is enabled.
+  bool enabled = 1;
+}
+
+// ToolboxRedis configures the Redis connection.
+message ToolboxRedis {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Redis authentication configuration.
+  google.protobuf.Struct auth = 1;
+}
+
+// ToolboxGitaly configures the Gitaly connection.
+message ToolboxGitaly {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Reference to the Gitaly auth token secret.
+  ToolboxSecretRef auth_token = 1;
+}
+
+// ToolboxPersistence configures persistence for the toolbox pod.
+message ToolboxPersistence {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether persistence is enabled.
+  bool enabled = 1;
+
+  // Volume access mode.
+  string access_mode = 2;
+
+  // Volume size.
+  string size = 3;
+
+  // Sub-path within the volume to mount.
+  string sub_path = 4;
+
+  // Labels a bound volume must match.
+  google.protobuf.Struct match_labels = 5;
+
+  // Expressions a bound volume must match.
+  repeated google.protobuf.Struct match_expressions = 6;
+}
+
+// ToolboxServiceAccount configures the ServiceAccount.
+message ToolboxServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the sub-chart uses a ServiceAccount.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // Annotations applied to the ServiceAccount.
+  google.protobuf.Struct annotations = 3;
+}
+
+// ToolboxDeployment configures the Deployment.
+message ToolboxDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Deployment update strategy.
+  google.protobuf.Struct strategy = 1;
+}

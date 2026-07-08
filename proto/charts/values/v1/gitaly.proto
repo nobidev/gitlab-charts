@@ -1,0 +1,495 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// GitalyValues is the top-level schema for the gitaly sub-chart values.yaml.
+message GitalyValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Global settings shared with the parent chart and other sub-charts.
+  GlobalConfig global = 1;
+
+  // Gitaly sub-chart overrides (opaque passthrough, e.g. serviceName).
+  google.protobuf.Struct gitaly = 2;
+
+  // Internal Gitaly configuration overrides (opaque passthrough).
+  google.protobuf.Struct internal = 3;
+
+  // Container image configuration.
+  GitalyImage image = 4;
+
+  // Kubernetes Service configuration.
+  GitalyService service = 5;
+
+  // Annotations applied to the Gitaly resources.
+  google.protobuf.Struct annotations = 6;
+
+  // Common labels configuration.
+  GitalyCommon common = 7;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 8;
+
+  // Labels applied to the Service.
+  google.protobuf.Struct service_labels = 9;
+
+  // Allows process namespace sharing within the pod, making processes in a
+  // container visible to all other containers in the same pod.
+  bool share_process_namespace = 10;
+
+  // Init container configuration.
+  GitalyInit init = 11;
+
+  // Gitaly built-in cgroups configuration, spawning Git processes into a
+  // cgroup per repository to protect the service from OOM events.
+  GitalyCgroups cgroups = 12;
+
+  // Tolerations for pod scheduling (opaque passthrough).
+  repeated google.protobuf.Struct tolerations = 13;
+
+  // Shutdown grace period: how long to wait for in-flight requests to
+  // complete (seconds). Pod terminationGracePeriodSeconds is this value + 5.
+  uint32 graceful_restart_timeout = 14;
+
+  // Logging configuration.
+  GitalyLogging logging = 15;
+
+  // Git configuration used when spawning Git commands (opaque passthrough).
+  google.protobuf.Struct git = 16;
+
+  // Prometheus configuration (opaque passthrough, e.g. grpcLatencyBuckets).
+  google.protobuf.Struct prometheus = 17;
+
+  // Workhorse connection configuration (opaque passthrough).
+  google.protobuf.Struct workhorse = 18;
+
+  // Gitaly-shell configuration.
+  GitalyShell shell = 19;
+
+  // Prometheus metrics configuration.
+  GitalyMetrics metrics = 20;
+
+  // Persistence using Persistent Volume Claims.
+  GitalyPersistence persistence = 21;
+
+  // Compute resource requests and limits (opaque passthrough).
+  google.protobuf.Struct resources = 22;
+
+  // For PodDisruptionBudget, how many pods can be unavailable at one time.
+  uint32 max_unavailable = 23;
+
+  // Pod-level security context (opaque passthrough).
+  google.protobuf.Struct security_context = 24;
+
+  // Container-level security context (opaque passthrough).
+  google.protobuf.Struct container_security_context = 25;
+
+  // ServiceAccount configuration.
+  GitalyServiceAccount service_account = 26;
+
+  // StatefulSet configuration.
+  GitalyStatefulset statefulset = 27;
+
+  // Pod affinity/anti-affinity rules (opaque passthrough).
+  google.protobuf.Struct affinity = 28;
+
+  // Gitaly pack-objects cache configuration.
+  GitalyPackObjectsCache pack_objects_cache = 29;
+
+  // Configure Gitaly to GPG sign all commits created by GitLab.
+  GitalyGpgSigning gpg_signing = 30;
+
+  // Backup configuration.
+  GitalyBackup backup = 31;
+
+  // gomemlimit configuration, enabled by default to avoid GC related OOM errors.
+  GitalyGomemlimit gomemlimit = 32;
+
+  // RPC negotiation timeouts.
+  GitalyTimeout timeout = 33;
+
+  // Daily maintenance configuration.
+  GitalyDailyMaintenance daily_maintenance = 34;
+
+  // Bundle URI configuration.
+  GitalyBundleUri bundle_uri = 35;
+}
+
+// GitalyImage defines container image settings.
+message GitalyImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+
+  // Image pull policy.
+  string pull_policy = 2 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets (opaque passthrough).
+  repeated google.protobuf.Struct pull_secrets = 3;
+
+  // Container image tag.
+  string tag = 4;
+}
+
+// GitalyService configures the Kubernetes Service.
+message GitalyService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // TLS configuration (opaque passthrough).
+  google.protobuf.Struct tls = 1;
+
+  // Service type.
+  string type = 2;
+
+  // Cluster IP address.
+  string cluster_ip = 3;
+}
+
+// GitalyCommon holds common labels configuration.
+message GitalyCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Common labels (opaque passthrough).
+  google.protobuf.Struct labels = 1;
+}
+
+// GitalyInit configures the init container.
+message GitalyInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image overrides (opaque passthrough).
+  google.protobuf.Struct image = 1;
+
+  // Init container resources (opaque passthrough).
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context (opaque passthrough).
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// GitalyCgroups configures Gitaly built-in cgroups.
+message GitalyCgroups {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether cgroups are enabled.
+  bool enabled = 1;
+
+  // Init container configuration for cgroup setup.
+  GitalyCgroupsInitContainer init_container = 2;
+
+  // Cgroup mountpoint.
+  string mountpoint = 3;
+
+  // Cgroup hierarchy root.
+  string hierarchy_root = 4;
+
+  // Total memory limit in bytes.
+  uint32 memory_bytes = 5;
+
+  // CPU shares.
+  uint32 cpu_shares = 6;
+
+  // CPU quota in microseconds.
+  uint32 cpu_quota_us = 7;
+
+  // Per-repository cgroup configuration.
+  GitalyCgroupsRepositories repositories = 8;
+}
+
+// GitalyCgroupsInitContainer configures the cgroups init container.
+message GitalyCgroupsInitContainer {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image.
+  GitalyCgroupsInitContainerImage image = 1;
+
+  // Init container security context (opaque passthrough).
+  google.protobuf.Struct security_context = 2;
+}
+
+// GitalyCgroupsInitContainerImage defines the cgroups init container image.
+message GitalyCgroupsInitContainerImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+}
+
+// GitalyCgroupsRepositories configures per-repository cgroup limits.
+message GitalyCgroupsRepositories {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Number of cgroups to create.
+  uint32 count = 1;
+
+  // Memory limit in bytes.
+  uint32 memory_bytes = 2;
+
+  // CPU shares.
+  uint32 cpu_shares = 3;
+
+  // CPU quota in microseconds.
+  uint32 cpu_quota_us = 4;
+
+  // Maximum cgroups per repository.
+  uint32 max_cgroups_per_repo = 5;
+}
+
+// GitalyLogging configures logging.
+message GitalyLogging {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Log output format.
+  string format = 1;
+
+  // Log level.
+  string level = 2;
+
+  // Sentry DSN.
+  string sentry_dsn = 3;
+
+  // Sentry environment.
+  string sentry_environment = 4;
+}
+
+// GitalyShell configures gitaly-shell.
+message GitalyShell {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Auth token secret reference (opaque passthrough).
+  google.protobuf.Struct auth_token = 1;
+
+  // Per-RPC concurrency limits.
+  repeated GitalyShellConcurrency concurrency = 2;
+}
+
+// GitalyShellConcurrency defines a per-RPC concurrency limit.
+message GitalyShellConcurrency {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // The RPC endpoint the limit applies to.
+  string rpc = 1;
+
+  // Maximum concurrent calls per repository.
+  uint32 max_per_repo = 2;
+}
+
+// GitalyMetrics configures Prometheus metrics.
+message GitalyMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics are enabled.
+  bool enabled = 1;
+
+  // Port to scrape the container on.
+  uint32 port = 2 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Metrics HTTP path.
+  string path = 3;
+
+  // ServiceMonitor configuration.
+  GitalyMetricsServiceMonitor service_monitor = 4;
+
+  // DEPRECATED in favor of `metrics.port`.
+  uint32 metrics_port = 5 [(gitlab.config.lifecycle_stage) = LIFECYCLE_STAGE_DEPRECATED];
+}
+
+// GitalyMetricsServiceMonitor configures a Prometheus ServiceMonitor.
+message GitalyMetricsServiceMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the ServiceMonitor is enabled.
+  bool enabled = 1;
+
+  // Additional labels for the ServiceMonitor (opaque passthrough).
+  google.protobuf.Struct additional_labels = 2;
+
+  // Endpoint configuration (opaque passthrough).
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// GitalyPersistence configures Persistent Volume Claims.
+message GitalyPersistence {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether persistence is enabled.
+  bool enabled = 1;
+
+  // Storage class for the git repositories volume.
+  string storage_class = 2;
+
+  // Access mode for the volume.
+  string access_mode = 3;
+
+  // Volume size.
+  string size = 4;
+
+  // Sub-path to mount instead of the root of the volume.
+  string sub_path = 5;
+
+  // Only bind to a volume with these exactly matched labels (opaque passthrough).
+  google.protobuf.Struct match_labels = 6;
+
+  // Only bind to a volume with these expression-matched labels (opaque passthrough).
+  repeated google.protobuf.Struct match_expressions = 7;
+
+  // Annotations for the PVC (opaque passthrough).
+  google.protobuf.Struct annotations = 8;
+
+  // Labels for the PVC (opaque passthrough).
+  google.protobuf.Struct labels = 9;
+}
+
+// GitalyServiceAccount configures the ServiceAccount.
+message GitalyServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the deployment uses a ServiceAccount.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // Annotations for the ServiceAccount (opaque passthrough).
+  google.protobuf.Struct annotations = 3;
+
+  // Local override of global ServiceAccount token mounting.
+  bool automount_service_account_token = 4;
+
+  // Name to be used for the ServiceAccount; defaults to the chart fullname.
+  string name = 5;
+}
+
+// GitalyStatefulset configures the StatefulSet.
+message GitalyStatefulset {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Update strategy (opaque passthrough).
+  google.protobuf.Struct strategy = 1;
+
+  // Number of old ReplicaSets/revisions to retain.
+  uint32 revision_history_limit = 2;
+
+  // Liveness probe configuration.
+  GitalyStatefulsetProbe liveness_probe = 3;
+
+  // Readiness probe configuration.
+  GitalyStatefulsetProbe readiness_probe = 4;
+
+  // Startup probe configuration.
+  GitalyStatefulsetProbe startup_probe = 5;
+}
+
+// GitalyStatefulsetProbe configures a container probe.
+message GitalyStatefulsetProbe {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the probe is enabled (startup probe only).
+  bool enabled = 1;
+
+  // Delay before the probe is initiated (seconds).
+  uint32 initial_delay_seconds = 2;
+
+  // How often to perform the probe (seconds).
+  uint32 period_seconds = 3;
+
+  // Probe timeout (seconds).
+  uint32 timeout_seconds = 4;
+
+  // Minimum consecutive successes for the probe to be considered successful.
+  uint32 success_threshold = 5;
+
+  // Consecutive failures for the probe to be considered failed.
+  uint32 failure_threshold = 6;
+}
+
+// GitalyPackObjectsCache configures the Gitaly pack-objects cache.
+message GitalyPackObjectsCache {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the pack-objects cache is enabled.
+  bool enabled = 1;
+
+  // Cache directory.
+  string dir = 2;
+
+  // Maximum age of cache entries.
+  string max_age = 3 [(gitlab.config.helm_name) = "max_age"];
+}
+
+// GitalyGpgSigning configures GPG signing of GitLab UI commits.
+message GitalyGpgSigning {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether GPG signing is enabled.
+  bool enabled = 1;
+
+  // Name of the secret holding the signing key.
+  string secret = 2;
+
+  // Key within the secret.
+  string key = 3;
+}
+
+// GitalyBackup configures backups.
+message GitalyBackup {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Go Cloud URL for the backup destination.
+  string go_cloud_url = 1;
+}
+
+// GitalyGomemlimit configures the Go memory limit.
+message GitalyGomemlimit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether gomemlimit is enabled.
+  bool enabled = 1;
+}
+
+// GitalyTimeout configures RPC negotiation timeouts.
+message GitalyTimeout {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Upload-pack negotiation timeout.
+  string upload_pack_negotiation = 1;
+
+  // Upload-archive negotiation timeout.
+  string upload_archive_negotiation = 2;
+}
+
+// GitalyDailyMaintenance configures the daily maintenance window.
+message GitalyDailyMaintenance {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether daily maintenance is disabled.
+  bool disabled = 1;
+
+  // Hour at which maintenance starts.
+  uint32 start_hour = 2;
+
+  // Minute at which maintenance starts.
+  uint32 start_minute = 3;
+
+  // Maintenance window duration.
+  string duration = 4;
+
+  // Storages the maintenance applies to.
+  repeated string storages = 5;
+}
+
+// GitalyBundleUri configures bundle URI support.
+message GitalyBundleUri {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Go Cloud URL for bundle storage.
+  string go_cloud_url = 1;
+}

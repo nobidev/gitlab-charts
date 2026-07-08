@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./out/values.schema.json
 ## NOTICE
 #
 # Due to the scope and complexity of this chart, all possible values are

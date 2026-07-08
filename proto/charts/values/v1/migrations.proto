@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// MigrationsValues is the top-level schema for the migrations sub-chart values.
+message MigrationsValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image configuration.
+  MigrationsImage image = 1;
+
+  // Init container configuration.
+  MigrationsInit init = 2;
+
+  // Tolerations for pod scheduling.
+  repeated google.protobuf.Struct tolerations = 3;
+
+  // Annotations applied to the job.
+  google.protobuf.Struct annotations = 4;
+
+  // Annotations applied to the pod.
+  google.protobuf.Struct pod_annotations = 5;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 6;
+
+  // Labels applied to the job.
+  google.protobuf.Struct pod_labels = 7;
+
+  // Common chart settings.
+  MigrationsCommon common = 8;
+
+  // Whether the migrations sub-chart is enabled.
+  bool enabled = 9;
+
+  // Initial root password configuration (opaque passthrough).
+  google.protobuf.Struct initial_root_password = 10;
+
+  // Redis connection configuration.
+  MigrationsRedis redis = 11;
+
+  // Gitaly connection configuration.
+  MigrationsGitaly gitaly = 12;
+
+  // PostgreSQL connection overrides (opaque passthrough).
+  google.protobuf.Struct psql = 13;
+
+  // Global settings consumed by the sub-chart.
+  GlobalConfig global = 14;
+
+  // Pod resource requests and limits.
+  google.protobuf.Struct resources = 15;
+
+  // Maximum job duration in seconds.
+  uint32 active_deadline_seconds = 16;
+
+  // Number of retries before the job is marked failed.
+  uint32 backoff_limit = 17;
+
+  // Pod-level security context.
+  google.protobuf.Struct security_context = 18;
+
+  // Container-level security context.
+  google.protobuf.Struct container_security_context = 19;
+
+  // ServiceAccount configuration.
+  MigrationsServiceAccount service_account = 20;
+
+  // Template for the migration script.
+  string script_tpl = 21;
+}
+
+// MigrationsImage configures the container image.
+message MigrationsImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+
+  // Container image tag.
+  string tag = 2;
+
+  // Image pull policy.
+  string pull_policy = 3 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets.
+  repeated google.protobuf.Struct pull_secrets = 4;
+}
+
+// MigrationsInit configures the init container.
+message MigrationsInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image configuration.
+  MigrationsInitImage image = 1;
+
+  // Init container resource requests and limits.
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context.
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// MigrationsInitImage configures the init container image.
+message MigrationsInitImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image repository.
+  string repository = 1;
+
+  // Init container image tag.
+  string tag = 2;
+}
+
+// MigrationsSecretRef references a key within a Kubernetes secret.
+message MigrationsSecretRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the Kubernetes secret.
+  string secret = 1;
+
+  // Key within the secret.
+  string key = 2;
+}
+
+// MigrationsCommon holds settings shared across chart resources.
+message MigrationsCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Common labels applied to resources.
+  google.protobuf.Struct labels = 1;
+}
+
+// MigrationsRedis configures the Redis connection.
+message MigrationsRedis {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Redis authentication configuration.
+  google.protobuf.Struct auth = 1;
+}
+
+// MigrationsGitaly configures the Gitaly connection.
+message MigrationsGitaly {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Reference to the Gitaly auth token secret.
+  MigrationsSecretRef auth_token = 1;
+}
+
+// MigrationsServiceAccount configures the ServiceAccount.
+message MigrationsServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the sub-chart uses a ServiceAccount.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // Annotations applied to the ServiceAccount.
+  google.protobuf.Struct annotations = 3;
+}

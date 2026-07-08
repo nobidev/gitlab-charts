@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+// Package gitlab.config carries GitLab-specific proto annotations that control
+// how service and chart configuration protos are translated into Helm chart
+// artifacts (values.schema.json property names and lifecycle metadata).
+//
+// These options are intentionally decoupled from `json_name` so a service can
+// keep snake_case in its own config files while the Helm schema uses camelCase.
+package gitlab.config;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/gitlab/config;config";
+
+// HelmNamingConvention controls how proto field names in a message are
+// translated into Helm values.schema.json property names.
+enum HelmNamingConvention {
+  HELM_NAMING_CONVENTION_UNSPECIFIED = 0;
+  // Convert every snake_case field name in the message to lowerCamelCase.
+  HELM_NAMING_CONVENTION_CAMEL_CASE = 1;
+  // Preserve the proto snake_case field names as-is.
+  HELM_NAMING_CONVENTION_SNAKE_CASE = 2;
+}
+
+// LifecycleStage marks the maturity of a configuration setting so tooling can
+// surface it (for example, warning on experimental settings in production).
+enum LifecycleStage {
+  LIFECYCLE_STAGE_UNSPECIFIED = 0;
+  LIFECYCLE_STAGE_EXPERIMENTAL = 1;
+  LIFECYCLE_STAGE_ALPHA = 2;
+  LIFECYCLE_STAGE_BETA = 3;
+  LIFECYCLE_STAGE_STABLE = 4;
+  LIFECYCLE_STAGE_DEPRECATED = 5;
+}
+
+extend google.protobuf.MessageOptions {
+  // Applies a naming convention to all fields in the message for Helm schema
+  // generation. Individual fields can override this with helm_name.
+  optional HelmNamingConvention helm_naming = 50001;
+}
+
+extend google.protobuf.FieldOptions {
+  // Overrides the Helm values property name for this field. Takes precedence
+  // over the message-level helm_naming convention.
+  optional string helm_name = 50002;
+
+  // Marks the maturity of this configuration setting.
+  optional LifecycleStage lifecycle_stage = 50003;
+}

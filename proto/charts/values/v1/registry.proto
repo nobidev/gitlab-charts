@@ -1,0 +1,866 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// RegistryValues is the top-level schema for the registry sub-chart values.yaml.
+message RegistryValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image configuration.
+  RegistryImage image = 1;
+
+  // Deployment configuration (probes, strategy, grace period).
+  RegistryDeployment deployment = 2;
+
+  // Labels applied to pods (opaque passthrough).
+  google.protobuf.Struct pod_labels = 3;
+
+  // Common settings shared across rendered resources.
+  RegistryCommon common = 4;
+
+  // Labels applied to the Service (opaque passthrough).
+  google.protobuf.Struct service_labels = 5;
+
+  // Service configuration.
+  RegistryService service = 6;
+
+  // Tolerations for pod scheduling (opaque passthrough).
+  repeated google.protobuf.Struct tolerations = 7;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 8;
+
+  // Whether the registry sub-chart is enabled.
+  bool enabled = 9;
+
+  // Registry maintenance settings.
+  RegistryMaintenance maintenance = 10;
+
+  // Annotations applied to resources (opaque passthrough).
+  google.protobuf.Struct annotations = 11;
+
+  // NetworkPolicy configuration.
+  RegistryNetworkPolicy networkpolicy = 12;
+
+  // Gateway API route configuration.
+  RegistryGatewayRoute gateway_route = 13;
+
+  // Backend TLS policy configuration.
+  RegistryBackendTlsPolicy backend_tls_policy = 14 [(gitlab.config.helm_name) = "backendTLSPolicy"];
+
+  // Ingress configuration.
+  RegistryIngress ingress = 15;
+
+  // Sub-chart local overrides of global settings.
+  GlobalConfig global = 16;
+
+  // Init container behavior.
+  RegistryInit init = 17;
+
+  // Resource requests and limits (opaque passthrough).
+  google.protobuf.Struct resources = 18;
+
+  // Node labels for pod assignment (opaque passthrough).
+  google.protobuf.Struct node_selector = 19;
+
+  // Pod affinity/anti-affinity rules (opaque passthrough).
+  google.protobuf.Struct affinity = 20;
+
+  // Protocol/Host of the auth endpoint. '/jwt/auth' is appended.
+  string auth_endpoint = 21;
+
+  // Token service name. Do not change this.
+  string token_service = 22;
+
+  // Whether to auto-redirect for auth. Must be false to support Windows clients.
+  bool auth_auto_redirect = 23;
+
+  // Maximum number of unavailable pods during disruption.
+  uint32 max_unavailable = 24;
+
+  // Horizontal Pod Autoscaler configuration.
+  RegistryHpa hpa = 25;
+
+  // KEDA autoscaling configuration.
+  RegistryKeda keda = 26;
+
+  // Storage configuration (opaque passthrough).
+  google.protobuf.Struct storage = 27;
+
+  // Storage middleware configuration.
+  RegistryMiddleware middleware = 28;
+
+  // Manifest validation settings.
+  RegistryValidation validation = 29;
+
+  // Logging configuration.
+  RegistryLog log = 30;
+
+  // Debug endpoint configuration.
+  RegistryDebug debug = 31;
+
+  // Metrics configuration.
+  RegistryMetrics metrics = 32;
+
+  // Time to wait for HTTP connections to drain after SIGTERM.
+  string draintimeout = 33;
+
+  // Whether the registry returns relative URLs in Location headers.
+  bool relativeurls = 34;
+
+  // Health check configuration.
+  RegistryHealth health = 35;
+
+  // Pod-level security context (opaque passthrough).
+  google.protobuf.Struct security_context = 36;
+
+  // Container-level security context (opaque passthrough).
+  google.protobuf.Struct container_security_context = 37;
+
+  // Error reporting configuration.
+  RegistryReporting reporting = 38;
+
+  // Continuous profiling configuration.
+  RegistryProfiling profiling = 39;
+
+  // ServiceAccount configuration.
+  RegistryServiceAccount service_account = 40;
+
+  // API resource toggles (Service, Deployment, HPA, PDB).
+  RegistryApi api = 41;
+
+  // Metadata database configuration.
+  RegistryDatabase database = 42;
+
+  // Redis configuration.
+  RegistryRedis redis = 43;
+
+  // Online garbage collector configuration.
+  RegistryGc gc = 44;
+
+  // Redis-backed rate limiter configuration.
+  RegistryRateLimiter rate_limiter = 45;
+
+  // TLS configuration on the instance itself.
+  RegistryTls tls = 46;
+
+  // Topology spread constraints (opaque passthrough).
+  google.protobuf.Struct topology_spread_constraints = 47;
+}
+
+// RegistryImage defines container image settings.
+message RegistryImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image repository.
+  string repository = 1;
+
+  // Container image tag.
+  string tag = 2;
+
+  // Image pull policy.
+  string pull_policy = 3 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets (opaque passthrough).
+  repeated google.protobuf.Struct pull_secrets = 4;
+}
+
+// RegistryDeployment configures the registry Deployment.
+message RegistryDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Grace period in seconds before forcibly terminating pods.
+  uint32 termination_grace_period_seconds = 1;
+
+  // Readiness probe configuration.
+  RegistryProbe readiness_probe = 2;
+
+  // Liveness probe configuration.
+  RegistryProbe liveness_probe = 3;
+
+  // Deployment update strategy (opaque passthrough).
+  google.protobuf.Struct strategy = 4;
+
+  // Number of old ReplicaSets to retain.
+  uint32 revision_history_limit = 5;
+}
+
+// RegistryProbe models a readiness/liveness probe.
+message RegistryProbe {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the probe is enabled.
+  bool enabled = 1;
+
+  // HTTP path to probe.
+  string path = 2;
+
+  // Port to probe. Defaults to the debug port when unset.
+  uint32 port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Delay before the first probe is initiated.
+  uint32 initial_delay_seconds = 4;
+
+  // How often to perform the probe.
+  uint32 period_seconds = 5;
+
+  // Probe timeout in seconds.
+  uint32 timeout_seconds = 6;
+
+  // Consecutive successes required to be considered healthy.
+  uint32 success_threshold = 7;
+
+  // Consecutive failures required to be considered unhealthy.
+  uint32 failure_threshold = 8;
+}
+
+// RegistryCommon holds settings shared across rendered resources.
+message RegistryCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Additional labels applied to resources (opaque passthrough).
+  google.protobuf.Struct labels = 1;
+}
+
+// RegistryService configures the registry Service.
+message RegistryService {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Service name.
+  string name = 1;
+
+  // Service type.
+  string type = 2;
+
+  // External port exposed by the Service.
+  uint32 external_port = 3 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Internal port targeted by the Service.
+  uint32 internal_port = 4 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Cluster IP address for the Service.
+  string cluster_ip = 5 [(gitlab.config.helm_name) = "clusterIP"];
+
+  // LoadBalancer IP address for the Service.
+  string load_balancer_ip = 6 [(gitlab.config.helm_name) = "loadBalancerIP"];
+}
+
+// RegistryMaintenance holds registry maintenance settings.
+message RegistryMaintenance {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Read-only mode settings.
+  RegistryMaintenanceReadonly readonly = 1;
+
+  // Upload purging settings.
+  RegistryMaintenanceUploadPurging uploadpurging = 2;
+}
+
+// RegistryMaintenanceReadonly configures read-only mode.
+message RegistryMaintenanceReadonly {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether read-only mode is enabled.
+  bool enabled = 1;
+}
+
+// RegistryMaintenanceUploadPurging configures upload purging.
+message RegistryMaintenanceUploadPurging {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether upload purging is enabled.
+  bool enabled = 1;
+
+  // Maximum age of uploads before purging.
+  string age = 2;
+
+  // Interval between purge runs.
+  string interval = 3;
+
+  // Whether to run in dry-run mode.
+  bool dryrun = 4;
+}
+
+// RegistryNetworkPolicy configures the registry NetworkPolicy.
+message RegistryNetworkPolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the NetworkPolicy is enabled.
+  bool enabled = 1;
+
+  // Egress policy configuration.
+  RegistryNetworkPolicyRule egress = 2;
+
+  // Ingress policy configuration.
+  RegistryNetworkPolicyRule ingress = 3;
+
+  // Annotations applied to the NetworkPolicy (opaque passthrough).
+  google.protobuf.Struct annotations = 4;
+}
+
+// RegistryNetworkPolicyRule holds an egress/ingress policy definition.
+message RegistryNetworkPolicyRule {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether this policy direction is enabled.
+  bool enabled = 1;
+
+  // Policy rules (opaque passthrough).
+  google.protobuf.Struct rules = 2;
+}
+
+// RegistryGatewayRoute configures the Gateway API route.
+message RegistryGatewayRoute {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the route is enabled.
+  bool enabled = 1;
+
+  // Gateway listener section name.
+  string section_name = 2;
+
+  // Name of the referenced Gateway.
+  string gateway_name = 3;
+
+  // Namespace of the referenced Gateway.
+  string gateway_namespace = 4;
+
+  // Annotations applied to the route (opaque passthrough).
+  google.protobuf.Struct annotations = 5;
+
+  // Route timeout settings.
+  RegistryGatewayRouteTimeouts timeouts = 6;
+
+  // Route filters (opaque passthrough).
+  google.protobuf.Struct filters = 7;
+}
+
+// RegistryGatewayRouteTimeouts holds Gateway route timeout settings.
+message RegistryGatewayRouteTimeouts {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Overall request timeout.
+  string request = 1;
+
+  // Backend request timeout.
+  string backend_request = 2;
+}
+
+// RegistryBackendTlsPolicy configures the backend TLS policy.
+message RegistryBackendTlsPolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Hostname used to validate the backend TLS certificate.
+  string hostname = 1;
+}
+
+// RegistryIngress configures the registry Ingress.
+message RegistryIngress {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Ingress API version override.
+  string api_version = 1;
+
+  // Whether the Ingress is enabled.
+  bool enabled = 2;
+
+  // Proxy read timeout in seconds.
+  uint32 proxy_read_timeout = 3;
+
+  // Proxy body size limit.
+  string proxy_body_size = 4;
+
+  // Proxy buffering setting.
+  string proxy_buffering = 5;
+
+  // TLS configuration (opaque passthrough).
+  google.protobuf.Struct tls = 6;
+
+  // Annotations applied to the Ingress (opaque passthrough).
+  google.protobuf.Struct annotations = 7;
+
+  // Whether to configure cert-manager for this Ingress.
+  bool configure_certmanager = 8;
+
+  // Ingress path.
+  string path = 9;
+}
+
+// RegistryInit configures the init container behavior.
+message RegistryInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image settings (opaque passthrough).
+  google.protobuf.Struct image = 1;
+
+  // Init container resource requests and limits (opaque passthrough).
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context (opaque passthrough).
+  google.protobuf.Struct container_security_context = 3;
+
+  // Init container script.
+  string script = 4;
+}
+
+// RegistryHpa configures the Horizontal Pod Autoscaler.
+message RegistryHpa {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Minimum number of replicas. If greater than 1, shared storage must be used.
+  uint32 min_replicas = 1;
+
+  // Maximum number of replicas.
+  uint32 max_replicas = 2;
+
+  // CPU-based scaling target.
+  RegistryHpaCpu cpu = 3;
+
+  // Custom metrics overriding HPA metrics definition (opaque passthrough).
+  google.protobuf.Struct custom_metrics = 4;
+
+  // Scaling behavior configuration.
+  RegistryHpaBehavior behavior = 5;
+}
+
+// RegistryHpaCpu configures the CPU scaling target.
+message RegistryHpaCpu {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Target type: Utilization or AverageValue.
+  string target_type = 1;
+
+  // Target average CPU utilization percentage.
+  uint32 target_average_utilization = 2;
+}
+
+// RegistryHpaBehavior configures HPA scaling behavior.
+message RegistryHpaBehavior {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Scale-down behavior.
+  RegistryHpaScaleDown scale_down = 1;
+}
+
+// RegistryHpaScaleDown configures scale-down behavior.
+message RegistryHpaScaleDown {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Window over which scale-down recommendations are stabilized.
+  uint32 stabilization_window_seconds = 1;
+}
+
+// RegistryKeda configures KEDA autoscaling.
+message RegistryKeda {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether KEDA autoscaling is enabled.
+  bool enabled = 1;
+
+  // Interval to check each trigger, in seconds.
+  uint32 polling_interval = 2;
+
+  // Period to wait after the last trigger before scaling down, in seconds.
+  uint32 cooldown_period = 3;
+}
+
+// RegistryMiddleware configures storage middleware.
+message RegistryMiddleware {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Storage middleware definitions (opaque passthrough).
+  google.protobuf.Struct storage = 1;
+}
+
+// RegistryValidation configures manifest validation.
+message RegistryValidation {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether validation is disabled (enables Windows images when true).
+  bool disabled = 1;
+
+  // Manifest validation limits.
+  RegistryValidationManifests manifests = 2;
+}
+
+// RegistryValidationManifests holds manifest validation limits.
+message RegistryValidationManifests {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Maximum number of references per manifest.
+  uint32 referencelimit = 1;
+
+  // Maximum payload size for a manifest.
+  uint32 payloadsizelimit = 2;
+
+  // URL allow/deny lists.
+  RegistryValidationManifestsUrls urls = 3;
+}
+
+// RegistryValidationManifestsUrls holds manifest URL allow/deny lists.
+message RegistryValidationManifestsUrls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Allowed URL patterns (opaque passthrough).
+  google.protobuf.Struct allow = 1;
+
+  // Denied URL patterns (opaque passthrough).
+  google.protobuf.Struct deny = 2;
+}
+
+// RegistryLog configures logging.
+message RegistryLog {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Log level.
+  string level = 1;
+
+  // Static log fields.
+  RegistryLogFields fields = 2;
+}
+
+// RegistryLogFields holds static log fields.
+message RegistryLogFields {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Service name included in log entries.
+  string service = 1;
+}
+
+// RegistryDebug configures the debug endpoint.
+message RegistryDebug {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Debug listen address.
+  RegistryDebugAddr addr = 1;
+
+  // Debug endpoint TLS settings.
+  RegistryDebugTls tls = 2;
+
+  // Prometheus settings (deprecated in favor of metrics).
+  RegistryDebugPrometheus prometheus = 3;
+}
+
+// RegistryDebugAddr configures the debug listen address.
+message RegistryDebugAddr {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Debug/metrics port.
+  uint32 port = 1 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// RegistryDebugTls configures the debug endpoint TLS.
+message RegistryDebugTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether TLS is enabled on the debug endpoint.
+  bool enabled = 1;
+
+  // Kubernetes secret of type kubernetes.io/tls.
+  string secret_name = 2;
+
+  // Client CA certificates (opaque passthrough).
+  google.protobuf.Struct client_cas = 3 [(gitlab.config.helm_name) = "clientCAs"];
+
+  // Minimum TLS version.
+  string minimum_tls = 4 [(gitlab.config.helm_name) = "minimumTLS"];
+}
+
+// RegistryDebugPrometheus configures the deprecated Prometheus debug endpoint.
+message RegistryDebugPrometheus {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the Prometheus endpoint is enabled.
+  bool enabled = 1;
+
+  // Prometheus metrics path.
+  string path = 2;
+}
+
+// RegistryMetrics configures metrics.
+message RegistryMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether metrics are enabled.
+  bool enabled = 1;
+
+  // Metrics path.
+  string path = 2;
+
+  // ServiceMonitor configuration.
+  RegistryMetricsServiceMonitor service_monitor = 3;
+}
+
+// RegistryMetricsServiceMonitor configures the Prometheus ServiceMonitor.
+message RegistryMetricsServiceMonitor {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the ServiceMonitor is enabled.
+  bool enabled = 1;
+
+  // Additional labels for the ServiceMonitor (opaque passthrough).
+  google.protobuf.Struct additional_labels = 2;
+
+  // Endpoint configuration (opaque passthrough).
+  google.protobuf.Struct endpoint_config = 3;
+}
+
+// RegistryHealth configures health checks.
+message RegistryHealth {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Storage driver health check.
+  RegistryHealthStorageDriver storagedriver = 1;
+}
+
+// RegistryHealthStorageDriver configures the storage driver health check.
+message RegistryHealthStorageDriver {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the storage driver health check is enabled.
+  bool enabled = 1;
+
+  // Interval between health checks.
+  string interval = 2;
+
+  // Failure threshold before reporting unhealthy.
+  uint32 threshold = 3;
+}
+
+// RegistryReporting configures error reporting.
+message RegistryReporting {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Sentry reporting settings.
+  RegistryReportingSentry sentry = 1;
+}
+
+// RegistryReportingSentry configures Sentry reporting.
+message RegistryReportingSentry {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Sentry reporting is enabled.
+  bool enabled = 1;
+
+  // Sentry DSN.
+  string dsn = 2;
+
+  // Sentry environment.
+  string environment = 3;
+}
+
+// RegistryProfiling configures continuous profiling.
+message RegistryProfiling {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Stackdriver profiling settings.
+  RegistryProfilingStackdriver stackdriver = 1;
+}
+
+// RegistryProfilingStackdriver configures Stackdriver profiling.
+message RegistryProfilingStackdriver {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Stackdriver profiling is enabled.
+  bool enabled = 1;
+
+  // Stackdriver credentials (opaque passthrough).
+  google.protobuf.Struct credentials = 2;
+}
+
+// RegistryServiceAccount configures the ServiceAccount.
+message RegistryServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to create a ServiceAccount.
+  bool create = 1;
+
+  // Local override of global ServiceAccount token mounting.
+  bool automount_service_account_token = 2;
+}
+
+// RegistryApi toggles API-related resources.
+message RegistryApi {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether Service, Deployment, HPA and PDB resources are enabled.
+  bool enabled = 1;
+}
+
+// RegistryDatabase configures the metadata database.
+message RegistryDatabase {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether to configure the database connection.
+  bool configure = 1;
+
+  // Whether the metadata database is enabled.
+  bool enabled = 2;
+
+  // Database user.
+  string user = 3;
+
+  // Database password secret reference.
+  RegistrySecretRef password = 4;
+
+  // Database name.
+  string name = 5;
+
+  // SSL mode for the database connection.
+  string sslmode = 6;
+
+  // SSL settings (opaque passthrough).
+  google.protobuf.Struct ssl = 7;
+
+  // Database load balancing settings (experimental).
+  RegistryDatabaseLoadBalancing load_balancing = 8 [(gitlab.config.lifecycle_stage) = LIFECYCLE_STAGE_EXPERIMENTAL];
+
+  // Database migration job settings.
+  RegistryDatabaseMigrations migrations = 9;
+
+  // Background migration settings.
+  RegistryDatabaseBackgroundMigrations background_migrations = 10;
+
+  // Database metrics settings (experimental).
+  RegistryDatabaseMetrics metrics = 11 [(gitlab.config.lifecycle_stage) = LIFECYCLE_STAGE_EXPERIMENTAL];
+}
+
+// RegistrySecretRef references a key within a Kubernetes secret.
+message RegistrySecretRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the Kubernetes secret.
+  string secret = 1;
+
+  // Key within the secret.
+  string key = 2;
+}
+
+// RegistryDatabaseLoadBalancing configures database load balancing.
+message RegistryDatabaseLoadBalancing {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether load balancing is enabled.
+  bool enabled = 1;
+}
+
+// RegistryDatabaseMigrations configures database migration jobs.
+message RegistryDatabaseMigrations {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether migrations run.
+  bool enabled = 1;
+
+  // Job active deadline in seconds.
+  uint32 active_deadline_seconds = 2;
+
+  // Job backoff limit.
+  uint32 backoff_limit = 3;
+
+  // Annotations for the migration job (opaque passthrough).
+  google.protobuf.Struct annotations = 4;
+}
+
+// RegistryDatabaseBackgroundMigrations configures background migrations.
+message RegistryDatabaseBackgroundMigrations {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether background migrations are enabled.
+  bool enabled = 1;
+}
+
+// RegistryDatabaseMetrics configures database metrics (experimental).
+message RegistryDatabaseMetrics {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether database metrics are enabled.
+  bool enabled = 1;
+
+  // Metrics collection interval.
+  string interval = 2;
+
+  // Lease duration for metrics collection leader election.
+  string lease_duration = 3;
+}
+
+// RegistryRedis configures Redis integrations.
+message RegistryRedis {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Redis cache connection (experimental).
+  RegistryRedisConnection cache = 1;
+
+  // Redis rate-limiter connection.
+  RegistryRedisConnection rate_limiting = 2;
+
+  // Redis load-balancing connection.
+  RegistryRedisConnection load_balancing = 3;
+}
+
+// RegistryRedisConnection models a Redis connection block.
+message RegistryRedisConnection {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether this Redis integration is enabled.
+  bool enabled = 1;
+
+  // Redis password settings.
+  RegistryRedisPassword password = 2;
+}
+
+// RegistryRedisPassword configures a Redis password.
+message RegistryRedisPassword {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether a password is used.
+  bool enabled = 1;
+}
+
+// RegistryGc configures the online garbage collector.
+message RegistryGc {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the online garbage collector is disabled.
+  bool disabled = 1;
+}
+
+// RegistryRateLimiter configures the Redis-backed rate limiter.
+message RegistryRateLimiter {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether rate limiting is enabled.
+  bool enabled = 1;
+}
+
+// RegistryTls configures TLS on the instance itself.
+message RegistryTls {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether TLS is enabled.
+  bool enabled = 1;
+
+  // Kubernetes secret of type kubernetes.io/tls.
+  string secret_name = 2;
+
+  // Client CA certificates (opaque passthrough).
+  google.protobuf.Struct client_cas = 3 [(gitlab.config.helm_name) = "clientCAs"];
+
+  // Minimum TLS version.
+  string minimum_tls = 4 [(gitlab.config.helm_name) = "minimumTLS"];
+
+  // Whether to verify client certificates (NGINX Ingress related).
+  bool verify = 5;
+
+  // Kubernetes secret of type Opaque with a ca.crt key.
+  string ca_secret_name = 6;
+
+  // Cipher suites to allow.
+  repeated string cipher_suites = 7;
+}

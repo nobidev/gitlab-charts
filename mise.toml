@@ -6,6 +6,9 @@ stern = "1.23.0"
 yq = "4.53.3"
 gomplate = "5.0.0"
 
+# For proto-first values schema/type generation (see doc/development/validation.md)
+buf = "1.58.0"
+
 # For linting documentation
 markdownlint-cli2 = "0.22.1"
 lychee = "0.24.2"

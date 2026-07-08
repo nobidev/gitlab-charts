@@ -1,0 +1,345 @@
+syntax = "proto3";
+
+package charts.values.v1;
+
+import "gitlab/config/annotations.proto";
+import "charts/values/v1/global.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "gitlab.com/gitlab-org/charts/gitlab/pkg/values/charts/values/v1;valuesv1";
+
+// MailroomValues is the top-level schema for the mailroom sub-chart values.
+message MailroomValues {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image configuration.
+  MailroomImage image = 1;
+
+  // Whether the mailroom sub-chart is enabled.
+  bool enabled = 2;
+
+  // Init container configuration.
+  MailroomInit init = 3;
+
+  // Annotations applied to resources.
+  google.protobuf.Struct annotations = 4;
+
+  // Tolerations for pod scheduling.
+  repeated google.protobuf.Struct tolerations = 5;
+
+  // Labels applied to pods.
+  google.protobuf.Struct pod_labels = 6;
+
+  // Common chart settings.
+  MailroomCommon common = 7;
+
+  // Workhorse connection configuration.
+  MailroomWorkhorse workhorse = 8;
+
+  // Global settings consumed by the sub-chart.
+  GlobalConfig global = 9;
+
+  // Horizontal Pod Autoscaler configuration.
+  MailroomHpa hpa = 10;
+
+  // KEDA autoscaling configuration.
+  MailroomKeda keda = 11;
+
+  // Network policy configuration.
+  MailroomNetworkpolicy networkpolicy = 12;
+
+  // Redis connection configuration.
+  MailroomRedis redis = 13;
+
+  // Pod resource requests and limits.
+  google.protobuf.Struct resources = 14;
+
+  // Pod-level security context.
+  google.protobuf.Struct security_context = 15;
+
+  // Container-level security context.
+  google.protobuf.Struct container_security_context = 16;
+
+  // ServiceAccount configuration.
+  MailroomServiceAccount service_account = 17;
+
+  // Deployment settings.
+  MailroomDeployment deployment = 18;
+
+  // Pod affinity/anti-affinity rules.
+  google.protobuf.Struct affinity = 19;
+
+  // Priority class assigned to pods.
+  string priority_class_name = 20;
+
+  // Topology spread constraints for pod scheduling.
+  repeated google.protobuf.Struct topology_spread_constraints = 21;
+}
+
+// MailroomImage configures the container image.
+message MailroomImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Container image registry host.
+  string registry = 1;
+
+  // Container image repository.
+  string repository = 2;
+
+  // Container image tag.
+  string tag = 3;
+
+  // Image pull policy.
+  string pull_policy = 4 [(buf.validate.field).string = {in: ["Always", "Never", "IfNotPresent"]}];
+
+  // Image pull secrets.
+  repeated google.protobuf.Struct pull_secrets = 5;
+}
+
+// MailroomInit configures the init container.
+message MailroomInit {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image configuration.
+  MailroomInitImage image = 1;
+
+  // Init container resource requests and limits.
+  google.protobuf.Struct resources = 2;
+
+  // Init container security context.
+  google.protobuf.Struct container_security_context = 3;
+}
+
+// MailroomInitImage configures the init container image.
+message MailroomInitImage {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Init container image repository.
+  string repository = 1;
+
+  // Init container image tag.
+  string tag = 2;
+}
+
+// MailroomSecretRef references a key within a Kubernetes secret.
+message MailroomSecretRef {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Name of the Kubernetes secret.
+  string secret = 1;
+
+  // Key within the secret.
+  string key = 2;
+}
+
+// MailroomCommon holds settings shared across chart resources.
+message MailroomCommon {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Common labels applied to resources.
+  google.protobuf.Struct labels = 1;
+}
+
+// MailroomWorkhorse configures the Workhorse connection.
+message MailroomWorkhorse {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Connection scheme (http or https).
+  string scheme = 1;
+
+  // Workhorse host.
+  string host = 2;
+
+  // Workhorse service name.
+  string service_name = 3;
+
+  // Workhorse port.
+  uint32 port = 4 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+}
+
+// MailroomEmailConfig configures an IMAP-based email integration.
+message MailroomEmailConfig {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the email integration is enabled.
+  bool enabled = 1;
+
+  // Email address to poll.
+  string address = 2;
+
+  // IMAP server host.
+  string host = 3;
+
+  // IMAP server port.
+  uint32 port = 4 [(buf.validate.field).uint32 = {gte: 1, lte: 65535}];
+
+  // Whether to use SSL.
+  bool ssl = 5;
+
+  // Whether to use STARTTLS.
+  bool start_tls = 6;
+
+  // IMAP username.
+  string user = 7;
+
+  // Reference to the IMAP password secret.
+  MailroomSecretRef password = 8;
+
+  // Whether to delete mail after delivery.
+  bool delete_after_delivery = 9;
+
+  // Whether to expunge deleted mail.
+  bool expunge_deleted = 10;
+
+  // Logger configuration.
+  MailroomEmailLogger logger = 11;
+
+  // Mailbox to poll.
+  string mailbox = 12;
+
+  // Idle timeout in seconds.
+  uint32 idle_timeout = 13;
+
+  // Method used to read the inbox.
+  string inbox_method = 14;
+
+  // Reference to the OAuth client secret.
+  MailroomSecretRef client_secret = 15;
+
+  // Poll interval in seconds.
+  uint32 poll_interval = 16;
+
+  // Delivery method.
+  string delivery_method = 17;
+
+  // Reference to the auth token secret.
+  MailroomSecretRef auth_token = 18;
+}
+
+// MailroomEmailLogger configures email integration logging.
+message MailroomEmailLogger {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Path the logger writes to.
+  string log_path = 1;
+}
+
+// MailroomHpa configures the Horizontal Pod Autoscaler.
+message MailroomHpa {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Minimum number of replicas.
+  uint32 min_replicas = 1;
+
+  // Maximum number of replicas.
+  uint32 max_replicas = 2;
+
+  // CPU-based scaling target.
+  MailroomHpaMetric cpu = 3;
+
+  // Custom metrics overriding the HPA metrics definition.
+  repeated google.protobuf.Struct custom_metrics = 4;
+
+  // Scaling behavior configuration.
+  MailroomHpaBehavior behavior = 5;
+}
+
+// MailroomHpaMetric configures a single autoscaling metric target.
+message MailroomHpaMetric {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Target type (Utilization or AverageValue).
+  string target_type = 1;
+
+  // Target average utilization percentage.
+  uint32 target_average_utilization = 2;
+}
+
+// MailroomHpaBehavior configures autoscaling behavior.
+message MailroomHpaBehavior {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Scale-down behavior.
+  MailroomHpaScaleDown scale_down = 1;
+}
+
+// MailroomHpaScaleDown configures scale-down behavior.
+message MailroomHpaScaleDown {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Stabilization window in seconds.
+  uint32 stabilization_window_seconds = 1;
+}
+
+// MailroomKeda configures KEDA-based autoscaling.
+message MailroomKeda {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether KEDA autoscaling is enabled.
+  bool enabled = 1;
+
+  // Polling interval in seconds.
+  uint32 polling_interval = 2;
+
+  // Cooldown period in seconds.
+  uint32 cooldown_period = 3;
+}
+
+// MailroomNetworkpolicy configures the NetworkPolicy.
+message MailroomNetworkpolicy {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the NetworkPolicy is enabled.
+  bool enabled = 1;
+
+  // Egress rules configuration.
+  MailroomNetworkpolicyRule egress = 2;
+
+  // Ingress rules configuration.
+  MailroomNetworkpolicyRule ingress = 3;
+
+  // Annotations applied to the NetworkPolicy.
+  google.protobuf.Struct annotations = 4;
+}
+
+// MailroomNetworkpolicyRule configures a set of network policy rules.
+message MailroomNetworkpolicyRule {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether this rule set is enabled.
+  bool enabled = 1;
+
+  // Network policy rules.
+  repeated google.protobuf.Struct rules = 2;
+}
+
+// MailroomRedis configures the Redis connection.
+message MailroomRedis {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Redis authentication configuration.
+  google.protobuf.Struct auth = 1;
+}
+
+// MailroomServiceAccount configures the ServiceAccount.
+message MailroomServiceAccount {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Whether the sub-chart uses a ServiceAccount.
+  bool enabled = 1;
+
+  // Whether to create the ServiceAccount.
+  bool create = 2;
+
+  // Annotations applied to the ServiceAccount.
+  google.protobuf.Struct annotations = 3;
+}
+
+// MailroomDeployment configures the Deployment.
+message MailroomDeployment {
+  option (gitlab.config.helm_naming) = HELM_NAMING_CONVENTION_CAMEL_CASE;
+
+  // Deployment update strategy.
+  google.protobuf.Struct strategy = 1;
+}

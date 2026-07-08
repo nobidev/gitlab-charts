@@ -40,3 +40,11 @@ doc-locale/
 examples/
 scripts/
 spec/
+# Proto-first values tooling and generated artifacts (see doc/development/validation.md)
+proto/
+pkg/
+tools/
+out/
+buf.yaml
+buf.gen.yaml
+buf.lock
