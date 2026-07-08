@@ -27,8 +27,8 @@ The GitLab Helm chart supports the following Kubernetes releases:
 |--------------------|-------------|------------------------|
 | 1.35               | Supported   | 18.9                   |
 | 1.34               | Supported   | 18.6                   |
-| 1.33               | Supported   | 18.1                   |
-| 1.32               | Deprecated  | 17.11                  |
+| 1.33               | Deprecated  | 18.1                   |
+| 1.32               | Unsupported | 17.11                  |
 | 1.31               | Unsupported | 17.6                   |
 
 The GitLab Helm Chart aims to support three Kubernetes minor versions at a time and plans
