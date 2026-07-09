@@ -1,9 +1,16 @@
 {{- if .Values.global.kas.enabled -}}
 {{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
+{{/*
+The KAS Kubernetes API proxy (k8sApiPath) serves plain HTTP/1.1 REST traffic. It is
+intentionally kept in a separate HTTPRoute so that the gitlab-kas BackendTrafficPolicy
+(which sets useClientProtocol: true for cross-served gRPC/WSS on the agent route) does
+not force h2c onto this backend. See:
+https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6557
+*/}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "fullname" . }}-k8s-proxy
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "gitlab.standardLabels" $ | nindent 4 }}
@@ -19,36 +26,19 @@ spec:
   - backendRefs:
     - kind: Service
       name: {{ template "gitlab.kas.serviceName" . }}
-      port: {{ .Values.service.externalPort }}
+      port: {{ .Values.service.kubernetesApiPort }}
       weight: 1
     {{- with .Values.gatewayRoute.filters }}
     filters:
       {{- . | toYaml | nindent 6 }}
     {{- end }}
-    matches:
-    - path:
-        type: PathPrefix
-        value: {{ .Values.ingress.agentPath | quote }}
-    {{/* GRPC connections are long living. */}}
+    {{- with .Values.gatewayRoute.timeouts }}
     timeouts:
-      request: 0s
-  {{- if .Values.global.workspaces.enabled }}
-  - backendRefs:
-    - kind: Service
-      name: {{ template "gitlab.kas.serviceName" . }}
-      port: {{ .Values.service.workspacesServerPort }}
-      weight: 1
-    {{- with .Values.gatewayRoute.filters }}
-    filters:
       {{- . | toYaml | nindent 6 }}
     {{- end }}
     matches:
     - path:
         type: PathPrefix
-        value: {{ .Values.ingress.workspacesServerApiPath | quote }}
-    {{/* GRPC connections are long living. */}}
-    timeouts:
-      request: 0s
-  {{- end }}
+        value: {{ .Values.ingress.k8sApiPath | quote }}
 {{- end }}
 {{- end }}
