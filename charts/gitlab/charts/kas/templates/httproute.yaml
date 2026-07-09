@@ -19,22 +19,6 @@ spec:
   - backendRefs:
     - kind: Service
       name: {{ template "gitlab.kas.serviceName" . }}
-      port: {{ .Values.service.kubernetesApiPort }}
-      weight: 1
-    {{- with .Values.gatewayRoute.filters }}
-    filters:
-      {{- . | toYaml | nindent 6 }}
-    {{- end }}
-    matches:
-    - path:
-        type: PathPrefix
-        value: {{ .Values.ingress.k8sApiPath | quote }}
-    {{/* GRPC connections are long living. */}}
-    timeouts:
-      request: 0s
-  - backendRefs:
-    - kind: Service
-      name: {{ template "gitlab.kas.serviceName" . }}
       port: {{ .Values.service.externalPort }}
       weight: 1
     {{- with .Values.gatewayRoute.filters }}

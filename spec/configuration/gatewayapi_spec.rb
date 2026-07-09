@@ -23,8 +23,9 @@ describe 'Gateway API configuration' do
   let(:webservice_route) { template["HTTPRoute/test-gitlab"] }
   let(:registry_route) { template["HTTPRoute/test-registry"] }
   let(:kas_route) { template["HTTPRoute/test-kas"] }
+  let(:kas_k8s_proxy_route) { template["HTTPRoute/test-kas-k8s-proxy"] }
   let(:pages_route) { template["HTTPRoute/test-gitlab-pages"] }
-  let(:routes) { [shell_route, webservice_route, registry_route, kas_route, pages_route] }
+  let(:routes) { [shell_route, webservice_route, registry_route, kas_route, kas_k8s_proxy_route, pages_route] }
 
   describe "Gateway API is enabled" do
     let(:values) do
@@ -71,6 +72,28 @@ describe 'Gateway API configuration' do
       expect(gateway["spec"]["addresses"]).to eq([{ "type" => "IPAddress", "value" => "127.0.0.1" }])
     end
 
+    context 'KAS k8s-proxy route split' do
+      it 'routes the k8s-proxy path to its own HTTPRoute on the KAS Kubernetes API port' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(kas_k8s_proxy_route).not_to be_nil
+        expect(kas_k8s_proxy_route["spec"]["rules"].length).to eq(1)
+        rule = kas_k8s_proxy_route["spec"]["rules"][0]
+        expect(rule["backendRefs"][0]["port"]).to eq(8154)
+        expect(rule["matches"][0]["path"]["value"]).to eq("/k8s-proxy")
+      end
+
+      it 'no longer routes the k8s-proxy path or port from the gitlab-kas route' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        ports = kas_route["spec"]["rules"].flat_map { |rule| rule["backendRefs"].map { |ref| ref["port"] } }
+        paths = kas_route["spec"]["rules"].flat_map { |rule| rule["matches"].map { |match| match["path"]["value"] } }
+        expect(ports).not_to include(8154)
+        expect(paths).not_to include("/k8s-proxy")
+        expect(ports).to include(8150)
+      end
+    end
+
     describe 'with proxy protocol and IP allow/deny listing' do
       let(:values) do
         HelmTemplate.with_defaults(%(
@@ -103,6 +126,9 @@ describe 'Gateway API configuration' do
         expect(kas_backendtrafficpolicy).not_to be_nil
         expect(kas_backendtrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-kas")
         expect(kas_backendtrafficpolicy["spec"]["targetRefs"][0]["kind"]).to eq("HTTPRoute")
+        # The policy forces h2c (useClientProtocol) for cross-served gRPC/WSS and must not
+        # target the k8s-proxy route, whose backend only speaks HTTP/1.1 (issue #6557).
+        expect(kas_backendtrafficpolicy["spec"]["targetRefs"].map { |ref| ref["name"] }).not_to include("test-kas-k8s-proxy")
 
         # Additional policies for webservice are only created if smartcard/geo is enabled
         expect(webservice_smartcard_clienttrafficpolicy).to be_nil
@@ -406,13 +432,10 @@ describe 'Gateway API configuration' do
           )))
         end
 
-        it 'does not create kas HTTPRoute' do
+        it 'does not create kas resources' do
           expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
           expect(kas_route).to be_nil
-        end
-
-        it 'does not create kas BackendTrafficPolicy' do
-          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(kas_k8s_proxy_route).to be_nil
           expect(kas_backendtrafficpolicy).to be_nil
         end
 
@@ -554,7 +577,7 @@ describe 'Gateway API configuration' do
 
         it 'renders filters on all kas route rules' do
           expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-          kas_route['spec']['rules'].each do |rule|
+          (kas_route['spec']['rules'] + kas_k8s_proxy_route['spec']['rules']).each do |rule|
             expect(rule['filters']).not_to be_nil
             expect(rule['filters'][0]['type']).to eq('RequestHeaderModifier')
           end
@@ -566,7 +589,7 @@ describe 'Gateway API configuration' do
           expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
           expect(registry_route['spec']['rules'][0]).not_to have_key('filters')
           expect(pages_route['spec']['rules'][0]).not_to have_key('filters')
-          kas_route['spec']['rules'].each do |rule|
+          (kas_route['spec']['rules'] + kas_k8s_proxy_route['spec']['rules']).each do |rule|
             expect(rule).not_to have_key('filters')
           end
         end
