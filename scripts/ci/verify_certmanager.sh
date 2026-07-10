@@ -39,6 +39,11 @@ for _ in $(seq 1 60); do
   sleep 5
 done
 kubectl get certificates -n "${ns}"
+if [ "${count}" -lt "${expected_certs}" ]; then
+  echo "ERROR: only ${count}/${expected_certs} Certificate resources were created within 5 minutes."
+  echo "cert-manager's gateway-shim may not be running, or the Gateway listeners/issuer annotation are misconfigured."
+  exit 1
+fi
 
 echo "Waiting for all Certificates to be Ready (ACME HTTP-01 issuance)"
 kubectl wait certificates -n "${ns}" --all --for=condition=Ready --timeout=600s
@@ -52,7 +57,7 @@ for host in gitlab registry kas; do
     > "${pki_dir}/s_client-${host}.txt" 2>&1
   # SAN covers the hostname.
   echo | openssl s_client -connect "${fqdn}:443" -servername "${fqdn}" 2>/dev/null \
-    | openssl x509 -noout -ext subjectAltName | grep -q "${fqdn}"
+    | openssl x509 -noout -ext subjectAltName | grep -qF "${fqdn}"
   # Transport-level trust as a plain HTTPS client (no --fail: registry/kas
   # return 4xx bodies at /; only certificate validation is asserted here).
   curl -s -o /dev/null --cacert "${issuing_root}" "https://${fqdn}/"
