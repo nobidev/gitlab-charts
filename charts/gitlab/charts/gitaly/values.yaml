@@ -17,6 +17,24 @@ global:
 gitaly: {}
 # serviceName:
 
+# Keys under configuration as passed through to Gitaly's config.toml. See
+# https://docs.gitlab.com/administration/gitaly/configure_gitaly for available
+# keys.
+#
+# Keys set in this block take precedence over the legacy keys
+# defined outside. The legacy keys will eventually be removed following a
+# deprecation process.
+#
+# The following sections must be managed by the chart and are ignored if set:
+# - storage
+# - auth
+# - cgroups
+# - prometheus
+# - tls
+# - tls_listen_addr
+# - prometheus_listen_addr
+configuration: {}
+
 internal: {}
 image:
   repository: registry.gitlab.com/gitlab-org/build/cng/gitaly
