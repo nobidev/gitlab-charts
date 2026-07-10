@@ -1343,7 +1343,7 @@ describe 'Gitaly configuration' do
       end
     end
 
-    context 'when pod securityContext includes new properties (privileged, allowPrivilegeEscalation, runAsNonRoot)' do
+    context 'when pod securityContext includes valid (runAsNonRoot, fsGroup, runAsUser) and invalid (privileged, allowPrivilegeEscalation) properties' do
       let(:values) do
         default_values.deep_merge(YAML.safe_load(%(
             gitlab:
@@ -1364,12 +1364,13 @@ describe 'Gitaly configuration' do
       it 'sets pod-level securityContext with new properties' do
         security_context = statefulset['spec']['template']['spec']['securityContext']
         expect(security_context).to include(
-          'privileged' => false,
-          'allowPrivilegeEscalation' => false,
           'runAsNonRoot' => true,
           'fsGroup' => 1000,
           'runAsUser' => 1000
         )
+        # Ensure invalid pod-level fields are never rendered, even when passed as input
+        expect(security_context).not_to have_key('privileged')
+        expect(security_context).not_to have_key('allowPrivilegeEscalation')
       end
     end
 
