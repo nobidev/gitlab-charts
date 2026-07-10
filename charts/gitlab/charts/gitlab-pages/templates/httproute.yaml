@@ -16,11 +16,10 @@ spec:
   {{- include "gitlab.gatewayApi.gatewayRef" . | nindent 4 }}
   hostnames:
     {{- $hostname := (include "gitlab.pages.hostname" .) }}
-    {{- if $.Values.global.pages.namespaceInPath }}
-    - {{ $hostname | quote }}
-    {{- else }}
-    - {{ printf "*.%s" $hostname | quote }}
+    {{- if not $.Values.global.pages.namespaceInPath }}
+    {{-   $hostname = (printf "*.%s" $hostname) }}
     {{- end }}
+    - {{ $hostname | quote }}
   rules:
   - backendRefs:
     - kind: Service
