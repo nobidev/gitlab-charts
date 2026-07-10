@@ -21,7 +21,7 @@ dependencies:
 - name: registry
   version: "*.*.*"
 - name: cert-manager
-  version: v1.20.3
+  version: v1.21.0
   repository: oci://quay.io/jetstack/charts
   condition: installCertmanager
   alias: certmanager
