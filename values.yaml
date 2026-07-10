@@ -1508,6 +1508,10 @@ openbao:
       http:
         enabled: true
         streamingUri: '{{ include "gitlab.workhorse.url" . }}/api/v4/internal/secrets_manager/audit_logs'
+        # Go-duration string (e.g. "5s") for the audit http device request_timeout. Empty (default)
+        # emits no request_timeout. Setting or unsetting it on a running install swaps the audit device
+        # path so the change is a remove+add, not an in-place modify (see the openbao subchart values.yaml).
+        requestTimeout: ""
     storage:
       postgresql:
         connection:

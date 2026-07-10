@@ -326,9 +326,24 @@ The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/)
 | `config.audit.http.enabled`                              | true                                                    | Enable streaming of auditing events by using HTTP to GitLab. |
 | `config.audit.http.streamingUri`                         | Internal workhorse URL                                  | Endpoint to stream auditing events to. |
 | `config.audit.http.authTokenPath`                        | `/srv/openbao/audit/gitlab-auth`                        | Path the token shared with GitLab is mounted at. |
+| `config.audit.http.requestTimeout`                       |                                                         | Go duration string (for example, `5s`) that bounds each audit-event HTTP `POST` to the streaming endpoint. Empty, the default, means no timeout. |
 | `auditTpl`                                               |                                                         | Template that configures the OpenBao audit devices. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
 | `httpAuditSecret.generate`                               | false                                                   | Generate a secret to be shared with GitLab for authenticated auditing. Defaults to false as managed by GitLab charts shared-secret chart. |
 | `initializeTpl`                                          |                                                         | Template passed to configure OpenBao auditing. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
+
+#### Change an existing HTTP audit device
+
+OpenBao registers the HTTP audit device declaratively and does not support modifying a registered
+device in place. To change an audit device, remove the existing audit device and add a new device.
+Make all changes through the chart values.
+
+The chart supports adding or removing `config.audit.http.requestTimeout` directly. It switches the
+audit device path so setting or clearing the timeout is a remove and add operation, not an in-place modification.
+
+To change the timeout from one value to another, use two deploys to force that path switch:
+
+1. First set `requestTimeout` to empty.
+1. Set the new value.
 
 ## Database configuration
 
