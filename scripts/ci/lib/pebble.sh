@@ -9,7 +9,8 @@
 # Ingress through the nip.io hostname mapped to the k3d loadbalancer.
 # See: https://github.com/letsencrypt/pebble
 
-PEBBLE_IMAGE="${PEBBLE_IMAGE:-ghcr.io/letsencrypt/pebble:v2.10.1}"
+# Note: Pebble's image tags carry no v prefix, unlike its GitHub release tags.
+PEBBLE_IMAGE="${PEBBLE_IMAGE:-ghcr.io/letsencrypt/pebble:2.10.1}"
 
 function pebble_pki_dir() {
   echo -n "${CI_PROJECT_DIR:-$(pwd)}/pebble-pki"
