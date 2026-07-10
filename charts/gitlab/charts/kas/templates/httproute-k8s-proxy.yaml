@@ -35,6 +35,11 @@ spec:
     {{- with .Values.gatewayRoute.timeouts }}
     timeouts:
       {{- . | toYaml | nindent 6 }}
+    {{- else }}
+    {{/* k8s-proxy streams (kubectl exec/logs/port-forward) are long-lived connections. */}}
+    timeouts:
+      request: 2h
+      backendRequest: 2h
     {{- end }}
     matches:
     - path:
