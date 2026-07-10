@@ -10,7 +10,7 @@ dependencies:
   version: '*.*.*'
 - name: cert-manager
   repository: oci://quay.io/jetstack/charts
-  version: v1.20.3
+  version: v1.21.0
 - name: prometheus
   repository: oci://ghcr.io/prometheus-community/charts
   version: 29.9.0
@@ -41,5 +41,5 @@ dependencies:
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   version: 0.14.0
-digest: sha256:0731633a4ed03e1cd1fefdbe969def4133625636763c96de56f66f01315a7bac
-generated: "2026-07-08T16:32:47.633812+02:00"
+digest: sha256:96099f9b988ba66ba641ee853260c8d7739ebfedc3c37578e514f25e5e50d0f9
+generated: "2026-07-10T08:22:49.71602267Z"
