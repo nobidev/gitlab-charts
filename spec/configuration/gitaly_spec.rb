@@ -228,16 +228,86 @@ describe 'Gitaly configuration' do
     end
 
     it 'populates [[git.config]] sections' do
-      expect(config_toml).to include(
-        <<~CONFIG
-        [[git.config]]
-        key = "pack.threads"
-        value = "4"
+      toml = render_toml(config_toml, 'HOSTNAME' => 'default')
+      expect(toml['git']['config']).to eq([
+        { 'key' => 'pack.threads', 'value' => '4' },
+        { 'key' => 'fetch.fsckObjects', 'value' => 'false' }
+      ])
+    end
+  end
 
-        [[git.config]]
-        key = "fetch.fsckObjects"
-        value = "false"
-        CONFIG
+  context 'configuration passthrough' do
+    let(:values) do
+      default_values.deep_merge(YAML.safe_load(%(
+        gitlab:
+          gitaly:
+            logging:
+              level: warn
+            configuration:
+              logging:
+                level: debug
+              git:
+                some_new_key: true
+              brand_new_section:
+                never_seen: 1
+                also_a_float: 2.5
+              auth:
+                token: should-be-ignored
+              storage:
+                - name: bogus
+                  path: /bogus
+              prometheus_listen_addr: ":1234"
+      )))
+    end
+
+    let(:toml) { render_toml(config_toml, 'HOSTNAME' => 'default') }
+
+    it 'merges passthrough keys into existing sections without dropping chart defaults' do
+      expect(toml['git']).to include('use_bundled_binaries' => true, 'some_new_key' => true)
+    end
+
+    it 'lets passthrough win over legacy mapped keys' do
+      expect(toml['logging']['level']).to eq('debug')
+    end
+
+    it 'passes through brand-new sections preserving numeric types' do
+      expect(toml['brand_new_section']['never_seen']).to be(1)
+      expect(toml['brand_new_section']['also_a_float']).to eq(2.5)
+      expect(toml['brand_new_section']['also_a_float']).to be_a(Float)
+    end
+
+    it 'ignores reserved sections set under configuration' do
+      # auth and storage are chart-managed (resolved at container start), so a
+      # configuration block must not override them.
+      expect(toml['auth']['token']).not_to eq('should-be-ignored')
+      expect(toml['auth']['token'].length).to eq(32)
+      expect(toml['storage']).to eq([{ 'name' => 'default', 'path' => '/home/git/repositories' }])
+    end
+
+    it 'ignores chart-managed TLS and metrics listen settings set under configuration' do
+      # prometheus_listen_addr is derived from metrics.port and must match the
+      # Service, so a configuration override is ignored.
+      expect(toml['prometheus_listen_addr']).to eq(':9236')
+    end
+  end
+
+  context 'when TLS is enabled' do
+    let(:values) do
+      default_values.deep_merge(YAML.safe_load(%(
+        global:
+          gitaly:
+            tls:
+              enabled: true
+      )))
+    end
+
+    let(:toml) { render_toml(config_toml, 'HOSTNAME' => 'default') }
+
+    it 'renders the chart-managed TLS listen address and certificate paths' do
+      expect(toml['tls_listen_addr']).to eq(':8076')
+      expect(toml['tls']).to eq(
+        'certificate_path' => '/etc/gitlab-secrets/gitaly/gitaly.crt',
+        'key_path' => '/etc/gitlab-secrets/gitaly/gitaly.key'
       )
     end
   end
@@ -373,14 +443,12 @@ describe 'Gitaly configuration' do
       let(:pack_objects_cache_min_occurrences) { '1' }
 
       it 'populates a pack_objects_cache section in config.toml.tpl' do
-        expect(config_toml).to include(
-          <<~CONFIG
-          [pack_objects_cache]
-          enabled = #{pack_objects_cache_enabled}
-          dir = "#{pack_objects_cache_dir}"
-          max_age = "#{pack_objects_cache_max_age}"
-          min_occurrences = #{pack_objects_cache_min_occurrences}
-        CONFIG
+        toml = render_toml(config_toml, 'HOSTNAME' => 'default')
+        expect(toml['pack_objects_cache']).to eq(
+          'enabled' => true,
+          'dir' => pack_objects_cache_dir,
+          'max_age' => pack_objects_cache_max_age,
+          'min_occurrences' => pack_objects_cache_min_occurrences.to_i
         )
       end
     end
@@ -410,12 +478,10 @@ describe 'Gitaly configuration' do
       end
 
       it 'populates a timeout section in config.toml.tpl' do
-        expect(config_toml).to include(
-          <<~CONFIG
-          [timeout]
-          upload_pack_negotiation = "10m"
-          upload_archive_negotiation = "20m"
-        CONFIG
+        toml = render_toml(config_toml, 'HOSTNAME' => 'default')
+        expect(toml['timeout']).to eq(
+          'upload_pack_negotiation' => '10m',
+          'upload_archive_negotiation' => '20m'
         )
       end
     end
@@ -452,7 +518,8 @@ describe 'Gitaly configuration' do
       let(:gpg_secret_key) { 'gpgisfun' }
 
       it 'populates a signing_key field in config.toml.tpl' do
-        expect(config_toml).to include "signing_key = '/etc/gitlab-secrets/gitaly/signing_key.gpg'"
+        toml = render_toml(config_toml, 'HOSTNAME' => 'default')
+        expect(toml['git']['signing_key']).to eq('/etc/gitlab-secrets/gitaly/signing_key.gpg')
       end
     end
 
@@ -527,12 +594,8 @@ describe 'Gitaly configuration' do
     end
 
     it 'sets the object storage url' do
-      expect(config_toml).to include(
-        <<~CONFIG
-        [backup]
-        go_cloud_url = "gs://gitaly-backups"
-        CONFIG
-      )
+      toml = render_toml(config_toml, 'HOSTNAME' => 'default')
+      expect(toml['backup']).to eq('go_cloud_url' => 'gs://gitaly-backups')
     end
   end
 
@@ -668,9 +731,8 @@ describe 'Gitaly configuration' do
       end
 
       it 'renders numeric values without decimal points' do
-        expect(config_toml).to include('max_queue_size = 100')
-        expect(config_toml).to include('max_queue_wait = 5')
-        expect(config_toml).not_to match(/max_queue_size = 100\.0/)
+        expect(toml['concurrency'][0]['max_queue_size']).to be(100)
+        expect(toml['concurrency'][0]['max_queue_wait']).to be(5)
       end
 
       it 'renders numeric values as integers in parsed TOML' do
@@ -690,11 +752,6 @@ describe 'Gitaly configuration' do
                   imaginaryConcurrencyFloatSetting: 1.2
                   anotherImaginaryValue: 1.24
         )))
-      end
-
-      it 'preserves fractional values as floats' do
-        expect(config_toml).to include('imaginary_concurrency_float_setting = 1.2')
-        expect(config_toml).to include('another_imaginary_value = 1.24')
       end
 
       it 'parses fractional values correctly in TOML' do
@@ -717,8 +774,8 @@ describe 'Gitaly configuration' do
       end
 
       it 'properly quotes string values' do
-        expect(config_toml).to include('rpc_timeout = "30s"')
-        expect(config_toml).to include('description = "handles git-upload-pack"')
+        expect(toml['concurrency'][0]['rpc_timeout']).to eq('30s')
+        expect(toml['concurrency'][0]['description']).to eq('handles git-upload-pack')
       end
     end
 
@@ -734,11 +791,6 @@ describe 'Gitaly configuration' do
                 - rpc: AnotherRPC
                   enabled: false
         )))
-      end
-
-      it 'renders boolean values correctly' do
-        expect(config_toml).to include('enabled = true')
-        expect(config_toml).to include('enabled = false')
       end
 
       it 'parses boolean values correctly in TOML' do
@@ -966,7 +1018,7 @@ describe 'Gitaly configuration' do
       end
 
       it 'sets gitaly config termination grace period' do
-        expect(config_toml).to include "graceful_restart_timeout = \"25s\""
+        expect(render_toml(config_toml, 'HOSTNAME' => 'default')['graceful_restart_timeout']).to eq('25s')
       end
     end
 
@@ -978,7 +1030,7 @@ describe 'Gitaly configuration' do
       end
 
       it 'sets gitaly config termination grace period' do
-        expect(config_toml).to include "graceful_restart_timeout = \"45s\""
+        expect(render_toml(config_toml, 'HOSTNAME' => 'default')['graceful_restart_timeout']).to eq('45s')
       end
     end
 
@@ -990,7 +1042,7 @@ describe 'Gitaly configuration' do
       end
 
       it 'sets gitaly config termination grace period' do
-        expect(config_toml).to include "graceful_restart_timeout = \"2m0s\""
+        expect(render_toml(config_toml, 'HOSTNAME' => 'default')['graceful_restart_timeout']).to eq('2m0s')
       end
     end
   end
@@ -1017,14 +1069,14 @@ describe 'Gitaly configuration' do
     end
 
     it 'has the maintenance configuration' do
-      expect(config_toml).to include <<~CONFIG
-      [daily_maintenance]
-      disabled = true
-      start_hour = 12
-      start_minute = 59
-      duration = "5m"
-      storages = ["default","custom"]
-      CONFIG
+      toml = render_toml(config_toml, 'HOSTNAME' => 'default')
+      expect(toml['daily_maintenance']).to eq(
+        'disabled' => true,
+        'start_hour' => 12,
+        'start_minute' => 59,
+        'duration' => '5m',
+        'storages' => %w[default custom]
+      )
     end
   end
 

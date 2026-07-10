@@ -12,33 +12,25 @@ data:
     cp -v -L /init-config/signing_key.gpg  /init-secrets/gitaly/signing_key.gpg
     {{- end }}
   config.toml.tpl: |
-    # The directory where Gitaly's executables are stored
-    bin_dir = "/usr/local/bin"
-
-    # listen on a TCP socket. This is insecure (no authentication)
-    listen_addr = ":{{ coalesce .Values.service.internalPort .Values.global.gitaly.service.internalPort }}"
-
-    # Directory where internal sockets reside
-    # note: no value will result in a `/tmp/gitlab-internal-*` path
-    # internal_socket_dir = "/home/git"
-
+    {{- /*
+    TLS and metrics listen addresses are chart-managed (see
+    gitlab.gitaly.configuration.static) and hand-written here. As top-level TOML
+    keys they must precede any table, so they are emitted before the block below.
+    */}}
     {{- if $.Values.global.gitaly.tls.enabled }}
     tls_listen_addr = ":{{ coalesce .Values.service.tls.internalPort .Values.global.gitaly.service.tls.internalPort }}"
     {{- end }}
-
-    # If metrics collection is enabled, inform gitaly about that
     {{- if .Values.metrics.enabled }}
     prometheus_listen_addr = ":{{ default .Values.metrics.port .Values.metrics.metricsPort }}"
     {{- end }}
 
-    # Graceful shutdown timeout, how long to wait for in-flight requests to complete
-    graceful_restart_timeout = "{{ .Values.gracefulRestartTimeout | toString | duration }}"
-
-    {{- if $.Values.global.gitaly.tls.enabled }}
-    [tls]
-    certificate_path = '/etc/gitlab-secrets/gitaly/gitaly.crt'
-    key_path = '/etc/gitlab-secrets/gitaly/gitaly.key'
-    {{- end }}
+    {{- /*
+    Most of the configuration is assembled by merging the legacy Helm values
+    with the new .Values.configuration block, with the latter taking precedence.
+    A few sections below are appended manually. See
+    gitlab.gitaly.configuration.static helper for more details.
+    */}}
+    {{- include "gitlab.gitaly.tomlFromValues" (include "gitlab.gitaly.configuration.static" . | fromYaml) | nindent 4 }}
 
     # Storage configuration
     {{- if .storage }}
@@ -83,21 +75,10 @@ data:
 
     {{- end }}
 
-    [logging]
-    {{- with .Values.logging }}
-    {{- if .level }}
-    level = "{{ .level }}"
-    {{- end }}
-    {{- if .format }}
-    format = "{{ .format }}"
-    {{- end }}
-    {{- if .sentryDsn }}
-    sentry_dsn = "{{ .sentryDsn }}"
-    {{- end }}
-    dir = "/var/log/gitaly"
-    {{- if .sentryEnvironment }}
-    sentry_environment = "{{ .sentryEnvironment }}"
-    {{- end }}
+    {{- if $.Values.global.gitaly.tls.enabled }}
+    [tls]
+    certificate_path = '/etc/gitlab-secrets/gitaly/gitaly.crt'
+    key_path = '/etc/gitlab-secrets/gitaly/gitaly.key'
     {{- end }}
 
     {{- if .Values.prometheus.grpcLatencyBuckets }}
@@ -107,90 +88,6 @@ data:
 
     [auth]
     token = {% file.Read "/etc/gitlab-secrets/gitaly/gitaly_token" | strings.TrimSpace | data.ToJSON %}
-
-    [git]
-    use_bundled_binaries = true
-    ignore_gitconfig = true
-    {{- if .Values.gpgSigning.enabled }}
-    signing_key = '/etc/gitlab-secrets/gitaly/signing_key.gpg'
-    {{- end }}
-    {{- with .Values.git }}
-    {{-   if .catFileCacheSize }}
-    catfile_cache_size = {{ .catFileCacheSize }}
-    {{-   end }}
-    {{- end }}
-    {{- if .Values.git.config }}
-    {{-   range .Values.git.config }}
-
-    [[git.config]]
-    key = "{{ .key }}"
-    value = "{{ .value }}"
-    {{-   end }}
-    {{- end }}
-
-    [gitlab-shell]
-    # The directory where gitlab-shell is installed
-    dir = "/srv/gitlab-shell"
-
-    [gitlab]
-    # location of shared secret for GitLab Shell / API interaction
-    secret_file = "/etc/gitlab-secrets/shell/.gitlab_shell_secret"
-    # URL of API
-    url = "{{ template "gitlab.workhorse.url" . }}/"
-
-    [gitlab.http-settings]
-    # read_timeout = 300
-    # user = someone
-    # password = somepass
-    # ca_file = /etc/ssl/cert.pem
-    # ca_path = /etc/pki/tls/certs
-
-    [hooks]
-    # directory containing custom hooks
-    custom_hooks_dir = "/home/git/custom_hooks"
-
-    {{- with .Values.shell.concurrency }}
-      {{- $concurrency := deepCopy . }}
-      {{- include "gitlab.keysToSnakeCase" $concurrency }}
-      {{- range $concurrency }}
-
-    [[concurrency]]
-        {{- range $key, $value := . }}
-          {{- if kindIs "float64" $value }}
-            {{- $intValue := $value | int64 }}
-            {{- $floatValue := $intValue | float64 }}
-            {{- if eq $floatValue $value }}
-    {{ $key }} = {{ $intValue }}
-            {{- else }}
-    {{ $key }} = {{ $value | toJson }}
-            {{- end }}
-          {{- else }}
-    {{ $key }} = {{ $value | toJson }}
-          {{- end }}
-        {{- end }}
-      {{- end }}
-    {{- end }}
-
-    {{- if .Values.packObjectsCache.enabled }}
-    [pack_objects_cache]
-    enabled = true
-    {{-   with .Values.packObjectsCache }}
-    {{-     if .dir }}
-    dir = {{ .dir | quote }}
-    {{-     end }}
-    {{-     if .max_age }}
-    max_age = {{ .max_age | quote }}
-    {{-     end }}
-    {{-     if .min_occurrences }}
-    min_occurrences = {{ .min_occurrences }}
-    {{-     end }}
-    {{-   end }}
-    {{- end }}
-
-    {{- if .Values.backup.goCloudUrl }}
-    [backup]
-    go_cloud_url = "{{ .Values.backup.goCloudUrl }}"
-    {{- end }}
 
     {{- if .Values.cgroups.enabled }}
     {{-   with .Values.cgroups }}
@@ -230,40 +127,4 @@ data:
     max_cgroups_per_repo = {{ .maxCgroupsPerRepo | int64 }}
     {{-     end }}
     {{-   end }}
-    {{- end }}
-    
-    {{- with .Values.timeout }}
-    [timeout]
-    {{- with .uploadPackNegotiation }}
-    upload_pack_negotiation = {{ . | quote }}
-    {{- end }}
-    {{- with .uploadArchiveNegotiation }}
-    upload_archive_negotiation = {{ . | quote }}
-    {{- end }}
-    {{- end }}
-
-    {{- with .Values.dailyMaintenance }}
-    [daily_maintenance]
-    {{- if hasKey . "disabled" }}
-    disabled = {{ eq .disabled true }}
-    {{- end }}
-    {{- with .startHour }}
-    start_hour = {{ . | int }}
-    {{- end }}
-    {{- with .startMinute }}
-    start_minute = {{ . | int }}
-    {{- end }}
-    {{- with .duration }}
-    duration = {{ . | quote }}
-    {{- end }}
-    {{- with .storages }}
-      {{- if kindIs "slice" . }}
-    storages = {{ . | toJson }}
-      {{- end }}
-    {{- end }}
-    {{- end }}
-    
-    {{- with .Values.bundleUri }}
-    [bundle_uri]
-    go_cloud_url = "{{ .goCloudUrl }}"
     {{- end }}

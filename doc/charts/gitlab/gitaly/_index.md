@@ -47,6 +47,7 @@ the `helm install` command using the `--set` flags.
 | `annotations`                                            |                                                         | Pod annotations |
 | `backup.goCloudUrl`                                      |                                                         | Object storage URL for [server side Gitaly backups](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#configure-server-side-backups). |
 | `common.labels`                                          | `{}`                                                    | Supplemental labels that are applied to all objects created by this chart. |
+| `configuration`                                          | `{}`                                                    | Pass-through block rendered into the Gitaly `config.toml`. Merged over the mapped settings below and takes precedence. See [`configuration`](#configuration). |
 | `podLabels`                                              |                                                         | Supplemental Pod labels. Will not be used for selectors. |
 | `external[].hostname`                                    | `- ""`                                                  | hostname of external node |
 | `external[].name`                                        | `- ""`                                                  | name of external node storage |
@@ -169,6 +170,47 @@ the `helm install` command using the `--set` flags.
 | `bundleUri.goCloudUrl`                                   |                                                         | See the [Bundle URIs documentation](https://docs.gitlab.com/administration/gitaly/bundle_uris/). |
 
 ## Chart configuration examples
+
+### configuration
+
+`configuration` is a pass-through block whose contents are rendered directly into the Gitaly
+`config.toml`. Its keys mirror the [Gitaly configuration structure](https://docs.gitlab.com/administration/gitaly/configure_gitaly/),
+so any Gitaly setting can be supplied here.
+
+Values set under `configuration` are merged on top of the chart's existing
+Gitaly settings (such as `git` and `dailyMaintenance`) and take precedence over
+them. Those existing keys remain supported, but using `configuration` is
+recommended.
+
+The mapped keys are planned for deprecation.
+
+Below is an example use of `configuration`:
+
+```yaml
+configuration:
+  git:
+    catfile_cache_size: 100
+  daily_maintenance:
+    start_hour: 23
+```
+
+The following sections are managed by the chart and are **ignored** if set under
+`configuration`, because their values are only determined when a Gitaly pod
+starts:
+
+- `storage`: derived from the pod's hostname
+- `auth`: token read from the mounted secret
+- `cgroups`: mountpoint read from the pod's cgroup path
+
+The `prometheus` section is also **ignored** if set under `configuration`, as
+its `grpc_latency_buckets` value needs special formatting that the pass-through
+encoding cannot produce. Configure it through `prometheus.grpcLatencyBuckets`
+instead.
+
+The TLS and metrics listen settings (`tls_listen_addr`, `tls`, and
+`prometheus_listen_addr`) are also **ignored** if set under `configuration`, as
+they must match the Service ports and mounted certificates the chart creates.
+Configure them through `global.gitaly.tls` and `metrics` instead.
 
 ### extraEnv
 
