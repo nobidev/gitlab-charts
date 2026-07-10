@@ -5,12 +5,20 @@
 # Pebble is Let's Encrypt's miniature ACME test server, used by cert-manager's
 # own e2e suite. It runs inside the k3d cluster so the chart's cert-manager
 # ACME integration can be exercised end-to-end without a public IP: Pebble's
-# HTTP-01 validation request originates in-cluster and reaches the Gateway or
-# Ingress through the nip.io hostname mapped to the k3d loadbalancer.
+# HTTP-01 validation request originates in-cluster and reaches the Gateway
+# through the nip.io hostname mapped to the k3d loadbalancer.
+#
+# Deployed via the jupyterhub/pebble-helm-chart, which also generates Pebble's
+# ACME API TLS leaf at pod start, signed by a STATIC root shipped in the
+# chart's ConfigMap (key root-cert.pem) — that root is what cert-manager
+# mounts as SSL_CERT_FILE (see gatewayapi-https-k3d.values.yaml). The root's
+# private key is public upstream: CI-only trust, never for anything real.
+#
 # See: https://github.com/letsencrypt/pebble
+#      https://github.com/jupyterhub/pebble-helm-chart
 
-# Note: Pebble's image tags carry no v prefix, unlike its GitHub release tags.
-PEBBLE_IMAGE="${PEBBLE_IMAGE:-ghcr.io/letsencrypt/pebble:2.10.1}"
+PEBBLE_CHART_REPO="${PEBBLE_CHART_REPO:-https://jupyterhub.github.io/helm-chart/}"
+PEBBLE_CHART_VERSION="${PEBBLE_CHART_VERSION:-1.5.0}"
 
 function pebble_pki_dir() {
   echo -n "${CI_PROJECT_DIR:-$(pwd)}/pebble-pki"
@@ -27,125 +35,27 @@ function deploy_pebble() {
   mkdir -p "${pki_dir}"
 
   echo "Installing Pebble (in-cluster ACME test server)"
+  # - coredns disabled: challenge lookups go through regular cluster DNS,
+  #   which resolves the nip.io hostnames fine. The chart's bundled CoreDNS
+  #   (with an injectable corefileSegment) remains the supported fallback if
+  #   that path ever proves flaky.
+  # - nodePorts nulled: renders a plain ClusterIP Service; per-job k3d
+  #   clusters have no use for host ports.
+  helm upgrade --install pebble pebble \
+    --repo "${PEBBLE_CHART_REPO}" \
+    --version "${PEBBLE_CHART_VERSION}" \
+    -n "${NAMESPACE}" \
+    --set coredns.enabled=false \
+    --set pebble.nodePort=null \
+    --set pebble.mgmtNodePort=null \
+    --wait --timeout 180s
 
-  # Throwaway CA + server certificate for Pebble's ACME API (ports 14000/15000).
-  # This is NOT the CA that signs the GitLab certificates — Pebble generates its
-  # issuing root dynamically at startup (fetched below from /roots/0). SANs must
-  # cover the in-cluster service DNS used in certmanager-issuer.server.
-  openssl req -x509 -newkey rsa:2048 -nodes -days 7 \
-    -keyout "${pki_dir}/api-ca.key" -out "${pki_dir}/api-ca.pem" \
-    -subj "/CN=Pebble API CA (CI)"
-  openssl req -newkey rsa:2048 -nodes \
-    -keyout "${pki_dir}/api-tls.key" -out "${pki_dir}/api-tls.csr" \
-    -subj "/CN=pebble"
-  openssl x509 -req -in "${pki_dir}/api-tls.csr" \
-    -CA "${pki_dir}/api-ca.pem" -CAkey "${pki_dir}/api-ca.key" -CAcreateserial \
-    -days 7 -out "${pki_dir}/api-tls.crt" \
-    -extfile <(printf "subjectAltName=DNS:pebble,DNS:pebble.%s.svc,DNS:pebble.%s.svc.cluster.local" "${NAMESPACE}" "${NAMESPACE}")
-
-  kubectl create secret tls pebble-api-tls -n "${NAMESPACE}" \
-    --cert="${pki_dir}/api-tls.crt" --key="${pki_dir}/api-tls.key" \
-    --dry-run=client -o yaml | kubectl apply -f -
-
-  # Mounted into the cert-manager controller (certmanager.volumes in the
-  # *-https-k3d values files) so it trusts Pebble's ACME API endpoint.
-  kubectl create configmap pebble-api-ca -n "${NAMESPACE}" \
-    --from-file=ca.pem="${pki_dir}/api-ca.pem" \
-    --dry-run=client -o yaml | kubectl apply -f -
-
-  kubectl apply -n "${NAMESPACE}" -f - <<EOF
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: pebble-config
-data:
-  pebble-config.json: |
-    {
-      "pebble": {
-        "listenAddress": "0.0.0.0:14000",
-        "managementListenAddress": "0.0.0.0:15000",
-        "certificate": "/etc/pebble/certs/tls.crt",
-        "privateKey": "/etc/pebble/certs/tls.key",
-        "httpPort": 80,
-        "tlsPort": 443,
-        "ocspResponderURL": "",
-        "externalAccountBindingRequired": false
-      }
-    }
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: pebble
-  labels:
-    app: pebble
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: pebble
-  template:
-    metadata:
-      labels:
-        app: pebble
-    spec:
-      containers:
-        - name: pebble
-          image: ${PEBBLE_IMAGE}
-          args: ["-config", "/etc/pebble/config/pebble-config.json"]
-          env:
-            # Deterministic behavior for CI: disable Pebble's chaos features
-            # (random validation sleeps and nonce rejections).
-            - name: PEBBLE_VA_NOSLEEP
-              value: "1"
-            - name: PEBBLE_WFE_NONCEREJECT
-              value: "0"
-          ports:
-            # httpPort/tlsPort in pebble-config.json are the ports Pebble dials
-            # OUT to for HTTP-01/TLS-ALPN-01 validation; it only listens on:
-            - containerPort: 14000 # ACME directory (TLS)
-            - containerPort: 15000 # management API (issuing roots)
-          readinessProbe:
-            tcpSocket:
-              port: 14000
-            initialDelaySeconds: 2
-            periodSeconds: 2
-          resources:
-            requests:
-              cpu: 50m
-              memory: 64Mi
-            limits:
-              memory: 128Mi
-          volumeMounts:
-            - name: config
-              mountPath: /etc/pebble/config
-            - name: certs
-              mountPath: /etc/pebble/certs
-      volumes:
-        - name: config
-          configMap:
-            name: pebble-config
-        - name: certs
-          secret:
-            secretName: pebble-api-tls
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: pebble
-spec:
-  selector:
-    app: pebble
-  ports:
-    - name: acme
-      port: 14000
-      targetPort: 14000
-    - name: mgmt
-      port: 15000
-      targetPort: 15000
-EOF
-
-  kubectl rollout status deployment/pebble -n "${NAMESPACE}" --timeout=120s
+  # Local copy of the chart's static API root, used to verify the management
+  # API below. The leaf's SANs include localhost/127.0.0.1, so a plain
+  # port-forward fetch verifies without hostname tricks.
+  kubectl get configmap pebble -n "${NAMESPACE}" \
+    -o jsonpath="{.data['root-cert\.pem']}" > "${pki_dir}/root-cert.pem"
+  grep -q "BEGIN CERTIFICATE" "${pki_dir}/root-cert.pem"
 
   pebble_fetch_issuing_root
 }
@@ -157,21 +67,18 @@ EOF
 #   <gitlab-hostname>.crt per the runner chart's self-signed cert convention)
 # - the job shell (SSL_CERT_FILE for RSpec) and scripts/ci/verify_certmanager.sh
 function pebble_fetch_issuing_root() {
-  local pki_dir root_pem pebble_host pf_pid fetched
+  local pki_dir root_pem pf_pid fetched
   pki_dir="$(pebble_pki_dir)"
   root_pem="${pki_dir}/issuing-root.pem"
-  pebble_host="pebble.${NAMESPACE}.svc.cluster.local"
 
   echo "Fetching Pebble's dynamically-generated issuing root CA"
-  kubectl port-forward -n "${NAMESPACE}" svc/pebble 15000:15000 >/dev/null 2>&1 &
+  kubectl port-forward -n "${NAMESPACE}" svc/pebble 8444:8444 >/dev/null 2>&1 &
   pf_pid=$!
 
   fetched=false
   for _ in $(seq 1 30); do
-    # --resolve keeps hostname verification against the API cert's service SANs.
-    if curl -sf --cacert "${pki_dir}/api-ca.pem" \
-         --resolve "${pebble_host}:15000:127.0.0.1" \
-         "https://${pebble_host}:15000/roots/0" -o "${root_pem}" \
+    if curl -sf --cacert "${pki_dir}/root-cert.pem" \
+         "https://localhost:8444/roots/0" -o "${root_pem}" \
        && grep -q "BEGIN CERTIFICATE" "${root_pem}"; then
       fetched=true
       break
@@ -193,8 +100,6 @@ function pebble_fetch_issuing_root() {
 
 function remove_pebble() {
   echo "Removing Pebble"
-  kubectl delete -n "${NAMESPACE}" --ignore-not-found \
-    deployment/pebble service/pebble \
-    configmap/pebble-config configmap/pebble-api-ca \
-    secret/pebble-api-tls secret/pebble-issuing-ca
+  helm uninstall pebble -n "${NAMESPACE}" --ignore-not-found
+  kubectl delete secret pebble-issuing-ca -n "${NAMESPACE}" --ignore-not-found
 }

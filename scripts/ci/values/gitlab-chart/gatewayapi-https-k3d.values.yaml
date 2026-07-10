@@ -25,20 +25,26 @@ global:
 
 certmanager-issuer:
   email: gitlab-charts-ci@example.com
-  # In-cluster Pebble ACME directory instead of Let's Encrypt production.
-  server: "https://pebble.${KUBE_NAMESPACE}.svc.cluster.local:14000/dir"
+  # In-cluster Pebble ACME directory instead of Let's Encrypt production
+  # (jupyterhub/pebble-helm-chart serves ACME on service port 443).
+  server: "https://pebble.${KUBE_NAMESPACE}.svc.cluster.local/dir"
 
 certmanager:
-  # Trust Pebble's ACME API TLS certificate (ConfigMap created by
-  # scripts/ci/lib/pebble.sh). SSL_CERT_FILE replaces the Go system roots for
-  # the controller only; Kubernetes API trust is unaffected (in-cluster CA).
+  # Trust Pebble's ACME API TLS certificate: the pebble-helm-chart signs it
+  # from a static root shipped in its own ConfigMap (only the cert is
+  # mounted, not the root key stored alongside it). SSL_CERT_FILE replaces
+  # the Go system roots for the controller only; Kubernetes API trust is
+  # unaffected (in-cluster CA).
   extraEnv:
     - name: SSL_CERT_FILE
-      value: /etc/pebble-api-ca/ca.pem
+      value: /etc/pebble-api-ca/root-cert.pem
   volumes:
     - name: pebble-api-ca
       configMap:
-        name: pebble-api-ca
+        name: pebble
+        items:
+          - key: root-cert.pem
+            path: root-cert.pem
   volumeMounts:
     - name: pebble-api-ca
       mountPath: /etc/pebble-api-ca
