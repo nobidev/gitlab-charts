@@ -108,6 +108,13 @@
     - .k3d_base
   variables:
     RSPEC_TAGS: type:feature
+    # Deploy over HTTPS with certificates ACME-issued by the bundled
+    # cert-manager against an in-cluster Pebble test server, exercising the
+    # chart's cert-manager integration on every run (no public IP needed).
+    # QA jobs stay on HTTP: the gitlab-qa containers cannot trust a
+    # runtime-generated CA (no volume/env injection mechanism for git).
+    EXTERNAL_PROTOCOL: "https"
+    DEPLOY_PEBBLE: "true"
   # Override rules: k3d provisions its own cluster inside the job, so there is
   # no pre-existing KUBECONFIG to check (skip_if_no_cluster would silently skip us).
   rules:
@@ -128,8 +135,17 @@
     - k3d_create
     - k3d_info
     - kubectl version --output=json
-    # Deploy GitLab chart + external services (Valkey, CNPG, Garage)
+    # Deploy GitLab chart + external services (Valkey, CNPG, Garage, Pebble)
     - ./scripts/ci/k3d_deploy.sh
+    # Trust the Pebble-issued certificates in the spec runner: Ruby (rest-client,
+    # open-uri) and curl honor SSL_CERT_FILE/CURL_CA_BUNDLE. Merged with the
+    # system bundle so other TLS (rubygems, GitLab API) keeps working.
+    - |
+      if [ -f pebble-pki/issuing-root.pem ]; then
+        cat /etc/ssl/certs/ca-certificates.crt pebble-pki/issuing-root.pem > /tmp/ci-ca-bundle.pem
+        export SSL_CERT_FILE=/tmp/ci-ca-bundle.pem
+        export CURL_CA_BUNDLE=/tmp/ci-ca-bundle.pem
+      fi
     # Run feature specs against the deployed instance
     - ./scripts/ci/run_specs.sh
   after_script:
@@ -141,3 +157,5 @@
     expire_in: 7d
     paths:
       - ./k3d-debug/
+      # openssl s_client transcripts from verify_certmanager.sh (no key material)
+      - ./pebble-pki/s_client-*.txt

@@ -1,0 +1,50 @@
+# Envoy Gateway (Gateway API) overrides for HTTPS k3d per-job review environments.
+# Unlike gatewayapi-https.values.yaml (GKE review apps, pre-provisioned wildcard
+# cert), certificates here are ACME-issued at deploy time by the bundled
+# cert-manager against the in-cluster Pebble test server (scripts/ci/lib/pebble.sh),
+# exercising the chart's cert-manager integration end-to-end without a public IP.
+# Requires DEPLOY_PEBBLE=true so the Pebble resources exist before `helm upgrade`.
+installCertmanager: true
+
+global:
+  hosts:
+    https: true
+  ingress:
+    configureCertmanager: false
+  gatewayApi:
+    # The managed Gateway gets the cert-manager issuer annotation and an
+    # http-default :80 listener for HTTP-01 challenges; cert-manager's
+    # gateway-shim creates the gitlab-tls, registry-tls and kas-tls
+    # Certificates from the listener certificateRefs (chart defaults).
+    configureCertmanager: true
+  # GitLab pods must trust the Pebble-issued certificates when connecting to
+  # the instance's own external URL from inside the cluster.
+  certificates:
+    customCAs:
+      - secret: pebble-issuing-ca
+
+certmanager-issuer:
+  email: gitlab-charts-ci@example.com
+  # In-cluster Pebble ACME directory instead of Let's Encrypt production.
+  server: "https://pebble.${KUBE_NAMESPACE}.svc.cluster.local:14000/dir"
+
+certmanager:
+  # Trust Pebble's ACME API TLS certificate (ConfigMap created by
+  # scripts/ci/lib/pebble.sh). SSL_CERT_FILE replaces the Go system roots for
+  # the controller only; Kubernetes API trust is unaffected (in-cluster CA).
+  extraEnv:
+    - name: SSL_CERT_FILE
+      value: /etc/pebble-api-ca/ca.pem
+  volumes:
+    - name: pebble-api-ca
+      configMap:
+        name: pebble-api-ca
+  volumeMounts:
+    - name: pebble-api-ca
+      mountPath: /etc/pebble-api-ca
+      readOnly: true
+
+# The runner registers against the external https URL; the secret key
+# <gitlab-hostname>.crt holds the Pebble issuing root (see pebble.sh).
+gitlab-runner:
+  certsSecretName: pebble-issuing-ca
