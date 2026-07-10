@@ -687,6 +687,31 @@ gitlab:
 
 For full details, see [Gateway API](../../../advanced/gateway-api/_index.md#tls-between-gateway-and-backend-services) documentation.
 
+### Customize the ClientTrafficPolicy
+
+When Envoy Gateway is used, the chart renders section-scoped `ClientTrafficPolicies` for
+the `main` (`gitlab-web`), `geo` (`gitlab-web-geo`), and `smartcard` (`gitlab-smartcard-web`)
+listeners. These policies take precedence over the gateway-wide
+`gatewayApiResources.envoy.clientTrafficPolicySpec` for the Webservice listeners.
+
+To customize the policy for a listener, set its specification under `clientTrafficPolicy.<variant>.spec`:
+
+```yaml
+gitlab:
+  webservice:
+    clientTrafficPolicy:
+      main:
+        spec:
+          path:
+            escapedSlashesAction: KeepUnchanged
+          enableProxyProtocol: true
+```
+
+The chart injects `spec.targetRefs` with the matching Gateway listener when you omit it, so you only
+set the fields you want to change. This restores the ability to configure `ClientTrafficPolicy`
+behavior for Webservice listeners. For more information, see
+[issue 6571](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6571).
+
 ## Resources
 
 ### Memory requests/limits
