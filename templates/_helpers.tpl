@@ -526,12 +526,6 @@ securityContext:
 {{-   if not (empty $psc.fsGroup) }}
   fsGroup: {{ $psc.fsGroup }}
 {{-   end }}
-{{-   if not (eq $psc.privileged nil) }}
-  privileged: {{ $psc.privileged }}
-{{-   end }}
-{{-   if not (eq $psc.allowPrivilegeEscalation nil) }}
-  allowPrivilegeEscalation: {{ $psc.allowPrivilegeEscalation }}
-{{-   end }}
 {{-   if not (eq $psc.runAsNonRoot nil) }}
   runAsNonRoot: {{ $psc.runAsNonRoot }}
 {{-   end }}
@@ -563,12 +557,6 @@ securityContext:
 {{-   end }}
 {{-   if not (eq $psc.fsGroup nil) }}
   fsGroup: {{ $psc.fsGroup }}
-{{-   end }}
-{{-   if not (eq $psc.privileged nil) }}
-  privileged: {{ $psc.privileged }}
-{{-   end }}
-{{-   if not (eq $psc.allowPrivilegeEscalation nil) }}
-  allowPrivilegeEscalation: {{ $psc.allowPrivilegeEscalation }}
 {{-   end }}
 {{-   if not (eq $psc.runAsNonRoot nil) }}
   runAsNonRoot: {{ $psc.runAsNonRoot }}
