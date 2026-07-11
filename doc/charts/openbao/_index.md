@@ -275,10 +275,10 @@ is unavailable. To store and use them, see
 | Parameter                                                | Default                                                 | Description |
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
 | `config.unseal.static.enabled`                           | true                                                    | Enable static auto unsealing. |
-| `config.unseal.static.currentKeyId`                      | `static-unseal-0`                                       | ID of the current static unsealing key. |
-| `config.unseal.static.currentKey`                        | `/srv/openbao/keys/static-unseal-1`                     | Path of the current static unsealing key. |
+| `config.unseal.static.currentKeyId`                      | `gl-unseal-1`                                            | ID of the current static unsealing key. |
+| `config.unseal.static.currentKey`                        | `/srv/openbao/keys/gl-unseal-1`                          | Path of the current static unsealing key. |
 | `config.unseal.static.previousKeyId`                     |                                                         | ID of the previous static unsealing key. |
-| `config.unseal.static.previousKey`                       | `/srv/openbao/keys/static-unseal-0`                     | Path of the previous static unsealing key. Only rendered if previous key ID is also set. |
+| `config.unseal.static.previousKey`                       | `/srv/openbao/keys/gl-unseal-0`                          | Path of the previous static unsealing key. Only rendered if previous key ID is also set. |
 | `config.unseal.awskms.enabled`                           | false                                                   | Enable AWS KMS auto-unsealing. |
 | `config.unseal.awskms.kmsKeyId`                          |                                                         | KMS key ID, ARN, or alias (for example, `alias/my-openbao-key`). Required when `config.unseal.awskms.enabled` is `true`. |
 | `config.unseal.awskms.region`                            |                                                         | AWS region where the KMS key resides. |
@@ -289,6 +289,126 @@ is unavailable. To store and use them, see
 | `config.initialize.boundAudiences`                       | External OpenBao host                                   | OIDC role audiences. Defaults to the external OpenBao hostname. |
 | `staticUnsealSecret.generate`                            | false                                                   | Generate a static key to auto unseal OpenBao. Defaults to false as managed by GitLab charts shared-secret chart. |
 | `initializeTpl`                                          |                                                         | Template passed to self initialize OpenBao. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
+
+#### Rotate the static unseal key
+
+Rotate the static unseal key by running the new key alongside the old one until OpenBao rewraps its
+root key, then remove the old key. Rotate one key at a time.
+
+The OpenBao Deployment uses the `Recreate` strategy, so each restart in this procedure briefly takes
+OpenBao offline. All pods stop before new ones start. Plan a short maintenance window.
+
+The current key lives in the `key` field of the `<release>-openbao-unseal` secret. During rotation,
+the old key moves to a `previous-key` field. The chart mounts that field when
+`config.unseal.static.previousKeyId` is set.
+
+> [!warning]
+> Remove the old key only after OpenBao rewraps its root key with the new key. If you remove it
+> too early, OpenBao cannot unseal, and recovery keys cannot help. A pod can report as unsealed even
+> when the rewrap failed, so check the logs first.
+
+Before you start, back up the `<release>-openbao-unseal` secret and the OpenBao database.
+
+1. Generate a new key. Use 32 raw bytes, not base64 text:
+
+   ```shell
+   openssl rand -out newkey 32
+   ```
+
+1. Move the current key to the `previous-key` field and store the new key in the `key` field. Build
+   the patch in a file with a restrictive `umask` and apply it with `--patch-file`, then shred the
+   file. This keeps the key out of your shell history and the process list, where a sensitive value
+   must never appear:
+
+   ```shell
+   CURRENT=$(kubectl --namespace <namespace> get secret <release>-openbao-unseal -o jsonpath='{.data.key}')
+   NEW=$(base64 < newkey | tr -d '\n')
+   umask 077
+   cat > unseal-patch.json <<EOF
+   {"data":{"previous-key":"${CURRENT}","key":"${NEW}"}}
+   EOF
+   kubectl --namespace <namespace> patch secret <release>-openbao-unseal --type merge --patch-file unseal-patch.json
+   shred -u unseal-patch.json
+   ```
+
+1. Update the configuration and run `helm upgrade`. Give the new key a new `currentKeyId`. Never
+   reuse an old ID.
+
+   ```yaml
+   openbao:
+     config:
+       unseal:
+         static:
+           currentKeyId: "gl-unseal-2"
+           currentKey: "/srv/openbao/keys/gl-unseal-2"
+           previousKeyId: "gl-unseal-1"
+           previousKey: "/srv/openbao/keys/gl-unseal-1"
+   ```
+
+1. Restart the OpenBao pods to load the new configuration:
+
+   ```shell
+   kubectl --namespace <namespace> rollout restart deployment -l app.kubernetes.io/name=openbao,app.kubernetes.io/instance=<release>
+   ```
+
+   Because the Deployment uses the `Recreate` strategy, all pods stop before new ones start, so
+   OpenBao is briefly unavailable. When the pods return, the one that becomes active rewraps the root
+   key.
+
+1. Confirm the rewrap. The active pod (labeled `openbao-active=true`) performs it. In its logs, you
+   must see both `upgrading stored keys` and `upgrading recovery key`, and no
+   `post-unseal upgrade seal keys failed`:
+
+   ```shell
+   ACTIVE=$(kubectl --namespace <namespace> get pod -l app.kubernetes.io/name=openbao,app.kubernetes.io/instance=<release>,openbao-active=true -o name)
+   kubectl --namespace <namespace> logs "$ACTIVE" -c openbao-server | grep -E 'upgrading stored keys|upgrading recovery key|post-unseal upgrade seal keys failed'
+   ```
+
+   A failed rewrap is not fatal, and the pod still reports as unsealed, so do not rely on pod health.
+   If you see the `failed` line, or you do not see both `upgrading` lines, the rewrap did not
+   complete. Do not remove the old key. Investigate first.
+
+   For [Geo](https://docs.gitlab.com/administration/geo/) deployments, the unseal secret is not
+   replicated between sites. Only the OpenBao database replicates. A secondary runs on a read-replica
+   and cannot rewrap for itself. Each secondary needs the new key before the rewrapped root key
+   reaches it. Before the primary rewraps, apply the same key change to every secondary site with the
+   same new key from step 1. Patch it into each secondary's `<release>-openbao-unseal` secret, as in
+   the patch step, and run `helm upgrade` on each secondary with the same `currentKeyId`,
+   `currentKey`, `previousKeyId`, and `previousKey`. After the primary rewraps, wait for the database
+   to replicate. Confirm each secondary unseals with the new key before you remove the old key
+   anywhere.
+
+1. Remove the old key, but only after every site confirms the rewrap. For Geo, wait until every
+   secondary unseals with the new key. Follow this order, because deleting the `previous-key` field
+   first makes the next pod restart fail to mount a `previous-key` that no longer exists.
+
+   First, remove `previousKeyId` and `previousKey` from your values and run `helm upgrade`:
+
+   ```shell
+   helm upgrade --install <release> gitlab/gitlab --namespace <namespace> -f <values>.yaml
+   ```
+
+   Next, restart the pods so they stop mounting the previous key:
+
+   ```shell
+   kubectl --namespace <namespace> rollout restart deployment -l app.kubernetes.io/name=openbao,app.kubernetes.io/instance=<release>
+   ```
+
+   Only then delete the `previous-key` secret field. For Geo, run this on every site:
+
+   ```shell
+   kubectl --namespace <namespace> patch secret <release>-openbao-unseal --type=json \
+     -p '[{"op":"remove","path":"/data/previous-key"}]'
+   ```
+
+1. Remove the temporary raw key material:
+
+   ```shell
+   shred -u newkey
+   ```
+
+   The secret and database backups you took at the start also contain live key material. Store them
+   securely or destroy them.
 
 #### AWS KMS unsealing
 
@@ -313,7 +433,36 @@ openbao:
         region: "us-east-1"
 ```
 
-The IAM role must have `kms:Encrypt`, `kms:Decrypt`, and `kms:DescribeKey` permissions on the KMS key.
+The IAM role needs only `kms:Encrypt`, `kms:Decrypt`, and `kms:DescribeKey` on the KMS key. OpenBao
+encrypts on the client side, so it does not use `kms:GenerateDataKey`. Do not grant it.
+
+Reference the key by an alias, such as `alias/my-openbao-key`, instead of a key ID or ARN. An alias
+lets you point at a different key later without editing the chart values.
+
+For [Geo](https://docs.gitlab.com/administration/geo/) deployments, use a
+[multi-Region KMS key](https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html).
+Give each site a replica of the key in its own region so it can unseal locally. Grant the three
+permissions on the replica in every region.
+
+OpenBao calls KMS `Decrypt` on every pod start, and [CloudTrail](https://docs.aws.amazon.com/kms/latest/developerguide/logging-using-cloudtrail.html)
+records each call. Set alarms on `AccessDenied` for these calls. Also set an alarm if the key is
+disabled, scheduled for deletion, or its policy changes. Each event stops OpenBao from unsealing on
+its next restart.
+
+#### Rotate the AWS KMS key
+
+AWS KMS rotates a key's material once a year. The rotation is transparent to OpenBao because the key
+ARN stays the same and AWS keeps the old material so unsealing keeps working. You do not need to act,
+and you must not disable or delete the old material.
+
+To switch to a different KMS key, change `config.unseal.awskms.kmsKeyId` or repoint the alias, then
+restart. The active node rewraps its root key under the new key. Switching keys is a configuration
+change, not a seal migration, so do not use `bao operator unseal -migrate`.
+
+> [!warning]
+> Keep the old KMS key enabled until the rewrap completes on the active node. For Geo, keep it until
+> the rewrapped keys replicate to and unseal on every secondary. If you disable or delete the old key
+> too early, OpenBao cannot unseal. An alias change affects only new encryption. You must still keep the old key.
 
 ### Audit event streaming options
 

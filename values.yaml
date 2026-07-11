@@ -1491,17 +1491,27 @@ openbao:
   httpAuditSecret:
     generate: false
   extraVolumes: |
+    {{- if .Values.config.unseal.static.enabled }}
     - name: unseal
       secret:
         secretName: '{{ template "gitlab.openbao.unseal.secret" . }}'
+    {{- end }}
     - name: audit
       secret:
         secretName: '{{ template "gitlab.openbao.authenticationTokenSecretFilePath.secret" . }}'
   extraVolumeMounts: |
+    {{- if .Values.config.unseal.static.enabled }}
     - name: unseal
-      mountPath: /srv/openbao/keys/gl-unseal-1
+      mountPath: {{ .Values.config.unseal.static.currentKey }}
       subPath: '{{ template "gitlab.openbao.unseal.key" . }}'
       readOnly: true
+    {{- if .Values.config.unseal.static.previousKeyId }}
+    - name: unseal
+      mountPath: {{ .Values.config.unseal.static.previousKey }}
+      subPath: '{{ template "gitlab.openbao.unseal.previousKey" . }}'
+      readOnly: true
+    {{- end }}
+    {{- end }}
     - name: audit
       mountPath: /srv/openbao/audit/gitlab-auth
       subPath: '{{ template "gitlab.openbao.authenticationTokenSecretFilePath.key" . }}'
@@ -1512,6 +1522,13 @@ openbao:
         enabled: true
         currentKeyId: "gl-unseal-1"
         currentKey: "/srv/openbao/keys/gl-unseal-1"
+        # Set both to enable unseal key rotation. previousKeyId/previousKey are the
+        # outgoing (old) key's existing id and mount path. The new currentKeyId must
+        # be a fresh, never-reused id. Add the old key to the unseal secret's
+        # "previous-key" field before rotating. See the OpenBao chart docs
+        # "Rotate the static unseal key".
+        previousKeyId: ""
+        previousKey: ""
     # Use external hostname in OpenBao auth.
     initialize:
       oidcDiscoveryUrl: '{{ include "gitlab.gitlab.url" . }}'

@@ -113,6 +113,140 @@ describe 'OpenBao installation' do
     end
   end
 
+  describe 'unseal key configuration' do
+    let(:openbao_volumes) { openbao_deployment["spec"]["template"]["spec"]["volumes"] }
+    let(:openbao_mounts) { openbao_deployment["spec"]["template"]["spec"]["containers"].first["volumeMounts"] }
+    let(:generate_secrets) { template.dig('ConfigMap/test-shared-secrets', 'data', 'generate-secrets') }
+    let(:seal_config) do
+      config = template.dig('ConfigMap/test-openbao-config', 'data', 'config.json')
+
+      JSON.parse(config)['seal']
+    end
+
+    let(:base_values) do
+      %(
+      global:
+        openbao:
+          enabled: true
+          psql:
+            host: test-postgresql.default.svc
+            username: gitlab
+            password:
+              secret: gitlab-postgresql-password
+              key: postgresql-password
+      openbao:
+        install: true
+      )
+    end
+
+    context 'with the default static unseal' do
+      let(:values) { HelmTemplate.with_defaults(base_values) }
+
+      it 'generates the static unseal secret' do
+        expect(generate_secrets).to include('test-openbao-unseal')
+      end
+
+      it 'mounts the current key' do
+        expect(openbao_mounts).to include(
+          'name' => 'unseal',
+          'mountPath' => '/srv/openbao/keys/gl-unseal-1',
+          'subPath' => 'key',
+          'readOnly' => true
+        )
+      end
+
+      it 'does not mount a previous key' do
+        expect(openbao_mounts.count { |m| m['name'] == 'unseal' }).to eq(1)
+      end
+
+      it 'does not render a previous key in the seal config' do
+        expect(seal_config['static']).to include('current_key_id' => 'gl-unseal-1')
+        expect(seal_config['static']).not_to include('previous_key_id', 'previous_key')
+      end
+    end
+
+    context 'with static unseal key rotation' do
+      let(:values) do
+        HelmTemplate.with_defaults(base_values + %(
+        config:
+          unseal:
+            static:
+              currentKeyId: gl-unseal-2
+              currentKey: /srv/openbao/keys/gl-unseal-2
+              previousKeyId: gl-unseal-1
+              previousKey: /srv/openbao/keys/gl-unseal-1
+        ))
+      end
+
+      it 'mounts both the current and previous keys' do
+        expect(openbao_mounts).to include(
+          a_hash_including('name' => 'unseal', 'mountPath' => '/srv/openbao/keys/gl-unseal-2', 'subPath' => 'key'),
+          a_hash_including('name' => 'unseal', 'mountPath' => '/srv/openbao/keys/gl-unseal-1', 'subPath' => 'previous-key')
+        )
+      end
+
+      it 'renders the previous key in the seal config' do
+        expect(seal_config['static']).to include(
+          'current_key_id' => 'gl-unseal-2',
+          'previous_key_id' => 'gl-unseal-1',
+          'previous_key' => 'file:///srv/openbao/keys/gl-unseal-1'
+        )
+      end
+    end
+
+    context 'with AWS KMS unseal' do
+      let(:values) do
+        HelmTemplate.with_defaults(base_values + %(
+        config:
+          unseal:
+            static:
+              enabled: false
+            awskms:
+              enabled: true
+              kmsKeyId: alias/my-openbao-key
+              region: us-east-1
+        ))
+      end
+
+      it 'does not generate the static unseal secret' do
+        expect(generate_secrets).not_to include('test-openbao-unseal')
+      end
+
+      it 'does not mount the unseal secret' do
+        expect(openbao_mounts.map { |m| m['name'] }).not_to include('unseal')
+        expect(openbao_volumes.map { |v| v['name'] }).not_to include('unseal')
+      end
+
+      it 'still mounts the audit secret' do
+        expect(openbao_mounts.map { |m| m['name'] }).to include('audit')
+      end
+
+      it 'renders the awskms seal config without a static block' do
+        expect(seal_config).to have_key('awskms')
+        expect(seal_config).not_to have_key('static')
+      end
+    end
+
+    context 'with previousKeyId set but previousKey empty' do
+      let(:values) do
+        HelmTemplate.with_defaults(base_values + %(
+        config:
+          unseal:
+            static:
+              currentKeyId: gl-unseal-2
+              currentKey: /srv/openbao/keys/gl-unseal-2
+              previousKeyId: gl-unseal-1
+              previousKey: ""
+        ))
+      end
+
+      it 'errors that previousKey is required when previousKeyId is set' do
+        expect(template.exit_code).not_to eq(0)
+        expect(template.stderr).to include('config.unseal.static.previousKey is required when previousKeyId is set')
+      end
+    end
+  end
+
   describe 'with custom http audit secret' do
     let(:values) do
       HelmTemplate.with_defaults(%(

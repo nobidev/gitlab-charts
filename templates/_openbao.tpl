@@ -108,6 +108,10 @@ Render the OpenBao postgresql configuration yaml.
 key
 {{- end -}}
 
+{{- define "gitlab.openbao.unseal.previousKey" -}}
+previous-key
+{{- end -}}
+
 {{- define "gitlab.openbao.authenticationTokenSecretFilePath.secret" -}}
 {{- .Values.global.openbao.httpAudit.secret | default (printf "%s-openbao-audit-secret" .Release.Name) -}}
 {{- end -}}
