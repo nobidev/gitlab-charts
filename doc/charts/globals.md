@@ -1118,6 +1118,14 @@ global:
         key: secret
       azure_ad_endpoint: "https://login.microsoftonline.com"
       graph_endpoint: "https://graph.microsoft.com"
+    amazon_ses_mailer:
+      enabled: false
+      region: "YOUR-AWS-REGION"
+      role_arn: "arn:aws:iam::123456789012:role/your-role"
+      access_key_id: "YOUR-AWS-ACCESS-KEY-ID"
+      secret_access_key:
+        secret:
+        key: secret_access_key
     incomingEmail:
       enabled: false
       address: ""
@@ -2708,7 +2716,7 @@ The `global.appConfig.kerberos.simpleLdapLinkingAllowedRealms` can be used to sp
 
 ## Outgoing email
 
-Outgoing email configuration is available via `global.smtp.*`, `global.appConfig.microsoft_graph_mailer.*` and `global.email.*`.
+Outgoing email configuration is available via `global.smtp.*`, `global.appConfig.microsoft_graph_mailer.*`, `global.appConfig.amazon_ses_mailer.*` and `global.email.*`.
 
 ```yaml
 global:
@@ -2740,7 +2748,25 @@ global:
         key: secret
       azure_ad_endpoint: "https://login.microsoftonline.com"
       graph_endpoint: "https://graph.microsoft.com"
+    amazon_ses_mailer:
+      enabled: false
+      region: "YOUR-AWS-REGION"
+      role_arn: "arn:aws:iam::123456789012:role/your-role"
+      access_key_id: "YOUR-AWS-ACCESS-KEY-ID"
+      secret_access_key:
+        secret:
+        key: secret_access_key
 ```
+
+Amazon SES email delivery supports two authentication methods:
+
+- Static credentials, using `access_key_id` and `secret_access_key`.
+- An IAM role, using `role_arn`. When you omit both `access_key_id` and `secret_access_key`,
+  GitLab uses the AWS credential provider chain (for example, environment variables, shared
+  profile, or the instance profile of the node).
+
+`global.appConfig.amazon_ses_mailer.*` and `global.appConfig.microsoft_graph_mailer.*` are
+mutually exclusive. Enable only one of them.
 
 More information on the available configuration options is available in the
 [outgoing email documentation](../installation/command-line-options.md#outgoing-email-configuration).
