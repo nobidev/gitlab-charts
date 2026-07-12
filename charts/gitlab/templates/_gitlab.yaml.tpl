@@ -31,6 +31,15 @@ microsoft_graph_mailer:
   graph_endpoint: {{ .microsoft_graph_mailer.graph_endpoint | quote }}
 {{- end -}}
 
+{{- define "gitlab.appConfig.amazon_ses_mailer" -}}
+amazon_ses_mailer:
+  enabled: {{ eq .amazon_ses_mailer.enabled true }}
+  region: {{ .amazon_ses_mailer.region | quote }}
+  access_key_id: {{ .amazon_ses_mailer.access_key_id | quote }}
+  secret_access_key: {{ .amazon_ses_mailer.secret_access_key | quote }}
+  role_arn: {{ .amazon_ses_mailer.role_arn | quote }}
+{{- end -}}
+
 {{- define "gitlab.appConfig.incoming_email" -}}
 incoming_email:
   enabled: {{ eq .incomingEmail.enabled true }}

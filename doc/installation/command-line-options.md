@@ -107,6 +107,18 @@ helm inspect values gitlab/gitlab
 | `global.appConfig.microsoft_graph_mailer.azure_ad_endpoint`    | `https://login.microsoftonline.com` | The URL of the Azure Active Directory endpoint |
 | `global.appConfig.microsoft_graph_mailer.graph_endpoint`       | `https://graph.microsoft.com`       | The URL of the Microsoft Graph endpoint |
 
+### Amazon SES Mailer settings
+
+When `role_arn`, `access_key_id`, and `secret_access_key` are all omitted, credentials are resolved via the [AWS credential provider chain](https://docs.aws.amazon.com/sdk-for-ruby/v3/developer-guide/credential-providers.html) (for example, IAM roles for service accounts).
+
+| Parameter                                              | Default | Description |
+|--------------------------------------------------------|---------|-------------|
+| `global.appConfig.amazon_ses_mailer.enabled`           | `false` | Enable outgoing email via the Amazon SES API |
+| `global.appConfig.amazon_ses_mailer.region`            | `""`    | The AWS region of your Amazon SES account |
+| `global.appConfig.amazon_ses_mailer.access_key_id`     | `""`    | The AWS access key ID used to authenticate with Amazon SES |
+| `global.appConfig.amazon_ses_mailer.secret_access_key` | `""`    | The AWS secret access key used to authenticate with Amazon SES |
+| `global.appConfig.amazon_ses_mailer.role_arn`          | `""`    | The ARN of an IAM role to assume. Credentials are obtained via STS |
+
 ## Incoming Email configuration
 
 ### Common settings

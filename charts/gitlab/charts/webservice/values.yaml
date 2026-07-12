@@ -376,6 +376,8 @@ global:
   appConfig:
     microsoft_graph_mailer:
       enabled: false
+    amazon_ses_mailer:
+      enabled: false
     incomingEmail:
       enabled: false
       address:

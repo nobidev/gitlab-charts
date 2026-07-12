@@ -59,6 +59,9 @@ data:
       {{-   if .microsoft_graph_mailer.enabled }}
       {{-     include "gitlab.appConfig.microsoft_graph_mailer" . | nindent 6 }}
       {{-   end }}
+      {{-   if .amazon_ses_mailer.enabled }}
+      {{-     include "gitlab.appConfig.amazon_ses_mailer" . | nindent 6 }}
+      {{-   end }}
       {{-   include "gitlab.appConfig.cronJobs" . | nindent 6 }}
       {{-   include "gitlab.appConfig.gravatar" . | nindent 6 }}
       {{- end }}
