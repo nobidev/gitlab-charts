@@ -9,6 +9,11 @@ This guide is meant to serve as a cross-plaform resource for setting up a local
 Kubernetes development environment. In this guide, we'll be using
 [minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/) as it is the accepted standard.
 
+> [!note]
+> Local Helm and minikube installations require external PostgreSQL, Redis, and S3-compatible object storage. The bundled PostgreSQL, Redis, and MinIO charts were removed in GitLab 19.0. For the current dependency requirements, see [Installing GitLab by using Helm](../../installation/_index.md). To provision these dependencies for local development, see [Set up external dependencies for local development](../external-dependencies.md).
+
+If you prefer a higher-level local development workflow instead of manually wiring these dependencies, see [Caproni](https://gitlab.com/gitlab-org/caproni), an alternative GitLab development toolkit for local Kubernetes development with cloud-native charts.
+
 ## Getting Started with minikube
 
 We'll extract and expound on the official documentation from the
