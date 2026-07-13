@@ -43,7 +43,7 @@ describe 'Amazon SES Mailer configuration' do
       gitlab_yml_erb = template.dig("ConfigMap/test-#{chart}", 'data', 'gitlab.yml.erb')
       expect(gitlab_yml_erb).to include(%(secret_access_key: <%= File.read('/etc/gitlab/amazon_ses_mailer/secret_access_key').strip.to_json %>))
       amazon_ses_mailer = YAML.safe_load(gitlab_yml_erb)['production']['amazon_ses_mailer']
-      expect(amazon_ses_mailer['enabled']).to eq(true)
+      expect(amazon_ses_mailer['enabled']).to be(true)
       expect(amazon_ses_mailer['region']).to eq('us-east-1')
       expect(amazon_ses_mailer['role_arn']).to eq('arn:aws:iam::123456789012:role/ses-mailer')
       expect(amazon_ses_mailer['access_key_id']).to eq('AKIAEXAMPLE')
@@ -76,7 +76,7 @@ describe 'Amazon SES Mailer configuration' do
       expect(template.exit_code).to eq(0)
       gitlab_yml_erb = template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb')
       amazon_ses_mailer = YAML.safe_load(gitlab_yml_erb)['production']['amazon_ses_mailer']
-      expect(amazon_ses_mailer['enabled']).to eq(true)
+      expect(amazon_ses_mailer['enabled']).to be(true)
       expect(amazon_ses_mailer['region']).to eq('us-east-1')
       expect(amazon_ses_mailer).not_to have_key('access_key_id')
       expect(amazon_ses_mailer).not_to have_key('secret_access_key')
