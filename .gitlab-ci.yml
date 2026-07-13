@@ -123,6 +123,7 @@ variables:
   KUBE_SCORE_IMAGE: "${DOCKERHUB_PREFIX}/zegl/kube-score:v1.19.0@sha256:94137f32ce139dc9fbdbbd380249025e4d378c282ff151a100b981cdeeb923b6"
   DOCKER_DIND_IMAGE: "${DOCKERHUB_PREFIX}/docker:${DOCKER_VERSION}-dind"
 
+  DOCS_HUGO_IMAGE: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/docs-gitlab-com-builder:hugo-0.154.5
   DOCS_LINT_IMAGE: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/lint-markdown:alpine-3.23-vale-3.14.1-markdownlint2-0.22.1-lychee-0.24.2
 
 stages:

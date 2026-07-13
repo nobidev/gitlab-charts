@@ -125,7 +125,7 @@ docs-i18n-lint paths:
     - if: '$PIPELINE_TYPE == "DOCS_PIPELINE_LOCALIZATION"'
 
 docs-test hugo:
-  image: registry.gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/docs-gitlab-com-builder:hugo-0.150.1
+  image: ${DOCS_HUGO_IMAGE}
   stage: prepare
   variables:
     DOCS_BRANCH: "main"
