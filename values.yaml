@@ -72,6 +72,7 @@ global:
     pages: {}
     openbao: {}
     workspaces: {}
+    aiGateway: {}
 
   gatewayApi:
     enabled: true
@@ -1582,6 +1583,18 @@ gatewayApiResources:
           mode: Terminate
           certificateRefs:
             - name: openbao-tls
+      ai-gateway-web:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: ai-gateway-tls
+      ai-gateway-grpc:
+        protocol: ""
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: ai-gateway-grpc-tls
   envoy:
     proxySpec:
       provider:

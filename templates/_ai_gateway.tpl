@@ -50,3 +50,12 @@ aigwSigningKey
 {{- define "ai-gateway.aigwValidationKey.key" -}}
 aigwValidationKey
 {{- end -}}
+
+{{- define "gitlab.ai-gateway.hostname" -}}
+{{- coalesce $.Values.global.hosts.aiGateway.name (include "gitlab.assembleHost"  (dict "name" "ai-gateway" "context" . )) -}}
+{{- end }}
+
+{{- define "gitlab.ai-gateway.grpcHostname" -}}
+{{- printf "grpc-%s" (include "gitlab.ai-gateway.hostname" .) -}}
+{{- end -}}
+
