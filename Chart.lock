@@ -40,6 +40,6 @@ dependencies:
   version: 1.8.2
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
-  version: 0.14.0
-digest: sha256:96099f9b988ba66ba641ee853260c8d7739ebfedc3c37578e514f25e5e50d0f9
-generated: "2026-07-10T08:22:49.71602267Z"
+  version: 0.15.0
+digest: sha256:e8babf9ae150cdd4adb2b41c558be50a8ec9ffeea33d939b5e066c61f6bf4c03
+generated: "2026-07-14T11:20:17.767665+02:00"

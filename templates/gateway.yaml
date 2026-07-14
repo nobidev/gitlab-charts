@@ -93,4 +93,14 @@ spec:
     {{- $_ := set $listener "hostname" (include "gitlab.openbao.hostname" .) }}
     {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig) | nindent 2 }}
   {{- end }}
+  {{- if index .Values "ai-gateway" "install"}}
+    {{- $listener = index $listeners "ai-gateway-web" }}
+    {{- $_ := set $listener "name" "ai-gateway-web" }}
+    {{- $_ := set $listener "hostname" (include "gitlab.ai-gateway.hostname" .) }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig) | nindent 2 }}
+    {{- $listener = index $listeners "ai-gateway-grpc" }}
+    {{- $_ := set $listener "name" "ai-gateway-grpc" }}
+    {{- $_ := set $listener "hostname" (include "gitlab.ai-gateway.grpcHostname" .) }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig) | nindent 2 }}
+  {{- end }}
 {{ end }}

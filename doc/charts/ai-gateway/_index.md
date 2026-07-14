@@ -108,6 +108,7 @@ To configure TLS:
      # The name of the secret where the certificate and its keys are stored
      tls:
        secretName: aigw-tls
+       caSecretName: secret-custom-ca # Same CA as above
    ```
 
 Go to your GitLab Duo configuration page and change the following:
@@ -117,3 +118,98 @@ Go to your GitLab Duo configuration page and change the following:
 - Enable the **Use TLS for the GitLab Duo Agent Platform service**.
 - If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab
   Duo Agent Platform** features. For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
+
+### TLS ciphers suites
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6542#note_3533842875) in GitLab 19.2.
+
+{{< /history >}}
+
+Prerequisites:
+
+- The `self-hosted-v19.2.X-ee` or later tag for the
+  AI-Gateway [container image](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/container_registry/3809284?orderBy=PUBLISHED_AT&search%5B%5D=self-hosted).
+
+Currently the TLS cipher suite defaults to TLSv1.2. But it can be changed to any [OpenSSL cipher string](https://docs.openssl.org/3.0/man1/openssl-ciphers/)
+by setting the `ai-gateway.tls.ssl_ciphers` like in the following example:
+
+   ```yaml
+  ai-gateway:
+    image:
+      tag: self-hosted-v19.2.0-ee
+    install: true
+    livenessProbe:
+      httpGet:
+        scheme: HTTPS
+    readinessProbe:
+      httpGet:
+        scheme: HTTPS
+    tls:
+      secretName: aigw-tls
+      caSecretName: secret-custom-ca
+      # Here is where you configure your cipher string
+      ssl_ciphers: ECDHE+AESGCM:DHE+AESGCM:ECDHE+CHACHA20:DHE+CHACHA20
+   ```
+
+Keep in mind that cipher suites below TLSv1.2 are not supported and will cause issues.
+
+## Configure external access for GitLab Duo Workflow runners
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6542) in GitLab 19.2.
+
+{{< /history >}}
+
+Prerequisites:
+
+- The `self-hosted-v19.2.X-ee` or later tag for the
+  AI-Gateway [container image](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/container_registry/3809284?orderBy=PUBLISHED_AT&search%5B%5D=self-hosted).
+
+GitLab Duo Workflow runners connect to the AI Gateway over gRPC from outside the cluster.
+To expose the AI Gateway externally, set the parameter `global.gatewayApi.enabled` to `true`.
+
+```yaml
+global:
+  gatewayApi:
+    enabled: true
+
+ai-gateway:
+  image:
+    tag: self-hosted-v19.2.0-ee
+```
+
+Deploy the changes, then go to your GitLab Duo configuration page and change the following:
+
+- Change the **Local AI Gateway URL** to `https://ai-gateway.<YOUR_DOMAIN>`.
+- Change the **Local URL for the GitLab Duo Agent Platform service** to `grpc-ai-gateway.<YOUR_DOMAIN>:443`.
+- Enable the **Use TLS for the GitLab Duo Agent Platform service**.
+- If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab
+  Duo Agent Platform** features. For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
+
+### End to end encryption
+
+To benefit from end to end encryption from the client all the way to the pod, make sure to enable [internal TLS](#configure-internal-tls).
+This is the recommended configuration.
+
+```yaml
+global:
+  gatewayApi:
+    enabled: true
+
+ai-gateway:
+  install: true
+  image:
+    tag: self-hosted-v19.2.0-ee
+  livenessProbe:
+    httpGet:
+      scheme: HTTPS
+  readinessProbe:
+    httpGet:
+      scheme: HTTPS
+tls:
+  secretName: aigw-tls
+  caSecretName: secret-custom-ca
+```
