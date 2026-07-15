@@ -1,0 +1,2 @@
+# Locally packaged chart produced by `helm package` (see README.md).
+dist/

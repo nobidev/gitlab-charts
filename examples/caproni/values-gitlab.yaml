@@ -1,0 +1,191 @@
+# GitLab chart values for local Caproni development.
+#
+# Wires the chart to the external dependencies provisioned by the
+# gitlab-dev-stack release. Both releases share the `gitlab` namespace, so
+# the `*-conn` Secrets are referenced by bare name and services by their
+# short (same-namespace) DNS names.
+#
+# Adapted from the gitlab-dev-stack chart's examples/gitlab.yaml:
+# https://gitlab.com/gitlab-org/cloud-native/charts/gitlab-dev-stack/-/blob/main/examples/gitlab.yaml
+
+installCertmanager: false
+certmanager:
+  install: false
+
+global:
+  hosts:
+    domain: caproni.test
+    https: false
+
+  gatewayApi:
+    enabled: false
+    installEnvoy: false
+    configureCertmanager: false
+
+  ingress:
+    enabled: true
+    provider: traefik
+    class: traefik
+    configureCertmanager: false
+    tls:
+      enabled: false
+
+  pages:
+    enabled: true
+    objectStore:
+      enabled: true
+      connection:
+        secret: gitlab-dev-stack-garage-conn
+        key: s3cmd
+
+  psql:
+    host: gitlab-dev-stack-gitlab-rw
+    username: gitlab-dev-stack
+    database: gitlabhq_production
+    password:
+      useSecret: true
+      secret: gitlab-dev-stack-gitlab-gitlabhq-production-conn
+      key: PGPASSWORD
+
+  minio:
+    enabled: false
+
+  # KAS is for the GitLab agent (Kubernetes connectivity); not exercised here.
+  kas:
+    enabled: false
+
+  redis:
+    host: gitlab-dev-stack-valkey
+    port: 6379
+    auth:
+      enabled: true
+      secret: gitlab-dev-stack-valkey-conn
+      key: password
+
+  clickhouse:
+    enabled: true
+    main:
+      username: gitlab-dev-stack
+      password:
+        secret: gitlab-dev-stack-clickhouse-conn
+        key: CLICKHOUSE_PASSWORD
+      database: gitlab_main
+      url: "http://gitlab-dev-stack-clickhouse:8123"
+
+  appConfig:
+    gitlab_kas:
+      enabled: false
+    object_store:
+      enabled: true
+      proxy_download: true
+      connection:
+        secret: gitlab-dev-stack-garage-conn
+        key: connection
+    lfs:
+      enabled: true
+      bucket: gitlab-lfs
+    artifacts:
+      enabled: true
+      bucket: gitlab-artifacts
+    uploads:
+      enabled: true
+      bucket: gitlab-uploads
+    packages:
+      enabled: true
+      bucket: gitlab-packages
+    pages:
+      enabled: true
+      bucket: gitlab-pages
+    dependencyProxy:
+      enabled: true
+      bucket: gitlab-dependency-proxy
+    externalDiffs:
+      enabled: true
+      bucket: gitlab-mr-diffs
+    terraformState:
+      enabled: true
+      bucket: gitlab-terraform-state
+    backups:
+      bucket: gitlab-backups
+      tmpBucket: tmp
+
+# External via global.psql — disable the bundled PostgreSQL.
+postgresql:
+  install: false
+
+# External via global.redis — disable the bundled Redis.
+redis:
+  install: false
+
+# k3s Traefik handles routing — disable the bundled nginx-ingress.
+nginx-ingress:
+  enabled: false
+
+# Not exercised locally — disable Prometheus.
+prometheus:
+  install: false
+
+# Pin HPA-managed subcharts to a single replica to fit local resources.
+# Disable gitlab-exporter, which only feeds Prometheus.
+gitlab:
+  gitlab-exporter:
+    enabled: false
+  webservice:
+    minReplicas: 1
+    maxReplicas: 1
+  sidekiq:
+    minReplicas: 1
+    maxReplicas: 1
+  gitlab-shell:
+    minReplicas: 1
+    maxReplicas: 1
+  toolbox:
+    backups:
+      objectStorage:
+        config:
+          secret: gitlab-dev-stack-garage-conn
+          key: connection
+
+# Registry metadata database lives on the dedicated `registry` CNPG cluster
+# from gitlab-dev-stack. Blob storage stays on Garage.
+registry:
+  storage:
+    secret: gitlab-dev-stack-garage-conn
+    key: registry_connection
+  hpa:
+    minReplicas: 1
+    maxReplicas: 1
+  database:
+    enabled: true
+    host: gitlab-dev-stack-registry-rw
+    port: 5432
+    user: gitlab-dev-stack
+    name: registry
+    password:
+      secret: gitlab-dev-stack-registry-registry-conn
+      key: PGPASSWORD
+    sslmode: disable
+
+gitlab-runner:
+  gitlabUrl: http://gitlab-webservice-default:8080
+  # Let the runner pick the matching helper image at job time based on arch/OS.
+  extraEnv:
+    KUBERNETES_HELPER_IMAGE_AUTOSET_ARCH_AND_OS: "true"
+  runners:
+    locked: false
+    # The runner chart only renders its Secret template when this is non-empty;
+    # the parent chart overrides it with the real Secret name.
+    secret: "nonempty"
+    config: |
+      [[runners]]
+        [runners.kubernetes]
+        image = "ubuntu:24.04"
+        [runners.cache]
+          Type = "s3"
+          Path = "gitlab-runner"
+          Shared = true
+          [runners.cache.s3]
+            ServerAddress = "gitlab-dev-stack-garage:3900"
+            BucketName = "runner-cache"
+            BucketLocation = "garage"
+            Insecure = true
