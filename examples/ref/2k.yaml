@@ -8,11 +8,12 @@ gitlab:
     maxUnavailable: 1
     minReplicas: 2 # Min pods recommended to be set to 75% of max to start
     resources:
+      # See https://docs.gitlab.com/charts/charts/gitlab/webservice/#memory-requestslimits
       limits:
-        memory: 7G # roughly, 1.75GB/worker
+        memory: 7G
       requests:
         cpu: 4 # requests.cpu <= workerProcesses
-        memory: 5G # roughly, 1.25GB/worker
+        memory: 5G
     workerProcesses: 4
     hpa:
       cpu:
