@@ -2,6 +2,26 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.2.0 (2026-07-15)
+
+### Fixed (4 changes)
+
+- [Split KAS k8s-proxy into its own HTTPRoute](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/5d10ea05cdb3bd06f1fbab7c4073a040bbef7caa) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5156))
+- [Fix stray comma in Praefect password generation](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e2ee6d67ec9135eaab9635718acd562bf6603a92) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5154))
+- [Fix shared-secrets silent failures](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/8c1f075b6bb430b9caa67d53b091c4a3c95fa99d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5154))
+- [Fix Pages object storage validation under consolidated config](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bd8adc0200a917a11e39114681b333b063188b2b) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5124))
+
+### Changed (8 changes)
+
+- [Update cert-manager to v1.21.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ab5f58178bd58f40420fced1ba6440d4219e5498) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5174))
+- [Update gitlab-exporter to v16.9.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/cb277798bcaa2bf999e6bbe21a62f332db16db52) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5172))
+- [Update cert-manager to v1.20.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fc1b343d7a460f0c6aace8c6681a5b5ee4eaf33f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5148))
+- [Update Envoy Gateway to v1.8.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/598b18b8974a96ebcdf17d6a1ca53b2c5df43085) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5164))
+- [Update gitlab-runner to v0.90.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/61343dc7585b5d55cba369fd51090d300b8667d6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5150))
+- [Update helm to v4.2.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a534dceb707369d69c458e09e60a7db2b8897fb5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5130))
+- [Update container-registry to v4.40.2-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/991bf40f76b4ea6f948765cb404f314daa0dd179) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5144))
+- [Update gitlab-runner to v0.90.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/68c3e43166a2bdcb7b50f16e185dc2773059a778) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5127))
+
 ## 10.1.2 (2026-07-07)
 
 ### Fixed (1 change)
