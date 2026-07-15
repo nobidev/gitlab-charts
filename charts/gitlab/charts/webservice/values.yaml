@@ -117,6 +117,35 @@ gatewayRoute:
   gatewayNamespace: ""
   annotations: {}
 
+# Section-scoped Envoy Gateway ClientTrafficPolicy resources rendered for the
+# Webservice listeners. Each variant's `spec` holds the full ClientTrafficPolicy
+# spec and can be overridden wholesale. When `spec.targetRefs` is omitted the
+# chart injects the appropriate Gateway/listener reference automatically.
+clientTrafficPolicy:
+  main:
+    spec:
+      path:
+        escapedSlashesAction: KeepUnchanged
+  smartcard:
+    spec:
+      path:
+        escapedSlashesAction: KeepUnchanged
+      tls:
+        clientValidation:
+          caCertificateRefs:
+          # `name` is injected from global.appConfig.smartcard.CASecret when unset.
+          - kind: Secret
+            group: ""
+      headers:
+        xForwardedClientCert:
+          certDetailsToAdd:
+          - Cert
+          mode: SanitizeSet
+  geo:
+    spec:
+      path:
+        escapedSlashesAction: KeepUnchanged
+
 backendTLSPolicy:
   hostname: ""
 

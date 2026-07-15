@@ -101,6 +101,12 @@ and a `SecurityPolicy` bound to the managed `Gateway`.
 | `gatewayApiResources.envoy.clientTrafficPolicySpec` | Object  | see values     | Envoy's `ClientTrafficPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
 | `gatewayApiResources.envoy.securityPolicySpec`      | Object  | see values     | Envoy's `SecurityPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
 
+> [!note]
+> The Webservice chart renders its own section-scoped `ClientTrafficPolicy` resources for the
+> `gitlab-web`, `gitlab-web-geo`, and `gitlab-smartcard-web` listeners. These take precedence over
+> `gatewayApiResources.envoy.clientTrafficPolicySpec` on those listeners. To customize them, see the
+> [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#customize-the-clienttrafficpolicy).
+
 #### Envoy Gateway metrics
 
 The bundled Prometheus is set up to collect metrics from both Envoy Gateway and the managed
