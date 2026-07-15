@@ -13,6 +13,10 @@ It is also possible to use IAM roles in combination with [`kube2iam`](https://gi
 
 The IAM role will need read, write and list permissions on the S3 buckets. You can choose to have a role per bucket or combine them.
 
+> [!note]
+> List permissions (for example `s3:ListBucket`) must be granted at the bucket resource level, not only on the objects inside the bucket.
+> Missing bucket-level permissions can cause `403 Forbidden` errors on calls such as `HeadBucket`, even when the IAM role is assumed correctly.
+
 ## Chart configuration
 
 IAM roles can be specified by adding annotations and changing the secrets, as specified below:
@@ -76,6 +80,11 @@ The [`s3cmd.config`](_index.md#backups-storage-example) secret is to be created 
 [default]
 bucket_location = us-east-1
 ```
+
+> [!note]
+> When using IAM roles for service accounts (IRSA) with no static AWS credentials configured, `s3cmd` has no `.s3cfg` file to fall back on and the backup fails with `ERROR: /home/git/.s3cfg: None`.
+> In this case, skip the `s3cmd.config` secret entirely and use `awscli` instead by passing `--s3tool awscli` to `backup-utility`.
+> See [Specify S3 tool to use](../../backup-restore/backup.md#specify-s3-tool-to-use) for details.
 
 ### Using IAM roles for service accounts
 

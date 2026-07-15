@@ -98,6 +98,23 @@ The S3 CLI tool to use can be either `s3cmd` or `awscli`.
  kubectl exec <Toolbox pod name> -it -- backup-utility --s3tool awscli
  ```
 
+#### Using IAM roles for service accounts (IRSA)
+
+If the Toolbox pod authenticates using an IAM role for a ServiceAccount (IRSA) instead of static AWS credentials, `s3cmd` fails with `ERROR: /home/git/.s3cfg: None`, because there's no `.s3cfg` file for it to use.
+`awscli` doesn't have this requirement, so switch to it with `--s3tool awscli` and skip the `gitlab.toolbox.backups.objectStorage.config` secret altogether:
+
+```yaml
+gitlab:
+  toolbox:
+    backups:
+      cron:
+        enabled: true
+        schedule: "@daily"
+        extraArgs: "--s3tool awscli"
+```
+
+To learn more about configuring ServiceAccount annotations, see [IAM roles for AWS when using the GitLab chart](../advanced/external-object-storage/aws-iam-roles.md).
+
 #### Using MinIO with awscli
 
 To use MinIO as the object storage when using `awscli`, set the following parameters:
