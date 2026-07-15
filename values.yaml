@@ -50,7 +50,7 @@ global:
   edition: ee
 
   ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
-  # gitlabVersion:
+  gitlabVersion: "19.2.0"
 
   ## https://docs.gitlab.com/charts/charts/globals#application-resource
   application:
