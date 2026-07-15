@@ -722,6 +722,49 @@ resources:
 #   memory: 7G   # = (4 * 1.5G) + 950M
 ```
 
+#### Tightly packed or consolidating environments
+
+In Kubernetes environments that use aggressive bin-packing or node consolidation
+(for example, EKS clusters managed by Karpenter with consolidation enabled), nodes
+are provisioned and consolidated based on pod requests, not limits. When
+`limits.memory` is higher than `requests.memory`, tightly packed nodes can run out
+of memory as Webservice pods use memory beyond what they requested, causing out-of-memory (OOM)
+kills. These OOM kills surface as intermittent 502 errors.
+
+For this reason, AWS Karpenter best practices recommend
+[setting requests equal to limits for all non-CPU resources when using consolidation](https://docs.aws.amazon.com/eks/latest/best-practices/karpenter.html#_configure_requestslimits_for_all_non_cpu_resources_when_using_consolidation).
+
+In these environments, for four workers:
+
+- Set `requests.memory` equal to `limits.memory`, with additional headroom:
+  9GB instead of the standard 7GB.
+- Enable the
+  [Puma Worker Killer](https://docs.gitlab.com/administration/operations/puma/#tuning-memory-use)
+  so oversized workers are gracefully restarted before the pod reaches its memory
+  limit. This prevents the OOM kills that cause 502 errors.
+
+```yaml
+workerProcesses: 4
+resources:
+  requests:
+    memory: 9G # equal to limits, per Karpenter consolidation best practice
+  limits:
+    memory: 9G
+puma:
+  disableWorkerKiller: false
+  workerMaxMemory: 1500 # MB per worker (~6GB total for 4 workers), matches the current default
+```
+
+> [!note]
+> The default `workerMaxMemory` is defined by
+> [`DEFAULT_PUMA_WORKER_RSS_LIMIT_MB`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/memory/watchdog/configurator.rb).
+> The worker killer does not act immediately: the memory watchdog checks worker
+> memory use on an interval (60 seconds by default) and a worker must exceed
+> `workerMaxMemory` for several consecutive checks (five strikes by default), both
+> also defined in that file. Workers can therefore exceed `workerMaxMemory` for
+> several minutes, so keep `limits.memory` well above the sum of `workerMaxMemory`
+> across all workers.
+
 ## External Services
 
 ### Redis
