@@ -636,6 +636,7 @@ describe 'Gateway API configuration' do
           appConfig:
             smartcard:
               enabled: true
+              CASecret: gitlab-smartcard-ca
         ))
       end
 
@@ -646,8 +647,102 @@ describe 'Gateway API configuration' do
         expect(webservice_smartcard_clienttrafficpolicy).not_to be_nil
         expect(webservice_smartcard_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-smartcard-web")
         expect(webservice_smartcard_clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("KeepUnchanged")
+        # tls.clientValidation is injected from global.appConfig.smartcard.CASecret
+        expect(webservice_smartcard_clienttrafficpolicy["spec"]["tls"]["clientValidation"]["caCertificateRefs"][0])
+          .to include("kind" => "Secret", "name" => "gitlab-smartcard-ca")
+        expect(webservice_smartcard_clienttrafficpolicy["spec"]["headers"]["xForwardedClientCert"]["mode"])
+          .to eq("SanitizeSet")
         expect(gateway['spec']['listeners'].map { |l| l['name'] })
           .to include('gitlab-smartcard-web')
+      end
+    end
+
+    context 'ClientTrafficPolicy overrides' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+          appConfig:
+            smartcard:
+              enabled: true
+              CASecret: gitlab-smartcard-ca
+          geo:
+            enabled: true
+            role: primary
+            gatewayApi:
+              additionalHostname: geo.example.com
+
+        gitlab:
+          webservice:
+            clientTrafficPolicy:
+              main:
+                spec:
+                  path:
+                    escapedSlashesAction: UnescapeAndForward
+                  enableProxyProtocol: true
+              smartcard:
+                spec:
+                  path:
+                    escapedSlashesAction: UnescapeAndRedirect
+              geo:
+                spec:
+                  path:
+                    escapedSlashesAction: RejectRequest
+        ))
+      end
+
+      it 'renders the overridden spec while injecting targetRefs' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(webservice_clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("UnescapeAndForward")
+        expect(webservice_clienttrafficpolicy["spec"]["enableProxyProtocol"]).to be(true)
+        expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-web")
+
+        expect(webservice_geo_clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("RejectRequest")
+        expect(webservice_geo_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-web-geo")
+
+        expect(webservice_smartcard_clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("UnescapeAndRedirect")
+        expect(webservice_smartcard_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-smartcard-web")
+        # tls default is preserved since it was not overridden, with the CASecret injected
+        expect(webservice_smartcard_clienttrafficpolicy["spec"]["tls"]["clientValidation"]["caCertificateRefs"][0]["name"])
+          .to eq("gitlab-smartcard-ca")
+      end
+    end
+
+    context 'Smartcard ClientTrafficPolicy with tls disabled' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+          appConfig:
+            smartcard:
+              enabled: true
+              CASecret: gitlab-smartcard-ca
+
+        gitlab:
+          webservice:
+            clientTrafficPolicy:
+              smartcard:
+                spec:
+                  tls: null
+        ))
+      end
+
+      it 'renders the policy without any tls client validation' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(webservice_smartcard_clienttrafficpolicy).not_to be_nil
+        expect(webservice_smartcard_clienttrafficpolicy["spec"]).not_to have_key("tls")
       end
     end
 
