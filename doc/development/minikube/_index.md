@@ -12,7 +12,10 @@ Kubernetes development environment. In this guide, we'll be using
 > [!note]
 > Local Helm and minikube installations require external PostgreSQL, Redis, and S3-compatible object storage. The bundled PostgreSQL, Redis, and MinIO charts were removed in GitLab 19.0. For the current dependency requirements, see [Installing GitLab by using Helm](../../installation/_index.md). To provision these dependencies for local development, see [Set up external dependencies for local development](../external-dependencies.md).
 
-If you prefer a higher-level local development workflow instead of manually wiring these dependencies, see [Caproni](https://gitlab.com/gitlab-org/caproni), an alternative GitLab development toolkit for local Kubernetes development with cloud-native charts.
+If you prefer a higher-level local development workflow instead of manually wiring these dependencies, see
+[Caproni](https://gitlab.com/gitlab-org/caproni), which is a GitLab development toolkit for local Kubernetes
+development with cloud-native charts. This repository includes a ready-to-use Caproni example under
+[`examples/caproni`](https://gitlab.com/gitlab-org/charts/gitlab/-/tree/master/examples/caproni).
 
 ## Getting Started with minikube
 

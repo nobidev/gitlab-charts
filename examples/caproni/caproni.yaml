@@ -1,0 +1,59 @@
+# Caproni configuration for local GitLab chart development.
+#
+# Deploys two Helm releases into the `gitlab` namespace:
+#   1. gitlab-dev-stack — external dependencies (PostgreSQL via CloudNativePG,
+#      Redis via Valkey, and object storage via Garage) plus the connection
+#      Secrets the GitLab chart consumes.
+#   2. gitlab — this repository's chart, deployed from a locally packaged
+#      .tgz so you test your working copy rather than a published release.
+#
+# Both releases share the `gitlab` namespace, so the dev-stack `*-conn`
+# Secrets land where the GitLab chart looks for them by bare name.
+#
+# Before running `caproni up`, package the local chart so the .tgz path below
+# exists (see README.md):
+#   helm dependency update ../..
+#   helm package ../.. --version 0.0.0-local --destination ./dist
+
+version: 2
+
+cluster:
+  driver: auto
+  network:
+    hostname: gitlab.caproni.test
+    additional_hostnames:
+      # Must match the chart's registry ingress host, which is
+      # registry.<global.hosts.domain> = registry.caproni.test.
+      - registry.caproni.test
+  colima:
+    memory: 12GiB
+    cores: 6
+  k3d:
+    agents: 0
+    servers: 1
+
+repositories: {}
+
+# Caproni installs the CloudNativePG operator that gitlab-dev-stack needs as
+# built-in infrastructure and waits for it before these deployers run.
+deployers:
+  # External dependencies. Uses the chart's built-in defaults, which already
+  # provision every GitLab bucket, both PostgreSQL clusters, Valkey, and
+  # Garage. Secrets default to the release namespace (`gitlab`).
+  gitlab-dev-stack:
+    type: helm
+    helm:
+      namespace: gitlab
+      release:
+        name: gitlab-dev-stack
+        chart: oci://registry.gitlab.com/gitlab-org/cloud-native/charts/gitlab-dev-stack/gitlab-dev-stack
+
+  # This repository's chart, packaged locally by the README steps.
+  gitlab:
+    type: helm
+    helm:
+      namespace: gitlab
+      values_file: ./values-gitlab.yaml
+      release:
+        name: gitlab
+        chart: ./dist/gitlab-0.0.0-local.tgz
