@@ -10,6 +10,12 @@ CTPs are rejected by Envoy Gateway (port overlap). The gateway-wide CTP
 (gatewayApiResources.envoy.clientTrafficPolicySpec) covers that case
 instead.
 */}}
+{{- $spec := deepCopy .Values.clientTrafficPolicy.main.spec }}
+{{- if not $spec.targetRefs }}
+{{-   $ref := (include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray) }}
+{{-   $_ := unset (first $ref) "namespace" }}
+{{-   $_ := set $spec "targetRefs" $ref }}
+{{- end }}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: ClientTrafficPolicy
 metadata:
@@ -19,10 +25,5 @@ metadata:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
 spec:
-  targetRefs:
-  {{- $ref := (include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray) }}
-  {{- $_ := unset (first $ref) "namespace" }}
-  {{- $ref | toYaml | nindent 2 }}
-  path:
-    escapedSlashesAction: KeepUnchanged
+  {{- $spec | toYaml | nindent 2 }}
 {{- end }}
