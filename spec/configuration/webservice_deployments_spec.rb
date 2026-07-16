@@ -109,6 +109,7 @@ describe 'Webservice Deployments configuration' do
     let(:gateway_api_objects) do
       [
         'HTTPRoute/test-gitlab',
+        'BackendTrafficPolicy/test-webservice-btp',
         'ClientTrafficPolicy/test-webservice-ctp',
         'ClientTrafficPolicy/test-webservice-ctp-geo',
         'ClientTrafficPolicy/test-webservice-ctp-smartcard'

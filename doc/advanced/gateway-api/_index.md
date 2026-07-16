@@ -106,6 +106,9 @@ and a `SecurityPolicy` bound to the managed `Gateway`.
 > `gitlab-web`, `gitlab-web-geo`, and `gitlab-smartcard-web` listeners. These take precedence over
 > `gatewayApiResources.envoy.clientTrafficPolicySpec` on those listeners. To customize them, see the
 > [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#customize-the-clienttrafficpolicy).
+> The Webservice chart also renders a `BackendTrafficPolicy` with default upstream timeouts
+> equivalent to the NGINX Ingress timeout types. See
+> [Gateway timeouts](../../charts/gitlab/webservice/_index.md#gateway-timeouts).
 
 #### Envoy Gateway metrics
 

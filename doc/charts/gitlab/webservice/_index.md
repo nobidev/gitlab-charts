@@ -736,6 +736,61 @@ in a `spec` keeps the other defaults, since Helm merges maps.
 For more information, see
 [issue 6582](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6582).
 
+### Gateway timeouts
+
+When Envoy Gateway is used, the chart renders a
+[`BackendTrafficPolicy`](https://gateway.envoyproxy.io/docs/api/extension_types/#backendtrafficpolicy)
+targeting the Webservice `HTTPRoute`, with default timeouts equivalent to the
+NGINX Ingress timeout types:
+
+| Timeout type (NGINX Ingress equivalent) | Envoy Gateway field                     | Default |
+|------------------------------------------|------------------------------------------|---------|
+| Upstream connect (`proxy-connect-timeout`) | `spec.timeout.tcp.connectTimeout`       | `300s`  |
+| Stream inactivity (`proxy-read-timeout`)   | `spec.timeout.http.streamIdleTimeout`   | `3600s` |
+| Absolute request deadline (none in NGINX)  | `gatewayRoute.rules[].timeouts`         | `0s` (disabled) |
+
+`streamIdleTimeout` is an inactivity timeout: it resets whenever data flows in
+either direction, so long-running downloads, uploads, and WebSocket connections
+are not interrupted while traffic is flowing. This matches the NGINX
+`proxy-read-timeout` semantics. The absolute `HTTPRoute` timeouts stay disabled
+(`0s`) because NGINX never applied an absolute request deadline.
+
+To change the defaults, override the specification wholesale under
+`backendTrafficPolicy.spec`. For example, to use the stricter values this
+chart shipped as NGINX Ingress defaults (`ingress.proxyConnectTimeout: 15`,
+`ingress.proxyReadTimeout: 600`):
+
+```yaml
+gitlab:
+  webservice:
+    backendTrafficPolicy:
+      spec:
+        timeout:
+          tcp:
+            connectTimeout: 15s
+          http:
+            streamIdleTimeout: 600s
+```
+
+The chart injects `spec.targetRefs` with the Webservice `HTTPRoute` when you
+omit it. Set `backendTrafficPolicy.spec: null` to skip rendering the policy.
+
+> [!note]
+> Avoid disabling the inactivity timeouts entirely. Finite timeouts are a
+> defense-in-depth layer against slow-client (Slowloris-style) attacks. Client
+> connection behavior can additionally be hardened through the
+> [`ClientTrafficPolicy`](#customize-the-clienttrafficpolicy): for example,
+> `spec.timeout.http.requestReceivedTimeout` caps how long a client may take to
+> deliver its full request, and `spec.connection` configures connection limits.
+> The chart sets no defaults for these because they can interrupt legitimate
+> slow uploads. Consider them if your deployment has no edge proxy or WAF in
+> front of the Gateway.
+
+There is no Envoy Gateway equivalent for the NGINX `proxy-body-size` limit
+(`ingress.proxyBodySize`, previously `512m`): Envoy streams request bodies
+without enforcing a size cap, and size limits are enforced by GitLab itself
+(for example, `max_attachment_size`, LFS, and artifact limits).
+
 ## Resources
 
 ### Memory requests/limits
