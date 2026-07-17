@@ -12,7 +12,7 @@ include:
       job_name: "e2e-report-k3d"
       job_stage: "qa-report"
       # ALLURE_JOB_NAME keys the S3 prefix and MR comment marker. The bridge sets
-      # K3D_K8S_VERSION_SLUG per matrix row (v133/v134/v135/v135-nginx) so each
+      # K3D_K8S_VERSION_SLUG per matrix row (v134/v135/v136/v136-nginx) so each
       # child pipeline posts a distinct report section to the MR.
       allure_job_name: "e2e-report-k3d-${K3D_K8S_VERSION_SLUG}"
       gitlab_auth_token_variable_name: "DANGER_GITLAB_API_TOKEN"
