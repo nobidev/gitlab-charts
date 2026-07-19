@@ -316,7 +316,7 @@ Before you start, back up the `<release>-openbao-unseal` secret and the OpenBao 
    ```
 
 1. Move the current key to the `previous-key` field and store the new key in the `key` field. Build
-   the patch in a file with a restrictive `umask` and apply it with `--patch-file`, then shred the
+   the patch in a file with a restrictive `umask` and apply it with `--patch-file`, then delete the
    file. This keeps the key out of your shell history and the process list, where a sensitive value
    must never appear:
 
@@ -328,7 +328,7 @@ Before you start, back up the `<release>-openbao-unseal` secret and the OpenBao 
    {"data":{"previous-key":"${CURRENT}","key":"${NEW}"}}
    EOF
    kubectl --namespace <namespace> patch secret <release>-openbao-unseal --type merge --patch-file unseal-patch.json
-   shred -u unseal-patch.json
+   rm -f unseal-patch.json
    ```
 
 1. Update the configuration and run `helm upgrade`. Give the new key a new `currentKeyId`. Never
@@ -404,7 +404,7 @@ Before you start, back up the `<release>-openbao-unseal` secret and the OpenBao 
 1. Remove the temporary raw key material:
 
    ```shell
-   shred -u newkey
+   rm -f newkey
    ```
 
    The secret and database backups you took at the start also contain live key material. Store them
