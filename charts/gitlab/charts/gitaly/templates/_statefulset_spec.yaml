@@ -216,6 +216,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- include "gitlab.nodeSelector" . | nindent 6 }}
       {{- include "gitlab.tolerations" . | nindent 6 }}
+      {{- include "gitlab.dnsConfig" . | nindent 6 }}
       volumes:
         {{- include "gitlab.extraVolumes" . | nindent 8 }}
         {{- if .Values.cgroups.enabled }}

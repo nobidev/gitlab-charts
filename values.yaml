@@ -896,6 +896,11 @@ global:
   # https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
   priorityClassName: ""
 
+  # Pod-level DNS configuration applied to all GitLab components by default.
+  # May be overridden per-component by setting `dnsConfig` at the sub-chart level.
+  # https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
+
   ## https://docs.gitlab.com/charts/charts/globals#configure-workhorse-settings
   ## Global settings related to Workhorse
   workhorse:
@@ -1052,6 +1057,9 @@ upgradeCheck:
     requests:
       cpu: 50m
   priorityClassName: ""
+  # Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
+  # See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
 
 ## Settings for the Let's Encrypt ACME Issuer
 # certmanager-issuer:
@@ -1397,6 +1405,9 @@ shared-secrets:
     capabilities:
       drop: [ "ALL" ]
   tolerations: []
+  # Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
+  # See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
   podLabels: {}
   annotations: {}
 

@@ -182,4 +182,10 @@ spec:
           {{- else }}
           {{-   include "gitlab.tolerations" . | nindent 10 }}
           {{- end }}
+          {{- if .Values.databaseReindex.cron.dnsConfig }}
+          dnsConfig:
+            {{- toYaml .Values.databaseReindex.cron.dnsConfig | nindent 12 }}
+          {{- else }}
+          {{-   include "gitlab.dnsConfig" . | nindent 10 }}
+          {{- end }}
 {{- end }}

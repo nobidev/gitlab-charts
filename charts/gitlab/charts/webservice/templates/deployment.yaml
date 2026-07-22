@@ -86,6 +86,8 @@ spec:
       {{- include "gitlab.nodeSelector" $nodeSelectors | nindent 6 }}
       {{- $tolerations := dict "Values" (dict "global" (dict "tolerations" $.Values.global.tolerations) "tolerations" .tolerations) -}}
       {{- include "gitlab.tolerations" $tolerations | nindent 6 }}
+      {{- $dnsConfig := dict "Values" (dict "global" (dict "dnsConfig" $.Values.global.dnsConfig) "dnsConfig" (default $.Values.dnsConfig .dnsConfig)) -}}
+      {{- include "gitlab.dnsConfig" $dnsConfig | nindent 6 }}
       {{- $priorityClassName := dict "Values" (dict "global" (dict "priorityClassName" $.Values.global.priorityClassName) "priorityClassName" (default $.Values.priorityClassName .priorityClassName)) -}}
       {{- include "gitlab.priorityClassName" $priorityClassName | nindent 6 }}
       {{- include "gitlab.podSecurityContext" $.Values.securityContext | nindent 6 }}
