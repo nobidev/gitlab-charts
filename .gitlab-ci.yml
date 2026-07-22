@@ -278,7 +278,12 @@ pin_image_versions:
     - echo "export GITLAB_URL=gitlab-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"          >> "${VARIABLES_FILE}"
     - echo "export GITLAB_ROOT_DOMAIN=$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN" >> "${VARIABLES_FILE}"
     - echo "export REGISTRY_URL=registry-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"      >> "${VARIABLES_FILE}"
-    - echo "export QA_GITLAB_REVISION=$(get_qa_revision)"                             >> "${VARIABLES_FILE}"
+    - |
+      if [[ "${CI_COMMIT_BRANCH}" =~ -stable$ ]] || [[ "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" =~ -stable$ ]]; then
+        echo "export QA_GITLAB_VERSION=$(get_qa_version)"   >> "${VARIABLES_FILE}"
+      else
+        echo "export QA_GITLAB_REVISION=$(get_qa_revision)" >> "${VARIABLES_FILE}"
+      fi
   artifacts:
     when: always
     paths:

@@ -39,7 +39,13 @@ echo "export GITLAB_RELEASE_NAME=$(gitlab_release_name)"                        
 echo "export GITLAB_URL=gitlab-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"        >> "${VARIABLES_FILE}"
 echo "export GITLAB_ROOT_DOMAIN=${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"       >> "${VARIABLES_FILE}"
 echo "export REGISTRY_URL=registry-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"    >> "${VARIABLES_FILE}"
-echo "export QA_GITLAB_REVISION=$(get_qa_revision)"                               >> "${VARIABLES_FILE}"
+# On stable branches, use VERSION (e.g. 19.1.0-ee) — those image tags are preserved
+# by the release pipeline. On master/feature branches, use REVISION (short SHA).
+if [[ "${CI_COMMIT_BRANCH}" =~ -stable$ ]] || [[ "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" =~ -stable$ ]]; then
+  echo "export QA_GITLAB_VERSION=$(get_qa_version)"                                 >> "${VARIABLES_FILE}"
+else
+  echo "export QA_GITLAB_REVISION=$(get_qa_revision)"                               >> "${VARIABLES_FILE}"
+fi
 echo "export PROTOCOL=$(external_protocol)"                                       >> "${VARIABLES_FILE}"
 
 _admin_pat=$(create_admin_pat)
