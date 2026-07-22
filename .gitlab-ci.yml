@@ -57,7 +57,7 @@ variables:
   GITLAB_NAMESPACE: "gitlab-org"
   GITLAB_QA_VERSION: "15.8.0"
   # Valkey deployed to CI review envionments
-  VALKEY_CHART_VERSION: "0.10.0"
+  VALKEY_CHART_VERSION: "0.11.0"
   GARAGE_APP_VERSION: "2.2.0"
   # CloudNativePg (PostgreSQL) deployed to CI envionments
   CNPG_CHART_VERSION: "0.29.0"
