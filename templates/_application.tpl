@@ -71,6 +71,24 @@ priorityClassName: {{ $pcName }}
 {{- end -}}
 
 {{/*
+Return dnsConfig for Pod definitions.
+
+Resolves the effective dnsConfig with a local-first override pattern:
+the sub-chart's `.Values.dnsConfig` takes precedence, falling back to
+`.Values.global.dnsConfig`. When neither is set (the default), no
+`dnsConfig` key is emitted, preserving existing behavior.
+
+See https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+*/}}
+{{- define "gitlab.dnsConfig" -}}
+{{- $dnsConfig := default .Values.global.dnsConfig .Values.dnsConfig -}}
+{{- if $dnsConfig }}
+dnsConfig:
+  {{- toYaml $dnsConfig | nindent 2 }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Define a app.kubernetes.io/name: {{ .Chart.Name }} and app.kubernetes.io/version: {{ .Chart.AppVersion }} label for kiali on pods, deployments, statefulsets, and daemonsets.
 */}}
 {{- define "gitlab.app.kubernetes.io.labels" -}}
