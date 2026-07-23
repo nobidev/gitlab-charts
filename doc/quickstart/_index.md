@@ -40,6 +40,22 @@ A cluster with a total of at least eight virtual CPUs and 30 GB of RAM is recomm
 You can either refer to your cloud providers' instructions on how to create a Kubernetes cluster,
 or use the GitLab-provided scripts to [automate the cluster creation](../installation/cloud/_index.md).
 
+#### GKE Autopilot
+
+GKE Autopilot does not allow cert-manager to create leader election resources in the
+`kube-system` namespace. Either use a GKE Standard cluster, or configure the bundled
+cert-manager to use the namespace where you install GitLab:
+
+```yaml
+certmanager:
+  global:
+    leaderElection:
+      namespace: gitlab
+```
+
+For more information, see the
+[cert-manager GKE Autopilot compatibility guidance](https://cert-manager.io/docs/installation/compatibility/#gke-autopilot).
+
 > [!warning]
 > Kubernetes nodes support x86-64 and ARM64 architectures.
 > FIPS-validated images are only available for x86-64.
