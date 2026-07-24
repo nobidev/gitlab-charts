@@ -61,7 +61,7 @@ function deploy() {
       | kubectl replace --force -f -
 
     kubectl create secret generic -n "${NAMESPACE}" "$(gitlab_release_name)-gitlab-license" \
-      --from-literal=license="$QA_EE_LICENSE" -o yaml --dry-run=client \
+      --from-literal=license="$QA_EE_ACTIVATION_CODE" -o yaml --dry-run=client \
       | kubectl replace --force -f -
 
     CI_CONFIGURATION="-f ${VALUES_DIR}/ci-base.values.yaml -f ${VALUES_DIR}/ci-scale.values.yaml -f ${VALUES_DIR}/ci-license.values.yaml -f ci.digests.yaml"
