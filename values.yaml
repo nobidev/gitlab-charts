@@ -793,6 +793,12 @@ global:
       enabled: true
     sessionStore:
       sessionCookieTokenPrefix: ""
+    ## Override application settings via config/managed_settings.yml
+    managedSettings: {}
+      # installation:
+      #   managedBy: GitLab Helm Chart
+      # settings:
+      #   sidekiqTimezoneOverride:
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-registry-settings
   registry:

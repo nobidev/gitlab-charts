@@ -2093,6 +2093,7 @@ global:
   rails:
     bootsnap:
       enabled: true
+    managedSettings: {}
 ```
 
 ## Configure Workhorse settings
@@ -2124,6 +2125,46 @@ Our Rails codebase makes use of the [Bootsnap](https://github.com/rails/bootsnap
 Testing showed that enabling Bootsnap resulted in overall application performance boost. When a pre-compiled cache is available, some application containers see gains in excess of 33%. At this time, GitLab does not ship this pre-compiled cache with their containers, resulting in a gain of "only" 14%. There is a cost to this gain without the pre-compiled cache present, resulting in an intense spike of small IO at initial startup of each Pod. Due to this, we've exposed a method of disabling the use of Bootsnap in environments where this would be an issue.
 
 When possible, we recommend leaving this enabled.
+
+### Managed settings
+
+Settings under `managedSettings.settings` are rendered into `config/managed_settings.yml` in all
+Rails-based containers. When no settings are provided, the file is not created.
+
+A managed setting overrides the value stored in the database, and can't be changed from the
+Admin UI or the Admin API. This keeps the chart as the single source of truth for that setting.
+
+| Name                      | Type   | Default | Description |
+|:--------------------------|:-------|:--------|:------------|
+| `sidekiqTimezoneOverride` | String |         | Sets `sidekiq_timezone_override` to override the time zone Sidekiq uses. |
+
+For example, to override the Sidekiq time zone:
+
+```yaml
+global:
+  rails:
+    managedSettings:
+      settings:
+        sidekiqTimezoneOverride: "America/New_York"
+```
+
+#### Installation metadata
+
+Values under `managedSettings.installation` describe the installation that manages the settings.
+
+| Name        | Type   | Default             | Description |
+|:------------|:-------|:--------------------|:------------|
+| `managedBy` | String | `GitLab Helm Chart` | Name of the party that manages the settings. GitLab shows this name in the Admin UI. |
+
+For example, to change the name shown in the Admin UI:
+
+```yaml
+global:
+  rails:
+    managedSettings:
+      installation:
+        managedBy: "ACME Corp"
+```
 
 ## Configure GitLab Shell
 

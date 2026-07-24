@@ -17,6 +17,10 @@ data:
   {{- end }}
   session_store.yml.erb: |
     {{- include "gitlab.session_store.yml" . | nindent 4 }}
+  {{- with include "gitlab.managed_settings.yml" . }}
+  managed_settings.yml.erb: |
+    {{- . | nindent 4 }}
+  {{- end }}
   krb5.conf: |
     {{- .Values.global.appConfig.kerberos.krb5Config | nindent 4 }}
   smtp_settings.rb: |

@@ -49,6 +49,7 @@ helm inspect values gitlab/gitlab
 | `global.registry.bucket`                             | `registry`                                    | registry bucket name |
 | `global.service.annotations`                         | `{}`                                          | Annotations to add to every `Service` |
 | `global.rails.sessionStore.sessionCookieTokenPrefix` | `""`                                          | Prefix for the generated session cookies |
+| `global.rails.managedSettings.sidekiqTimezoneOverride` | _none_                                      | Time zone override for Sidekiq, rendered into `config/managed_settings.yml` |
 | `global.deployment.annotations`                      | `{}`                                          | Annotations to add to every `Deployment` |
 | `global.time_zone`                                   | UTC                                           | Global time zone |
 
