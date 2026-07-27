@@ -344,10 +344,10 @@ this as the Primary site. We will do this via the Toolbox Pod.
    kubectl --namespace gitlab get pods -lapp=toolbox
    ```
 
-1. Run `gitlab-rake geo:set_primary_node` with `kubectl exec`:
+1. Run `gitlab-rake gitlab:geo:set_primary_node` with `kubectl exec`:
 
    ```shell
-   kubectl --namespace gitlab exec -ti gitlab-geo-toolbox-XXX -- gitlab-rake geo:set_primary_node
+   kubectl --namespace gitlab exec -ti gitlab-geo-toolbox-XXX -- gitlab-rake gitlab:geo:set_primary_node
    ```
 
 1. Set the primary site's Internal URL with a Rails runner command. Replace `https://primary.gitlab.example.com` with the actual Internal URL:
