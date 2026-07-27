@@ -324,8 +324,9 @@ The provider must support the following standard Gateway API resources and featu
 - `Gateway`, `HTTPRoute`, and `BackendTLSPolicy` from `gateway.networking.k8s.io/v1`.
 - `TCPRoute` from `gateway.networking.k8s.io/v1alpha2` (for the GitLab Shell SSH listener). Skip
   this if `gitlab-shell.enabled` is `false`.
-- `RegularExpression` path matches on `HTTPRoute` (Webservice uses these for long-running Git
-  over HTTP paths: `^/.*/ssh-receive-pack$` and `^/.*/ssh-upload-pack$`).
+- `RegularExpression` path matches on `HTTPRoute`, only if you configure custom route rules that
+  use them (for example, through `gitlab.webservice.deployments.<name>.gatewayRoute.rules`). The
+  default chart configuration uses `PathPrefix` matches exclusively.
 - The `RequestRedirect` filter on `HTTPRoute` if you rely on the chart-managed HTTP-to-HTTPS
   redirect (only rendered for a chart-managed `Gateway`).
 

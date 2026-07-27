@@ -178,6 +178,7 @@ describe 'Gateway API configuration' do
         expect(clienttrafficpolicy).to be_nil
         expect(securitypolicy).to be_nil
         expect(kas_backendtrafficpolicy).to be_nil
+        expect(webservice_backendtrafficpolicy).to be_nil
 
         # Route objects reference external Gateway
         expect(routes).not_to include(nil)
