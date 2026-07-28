@@ -1,6 +1,15 @@
 {{/* vim: set filetype=mustache: */}}
 
 {{/*
+Name of the Webservice HTTPRoute. Shared by the HTTPRoute itself and
+any policy resources that target it (for example BackendTrafficPolicy),
+so the two can not drift apart.
+*/}}
+{{- define "webservice.gatewayRoute.name" -}}
+{{- printf "%s-gitlab" .Release.Name -}}
+{{- end }}
+
+{{/*
 Create the fullname, with suffix of deployment.name
 Unless `ingress.path: /` or `name: default`
 

@@ -109,6 +109,7 @@ describe 'Webservice Deployments configuration' do
     let(:gateway_api_objects) do
       [
         'HTTPRoute/test-gitlab',
+        'BackendTrafficPolicy/test-webservice-btp',
         'ClientTrafficPolicy/test-webservice-ctp',
         'ClientTrafficPolicy/test-webservice-ctp-geo',
         'ClientTrafficPolicy/test-webservice-ctp-smartcard'
@@ -1049,28 +1050,6 @@ describe 'Webservice Deployments configuration' do
                 value: "/"
             name: default-root
             timeouts:
-              backendRequest: 15s
-              request: 15s
-          - backendRefs:
-            - kind: Service
-              name: test-webservice-default
-              port: 8181
-              weight: 1
-            matches:
-            - path:
-                type: RegularExpression
-                value: "^/.*/ssh-receive-pack$"
-            - path:
-                type: RegularExpression
-                value: "^/.*/ssh-upload-pack$"
-            - path:
-                type: RegularExpression
-                value: "^/.*/git-receive-pack$"
-            - path:
-                type: RegularExpression
-                value: "^/.*/git-upload-pack$"
-            name: default-long-running
-            timeouts:
               backendRequest: 0s
               request: 0s
         )))
@@ -1162,11 +1141,10 @@ describe 'Webservice Deployments configuration' do
         # b deployment: created matching /b only
         expect(webservice_route["spec"]["rules"][1]["matches"][0]["path"]["value"]).to eq("/b")
         expect(webservice_route["spec"]["rules"][1]["name"]).to eq("b-custom-rule")
-        # c deployment: created with default rules (root and long running)
+        # c deployment: created with default rules (root only)
         expect(webservice_route["spec"]["rules"][2]["name"]).to eq("c-root")
-        expect(webservice_route["spec"]["rules"][3]["name"]).to eq("c-long-running")
-        # d deployment: only 4 rules created, none for d deployment
-        expect(webservice_route["spec"]["rules"].count).to eq(4)
+        # d deployment: only 3 rules created, none for d deployment
+        expect(webservice_route["spec"]["rules"].count).to eq(3)
       end
     end
   end

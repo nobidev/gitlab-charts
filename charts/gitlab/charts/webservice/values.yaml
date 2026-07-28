@@ -165,6 +165,26 @@ clientTrafficPolicy:
         initialStreamWindowSize: 8Mi
         initialConnectionWindowSize: 16Mi
 
+# Envoy Gateway BackendTrafficPolicy rendered for the Webservice HTTPRoute.
+# `spec` holds the full BackendTrafficPolicy spec and can be overridden
+# wholesale; set `spec: null` to skip rendering the policy entirely. When
+# `spec.targetRefs` is omitted the chart injects a reference to the
+# Webservice HTTPRoute automatically.
+# The default timeouts provide inactivity-based protection for upstream
+# traffic while leaving long-running operations unaffected:
+# - `tcp.connectTimeout` caps upstream connection establishment.
+# - `http.streamIdleTimeout` caps stream inactivity. It resets whenever data
+#   flows in either direction, making it the closest Envoy equivalent to an
+#   NGINX proxy-read-timeout. Absolute HTTPRoute timeouts remain disabled
+#   (`0s`), as NGINX Ingress never applied an absolute request deadline.
+backendTrafficPolicy:
+  spec:
+    timeout:
+      tcp:
+        connectTimeout: 300s
+      http:
+        streamIdleTimeout: 3600s
+
 backendTLSPolicy:
   hostname: ""
 
