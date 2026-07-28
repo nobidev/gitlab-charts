@@ -740,25 +740,26 @@ For more information, see
 
 When Envoy Gateway is used, the chart renders a
 [`BackendTrafficPolicy`](https://gateway.envoyproxy.io/docs/api/extension_types/#backendtrafficpolicy)
-targeting the Webservice `HTTPRoute`, with default timeouts equivalent to the
-NGINX Ingress timeout types:
+targeting the Webservice `HTTPRoute`, with the following default timeouts:
 
-| Timeout type (NGINX Ingress equivalent) | Envoy Gateway field                     | Default |
-|------------------------------------------|------------------------------------------|---------|
-| Upstream connect (`proxy-connect-timeout`) | `spec.timeout.tcp.connectTimeout`       | `300s`  |
-| Stream inactivity (`proxy-read-timeout`)   | `spec.timeout.http.streamIdleTimeout`   | `3600s` |
-| Absolute request deadline (none in NGINX)  | `gatewayRoute.rules[].timeouts`         | `0s` (disabled) |
+| Timeout                                          | Envoy Gateway field                    | Default |
+|--------------------------------------------------|----------------------------------------|---------|
+| Upstream connection establishment                 | `spec.timeout.tcp.connectTimeout`      | `300s`  |
+| Stream inactivity                                 | `spec.timeout.http.streamIdleTimeout`  | `3600s` |
+| Absolute request deadline                         | `gatewayRoute.rules[].timeouts`        | `0s` (disabled) |
 
 `streamIdleTimeout` is an inactivity timeout: it resets whenever data flows in
 either direction, so long-running downloads, uploads, and WebSocket connections
-are not interrupted while traffic is flowing. This matches the NGINX
-`proxy-read-timeout` semantics. The absolute `HTTPRoute` timeouts stay disabled
-(`0s`) because NGINX never applied an absolute request deadline.
+are not interrupted while traffic is flowing, and only genuinely idle streams
+are reclaimed. The absolute `HTTPRoute` timeouts stay disabled (`0s`) by
+default, because an absolute deadline terminates legitimate long-running
+transfers regardless of activity.
+
+If you are migrating from NGINX Ingress, see
+[how these settings map to the NGINX Ingress timeout options](../../../installation/migration/envoy_gateway_migration.md#timeout-settings).
 
 To change the defaults, override the specification wholesale under
-`backendTrafficPolicy.spec`. For example, to use the stricter values this
-chart shipped as NGINX Ingress defaults (`ingress.proxyConnectTimeout: 15`,
-`ingress.proxyReadTimeout: 600`):
+`backendTrafficPolicy.spec`. For example, to use stricter values:
 
 ```yaml
 gitlab:
@@ -786,9 +787,8 @@ omit it. Set `backendTrafficPolicy.spec: null` to skip rendering the policy.
 > slow uploads. Consider them if your deployment has no edge proxy or WAF in
 > front of the Gateway.
 
-There is no Envoy Gateway equivalent for the NGINX `proxy-body-size` limit
-(`ingress.proxyBodySize`, previously `512m`): Envoy streams request bodies
-without enforcing a size cap, and size limits are enforced by GitLab itself
+The Gateway does not enforce a request body size limit: Envoy streams request
+bodies without a size cap, and size limits are enforced by GitLab itself
 (for example, `max_attachment_size`, LFS, and artifact limits).
 
 ## Resources

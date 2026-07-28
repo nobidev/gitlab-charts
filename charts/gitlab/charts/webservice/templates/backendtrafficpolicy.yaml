@@ -8,7 +8,7 @@ proxy-read-timeout.
 */}}
 {{- $spec := deepCopy .Values.backendTrafficPolicy.spec }}
 {{- if not $spec.targetRefs }}
-{{-   $ref := dict "group" "gateway.networking.k8s.io" "kind" "HTTPRoute" "name" (printf "%s-gitlab" .Release.Name) }}
+{{-   $ref := dict "group" "gateway.networking.k8s.io" "kind" "HTTPRoute" "name" (include "webservice.gatewayRoute.name" .) }}
 {{-   $_ := set $spec "targetRefs" (list $ref) }}
 {{- end }}
 apiVersion: gateway.envoyproxy.io/v1alpha1
