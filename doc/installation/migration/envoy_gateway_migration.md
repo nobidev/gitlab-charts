@@ -226,3 +226,22 @@ update the GitLab DNS records to point to the Envoy Gateway-managed LoadBalancer
      ingress:
        enabled: false
    ```
+
+## Timeout settings
+
+NGINX Ingress and Envoy Gateway express proxy timeouts differently. If you customized the
+NGINX Ingress timeout settings, the following table shows how they map to the Gateway API
+configuration for Webservice traffic and the defaults the chart ships with Envoy Gateway:
+
+| NGINX Ingress setting | Previous chart default | Gateway API equivalent | Chart default |
+|-----------------------|------------------------|------------------------|---------------|
+| `ingress.proxyConnectTimeout` (`proxy-connect-timeout`) | `15` | `gitlab.webservice.backendTrafficPolicy.spec.timeout.tcp.connectTimeout` | `300s` |
+| `ingress.proxyReadTimeout` (`proxy-read-timeout`) | `600` | `gitlab.webservice.backendTrafficPolicy.spec.timeout.http.streamIdleTimeout` | `3600s` |
+| `ingress.proxyBodySize` (`proxy-body-size`) | `512m` | None — Envoy streams request bodies without a size cap; limits are enforced by GitLab itself | Not applicable |
+| None — NGINX applied no absolute request deadline | Not applicable | `gitlab.webservice.deployments.<name>.gatewayRoute.rules[].timeouts` | `0s` (disabled) |
+
+Like `proxy-read-timeout`, `streamIdleTimeout` is an inactivity timeout: it resets while data
+flows in either direction, so long-running transfers are not interrupted. The absolute
+`HTTPRoute` rule timeouts have no NGINX equivalent and stay disabled by default. For
+configuration examples, see the
+[Webservice Gateway timeouts documentation](../../charts/gitlab/webservice/_index.md#gateway-timeouts).

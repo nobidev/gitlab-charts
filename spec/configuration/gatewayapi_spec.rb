@@ -16,6 +16,7 @@ describe 'Gateway API configuration' do
   let(:securitypolicy) { template["SecurityPolicy/test-policy"] }
   let(:kas_backendtrafficpolicy) { template["BackendTrafficPolicy/test-kas"] }
   let(:webservice_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp"] }
+  let(:webservice_backendtrafficpolicy) { template["BackendTrafficPolicy/test-webservice-btp"] }
   let(:webservice_smartcard_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp-smartcard"] }
   let(:webservice_geo_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp-geo"] }
 
@@ -177,6 +178,7 @@ describe 'Gateway API configuration' do
         expect(clienttrafficpolicy).to be_nil
         expect(securitypolicy).to be_nil
         expect(kas_backendtrafficpolicy).to be_nil
+        expect(webservice_backendtrafficpolicy).to be_nil
 
         # Route objects reference external Gateway
         expect(routes).not_to include(nil)
@@ -774,6 +776,92 @@ describe 'Gateway API configuration' do
 
         expect(webservice_smartcard_clienttrafficpolicy).not_to be_nil
         expect(webservice_smartcard_clienttrafficpolicy["spec"]).not_to have_key("tls")
+      end
+    end
+
+    context 'Webservice BackendTrafficPolicy' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+        ))
+      end
+
+      it 'renders the default timeouts and injects targetRefs' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(webservice_backendtrafficpolicy).not_to be_nil
+        expect(webservice_backendtrafficpolicy["spec"]["timeout"]["tcp"]["connectTimeout"]).to eq("300s")
+        expect(webservice_backendtrafficpolicy["spec"]["timeout"]["http"]["streamIdleTimeout"]).to eq("3600s")
+        expect(webservice_backendtrafficpolicy["spec"]["targetRefs"][0]).to eq(
+          "group" => "gateway.networking.k8s.io",
+          "kind" => "HTTPRoute",
+          "name" => "test-gitlab"
+        )
+      end
+
+      context 'with an overridden spec' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+
+          gitlab:
+            webservice:
+              backendTrafficPolicy:
+                spec:
+                  timeout:
+                    tcp:
+                      connectTimeout: 15s
+                    http:
+                      streamIdleTimeout: 600s
+                      requestTimeout: 24h
+          ))
+        end
+
+        it 'renders the overridden spec while injecting targetRefs' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          expect(webservice_backendtrafficpolicy["spec"]["timeout"]["tcp"]["connectTimeout"]).to eq("15s")
+          expect(webservice_backendtrafficpolicy["spec"]["timeout"]["http"]["streamIdleTimeout"]).to eq("600s")
+          expect(webservice_backendtrafficpolicy["spec"]["timeout"]["http"]["requestTimeout"]).to eq("24h")
+          expect(webservice_backendtrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gitlab")
+        end
+      end
+
+      context 'with spec set to null' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+
+          gitlab:
+            webservice:
+              backendTrafficPolicy:
+                spec: null
+          ))
+        end
+
+        it 'does not render the policy' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          expect(webservice_backendtrafficpolicy).to be_nil
+        end
       end
     end
 
