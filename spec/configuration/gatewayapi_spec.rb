@@ -66,6 +66,10 @@ describe 'Gateway API configuration' do
       expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
       expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-web")
       expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]).not_to have_key("namespace")
+      # HTTP/2 flow-control windows raised above Envoy Gateway defaults so a
+      # single stream is not throttled to ~window/RTT on high-latency links.
+      expect(webservice_clienttrafficpolicy["spec"]["http2"]["initialStreamWindowSize"]).to eq("8Mi")
+      expect(webservice_clienttrafficpolicy["spec"]["http2"]["initialConnectionWindowSize"]).to eq("16Mi")
     end
 
     it 'picks up the static IP' do
@@ -711,6 +715,33 @@ describe 'Gateway API configuration' do
         # tls default is preserved since it was not overridden, with the CASecret injected
         expect(webservice_smartcard_clienttrafficpolicy["spec"]["tls"]["clientValidation"]["caCertificateRefs"][0]["name"])
           .to eq("gitlab-smartcard-ca")
+      end
+    end
+
+    context 'Geo ClientTrafficPolicy default HTTP/2 window' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+          geo:
+            enabled: true
+            role: primary
+            gatewayApi:
+              additionalHostname: geo.example.com
+        ))
+      end
+
+      it 'sets the raised HTTP/2 windows on the geo listener by default' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(webservice_geo_clienttrafficpolicy["spec"]["http2"]["initialStreamWindowSize"]).to eq("8Mi")
+        expect(webservice_geo_clienttrafficpolicy["spec"]["http2"]["initialConnectionWindowSize"]).to eq("16Mi")
+        expect(webservice_geo_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-web-geo")
       end
     end
 
