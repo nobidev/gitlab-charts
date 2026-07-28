@@ -126,6 +126,15 @@ clientTrafficPolicy:
     spec:
       path:
         escapedSlashesAction: KeepUnchanged
+      # Raise the HTTP/2 flow-control windows above Envoy Gateway's defaults
+      # (stream 64KiB, connection 1MiB). A stream is bound by
+      # initialStreamWindowSize / RTT, so 64KiB caps it to ~300KiB/s at
+      # ~200ms RTT. Helps high-RTT HTTP/2 uploads through this listener
+      # (e.g. git push). See clientTrafficPolicy.geo below for the Geo
+      # push-proxy case.
+      http2:
+        initialStreamWindowSize: 8Mi
+        initialConnectionWindowSize: 16Mi
   smartcard:
     spec:
       path:
@@ -145,6 +154,12 @@ clientTrafficPolicy:
     spec:
       path:
         escapedSlashesAction: KeepUnchanged
+      # See clientTrafficPolicy.main above: the Geo listener carries the
+      # secondary->primary git proxy traffic over a high-latency link, so it
+      # is the most affected by the small default HTTP/2 stream window.
+      http2:
+        initialStreamWindowSize: 8Mi
+        initialConnectionWindowSize: 16Mi
 
 backendTLSPolicy:
   hostname: ""

@@ -712,6 +712,30 @@ set the fields you want to change. This restores the ability to configure `Clien
 behavior for Webservice listeners. For more information, see
 [issue 6571](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6571).
 
+Envoy Gateway defaults for the HTTP/2 flow-control windows are:
+
+- 64 KiB for streams.
+- 1 MiB for connections.
+ 
+A single HTTP/2 stream is bound by `initialStreamWindowSize / RTT`,
+so the 64 KiB default throttles one stream to roughly 300 KiB/s at
+~200 ms round-trip time.
+
+These default values particularly affect GitLab Geo, where a secondary
+site proxies `git` requests to the primary as a single HTTP/2 request
+over a high-latency inter-site link.
+
+Therefore, the `main` and `geo` policies raise these defaults:
+
+- `http2.initialStreamWindowSize: 8Mi`
+- `http2.initialConnectionWindowSize: 16Mi`
+
+You can override these values per listener as shown above. Override one key
+in a `spec` keeps the other defaults, since Helm merges maps.
+
+For more information, see
+[issue 6582](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6582).
+
 ## Resources
 
 ### Memory requests/limits
