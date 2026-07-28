@@ -70,24 +70,6 @@ gatewayRoute:
         type: PathPrefix
         value: /
     timeouts:
-      request: 15s
-      backendRequest: 15s
-    filters: []
-  - name: long-running
-    matches:
-    - path:
-        type: RegularExpression
-        value: ^/.*/ssh-receive-pack$
-    - path:
-        type: RegularExpression
-        value: ^/.*/ssh-upload-pack$
-    - path:
-        type: RegularExpression
-        value: ^/.*/git-receive-pack$
-    - path:
-        type: RegularExpression
-        value: ^/.*/git-upload-pack$
-    timeouts:
       request: 0s
       backendRequest: 0s
     filters: []
