@@ -106,6 +106,9 @@ and a `SecurityPolicy` bound to the managed `Gateway`.
 > `gitlab-web`, `gitlab-web-geo`, and `gitlab-smartcard-web` listeners. These take precedence over
 > `gatewayApiResources.envoy.clientTrafficPolicySpec` on those listeners. To customize them, see the
 > [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#customize-the-clienttrafficpolicy).
+> The Webservice chart also renders a `BackendTrafficPolicy` with default inactivity-based
+> upstream timeouts. See
+> [Gateway timeouts](../../charts/gitlab/webservice/_index.md#gateway-timeouts).
 
 #### Envoy Gateway metrics
 
@@ -321,8 +324,9 @@ The provider must support the following standard Gateway API resources and featu
 - `Gateway`, `HTTPRoute`, and `BackendTLSPolicy` from `gateway.networking.k8s.io/v1`.
 - `TCPRoute` from `gateway.networking.k8s.io/v1alpha2` (for the GitLab Shell SSH listener). Skip
   this if `gitlab-shell.enabled` is `false`.
-- `RegularExpression` path matches on `HTTPRoute` (Webservice uses these for long-running Git
-  over HTTP paths: `^/.*/ssh-receive-pack$` and `^/.*/ssh-upload-pack$`).
+- `RegularExpression` path matches on `HTTPRoute`, only if you configure custom route rules that
+  use them (for example, through `gitlab.webservice.deployments.<name>.gatewayRoute.rules`). The
+  default chart configuration uses `PathPrefix` matches exclusively.
 - The `RequestRedirect` filter on `HTTPRoute` if you rely on the chart-managed HTTP-to-HTTPS
   redirect (only rendered for a chart-managed `Gateway`).
 
@@ -347,6 +351,15 @@ specification leaves implementation-defined:
   validate client certificates on the smartcard listener and forward the certificate to Workhorse
   in the `X-Forwarded-Client-Cert` header (the bundled Envoy Gateway configures this through a
   `ClientTrafficPolicy`).
+- **Upstream timeout defaults.** With the bundled Envoy Gateway, the chart applies inactivity-based
+  upstream timeouts to Webservice traffic through a `BackendTrafficPolicy` (see
+  [Gateway timeouts](../../charts/gitlab/webservice/_index.md#gateway-timeouts)). Policy resources
+  are Envoy Gateway-specific, so with an external provider the chart applies no upstream timeout
+  defaults at all — configure your provider's equivalents (upstream connect timeout, stream
+  inactivity timeout) to avoid idle connections lingering indefinitely. Use timeouts that reset
+  while data flows, so that long-running downloads, uploads, and WebSocket connections are not
+  interrupted. The absolute `HTTPRoute` rule timeouts remain provider-agnostic and stay disabled
+  (`0s`) by default.
 
 If you use `global.gatewayApi.configureCertmanager`, the cert-manager installation in the cluster
 must have [Gateway API support enabled](https://cert-manager.io/docs/usage/gateway/#enabling-gateway-api-support),
