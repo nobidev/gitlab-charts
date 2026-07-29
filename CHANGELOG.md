@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.2.1 (2026-07-29)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.91.0](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/b1e07625237920f740d29e0e5b69aaa3bf0c3876)
+
 ## 10.2.0 (2026-07-15)
 
 ### Fixed (4 changes)
@@ -21,6 +27,12 @@ entry.
 - [Update helm to v4.2.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a534dceb707369d69c458e09e60a7db2b8897fb5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5130))
 - [Update container-registry to v4.40.2-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/991bf40f76b4ea6f948765cb404f314daa0dd179) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5144))
 - [Update gitlab-runner to v0.90.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/68c3e43166a2bdcb7b50f16e185dc2773059a778) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5127))
+
+## 10.1.3 (2026-07-29)
+
+### Fixed (1 change)
+
+- [Split KAS k8s-proxy into its own HTTPRoute](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/2d0a987d66bb65a1637b4a4d198156bc14f5e5e7)
 
 ## 10.1.2 (2026-07-07)
 
@@ -60,6 +72,12 @@ entry.
 - [Update prometheus to v29.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c51ebff848d1b22e82ee67eb3c4dc5569a5af5e2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5070))
 - [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
 - [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
+
+## 10.0.5 (2026-07-29)
+
+### Fixed (1 change)
+
+- [Split KAS k8s-proxy into its own HTTPRoute](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/e68049679e4cc5dd8d3bc871b3d0a96dc65aa8e2)
 
 ## 10.0.4 (2026-07-07)
 
