@@ -73,6 +73,12 @@ entry.
 - [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
 - [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
 
+## 10.0.5 (2026-07-29)
+
+### Fixed (1 change)
+
+- [Split KAS k8s-proxy into its own HTTPRoute](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/e68049679e4cc5dd8d3bc871b3d0a96dc65aa8e2)
+
 ## 10.0.4 (2026-07-07)
 
 ### Fixed (1 change)
