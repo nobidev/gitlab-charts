@@ -28,6 +28,12 @@ entry.
 - [Update container-registry to v4.40.2-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/991bf40f76b4ea6f948765cb404f314daa0dd179) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5144))
 - [Update gitlab-runner to v0.90.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/68c3e43166a2bdcb7b50f16e185dc2773059a778) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5127))
 
+## 10.1.3 (2026-07-29)
+
+### Fixed (1 change)
+
+- [Split KAS k8s-proxy into its own HTTPRoute](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/2d0a987d66bb65a1637b4a4d198156bc14f5e5e7)
+
 ## 10.1.2 (2026-07-07)
 
 ### Fixed (1 change)
