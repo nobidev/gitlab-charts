@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.0.5 (2026-07-29)
+
+### Fixed (1 change)
+
+- [Split KAS k8s-proxy into its own HTTPRoute](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/e68049679e4cc5dd8d3bc871b3d0a96dc65aa8e2)
+
 ## 10.0.4 (2026-07-07)
 
 ### Fixed (1 change)
