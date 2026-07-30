@@ -67,7 +67,9 @@
         exit 1
       fi
     - |
-      if [ -n "$QA_GITLAB_REVISION" ]; then
+      if [ -n "$QA_GITLAB_VERSION" ]; then
+        QA_IMAGE="registry.gitlab.com/gitlab-org/gitlab/gitlab-ee-qa:$QA_GITLAB_VERSION"
+      elif [ -n "$QA_GITLAB_REVISION" ]; then
         QA_IMAGE="registry.gitlab.com/gitlab-org/gitlab/gitlab-ee-qa:$QA_GITLAB_REVISION"
       else
         QA_IMAGE="gitlab/gitlab-ee-qa:nightly"
