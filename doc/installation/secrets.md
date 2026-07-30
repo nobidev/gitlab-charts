@@ -356,7 +356,7 @@ the name of the release:
 
 ```shell
 kubectl create secret generic <name>-praefect-dbsecret \
-    --from-literal=secret=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 64) \
+    --from-literal=secret=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
 This secret is referenced by the `global.praefect.dbSecret` setting.
