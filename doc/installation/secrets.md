@@ -171,7 +171,7 @@ should be at least 6 characters long. Replace `<name>` with the name of the
 release.
 
 ```shell
-kubectl create secret generic <name>-gitlab-initial-root-password --from-literal=password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32)
+kubectl create secret generic <name>-gitlab-initial-root-password --from-literal=password=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32)
 ```
 
 ### GitLab Shell secret
@@ -180,7 +180,7 @@ Generate a random 64 character alpha-numeric secret for GitLab Shell. Replace
 `<name>` with the name of the release.
 
 ```shell
-kubectl create secret generic <name>-gitlab-shell-secret --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
+kubectl create secret generic <name>-gitlab-shell-secret --from-literal=secret=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
 This secret is referenced by the `global.shell.authToken.secret` setting.
@@ -191,7 +191,7 @@ Generate a random 64 character alpha-numeric token for Gitaly. Replace `<name>`
 with the name of the release.
 
 ```shell
-kubectl create secret generic <name>-gitaly-secret --from-literal=token=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
+kubectl create secret generic <name>-gitaly-secret --from-literal=token=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
 This secret is referenced by the `global.gitaly.authToken.secret` setting.
@@ -202,7 +202,7 @@ Generate a random 64 character alpha-numeric token for Praefect. Replace `<name>
 with the name of the release:
 
 ```shell
-kubectl create secret generic <name>-praefect-secret --from-literal=token=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
+kubectl create secret generic <name>-praefect-secret --from-literal=token=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
 This secret is referenced by the `global.praefect.authToken.secret` setting.
@@ -220,17 +220,17 @@ Replace `<name>` with the name of the release.
 ```shell
 cat << EOF > secrets.yml
 production:
-  secret_key_base: $(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-f0-9' | head -c 128)
-  otp_key_base: $(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-f0-9' | head -c 128)
-  db_key_base: $(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-f0-9' | head -c 128)
-  encrypted_settings_key_base: $(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-f0-9' | head -c 128)
+  secret_key_base: $(LC_CTYPE=C </dev/urandom tr -cd 'a-f0-9' | head -c 128)
+  otp_key_base: $(LC_CTYPE=C </dev/urandom tr -cd 'a-f0-9' | head -c 128)
+  db_key_base: $(LC_CTYPE=C </dev/urandom tr -cd 'a-f0-9' | head -c 128)
+  encrypted_settings_key_base: $(LC_CTYPE=C </dev/urandom tr -cd 'a-f0-9' | head -c 128)
   openid_connect_signing_key: |
 $(openssl genrsa 2048 | awk '{print "    " $0}')
   active_record_encryption_primary_key:
-    - $(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32)
+    - $(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32)
   active_record_encryption_deterministic_key:
-    - $(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32)
-  active_record_encryption_key_derivation_salt: $(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32)
+    - $(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32)
+  active_record_encryption_key_derivation_salt: $(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32)
 EOF
 
 kubectl create secret generic <name>-rails-secret --from-file=secrets.yml
@@ -247,7 +247,7 @@ Generate the workhorse secret. This must have a length of 32 characters and
 base64-encoded. Replace `<name>` with the name of the release.
 
 ```shell
-kubectl create secret generic <name>-gitlab-workhorse-secret --from-literal=shared_secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
+kubectl create secret generic <name>-gitlab-workhorse-secret --from-literal=shared_secret=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
 ```
 
 This secret is referenced by the `global.workhorse.secret` setting.
@@ -257,7 +257,7 @@ This secret is referenced by the `global.workhorse.secret` setting.
 Replace `<name>` with the name of the release.
 
 ```shell
-kubectl create secret generic <name>-gitlab-runner-secret --from-literal=runner-registration-token=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
+kubectl create secret generic <name>-gitlab-runner-secret --from-literal=runner-registration-token=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
 This secret is referenced by the `gitlab-runner.runners.secret` setting.
@@ -269,7 +269,7 @@ GitLab Rails requires that a secret for KAS is present, even if one deploys this
 Replace `<name>` with the name of the release.
 
 ```shell
-kubectl create secret generic <name>-gitlab-kas-secret --from-literal=kas_shared_secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
+kubectl create secret generic <name>-gitlab-kas-secret --from-literal=kas_shared_secret=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
 ```
 
 This secret is referenced by the `global.appConfig.gitlab_kas.secret` setting.
@@ -279,7 +279,7 @@ This secret is referenced by the `global.appConfig.gitlab_kas.secret` setting.
 You can leave it to the chart to auto-generate the secret, or you can create this secret manually (replace `<name>` with the name of the release):
 
 ```shell
-kubectl create secret generic <name>-kas-private-api --from-literal=kas_private_api_secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
+kubectl create secret generic <name>-kas-private-api --from-literal=kas_private_api_secret=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
 ```
 
 This secret is referenced by the `gitlab.kas.privateApi.secret` setting.
@@ -300,7 +300,7 @@ Generate the GitLab Pages secret. This must have a length of 32 characters and
 base64-encoded. Replace `<name>` with the name of the release.
 
 ```shell
-kubectl create secret generic <name>-gitlab-pages-secret --from-literal=shared_secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
+kubectl create secret generic <name>-gitlab-pages-secret --from-literal=shared_secret=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
 ```
 
 This secret is referenced by the `global.pages.apiSecret.secret` setting.
@@ -311,7 +311,7 @@ Generate a random 64 character alpha-numeric key shared by all registry pods.
 Replace `<name>` with the name of the release.
 
 ```shell
-kubectl create secret generic <name>-registry-httpsecret --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64 | base64)
+kubectl create secret generic <name>-registry-httpsecret --from-literal=secret=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 64 | base64)
 ```
 
 This secret is referenced by the `global.registry.httpSecret.secret` setting.
@@ -322,7 +322,7 @@ Generate a random 32 character alpha-numeric key shared by all registry pods, an
 Replace `<name>` with the name of the release.
 
 ```shell
-kubectl create secret generic <name>-registry-notification --from-literal=secret=[\"$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32)\"]
+kubectl create secret generic <name>-registry-notification --from-literal=secret=[\"$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32)\"]
 ```
 
 This secret is referenced by the `global.registry.notificationSecret.secret` setting.
@@ -356,7 +356,7 @@ the name of the release:
 
 ```shell
 kubectl create secret generic <name>-praefect-dbsecret \
-    --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64) \
+    --from-literal=secret=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
 This secret is referenced by the `global.praefect.dbSecret` setting.
@@ -474,7 +474,7 @@ length of 32 characters and base64-encoded. Replace `<name>` with the name of
 the release.
 
 ```shell
-kubectl create secret generic <name>-incoming-email-auth-token --from-literal=authToken=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
+kubectl create secret generic <name>-incoming-email-auth-token --from-literal=authToken=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
 ```
 
 This secret is referenced by the `global.incomingEmail.authToken` setting.
@@ -487,7 +487,7 @@ length of 32 characters and base64-encoded. Replace `<name>` with the name of
 the release.
 
 ```shell
-kubectl create secret generic <name>-service-desk-email-auth-token --from-literal=authToken=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
+kubectl create secret generic <name>-service-desk-email-auth-token --from-literal=authToken=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
 ```
 
 This secret is referenced by the `global.serviceDeskEmail.authToken` setting.
@@ -499,7 +499,7 @@ When the [GitLab-zoekt subchart](../charts/gitlab/gitlab-zoekt/_index.md) is ins
 If you want to use a separate secret for Zoekt, you can create one manually (replace `<name>` with the name of the release):
 
 ```shell
-kubectl create secret generic <name>-zoekt-internal-api --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
+kubectl create secret generic <name>-zoekt-internal-api --from-literal=secret=$(LC_CTYPE=C </dev/urandom tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
 Then configure the chart to use it:
