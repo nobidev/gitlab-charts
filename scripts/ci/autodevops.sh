@@ -245,6 +245,15 @@ function get_qa_revision() {
   kubectl exec -n "${NAMESPACE}" "${toolbox_pod}" -ic toolbox -- cat /srv/gitlab/REVISION
 }
 
+# Reads the full GitLab version string (e.g. "19.0.4-ee") from the toolbox pod.
+# Used on stable branches where version-tagged QA images are preserved,
+# unlike short-lived REVISION-tagged images which may be cleaned up.
+function get_qa_version() {
+  wait_for_toolbox >/dev/null
+  toolbox_pod=$(kubectl get pods -lrelease="$(gitlab_release_name)",app=toolbox -o custom-columns=":metadata.name" --no-headers | tr -d '[:space:]')
+  kubectl exec -n "${NAMESPACE}" "${toolbox_pod}" -ic toolbox -- cat /srv/gitlab/VERSION | tr -d '[:space:]'
+}
+
 function create_admin_pat() {
   wait_for_toolbox >/dev/null
   local toolbox_pod runner_output token

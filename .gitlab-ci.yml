@@ -279,7 +279,12 @@ pin_image_versions:
     - echo "export GITLAB_URL=gitlab-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"          >> "${VARIABLES_FILE}"
     - echo "export GITLAB_ROOT_DOMAIN=$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN" >> "${VARIABLES_FILE}"
     - echo "export REGISTRY_URL=registry-$HOST_SUFFIX.$KUBE_INGRESS_BASE_DOMAIN"      >> "${VARIABLES_FILE}"
-    - echo "export QA_GITLAB_REVISION=$(get_qa_revision)"                             >> "${VARIABLES_FILE}"
+    - |
+      if [[ "${CI_COMMIT_BRANCH}" =~ -stable$ ]] || [[ "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" =~ -stable$ ]]; then
+        echo "export QA_GITLAB_VERSION=$(get_qa_version)"   >> "${VARIABLES_FILE}"
+      else
+        echo "export QA_GITLAB_REVISION=$(get_qa_revision)" >> "${VARIABLES_FILE}"
+      fi
   artifacts:
     when: always
     paths:
@@ -506,7 +511,9 @@ k3d_nginx:
     - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
     - gem install gitlab-qa -v "${GITLAB_QA_VERSION}"
     - source "${VARIABLES_FILE}"
-    - if [ -n "$QA_GITLAB_REVISION" ]; then
+    - if [ -n "$QA_GITLAB_VERSION" ]; then
+    -   QA_IMAGE="registry.gitlab.com/gitlab-org/gitlab/gitlab-ee-qa:$QA_GITLAB_VERSION"
+    - elif [ -n "$QA_GITLAB_REVISION" ]; then
     -   QA_IMAGE="registry.gitlab.com/gitlab-org/gitlab/gitlab-ee-qa:$QA_GITLAB_REVISION"
     - else
     -   QA_IMAGE="gitlab/gitlab-ee-qa:nightly" # this will default to use nightly https://gitlab.com/gitlab-org/gitlab-qa/-/blob/master/docs/what_tests_can_be_run.md#specifying-the-gitlab-version
