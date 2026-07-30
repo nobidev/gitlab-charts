@@ -120,7 +120,7 @@ to the `helm install` command using the `--set` flags.
 | `puma.workerMaxMemory`                                        |                                                                 | The maximum memory (in megabytes) for the Puma worker killer |
 | `puma.threads.min`                                            | `4`                                                             | The minimum amount of Puma threads |
 | `puma.threads.max`                                            | `4`                                                             | The maximum amount of Puma threads |
-| `puma.bindIp6`                                                | `false`                                                         | Bind IPv6 addresses with Puma. |
+| `puma.bindIp6`                                                | `true`                                                          | Bind IPv6 addresses with Puma. Automatically falls back to IPv4 when IPv6 is unavailable. |
 | `rack_attack.git_basic_auth`                                  | `{}`                                                            | See [GitLab documentation](https://docs.gitlab.com/administration/settings/protected_paths/) for details |
 | `global.registry.api.port`                                    | `5000`                                                          | Registry port |
 | `global.registry.api.protocol`                                | `http`                                                          | Registry protocol |

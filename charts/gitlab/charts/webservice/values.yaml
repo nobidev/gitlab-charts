@@ -231,7 +231,7 @@ puma:
     max: 4
   disableWorkerKiller: true
   # workerMaxMemory: 1024 # in MB units
-  bindIp6: false
+  bindIp6: true
   controlPort: 9293
 
 hpa:
