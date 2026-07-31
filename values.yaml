@@ -1212,7 +1212,25 @@ prometheus:
     enabled: false
   prometheus-pushgateway:
     enabled: false
-  scrapeConfigs: null
+  # The upstream prometheus subchart ships a populated `scrapeConfigs` map (~10
+  # default jobs) AND renders GitLab's legacy `serverFiles."prometheus.yml".scrape_configs`
+  # additively (see charts/prometheus/templates/cm.yaml). Setting `scrapeConfigs: null`
+  # is dropped during parent->subchart coalescing, so the upstream defaults survive and
+  # collide with GitLab's own jobs (`found multiple scrape configs with job name ...`).
+  # Disable each upstream default explicitly (a scalar merged into an existing subchart
+  # map key coalesces correctly, unlike a whole-key null). Interim fix for #6413; the
+  # durable fix is migrating GitLab's jobs onto the upstream `scrapeConfigs` structure.
+  scrapeConfigs:
+    prometheus:                        { enabled: false }
+    kubernetes-api-servers:            { enabled: false }
+    kubernetes-nodes:                  { enabled: false }
+    kubernetes-nodes-cadvisor:         { enabled: false }
+    kubernetes-service-endpoints:      { enabled: false }
+    kubernetes-service-endpoints-slow: { enabled: false }
+    prometheus-pushgateway:            { enabled: false }
+    kubernetes-services:               { enabled: false }
+    kubernetes-pods:                   { enabled: false }
+    kubernetes-pods-slow:              { enabled: false }
   server:
     retention: 15d
     strategy:
