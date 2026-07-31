@@ -1212,7 +1212,7 @@ prometheus:
     enabled: false
   prometheus-pushgateway:
     enabled: false
-  scrapeConfigs: null
+  scrapeConfigs: []
   server:
     retention: 15d
     strategy:
