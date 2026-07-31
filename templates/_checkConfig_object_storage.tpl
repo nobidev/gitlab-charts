@@ -31,24 +31,6 @@ Pages Object Storage:
 {{- end -}}
 
 {{/*
-Ensure Backup/Restore object store secret is configured.
-
-Skipped when backend is GKE workload identity is configured which needs
-no backup object store secret.
-*/}}
-{{- define "gitlab.checkConfig.objectStorage.backup.configured" -}}
-{{-   with $.Values.gitlab.toolbox -}}
-{{-     $gcsWorkloadIdentity := and (eq .backups.objectStorage.backend "gcs") (empty .backups.objectStorage.config) -}}
-{{-     if and .enabled (not .backups.objectStorage.config.secret) (not $gcsWorkloadIdentity) }}
-Backup Object Storage:
-  The chart provides no longer bundled object storage solution. Please
-  prepare an external object storage solution for backup and restore by following
-  https://docs.gitlab.com/charts/advanced/external-object-storage/#backups
-{{-     end -}}
-{{-   end -}}
-{{- end -}}
-
-{{/*
 Ensure consolidate and type-specific object store configuration are not mixed.
 */}}
 {{- define "gitlab.checkConfig.objectStorage.consolidatedConfig" -}}
