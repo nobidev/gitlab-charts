@@ -81,7 +81,7 @@ and make sure they meet the [current minimum requirements](https://docs.gitlab.c
    helm repo add valkey https://valkey.io/valkey-helm/
    helm install valkey valkey/valkey -n <NAMESPACE> \
      --set dataStorage.enabled=true \
-     --set dataStorage.size=2Gi \
+     --set dataStorage.requestedSize=2Gi \
      --set metrics.enabled=true \
      --set auth.enabled=true \
      --set auth.aclUsers.default.permissions="~* &* +@all" \

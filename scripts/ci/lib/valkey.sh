@@ -20,7 +20,7 @@ function deploy_external_valkey() {
     -n "${NAMESPACE}" \
     ${VERSION_FLAG} \
     --set dataStorage.enabled=true \
-    --set dataStorage.size=100Mi \
+    --set dataStorage.requestedSize=100Mi \
     --set dataStorage.keepPvc=false \
     --set metrics.enabled=true \
     --set auth.enabled=true \
