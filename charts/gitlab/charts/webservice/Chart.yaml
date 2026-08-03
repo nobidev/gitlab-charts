@@ -1,8 +1,8 @@
 ---
 apiVersion: v2
 name: webservice
-version: 9.11.8
-appVersion: v18.11.7
+version: 9.11.9
+appVersion: v18.11.8
 description: HTTP server for Gitlab
 keywords:
 - gitlab
