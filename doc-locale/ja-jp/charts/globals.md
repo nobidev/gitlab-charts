@@ -31,9 +31,6 @@ global:
     registry:
       name: registry.example.com
       https: false
-    minio:
-      name: minio.example.com
-      https: false
     smartcard:
       name: smartcard.example.com
     kas:
@@ -46,21 +43,17 @@ global:
 
 | 名前                      |  型   | デフォルト       | 説明 |
 |:--------------------------|:-------:|:--------------|:------------|
-| `domain`                  | 文字列  | `example.com` | ベースドメイン。GitLabとレジストリは、この設定のサブドメインで公開されます。そのデフォルトは`example.com`ですが、`name`プロパティが設定されているホストには使用されません。下記の`gitlab.name`、`minio.name`、および`registry.name`のセクションを参照してください。 |
+| `domain`                  | 文字列  | `example.com` | ベースドメイン。GitLabとレジストリは、この設定のサブドメインで公開されます。そのデフォルトは`example.com`ですが、`name`プロパティが設定されているホストには使用されません。下の`gitlab.name`と`registry.name`のセクションを参照してください。 |
 | `externalIP`              |         | `nil`         | プロバイダーから要求される外部IPアドレスを設定します。これは、より複雑な`nginx.service.loadBalancerIP`の代わりに、[NGINXチャート](nginx/_index.md#configuring-nginx)内でテンプレート処理されて使用されます。 |
 | `externalGeoIP`           |         | `nil`         | `externalIP`と同じですが、[NGINX Geoチャート](nginx/_index.md#gitlab-geo)用です。統合URLを使用して[GitLab Geo](../advanced/geo/_index.md)サイトの静的IPを設定するために必要です。`externalIP`とは異なっている必要があります。 |
 | `https`                   | ブール値 | `true`        | trueに設定されている場合は、NGINXチャートが証明書にアクセスできることを確認する必要があります。Ingressの前にTLSターミネーションがある場合は、[`global.ingress.tls.enabled`](#configure-ingress-settings)を調べるとよいでしょう。外部URLでは、`https`の代わりに`http://`を使用するため、falseに設定します。 |
 | `hostSuffix`              | 文字列  |               | [下記を参照](#hostsuffix)。 |
 | `gitlab.https`            | ブール値 | `false`       | `hosts.https`または`gitlab.https`が`true`の場合、GitLab外部URLでは`http://`ではなく`https://`を使用します。 |
 | `gitlab.name`             | 文字列  |               | GitLabのホスト名。設定されている場合、`global.hosts.domain`と`global.hosts.hostSuffix`の設定に関係なくこのホスト名が使用されます。 |
-| `gitlab.hostnameOverride` | 文字列  |               | WebserviceのIngress設定で使用されているホスト名をオーバーライドします。ホスト名を内部ホスト名に書き換えるWAFの背後からGitLabに到達可能でなければならないという場合に役立ちます（例: `gitlab.example.com`→`gitlab.cluster.local`）。 |
+| `gitlab.hostnameOverride` | 文字列  |               | WebserviceのIngress設定で使用されているホスト名をオーバーライドします。ホスト名を内部ホスト名に書き換えるWAFの背後からGitLabに到達可能でなければならないという場合に役立ちます（例: `gitlab.example.com` --> `gitlab.cluster.local`）。 |
 | `gitlab.serviceName`      | 文字列  | `webservice`  | GitLabサーバーを操作している`service`の名前。チャートにより、サービス（および現在の`.Release.Name`）のホスト名がテンプレート処理され、適切な内部`serviceName`が作成されます。 |
 | `gitlab.servicePort`      | 文字列  | `workhorse`   | GitLabサーバーに到達できる`service`の名前付きポート。 |
 | `keda.enabled`            | ブール値 | `false`       | `HorizontalPodAutoscalers`の代わりに[KEDA](https://keda.sh/) `ScaledObjects`を使用します |
-| `minio.https`             | ブール値 | `false`       | `hosts.https`または`minio.https`が`true`の場合、MinIO外部URLでは`http://`ではなく`https://`を使用します。 |
-| `minio.name`              | 文字列  | `minio`       | MinIOのホスト名。設定されている場合、`global.hosts.domain`と`global.hosts.hostSuffix`の設定に関係なくこのホスト名が使用されます。 |
-| `minio.serviceName`       | 文字列  | `minio`       | MinIOサーバーを操作している`service`の名前。チャートにより、サービス（および現在の`.Release.Name`）のホスト名がテンプレート処理され、適切な内部`serviceName`が作成されます。 |
-| `minio.servicePort`       | 文字列  | `minio`       | MinIOサーバーに到達できる`service`の名前付きポート。 |
 | `registry.https`          | ブール値 | `false`       | `hosts.https`または`registry.https`が`true`の場合、レジストリの外部URLでは`http://`ではなく`https://`を使用します。 |
 | `registry.name`           | 文字列  | `registry`    | レジストリのホスト名。設定されている場合、`global.hosts.domain`と`global.hosts.hostSuffix`の設定に関係なくこのホスト名が使用されます。 |
 | `registry.serviceName`    | 文字列  | `registry`    | レジストリサーバーを操作している`service`の名前。チャートにより、サービス（および現在の`.Release.Name`）のホスト名がテンプレート処理され、適切な内部`serviceName`が作成されます。 |
@@ -125,10 +118,10 @@ IngressのGitLabグローバルホストの設定は、`global.ingress`キーの
 |:-------------------------------|:-------:|:---------------|:------------|
 | `apiVersion`                   | 文字列  |                | Ingressオブジェクトの定義で使用するAPIバージョン。 |
 | `annotations.*annotation-key*` | 文字列  |                | `annotation-key`は、あらゆるIngressでアノテーションとして値とともに使用される文字列です。例: `global.ingress.annotations."nginx\.ingress\.kubernetes\.io/enable-access-log"=true`。デフォルトの場合、グローバルアノテーションは提供されません。 |
-| `configureCertmanager`         | ブール値 | `true`         | [下記を参照](#globalingressconfigurecertmanager)。 |
+| `configureCertmanager`         | ブール値 | `false`        | [下記を参照](#globalingressconfigurecertmanager)。 |
 | `useNewIngressForCerts`        | ブール値 | `false`        | [下記を参照](#globalingressusenewingressforcerts)。 |
 | `class`                        | 文字列  | `gitlab-nginx` | `Ingress`リソースの`kubernetes.io/ingress.class`アノテーションまたは`spec.IngressClassName`を制御するグローバル設定。無効にする場合は`none`、空にする場合は`""`に設定します。注: `none`または`""`の場合、不要なIngressリソースがチャートによってデプロイされないようにするため、`nginx-ingress.enabled=false`に設定してください。 |
-| `enabled`                      | ブール値 | `true`         | サービスでサポートするIngressオブジェクトを作成するかどうかを制御するためのグローバル設定。 |
+| `enabled`                      | ブール値 | `false`        | サービスでサポートするIngressオブジェクトを作成するかどうかを制御するためのグローバル設定。GitLab 19.0以降、チャートはデフォルトでGateway APIを使用します。`true`に設定するとIngressに戻ります。 |
 | `tls.enabled`                  | ブール値 | `true`         | `false`に設定すると、GitLabのTLSが無効になります。これは、IngressのTLSターミネーションを使用できない場合（TLSターミネーションプロキシがIngressコントローラーの前にある場合など）に役立ちます。httpsを完全に無効にする場合は、[`global.hosts.https`](#configure-host-settings)とともに`false`に設定する必要があります。 |
 | `tls.secretName`               | 文字列  |                | `global.hosts.domain`で使用されるドメインの**ワイルドカード**証明書とキーが含まれる[Kubernetes TLS Secret](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)の名前。 |
 | `path`                         | 文字列  | `/`            | [Ingressオブジェクト](https://kubernetes.io/docs/concepts/services-networking/ingress/)の`path`エントリのデフォルト |
@@ -168,7 +161,6 @@ Ingressオブジェクトの[cert-manager](https://cert-manager.io/docs/installa
 
 - `gitlab.webservice.ingress.tls.secretName`
 - `registry.ingress.tls.secretName`
-- `minio.ingress.tls.secretName`
 - `global.ingress.annotations`
 
 ### `global.ingress.useNewIngressForCerts` {#globalingressusenewingressforcerts}
@@ -185,7 +177,8 @@ Gateway APIおよびバンドルされたEnvoy Gatewayに関連するすべて�
 
 ## GitLabバージョン {#gitlab-version}
 
-> [!note]この値は開発目的でのみ使用するか、GitLabサポートからの明示的なリクエストがあった場合にのみ使用してください。本番環境の設定ファイルでは、この値を使用しないでください。代わりに、[Helmを使用したデプロイ](../installation/deployment.md#deploy-using-helm)の説明に従ってバージョンを設定してください。
+> [!note]
+> この値は開発目的のみ、またはGitLabサポートからの明示的な要求があった場合にのみ使用してください。本番環境の設定ファイルでは、この値を使用しないでください。代わりに、[Helmを使用したデプロイ](../installation/deployment.md#deploy-using-helm)の説明に従ってバージョンを設定してください。
 
 チャートのデフォルトイメージタグで使用されているGitLabのバージョンは、`global.gitlabVersion`キーを使用して変更できます。
 
@@ -219,7 +212,6 @@ GitLabのグローバルPostgreSQLの設定は、`global.psql`キーの下にあ
 global:
   psql:
     host: psql.example.com
-    # serviceName: pgbouncer
     port: 5432
     database: gitlabhq_production
     username: gitlab
@@ -241,8 +233,7 @@ global:
 
 | 名前                 |  型   | デフォルト               | 説明 |
 |:---------------------|:-------:|:----------------------|:------------|
-| `host`               | 文字列  |                       | 使用するデータベースを持つPostgreSQLサーバーのホスト名。このチャートによってデプロイされたPostgreSQLを使用している場合は、省略できます。 |
-| `serviceName`        | 文字列  |                       | PostgreSQLデータベースを操作している`service`の名前。これが存在し、`host`が存在しない場合、チャートは`host`値の代わりにサービスのホスト名をテンプレート処理します。 |
+| `host`               | 文字列  |                       | 外部PostgreSQLサーバーのホスト名です。必須。 |
 | `database`           | 文字列  | `gitlabhq_production` | PostgreSQLサーバーで使用するデータベースの名前。 |
 | `password.useSecret` | ブール値 | `true`                | PostgreSQLのパスワードをシークレットまたはファイルから読み取るかどうかを制御します。 |
 | `password.file`      | 文字列  |                       | PostgreSQLのパスワードを含むファイルへのパスを定義します。`password.useSecret`がtrueの場合、無視されます。 |
@@ -355,15 +346,12 @@ global:
 
 GitLabグローバルRedisの設定は、`global.redis`キーの下にあります。
 
-デフォルトでは、単一の非レプリケートRedisインスタンスを使用します。高可用性Redisが必要な場合は、外部Redisインスタンスを使用することをおすすめします。
-
-外部Redisインスタンスは、`redis.install=false`を設定し、[高度なドキュメント](../advanced/external-redis/_index.md)に従って設定することで実現できます。
+外部Redisインスタンスが必要です。設定するには、[高度なドキュメント](../advanced/external-redis/_index.md)を参照してください。
 
 ```yaml
 global:
   redis:
     host: redis.example.com
-    serviceName: redis
     database: 7
     port: 6379
     auth:
@@ -378,8 +366,7 @@ global:
 | `connectTimeout` | 整数 |         | Redis接続を待機する秒数。値を指定しない場合、クライアントのデフォルトは1秒です。 |
 | `readTimeout`    | 整数 |         | Redisの読み取りを待機する秒数。値を指定しない場合、クライアントのデフォルトは1秒です。 |
 | `writeTimeout`   | 整数 |         | Redisの書き込みを待機する秒数。値を指定しない場合、クライアントのデフォルトは1秒です。 |
-| `host`           | 文字列  |         | 使用するデータベースが格納されているRedisサーバーのホスト名。`serviceName`の代わりとして省略できます。 |
-| `serviceName`    | 文字列  | `redis` | Redisデータベースを操作している`service`の名前。これが存在し、`host`が存在しない場合、チャートは`host`値の代わりにサービスのホスト名（および現在の`.Release.Name`）をテンプレート処理します。これは、RedisをGitLabチャート全体の一部として使用する場合に便利です。 |
+| `host`           | 文字列  |         | Redisサーバーのホスト名です。`redisYmlOverride`を使用しない場合は必須です。 |
 | `port`           | 整数 | `6379`  | Redisサーバーへの接続に使用するポート。 |
 | `database`       | 整数 | `0`     | Redisサーバー上の接続先データベース。 |
 | `user`           | 文字列  |         | Redisに認証するために使用するユーザー名（Redis 6.0以降）。 |
@@ -389,34 +376,14 @@ global:
 | `scheme`         | 文字列  | `redis` | Redis URLを生成するために使用するURIスキーム。有効な値は、`redis`、`rediss`、および`tcp`です。`rediss`（SSL暗号化された接続）スキームを使用する場合、サーバーで使用される証明書は、システムで信頼するチェーンの一部である必要があります。これを実現するには、[カスタム認証局](#custom-certificate-authorities)のリストに追加してください。 |
 | `redisTLS`       | オブジェクト  |         | Redis接続用のTLS設定。以下の[Redis TLS設定](#redis-tls-configuration)を参照してください。 |
 
-### Redisチャート固有の設定を構成する {#configure-redis-chart-specific-settings}
-
-[Redisチャート](https://github.com/bitnami/charts/tree/main/bitnami/redis)を直接設定するための設定は、`redis`キーの下にあります。
-
-```yaml
-redis:
-  install: true
-  image:
-    registry: registry.example.com
-    repository: example/redis
-    tag: x.y.z
-```
-
 ### Redis Sentinelのサポート {#redis-sentinel-support}
 
-現在のRedis Sentinelサポートは、GitLabチャートとは別にデプロイされたSentinelのみをサポートしています。そのため、`redis.install=false`に設定して、GitLabチャートによるRedisのデプロイを無効にする必要があります。また、Redisパスワードを含むKubernetes Secretを、GitLabチャートをデプロイする前に手動で作成しておく必要があります。
-
-GitLabチャートからHA Redisクラスターをインストールする場合、Sentinelの使用はサポートされません。Sentinelサポートが必要な場合は、GitLabチャートのインストールとは別にRedisクラスターを作成する必要があります。これは、Kubernetesクラスターの内外で実行できます。
-
-[GitLabでデプロイされたRedisクラスターでのSentinelのサポート](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1810)を追跡するイシューが、追跡目的で作成されています。
+GitLabチャートは、[Redis Sentinel](https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/)クラスターへの接続をサポートしています。`sentinel.conf`で指定されているSentinelマスター名に`global.redis.host`を設定し、`global.redis.sentinels`の下にSentinelノードをリストします。
 
 ```yaml
-redis:
-  install: false
 global:
   redis:
     host: redis.example.com
-    serviceName: redis
     port: 6379
     sentinels:
       - host: sentinel1.example.com
@@ -446,12 +413,9 @@ global:
 {{< /history >}}
 
 ```yaml
-redis:
-  install: false
 global:
   redis:
     host: redis.example.com
-    serviceName: redis
     port: 6379
     sentinels:
       - host: sentinel1.example.com
@@ -495,7 +459,7 @@ GitLabチャートには、さまざまな永続クラス用に別個のRedisイ
 | `traceChunks`     | ジョブトレースを一時的に保存する |
 | `workhorse`       | WorkhorseのPub/subキューバックエンド |
 
-インスタンスの数に制限はありません。指定されていないインスタンスは、`global.redis.host`で指定されたプライマリRedisインスタンスによって処理されるか、チャートからデプロイされたRedisインスタンスを使用します。唯一の例外は、[GitLabエージェントサーバー（KAS）](gitlab/kas/_index.md)であり、Redis設定を次の順序で検索します。
+インスタンスの数に制限はありません。指定されていないインスタンスは、`global.redis.host`で指定されたプライマリRedisインスタンスによって処理されます。唯一の例外は、[GitLabエージェントサーバー（KAS）](gitlab/kas/_index.md)であり、Redis設定を次の順序で検索します。
 
 1. `global.redis.kas`
 1. `global.redis.sharedState`
@@ -504,8 +468,6 @@ GitLabチャートには、さまざまな永続クラス用に別個のRedisイ
 例: 
 
 ```yaml
-redis:
-  install: false
 global:
   redis:
     host: redis.example
@@ -600,6 +562,30 @@ global:
 
 インスタンス定義ごとに、Redis Sentinelのサポートも使用できます。Sentinelの設定は**共有されません**。Sentinelを使用するインスタンスごとに指定する必要があります。Sentinelサーバーの設定に使用する属性については、[Sentinelの設定](#redis-sentinel-support)を参照してください。
 
+例えば、`cache`インスタンスを個別に定義する場合、`sentinels`リストはそのインスタンスの下に繰り返して記述する必要があります。これは`global.redis.sentinels`から**継承**されません。これを省略すると、インスタンスはSentinel経由ではなく直接接続します:
+
+```yaml
+global:
+  redis:
+    host: mymaster
+    sentinels:
+      - host: sentinel1.example.com
+        port: 26379
+      - host: sentinel2.example.com
+        port: 26379
+    cache:
+      host: mymaster
+      sentinels:
+        - host: sentinel1.example.com
+          port: 26379
+        - host: sentinel2.example.com
+          port: 26379
+      auth:
+        enabled: true
+        secret: cache-secret
+        key: cache-password
+```
+
 ### セキュアなRedisスキーム（SSL）を指定する {#specify-secure-redis-scheme-ssl}
 
 SSLでRedisに接続するには、次のようにします。
@@ -619,7 +605,7 @@ SSLでRedisに接続するには、次のようにします。
 
    [Redisのデフォルトは相互TLS](https://redis.io/docs/latest/operate/oss_and_stack/management/security/encryption/)であり、それはすべてのチャートコンポーネントでサポートしているわけではないため、この設定は必須です。
 
-1. Bitnamiの[TLSを有効にする手順](https://github.com/bitnami/charts/tree/main/bitnami/redis#securing-traffic-using-tls)に従います。チャートコンポーネントが、Redis証明書の作成に使用する認証局を信頼していることを確認します。
+1. 外部RedisサーバーでTLSを設定し、チャートコンポーネントがRedis証明書の作成に使用された認証局を信頼していることを確認してください。
 1. 任意。カスタム公開認証局を使用する場合については、[カスタム認証局](#custom-certificate-authorities)のグローバル設定を参照してください。
 
 ### Redis TLS設定 {#redis-tls-configuration}
@@ -704,8 +690,6 @@ global:
     auth:
       enabled: false
     host: ${REDIS_PRIVATE_IP}
-redis:
-  enabled: false
 ```
 
 ## レジストリを設定する {#configure-registry-settings}
@@ -735,6 +719,39 @@ global:
 `enabled`、`host`、`api`、`tokenIssuer`の詳細については、[コマンドラインオプション](../installation/command-line-options.md)および[Webservice](gitlab/webservice/_index.md)のドキュメントを参照してください。
 
 `host`は、自動生成された外部レジストリホスト名参照をオーバーライドするために使用されます。
+
+### コンテナレジストリの無効化 {#disabling-the-container-registry}
+
+独立した2つの設定があります:
+
+- `global.registry.enabled`はコンテナレジストリのインテグレーションを制御します。つまり、GitLabアプリケーションがレジストリと通信するかどうかです。これは、例えばプロジェクトの削除や転送の際にアプリケーションが使用する設定です。
+- `registry.enabled`は、**バンドルされたRegistryデプロイ**が作成されるかどうかを制御します。
+
+コンテナレジストリ機能を完全に無効にするには、`global.registry.enabled: false`を設定します。到達可能なレジストリがない状態でインテグレーションを有効にしておくと、プロジェクトの削除や転送などの操作が`Failed to open TCP connection to gitlab-registry:5000`のようなエラーで失敗します（[イシュー24110](https://gitlab.com/gitlab-org/gitlab/-/issues/24110)を参照）。バンドルされたレジストリのデプロイも停止するには、さらに`registry.enabled: false`を設定します:
+
+```yaml
+# Fully disable the Container Registry integration and stop deploying the bundled registry:
+global:
+  registry:
+    enabled: false
+registry:
+  enabled: false
+```
+
+バンドルされたレジストリの代わりに外部レジストリを使用するには、`registry.enabled: false` （バンドルされたデプロイなし）を設定し、`global.registry.enabled: true`を維持したまま、`global.registry.host`と`global.registry.api`を外部レジストリに向けます:
+
+```yaml
+# Use an external registry (no bundled deployment, integration stays on):
+global:
+  registry:
+    enabled: true
+    host: registry.example.com
+    api:
+      protocol: https
+      port: 5000
+registry:
+  enabled: false
+```
 
 ### `notifications` {#notifications}
 
@@ -791,7 +808,7 @@ global:
 
 [Gitaly](https://gitlab.com/gitlab-org/gitaly)は、Gitリポジトリへの高レベルRPCアクセスを提供するサービスであり、GitLabによってなされるすべてのGit呼び出しを処理します。
 
-管理者は、次の方法でGitalyノードを使用することもできます。
+管理者は、次の方法でGitalyノードを使用することを選択できます:
 
 - [チャート内部](#internal)（[Gitalyチャート](gitlab/gitaly/_index.md)を介して`StatefulSet`の一部として）。
 - [チャートの外部](#external)（外部ペットとして）。
@@ -818,10 +835,10 @@ global:
 `external`キーは、クラスターの外部にあるGitalyノードの設定を提供します。このリストの各項目には、以下のキーがあります:
 
 - `name`: [ストレージ](https://docs.gitlab.com/administration/repository_storage_paths/)の名前。[`name: default`のエントリが必要です](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#gitlab-requires-a-default-repository-storage)。
-- `address`:（オプション）Gitalyサービスの完全なURI (例: TLSの場合は`dns://8.8.8.8:53/gitaly.example.com`または`dns+tls://8.8.8.8:53/gitaly.example.com`)。これを指定した場合、`hostname`および`port`よりも優先されます。詳細については、[高度な設定ガイド](../advanced/external-gitaly/_index.md#dns-address-format)を参照してください。
+- `address`: （オプション）Gitalyサービスの完全なURI (例: TLSの場合は`dns://8.8.8.8:53/gitaly.example.com`または`dns+tls://8.8.8.8:53/gitaly.example.com`)。これを指定した場合、`hostname`および`port`よりも優先されます。詳細については、[高度な設定ガイド](../advanced/external-gitaly/_index.md#dns-address-format)を参照してください。
 - `hostname`: Gitalyサービスのホスト。`address`が指定されていない場合は必須です。
-- `port`:（オプション）ホストに到達するためのポート番号。デフォルトは`8075`です。`address`が指定されている場合は無視されます。
-- `tlsEnabled`:（オプション）この特定のエントリの`global.gitaly.tls.enabled`をオーバーライドします。`address`が指定されている場合は無視されます。
+- `port`: （オプション）ホストに到達するためのポート番号。デフォルトは`8075`です。`address`が指定されている場合は無視されます。
+- `tlsEnabled`: （オプション）この特定のエントリの`global.gitaly.tls.enabled`をオーバーライドします。`address`が指定されている場合は無視されます。
 
 GitLabでは、[外部Gitalyサービスの使用](../advanced/external-gitaly/_index.md)に関する[高度な設定](../advanced/_index.md)ガイドを提供しています。examplesフォルダーには、[複数の外部サービスの設定](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/gitaly/values-multiple-external.yaml)の例もあります。
 
@@ -893,17 +910,6 @@ global:
 | `psql.port`       | 文字列  |            | データベースサーバーのポート番号（外部データベースを使用する場合）。 |
 | `psql.user`       | 文字列  | `praefect` | 使用するデータベースユーザー。 |
 | `psql.dbName`     | 文字列  | `praefect` | 使用するデータベースの名前。 |
-
-## MinIOを設定する {#configure-minio-settings}
-
-GitLabのグローバルMinIO設定は、`global.minio`キーの下にあります。これらの設定の詳細については、[MinIOチャート](minio/_index.md)内のドキュメントを参照してください。
-
-```yaml
-global:
-  minio:
-    enabled: true
-    credentials: {}
-```
 
 ## `appConfig`を設定する {#configure-appconfig-settings}
 
@@ -984,6 +990,10 @@ global:
     ciSecureFiles:
       enabled: false
       bucket: gitlab-ci-secure-files
+      connection: {}
+    agentPlanContent:
+      enabled: false
+      bucket: gitlab-agent-plan-content
       connection: {}
     dependencyProxy:
       enabled: false
@@ -1085,6 +1095,7 @@ Railsアプリケーションの一般的なプロパティを微調整するた
 | `defaultColorMode`                  | 整数 |         | [GitLabインスタンスのデフォルトのカラーモード](https://gitlab.com/gitlab-org/gitlab/-/blob/66788a1de8c3dd3c5566d0f30fe1c2a1bae64bf9/lib/gitlab/color_modes.rb#L17-19)。カラーモードのIDを示す数値を指定します。 |
 | `defaultSyntaxHighlightingTheme`    | 整数 |         | [GitLabインスタンスのデフォルト構文ハイライトのテーマ](https://gitlab.com/gitlab-org/gitlab/-/blob/66788a1de8c3dd3c5566d0f30fe1c2a1bae64bf9/lib/gitlab/color_schemes.rb#L12-17)。構文ハイライトテーマのIDを示す数値を指定します。 |
 | `defaultProjectsFeatures.*feature*` | ブール値 | `true`  | [下記を参照](#defaultprojectsfeatures)。 |
+| `gitTimeout`                        | 整数 | `nil`   | GitLab Shellを介して実行されるGitインポート、フェッチ、およびクローン操作のタイムアウト（秒単位）。 |
 | `webhookTimeout`                    | 整数 | （空） | [フックが失敗したと見なされる](https://docs.gitlab.com/user/project/integrations/webhooks/#auto-disabled-webhooks)までの待機時間（秒単位）。 |
 | `graphQlTimeout`                    | 整数 | （空） | Railsが[GraphQLリクエストを完了](https://docs.gitlab.com/api/graphql/#limits)するまでの時間（秒単位）。 |
 
@@ -1129,7 +1140,8 @@ CSPルールを不適切に設定すると、GitLabが正常に動作しなく�
 
 {{< /details >}}
 
-> [!warning]GitLabの相対URLを設定すると、[Geoに関する既知のイシュー](https://gitlab.com/gitlab-org/gitlab/-/issues/456427)と[テストの制限](https://gitlab.com/gitlab-org/gitlab/-/issues/439943)があります。すでに相対URLを使用しており、サブドメインに移行する場合は、[移行ガイド](https://docs.gitlab.com/administration/operations/migrate_to_subdomain)を参照してください。
+> [!warning]
+> GitLabの相対URLを設定すると、[Geo](https://gitlab.com/gitlab-org/gitlab/-/issues/456427)で既知のイシューがあり、[テストに制限](https://gitlab.com/gitlab-org/gitlab/-/issues/439943)があります。すでに相対URLを使用しており、サブドメインに移行する場合は、[移行ガイド](https://docs.gitlab.com/administration/operations/migrate_to_subdomain/)を参照してください。
 
 GitLabは独自のドメインまたはサブドメインにインストールする必要がありますが、必要に応じて相対URLでインストールできます。例: `https://example.com/gitlab`。
 
@@ -1205,25 +1217,30 @@ object_store:
 
 プロパティの構造は共有されており、ここに示されているすべてのプロパティは、以下の個々の項目によってオーバーライドできます。`connection`プロパティの構造は同じです。
 
-> [!note] `bucket`、`enabled`、および`proxy_download`プロパティは、デフォルト値から逸脱する場合に、アイテムごとのレベル（`global.appConfig.artifacts.bucket`など）で設定する必要がある唯一のプロパティです。
+> [!note]
+> `bucket`、`enabled`、および`proxy_download`プロパティは、デフォルト値から逸脱したい場合にのみ、項目レベル（`global.appConfig.artifacts.bucket`など）で設定する必要がある唯一のプロパティです。
 
-[接続](#connection)に`AWS`プロバイダー（同梱されているMinIOなどのS3互換プロバイダー）を使用する場合、GitLab Workhorseはストレージ関連のすべてのアップロードをオフロードできます。この統合設定を使用する場合、これは自動的に有効になります。
+[接続](#connection)に`AWS`プロバイダー（任意のS3互換プロバイダー）を使用する場合、GitLab Workhorseはストレージ関連のすべてのアップロードをオフロードできます。この統合された設定を使用すると、この機能は自動的に有効になります。
 
 ### バケットを指定する {#specify-buckets}
 
 オブジェクトは、タイプごとに異なるバケットに格納する必要があります。デフォルトで、GitLabがタイプごとに使用するバケット名は次のとおりです。
 
-| オブジェクトタイプ                  | バケット名 |
-|------------------------------|-------------|
-| CIアーティファクト                 | `gitlab-artifacts` |
-| Git LFS                      | `git-lfs`   |
-| パッケージ                     | `gitlab-packages` |
-| アップロード                      | `gitlab-uploads` |
-| 外部マージリクエストの差分 | `gitlab-mr-diffs` |
-| Terraformステート              | `gitlab-terraform-state` |
-| CIセキュアファイル              | `gitlab-ci-secure-files` |
-| 依存プロキシ             | `gitlab-dependency-proxy` |
-| Pages                        | `gitlab-pages` |
+> [!note]
+> エージェントプランコンテンツバケットは現在開発中であり、GitLab.comでのみ使用されています。セルフマネージドのユーザーは、まだこのバケットをプロビジョニングする必要はありません。
+
+| オブジェクトタイプ                    | バケット名 |
+|--------------------------------|-------------|
+| CIアーティファクト                   | `gitlab-artifacts` |
+| Git LFS                        | `git-lfs`   |
+| パッケージ                       | `gitlab-packages` |
+| アップロード                        | `gitlab-uploads` |
+| 外部マージリクエストの差分   | `gitlab-mr-diffs` |
+| Terraformステート                | `gitlab-terraform-state` |
+| CIセキュアファイル                | `gitlab-ci-secure-files` |
+| エージェントプランコンテンツ（オプション）  | `gitlab-agent-plan-content` |
+| 依存プロキシ               | `gitlab-dependency-proxy` |
+| Pages                          | `gitlab-pages` |
 
 これらのデフォルトを使用するか、またはバケット名を設定することができます。
 
@@ -1235,6 +1252,7 @@ object_store:
 --set global.appConfig.externalDiffs.bucket=<BUCKET NAME> \
 --set global.appConfig.terraformState.bucket=<BUCKET NAME> \
 --set global.appConfig.ciSecureFiles.bucket=<BUCKET NAME> \
+--set global.appConfig.agentPlanContent.bucket=<BUCKET NAME> \
 --set global.appConfig.dependencyProxy.bucket=<BUCKET NAME>
 ```
 
@@ -1284,7 +1302,7 @@ object_store:
 
 #### `connection` {#connection}
 
-`connection`プロパティは、Kubernetes Secretに移行されました。このシークレットの内容は、YAML形式のファイルでなければなりません。デフォルトは`{}`であり、`global.minio.enabled`が`true`の場合は無視されます。
+`connection`プロパティは、Kubernetes Secretに移行されました。このシークレットの内容はYAML形式のファイルである必要があります。
 
 このプロパティには、`secret`と`key`の2つのサブキーがあります。
 
@@ -1400,6 +1418,7 @@ KASは、`kas`ポッドとその他のGitLabチャートコンポーネントと
 |-------------------------------|-------------|
 | `global.kas.tls.enabled`      | 証明書ボリュームをマウントし、`kas`エンドポイントへのTLS通信を有効にします。 |
 | `global.kas.tls.secretName`   | 証明書の保存場所となるKubernetes TLSシークレットを指定します。 |
+| `global.kas.tls.verify`       | `true`の場合、NGINX IngressはKASのバックエンドTLS証明書を検証するよう指示されます。自己署名証明書の場合は`false`に設定する必要があります。[Gateway API](../advanced/gateway-api/_index.md#tls-between-gateway-and-backend-services)を使用する場合、Gateway APIコントローラーは常に証明書を検証します。 |
 | `global.kas.tls.caSecretName` | カスタムCAの保存場所となるKubernetes TLSシークレットを指定します。 |
 
 たとえば、チャートをデプロイするには、`values.yaml`ファイルで以下を使用することができます。
@@ -1481,13 +1500,14 @@ ldap:
 --set global.appConfig.ldap.servers.main.password.key='the-key-containing-the-password'
 ```
 
-> [!note]カンマはHelm `--set`項目内では[特殊文字](https://helm.sh/docs/intro/using_helm/#the-format-and-limitations-of---set)と見なされます。`bind_dn`のような値のカンマはエスケープしてください: `--set global.appConfig.ldap.servers.main.bind_dn='cn=administrator\,cn=Users\,dc=domain\,dc=net'`。
+> [!note]
+> カンマはHelm `--set`アイテム内では[特殊文字](https://helm.sh/docs/intro/using_helm/#the-format-and-limitations-of---set)とみなされます。`bind_dn`のような値のカンマはエスケープしてください: `--set global.appConfig.ldap.servers.main.bind_dn='cn=administrator\,cn=Users\,dc=domain\,dc=net'`。
 
 #### LDAP Webサインインを無効にする {#disable-ldap-web-sign-in}
 
 SAMLなどの代替手段を優先したい場合、Web UIでのLDAP認証を無効にすると便利です。これにより、グループ同期にLDAPを使用しつつ、SAML Identity Providerがカスタム2FAなどの追加チェックを処理できるようになります。
 
-LDAP Webサインインが無効になっている場合、ユーザーのサインインページにLDAPタブが表示されません。これは[Gitアクセス用のLDAP認証情報の使用](https://docs.gitlab.com/administration/settings/sign_in_restrictions/#allow-password-authentication-for-git-over-https)を無効にするものではありません。
+LDAPウェブサインインが無効になっている場合、ユーザーはサインインページにLDAPタブを見ることができません。これは[Gitアクセス用のLDAP認証情報の使用](https://docs.gitlab.com/administration/settings/sign_in_restrictions/#allow-password-authentication-for-git-over-https)を無効にするものではありません。
 
 WebサインインにLDAPを使用することを無効にするには、`global.appConfig.ldap.preventSignin: true`を設定します。
 
@@ -1599,8 +1619,8 @@ omniauth:
 
 このプロパティには、`secret`と`key`の2つのサブキーがあります。
 
-- `secret`:*（必須）*プロバイダーブロックを含むKubernetes `Secret`の名前。
-- `key`:*（オプション）*`Secret`の中で、プロバイダーブロックを含むキーの名前。デフォルトは`provider`です。
+- `secret`: *（必須）*プロバイダーブロックを含むKubernetes `Secret`の名前。
+- `key`: *（オプション）*`Secret`の中で、プロバイダーブロックを含むキーの名前。デフォルトは`provider`です。
 
 あるいは、プロバイダーに名前以外の設定がない場合、`name`属性だけを指定した2番目の形式を使うことができます。オプションとして`label`または`icon`の属性も指定できます。対象となるプロバイダーは次のとおりです。
 
@@ -1662,7 +1682,7 @@ omniauth:
     - secret: gitlab-cas3
 ```
 
-[グループSAML](https://docs.gitlab.com/integration/saml/#configuring-group-saml-on-a-self-managed-gitlab-instance)の設定例:
+[グループSAML](https://docs.gitlab.com/integration/saml/#configure-group-saml-sso-on-gitlab-self-managed)の設定例:
 
 ```yaml
 omniauth:
@@ -1841,7 +1861,7 @@ global:
 
 ### Bootsnapキャッシュ {#bootsnap-cache}
 
-Railsコードベースでは、[ShopifyのBootsnap](https://github.com/Shopify/bootsnap) gemを使用しています。その動作を設定するため、以下の設定が使用されます。
+当社のRailsコードベースは、[Bootsnap](https://github.com/rails/bootsnap) gemを利用しています。その動作を設定するため、以下の設定が使用されます。
 
 `bootsnap.enabled`は、この機能をアクティブにするかどうかを制御します。デフォルトは`true`です。
 
@@ -1988,7 +2008,8 @@ gitlab:
 
 ## カスタム認証局 {#custom-certificate-authorities}
 
-> [!note]これらの設定は、バンドルされているサードパーティのチャートには影響しません。
+> [!note]
+> これらの設定は、バンドルされたサードパーティのチャートには影響しません。
 
 社内で発行されたSSL証明書をTLSサービスで使用する場合など、カスタム認証局（CA）を追加する必要が生じることがあります。この機能を提供するため、シークレットまたはConfigMapを通じて、アプリケーションにカスタムルート認証局を適用するためのメカニズムが用意されています。
 
@@ -2008,24 +2029,25 @@ kubectl create configmap cm-custom-ca --from-file=unique_name.crt=/path/to/cert
 global:
   certificates:
     customCAs:
-      - secret: secret-custom-CAs           # Mount all keys of a Secret
-      - secret: secret-custom-CAs           # Mount only the specified keys of a Secret
+      - secret: secret-custom-ca           # Mount all keys of a Secret
+      - secret: secret-custom-ca           # Mount only the specified keys of a Secret
         keys:
           - unique_name.crt
-      - configMap: cm-custom-CAs            # Mount all keys of a ConfigMap
-      - configMap: cm-custom-CAs            # Mount only the specified keys of a ConfigMap
+      - configMap: cm-custom-ca            # Mount all keys of a ConfigMap
+      - configMap: cm-custom-ca            # Mount only the specified keys of a ConfigMap
         keys:
           - unique_name_1.crt
           - unique_name_2.crt
 ```
 
-> [!note]シークレットのキー名にある`.crt`拡張子は、[Debian update-ca-certificatesパッケージ](https://manpages.debian.org/bullseye/ca-certificates/update-ca-certificates.8.en.html)にとって重要です。この手順を実行すれば、カスタムCAファイルがその拡張子でマウントされ、証明書`initContainers`で処理されることが保証されます。以前は、[ドキュメント](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)の記述とは異なり、証明書ヘルパーイメージがalpineベースだった場合、実際にはファイル拡張子が必須ではありませんでした。UBIベースの`update-ca-trust`ユーティリティには、同じ要件はないようです。
+> [!note]
+> シークレットのキー名にある`.crt`拡張子は、[Debian update-ca-certificatesパッケージ](https://manpages.debian.org/bullseye/ca-certificates/update-ca-certificates.8.en.html)にとって重要です。この手順を実行すれば、カスタムCAファイルがその拡張子でマウントされ、証明書`initContainers`で処理されることが保証されます。以前は、[ドキュメント](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)の記述とは異なり、証明書ヘルパーイメージがalpineベースだった場合、実際にはファイル拡張子が必須ではありませんでした。UBIベースの`update-ca-trust`ユーティリティには、同じ要件はないようです。
 
 任意の数のシークレットまたはConfigMapを指定し、それぞれに、PEMエンコードのCA証明書を保持するキーを必要な数だけ設定できます。これらは、`global.certificates.customCAs`の下のエントリとして設定します。マウントする特定のキーのリストを`keys:`に指定しない限り、すべてのキーがマウントされます。すべてのシークレットおよびConfigMapにわたるマウント対象のキーは、いずれも一意でなければなりません。シークレットとConfigMapには任意の名前を付けることができますが、キー名が*競合してはいけません*。
 
 ## アプリケーションリソース {#application-resource}
 
-GitLabには、オプションで[アプリケーションリソース](https://github.com/kubernetes-sigs/application)を含めることができます。これは、クラスター内でGitLabアプリケーションを識別するために作成できます。バージョン`v1beta1`の[Application CRD](https://github.com/kubernetes-sigs/application#installing-the-crd)がすでにクラスターにデプロイされている必要があります。
+GitLabには、オプションで[アプリケーションリソース](https://github.com/kubernetes-sigs/application)を含めることができます。これは、クラスター内でGitLabアプリケーションを識別するために作成できます。バージョン`v1beta1`の[Application CRD](https://github.com/kubernetes-sigs/application)がすでにクラスターにデプロイされている必要があります。
 
 有効にするには、`global.application.create`を`true`に設定します。
 
@@ -2075,7 +2097,8 @@ global:
 - `global.serviceAccount.name`の設定は、サービスアカウントのオブジェクト名と、各コンポーネントが参照する名前を制御します。
 - `global.serviceAccount.automountServiceAccountToken`の設定は、デフォルトのServiceAccountアクセストークンをポッドにマウントする必要があるかどうかを制御します。これは、特定のサイドカーが正常に機能するために必要という場合（Istioなど）を除き、有効にしないようにしてください。
 
-> [!note] `global.serviceAccount.create=true`を`global.serviceAccount.name`と一緒に使用しないでください。これは、チャートが同じ名前のServiceAccountオブジェクトを複数作成するように指示するためです。グローバル名を指定する場合は、代わりに`global.serviceAccount.create=false`を使用します。
+> [!note]
+> `global.serviceAccount.create=true`と`global.serviceAccount.name`を一緒に使用しないでください。これは、チャートが同じ名前で複数のServiceAccountオブジェクトを作成するように指示するためです。グローバル名を指定する場合は、代わりに`global.serviceAccount.create=false`を使用します。
 
 ## アノテーション {#annotations}
 
@@ -2106,7 +2129,58 @@ global:
     disktype: ssd
 ```
 
-> [!note]外部で管理されているチャートは現在`global.nodeSelector`を尊重しないため、利用可能なチャート値に基づいて別途設定が必要になる場合があります。これには、Prometheus、cert-manager、Redisなどが含まれます。
+> [!note]
+> 外部でメンテナンスされているチャートは、現時点では`global.nodeSelector`を尊重せず、利用可能なチャートの値に基づいて別途設定する必要がある場合があります。これにはPrometheus、cert-manager、およびその他のサブチャートが含まれます。
+
+## トレランス {#tolerations}
+
+カスタム`tolerations`はすべてのコンポーネントにグローバルに適用できます。グローバルのデフォルト値があるなら、各サブチャートで個別にそれをオーバーライドすることもできます。
+
+```yaml
+global:
+  tolerations:
+    - key: "key1"
+      operator: "Equal"
+      value: "value1"
+      effect: "NoSchedule"
+```
+
+> [!note]
+> 外部でメンテナンスされているチャートは、現時点では`global.tolerations`を尊重せず、利用可能なチャートの値に基づいて別途設定する必要がある場合があります。これにはPrometheus、cert-manager、およびその他のサブチャートが含まれます。
+
+## DNS設定 {#dns-configuration}
+
+ポッドレベルの[`dnsConfig`](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config)は、すべてのGitLabコンポーネントにグローバルに適用できます。最も一般的なユースケースは、`ndots`の値を下げて、完全修飾された外部ホスト名（S3エンドポイントなど）を解決する際にKubernetesが生成するNXDOMAIN応答の数を減らすことです。これにより、DNSパフォーマンスを大幅に向上させることができます。
+
+```yaml
+global:
+  dnsConfig:
+    options:
+      - name: ndots
+        value: "2"
+```
+
+グローバルデフォルトは、サブチャートレベルで`dnsConfig`を設定することで、任意のGitLabサブチャートで上書きできます。例えば、Sidekiqを除くすべてにグローバルデフォルトを適用する場合:
+
+```yaml
+global:
+  dnsConfig:
+    options:
+      - name: ndots
+        value: "2"
+
+gitlab:
+  sidekiq:
+    dnsConfig:
+      options:
+        - name: ndots
+          value: "3"
+```
+
+未設定（デフォルト）の場合、`dnsConfig`は出力されず、Kubernetesのデフォルトが適用され、既存のクラスター動作が維持されます。
+
+> [!note]
+> 外部でメンテナンスされているチャートは、現時点では`global.dnsConfig`を尊重せず、利用可能なチャートの値に基づいて別途設定する必要がある場合があります。これにはPrometheus、cert-manager、およびその他のサブチャートが含まれます。
 
 ## ラベル {#labels}
 
@@ -2138,7 +2212,7 @@ gitlab:
             baz: bat
 ```
 
-上記の例の場合、`pod-0` Sidekiqデプロイに関連するすべてのコンポーネントが、ラベルセット`baz: bat`も受け取ることになります。詳細については、SidekiqチャートとWebserviceチャートを参照してください。
+上記の例では、`pod-0` Sidekiqデプロイに関連付けられているすべてのコンポーネントも、`baz: bat`のラベルセットを受け取ります。詳細については、SidekiqチャートとWebserviceチャートを参照してください。
 
 ここで利用している一部のチャートは、このラベル設定から除外されています。これらの追加ラベルを受け取るのは、[GitLabコンポーネントのサブチャート](gitlab/_index.md)だけです。
 
@@ -2220,7 +2294,8 @@ gitlab:
           # optional: boolean
 ```
 
-> [!note]この実装は、異なるコンテンツタイプで値名を再利用することをサポートしていません。同じ名前を類似の内容でオーバーライドすることは可能ですが、`secretKeyRef`や`configMapKeyRef`などのソースが混在しないようにしてください。
+> [!note]
+> 実装は、異なるコンテンツタイプで値名を再利用することをサポートしていません。同じ名前を類似の内容でオーバーライドすることは可能ですが、`secretKeyRef`や`configMapKeyRef`などのソースが混在しないようにしてください。
 
 ## OAuthを設定する {#configure-oauth-settings}
 
@@ -2306,7 +2381,8 @@ global:
 
 これにより、GitLab UIでKerberosネゴシエーション専用の追加クローンURLが有効になります。`https: true`の設定はURL生成専用であり、追加のTLS設定は公開されていません。TLSは、Ingressの中でGitLab用に終端処理され、設定されます。
 
-> [!note] [`nginx-ingress` Helmチャートのフォーク](nginx/_index.md)における現在の制限により、`dedicatedPort`を指定しても、現在のところチャートの`nginx-ingress`コントローラーで使用するポートは公開されません。クラスターのオペレーターが、このポートを自分で公開する必要があります。詳細および可能な回避策については、[こちらのチャートイシュー](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3531)を参照してください。
+> [!note]
+> [当社の`nginx-ingress` Helmチャートのフォーク](nginx/_index.md)における現在の制限により、`dedicatedPort`を指定しても、チャートの`nginx-ingress`コントローラーで使用するポートが現在公開されません。クラスターのオペレーターが、このポートを自分で公開する必要があります。詳細および可能な回避策については、[こちらのチャートイシュー](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/3531)を参照してください。
 
 ### LDAPカスタム許可レルム {#ldap-custom-allowed-realms}
 
@@ -2328,6 +2404,10 @@ global:
     tls: true
     authentication: 'plain'
     user_name: 'example'
+    # Alternatively, read the username from a Kubernetes Secret:
+    # user_name_secret:
+    #   secret: 'smtp-username'
+    #   key: 'username'
     password:
       secret: 'smtp-password'
       key: 'password'
@@ -2354,7 +2434,7 @@ global:
 
 ## アフィニティ {#affinity}
 
-アフィニティは、`global.antiAffinity`と`global.affinity`により設定できます。アフィニティを使用すると、ノードのラベルまたはノードですでに実行されているポッドのラベルに基づいて、ポッドをスケジュール可能なノードを制限できます。これにより、ポッドをクラスター全体に分散させたり、特定のノードを選択したりすることが可能になり、ノードに障害が発生した場合の復元力を高めることができます。
+アフィニティは、`global.antiAffinity`と`global.affinity`により設定できます。アフィニティを使用すると、ノードのラベルまたはノードですでに実行されているポッドのラベルに基づいて、ポッドをスケジュール可能なノードを制限できます。これにより、ポッドをクラスター全体に分散させたり、特定のノードを選択したりできるため、ノードが失敗した場合の回復力が向上します。
 
 ```yaml
 global:
@@ -2381,7 +2461,7 @@ global:
 
 ## ポッドの優先度とプリエンプション {#pod-priority-and-preemption}
 
-ポッドの優先度は、`global.priorityClassName`により、またはサブチャートごとに`priorityClassName`により設定できます。ポッドの優先度を設定すると、保留中のポッドのスケジューリングを可能にするために、優先度の低いポッドを排除するようスケジューラーに指示できます。
+ポッドの優先度は、`global.priorityClassName`により、またはサブチャートごとに`priorityClassName`により設定できます。ポッドの優先順位を設定することで、スケジューラに低優先順位のポッドを退去させ、保留中のポッドのスケジューリングを可能にするよう指示できます。
 
 ```yaml
 global:
@@ -2452,3 +2532,16 @@ global:
 | 名前         | 型   | デフォルト | 説明 |
 |:-------------|:-------|:--------|:------------|
 | `apiVersion` | 文字列 |         | Traefikのリソースのデフォルトの`apiVersion`をオーバーライドします |
+
+## デプロイされたStatefulSetsおよびデプロイの古いリビジョン保持数を設定する {#configure-the-number-of-old-revisions-retained-for-the-deployed-statefulsets-and-deployments}
+
+`global.revisionHistoryLimit`設定により、すべてのGitLabサブチャートで`revisionHistoryLimit`オプションを設定できます。このオプションは、それぞれのサブチャートの`values.yaml`ファイルで、チャートごとに上書きできます。
+
+```yaml
+global:
+  revisionHistoryLimit: 10
+```
+
+| 名前                   | 型    | デフォルト | 説明                                               |
+|:-----------------------|:--------|:--------|:----------------------------------------------------------|
+| `revisionHistoryLimit` | 整数 |         | すべてのGitLabサブチャートに対して`revisionHistoryLimit`を設定します。 |
