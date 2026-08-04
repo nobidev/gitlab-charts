@@ -568,6 +568,33 @@ describe 'Gateway API configuration' do
         end
       end
 
+      # The key regression case from issue #6610: global.shell.tcp.proxyProtocol: true enables
+      # the inbound leg (Envoy decodes PROXY from the LB), but config.proxyProtocol: false means
+      # gitlab-sshd does NOT wrap its listener in the proxyproto parser. Envoy would send PROXY v2
+      # headers that gitlab-sshd reads as an SSH version string, breaking the handshake with
+      # "ssh: overflow reading version string". The BackendTrafficPolicy must NOT be rendered.
+      context 'when sshDaemon is gitlab-sshd with inbound proxyProtocol true but config.proxyProtocol false' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              shell:
+                tcp:
+                  proxyProtocol: true
+            gitlab:
+              gitlab-shell:
+                sshDaemon: gitlab-sshd
+                config:
+                  proxyProtocol: false
+                  proxyPolicy: use
+          )))
+        end
+
+        it 'does not render a shell BackendTrafficPolicy' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_backendtrafficpolicy).to be_nil
+        end
+      end
+
       # Compatible receiver, but the inbound leg is off, so Envoy has no real client IP to
       # forward -- the policy would only propagate Envoy's own source address.
       context 'when sshDaemon is gitlab-sshd with proxyPolicy: use but inbound proxyProtocol is false (default)' do

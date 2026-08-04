@@ -32,6 +32,34 @@ describe 'checkConfig gitlab-shell' do
                      error_description: 'when proxyProtocol and proxyPolicy are incompatible'
   end
 
+  describe 'gitlabShell.proxyProtocolSshDaemon' do
+    let(:success_values) do
+      YAML.safe_load(%(
+        gitlab:
+          gitlab-shell:
+            sshDaemon: gitlab-sshd
+            config:
+              proxyProtocol: true
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_values) do
+      YAML.safe_load(%(
+        gitlab:
+          gitlab-shell:
+            sshDaemon: openssh
+            config:
+              proxyProtocol: true
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_output) { 'PROXY protocol support is only available with gitlab-sshd.' }
+
+    include_examples 'config validation',
+                     success_description: 'when proxyProtocol is enabled with gitlab-sshd',
+                     error_description: 'when proxyProtocol is enabled with openssh'
+  end
+
   describe 'gitlabShell.metrics' do
     let(:success_values) do
       YAML.safe_load(%(

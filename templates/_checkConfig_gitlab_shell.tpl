@@ -1,5 +1,6 @@
 {{- define "gitlab.checkConfig.gitlabShell.proxyPolicy" -}}
-{{- $config := (index .Values "gitlab" "gitlab-shell").config -}}
+{{- $shell := (index .Values "gitlab" "gitlab-shell") -}}
+{{- $config := $shell.config -}}
 {{/*
 We enable ProxyProtocol between nginx-ingress and gitlab-shell whenever
 gitlab-sshd is enabled to ensure the right remote IPs are seen by SSH.
@@ -12,6 +13,18 @@ gitlab-shell:
   gitlab.gitlab-shell.config.proxyProtocol is enabled, but gitlab.gitlab-shell.config.proxyPolicy is set to "reject".
   gitlab-shell will not accept connections since these settings conflict with each other.
   Either disable proxyProtocol or set proxyPolicy to "use", "require", or "ignore".
+{{- end -}}
+{{/*
+config.proxyProtocol is a gitlab-sshd-only option. OpenSSH has no PROXY protocol
+support and will misread the binary PROXY v2 header as an SSH version string,
+breaking the handshake. Enabling it with openssh is always a misconfiguration.
+*/}}
+{{- if and $config.proxyProtocol (not (eq $shell.sshDaemon "gitlab-sshd")) }}
+gitlab-shell:
+  gitlab.gitlab-shell.config.proxyProtocol is enabled, but gitlab.gitlab-shell.sshDaemon is set to "{{- $shell.sshDaemon -}}".
+  PROXY protocol support is only available with gitlab-sshd. OpenSSH cannot parse PROXY headers
+  and will fail to establish SSH connections.
+  Either disable proxyProtocol or set sshDaemon to "gitlab-sshd".
 {{- end -}}
 {{- end -}}
 {{/* END "gitlab.checkConfig.gitlabShell.proxyPolicy" */}}

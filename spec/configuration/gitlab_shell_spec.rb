@@ -214,24 +214,27 @@ describe 'gitlab-shell configuration' do
     using RSpec::Parameterized::TableSyntax
 
     where(:ssh_daemon, :in_proxy_protocol, :out_proxy_protocol, :proxy_policy, :expected_suffix) do
+      # openssh has no PROXY protocol support; outbound PROXY is never sent regardless of config.proxyProtocol
       "openssh"     | false | false | "use"     | "::"
       "openssh"     | true  | false | "use"     | ":PROXY:"
-      "openssh"     | true  | true  | "use"     | ":PROXY:PROXY"
-      "openssh"     | false | true  | "use"     | "::PROXY"
+      "openssh"     | true  | true  | "use"     | ":PROXY:"
+      "openssh"     | false | true  | "use"     | "::"
 
-      "gitlab-sshd" | false | false | "use"     | "::PROXY"
-      "gitlab-sshd" | true  | false | "use"     | ":PROXY:PROXY"
+      # gitlab-sshd: outbound PROXY requires config.proxyProtocol: true (proxy_protocol listener option)
+      # Without it, proxyPolicy is inert and the binary PROXY header breaks the SSH handshake.
+      "gitlab-sshd" | false | false | "use"     | "::"
+      "gitlab-sshd" | true  | false | "use"     | ":PROXY:"
       "gitlab-sshd" | true  | true  | "use"     | ":PROXY:PROXY"
       "gitlab-sshd" | false | true  | "use"     | "::PROXY"
 
       "gitlab-sshd" | true  | true  | "require" | ":PROXY:PROXY"
-      "gitlab-sshd" | true  | false | "require" | ":PROXY:PROXY"
+      "gitlab-sshd" | true  | false | "require" | ":PROXY:"
 
       "gitlab-sshd" | true  | true  | "ignore"  | ":PROXY:PROXY"
-      "gitlab-sshd" | true  | false | "ignore"  | ":PROXY:PROXY"
+      "gitlab-sshd" | true  | false | "ignore"  | ":PROXY:"
 
       "gitlab-sshd" | true  | false | "reject"  | ":PROXY:"
-      # out_proxy_protocol = false and "reject" case handled by checkConfig
+      # out_proxy_protocol = true and "reject" case handled by checkConfig
     end
 
     with_them do
