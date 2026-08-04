@@ -11,9 +11,23 @@ See: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-serv
 {{-   $inbound = "PROXY" -}}
 {{- end -}}
 {{- $outbound := "" -}}
-{{- $proxySupported := not (eq .Values.config.proxyPolicy "reject" ) }}
-{{- if (or .Values.config.proxyProtocol (and $proxySupported (eq .Values.sshDaemon "gitlab-sshd"))) }}
+{{- if eq "true" (include "gitlab.shell.proxyProtocol.outbound" .) -}}
 {{-   $outbound = "PROXY" -}}
 {{- end -}}
 :{{ $inbound }}:{{ $outbound }}
+{{- end -}}
+
+{{/*
+Returns "true" if GitLab Shell can accept PROXY headers on the outbound leg
+(the proxy-to-Shell connection). Used by the NGINX/HAProxy TCP configs and the
+Envoy BackendTrafficPolicy. Independent of global.shell.tcp.proxyProtocol, which
+controls the inbound leg.
+*/}}
+{{- define "gitlab.shell.proxyProtocol.outbound" -}}
+{{- $proxySupported := not (eq .Values.config.proxyPolicy "reject") -}}
+{{- if or .Values.config.proxyProtocol (and $proxySupported (eq .Values.sshDaemon "gitlab-sshd")) -}}
+true
+{{- else -}}
+false
+{{- end -}}
 {{- end -}}
