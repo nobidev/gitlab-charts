@@ -63,6 +63,6 @@ dependencies:
   version: 1.8.3
   condition: global.gatewayApi.installEnvoy
 - name: ai-gateway
-  version: 0.15.0
+  version: 0.15.1
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   condition: ai-gateway.install
