@@ -15,6 +15,7 @@ describe 'Gateway API configuration' do
   let(:clienttrafficpolicy) { template["ClientTrafficPolicy/test-policy"] }
   let(:securitypolicy) { template["SecurityPolicy/test-policy"] }
   let(:kas_backendtrafficpolicy) { template["BackendTrafficPolicy/test-kas"] }
+  let(:shell_backendtrafficpolicy) { template["BackendTrafficPolicy/test-gitlab-shell"] }
   let(:webservice_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp"] }
   let(:webservice_backendtrafficpolicy) { template["BackendTrafficPolicy/test-webservice-btp"] }
   let(:webservice_smartcard_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp-smartcard"] }
@@ -515,6 +516,174 @@ describe 'Gateway API configuration' do
           expect(shell_route).not_to be_nil
           expect(webservice_route).not_to be_nil
           expect(kas_route).not_to be_nil
+        end
+      end
+    end
+
+    context 'GitLab Shell BackendTrafficPolicy (PROXY protocol)' do
+      context 'when sshDaemon is gitlab-sshd with proxyPolicy: use and inbound proxyProtocol is true' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              shell:
+                tcp:
+                  proxyProtocol: true
+            gitlab:
+              gitlab-shell:
+                sshDaemon: gitlab-sshd
+                config:
+                  proxyPolicy: use
+          )))
+        end
+
+        it 'renders a BackendTrafficPolicy targeting the TCPRoute with PROXY v2' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          expect(shell_backendtrafficpolicy).not_to be_nil
+          expect(shell_backendtrafficpolicy["spec"]["targetRefs"][0]["kind"]).to eq("TCPRoute")
+          expect(shell_backendtrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gitlab-shell")
+          expect(shell_backendtrafficpolicy["spec"]["proxyProtocol"]["version"]).to eq("V2")
+        end
+      end
+
+      context 'when config.proxyProtocol is true and inbound proxyProtocol is true' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              shell:
+                tcp:
+                  proxyProtocol: true
+            gitlab:
+              gitlab-shell:
+                config:
+                  proxyProtocol: true
+          )))
+        end
+
+        it 'renders a BackendTrafficPolicy targeting the TCPRoute with PROXY v2' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          expect(shell_backendtrafficpolicy).not_to be_nil
+          expect(shell_backendtrafficpolicy["spec"]["proxyProtocol"]["version"]).to eq("V2")
+        end
+      end
+
+      # Compatible receiver, but the inbound leg is off, so Envoy has no real client IP to
+      # forward -- the policy would only propagate Envoy's own source address.
+      context 'when sshDaemon is gitlab-sshd with proxyPolicy: use but inbound proxyProtocol is false (default)' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            gitlab:
+              gitlab-shell:
+                sshDaemon: gitlab-sshd
+                config:
+                  proxyPolicy: use
+          )))
+        end
+
+        it 'does not render a shell BackendTrafficPolicy' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_backendtrafficpolicy).to be_nil
+        end
+      end
+
+      context 'when config.proxyProtocol is true but inbound proxyProtocol is false' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            gitlab:
+              gitlab-shell:
+                config:
+                  proxyProtocol: true
+          )))
+        end
+
+        it 'does not render a shell BackendTrafficPolicy' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_backendtrafficpolicy).to be_nil
+        end
+      end
+
+      # openssh cannot accept PROXY protocol natively, so the receiver check fails.
+      context 'when sshDaemon is openssh with receiver PROXY disabled (default)' do
+        it 'does not render a shell BackendTrafficPolicy' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_backendtrafficpolicy).to be_nil
+        end
+      end
+
+      # proxyPolicy: reject refuses PROXY headers, so sending them would break connections.
+      context 'when sshDaemon is gitlab-sshd with proxyPolicy: reject' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            gitlab:
+              gitlab-shell:
+                sshDaemon: gitlab-sshd
+                config:
+                  proxyPolicy: reject
+          )))
+        end
+
+        it 'does not render a shell BackendTrafficPolicy' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_backendtrafficpolicy).to be_nil
+        end
+      end
+
+      # Compatible receiver + inbound leg on, so installEnvoy: false is the only reason
+      # no policy renders (the chart manages no Envoy policies here).
+      context 'when Envoy is not managed by the chart (installEnvoy: false)' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+            nginx-ingress:
+              enabled: false
+
+            global:
+              hosts:
+                externalIP: 127.0.0.1
+              shell:
+                tcp:
+                  proxyProtocol: true
+              gatewayApi:
+                enabled: true
+                installEnvoy: false
+                gatewayRef:
+                  name: "external-gateway"
+                  namespace: "external-gateway-namespace"
+            gitlab:
+              gitlab-shell:
+                sshDaemon: gitlab-sshd
+                config:
+                  proxyPolicy: use
+          ))
+        end
+
+        it 'does not render a shell BackendTrafficPolicy' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_backendtrafficpolicy).to be_nil
+        end
+      end
+
+      # Compatible receiver + inbound leg on, so the disabled gitlab-shell is the only
+      # reason no policy renders.
+      context 'when gitlab-shell is disabled' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              shell:
+                tcp:
+                  proxyProtocol: true
+            gitlab:
+              gitlab-shell:
+                enabled: false
+                sshDaemon: gitlab-sshd
+                config:
+                  proxyPolicy: use
+          )))
+        end
+
+        it 'does not render a shell BackendTrafficPolicy' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_backendtrafficpolicy).to be_nil
         end
       end
     end

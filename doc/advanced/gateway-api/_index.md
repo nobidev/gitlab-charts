@@ -360,6 +360,7 @@ specification leaves implementation-defined:
   while data flows, so that long-running downloads, uploads, and WebSocket connections are not
   interrupted. The absolute `HTTPRoute` rule timeouts remain provider-agnostic and stay disabled
   (`0s`) by default.
+- **PROXY protocol forwarding to GitLab Shell** (if using `gitlab-sshd` with PROXY protocol enabled). GitLab Shell must receive the real client address rather than the gateway's source address on the backend connection. With the bundled Envoy Gateway, the chart renders a `BackendTrafficPolicy` targeting the GitLab Shell `TCPRoute` to append a PROXY v2 header to each backend TCP connection. Other providers must configure an equivalent on the `TCPRoute` backend; consult your provider's documentation for backend PROXY protocol support.
 
 If you use `global.gatewayApi.configureCertmanager`, the cert-manager installation in the cluster
 must have [Gateway API support enabled](https://cert-manager.io/docs/usage/gateway/#enabling-gateway-api-support),
