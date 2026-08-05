@@ -109,6 +109,7 @@ data:
         path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
       {{- include "gitlab.appConfig.kas" . | nindent 6 }}
       {{- include "gitlab.appConfig.knowledgeGraph" . | nindent 6 }}
+      {{- include "gitlab.appConfig.nats" . | nindent 6 }}
       {{- include "gitlab.appConfig.workspaces" . | nindent 6 }}
       {{- include "gitlab.appConfig.databaseTrafficCapture" . | nindent 6 }}
       {{- include "gitlab.appConfig.cell" . | nindent 6 }}
@@ -149,6 +150,7 @@ data:
     fi
     {{- end }}
     {{- include "gitlab.topologyService.configureScript" $ | nindent 4 }}
+    {{- include "gitlab.appConfig.nats.configureScript" $ | nindent 4 }}
   configure-gcloud-storage: |
     set -e
     if command -v gcloud > /dev/null 2>&1; then

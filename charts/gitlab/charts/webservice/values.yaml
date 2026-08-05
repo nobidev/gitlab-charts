@@ -112,6 +112,13 @@ service:
   # loadBalancerSourceRanges:
 enabled: true
 
+## NATS connection settings are configured globally under global.appConfig.nats.
+## Override this component's mutual-TLS client-certificate secret here (contains
+## `ca.crt`, `tls.crt`, `tls.key`); defaults to global.appConfig.nats.tls.secret.
+nats:
+  tls: {}
+    # secret:
+
 gatewayRoute:
   enabled: null
   sectionName: "gitlab-web"

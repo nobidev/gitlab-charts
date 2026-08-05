@@ -46,6 +46,14 @@ common:
 
 enabled: true
 replicas: 1
+
+## NATS connection settings are configured globally under global.appConfig.nats.
+## Override this component's mutual-TLS client-certificate secret here (contains
+## `ca.crt`, `tls.crt`, `tls.key`); defaults to global.appConfig.nats.tls.secret.
+nats:
+  tls: {}
+    # secret:
+
 annotations: {}
 podLabels: {}
 
