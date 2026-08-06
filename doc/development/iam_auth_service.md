@@ -52,6 +52,10 @@ global:
 | `authToken.secret` | string |  | Kubernetes secret name containing the authentication token |
 | `authToken.key` | string | `iam_auth_service_token` | Key within the secret containing the authentication token |
 
+### Workhorse OAuth routing
+
+When the integration is enabled, the chart also sets `IAM_SERVICE_URL` on the Workhorse container, built as `https://<http.host>:<http.port>`. Workhorse uses it to route OAuth requests to the IAM Auth service. It is derived from the values above, so there is nothing extra to configure. When the integration is disabled, the variable is not set and Workhorse sends all OAuth requests to Rails.
+
 ## Secret generation
 
 When IAM Auth Service is enabled, the Helm chart automatically generates a service authentication token and stores it in a Kubernetes secret. The token is generated using cryptographically secure random bytes and converted to alpha-numeric text.

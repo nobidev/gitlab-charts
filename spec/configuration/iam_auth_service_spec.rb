@@ -150,4 +150,53 @@ describe 'iamAuthService templates' do
       end
     end
   end
+
+  describe 'IAM_SERVICE_URL on the Workhorse container' do
+    def workhorse_env
+      template.env('Deployment/test-webservice-default', 'gitlab-workhorse')
+    end
+
+    def iam_service_url
+      workhorse_env&.find { |var| var['name'] == 'IAM_SERVICE_URL' }&.dig('value')
+    end
+
+    context 'when iamAuthService is disabled' do
+      it 'does not set the variable' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(workhorse_env).not_to be_nil
+        expect(iam_service_url).to be_nil
+      end
+    end
+
+    context 'when iamAuthService is enabled' do
+      let(:values) do
+        default_values.deep_merge(enabled_values)
+      end
+
+      it 'sets the URL built from http.host and http.port' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(iam_service_url).to eq('https://iam-auth.example.com:443')
+      end
+    end
+
+    context 'when iamAuthService uses a non-default port' do
+      let(:values) do
+        default_values.deep_merge(enabled_values.deep_merge(YAML.safe_load(%(
+          global:
+            appConfig:
+              iamAuthService:
+                http:
+                  port: 8080
+        ))))
+      end
+
+      it 'includes the port' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(iam_service_url).to eq('https://iam-auth.example.com:8080')
+      end
+    end
+  end
 end

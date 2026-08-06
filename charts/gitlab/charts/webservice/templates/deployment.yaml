@@ -386,6 +386,10 @@ spec:
               value: {{ default 8181 $.Values.service.workhorseInternalPort | int | quote }}
             - name: GITLAB_WORKHORSE_LOG_FORMAT
               value: {{ .workhorse.logFormat | quote }}
+            {{- with (include "gitlab.appConfig.iamAuthService.url" $) }}
+            - name: IAM_SERVICE_URL
+              value: {{ . | quote }}
+            {{- end }}
             - name: CONFIG_TEMPLATE_DIRECTORY
               value: '/var/opt/gitlab/templates'
             - name: CONFIG_DIRECTORY

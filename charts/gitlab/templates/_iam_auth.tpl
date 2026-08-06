@@ -13,6 +13,19 @@ Return the iam-auth service token secret
 {{- end -}}
 
 {{/*
+Return the iam-auth service HTTP URL. Mirrors Authn::IamAuthService.url in Rails.
+*/}}
+{{- define "gitlab.appConfig.iamAuthService.url" -}}
+{{- with .Values.global.appConfig.iamAuthService }}
+{{-   if .enabled }}
+{{-     $host := dig "http" "host" "" . }}
+{{-     $port := dig "http" "port" 0 . | int }}
+{{-     if and $host $port }}https://{{ $host }}:{{ $port }}{{ end }}
+{{-   end }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Mount secret for iam-auth service token
 */}}
 {{- define "gitlab.appConfig.iamAuthService.mountSecrets" -}}
