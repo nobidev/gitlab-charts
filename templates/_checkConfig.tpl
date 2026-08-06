@@ -68,6 +68,7 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 
 {{/* _checkConfig_openbao.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.openbao.database" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.openbao.unseal" .) -}}
 
 {{/* _checkConfig_redis.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.redis" .) -}}

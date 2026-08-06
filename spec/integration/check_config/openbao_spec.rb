@@ -140,6 +140,98 @@ describe 'openbao config check' do
                        error_description: 'when main DB is present but no dedicated OpenBao DB configured'
     end
 
+    context 'when previousKeyId is set without previousKeyField' do
+      let(:error_values) do
+        YAML.safe_load(%(
+          openbao:
+            install: true
+            config:
+              unseal:
+                static:
+                  currentKeyId: gl-unseal-2
+                  currentKey: /srv/openbao/keys/gl-unseal-2
+                  previousKeyId: gl-unseal-1
+                  previousKey: /srv/openbao/keys/gl-unseal-1
+          global:
+            openbao:
+              psql:
+                host: gitlab-checkconfig-test-postgresql.default.svc
+                username: gitlab
+                password:
+                  secret: openbao-db-password
+                  key: password
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'no previous unseal key field configured' }
+
+      include_examples 'config validation',
+                       success_description: nil,
+                       error_description: 'when a previous key ID is set but no field names it'
+    end
+
+    context 'when currentKeyField is empty' do
+      let(:error_values) do
+        YAML.safe_load(%(
+          openbao:
+            install: true
+          global:
+            openbao:
+              unseal:
+                currentKeyField: ""
+              psql:
+                host: gitlab-checkconfig-test-postgresql.default.svc
+                username: gitlab
+                password:
+                  secret: openbao-db-password
+                  key: password
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'no current unseal key field configured' }
+
+      include_examples 'config validation',
+                       success_description: nil,
+                       error_description: 'when the current key field is emptied'
+    end
+
+    context 'when static unsealing is disabled with rotation values left behind' do
+      let(:success_values) do
+        YAML.safe_load(%(
+          openbao:
+            install: true
+            config:
+              unseal:
+                static:
+                  enabled: false
+                  previousKeyId: gl-unseal-1
+                  previousKey: /srv/openbao/keys/gl-unseal-1
+                awskms:
+                  enabled: true
+                  kmsKeyId: alias/my-openbao-key
+                  region: us-east-1
+          global:
+            openbao:
+              psql:
+                host: gitlab-checkconfig-test-postgresql.default.svc
+                username: gitlab
+                password:
+                  secret: openbao-db-password
+                  key: password
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:values) { success_values }
+
+      include_context 'check config setup'
+
+      it 'succeeds', :aggregate_failures do
+        expect(exit_code).to eq(0)
+        expect(stdout).to include('name: gitlab-checkconfig-test')
+        expect(stderr).to be_empty
+      end
+    end
+
     context 'when database is configured without a password' do
       let(:error_values) do
         v = YAML.safe_load(%(

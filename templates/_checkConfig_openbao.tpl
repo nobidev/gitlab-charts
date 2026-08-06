@@ -28,3 +28,32 @@ openbao: no database password configured
 {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.openbao.database */}}
+
+{{/*
+Ensure the unseal secret fields are named whenever their mounts are rendered.
+
+Both mounts take their subPath from global.openbao.unseal.*Field. An empty value renders an empty
+subPath, which the API server rejects, and an empty currentKeyField also makes the shared-secrets
+job generate `--from-file==bao-unseal`. Neither surfaces a usable error.
+
+Gated on static.enabled to match the mounts themselves: with static unsealing off nothing reads
+these values, so leftover rotation settings must not block an AWS KMS render.
+*/}}
+{{- define "gitlab.checkConfig.openbao.unseal" -}}
+{{- if .Values.openbao.install -}}
+{{-   $openbaoConfig := coalesce ((.Values.openbao).config) .Values.config | default dict -}}
+{{-   $static := (($openbaoConfig.unseal).static | default dict) -}}
+{{-   $unseal := (((.Values.global).openbao).unseal | default dict) -}}
+{{-   if $static.enabled -}}
+{{-     if not $unseal.currentKeyField }}
+openbao: no current unseal key field configured
+    `global.openbao.unseal.currentKeyField` is empty. Set it to the unseal secret field holding the current key. See https://docs.gitlab.com/charts/charts/openbao/#rotate-the-static-unseal-key
+{{-     end -}}
+{{-     if and $static.previousKeyId (not $unseal.previousKeyField) }}
+openbao: no previous unseal key field configured
+    `config.unseal.static.previousKeyId` is set but `global.openbao.unseal.previousKeyField` is empty. Set it to the unseal secret field holding the previous key. See https://docs.gitlab.com/charts/charts/openbao/#rotate-the-static-unseal-key
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.openbao.unseal */}}

@@ -146,6 +146,10 @@ describe 'OpenBao installation' do
         expect(generate_secrets).to include('test-openbao-unseal')
       end
 
+      it 'generates the secret under the default key field' do
+        expect(generate_secrets).to include('--from-file=key=bao-unseal')
+      end
+
       it 'mounts the current key' do
         expect(openbao_mounts).to include(
           'name' => 'unseal',
@@ -167,22 +171,41 @@ describe 'OpenBao installation' do
 
     context 'with static unseal key rotation' do
       let(:values) do
-        HelmTemplate.with_defaults(base_values + %(
-        config:
-          unseal:
-            static:
-              currentKeyId: gl-unseal-2
-              currentKey: /srv/openbao/keys/gl-unseal-2
-              previousKeyId: gl-unseal-1
-              previousKey: /srv/openbao/keys/gl-unseal-1
+        HelmTemplate.with_defaults(%(
+        global:
+          openbao:
+            enabled: true
+            unseal:
+              currentKeyField: gl-unseal-2
+              previousKeyField: key
+            psql:
+              host: test-postgresql.default.svc
+              username: gitlab
+              password:
+                secret: gitlab-postgresql-password
+                key: postgresql-password
+        openbao:
+          install: true
+          config:
+            unseal:
+              static:
+                currentKeyId: gl-unseal-2
+                currentKey: /srv/openbao/keys/gl-unseal-2
+                previousKeyId: gl-unseal-1
+                previousKey: /srv/openbao/keys/gl-unseal-1
         ))
       end
 
-      it 'mounts both the current and previous keys' do
+      it 'mounts each key from its configured field' do
         expect(openbao_mounts).to include(
-          a_hash_including('name' => 'unseal', 'mountPath' => '/srv/openbao/keys/gl-unseal-2', 'subPath' => 'key'),
-          a_hash_including('name' => 'unseal', 'mountPath' => '/srv/openbao/keys/gl-unseal-1', 'subPath' => 'previous-key')
+          a_hash_including('name' => 'unseal', 'mountPath' => '/srv/openbao/keys/gl-unseal-2', 'subPath' => 'gl-unseal-2'),
+          a_hash_including('name' => 'unseal', 'mountPath' => '/srv/openbao/keys/gl-unseal-1', 'subPath' => 'key')
         )
+      end
+
+      it 'generates the secret under the current field only' do
+        expect(generate_secrets).to include('--from-file=gl-unseal-2=bao-unseal')
+        expect(generate_secrets).not_to include('--from-file=key=bao-unseal')
       end
 
       it 'renders the previous key in the seal config' do

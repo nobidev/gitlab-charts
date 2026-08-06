@@ -105,11 +105,11 @@ Render the OpenBao postgresql configuration yaml.
 {{- end -}}
 
 {{- define "gitlab.openbao.unseal.key" -}}
-key
+{{- .Values.global.openbao.unseal.currentKeyField -}}
 {{- end -}}
 
 {{- define "gitlab.openbao.unseal.previousKey" -}}
-previous-key
+{{- .Values.global.openbao.unseal.previousKeyField -}}
 {{- end -}}
 
 {{- define "gitlab.openbao.authenticationTokenSecretFilePath.secret" -}}

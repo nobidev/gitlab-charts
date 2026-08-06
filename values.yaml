@@ -991,6 +991,14 @@ global:
     httpAudit:
       secret: ""
       key: "token"
+    unseal:
+      # Fields of the unseal secret holding the current and previous keys. Rotation adds
+      # the new key under a new field name and switches currentKeyField to it, so no key
+      # is ever overwritten in place. previousKeyField has no default because no field
+      # holds a previous key until you rotate; set it whenever previousKeyId is set.
+      ## https://docs.gitlab.com/charts/charts/openbao/#rotate-the-static-unseal-key
+      currentKeyField: "key"
+      previousKeyField: ""
     psql:
       # OpenBao database config. Accessible by toolbox for backup/restore. Configure host, database, username, password.
       database: openbao
@@ -1524,9 +1532,9 @@ openbao:
         currentKey: "/srv/openbao/keys/gl-unseal-1"
         # Set both to enable unseal key rotation. previousKeyId/previousKey are the
         # outgoing (old) key's existing id and mount path. The new currentKeyId must
-        # be a fresh, never-reused id. Add the old key to the unseal secret's
-        # "previous-key" field before rotating. See the OpenBao chart docs
-        # "Rotate the static unseal key".
+        # be a fresh, never-reused id. Set global.openbao.unseal.previousKeyField to
+        # the secret field the old key is already in.
+        ## https://docs.gitlab.com/charts/charts/openbao/#rotate-the-static-unseal-key
         previousKeyId: ""
         previousKey: ""
     # Use external hostname in OpenBao auth.
