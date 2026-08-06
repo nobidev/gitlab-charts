@@ -93,48 +93,6 @@ describe 'checkConfig object storage' do
                      success_description: 'when pages is enabled but objectStore is disabled, no connection is required'
   end
 
-  describe 'gitlab.checkConfig.objectStorage.backup.configured' do
-    let(:success_values) { default_required_values }
-
-    let(:error_values) do
-      values = HelmTemplate.defaults
-      values['gitlab']['toolbox']['backups']['objectStorage']['config'] = {}
-      values
-    end
-
-    let(:error_output) { 'prepare an external object storage solution for backup and restore' }
-
-    include_examples 'config validation',
-                     success_description: 'when toolbox is enabled and backup secret is configured',
-                     error_description: 'when toolbox is enabled but backup secret is missing'
-  end
-
-  describe 'gitlab.checkConfig.objectStorage.backup.configured (GKE workload identity)' do
-    let(:success_values) do
-      values = HelmTemplate.defaults
-      values['gitlab']['toolbox']['backups']['objectStorage'] = {
-        'backend' => 'gcs',
-        'config' => {}
-      }
-      values
-    end
-
-    include_examples 'config validation',
-                     success_description: 'when toolbox uses GKE workload identity (gcs backend with empty config)'
-  end
-
-  describe 'gitlab.checkConfig.objectStorage.backup.configured (toolbox disabled)' do
-    let(:success_values) do
-      values = HelmTemplate.defaults
-      values['gitlab']['toolbox'] = { 'enabled' => false }
-      values['gitlab']['toolbox']['backups'] = { 'objectStorage' => { 'config' => {} } }
-      values
-    end
-
-    include_examples 'config validation',
-                     success_description: 'when toolbox is disabled, no backup secret is required'
-  end
-
   describe 'gitlab.checkConfig.objectStorage.consolidatedConfig' do
     let(:success_values) { HelmTemplate.defaults }
 

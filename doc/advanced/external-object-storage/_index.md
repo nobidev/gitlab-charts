@@ -225,6 +225,16 @@ You must also provide a connection configuration through the `gitlab.toolbox.bac
 
 When using Google Cloud Storage with a secret, the GCP project must be set with the `global.appConfig.backups.objectStorage.config.gcpProject` value.
 
+The connection configuration is not needed when the Toolbox authenticates with the identity of its
+ServiceAccount. Omit `gitlab.toolbox.backups.objectStorage.config` in these cases:
+
+- S3 with [IAM roles for service accounts (IRSA)](aws-iam-roles.md). Also pass `--s3tool awscli` to
+  `backup-utility`, because `s3cmd` requires a `.s3cfg` file.
+- GCS with [Workload Identity Federation for GKE](gke-workload-identity.md).
+
+The chart does not validate backup object storage configuration. A missing or incomplete
+configuration surfaces when a backup or restore runs.
+
 For S3-compatible storage:
 
 ```shell
