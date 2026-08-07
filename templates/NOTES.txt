@@ -201,6 +201,14 @@ redis:
     https://docs.gitlab.com/charts/installation/upgrade.html#use-of-globalredispassword
 {{- end -}}
 
+{{- /* Deprecation notice for global.appConfig.knowledgeGraph */}}
+{{- if kindIs "map" .Values.global.appConfig.knowledgeGraph }}
+{{ $NOTICE }}
+gitlab:
+    The configuration key `global.appConfig.knowledgeGraph` has been deprecated and is planned for removal in GitLab 19.5.
+    Please use `global.appConfig.orbit` instead.
+{{- end -}}
+
 {{- /* print install survey link */}}
 {{- $appVersion := coalesce .Values.global.gitlabVersion .Chart.AppVersion -}}
 {{- if and .Release.IsInstall (regexMatch "^\\d+\\.\\d+\\.\\d+(-rc\\d+)?(-pre)?$" $appVersion) }}
