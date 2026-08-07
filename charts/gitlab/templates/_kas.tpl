@@ -59,7 +59,7 @@ Return the KAS service host
 */}}
 {{- define "gitlab.kas.serviceHost" -}}
 {{-     $serviceName := include "gitlab.kas.serviceName" . -}}
-{{-     printf "%s.%s.svc" $serviceName $.Release.Namespace -}}
+{{-     include "gitlab.assembleServiceAddress" (dict "name" $serviceName "context" $) -}}
 {{- end -}}
 
 {{/*

@@ -475,6 +475,17 @@ internal Gitaly pods [can be found in this repository](https://gitlab.com/gitlab
 Users can use or refer that script to generate certificates with proper
 SAN attributes.
 
+The script covers both the partial addresses (`.svc`) and the fully qualified addresses
+(`.svc.cluster.local`). The certificate stays valid whether or not
+[`global.clusterDomain`](../../globals.md#cluster-domain) is set. If your cluster uses a different
+domain, pass it as `CLUSTER_DOMAIN`:
+
+```shell
+CLUSTER_DOMAIN=k8s.example ./scripts/generate_certificates.sh gitaly
+```
+
+The `gitaly_address` values from the previous step show which names the certificate must cover.
+
 1. Create a k8s TLS secret using the certificate created.
 
    ```shell

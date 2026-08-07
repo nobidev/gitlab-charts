@@ -27,7 +27,8 @@ Returns a YAML string with the annotations.
 {{-       $_ := set $annotations "nginx.ingress.kubernetes.io/backend-protocol" "https" }}
 {{-       if eq (include "webservice.ingress.nginx.tls.verify" .deployment.workhorse) "true" -}}
 {{-         $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-ssl-verify" "on" }}
-{{-         $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-ssl-name" (printf "%s.%s.svc" (include "webservice.fullname.withSuffix" .deployment) .root.Release.Namespace) }}
+{{-         $serviceAddress := include "gitlab.assembleServiceAddress" (dict "name" (include "webservice.fullname.withSuffix" .deployment) "context" .root) }}
+{{-         $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-ssl-name" $serviceAddress }}
 {{-         if .deployment.workhorse.tls.caSecretName }}
 {{-           $_ := set $annotations "nginx.ingress.kubernetes.io/proxy-ssl-secret" (printf "%s/%s" .root.Release.Namespace .deployment.workhorse.tls.caSecretName) }}
 {{-         end }}

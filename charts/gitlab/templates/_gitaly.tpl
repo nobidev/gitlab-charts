@@ -7,12 +7,13 @@ Return gitaly host for internal statefulsets
 {{-   $releaseName := .Release.Name -}}
 {{-   range $i, $storage := .Values.global.gitaly.internal.names -}}
 {{-     $qualServiceName := (include "gitlab.gitaly.qualifiedServiceName" (dict "index" $i "context" $ ) ) -}}
+{{-     $serviceAddress := include "gitlab.assembleServiceAddress" (dict "name" $qualServiceName "context" $) -}}
 {{-     printf "%s:\n" $storage -}}
 {{-     printf  "path: /var/opt/gitlab/repo\n" | indent 2 -}}
 {{-     if $.Values.global.gitaly.tls.enabled }}
-{{-       printf "gitaly_address: tls://%s.%s.svc:%d\n" $qualServiceName $.Release.Namespace 8076 -}}
+{{-       printf "gitaly_address: tls://%s:%d\n" $serviceAddress 8076 -}}
 {{-     else }}
-{{-       printf "gitaly_address: tcp://%s.%s.svc:%d\n" $qualServiceName $.Release.Namespace 8075 -}}
+{{-       printf "gitaly_address: tcp://%s:%d\n" $serviceAddress 8075 -}}
 {{-     end -}}
 {{-   end -}}
 {{- end }}

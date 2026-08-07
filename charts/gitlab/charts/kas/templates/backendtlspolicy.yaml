@@ -14,7 +14,8 @@ spec:
     kind: Service
     name: {{ include "gitlab.kas.serviceName" . | quote }}
   validation:
-    hostname: {{ .Values.backendTLSPolicy.hostname | default (printf "%s.%s.svc" (include "fullname" .) .Release.Namespace) | quote }}
+    {{- $serviceAddress := include "gitlab.assembleServiceAddress" (dict "name" (include "fullname" .) "context" .) }}
+    hostname: {{ .Values.backendTLSPolicy.hostname | default $serviceAddress | quote }}
     caCertificateRefs:
     - group: ""
       kind: Secret

@@ -12,6 +12,13 @@
 # and `gitlab` release. Use `RELEASE_NAME` and `NAMESPACE` environment variables
 # for non-default namespace and release.
 #
+# The certificate covers both the partial Service name (`<service>.<namespace>.svc`)
+# and the fully qualified name (`<service>.<namespace>.svc.cluster.local`). It stays
+# valid whether or not `global.clusterDomain` is set on the chart.
+#
+# Use `CLUSTER_DOMAIN` if the cluster does not use `cluster.local`. Set it to an
+# empty string to cover the partial name only.
+#
 # After generation, create a TLS secret:
 #
 #   kubectl create secret tls <service>-tls --cert=gitaly.crt --key=gitaly.key
@@ -29,6 +36,7 @@ CERT_NAME=${1-gitaly}
 RELEASE_NAME=${RELEASE_NAME-gitlab}
 NAMESPACE=${NAMESPACE-default}
 DNS_SUFFIX=${DNS_SUFFIX:-.svc}
+CLUSTER_DOMAIN=${CLUSTER_DOMAIN-cluster.local}
 
 WORKDIR=`pwd`
 TEMP_DIR=$(mktemp -d)
@@ -37,16 +45,25 @@ pushd ${TEMP_DIR} || exit
 SERVICE_NAME="${RELEASE_NAME}-${CERT_NAME}"
 SERVICE_NAME="${SERVICE_NAME:0:63}"
 
+# Cover the partial name, and the fully qualified name unless DNS_SUFFIX already
+# carries the cluster domain.
+SUFFIXES=("${DNS_SUFFIX}")
+if [ -n "${CLUSTER_DOMAIN}" ] && [ "${DNS_SUFFIX}" = "${DNS_SUFFIX%".${CLUSTER_DOMAIN}"}" ]; then
+  SUFFIXES+=("${DNS_SUFFIX}.${CLUSTER_DOMAIN}")
+fi
+
 (
-cat <<SANDOC
-[req_ext]
-subjectAltName = @san
-
-[san]
-DNS.1 = ${SERVICE_NAME}.${NAMESPACE}${DNS_SUFFIX}
-DNS.2 = *.${SERVICE_NAME}.${NAMESPACE}${DNS_SUFFIX}
-
-SANDOC
+echo "[req_ext]"
+echo "subjectAltName = @san"
+echo ""
+echo "[san]"
+entry=0
+for suffix in "${SUFFIXES[@]}"; do
+  # The wildcard covers the per-pod addresses of headless Services, such as Gitaly.
+  entry=$((entry + 1)); echo "DNS.${entry} = ${SERVICE_NAME}.${NAMESPACE}${suffix}"
+  entry=$((entry + 1)); echo "DNS.${entry} = *.${SERVICE_NAME}.${NAMESPACE}${suffix}"
+done
+echo ""
 ) > san.conf
 
 openssl req -x509 -nodes -newkey rsa:4096 \

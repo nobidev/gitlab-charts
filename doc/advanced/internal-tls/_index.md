@@ -30,6 +30,9 @@ This script:
 
 - Generates a CA key pair.
 - Signs a certificate meant to service all GitLab component service endpoints.
+- Covers both the partial Service names and the fully qualified names, so the certificate stays
+  valid whether or not [`global.clusterDomain`](../../charts/globals.md#cluster-domain) is set.
+  Set `CLUSTER_DOMAIN` if your cluster uses a domain other than `cluster.local`.
 - Creates two Kubernetes Secret objects:
   - A secret of type `kuberetes.io/tls` which has the server certificate and key pair.
   - A secret of type `Opaque` which **only** contains the public certificate of the CA as `ca.crt`
@@ -58,10 +61,15 @@ pushd $(mktemp -d)
 ## setup environment
 NAMESPACE=${NAMESPACE:-default}
 RELEASE=${RELEASE:-gitlab}
+CLUSTER_DOMAIN=${CLUSTER_DOMAIN:-cluster.local}
 ## stop if variable is unset beyond this point
 set -u
-## known expected patterns for SAN
+## known expected patterns for SAN, covering the partial Service names
 CERT_SANS="*.${NAMESPACE}.svc,${RELEASE}-metrics.${NAMESPACE}.svc,*.${RELEASE}-gitaly.${NAMESPACE}.svc"
+## the same patterns, fully qualified, for when global.clusterDomain is set
+CERT_SANS="${CERT_SANS},*.${NAMESPACE}.svc.${CLUSTER_DOMAIN}"
+CERT_SANS="${CERT_SANS},${RELEASE}-metrics.${NAMESPACE}.svc.${CLUSTER_DOMAIN}"
+CERT_SANS="${CERT_SANS},*.${RELEASE}-gitaly.${NAMESPACE}.svc.${CLUSTER_DOMAIN}"
 
 #############
 ## generate default CA config
@@ -131,6 +139,16 @@ Kubernetes Service DNS entry.
 
 - `service-name.namespace.svc`
 - `*.namespace.svc`
+
+If [`global.clusterDomain`](../../charts/globals.md#cluster-domain) is set, components address
+each other by the fully qualified Service name instead, and the SANs must cover that name:
+
+- `service-name.namespace.svc.cluster-domain`
+- `*.namespace.svc.cluster-domain`
+
+A certificate that covers only the partial names stops matching when you set
+`global.clusterDomain`. To avoid reissuing certificates at that point, cover both forms now. A
+certificate that carries both stays valid whether or not the value is set.
 
 Failure to ensure these SANs within certificates _will_ result in a non-functional
 instance, and logs that can be quite cryptic, refering to "connection failure"

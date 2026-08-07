@@ -86,6 +86,38 @@ Calls into the `gitlab.gitlabHost` function for the hostname part of the url.
 {{- $result.domainHost -}}
 {{- end -}}
 
+{{/*
+  A helper function for assembling the in-cluster address of a Service.
+  Takes a `Map/Dictionary` as an argument. Where key `name` is the name of the Service, and
+  `context` should be a reference to the chart's $ object.
+  eg: `include "gitlab.assembleServiceAddress" (dict "name" (include "fullname" .) "context" $)`
+
+  By default this produces the partial name `<name>.<namespace>.svc`, which resolves only in pods
+  whose `/etc/resolv.conf` search list carries the cluster search domains.
+
+  When `global.clusterDomain` is set, the fully qualified `<name>.<namespace>.svc.<clusterDomain>`
+  is produced instead, which does not depend on the search list. Leading and trailing dots are
+  trimmed from the configured domain, so both `cluster.local` and `.cluster.local` are accepted.
+
+  Qualifying the name does not reduce DNS lookups on its own. The resolver expands any name with
+  fewer dots than `ndots` against the search list first, so at the Kubernetes default of `ndots:5`
+  a four-dot address costs one NXDOMAIN answer more than the partial name. Lowering `ndots`
+  through `global.dnsConfig` is what delivers single-lookup resolution.
+
+  The address must never end in a dot. Callers use it as a TLS SNI and certificate validation
+  name, where a trailing dot fails SAN matching and is rejected by the Gateway API
+  `PreciseHostname` type. A domain that is empty once trimmed is therefore treated as unset.
+*/}}
+{{- define "gitlab.assembleServiceAddress" -}}
+{{- $context := .context -}}
+{{- $suffix := "svc" -}}
+{{- $domain := trimAll "." (default "" $context.Values.global.clusterDomain) -}}
+{{- if $domain -}}
+{{-   $suffix = printf "svc.%s" $domain -}}
+{{- end -}}
+{{- printf "%s.%s.%s" .name $context.Release.Namespace $suffix -}}
+{{- end -}}
+
 {{/* ######### cert-manager templates */}}
 
 {{- define "gitlab.certmanager_annotations" -}}
