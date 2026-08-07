@@ -514,8 +514,16 @@ global:
       #   secret:
       #   key:
 
+    orbit:
+      # enabled: false
+      # jwtSecret:
+      #   secret:
+      #   key:
+      # grpcEndpoint:
+
+    # Deprecated. Use `orbit` instead. Support is planned for removal in GitLab 19.5.
     knowledgeGraph:
-      enabled: false
+      # enabled: false
       # jwtSecret:
       #   secret:
       #   key:

@@ -1589,27 +1589,30 @@ global:
       caSecretName: *internal-ca
 ```
 
-### Knowledge Graph settings
+### Orbit settings
 
-Use these settings to configure the [GitLab Knowledge Graph](https://gitlab.com/gitlab-org/orbit/knowledge-graph) integration.
+Use these settings to configure the [GitLab Orbit](https://gitlab.com/gitlab-org/orbit/knowledge-graph) integration.
 
 ```yaml
 global:
   appConfig:
-    knowledgeGraph:
-      enabled: false
-      jwtSecret:
-        secret:
-        key:
-      grpcEndpoint:
+    orbit:
+      # enabled: false
+      # jwtSecret:
+      #   secret:
+      #   key:
+      # grpcEndpoint:
 ```
 
 | Name                | Type    | Default | Description |
 |:--------------------|:-------:|:--------|:------------|
-| `enabled`           | Boolean | `false` | Enable or disable the Knowledge Graph integration. |
+| `enabled`           | Boolean | `false` | Enable or disable the Orbit integration. |
 | `jwtSecret.secret`  | String  |         | Name of the Kubernetes secret containing the shared JWT key. |
 | `jwtSecret.key`     | String  |         | Key within the secret that holds the JWT shared key value. |
-| `grpcEndpoint`      | String  |         | gRPC endpoint for the Knowledge Graph service (e.g. `gkg.example.com:50054`). |
+| `grpcEndpoint`      | String  |         | gRPC endpoint for the Orbit service (for example, `gkg.example.com:50054`). |
+
+The `global.appConfig.knowledgeGraph` settings are deprecated and are planned for removal in GitLab 19.5.
+Use `global.appConfig.orbit` instead. You cannot set both configuration roots in the same release.
 
 ### LDAP
 
