@@ -10,6 +10,9 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
+    {{- /* The target version is used to easily query the Job responsible for migrating
+           the DB schema to a specific Rails version. */}}
+    gitlab.com/target-version: {{ include "gitlab.versionTag" . | quote }}
   {{- if .Values.annotations }}
   annotations:
   {{- range $key, $value := .Values.annotations }}
