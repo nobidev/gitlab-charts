@@ -542,6 +542,14 @@ securityContext:
   seccompProfile:
     {{- toYaml $psc.seccompProfile | nindent 4 }}
 {{- end }}
+{{-   if $psc.seLinuxOptions }}
+  seLinuxOptions:
+    {{- toYaml $psc.seLinuxOptions | nindent 4 }}
+{{-   end }}
+{{-   if $psc.appArmorProfile }}
+  appArmorProfile:
+    {{- toYaml $psc.appArmorProfile | nindent 4 }}
+{{-   end }}
 {{- end }}
 {{- end -}}
 
@@ -579,6 +587,14 @@ securityContext:
 {{-   if $psc.seccompProfile }}
   seccompProfile:
     {{- toYaml $psc.seccompProfile | nindent 4 }}
+{{-   end }}
+{{-   if $psc.seLinuxOptions }}
+  seLinuxOptions:
+    {{- toYaml $psc.seLinuxOptions | nindent 4 }}
+{{-   end }}
+{{-   if $psc.appArmorProfile }}
+  appArmorProfile:
+    {{- toYaml $psc.appArmorProfile | nindent 4 }}
 {{-   end }}
 {{- end }}
 {{- end -}}

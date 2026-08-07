@@ -60,6 +60,12 @@ cgroups:
     securityContext:
       runAsUser: 0
       runAsGroup: 0
+    # seLinuxOptions:
+    #   type: spc_t
+    #   level: "s0:c123,c456"
+    # appArmorProfile:
+    #   type: Localhost
+    #   localhostProfile: k8s-apparmor-example-deny-write
   mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
   hierarchyRoot: gitaly
   # memoryBytes:
@@ -177,6 +183,12 @@ securityContext:
   runAsUser: 1000
   fsGroup: 1000
   # fsGroupChangePolicy: OnRootMismatch
+  # seLinuxOptions:
+  #   type: spc_t
+  #   level: "s0:c123,c456"
+  # appArmorProfile:
+  #   type: Localhost
+  #   localhostProfile: k8s-apparmor-example-deny-write
 
 ## Allow to overwrite the specific security context under which the gitaly container is running.
 containerSecurityContext:
