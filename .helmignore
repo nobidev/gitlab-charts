@@ -34,6 +34,14 @@ Gemfile.lock
 gems/
 knapsack_rspec_report.json
 mise.toml
+# Nix: build-artifact symlinks (they point into the store and would drag the
+# fetched subchart tgzs into the chart payload) and the flake sources, which
+# are not chart content.
+result
+result-*
+flake.nix
+flake.lock
+nix/
 ci/
 doc/
 doc-locale/
