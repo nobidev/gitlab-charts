@@ -14,3 +14,5 @@ scripts/debug/chart-info
 .idea
 .claude/settings.local.json
 .values
+result
+result-*
