@@ -137,7 +137,7 @@ GEM
     io-console (0.8.2)
     jaro_winkler (1.7.0)
     jmespath (1.6.2)
-    json (2.19.4)
+    json (2.19.9)
     knapsack (4.0.0)
       rake
     kramdown (2.5.2)
