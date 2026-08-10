@@ -909,6 +909,14 @@ global:
   # https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
   dnsConfig: {}
 
+  # The cluster domain of the Kubernetes cluster, as configured in kubelet.
+  # When set, internal Service addresses are templated as fully qualified names
+  # (`<service>.<namespace>.svc.<clusterDomain>`), which do not depend on the pod
+  # DNS search list. When empty, the partial name `<service>.<namespace>.svc` is used.
+  # To resolve these addresses in a single lookup, also lower `ndots` above.
+  # https://docs.gitlab.com/charts/charts/globals#cluster-domain
+  clusterDomain: ""
+
   ## https://docs.gitlab.com/charts/charts/globals#configure-workhorse-settings
   ## Global settings related to Workhorse
   workhorse:

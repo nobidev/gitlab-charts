@@ -2421,6 +2421,63 @@ apply, preserving existing cluster behavior.
 > at this time and might need to be configured separately based on available chart values.
 > This includes Prometheus, cert-manager, and other subcharts.
 
+## Cluster domain
+
+GitLab components address each other by the DNS name of their Kubernetes Service. By default,
+the chart templates the partial name `<service>.<namespace>.svc`. That name resolves only in pods
+whose `/etc/resolv.conf` search list carries the cluster search domains.
+
+Set `global.clusterDomain` to the cluster domain configured in kubelet. Internal Service addresses
+then use the fully qualified `<service>.<namespace>.svc.<clusterDomain>`, which does not depend on
+the search list.
+
+```yaml
+global:
+  clusterDomain: cluster.local
+```
+
+A fully qualified name does not reduce DNS lookups on its own. The resolver expands any name with
+fewer dots than `ndots` against the search list first, and
+`<service>.<namespace>.svc.cluster.local` has four dots. At the Kubernetes default of `ndots:5`,
+that name costs one NXDOMAIN answer more than the partial name.
+
+To resolve internal addresses in a single lookup, lower `ndots` with
+[`global.dnsConfig`](#dns-configuration) at the same time:
+
+```yaml
+global:
+  clusterDomain: cluster.local
+  dnsConfig:
+    options:
+      - name: ndots
+        value: "2"
+```
+
+Most clusters use `cluster.local`, but the domain is configurable at cluster creation time.
+To read it from a running cluster, check the `clusterDomain` field in the kubelet
+configuration:
+
+```shell
+kubectl get --raw "/api/v1/nodes/$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}')/proxy/configz" \
+  | grep -o '"clusterDomain":"[^"]*"'
+```
+
+When `global.clusterDomain` is empty (the default), the chart keeps using partial names, which
+preserves existing cluster behavior.
+
+Charts that are maintained externally do not respect `global.clusterDomain` at this time and
+might need to be configured separately based on available chart values. This includes Prometheus,
+cert-manager, and other subcharts.
+
+The bundled Envoy Gateway has its own cluster domain value. For more information, see
+[Cluster domain](../advanced/gateway-api/_index.md#cluster-domain).
+
+> [!warning]
+> Internal TLS certificates must include the fully qualified name in their SANs before you set
+> this value. A wildcard such as `*.<namespace>.svc` does not match
+> `<service>.<namespace>.svc.<clusterDomain>`. For more information, see
+> [Required certificate CN and SANs](../advanced/internal-tls/_index.md#required-certificate-cn-and-sans).
+
 ## Labels
 
 ### Common Labels

@@ -8,10 +8,11 @@ Return the default praefect storage line for gitlab.yml
 {{- $scheme = "tls" -}}
 {{- $port = include "gitlab.praefect.tls.externalPort" $ -}}
 {{- end }}
+{{- $serviceAddress := include "gitlab.assembleServiceAddress" (dict "name" (include "gitlab.praefect.serviceName" $) "context" $) -}}
 {{- range $.Values.global.praefect.virtualStorages }}
 {{ .name }}:
   path: /var/opt/gitlab/repo
-  gitaly_address: {{ printf "%s" $scheme }}://{{ template "gitlab.praefect.serviceName" $ }}.{{$.Release.Namespace}}.svc:{{ $port }}
+  gitaly_address: {{ printf "%s" $scheme }}://{{ $serviceAddress }}:{{ $port }}
   gitaly_token: <%= File.read('/etc/gitlab/gitaly/gitaly_token_praefect').strip.to_json %>
 {{- end }}
 {{- end -}}

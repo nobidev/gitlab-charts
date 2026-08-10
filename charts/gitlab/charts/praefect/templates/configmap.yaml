@@ -81,9 +81,10 @@ data:
     {{- range until (.gitalyReplicas | int) }}
     [[virtual_storage.node]]
     {{- $serviceName := include "gitlab.praefect.gitaly.serviceName" (dict "context" $globalContext "name" $storageName) -}}
-    {{- $podAddress := include "gitlab.praefect.gitaly.qualifiedServiceName" (dict "context" $globalContext "index" . "name" $storageName) }}
+    {{- $podAddress := include "gitlab.praefect.gitaly.qualifiedServiceName" (dict "context" $globalContext "index" . "name" $storageName) -}}
+    {{- $serviceAddress := include "gitlab.assembleServiceAddress" (dict "name" $podAddress "context" $globalContext) }}
     storage = '{{ $serviceName }}-{{ . }}'
-    address = '{{ printf "%s://%s.%s.svc:%s" $scheme $podAddress $globalContext.Release.Namespace $port }}'
+    address = '{{ printf "%s://%s:%s" $scheme $serviceAddress $port }}'
     token = {% file.Read "/etc/gitlab-secrets/praefect/gitaly_token" | strings.TrimSpace | data.ToJSON %}
     {{- end }}
     {{ end }}

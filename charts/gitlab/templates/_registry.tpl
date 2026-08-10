@@ -24,7 +24,7 @@ to the service name
 {{-   else -}}
 {{-     $name := coalesce $localRegistryApi.serviceName $globalRegistryApi.serviceName .Values.global.hosts.registry.serviceName -}}
 {{-     $name = printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{-     printf "%s.%s.svc" $name .Release.Namespace -}}
+{{-     include "gitlab.assembleServiceAddress" (dict "name" $name "context" .) -}}
 {{-   end -}}
 {{- end -}}
 

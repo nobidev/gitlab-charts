@@ -20,6 +20,27 @@ but remains available until its full removal in GitLab 20.0.
 | `global.gatewayApi.httpToHttpsRedirect`             | Boolean | true           | Create an HTTPRoute that redirects all HTTP traffic to HTTPS with a 301 status code. Only effective when `protocol` is `HTTPS` and the Gateway is managed (no `gatewayRef`). |
 | `global.gatewayApi.installEnvoy`                    | Boolean | true           | Install Envoy Gateway subchart and configure a `GatewayClass` and [Envoy Gateway API extensions](../../charts/envoygateway/_index.md). Default flipped to `true` in GitLab 19.0. |
 
+### Cluster domain
+
+The bundled Envoy Gateway does not read
+[`global.clusterDomain`](../../charts/globals.md#cluster-domain). It has its own value:
+
+| Name                                    |  Type   | Default         | Description |
+|:----------------------------------------|:-------:|:----------------|:------------|
+| `envoy-gateway.kubernetesClusterDomain` | String  | `cluster.local` | Cluster domain used by the bundled Envoy Gateway. Sets the `KUBERNETES_CLUSTER_DOMAIN` environment variable on the Envoy Gateway deployment. |
+
+If your cluster uses a domain other than `cluster.local`, set both values to that domain:
+
+```yaml
+global:
+  clusterDomain: k8s.example
+envoy-gateway:
+  kubernetesClusterDomain: k8s.example
+```
+
+This value applies only when `global.gatewayApi.installEnvoy` is `true`. For an externally
+managed Envoy Gateway, set the cluster domain on that installation instead.
+
 ### Configuring managed Gateway API resources
 
 GitLab chart allows you to customize the managed `Gateway`, `GatewayClass`, and Envoy Gateway extensions.
@@ -222,6 +243,11 @@ Unlike the NGINX Ingress implementation, where certificate verification can be d
 example with `workhorse.tls.verify: false` for self-signed certificates), Gateway API always
 verifies the backend TLS connection. A CA certificate secret must therefore be provided for
 verification to succeed.
+
+The validation hostnames below follow the internal Service address format. If
+[`global.clusterDomain`](../../charts/globals.md#cluster-domain) is set, they default to the
+fully qualified `<service-name>.<namespace>.svc.<clusterDomain>` instead, and the backend
+certificate must include that name in its SANs.
 
 #### Enable internal TLS for Webservice
 

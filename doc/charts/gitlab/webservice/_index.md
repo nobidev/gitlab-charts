@@ -367,7 +367,9 @@ Workhorse supports TLS for both web and metrics endpoints. This will secure the
 communication between Workhorse and other components, in particular `nginx-ingress`,
 `gitlab-shell`, and `gitaly`. The TLS certificate should include the Workhorse
 Service host name (e.g. `RELEASE-webservice-default.default.svc`) in the Common
-Name (CN) or Subject Alternate Name (SAN).
+Name (CN) or Subject Alternate Name (SAN). If
+[`global.clusterDomain`](../../globals.md#cluster-domain) is set, use the fully qualified
+Service host name instead.
 
 Note that [multiple deployments of Webservice](#deployments-settings) can exist,
 so you need to prepare the TLS certificate for different service names. This
@@ -675,7 +677,8 @@ gitlab:
             caSecretName: workhorse-api-tls-ca
 ```
 
-The validation hostname defaults to the service DNS name (`<service-name>.<namespace>.svc`).
+The validation hostname defaults to the service DNS name (`<service-name>.<namespace>.svc`, or the
+fully qualified name when [`global.clusterDomain`](../../globals.md#cluster-domain) is set).
 Override it with `backendTLSPolicy.hostname`:
 
 ```yaml

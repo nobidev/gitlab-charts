@@ -511,7 +511,9 @@ Prerequisites to configure TLS:
 
 - The TLS certificate must include the Registry Service host name
   (for example, `RELEASE-registry.default.svc`) in the Common
-  Name (CN) or Subject Alternate Name (SAN).
+  Name (CN) or Subject Alternate Name (SAN). If
+  [`global.clusterDomain`](../globals.md#cluster-domain) is set, use the fully qualified
+  Service host name instead.
 - After the TLS certificate generates:
   - Create a [Kubernetes TLS Secret](https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets)
   - Create another Secret that only contains the CA certificate of the TLS certificate with `ca.crt` key.

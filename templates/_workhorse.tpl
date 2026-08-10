@@ -36,7 +36,8 @@ to the service name
 {{- $hostname := default .Values.global.workhorse.host .Values.workhorse.host -}}
 {{- if empty $hostname -}}
 {{-   $name := default .Values.global.workhorse.serviceName .Values.workhorse.serviceName -}}
-{{-   $hostname = printf "%s-%s.%s.svc" .Release.Name $name .Release.Namespace -}}
+{{-   $serviceName := printf "%s-%s" .Release.Name $name -}}
+{{-   $hostname = include "gitlab.assembleServiceAddress" (dict "name" $serviceName "context" .) -}}
 {{- end -}}
 {{- $hostname -}}
 {{- end -}}
