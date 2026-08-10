@@ -2466,6 +2466,9 @@ Charts that are maintained externally do not respect `global.clusterDomain` at t
 might need to be configured separately based on available chart values. This includes Prometheus,
 cert-manager, and other subcharts.
 
+The bundled Envoy Gateway has its own cluster domain value. For more information, see
+[Cluster domain](../advanced/gateway-api/_index.md#cluster-domain).
+
 > [!warning]
 > Internal TLS certificates must include the fully qualified name in their SANs before you set
 > this value. A wildcard such as `*.<namespace>.svc` does not match
