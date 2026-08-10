@@ -67,6 +67,7 @@ function deploy_external_garage() {
         "gitlab-agent-plan-content"
         "gitlab-artifacts"
         "gitlab-backups"
+        "gitlab-ci-catalog-bundles"
         "gitlab-ci-secure-files"
         "gitlab-dependency-proxy"
         "gitlab-mr-diffs"

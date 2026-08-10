@@ -1102,6 +1102,10 @@ global:
       enabled: false
       bucket: gitlab-agent-plan-content
       connection: {}
+    ciCatalogBundles:
+      enabled: false
+      bucket: gitlab-ci-catalog-bundles
+      connection: {}
     dependencyProxy:
       enabled: false
       bucket: gitlab-dependency-proxy
@@ -1355,8 +1359,9 @@ Each object type should be stored in different buckets.
 By default, GitLab uses these bucket names for each type:
 
 > [!note]
-> The Agent Plan Content bucket is currently in development and is used only on
-> GitLab.com. Self-managed users do not need to provision this bucket yet.
+> The Agent Plan Content and CI Catalog Bundles buckets are currently in
+> development and are used only on GitLab.com. Self-managed users do not need
+> to provision these buckets yet.
 
 | Object type                    | Bucket Name |
 |--------------------------------|-------------|
@@ -1368,6 +1373,7 @@ By default, GitLab uses these bucket names for each type:
 | Terraform State                | `gitlab-terraform-state` |
 | CI Secure Files                | `gitlab-ci-secure-files` |
 | Agent Plan Content (optional)  | `gitlab-agent-plan-content` |
+| CI Catalog Bundles (optional)  | `gitlab-ci-catalog-bundles` |
 | Dependency Proxy               | `gitlab-dependency-proxy` |
 | Pages                          | `gitlab-pages` |
 
@@ -1382,6 +1388,7 @@ You can use these defaults or configure the bucket names:
 --set global.appConfig.terraformState.bucket=<BUCKET NAME> \
 --set global.appConfig.ciSecureFiles.bucket=<BUCKET NAME> \
 --set global.appConfig.agentPlanContent.bucket=<BUCKET NAME> \
+--set global.appConfig.ciCatalogBundles.bucket=<BUCKET NAME> \
 --set global.appConfig.dependencyProxy.bucket=<BUCKET NAME>
 ```
 

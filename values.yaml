@@ -421,6 +421,10 @@ global:
       enabled: false
       bucket: gitlab-agent-plan-content
       connection: {}
+    ciCatalogBundles:
+      enabled: false
+      bucket: gitlab-ci-catalog-bundles
+      connection: {}
     dependencyProxy:
       enabled: false
       proxy_download: true
