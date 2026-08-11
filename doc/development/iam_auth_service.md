@@ -54,7 +54,7 @@ global:
 
 ### Workhorse OAuth routing
 
-When the integration is enabled, the chart also sets `IAM_SERVICE_URL` on the Workhorse container, built as `https://<http.host>:<http.port>`. Workhorse uses it to route OAuth requests to the IAM Auth service. It is derived from the values above, so there is nothing extra to configure. When the integration is disabled, the variable is not set and Workhorse sends all OAuth requests to Rails.
+When the integration is enabled, the chart also sets `IAM_SERVICE_URL` on the Workhorse container, built as `https://<http.host>:<http.port>`. Workhorse uses it to route OAuth requests to the IAM Auth service, but only for OAuth applications with the `proxy_oauth_requests_to_iam_service` feature flag enabled. It is derived from the values above, so there is nothing extra to configure. When the integration is disabled, the variable is not set and Workhorse sends all OAuth requests to Rails.
 
 ## Secret generation
 
