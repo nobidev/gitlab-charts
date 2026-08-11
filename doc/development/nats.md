@@ -56,32 +56,113 @@ a shared default, then override it per component:
 A component that does not set its own secret uses the shared
 `global.appConfig.nats.tls.secret`.
 
-## Starting a chart with NATS
-
-Configure the NATS connection details, then start the chart:
-
-```shell
-helm upgrade --install gitlab . \
-  --timeout 600s \
-  --set global.hosts.domain=YOUR_IP.nip.io \
-  --set global.hosts.externalIP=YOUR_IP \
-  --set global.appConfig.nats.servers[0]="tls://nats.example.com:4222" \
-  --set global.appConfig.nats.tls.enabled=true \
-  --set global.appConfig.nats.tls.secret=nats-client-tls \
-  -f examples/kind/values-base.yaml \
-  -f examples/kind/values-no-ssl.yaml
-```
-
-To connect without TLS, for example against a local development server, set only
-`servers` and leave `tls.enabled` unset:
-
-```shell
-helm upgrade --install gitlab . \
-  --set global.appConfig.nats.servers[0]="nats://127.0.0.1:4222"
-```
-
 ## Enabling audit event streaming through NATS
 
 Configuring the connection does not route audit events through NATS on its own. After
 NATS is configured, an administrator must enable the `use_nats_for_audit_streaming`
 application setting. Until then, Rails continues to use the Sidekiq delivery path.
+
+## Test plan and development setup
+
+Use this procedure to check authentication and mutual TLS between GitLab Rails and NATS.
+The commands use the `gitlab` namespace and the `gl` release name.
+
+### Issue the certificates
+
+1. Prepare a [development Kubernetes cluster](environment_setup.md#kubernetes-cluster).
+1. [Set up the common GitLab dependencies](external-dependencies.md#quick-start).
+   Do not install GitLab yet.
+1. [Install cert-manager](https://cert-manager.io/docs/installation/) to issue the
+   certificates for mutual TLS.
+1. Create the certificate authority, the server certificate, and the client certificate:
+
+   ```shell
+   kubectl apply -f examples/nats/mtls.certs.yaml
+   ```
+
+### Install a NATS server
+
+1. Add the NATS chart repository:
+
+   ```shell
+   helm repo add nats https://nats-io.github.io/k8s/helm/charts/
+   helm repo update
+   ```
+
+1. Create a `nats.values.yaml` file:
+
+   ```yaml
+   config:
+     jetstream:
+       enabled: true
+     nats:
+       tls:
+         enabled: true
+         secretName: server-cert-secret
+         merge:
+           verify: true
+   tlsCA:
+     enabled: true
+     secretName: my-ca-secret
+   ```
+
+1. Install the NATS chart:
+
+   ```shell
+   helm upgrade --install nats nats/nats -n gitlab -f nats.values.yaml
+   ```
+
+### Install GitLab with NATS configured
+
+1. Create a `gitlab.nats.values.yaml` file:
+
+   ```yaml
+   global:
+     appConfig:
+       nats:
+         tls:
+           enabled: true
+           secret: client-cert-secret
+         servers:
+           - "tls://nats.gitlab.svc.cluster.local:4222"
+         connectTimeout: 2
+         streamReplicas: 1
+   ```
+
+1. Install the GitLab chart:
+
+   ```shell
+   helm upgrade --install gl . -n gitlab \
+     -f .values/dev-external.values.yaml \
+     -f gitlab.nats.values.yaml \
+     --set global.hosts.domain=example.com \
+     --set certmanager-issuer.email=test@example.com \
+     --set installCertmanager=false
+   ```
+
+   `installCertmanager=false` skips the bundled cert-manager, because cert-manager is
+   already installed in the cluster. The domain and the issuer email do not have to be
+   valid, because this procedure needs no external connectivity.
+
+### Check the client connection
+
+1. Wait for the rollout to complete.
+1. Open a Rails console in the Toolbox pod:
+
+   ```shell
+   kubectl exec -tin gitlab deployments/gl-toolbox -- gitlab-rails console
+   ```
+
+1. Publish a message to a test subject:
+
+   ```ruby
+   client = Gitlab::Nats.client
+   client.publish('test.subject', '{"test": "data"}', message_id: 'test-123')
+   # => NATS::JetStream::Error::NoStreamResponse: nats: no response from stream
+   client.connected?
+   # => true
+   ```
+
+> [!note]
+> The `NoStreamResponse` error is expected, because no stream serves the test subject.
+> A connected client confirms that Rails authenticated to NATS over mutual TLS.

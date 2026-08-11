@@ -1,0 +1,82 @@
+# 1. Bootstrap issuer - just used to create our own CA
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned-issuer
+  namespace: gitlab
+spec:
+  selfSigned: {}
+---
+# 2. Our CA certificate, signed by the bootstrap issuer above
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: my-ca
+  namespace: gitlab
+spec:
+  isCA: true
+  commonName: my-selfsigned-ca
+  secretName: my-ca-secret
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: selfsigned-issuer
+    kind: Issuer
+    group: cert-manager.io
+---
+# 3. Real issuer, backed by our CA - this is what issues the server/client certs
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: my-ca-issuer
+  namespace: gitlab
+spec:
+  ca:
+    secretName: my-ca-secret
+---
+# 4. Server certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: server-cert
+  namespace: gitlab
+spec:
+  secretName: server-cert-secret
+  duration: 2160h   # 90d
+  renewBefore: 360h # 15d
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  commonName: nats.gitlab.svc.cluster.local
+  dnsNames:
+    - nats.gitlab.svc.cluster.local
+    - nats.gitlab.svc
+    - nats
+  usages:
+    - server auth
+  issuerRef:
+    name: my-ca-issuer
+    kind: Issuer
+    group: cert-manager.io
+---
+# 5. Client certificate (for mTLS auth)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: client-cert
+  namespace: gitlab
+spec:
+  secretName: client-cert-secret
+  duration: 2160h
+  renewBefore: 360h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  commonName: myclient
+  usages:
+    - client auth
+  issuerRef:
+    name: my-ca-issuer
+    kind: Issuer
+    group: cert-manager.io
