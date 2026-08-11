@@ -162,6 +162,7 @@ spec:
               mountPath: /srv/gitlab/config/secrets.yml
               subPath: rails-secrets/secrets.yml
             {{- include "gitlab.topologyService.volumeMounts" (dict "context" $ "secretsVolumeName" "toolbox-secrets") | nindent 12 }}
+            {{- include "gitlab.appConfig.nats.volumeMounts" (dict "context" $ "secretsVolumeName" "toolbox-secrets") | nindent 12 }}
             - name: toolbox-tmp
               mountPath: '/srv/gitlab/tmp'
               {{- if and .Values.persistence.enabled .Values.persistence.subPath }}
@@ -219,6 +220,7 @@ spec:
           {{-   include "gitlab.psql.secret" . | nindent 10 }}
           {{- end }}
           {{- include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.nats.mountSecrets" $ | nindent 10 }}
           {{- if include "gitlab.geo.secondary" $ }}
           - secret:
               name: {{ template "gitlab.geo.psql.password.secret" . }}

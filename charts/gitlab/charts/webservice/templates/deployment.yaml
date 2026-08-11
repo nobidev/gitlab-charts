@@ -296,6 +296,7 @@ spec:
               subPath: puma/puma.key
            {{- end }}
            {{- include "gitlab.topologyService.volumeMounts" (dict "context" $ "secretsVolumeName" "webservice-secrets") | nindent 12 }}
+           {{- include "gitlab.appConfig.nats.volumeMounts" (dict "context" $ "secretsVolumeName" "webservice-secrets") | nindent 12 }}
             - name: webservice-config
               mountPath: '/etc/krb5.conf'
               subPath: krb5.conf
@@ -514,6 +515,7 @@ spec:
                   path: "gitlab-workhorse/tls.key"
           {{- end }}
           {{- include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.nats.mountSecrets" $ | nindent 10 }}
           {{- if eq (include "webservice-metrics.tls.enabled" $) "true" }}
           - secret:
               name: {{ template "webservice-metrics.tls.secret" $ }}
