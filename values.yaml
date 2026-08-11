@@ -529,6 +529,28 @@ global:
       #   key:
       # grpcEndpoint:
 
+    ## NATS (JetStream messaging, used for audit event streaming).
+    ## An empty (or absent) `servers` list means NATS is not configured;
+    ## audit event streaming then falls back to the Sidekiq delivery path.
+    nats:
+      servers: []
+        # - "tls://nats.example.com:4222"
+      # connectTimeout: 2
+      ## JetStream stream replication factor. Defaults to 1 for single-node
+      ## deployments; set to 3 for a clustered NATS deployment.
+      # streamReplicas: 1
+      ## Mutual TLS. The GitLab NATS clusters use verify_and_map, so the
+      ## client must present a client certificate whose CN maps to a NATS
+      ## user. The secret must contain `ca.crt`, `tls.crt`, and `tls.key`.
+      ##
+      ## Because verify_and_map maps each certificate's CN to a distinct NATS
+      ## user, each Rails component (webservice, sidekiq, toolbox) typically
+      ## needs its own client certificate. The `secret` below is a shared
+      ## fallback; override it per component via `<component>.nats.tls.secret`.
+      tls:
+        enabled: false
+        # secret:
+
     ## https://docs.gitlab.com/charts/charts/globals#kas-settings
     gitlab_kas: {}
       # secret:

@@ -254,6 +254,7 @@ spec:
         {{- end }}
           volumeMounts:
           {{- include "gitlab.topologyService.volumeMounts" (dict "context" $ "secretsVolumeName" "sidekiq-secrets") | nindent 10 }}
+          {{- include "gitlab.appConfig.nats.volumeMounts" (dict "context" $ "secretsVolumeName" "sidekiq-secrets") | nindent 10 }}
           {{- tpl (default "" .extraVolumeMounts) $ | nindent 10 }}
           {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
         {{- if $metricsEnabled }}
@@ -344,6 +345,7 @@ spec:
                   path: "sidekiq-metrics/sidekiq-metrics.key"
           {{- end }}
           {{- include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.nats.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.gitaly.clientSecrets" $ | nindent 10 }}
           {{- if $.Values.global.clickhouse.enabled }}
             {{- include "gitlab.clickhouse.main.secrets" $ | nindent 10 }}

@@ -61,6 +61,10 @@ ChaosKube can be used to test the fault tolerance of highly available cloud-nati
 
 [Instructions](clickhouse.md) for configuring an external ClickHouse server with GitLab.
 
+### NATS
+
+[Instructions](nats.md) for configuring an external NATS server with GitLab.
+
 ## Versioning and Release
 
 Details on the version scheme, branching and tags can be found in [release document](release.md).
