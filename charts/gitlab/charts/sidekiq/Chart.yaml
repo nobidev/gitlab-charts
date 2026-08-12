@@ -1,7 +1,7 @@
 ---
 apiVersion: v2
 name: sidekiq
-version: 10.2.1
+version: 10.2.2
 appVersion: master
 description: Gitlab Sidekiq for asynchronous task processing in rails
 keywords:

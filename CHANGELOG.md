@@ -2,6 +2,13 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.2.2 (2026-08-12)
+
+### Fixed (2 changes)
+
+- [Prometheus: replace default scrapeConfigs to fix duplicate scrape job](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/f909262c2ca5958248abe8f58e29d2f696f656eb)
+- [Remove namespace from GatewayClass](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/66ccea6f39b45ec657b027a331e80d2dca85d117)
+
 ## 10.2.1 (2026-07-29)
 
 ### Changed (1 change)
@@ -27,6 +34,13 @@ entry.
 - [Update helm to v4.2.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a534dceb707369d69c458e09e60a7db2b8897fb5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5130))
 - [Update container-registry to v4.40.2-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/991bf40f76b4ea6f948765cb404f314daa0dd179) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5144))
 - [Update gitlab-runner to v0.90.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/68c3e43166a2bdcb7b50f16e185dc2773059a778) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5127))
+
+## 10.1.4 (2026-08-12)
+
+### Fixed (2 changes)
+
+- [Prometheus: replace default scrapeConfigs to fix duplicate scrape job](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/afd86bac30637e8ced8427808525b1a9c323de6f)
+- [Remove namespace from GatewayClass](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/7575a4c36333700aad6ce469154288132ee7a04f)
 
 ## 10.1.3 (2026-07-29)
 
@@ -72,6 +86,13 @@ entry.
 - [Update prometheus to v29.7.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c51ebff848d1b22e82ee67eb3c4dc5569a5af5e2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5070))
 - [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
 - [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
+
+## 10.0.6 (2026-08-12)
+
+### Fixed (2 changes)
+
+- [Prometheus: replace default scrapeConfigs to fix duplicate scrape job](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/86a75aea47e38fca6c800b6f82127130ca7267af)
+- [Remove namespace from GatewayClass](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/24a5b451c62be1992aa53a59464d402d033dc0e4)
 
 ## 10.0.5 (2026-07-29)
 
