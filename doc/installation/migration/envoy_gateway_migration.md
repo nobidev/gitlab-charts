@@ -35,6 +35,8 @@ all Gateway API components and continue using an Ingress controller.
 > similar to the [one step migration](#migrate-in-one-step). The actual time
 > may differ depending on your deployment, infrastructure, and configuration.
 
+<!-- markdownlint-disable MD028 -->
+
 > [!note]
 > Due to a known issue ([#6609](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6609)),
 > setting `global.gatewayApi.enabled: false` alone does not fully disable all
