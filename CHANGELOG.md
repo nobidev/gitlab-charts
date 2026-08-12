@@ -35,6 +35,13 @@ entry.
 - [Update container-registry to v4.40.2-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/991bf40f76b4ea6f948765cb404f314daa0dd179) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5144))
 - [Update gitlab-runner to v0.90.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/68c3e43166a2bdcb7b50f16e185dc2773059a778) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5127))
 
+## 10.1.4 (2026-08-12)
+
+### Fixed (2 changes)
+
+- [Prometheus: replace default scrapeConfigs to fix duplicate scrape job](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/afd86bac30637e8ced8427808525b1a9c323de6f)
+- [Remove namespace from GatewayClass](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/7575a4c36333700aad6ce469154288132ee7a04f)
+
 ## 10.1.3 (2026-07-29)
 
 ### Fixed (1 change)
