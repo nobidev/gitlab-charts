@@ -26,8 +26,14 @@ If you do not want to migrate, you can [continue using an Ingress controller](#c
 
 ## Continue using an Ingress controller
 
-If you do not want to migrate to Gateway API and Envoy Gateway, you can disable
+If you have not yet migrated to Gateway API and Envoy Gateway, you can disable
 all Gateway API components and continue using an Ingress controller.
+
+> [!warning]
+> If you have already migrated to Gateway API and are reverting to an Ingress
+> controller, expect approximately 5 minutes of downtime during the switch,
+> similar to the [one step migration](#migrate-in-one-step). The actual time
+> may differ depending on your deployment, infrastructure, and configuration.
 
 > [!note]
 > Due to a known issue ([#6609](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6609)),
