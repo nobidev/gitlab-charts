@@ -22,6 +22,53 @@ You can migrate from the bundled NGINX Ingress to Gateway API with either:
 - A [one step migration](#migrate-in-one-step)
 - A [multi-step migration](#migrate-with-zero-downtime) with zero downtime.
 
+If you do not want to migrate, you can [continue using an Ingress controller](#continue-using-an-ingress-controller).
+
+## Continue using an Ingress controller
+
+If you do not want to migrate to Gateway API and Envoy Gateway, you can disable
+all Gateway API components and continue using an Ingress controller.
+
+> [!note]
+> Due to a known issue ([#6609](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6609)),
+> setting `global.gatewayApi.enabled: false` alone does not fully disable all
+> Gateway API components. Until this is resolved, you must explicitly disable
+> each sub-option as shown below.
+
+1. Disable all Gateway API components in your values file:
+
+   ```yaml
+   global:
+     gatewayApi:
+       enabled: false
+       installEnvoy: false
+       configureCertmanager: false
+       httpToHttpsRedirect: false
+   ```
+
+1. Enable your Ingress controller and Ingress resources:
+
+   ```yaml
+   # Enable the bundled NGINX Ingress controller.
+   # Alternatively, configure an external Ingress controller:
+   # https://docs.gitlab.com/charts/advanced/external-ingress/
+   nginx-ingress:
+     enabled: true
+
+   global:
+     ingress:
+       enabled: true
+       configureCertmanager: true
+   ```
+
+1. Upgrade your GitLab chart release with the updated values.
+
+> [!warning]
+> All bundled Ingress controllers (NGINX, HAProxy, and Traefik) are deprecated
+> and will be removed in 20.0. After removal, you can still use Ingress resources
+> with an [external Ingress controller](../../advanced/external-ingress/_index.md),
+> but you must manage the controller yourself.
+
 ## Migrate in one step
 
 > [!warning]
