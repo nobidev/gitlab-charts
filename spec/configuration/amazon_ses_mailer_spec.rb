@@ -60,6 +60,54 @@ describe 'Amazon SES Mailer configuration' do
     end
   end
 
+  describe "when toolbox backup cronjob is enabled" do
+    let(:values_with_backup_cronjob) do
+      YAML.safe_load(%(
+        gitlab:
+          toolbox:
+            backups:
+              cron:
+                enabled: true
+      )).deep_merge(values)
+    end
+
+    let(:template) { HelmTemplate.new(values_with_backup_cronjob) }
+
+    it 'populates amazon-ses-mailer-secret-access-key into cronjob' do
+      job_template_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate')
+      job_pod_volumes = job_template_spec.dig('spec', 'template', 'spec', 'volumes')
+      init_secret = job_pod_volumes.find { |s| s['name'] == 'init-toolbox-secrets' }
+      secret_names = init_secret["projected"]["sources"].map do |item|
+        item['secret']['name']
+      end
+      expect(secret_names).to include('amazon-ses-mailer-secret-access-key')
+    end
+  end
+
+  describe "when toolbox database-reindex cronjob is enabled" do
+    let(:values_with_reindex_cronjob) do
+      YAML.safe_load(%(
+        gitlab:
+          toolbox:
+            databaseReindex:
+              cron:
+                enabled: true
+      )).deep_merge(values)
+    end
+
+    let(:template) { HelmTemplate.new(values_with_reindex_cronjob) }
+
+    it 'populates amazon-ses-mailer-secret-access-key into cronjob' do
+      job_template_spec = template.dig('CronJob/test-toolbox-db-reindex', 'spec', 'jobTemplate')
+      job_pod_volumes = job_template_spec.dig('spec', 'template', 'spec', 'volumes')
+      init_secret = job_pod_volumes.find { |s| s['name'] == 'init-toolbox-secrets' }
+      secret_names = init_secret["projected"]["sources"].map do |item|
+        item['secret']['name']
+      end
+      expect(secret_names).to include('amazon-ses-mailer-secret-access-key')
+    end
+  end
+
   describe 'when using an IAM role without static credentials' do
     let(:values) do
       HelmTemplate.with_defaults(%(
