@@ -46,12 +46,15 @@ all Gateway API components and continue using an Ingress controller.
        httpToHttpsRedirect: false
    ```
 
-1. Enable your Ingress controller and Ingress resources:
+1. Enable Ingress resources and configure your Ingress controller:
+
+   {{< tabs >}}
+
+   {{< tab title="Bundled NGINX Ingress" >}}
+
+   Enable the bundled NGINX Ingress controller and Ingress resources:
 
    ```yaml
-   # Enable the bundled NGINX Ingress controller.
-   # Alternatively, configure an external Ingress controller:
-   # https://docs.gitlab.com/charts/advanced/external-ingress/
    nginx-ingress:
      enabled: true
 
@@ -60,6 +63,30 @@ all Gateway API components and continue using an Ingress controller.
        enabled: true
        configureCertmanager: true
    ```
+
+   {{< /tab >}}
+
+   {{< tab title="External Ingress controller" >}}
+
+   If you manage your own Ingress controller outside of the GitLab chart,
+   you only need to ensure Ingress resources are rendered. Do not enable
+   the bundled NGINX Ingress controller.
+
+   ```yaml
+   nginx-ingress:
+     enabled: false
+
+   global:
+     ingress:
+       enabled: true
+       configureCertmanager: true
+   ```
+
+   For more details, see [external Ingress controller](../../advanced/external-ingress/_index.md).
+
+   {{< /tab >}}
+
+   {{< /tabs >}}
 
 1. Upgrade your GitLab chart release with the updated values.
 
