@@ -130,4 +130,23 @@ describe 'Amazon SES Mailer configuration' do
       expect(amazon_ses_mailer).not_to have_key('secret_access_key')
     end
   end
+
+  describe 'when region is not set' do
+    let(:values) do
+      HelmTemplate.with_defaults(%(
+          global:
+            appConfig:
+              amazon_ses_mailer:
+                enabled: true
+      ))
+    end
+
+    it 'omits region from gitlab.yml so the AWS SDK can resolve it', :aggregate_failures do
+      expect(template.exit_code).to eq(0)
+      gitlab_yml_erb = template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb')
+      amazon_ses_mailer = YAML.safe_load(gitlab_yml_erb)['production']['amazon_ses_mailer']
+      expect(amazon_ses_mailer['enabled']).to be(true)
+      expect(amazon_ses_mailer).not_to have_key('region')
+    end
+  end
 end

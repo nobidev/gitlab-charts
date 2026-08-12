@@ -34,7 +34,9 @@ microsoft_graph_mailer:
 {{- define "gitlab.appConfig.amazon_ses_mailer" -}}
 amazon_ses_mailer:
   enabled: {{ eq .amazon_ses_mailer.enabled true }}
+  {{- if .amazon_ses_mailer.region }}
   region: {{ .amazon_ses_mailer.region | quote }}
+  {{- end }}
   {{- if .amazon_ses_mailer.role_arn }}
   role_arn: {{ .amazon_ses_mailer.role_arn | quote }}
   {{- end }}
