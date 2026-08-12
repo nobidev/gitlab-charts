@@ -2,6 +2,13 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.0.6 (2026-08-12)
+
+### Fixed (2 changes)
+
+- [Prometheus: replace default scrapeConfigs to fix duplicate scrape job](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/86a75aea47e38fca6c800b6f82127130ca7267af)
+- [Remove namespace from GatewayClass](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/24a5b451c62be1992aa53a59464d402d033dc0e4)
+
 ## 10.0.5 (2026-07-29)
 
 ### Fixed (1 change)
