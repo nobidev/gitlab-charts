@@ -16,7 +16,7 @@ group :test do
 end
 
 group :rubocop do
-  gem 'gitlab-styles', '~> 14.0.0', require: false
+  gem 'gitlab-styles', '~> 14.1.0', require: false
 end
 
 group :development, :test do
@@ -24,7 +24,7 @@ group :development, :test do
 end
 
 group :development, :test, :danger do
-  gem 'gitlab-dangerfiles', '~> 4.11.0', require: false
+  gem 'gitlab-dangerfiles', '~> 4.12.0', require: false
 end
 
 group :development do
