@@ -242,12 +242,6 @@ all Gateway API components and continue using an Ingress controller.
 
 <!-- markdownlint-disable MD028 -->
 
-> [!note]
-> Due to a known issue ([#6609](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6609)),
-> setting `global.gatewayApi.enabled: false` alone does not fully disable all
-> Gateway API components. Until this is resolved, you must explicitly disable
-> each sub-option as shown below.
-
 1. Disable all Gateway API components in your values file:
 
    ```yaml
@@ -255,8 +249,6 @@ all Gateway API components and continue using an Ingress controller.
      gatewayApi:
        enabled: false
        installEnvoy: false
-       configureCertmanager: false
-       httpToHttpsRedirect: false
    ```
 
 1. Enable Ingress resources and configure your Ingress controller:
