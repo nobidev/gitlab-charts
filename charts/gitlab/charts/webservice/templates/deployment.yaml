@@ -530,6 +530,7 @@ spec:
                   path: "webservice-metrics/webservice-metrics.key"
           {{- end }}
           {{- include "gitlab.appConfig.microsoftGraphMailer.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.amazonSesMailer.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.incomingEmail.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.serviceDeskEmail.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.gitaly.clientSecrets" $ | nindent 10 }}

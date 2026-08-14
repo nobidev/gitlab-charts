@@ -257,6 +257,7 @@ spec:
           {{- include "gitlab.appConfig.duo.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.microsoftGraphMailer.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.amazonSesMailer.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.smtp.mountSecrets" $ | nindent 10 }}
 {{- if .Values.global.email.smime.enabled }}
       - name: smime-creds

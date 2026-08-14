@@ -107,6 +107,17 @@ helm inspect values gitlab/gitlab
 | `global.appConfig.microsoft_graph_mailer.azure_ad_endpoint`    | `https://login.microsoftonline.com` | The URL of the Azure Active Directory endpoint |
 | `global.appConfig.microsoft_graph_mailer.graph_endpoint`       | `https://graph.microsoft.com`       | The URL of the Microsoft Graph endpoint |
 
+### Amazon SES Mailer settings
+
+| Parameter                                                        | Default | Description |
+|------------------------------------------------------------------|---------|-------------|
+| `global.appConfig.amazon_ses_mailer.enabled`                     | `false` | Enable outgoing email via the Amazon SES API |
+| `global.appConfig.amazon_ses_mailer.region`                      | `""`    | The AWS region to use for the Amazon SES API |
+| `global.appConfig.amazon_ses_mailer.role_arn`                    |         | The ARN of the IAM role to assume. When set, GitLab uses AWS Security Token Service to obtain credentials |
+| `global.appConfig.amazon_ses_mailer.access_key_id`               |         | The AWS access key ID for static credentials. Omit to use an IAM role or the AWS credential provider chain |
+| `global.appConfig.amazon_ses_mailer.secret_access_key.key`       | `secret_access_key` | Key in `global.appConfig.amazon_ses_mailer.secret_access_key.secret` that contains the AWS secret access key |
+| `global.appConfig.amazon_ses_mailer.secret_access_key.secret`    | `""`    | Name of a `Secret` containing the AWS secret access key for static credentials |
+
 ## Incoming Email configuration
 
 ### Common settings
