@@ -2,6 +2,10 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 9.11.12 (2026-08-14)
+
+No changes.
+
 ## 9.11.11 (2026-08-13)
 
 No changes.
