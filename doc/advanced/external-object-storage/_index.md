@@ -107,11 +107,11 @@ Examples for [S3](https://distribution.github.io/distribution/storage-drivers/s3
 1. Configure the chart as documented.
 
 <!-- markdownlint-disable MD013 -->
-## LFS, Artifacts, Uploads, Packages, External Diffs, Terraform State, Dependency Proxy, Secure Files, Agent Plans
+## LFS, Artifacts, Uploads, Packages, External Diffs, Terraform State, Dependency Proxy, Secure Files, Agent Plans, CI Catalog Bundles
 <!-- markdownlint-enable MD013 -->
 
 Configuration of object storage for LFS, artifacts, uploads, packages, external
-diffs, Terraform state, Secure Files, Agent Plans, and pseudonymizer is done via the following keys:
+diffs, Terraform state, Secure Files, Agent Plans, CI Catalog Bundles, and pseudonymizer is done via the following keys:
 
 - `global.appConfig.lfs`
 - `global.appConfig.artifacts`
@@ -122,6 +122,7 @@ diffs, Terraform state, Secure Files, Agent Plans, and pseudonymizer is done via
 - `global.appConfig.terraformState`
 - `global.appConfig.ciSecureFiles`
 - `global.appConfig.agentPlanContent`
+- `global.appConfig.ciCatalogBundles`
 
 Note also that:
 
@@ -173,6 +174,10 @@ Below is an example of the configuration options:
 --set global.appConfig.agentPlanContent.bucket=gitlab-agent-plan-content
 --set global.appConfig.agentPlanContent.connection.secret=object-storage
 --set global.appConfig.agentPlanContent.connection.key=connection
+
+--set global.appConfig.ciCatalogBundles.bucket=gitlab-ci-catalog-bundles
+--set global.appConfig.ciCatalogBundles.connection.secret=object-storage
+--set global.appConfig.ciCatalogBundles.connection.key=connection
 ```
 
 See the [charts/globals documentation on appConfig](../../charts/globals.md#configure-appconfig-settings) for full details.

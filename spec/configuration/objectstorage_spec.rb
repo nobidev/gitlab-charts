@@ -55,10 +55,13 @@ describe 'ObjectStorage configuration' do
             agentPlanContent:
               enabled: true
               bucket: agent-plan-content-bucket
+            ciCatalogBundles:
+              enabled: true
+              bucket: ci-catalog-bundles-bucket
       ))
     end
 
-    let(:object_types) { %w[artifacts lfs uploads ci_secure_files agent_plan_content] }
+    let(:object_types) { %w[artifacts lfs uploads ci_secure_files agent_plan_content ci_catalog_bundles] }
 
     context 'with proxy_download configured' do
       it 'enables proxy_download for LFS' do
@@ -80,6 +83,7 @@ describe 'ObjectStorage configuration' do
           expect(object_store_config.dig('objects', 'uploads', 'bucket')).to eq('uploads-bucket')
           expect(object_store_config.dig('objects', 'ci_secure_files', 'bucket')).to eq('ci-secure-files-bucket')
           expect(object_store_config.dig('objects', 'agent_plan_content', 'bucket')).to eq('agent-plan-content-bucket')
+          expect(object_store_config.dig('objects', 'ci_catalog_bundles', 'bucket')).to eq('ci-catalog-bundles-bucket')
 
           object_types.each do |obj_type|
             expect(raw_config).not_to include("/etc/gitlab/objectstorage/#{obj_type}")
@@ -300,6 +304,36 @@ describe 'ObjectStorage configuration' do
         global:
           appConfig:
             agentPlanContent:
+              enabled: true
+      ))
+    end
+
+    let(:disabled_settings) { default_values }
+
+    it_behaves_like 'storage-specific settings'
+  end
+
+  describe 'global.appConfig.ciCatalogBundles.enabled' do
+    let(:objectstorage_config_file) { '/etc/gitlab/objectstorage/ci_catalog_bundles' }
+
+    let(:connection_settings) do
+      default_values.deep_merge(
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              ciCatalogBundles:
+                connection:
+                  secret: gitlab-object-storage
+                  key: connection
+        ))
+      )
+    end
+
+    let(:enabled_settings) do
+      HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            ciCatalogBundles:
               enabled: true
       ))
     end

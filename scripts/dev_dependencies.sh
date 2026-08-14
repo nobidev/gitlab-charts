@@ -84,6 +84,9 @@ global:
     agentPlanContent:
       enabled: true
       bucket: gitlab-agent-plan-content
+    ciCatalogBundles:
+      enabled: true
+      bucket: gitlab-ci-catalog-bundles
     dependencyProxy:
       enabled: true
       bucket: gitlab-dependency-proxy
