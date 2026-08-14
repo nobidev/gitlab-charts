@@ -285,6 +285,14 @@ all Gateway API components and continue using an Ingress controller.
 
    {{< tab title="Bundled NGINX Ingress" >}}
 
+   > [!warning]
+   > Re-enabling the bundled NGINX Ingress controller is the **least preferred**
+   > option. It is deprecated and will be removed in 20.0. The upstream NGINX
+   > Ingress project is also archived, which limits GitLab's ability to address
+   > security vulnerabilities and compatibility issues. Consider using an
+   > [external Ingress controller](../../advanced/external-ingress/_index.md)
+   > or [migrating to Envoy Gateway](#migrate-in-one-step) instead.
+
    Enable the bundled NGINX Ingress controller and Ingress resources:
 
    ```yaml
@@ -302,12 +310,6 @@ all Gateway API components and continue using an Ingress controller.
    {{< /tabs >}}
 
 1. Upgrade your GitLab chart release with the updated values.
-
-> [!warning]
-> All bundled Ingress controllers (NGINX, HAProxy, and Traefik) are deprecated
-> and will be removed in 20.0. After removal, you can still use Ingress resources
-> with an [external Ingress controller](../../advanced/external-ingress/_index.md),
-> but you must manage the controller yourself.
 
 ## Timeout settings
 
