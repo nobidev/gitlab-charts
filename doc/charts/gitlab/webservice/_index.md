@@ -719,7 +719,7 @@ Envoy Gateway defaults for the HTTP/2 flow-control windows are:
 
 - 64 KiB for streams.
 - 1 MiB for connections.
- 
+
 A single HTTP/2 stream is bound by `initialStreamWindowSize / RTT`,
 so the 64 KiB default throttles one stream to roughly 300 KiB/s at
 ~200 ms round-trip time.
