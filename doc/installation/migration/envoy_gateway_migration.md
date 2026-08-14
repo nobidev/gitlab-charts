@@ -288,8 +288,7 @@ all Gateway API components and continue using an Ingress controller.
    > [!warning]
    > Re-enabling the bundled NGINX Ingress controller is the **least preferred**
    > option. It is deprecated and will be removed in 20.0. The upstream NGINX
-   > Ingress project is also archived, which limits GitLab's ability to address
-   > security vulnerabilities and compatibility issues. Consider using an
+   > Ingress project is also archived. Consider using an
    > [external Ingress controller](../../advanced/external-ingress/_index.md)
    > or [migrating to Envoy Gateway](#migrate-in-one-step) instead.
 
