@@ -24,9 +24,19 @@ function pebble_pki_dir() {
   echo -n "${CI_PROJECT_DIR:-$(pwd)}/pebble-pki"
 }
 
+# True when the file parses as an X.509 certificate. Used instead of grepping for
+# the PEM header, which also passes on a body truncated mid-transfer.
+function pebble_pem_is_cert() {
+  openssl x509 -noout -in "${1}" >/dev/null 2>&1
+}
+
 function deploy_pebble() {
-  if [ -z "${NAMESPACE}" ]; then
-    echo "Error: NAMESPACE environment variable is not set"
+  # HOST_SUFFIX and KUBE_INGRESS_BASE_DOMAIN name the Secret key the runner
+  # looks up, so an empty one fails much later and less obviously.
+  if [ -z "${NAMESPACE}" ] || [ -z "${HOST_SUFFIX}" ] || [ -z "${KUBE_INGRESS_BASE_DOMAIN}" ]; then
+    echo "ERROR: NAMESPACE, HOST_SUFFIX and KUBE_INGRESS_BASE_DOMAIN must all be set" \
+         "(NAMESPACE='${NAMESPACE}' HOST_SUFFIX='${HOST_SUFFIX}'" \
+         "KUBE_INGRESS_BASE_DOMAIN='${KUBE_INGRESS_BASE_DOMAIN}')"
     exit 1
   fi
 
@@ -55,7 +65,10 @@ function deploy_pebble() {
   # port-forward fetch verifies without hostname tricks.
   kubectl get configmap pebble -n "${NAMESPACE}" \
     -o jsonpath="{.data['root-cert\.pem']}" > "${pki_dir}/root-cert.pem"
-  grep -q "BEGIN CERTIFICATE" "${pki_dir}/root-cert.pem"
+  if ! pebble_pem_is_cert "${pki_dir}/root-cert.pem"; then
+    echo "ERROR: configmap/pebble in ${NAMESPACE} has no parseable root-cert.pem"
+    exit 1
+  fi
 
   pebble_fetch_issuing_root
 }
@@ -79,7 +92,7 @@ function pebble_fetch_issuing_root() {
   for _ in $(seq 1 30); do
     if curl -sf --cacert "${pki_dir}/root-cert.pem" \
          "https://localhost:8444/roots/0" -o "${root_pem}" \
-       && grep -q "BEGIN CERTIFICATE" "${root_pem}"; then
+       && pebble_pem_is_cert "${root_pem}"; then
       fetched=true
       break
     fi
