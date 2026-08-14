@@ -8,5 +8,6 @@ metadata:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
     {{- include "gitlab.app.kubernetes.io.labels" $ | nindent 4 }}
-{{ include (print $.Template.BasePath "/_statefulset_spec.yaml") . }}
+    internal: 'true'
+{{ include (print $.Template.BasePath "/_statefulset_spec.yaml") (merge (dict) $ (dict "internal" true)) }}
 {{- end }}

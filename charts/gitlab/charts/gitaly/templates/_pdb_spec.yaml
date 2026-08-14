@@ -8,6 +8,9 @@ spec:
     matchLabels:
       app: {{ template "name" . }}
       release: {{ .Release.Name }}
+      {{- if .internal }}
+      internal: 'true'
+      {{- end }}
       {{- if .storage }}
       storage: {{ .storage.name }}
       {{- end }}

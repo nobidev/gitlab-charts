@@ -8,6 +8,9 @@ spec:
       {{- if .storage }}
       storage: {{ .storage.name }}
       {{- end }}
+      {{- if .internal }}
+      internal: 'true'
+      {{- end }}
   {{- if .storage }}
   serviceName: {{ include "gitlab.praefect.gitaly.serviceName" (dict "context" . "name" .storage.name) }}
   {{- else }}
@@ -32,6 +35,9 @@ spec:
       labels:
         {{- if .storage }}
         storage: {{ .storage.name }}
+        {{- end }}
+        {{- if .internal }}
+        internal: 'true'
         {{- end }}
         {{- include "gitlab.standardLabels" . | nindent 8 }}
         {{- include "gitlab.commonLabels" . | nindent 8 }}
