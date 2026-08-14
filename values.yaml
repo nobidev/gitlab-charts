@@ -444,6 +444,17 @@ global:
       azure_ad_endpoint: "https://login.microsoftonline.com"
       graph_endpoint: "https://graph.microsoft.com"
 
+    ## https://docs.gitlab.com/charts/charts/globals#outgoing-email
+    ## Amazon SES Mailer settings
+    amazon_ses_mailer:
+      enabled: false
+      region: ""
+      # role_arn: "arn:aws:iam::123456789012:role/your-role"
+      # access_key_id: "YOUR-AWS-ACCESS-KEY-ID"
+      secret_access_key:
+        secret: ""
+        key: secret_access_key
+
     ## https://docs.gitlab.com/charts/installation/command-line-options.html#incoming-email-configuration
     ## https://docs.gitlab.com/charts/charts/gitlab/mailroom/index.html#incoming-email
     incomingEmail:

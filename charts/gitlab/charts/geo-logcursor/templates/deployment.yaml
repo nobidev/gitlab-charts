@@ -188,6 +188,8 @@ spec:
               items:
                 - key: {{ template "gitlab.geo.psql.password.key" . }}
                   path: postgres/geo-psql-password
+          {{- include "gitlab.appConfig.microsoftGraphMailer.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.amazonSesMailer.mountSecrets" $ | nindent 10 }}
       - name: logcursor-secrets
         emptyDir:
           medium: "Memory"

@@ -98,6 +98,20 @@ email_smime:
 {{- end }}
 {{- end -}}{{/* "gitlab.appConfig.microsoftGraphMailer.mountSecrets" "*/}}
 
+{{/* amazonSesMailer secrets */}}
+{{- define "gitlab.appConfig.amazonSesMailer.mountSecrets" -}}
+# mount secrets for amazonSesMailer
+{{- if $.Values.global.appConfig.amazon_ses_mailer.enabled }}
+{{- if $.Values.global.appConfig.amazon_ses_mailer.secret_access_key.secret }}
+- secret:
+    name: {{ $.Values.global.appConfig.amazon_ses_mailer.secret_access_key.secret }}
+    items:
+      - key: {{ $.Values.global.appConfig.amazon_ses_mailer.secret_access_key.key }}
+        path: amazon_ses_mailer/secret_access_key
+{{- end }}
+{{- end }}
+{{- end -}}{{/* "gitlab.appConfig.amazonSesMailer.mountSecrets" "*/}}
+
 {{/* SMTP authentication secret */}}
 {{- define "gitlab.smtp.mountSecrets" -}}
 # mount secrets for SMTP
