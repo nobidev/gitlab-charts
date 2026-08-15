@@ -49,12 +49,12 @@ describe 'checkConfig template' do
       YAML.safe_load(%(
         global:
           appConfig:
-            mobile_push:
+            mobilePush:
               apns:
-                auth_key:
+                authKey:
                   secret: gitlab-mobile-push-apns
-                key_id: ABC123DEFG
-                team_id: DEF456GHIJ
+                keyId: ABC123DEFG
+                teamId: DEF456GHIJ
       )).deep_merge!(default_required_values)
     end
 
@@ -62,9 +62,9 @@ describe 'checkConfig template' do
       YAML.safe_load(%(
         global:
           appConfig:
-            mobile_push:
+            mobilePush:
               apns:
-                auth_key:
+                authKey:
                   secret: gitlab-mobile-push-apns
       )).deep_merge!(default_required_values)
     end

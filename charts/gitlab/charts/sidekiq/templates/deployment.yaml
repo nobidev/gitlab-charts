@@ -274,7 +274,7 @@ spec:
             mountPath: '/etc/krb5.conf'
             subPath: krb5.conf
           {{- include "gitlab.appConfig.kerberos.volumeMount" $ | nindent 10 }}
-          {{- include "gitlab.appConfig.mobile_push.volumeMount" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.mobilePush.volumeMount" $ | nindent 10 }}
           - name: sidekiq-config
             mountPath: '/srv/gitlab/config/initializers/smtp_settings.rb'
             subPath: smtp_settings.rb
@@ -317,7 +317,7 @@ spec:
       {{- include "gitlab.psql.ssl.volume" $ | nindent 6 }}
       {{- include "gitlab.geo.psql.ssl.volume" $ | nindent 6 }}
       {{- include "gitlab.appConfig.kerberos.volume" $ | nindent 6 }}
-      {{- include "gitlab.appConfig.mobile_push.volume" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.mobilePush.volume" $ | nindent 6 }}
     {{- if $metricsEnabled }}
       - name: sidekiq-metrics
         emptyDir:

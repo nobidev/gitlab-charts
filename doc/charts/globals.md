@@ -1918,32 +1918,34 @@ global:
 Use these settings to let GitLab deliver mobile push notifications through the
 Apple Push Notification service (APNs). The `.p8` provider token signing key is
 mounted into the Webservice, Sidekiq, and Toolbox pods from a Kubernetes
-secret; delivery is skipped entirely when no key is configured.
-
-```shell
-kubectl create secret generic gitlab-mobile-push-apns-auth-key --namespace=gitlab --from-file=auth_key=./AuthKey.p8
-```
+secret; delivery is skipped entirely when no key is configured. See
+[mobile push APNs signing key](../installation/secrets.md#mobile-push-apns-signing-key)
+for creating the secret.
 
 ```yaml
 global:
   appConfig:
-    mobile_push:
+    mobilePush:
       apns:
-        auth_key:
+        authKey:
           secret: gitlab-mobile-push-apns-auth-key
           key: auth_key
-        key_id: "ABC123DEFG"
-        team_id: "DEF456GHIJ"
+        keyId: "ABC123DEFG"
+        teamId: "DEF456GHIJ"
         topic: ""
 ```
 
-| Name              |  Type  | Default    | Description |
-|:------------------|:------:|:-----------|:------------|
-| `auth_key.secret` | String |            | The name of the Kubernetes secret holding the APNs provider token signing key (`.p8`) |
-| `auth_key.key`    | String | `auth_key` | The key within the secret that contains the `.p8` file contents |
-| `key_id`          | String |            | The 10-character identifier of the APNs signing key |
-| `team_id`         | String |            | The Apple Developer team identifier |
-| `topic`           | String |            | `apns-topic` header for subscriptions that carry no bundle identifier; when unset, the Rails default applies |
+| Name             |  Type  | Default    | Description |
+|:-----------------|:------:|:-----------|:------------|
+| `authKey.secret` | String |            | The name of the Kubernetes secret holding the APNs provider token signing key (`.p8`) |
+| `authKey.key`    | String | `auth_key` | The key within the secret that contains the `.p8` file contents |
+| `keyId`          | String |            | The 10-character identifier of the APNs signing key |
+| `teamId`         | String |            | The Apple Developer team identifier |
+| `topic`          | String |            | `apns-topic` header for subscriptions that carry no bundle identifier; when unset, the Rails default applies |
+
+Pushes are dispatched by the Sidekiq pods of the site where to-dos are
+created — on a [Geo](../advanced/geo/_index.md) deployment, the primary site. Configure
+these settings on all sites so that a promoted secondary can deliver pushes.
 
 ### `gitlab_docs` settings
 

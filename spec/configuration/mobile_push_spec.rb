@@ -24,13 +24,13 @@ describe 'Mobile push configuration' do
       HelmTemplate.with_defaults(%(
         global:
           appConfig:
-            mobile_push:
+            mobilePush:
               apns:
-                auth_key:
+                authKey:
                   secret: gitlab-mobile-push-apns-auth-key
                   key: auth_key
-                key_id: "ABC123DEFG"
-                team_id: "DEF456GHIJ"
+                keyId: "ABC123DEFG"
+                teamId: "DEF456GHIJ"
       ))
     end
 
@@ -69,12 +69,12 @@ describe 'Mobile push configuration' do
         HelmTemplate.with_defaults(%(
           global:
             appConfig:
-              mobile_push:
+              mobilePush:
                 apns:
-                  auth_key:
+                  authKey:
                     secret: gitlab-mobile-push-apns-auth-key
-                  key_id: "ABC123DEFG"
-                  team_id: "DEF456GHIJ"
+                  keyId: "ABC123DEFG"
+                  teamId: "DEF456GHIJ"
                   topic: "com.example.app"
         ))
       end

@@ -650,13 +650,13 @@ global:
       simpleLdapLinkingAllowedRealms: []
 
     ## https://docs.gitlab.com/charts/charts/globals#mobile-push-notification-settings
-    mobile_push:
+    mobilePush:
       apns:
-        auth_key:
+        authKey:
           # secret:
           key: auth_key
-        key_id: ""
-        team_id: ""
+        keyId: ""
+        teamId: ""
         topic: ""
 
     ## https://docs.gitlab.com/charts/charts/globals#configure-appconfig-settings
