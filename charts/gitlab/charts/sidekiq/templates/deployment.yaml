@@ -383,12 +383,14 @@ spec:
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "ci_secure_files" "config" $.Values.global.appConfig.ciSecureFiles) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "agent_plan_content" "config" $.Values.global.appConfig.agentPlanContent) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "ci_catalog_bundles" "config" $.Values.global.appConfig.ciCatalogBundles) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 }}
           {{- include "gitlab.appConfig.ldap.servers.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.duo.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.microsoftGraphMailer.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.amazonSesMailer.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.smtp.mountSecrets" $ | nindent 10 }}
 {{- if $.Values.global.email.smime.enabled }}
       - name: smime-creds

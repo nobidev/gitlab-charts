@@ -13,6 +13,9 @@ global:
     agentPlanContent:
       bucket: gitlab-agent-plan-content-storage
       enabled: true
+    ciCatalogBundles:
+      bucket: gitlab-ci-catalog-bundles-storage
+      enabled: true
     dependencyProxy:
       bucket: gitlab-dependency-proxy
       enabled: true

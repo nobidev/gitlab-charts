@@ -31,6 +31,23 @@ microsoft_graph_mailer:
   graph_endpoint: {{ .microsoft_graph_mailer.graph_endpoint | quote }}
 {{- end -}}
 
+{{- define "gitlab.appConfig.amazon_ses_mailer" -}}
+amazon_ses_mailer:
+  enabled: {{ eq .amazon_ses_mailer.enabled true }}
+  {{- if .amazon_ses_mailer.region }}
+  region: {{ .amazon_ses_mailer.region | quote }}
+  {{- end }}
+  {{- if .amazon_ses_mailer.role_arn }}
+  role_arn: {{ .amazon_ses_mailer.role_arn | quote }}
+  {{- end }}
+  {{- if .amazon_ses_mailer.access_key_id }}
+  access_key_id: {{ .amazon_ses_mailer.access_key_id | quote }}
+  {{- end }}
+  {{- if .amazon_ses_mailer.secret_access_key.secret }}
+  secret_access_key: <%= File.read('/etc/gitlab/amazon_ses_mailer/secret_access_key').strip.to_json %>
+  {{- end }}
+{{- end -}}
+
 {{- define "gitlab.appConfig.incoming_email" -}}
 incoming_email:
   enabled: {{ eq .incomingEmail.enabled true }}

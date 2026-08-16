@@ -76,6 +76,7 @@ documentation.
   - [Microsoft Graph client secret for incoming emails](#microsoft-graph-client-secret-for-incoming-emails)
   - [Microsoft Graph client secret for Service Desk](#microsoft-graph-client-secret-for-service-desk-emails)
   - [Microsoft Graph client secret for outgoing emails](#microsoft-graph-client-secret-for-outgoing-emails)
+  - [Amazon SES secret access key for outgoing emails](#amazon-ses-secret-access-key-for-outgoing-emails)
   - [S/MIME Certificate](#smime-certificate)
   - [Smartcard Authentication](#smartcard-authentication)
 
@@ -554,6 +555,23 @@ in your Helm command.
 
 > [!note]
 > Use the `Secret` name, not the _actual password_ when configuring the Helm property.
+
+### Amazon SES secret access key for outgoing emails
+
+Use this secret only when authenticating to Amazon SES with static credentials. When you
+authenticate with an IAM role or the AWS credential provider chain, you do not need this secret.
+
+Store the AWS secret access key in a Kubernetes secret:
+
+```shell
+kubectl create secret generic amazon-ses-mailer-secret-access-key --from-literal=secret_access_key=your-secret-here
+```
+
+Then, use `--set global.appConfig.amazon_ses_mailer.secret_access_key.secret=amazon-ses-mailer-secret-access-key`
+in your Helm command.
+
+> [!note]
+> Use the `Secret` name, not the _actual secret access key_ when configuring the Helm property.
 
 ### S/MIME Certificate
 
