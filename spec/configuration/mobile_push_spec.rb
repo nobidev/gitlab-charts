@@ -48,19 +48,21 @@ describe 'Mobile push configuration' do
         expect(apns).not_to have_key('topic')
       end
 
-      deployments_with_mobile_push.each_value do |deployment|
+      deployments_with_mobile_push.each do |chart, deployment|
         volumes = template.dig(deployment, 'spec', 'template', 'spec', 'volumes')
-        key_volume = volumes.find { |volume| volume['name'] == 'mobile-push-apns-auth-key' }
-        expect(key_volume).not_to be_nil
-        expect(key_volume['secret']['secretName']).to eq('gitlab-mobile-push-apns-auth-key')
+        init_secrets = volumes.find { |volume| volume['name'] == "init-#{chart}-secrets" }
+        expect(init_secrets).not_to be_nil
 
-        rails_containers = template.dig(deployment, 'spec', 'template', 'spec', 'containers')
-        mounts = rails_containers.first['volumeMounts']
-        key_mount = mounts.find { |mount| mount['name'] == 'mobile-push-apns-auth-key' }
-        expect(key_mount).not_to be_nil
-        expect(key_mount['mountPath']).to eq('/etc/gitlab/mobile_push/apns_auth_key.p8')
-        expect(key_mount['subPath']).to eq('auth_key')
-        expect(key_mount['readOnly']).to be(true)
+        source = init_secrets['projected']['sources'].find do |projected|
+          projected.dig('secret', 'name') == 'gitlab-mobile-push-apns-auth-key'
+        end
+        expect(source).not_to be_nil
+        expect(source['secret']['items']).to eq(
+          [{ 'key' => 'auth_key', 'path' => 'mobile_push/apns_auth_key.p8' }]
+        )
+
+        configure = template.dig("ConfigMap/test-#{chart}", 'data', 'configure')
+        expect(configure).to include('mobile_push')
       end
     end
 
@@ -99,9 +101,11 @@ describe 'Mobile push configuration' do
         expect(gitlab_yml['production']).not_to have_key('mobile_push')
       end
 
-      deployments_with_mobile_push.each_value do |deployment|
+      deployments_with_mobile_push.each do |chart, deployment|
         volumes = template.dig(deployment, 'spec', 'template', 'spec', 'volumes')
-        expect(volumes.find { |volume| volume['name'] == 'mobile-push-apns-auth-key' }).to be_nil
+        init_secrets = volumes.find { |volume| volume['name'] == "init-#{chart}-secrets" }
+        sources = init_secrets['projected']['sources']
+        expect(sources.any? { |projected| projected.dig('secret', 'name').to_s.include?('mobile-push') }).to be(false)
       end
     end
   end

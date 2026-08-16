@@ -11,21 +11,13 @@ mobile_push:
 {{- end }}
 {{- end -}}{{/* "gitlab.appConfig.mobilePush.configuration" */}}
 
-{{- define "gitlab.appConfig.mobilePush.volume" -}}
+{{- define "gitlab.appConfig.mobilePush.mountSecrets" -}}
 {{- if .Values.global.appConfig.mobilePush.apns.authKey.secret }}
-# volume for mobile push APNs auth key
-- name: mobile-push-apns-auth-key
-  secret:
-    secretName: {{ .Values.global.appConfig.mobilePush.apns.authKey.secret }}
+# mount secret for mobile push APNs auth key
+- secret:
+    name: {{ .Values.global.appConfig.mobilePush.apns.authKey.secret }}
+    items:
+      - key: {{ default "auth_key" .Values.global.appConfig.mobilePush.apns.authKey.key }}
+        path: mobile_push/apns_auth_key.p8
 {{- end -}}
-{{- end -}}{{/* "gitlab.appConfig.mobilePush.volume" */}}
-
-{{- define "gitlab.appConfig.mobilePush.volumeMount" -}}
-{{- if .Values.global.appConfig.mobilePush.apns.authKey.secret }}
-# volume mount for mobile push APNs auth key
-- mountPath: "/etc/gitlab/mobile_push/apns_auth_key.p8"
-  subPath: {{ .Values.global.appConfig.mobilePush.apns.authKey.key }}
-  name: mobile-push-apns-auth-key
-  readOnly: true
-{{- end -}}
-{{- end -}}{{/* "gitlab.appConfig.mobilePush.volumeMount" */}}
+{{- end -}}{{/* "gitlab.appConfig.mobilePush.mountSecrets" */}}

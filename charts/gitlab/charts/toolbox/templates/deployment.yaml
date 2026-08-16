@@ -152,7 +152,6 @@ spec:
               mountPath: '/etc/krb5.conf'
               subPath: krb5.conf
             {{- include "gitlab.appConfig.kerberos.volumeMount" $ | nindent 12 }}
-            {{- include "gitlab.appConfig.mobilePush.volumeMount" $ | nindent 12 }}
             - name: toolbox-config
               mountPath: '/srv/gitlab/config/initializers/smtp_settings.rb'
               subPath: smtp_settings.rb
@@ -183,7 +182,6 @@ spec:
       {{- include "gitlab.psql.ssl.volume" . | nindent 6 }}
       {{- include "gitlab.geo.psql.ssl.volume" . | nindent 6 }}
       {{- include "gitlab.appConfig.kerberos.volume" $ | nindent 6 }}
-      {{- include "gitlab.appConfig.mobilePush.volume" $ | nindent 6 }}
       {{- include "toolbox.registry.databaseBackupCredentialsVolume" . | nindent 6 }}
       {{- include "toolbox.openbao.databaseBackupCredentialsVolume" . | nindent 6 }}
       - name: toolbox-config
@@ -244,6 +242,7 @@ spec:
           {{- include "gitlab.appConfig.iamAuthService.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.iamDataAccessService.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.knowledgeGraph.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.mobilePush.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "artifacts" "config" $.Values.global.appConfig.artifacts) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs) | nindent 10 }}
