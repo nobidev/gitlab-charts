@@ -3,14 +3,6 @@ require 'helm_template_helper'
 require 'yaml'
 
 describe 'Mobile push configuration' do
-  let(:charts_with_mobile_push) do
-    [
-      'webservice',
-      'sidekiq',
-      'toolbox'
-    ]
-  end
-
   let(:deployments_with_mobile_push) do
     {
       'webservice' => 'Deployment/test-webservice-default',
@@ -39,7 +31,7 @@ describe 'Mobile push configuration' do
     it 'populates mobile_push into gitlab.yml and mounts the key', :aggregate_failures do
       expect(template.exit_code).to eq(0)
 
-      charts_with_mobile_push.each do |chart|
+      deployments_with_mobile_push.each_key do |chart|
         gitlab_yml = YAML.safe_load(template.dig("ConfigMap/test-#{chart}", 'data', 'gitlab.yml.erb'))
         apns = gitlab_yml['production']['mobile_push']['apns']
         expect(apns['auth_key_path']).to eq('/etc/gitlab/mobile_push/apns_auth_key.p8')
@@ -49,17 +41,10 @@ describe 'Mobile push configuration' do
       end
 
       deployments_with_mobile_push.each do |chart, deployment|
-        volumes = template.dig(deployment, 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |volume| volume['name'] == "init-#{chart}-secrets" }
-        expect(init_secrets).not_to be_nil
-
-        source = init_secrets['projected']['sources'].find do |projected|
-          projected.dig('secret', 'name') == 'gitlab-mobile-push-apns-auth-key'
-        end
-        expect(source).not_to be_nil
-        expect(source['secret']['items']).to eq(
-          [{ 'key' => 'auth_key', 'path' => 'mobile_push/apns_auth_key.p8' }]
+        item = template.find_projected_secret_key(
+          deployment, "init-#{chart}-secrets", 'gitlab-mobile-push-apns-auth-key', 'auth_key'
         )
+        expect(item).to eq('key' => 'auth_key', 'path' => 'mobile_push/apns_auth_key.p8')
 
         configure = template.dig("ConfigMap/test-#{chart}", 'data', 'configure')
         expect(configure).to include('mobile_push')
@@ -96,16 +81,16 @@ describe 'Mobile push configuration' do
     it 'renders no mobile_push section and no key volume', :aggregate_failures do
       expect(template.exit_code).to eq(0)
 
-      charts_with_mobile_push.each do |chart|
+      deployments_with_mobile_push.each_key do |chart|
         gitlab_yml = YAML.safe_load(template.dig("ConfigMap/test-#{chart}", 'data', 'gitlab.yml.erb'))
         expect(gitlab_yml['production']).not_to have_key('mobile_push')
       end
 
       deployments_with_mobile_push.each do |chart, deployment|
-        volumes = template.dig(deployment, 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |volume| volume['name'] == "init-#{chart}-secrets" }
-        sources = init_secrets['projected']['sources']
-        expect(sources.any? { |projected| projected.dig('secret', 'name').to_s.include?('mobile-push') }).to be(false)
+        found = template.find_projected_secret(
+          deployment, "init-#{chart}-secrets", 'gitlab-mobile-push-apns-auth-key'
+        )
+        expect(found).to be(false)
       end
     end
   end

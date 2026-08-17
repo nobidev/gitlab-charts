@@ -17,7 +17,7 @@ mobile_push:
 - secret:
     name: {{ .Values.global.appConfig.mobilePush.apns.authKey.secret }}
     items:
-      - key: {{ default "auth_key" .Values.global.appConfig.mobilePush.apns.authKey.key }}
+      - key: {{ .Values.global.appConfig.mobilePush.apns.authKey.key }}
         path: mobile_push/apns_auth_key.p8
 {{- end -}}
 {{- end -}}{{/* "gitlab.appConfig.mobilePush.mountSecrets" */}}
