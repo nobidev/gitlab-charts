@@ -8,7 +8,7 @@ title: Uninstall the GitLab Helm chart
 To uninstall the GitLab Helm chart, run the following command:
 
 ```shell
-helm uninstall RELEASE -n NAMESPACE
+helm uninstall <RELEASE> -n <NAMESPACE>
 ```
 
 ## Clean up orphaned Gateway API resources
@@ -17,10 +17,10 @@ If you use the bundled Envoy Gateway controller, run the following commands to c
 leftover resources:
 
 ```shell
-kubectl patch gatewayclass RELEASE-gw \
+kubectl patch gatewayclass <RELEASE>-gw \
   -p '{"metadata":{"finalizers":[]}}' --type=merge
 kubectl delete secrets \
-  -n NAMESPACE \
+  -n <NAMESPACE> \
   -l control-plane=envoy-gateway
 ```
 
@@ -38,7 +38,7 @@ To avoid this problem, delete the `LoadBalancer` Service before you uninstall th
 for AWS to remove the load balancer and the security group:
 
 ```shell
-kubectl delete service RELEASE-nginx-ingress-controller -n NAMESPACE
+kubectl delete service <RELEASE>-nginx-ingress-controller -n <NAMESPACE>
 ```
 
 If you already uninstalled the chart, remove the orphaned resources manually:
@@ -83,7 +83,7 @@ _consciously_ remove them, as they affect re-deployment should you choose to.
 The PVCs and Secrets have the `release` label set, so you can find these with:
 
 ```shell
-kubectl get pvc,secret -n NAMESPACE -l release=RELEASE
+kubectl get pvc,secret -n <NAMESPACE> -l release=<RELEASE>
 ```
 
 > [!warning]
