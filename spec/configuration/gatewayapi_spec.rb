@@ -80,6 +80,28 @@ describe 'Gateway API configuration' do
       expect(gateway["spec"]["addresses"]).to eq([{ "type" => "IPAddress", "value" => "127.0.0.1" }])
     end
 
+    describe 'gitlab-shell TCPRoute apiVersion' do
+      it 'renders v1, which is the only version Envoy Gateway 1.9 reconciles' do
+        expect(shell_route["apiVersion"]).to eq("gateway.networking.k8s.io/v1")
+      end
+
+      context 'when pinned for a provider that serves only v1alpha2' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            gitlab:
+              gitlab-shell:
+                gatewayRoute:
+                  apiVersion: gateway.networking.k8s.io/v1alpha2
+          )))
+        end
+
+        it 'renders the configured apiVersion' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_route["apiVersion"]).to eq("gateway.networking.k8s.io/v1alpha2")
+        end
+      end
+    end
+
     context 'KAS k8s-proxy route split' do
       it 'routes the k8s-proxy path to its own HTTPRoute on the KAS Kubernetes API port' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
