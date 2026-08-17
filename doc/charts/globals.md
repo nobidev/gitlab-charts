@@ -178,7 +178,7 @@ global:
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
 ```
 
-For the Webservice-specific `webservice.ingress.proxyBodySize` option and other ways to
+For the Webservice-specific `gitlab.webservice.ingress.proxyBodySize` option and other ways to
 adjust this limit, see [`proxyBodySize`](gitlab/webservice/_index.md#proxybodysize).
 
 ### `global.ingress.configureCertmanager`
