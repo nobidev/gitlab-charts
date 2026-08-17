@@ -11,6 +11,8 @@ To uninstall the GitLab Helm chart, run the following command:
 helm uninstall <RELEASE> -n <NAMESPACE>
 ```
 
+You can optionally clean up additional resources.
+
 ## Clean up orphaned Gateway API resources
 
 If you use the bundled Envoy Gateway controller, run the following commands to clean up
