@@ -124,7 +124,7 @@ The GitLab global host settings for Ingress are located under the `global.ingres
 | Name                           |  Type   | Default        | Description |
 |:-------------------------------|:-------:|:---------------|:------------|
 | `apiVersion`                   | String  |                | API version to use in the Ingress object definitions. |
-| `annotations.*annotation-key*` | String  |                | Where `annotation-key` is a string that will be used with the value as an annotation on every Ingress. For Example: `global.ingress.annotations."nginx\.ingress\.kubernetes\.io/enable-access-log"=true`. No global annotations are provided by default. |
+| `annotations.*annotation-key*` | String  |                | Where `annotation-key` is a string that will be used with the value as an annotation on every Ingress. For Example: `global.ingress.annotations."nginx\.ingress\.kubernetes\.io/enable-access-log"=true`. No global annotations are provided by default. To raise the request body size limit (the Webservice Ingress defaults to `512m`), see [`proxyBodySize`](gitlab/webservice/_index.md#proxybodysize). |
 | `configureCertmanager`         | Boolean | `false`        | [See below](#globalingressconfigurecertmanager). |
 | `useNewIngressForCerts`        | Boolean | `false`        | [See below](#globalingressusenewingressforcerts). |
 | `class`                        | String  | `gitlab-nginx` | Global setting that controls `kubernetes.io/ingress.class` annotation or `spec.IngressClassName` in `Ingress` resources. Set to `none` to disable, or `""` for empty. Note: for `none` or `""`, set `nginx-ingress.enabled=false` to prevent the charts from deploying unnecessary Ingress resources. |
@@ -161,6 +161,25 @@ Various cloud providers' LoadBalancer implementations have an impact on configur
 | AWS      |     4 | [`aws/elb-layer4-loadbalancer`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/aws/elb-layer4-loadbalancer.yaml) |
 | AWS      |     7 | [`aws/elb-layer7-loadbalancer`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/aws/elb-layer7-loadbalancer.yaml) |
 | AWS      |     7 | [`aws/alb-full`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/aws/alb-full.yaml) |
+
+### Request body size limit
+
+The Webservice Ingress limits the request body size to `512m` by default, set through
+the `nginx.ingress.kubernetes.io/proxy-body-size` annotation. This Ingress limit is enforced
+independently of any GitLab application settings, so you must change it here to allow larger
+requests.
+
+To change it globally, set the annotation through `global.ingress.annotations`:
+
+```yaml
+global:
+  ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+```
+
+For the Webservice-specific `webservice.ingress.proxyBodySize` option and other ways to
+adjust this limit, see [`proxyBodySize`](gitlab/webservice/_index.md#proxybodysize).
 
 ### `global.ingress.configureCertmanager`
 
