@@ -11,8 +11,6 @@ To uninstall the GitLab Helm chart, run the following command:
 helm uninstall <RELEASE> -n <NAMESPACE>
 ```
 
-You can optionally clean up additional resources.
-
 Depending on your configuration and cloud provider, `helm uninstall` may leave orphaned resources that require manual cleanup.
 
 ## Clean up orphaned Gateway API resources
