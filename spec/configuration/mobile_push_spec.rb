@@ -73,6 +73,30 @@ describe 'Mobile push configuration' do
         expect(gitlab_yml['production']['mobile_push']['apns']['topic']).to eq('com.example.app')
       end
     end
+
+    context 'with a whitespace-only topic and padded key ID' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          global:
+            appConfig:
+              mobilePush:
+                apns:
+                  authKey:
+                    secret: gitlab-mobile-push-apns-auth-key
+                  keyId: "  ABC123DEFG  "
+                  teamId: "DEF456GHIJ"
+                  topic: "   "
+        ))
+      end
+
+      it 'strips the key ID and excludes the topic so the Rails default applies', :aggregate_failures do
+        expect(template.exit_code).to eq(0)
+
+        gitlab_yml = YAML.safe_load(template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb'))
+        expect(gitlab_yml['production']['mobile_push']['apns']['key_id']).to eq('ABC123DEFG')
+        expect(gitlab_yml['production']['mobile_push']['apns']).not_to have_key('topic')
+      end
+    end
   end
 
   context 'by default' do

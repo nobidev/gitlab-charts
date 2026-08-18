@@ -1971,7 +1971,7 @@ global:
 | `authKey.key`    | String | `auth_key` | The key within the secret that contains the `.p8` file contents |
 | `keyId`          | String |            | The 10-character identifier of the APNs signing key |
 | `teamId`         | String |            | The Apple Developer team identifier |
-| `topic`          | String |            | `apns-topic` header for subscriptions that carry no bundle identifier; when unset, the Rails default applies |
+| `topic`          | String |            | `apns-topic` header for subscriptions that carry no bundle identifier; when unset, Rails defaults to `com.gitlab-mobile.app` |
 
 Pushes are dispatched by the Sidekiq pods of the site where to-dos are
 created — on a [Geo](../advanced/geo/_index.md) deployment, the primary site. Configure
