@@ -56,6 +56,29 @@ describe 'NATS configuration' do
     ))
   end
 
+  # TLS enabled globally with no shared secret; only webservice and sidekiq set
+  # their own. Toolbox has none and must not mount a non-existent secret.
+  let(:per_component_no_global_secret_values) do
+    HelmTemplate.with_defaults(%(
+      global:
+        appConfig:
+          nats:
+            servers:
+              - "tls://nats.example.com:4222"
+            tls:
+              enabled: true
+      gitlab:
+        webservice:
+          nats:
+            tls:
+              secret: test-webservice-nats-tls
+        sidekiq:
+          nats:
+            tls:
+              secret: test-sidekiq-nats-tls
+    ))
+  end
+
   let(:default_values) { HelmTemplate.with_defaults({}) }
 
   context 'when configured' do
@@ -206,6 +229,61 @@ describe 'NATS configuration' do
         )
         expect(has_global).to be(false)
       end
+    end
+  end
+
+  context 'when TLS is enabled with per-component secrets but no global secret' do
+    let(:template) { HelmTemplate.new(per_component_no_global_secret_values) }
+
+    it 'renders without error' do
+      expect(template.exit_code).to eq(0), template.stderr
+    end
+
+    it 'mounts each connecting component using its own secret', :aggregate_failures do
+      webservice_secret = template.get_projected_secret(
+        'Deployment/test-webservice-default',
+        'init-webservice-secrets',
+        'test-webservice-nats-tls'
+      )
+      expect(webservice_secret).not_to be_nil
+
+      sidekiq_secret = template.get_projected_secret(
+        'Deployment/test-sidekiq-all-in-1-v2',
+        'init-sidekiq-secrets',
+        'test-sidekiq-nats-tls'
+      )
+      expect(sidekiq_secret).not_to be_nil
+    end
+
+    it 'does not mount any NATS secret on toolbox when it has no configured secret', :aggregate_failures do
+      sources = template.projected_volume_sources(
+        'Deployment/test-toolbox',
+        'init-toolbox-secrets'
+      )
+      nats_paths = sources.flat_map { |source| (source['secret'] || {})['items'].to_a }
+        .map { |item| item['path'] }
+        .select { |path| path.to_s.start_with?('nats/') }
+
+      expect(nats_paths).to be_empty
+    end
+
+    it 'does not render NATS TLS copy commands in the toolbox configure script' do
+      configure = template.dig('ConfigMap/test-toolbox', 'data', 'configure')
+
+      expect(configure).not_to include('/init-secrets/nats/')
+    end
+
+    it 'keeps the rendered tls block consistent with the mounted secret', :aggregate_failures do
+      webservice_nats = YAML.safe_load(
+        template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb')
+      )['production']['nats']
+      expect(webservice_nats['tls']).not_to be_nil
+
+      toolbox_nats = YAML.safe_load(
+        template.dig('ConfigMap/test-toolbox', 'data', 'gitlab.yml.erb')
+      )['production']['nats']
+      expect(toolbox_nats).not_to be_nil
+      expect(toolbox_nats['tls']).to be_nil
     end
   end
 

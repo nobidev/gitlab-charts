@@ -7,6 +7,7 @@ An empty (or absent) `servers` list means NATS is not configured, so the block
 is omitted and Rails falls back to the Sidekiq delivery path.
 */}}
 {{- define "gitlab.appConfig.nats" -}}
+{{- $context := . -}}
 {{- with .Values.global.appConfig.nats -}}
 {{- if .servers -}}
 nats:
@@ -20,7 +21,7 @@ nats:
   {{- if .streamReplicas }}
   stream_replicas: {{ .streamReplicas | int }}
   {{- end }}
-  {{- if .tls.enabled }}
+  {{- if eq (include "gitlab.appConfig.nats.tls.enabled" $context) "true" }}
   tls:
     ca_file: "/srv/gitlab/config/nats/ca.crt"
     cert: "/srv/gitlab/config/nats/tls.crt"
@@ -31,30 +32,28 @@ nats:
 {{- end -}}{{/* "gitlab.appConfig.nats" */}}
 
 {{/*
-Return the NATS TLS Secret name.
-
-The NATS clusters use mutual TLS with `verify_and_map`, mapping each client
-certificate's CN to a distinct NATS user, so each component may need its own
-certificate. Resolves the component-local `nats.tls.secret`, then the shared
-`global.appConfig.nats.tls.secret`, then a release-derived default. Must be
-called with the component (subchart) context so `.Values.nats` resolves locally.
+Return the NATS TLS Secret name for the calling component (component-local
+`nats.tls.secret`, then `global.appConfig.nats.tls.secret`), or an empty string
+when none is configured. No release-derived default: a component without a
+configured secret must not mount one that does not exist.
 Usage: {{ include "gitlab.appConfig.nats.tls.secret" $ }}
 */}}
 {{- define "gitlab.appConfig.nats.tls.secret" -}}
 {{- $local := (($.Values.nats).tls).secret -}}
 {{- $global := (($.Values.global.appConfig.nats).tls).secret -}}
-{{- coalesce $local $global (printf "%s-nats-tls" $.Release.Name) | quote -}}
+{{- default $global $local | default "" -}}
 {{- end -}}
 
 {{/*
-Whether the NATS TLS files should be mounted (servers present and TLS enabled).
+Whether the NATS TLS files should be mounted: servers present, TLS enabled, and
+a secret resolvable for this component.
 Usage: {{ if eq (include "gitlab.appConfig.nats.tls.enabled" $) "true" }}
 */}}
 {{- define "gitlab.appConfig.nats.tls.enabled" -}}
-{{- with .Values.global.appConfig.nats -}}
-{{- if and .servers .tls.enabled -}}
+{{- $nats := .Values.global.appConfig.nats -}}
+{{- $secret := include "gitlab.appConfig.nats.tls.secret" . -}}
+{{- if and $nats $nats.servers ($nats.tls).enabled (ne $secret "") -}}
 true
-{{- end -}}
 {{- end -}}
 {{- end -}}
 
