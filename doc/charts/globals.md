@@ -1931,12 +1931,26 @@ global:
 
 ### Mobile push notification settings
 
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/248026) in GitLab 19.3 [with flags](https://docs.gitlab.com/administration/feature_flags/) named `mobile_push_registration_api`, `mobile_push_notifications_dispatch`, and `mobile_push_notifications`. Disabled by default.
+
+{{< /history >}}
+
 Use these settings to let GitLab deliver mobile push notifications through the
 Apple Push Notification service (APNs). The `.p8` provider token signing key is
 mounted into the Webservice, Sidekiq, and Toolbox pods from a Kubernetes
 secret; delivery is skipped entirely when no key is configured. See
 [mobile push APNs signing key](../installation/secrets.md#mobile-push-apns-signing-key)
 for creating the secret.
+
+The server-side feature is controlled by
+[feature flags](https://docs.gitlab.com/administration/feature_flags/) that are
+disabled by default: `mobile_push_registration_api` gates the
+[mobile push subscriptions API](https://docs.gitlab.com/api/mobile_push_subscriptions/)
+that devices register with, and `mobile_push_notifications_dispatch` and
+`mobile_push_notifications` gate delivery. Devices cannot register and no
+pushes are delivered until an administrator enables all three.
 
 ```yaml
 global:
