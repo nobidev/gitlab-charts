@@ -77,6 +77,9 @@ gatewayRoute:
   sectionName: "gitlab-ssh"
   gatewayName: ""
   gatewayNamespace: ""
+  # TCPRoute graduated to v1 in Gateway API 1.6, and Envoy Gateway 1.9 reconciles only v1.
+  # Set this to gateway.networking.k8s.io/v1alpha2 for implementations that do not serve v1 yet.
+  apiVersion: "gateway.networking.k8s.io/v1"
   annotations: {}
 
 # When using traefik ingress

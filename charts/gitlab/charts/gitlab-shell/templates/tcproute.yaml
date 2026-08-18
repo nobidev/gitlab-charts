@@ -1,6 +1,6 @@
 {{- if .Values.enabled -}}
 {{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
-apiVersion: gateway.networking.k8s.io/v1alpha2
+apiVersion: {{ .Values.gatewayRoute.apiVersion }}
 kind: TCPRoute
 metadata:
   name: {{ template "fullname" . }}

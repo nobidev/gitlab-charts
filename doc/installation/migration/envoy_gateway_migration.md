@@ -37,7 +37,7 @@ To migrate from (NGINX) Ingress to Gateway API and Envoy Gateway:
 
    ```script
    helm template eg-crds oci://docker.io/envoyproxy/gateway-crds-helm \
-     --version v1.8.3 \
+     --version v1.9.0 \
      --set crds.gatewayAPI.enabled=true \
      --set crds.envoyGateway.enabled=true \
      | kubectl apply --server-side -f -
@@ -320,3 +320,31 @@ flows in either direction, so long-running transfers are not interrupted. The ab
 `HTTPRoute` rule timeouts have no NGINX equivalent and stay disabled by default. For
 configuration examples, see the
 [Webservice Gateway timeouts documentation](../../charts/gitlab/webservice/_index.md#gateway-timeouts).
+
+## Host headers with a trailing dot
+
+NGINX removes a trailing dot from the `Host` header before matching a server name.
+Envoy Gateway matches the `Host` or `:authority` header against route hostnames
+literally, and Gateway API hostnames cannot contain a trailing dot.
+
+As a result, clients that request an absolute fully qualified domain name with a
+trailing dot, for example `https://gitlab.example.com./`, receive `404 Not Found`
+responses after the migration. The Envoy access log records these requests with
+`response_code_details: route_not_found`. A common example is a GitLab Runner
+configured with a trailing dot in the `url` setting to avoid DNS search domain
+lookups. Affected runners fail to verify or register with `status=404`.
+
+The chart enables the `stripTrailingHostDot` setting on the Webservice listeners
+by default, which restores the NGINX behavior. This setting requires the bundled
+Envoy Gateway 1.9 or later.
+
+The setting also requires the `ClientTrafficPolicy` CRD from Envoy Gateway 1.9.
+The Envoy Gateway 1.8 CRD does not define this field, so the API server prunes
+it without an error and trailing-dot requests keep returning `404`. Apply the
+current CRDs before you upgrade the chart. For more information, see
+[Upgrade the Envoy Gateway CRDs](../../charts/envoygateway/_index.md#upgrade-the-envoy-gateway-crds).
+
+On chart versions that bundle Envoy Gateway 1.8 or earlier, the setting is not
+available. Remove the trailing dot from the client configuration instead. For
+example, update the `url` setting in the GitLab Runner `config.toml`, or remove
+the trailing dot from `/etc/hosts` entries on the client host.

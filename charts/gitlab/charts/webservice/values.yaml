@@ -137,6 +137,12 @@ clientTrafficPolicy:
     spec:
       path:
         escapedSlashesAction: KeepUnchanged
+      # Strip the trailing dot from the Host header before route matching,
+      # as NGINX does. Gateway API hostnames cannot contain a trailing dot,
+      # so clients sending an absolute FQDN (`host.`) otherwise get a 404.
+      headers:
+        host:
+          stripTrailingHostDot: true
       # Raise the HTTP/2 flow-control windows above Envoy Gateway's defaults
       # (stream 64KiB, connection 1MiB). A stream is bound by
       # initialStreamWindowSize / RTT, so 64KiB caps it to ~300KiB/s at
@@ -157,6 +163,8 @@ clientTrafficPolicy:
           - kind: Secret
             group: ""
       headers:
+        host:
+          stripTrailingHostDot: true
         xForwardedClientCert:
           certDetailsToAdd:
           - Cert
@@ -165,6 +173,9 @@ clientTrafficPolicy:
     spec:
       path:
         escapedSlashesAction: KeepUnchanged
+      headers:
+        host:
+          stripTrailingHostDot: true
       # See clientTrafficPolicy.main above: the Geo listener carries the
       # secondary->primary git proxy traffic over a high-latency link, so it
       # is the most affected by the small default HTTP/2 stream window.

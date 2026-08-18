@@ -65,6 +65,8 @@ describe 'Gateway API configuration' do
       # Per-listener ClientTrafficPolicy with hardcoded escaped slashes handling
       expect(webservice_clienttrafficpolicy).not_to be_nil
       expect(webservice_clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("KeepUnchanged")
+      # Trailing dot in Host/:authority stripped before route matching (NGINX parity)
+      expect(webservice_clienttrafficpolicy["spec"]["headers"]["host"]["stripTrailingHostDot"]).to be(true)
       expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
       expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-web")
       expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]).not_to have_key("namespace")
@@ -76,6 +78,28 @@ describe 'Gateway API configuration' do
 
     it 'picks up the static IP' do
       expect(gateway["spec"]["addresses"]).to eq([{ "type" => "IPAddress", "value" => "127.0.0.1" }])
+    end
+
+    describe 'gitlab-shell TCPRoute apiVersion' do
+      it 'renders v1, which is the only version Envoy Gateway 1.9 reconciles' do
+        expect(shell_route["apiVersion"]).to eq("gateway.networking.k8s.io/v1")
+      end
+
+      context 'when pinned for a provider that serves only v1alpha2' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            gitlab:
+              gitlab-shell:
+                gatewayRoute:
+                  apiVersion: gateway.networking.k8s.io/v1alpha2
+          )))
+        end
+
+        it 'renders the configured apiVersion' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_route["apiVersion"]).to eq("gateway.networking.k8s.io/v1alpha2")
+        end
+      end
     end
 
     context 'KAS k8s-proxy route split' do
@@ -827,6 +851,7 @@ describe 'Gateway API configuration' do
           .to include("kind" => "Secret", "name" => "gitlab-smartcard-ca")
         expect(webservice_smartcard_clienttrafficpolicy["spec"]["headers"]["xForwardedClientCert"]["mode"])
           .to eq("SanitizeSet")
+        expect(webservice_smartcard_clienttrafficpolicy["spec"]["headers"]["host"]["stripTrailingHostDot"]).to be(true)
         expect(gateway['spec']['listeners'].map { |l| l['name'] })
           .to include('gitlab-smartcard-web')
       end
@@ -912,6 +937,7 @@ describe 'Gateway API configuration' do
 
         expect(webservice_geo_clienttrafficpolicy["spec"]["http2"]["initialStreamWindowSize"]).to eq("8Mi")
         expect(webservice_geo_clienttrafficpolicy["spec"]["http2"]["initialConnectionWindowSize"]).to eq("16Mi")
+        expect(webservice_geo_clienttrafficpolicy["spec"]["headers"]["host"]["stripTrailingHostDot"]).to be(true)
         expect(webservice_geo_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-web-geo")
       end
     end
