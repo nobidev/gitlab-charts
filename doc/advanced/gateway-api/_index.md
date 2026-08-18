@@ -211,21 +211,10 @@ Repository access over SSH is exposed by a `TCPRoute`. `TCPRoute` graduated to `
 API 1.6, and Envoy Gateway 1.9 reconciles only `v1`, so the chart renders `v1` by default.
 
 Envoy Gateway 1.8 and earlier bundled Gateway API 1.5 CRDs, which serve `TCPRoute` as `v1alpha2`
-only. Upgrade the CRDs before you upgrade GitLab. The chart installs these CRDs on a new
-installation, but Helm does not upgrade CRDs on later releases because of
-[Helm limitations](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/), so
-upgrade them yourself:
-
-```shell
-helm template eg-crds oci://docker.io/envoyproxy/gateway-crds-helm \
- --version v1.9.0 \
- --set crds.gatewayAPI.enabled=true \
- --set crds.envoyGateway.enabled=true \
- | kubectl apply --server-side -f -
-```
-
-If you skip this step, the GitLab upgrade fails with
-`no matches for kind "TCPRoute" in version "gateway.networking.k8s.io/v1"`.
+only. Against those CRDs, the GitLab upgrade fails with
+`no matches for kind "TCPRoute" in version "gateway.networking.k8s.io/v1"`. For the CRD upgrade
+steps, see
+[Upgrade the Envoy Gateway CRDs](../../charts/envoygateway/_index.md#upgrade-the-envoy-gateway-crds).
 
 If you use another Gateway API implementation that does not serve `TCPRoute` `v1` yet, render
 `v1alpha2` instead:

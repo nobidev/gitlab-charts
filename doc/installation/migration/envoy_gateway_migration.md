@@ -263,6 +263,12 @@ The chart enables the `stripTrailingHostDot` setting on the Webservice listeners
 by default, which restores the NGINX behavior. This setting requires the bundled
 Envoy Gateway 1.9 or later.
 
+The setting also requires the `ClientTrafficPolicy` CRD from Envoy Gateway 1.9.
+The Envoy Gateway 1.8 CRD does not define this field, so the API server prunes
+it without an error and trailing-dot requests keep returning `404`. Apply the
+current CRDs before you upgrade the chart. For more information, see
+[Upgrade the Envoy Gateway CRDs](../../charts/envoygateway/_index.md#upgrade-the-envoy-gateway-crds).
+
 On chart versions that bundle Envoy Gateway 1.8 or earlier, the setting is not
 available. Remove the trailing dot from the client configuration instead. For
 example, update the `url` setting in the GitLab Runner `config.toml`, or remove
