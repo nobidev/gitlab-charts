@@ -35,8 +35,11 @@ global:
     objectStore:
       enabled: true
       connection:
+        # Mounted by gitlab.appConfig.objectStorage.mountSecrets, which expects the
+        # Rails-style connection YAML. The `s3cmd` key holds an s3cmd INI file and
+        # belongs to the toolbox backup config instead.
         secret: gitlab-dev-stack-garage-conn
-        key: s3cmd
+        key: connection
 
   psql:
     host: gitlab-dev-stack-gitlab-rw
@@ -143,8 +146,21 @@ gitlab:
     backups:
       objectStorage:
         config:
+          # backup-utility runs `cp /etc/gitlab/.s3cfg $HOME/.s3cfg`, so this key must
+          # hold s3cmd INI content. The `connection` key is Rails-style YAML.
           secret: gitlab-dev-stack-garage-conn
-          key: connection
+          key: s3cmd
+      # Include the registry metadata database in backups. Without this,
+      # `gitlab-backup` skips it and restored manifests 404: the blobs are still in
+      # object storage but the DB rows pointing at them are gone.
+      registry:
+        database:
+          backupUser: gitlab-dev-stack
+          restoreUser: gitlab-dev-stack
+          password:
+            secret: gitlab-dev-stack-registry-registry-conn
+            backupPasswordKey: PGPASSWORD
+            restorePasswordKey: PGPASSWORD
 
 # Registry metadata database lives on the dedicated `registry` CNPG cluster
 # from gitlab-dev-stack. Blob storage stays on Garage.

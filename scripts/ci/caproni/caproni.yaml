@@ -1,0 +1,163 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/caproni/-/raw/v4.0.0/schema/config.v2.schema.json
+#
+# Caproni configuration for the GitLab chart's CI review environment.
+#
+# Deploys THIS checkout's chart - not a published release - against the external
+# dependencies from the gitlab-dev-stack chart, on a throwaway k3d cluster inside
+# the job's Docker-in-Docker daemon. Runs alongside the k3d jobs in
+# .gitlab/ci/k3d-templates.gitlab-ci.yml; see gitlab-org/charts/gitlab#6505.
+#
+# No edit mode: no repositories are cloned, no mirrord, no reloaders. The chart is
+# consumed exactly as an end user consumes it.
+#
+# Driven by scripts/ci/caproni_deploy.sh, which exports every variable referenced
+# below before invoking `caproni up`.
+version: 2
+
+# Only the CloudNativePG operator is taken from the shared rig - gitlab-dev-stack
+# needs it to manage its PostgreSQL clusters. Everything else caproni.infra.yaml
+# declares is nulled under `deployers` below.
+#
+# Pinned to a commit, not a branch: caproni fetches remote fragments at config-load
+# time, so an immutable ref keeps this job from moving when that repository does.
+extends:
+  - https://gitlab.com/gitlab-org/gitlab-caproni/-/raw/3edcb58025af9f2ca837898c561904eea71129de/fragments/caproni.infra.yaml
+
+cluster:
+  driver: k3d
+  name:
+    # Fixes the cluster and profile name to the literal "caproni" so
+    # caproni_deploy.sh can run `k3d kubeconfig get caproni` deterministically.
+    # This is also caproni's default; stated explicitly so a future change to that
+    # default cannot silently break the kubeconfig export.
+    strategy: static
+  network:
+    # nip.io rather than a fixed hostname, matching scripts/ci/k3d.sh:117.
+    #
+    # *.<ip>.nip.io is public DNS, so it resolves identically from three places
+    # that all need it: the job container, the Docker-in-Docker daemon that
+    # performs `docker push` to the in-cluster registry on behalf of
+    # spec/features/test_project_helper.rb, and the cluster's own CoreDNS (which
+    # the runner needs to reach the webservice). `caproni update-etc-hosts` only
+    # patches the job container's /etc/hosts and would leave the other two broken.
+    #
+    # It is also what makes the daemon's `--insecure-registry 172.16.0.0/12` match,
+    # since the resolved address is a literal in that range.
+    #
+    # These two keys only feed update-etc-hosts, `caproni ca`, and a non-blocking
+    # hostname warning during `up`, so they are largely inert here - but they should
+    # still describe reality.
+    hostname: gitlab.${KUBE_INGRESS_BASE_DOMAIN}
+    additional_hostnames:
+      - registry.${KUBE_INGRESS_BASE_DOMAIN}
+  k3d:
+    servers: 1
+    agents: 0
+    image: ${DOCKERHUB_PREFIX}/${K3D_K8S_IMAGE}
+    port_mappings:
+      # gitlab-shell SSH. caproni merges in 80 and 443 itself.
+      - "22:22@loadbalancer"
+    k3s:
+      disable:
+        # The chart installs its own Envoy Gateway (global.gatewayApi.installEnvoy,
+        # a Chart.yaml condition on the gateway-helm dependency), which needs to own
+        # ports 80 and 443. Read only at cluster creation.
+        - traefik
+    extra_args:
+      # Publish the API server on the Docker-in-Docker container's address, as
+      # scripts/ci/k3d.sh:105 does. Without it k3d picks a random host port and
+      # writes https://0.0.0.0:<port> into the kubeconfig, which from the job
+      # container resolves to the job container. spec/spec_helper.rb:44, every
+      # helper in spec/gitlab_test_helper.rb, and k3d_collect_debug all shell out
+      # to bare kubectl, so they need a genuinely reachable API address. k3d adds
+      # this host to the API server's TLS SANs.
+      #
+      # caproni has no field for this; extra_args entries are appended verbatim to
+      # `k3d cluster create`, one argv token per entry.
+      - "--api-port"
+      - "${DOCKER_HOST_IP}:6443"
+      # caproni's k3d driver passes neither, and `caproni up` only polls the API
+      # rather than waiting for nodes to become Ready. Restores the gate that
+      # scripts/ci/k3d.sh:110-111 has.
+      - "--wait"
+      - "--timeout"
+      - "120s"
+
+# No edit mode, so nothing to clone.
+repositories: {}
+
+deployers:
+  # --- Unused parts of the shared rig's infrastructure fragment -----------------
+  #
+  # This environment is HTTP-only (installCertmanager: false via
+  # scripts/ci/values/gitlab-chart/ci-base.values.yaml, and global.hosts.https:
+  # false plus configureCertmanager: false via gatewayapi-http.values.yaml), so
+  # there is no issuer, no dev CA and no trust bundle to distribute.
+  #
+  # caproni-dev-ca has to be nulled along with its dependencies: an unknown `needs`
+  # entry is a hard error, not a warning, so nulling cert-manager and trust-manager
+  # while leaving their dependent behind fails config load.
+  cert-manager: null
+  trust-manager: null
+  caproni-dev-ca: null
+  # prometheus.install is false in ci-scale.values.yaml, so nothing renders a
+  # ServiceMonitor and the CRDs are dead weight in docker:dind.
+  prometheus-operator-crds: null
+
+  # --- External dependencies ----------------------------------------------------
+  #
+  # PostgreSQL (CloudNativePG), Redis (Valkey), object storage (Garage) and
+  # ClickHouse, plus the *-conn Secrets the GitLab chart consumes. Replaces
+  # deploy_external_components() from scripts/ci/autodevops.sh on this path.
+  gitlab-dev-stack:
+    type: helm
+    needs: [cloudnative-pg]
+    helm:
+      # Deliberately the same namespace as the gitlab release below, so the
+      # generated *-conn Secrets are found by bare name and services by their
+      # short same-namespace DNS names. It also means k3d_collect_debug's
+      # single-namespace sweep captures PostgreSQL, Valkey, Garage and ClickHouse.
+      namespace: ${KUBE_NAMESPACE}
+      wait: true
+      timeout: 10m
+      values_file: ./values-gitlab-dev-stack.yaml
+      release:
+        name: gitlab-dev-stack
+        # Version pinned in the URI: release.version is only valid alongside
+        # helm.repository, which OCI charts do not use.
+        chart: oci://registry.gitlab.com/gitlab-org/cloud-native/charts/gitlab-dev-stack/gitlab-dev-stack:1.6.0
+
+  # --- The chart under test -----------------------------------------------------
+  gitlab:
+    type: helm
+    needs: [gitlab-dev-stack]
+    helm:
+      namespace: ${KUBE_NAMESPACE}
+      # Mirrors `helm upgrade --install --wait --timeout 900s` in
+      # scripts/ci/autodevops.sh:101-102. With this, the job does not need
+      # wait_for_deploy(), whose check_kas_status() polls without a timeout.
+      wait: true
+      timeout: 15m
+      # caproni accepts a single values file, so scripts/ci/lib/caproni.sh merges
+      # the same scripts/ci/values/gitlab-chart/* inputs the k3d path passes as
+      # separate -f flags, plus ci.digests.yaml, into this one file.
+      #
+      # helm.dynamic_overrides (type: inline) is the escape hatch for a value that
+      # has to be computed at deploy time. Nothing needs it today, because
+      # prepare_values() already envsubsts the dynamic parts.
+      values_file: ./.values/gitlab.values.yaml
+      release:
+        # Fixed, and mirrored by GITLAB_RELEASE_NAME_OVERRIDE in
+        # .gitlab/ci/caproni.gitlab-ci.yml so that every `-lrelease=` selector in
+        # scripts/ci/autodevops.sh agrees with it.
+        name: gitlab
+        # A directory, not a packaged .tgz: this keeps .Chart.Version real and
+        # matches `helm upgrade ... "${PROJECT_ROOT}"` in autodevops.sh:112.
+        #
+        # Must be absolute. caproni hands this string to helm verbatim and, unlike
+        # values_file, does not resolve it relative to this config file.
+        #
+        # Requires `helm dependency update` to have run first: caproni never runs
+        # it, and gateway-helm is a conditional Chart.yaml dependency that this
+        # environment enables.
+        chart: ${CI_PROJECT_DIR}

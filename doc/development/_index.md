@@ -105,6 +105,37 @@ We run k3d environments for:
 1. One environment to test arm64 deployments.
 1. One environment to test Ingress behavior (instead of Gateway API).
 
+### Caproni review environment
+
+Alongside the k3d environments, the `review_specs_caproni` and `qa_caproni` jobs deploy
+the chart through [Caproni](https://gitlab.com/gitlab-org/caproni), the deployment
+interface used for GitLab cloud-native development. They run the same RSpec feature
+specs and GitLab QA smoke suite as their k3d counterparts, so a chart change that
+breaks `caproni up` is caught in this project's pipeline rather than in a developer's
+terminal.
+
+Both jobs are manual and non-blocking while the path is being proven; the k3d jobs
+remain the authoritative ones for now.
+
+The configuration lives in
+[`scripts/ci/caproni/`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/scripts/ci/caproni/)
+and is driven by `scripts/ci/caproni_deploy.sh`. Points worth knowing:
+
+- The chart is installed from the job's checkout, so the branch under test is what gets
+  deployed. Caproni does not run `helm dependency update`, so the script does.
+- External dependencies come from the
+  [`gitlab-dev-stack`](https://gitlab.com/gitlab-org/cloud-native/charts/gitlab-dev-stack)
+  chart rather than the `scripts/ci/lib/` shell libraries the k3d jobs use, which means
+  different Secret names, bucket names, and database users.
+- Caproni accepts one values file per deployer, so `caproni_merge_values` deep-merges
+  the same `scripts/ci/values/gitlab-chart/*` inputs the k3d jobs pass as separate `-f`
+  flags. The merged result is kept as a job artifact.
+- Caproni has no pre-deploy hook with cluster access, so unlike the k3d jobs the license
+  is activated after the deployment rather than before the migrations job runs.
+
+For local chart development with Caproni, see
+[`examples/caproni/`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/caproni/).
+
 ### Managing Review apps
 
 Review apps will stay active for two hours by default, at which time they will be stopped automatically

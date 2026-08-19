@@ -1,0 +1,49 @@
+# gitlab-dev-stack values for the chart's CI review environment.
+#
+# Provides what deploy_external_components() in scripts/ci/autodevops.sh provides on
+# the k3d path - PostgreSQL (CloudNativePG), Redis (Valkey) and object storage
+# (Garage) - and trims the components the GitLab chart does not consume, because
+# this all has to fit inside a Docker-in-Docker daemon.
+#
+# secretNamespace is left at its default (the release namespace), because
+# scripts/ci/caproni/caproni.yaml deploys this release into the same namespace as
+# GitLab. That is what lets values-gitlab.yaml reference every *-conn Secret by
+# bare name.
+
+garage:
+  # The GitLab chart's pods expect their buckets to exist at startup. With
+  # waitInit false the bucket-init Job runs alongside the StatefulSet and `helm
+  # upgrade` returns before the extra buckets exist, so GitLab can come up against
+  # missing buckets. The script is idempotent, so making this blocking is safe.
+  waitInit: true
+  # Replaces the chart's default list wholesale, because caproni merges lists by
+  # replacement. Identical to the default plus the three buckets that
+  # scripts/ci/values/gitlab-chart/external-garage.values.yaml enables and
+  # gitlab-dev-stack does not ship. Keep the first entry as the bootstrapped
+  # default bucket.
+  buckets:
+    - default
+    - gitlab-lfs
+    - gitlab-artifacts
+    - gitlab-uploads
+    - gitlab-packages
+    - gitlab-pages
+    - gitlab-dependency-proxy
+    - gitlab-mr-diffs
+    - gitlab-terraform-state
+    - gitlab-backups
+    - tmp
+    - registry
+    - runner-cache
+    - gitlab-ci-secure-files
+    - gitlab-agent-plan-content
+    - gitlab-ci-catalog-bundles
+
+# Only Siphon and the knowledge graph consume these, and neither is part of the
+# GitLab chart. The k3d jobs run neither, so enabling them here would cost a
+# StatefulSet and ~6Gi of volumes for no additional coverage.
+clickhouse:
+  enabled: false
+
+nats:
+  enabled: false

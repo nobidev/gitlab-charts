@@ -1,0 +1,143 @@
+# GitLab chart values for the CI review environment deployed by Caproni.
+#
+# Wires the chart to the external dependencies provisioned by the gitlab-dev-stack
+# release. Both releases share a namespace (see scripts/ci/caproni/caproni.yaml), so
+# the *-conn Secrets are referenced by bare name and services by their short DNS
+# names.
+#
+# This file is ONE layer of the merge that scripts/ci/lib/caproni.sh performs. The
+# order, later winning, is:
+#
+#   1. .values/ci-base.values.yaml           hosts, signup, installCertmanager
+#   2. .values/ci-scale.values.yaml          replicas, prometheus off, toolbox on
+#   3. .values/ci-license.caproni.values.yaml  license mode env
+#   4. .values/gatewayapi-http.values.yaml   Envoy Gateway, HTTP-only
+#   5. THIS FILE                             external dependency wiring
+#   6. ci.digests.yaml                       digest-pinned component images
+#
+# So this file must NOT set anything owned by an earlier layer, or it silently wins
+# over it. In particular it does not set global.hosts.* (layer 1 and 4), replica
+# counts or prometheus (layer 2), the Gateway API or ingress blocks (layer 4, which
+# relies on the chart's own installEnvoy default), or image tags (layer 6).
+#
+# Derived from examples/caproni/values-gitlab.yaml. Divergences from that example are
+# deliberate and are there to match what the k3d jobs exercise: Envoy Gateway instead
+# of Traefik, KAS on, Pages off, gitlab-exporter on, and chart-default runner config.
+
+# The certmanager-issuer subchart only demands an email when configureCertmanager is
+# on, and layer 4 turns it off for both ingress and gatewayApi.
+installCertmanager: false
+certmanager:
+  install: false
+
+global:
+  psql:
+    host: gitlab-dev-stack-gitlab-rw
+    username: gitlab-dev-stack
+    database: gitlabhq_production
+    password:
+      useSecret: true
+      secret: gitlab-dev-stack-gitlab-gitlabhq-production-conn
+      key: PGPASSWORD
+
+  redis:
+    host: gitlab-dev-stack-valkey
+    port: 6379
+    auth:
+      enabled: true
+      secret: gitlab-dev-stack-valkey-conn
+      key: password
+
+  appConfig:
+    object_store:
+      enabled: true
+      proxy_download: true
+      connection:
+        secret: gitlab-dev-stack-garage-conn
+        key: connection
+    # Bucket names are gitlab-dev-stack's, which differ from the ones
+    # scripts/ci/values/gitlab-chart/external-garage.values.yaml uses on the k3d
+    # path. Most notably LFS is gitlab-lfs here, not git-lfs.
+    lfs:
+      enabled: true
+      bucket: gitlab-lfs
+    artifacts:
+      enabled: true
+      bucket: gitlab-artifacts
+    uploads:
+      enabled: true
+      bucket: gitlab-uploads
+    packages:
+      enabled: true
+      bucket: gitlab-packages
+    dependencyProxy:
+      enabled: true
+      bucket: gitlab-dependency-proxy
+    externalDiffs:
+      enabled: true
+      bucket: gitlab-mr-diffs
+    terraformState:
+      enabled: true
+      bucket: gitlab-terraform-state
+    ciSecureFiles:
+      enabled: true
+      bucket: gitlab-ci-secure-files
+    agentPlanContent:
+      enabled: true
+      bucket: gitlab-agent-plan-content
+    ciCatalogBundles:
+      enabled: true
+      bucket: gitlab-ci-catalog-bundles
+    backups:
+      bucket: gitlab-backups
+      tmpBucket: tmp
+
+# No bundled PostgreSQL, Redis or MinIO dependency exists in Chart.yaml any more, so
+# these are no-ops. Kept because they document that the databases are external.
+postgresql:
+  install: false
+redis:
+  install: false
+
+gitlab:
+  toolbox:
+    backups:
+      objectStorage:
+        config:
+          # backup-utility runs `cp /etc/gitlab/.s3cfg $HOME/.s3cfg`, so this key
+          # must hold s3cmd INI content, not the Rails-style `connection` YAML.
+          secret: gitlab-dev-stack-garage-conn
+          key: s3cmd
+      # Include the registry metadata database in backups, mirroring
+      # scripts/ci/values/gitlab-chart/external-postgresql.values.yaml. Without it
+      # `gitlab-backup` skips the registry DB and restored manifests 404 - which is
+      # what spec/features/backups_spec.rb asserts against.
+      registry:
+        database:
+          backupUser: gitlab-dev-stack
+          restoreUser: gitlab-dev-stack
+          password:
+            secret: gitlab-dev-stack-registry-registry-conn
+            backupPasswordKey: PGPASSWORD
+            restorePasswordKey: PGPASSWORD
+
+registry:
+  storage:
+    secret: gitlab-dev-stack-garage-conn
+    key: registry_connection
+    redirect:
+      # Garage is only reachable in-cluster, so the registry must stream blobs
+      # itself rather than 302 clients at it. Without this, `docker pull` from the
+      # job container and from the Docker-in-Docker daemon fails, and
+      # spec/features/backups_spec.rb's container image check fails with it.
+      disable: true
+  database:
+    enabled: true
+    host: gitlab-dev-stack-registry-rw
+    port: 5432
+    user: gitlab-dev-stack
+    name: registry
+    password:
+      secret: gitlab-dev-stack-registry-registry-conn
+      key: PGPASSWORD
+    sslmode: disable

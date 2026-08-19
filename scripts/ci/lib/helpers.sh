@@ -33,8 +33,19 @@ function release_name_base() {
   fi
 }
 
+# gitlab_release_name returns the Helm release name for GitLab itself.
+#
+# GITLAB_RELEASE_NAME_OVERRIDE exists for deployments this script does not perform
+# the `helm upgrade` for, and so cannot name. The Caproni CI environment is the
+# case: its release name is fixed in scripts/ci/caproni/caproni.yaml, and every
+# `-lrelease=` selector below (create_admin_pat, get_qa_revision, get_qa_version,
+# wait_for_toolbox, and k3d_collect_debug's helm dumps) has to agree with it.
 function gitlab_release_name() {
-  echo -n "$(release_name_base)-gitlab"
+  if [[ -n "${GITLAB_RELEASE_NAME_OVERRIDE}" ]]; then
+    echo -n "${GITLAB_RELEASE_NAME_OVERRIDE}"
+  else
+    echo -n "$(release_name_base)-gitlab"
+  fi
 }
 
 function valkey_release_name() {
