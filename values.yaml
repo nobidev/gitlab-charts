@@ -1451,6 +1451,12 @@ prometheus:
 ## https://docs.gitlab.com/charts/charts/shared-secrets.html
 shared-secrets:
   enabled: true
+  ## Which backend provisions the generated secrets.
+  ##   job        - the pre-install/pre-upgrade hook Job runs the generation script
+  ##   controller - render an apps.gitlab.com/v2alpha1 GitLabSecrets resource and let a
+  ##                controller generate the values. Requires the GitLab Operator.
+  ## `enabled: false` disables provisioning entirely, regardless of this setting.
+  provider: job
   rbac:
     create: true
   selfsign:

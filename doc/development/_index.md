@@ -28,6 +28,15 @@ See [setting up your development environment](environment_setup.md) to prepare y
 
 See the [chart development style guide](style_guide.md) for guidelines and best practices for chart development.
 
+## Secrets
+
+The chart generates its secrets from one declarative manifest. See
+[adding a generated secret](secrets.md) to add one.
+
+Secret generation can also be delegated to a controller. See the
+[GitLabSecrets controller contract](secrets_controller.md) for the resource the chart
+renders in that mode.
+
 ## Writing and running tests
 
 We run several different types of tests to validate the charts work as intended.

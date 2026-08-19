@@ -82,183 +82,20 @@ function generate_secret_if_needed(){
   label_secret $secret_name
 }
 
-# Initial root password
-generate_secret_if_needed {{ template "gitlab.migrations.initialRootPassword.secret" . }} --from-literal={{ template "gitlab.migrations.initialRootPassword.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
 
-# Gitlab shell
-generate_secret_if_needed {{ template "gitlab.gitlab-shell.authToken.secret" . }} --from-literal={{ template "gitlab.gitlab-shell.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
+{{/*
+Every secret below comes from gitlab.secrets.manifest, translated by
+gitlab.secrets.shell.*. To add a secret, edit the manifest, not this file.
+*/}}
+{{- range $secret := include "gitlab.secrets.load" . | fromYamlArray }}
+{{-   if eq (first $secret.generators).type "railsSecrets" }}
 
-# Gitaly secret
-generate_secret_if_needed {{ template "gitlab.gitaly.authToken.secret" . }} --from-literal={{ template "gitlab.gitaly.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
+# {{ $secret.comment }}
+{{ include "gitlab.secrets.shell.railsSecrets" $secret }}
+{{-   else }}
 
-# Gitlab runner secret
-generate_secret_if_needed {{ template "gitlab.gitlab-runner.registrationToken.secret" . }} --from-literal=runner-registration-token=$(gen_random 'a-zA-Z0-9' 64) --from-literal=runner-token=""
-
-# GitLab Pages API secret
-{{ if or (eq $.Values.global.pages.enabled true) (not (empty $.Values.global.pages.host)) }}
-generate_secret_if_needed {{ template "gitlab.pages.apiSecret.secret" . }} --from-literal={{ template "gitlab.pages.apiSecret.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
-{{ end }}
-
-# GitLab Pages auth secret for hashing cookie store when using access control
-{{ if and (eq $.Values.global.pages.enabled true) (eq $.Values.global.pages.accessControl true) }}
-generate_secret_if_needed {{ template "gitlab.pages.authSecret.secret" . }} --from-literal={{ template "gitlab.pages.authSecret.key" . }}=$(gen_random 'a-zA-Z0-9' 64 | base64 -w 0)
-{{ end }}
-
-# GitLab Pages OAuth secret
-{{ if and (eq $.Values.global.pages.enabled true) (eq $.Values.global.pages.accessControl true) }}
-generate_secret_if_needed {{ template "oauth.gitlab-pages.secret" . }} --from-literal={{ template "oauth.gitlab-pages.appIdKey" . }}=$(gen_random 'a-zA-Z0-9' 64) --from-literal={{ template "oauth.gitlab-pages.appSecretKey" . }}=$(gen_random 'a-zA-Z0-9' 64)
-{{ end }}
-
-{{ if .Values.global.kas.enabled -}}
-# Gitlab-kas secret
-generate_secret_if_needed {{ template "gitlab.kas.secret" . }} --from-literal={{ template "gitlab.kas.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
-
-# Gitlab-kas private API secret
-generate_secret_if_needed {{ template "gitlab.kas.privateApi.secret" . }} --from-literal={{ template "gitlab.kas.privateApi.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
-
-# Gitlab-kas WebSocket Token secret
-generate_secret_if_needed {{ template "gitlab.kas.websocketToken.secret" . }} --from-literal={{ template "gitlab.kas.websocketToken.key" . }}=$(gen_random_base64 72)
-{{ end }}
-
-{{ if .Values.global.appConfig.incomingEmail.enabled -}}
-# Gitlab-mailroom incomingEmail webhook secret
-generate_secret_if_needed {{ template "gitlab.appConfig.incomingEmail.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.incomingEmail.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
-{{ end }}
-
-{{ if .Values.global.appConfig.serviceDeskEmail.enabled -}}
-# Gitlab-mailroom serviceDeskEmail webhook secret
-generate_secret_if_needed {{ template "gitlab.appConfig.serviceDeskEmail.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.serviceDeskEmail.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
-{{ end }}
-
-# Registry certificates
-mkdir -p certs
-openssl req -new -newkey rsa:4096 -subj "/CN={{ coalesce .Values.registry.tokenIssuer  (dig "registry" "tokenIssuer" "gitlab-issuer" .Values.global ) }}" -nodes -x509 -keyout certs/registry-example-com.key -out certs/registry-example-com.crt -days 3650
-generate_secret_if_needed {{ template "gitlab.registry.certificate.secret" . }} --from-file=registry-auth.key=certs/registry-example-com.key --from-file=registry-auth.crt=certs/registry-example-com.crt
-
-# config/secrets.yaml
-if [ -n "$env" ]; then
-  rails_secret={{ template "gitlab.rails-secrets.secret" . }}
-
-  # Fetch the values from the existing secret if it exists
-  if $(kubectl --namespace=$namespace get secret $rails_secret > /dev/null 2>&1); then
-    kubectl --namespace=$namespace get secret $rails_secret -o jsonpath="{.data.secrets\.yml}" | base64 --decode > secrets.yml
-    secret_key_base=$(fetch_rails_value secrets.yml "${env}.secret_key_base")
-    otp_key_base=$(fetch_rails_value secrets.yml "${env}.otp_key_base")
-    db_key_base=$(fetch_rails_value secrets.yml "${env}.db_key_base")
-    openid_connect_signing_key=$(fetch_rails_value secrets.yml "${env}.openid_connect_signing_key")
-    encrypted_settings_key_base=$(fetch_rails_value secrets.yml "${env}.encrypted_settings_key_base")
-
-    active_record_encryption_primary_keys=$(fetch_rails_value secrets.yml "${env}.active_record_encryption_primary_key")
-    active_record_encryption_deterministic_keys=$(fetch_rails_value secrets.yml "${env}.active_record_encryption_deterministic_key")
-    active_record_encryption_key_derivation_salt=$(fetch_rails_value secrets.yml "${env}.active_record_encryption_key_derivation_salt")
-  fi;
-
-  # Generate defaults for any unset secrets
-  secret_key_base="${secret_key_base:-$(gen_random 'a-f0-9' 128)}" # equivalent to secureRandom.hex(64)
-  otp_key_base="${otp_key_base:-$(gen_random 'a-f0-9' 128)}" # equivalent to secureRandom.hex(64)
-  db_key_base="${db_key_base:-$(gen_random 'a-f0-9' 128)}" # equivalent to secureRandom.hex(64)
-  openid_connect_signing_key="${openid_connect_signing_key:-$(openssl genrsa 2048)}"
-  encrypted_settings_key_base="${encrypted_settings_key_base:-$(gen_random 'a-f0-9' 128)}" # equivalent to secureRandom.hex(64)
-
-  # 1. We set the following two keys as an array to support keys rotation.
-  #    The last key in the array is always used to encrypt data:
-  #    https://github.com/rails/rails/blob/v7.0.8.4/activerecord/lib/active_record/encryption/key_provider.rb#L21
-  #    while all the keys are used (in the order they're defined) to decrypt data:
-  #    https://github.com/rails/rails/blob/v7.0.8.4/activerecord/lib/active_record/encryption/cipher.rb#L26.
-  #    This allows to rotate keys by adding a new key as the last key, and start a re-encryption process that
-  #    runs in the background: https://gitlab.com/gitlab-org/gitlab/-/issues/494976
-  # 2. We use the same method and length as Rails' defaults:
-  #    https://github.com/rails/rails/blob/v7.0.8.4/activerecord/lib/active_record/railties/databases.rake#L537-L540
-  active_record_encryption_primary_keys=${active_record_encryption_primary_keys:-"- $(gen_random 'a-zA-Z0-9' 32)"}
-  active_record_encryption_deterministic_keys=${active_record_encryption_deterministic_keys:-"- $(gen_random 'a-zA-Z0-9' 32)"}
-  active_record_encryption_key_derivation_salt=${active_record_encryption_key_derivation_salt:-$(gen_random 'a-zA-Z0-9' 32)}
-
-  # Update the existing secret
-  cat << EOF > rails-secrets.yml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: $rails_secret
-type: Opaque
-stringData:
-  secrets.yml: |-
-    $env:
-      secret_key_base: $secret_key_base
-      otp_key_base: $otp_key_base
-      db_key_base: $db_key_base
-      encrypted_settings_key_base: $encrypted_settings_key_base
-      openid_connect_signing_key: |
-$(echo "${openid_connect_signing_key}" | awk '{print "        " $0}')
-      active_record_encryption_primary_key:
-$(echo "${active_record_encryption_primary_keys}" | awk '{print "        " $0}')
-      active_record_encryption_deterministic_key:
-$(echo "${active_record_encryption_deterministic_keys}" | awk '{print "        " $0}')
-      active_record_encryption_key_derivation_salt: $active_record_encryption_key_derivation_salt
-EOF
-  kubectl --validate=false --namespace=$namespace apply -f rails-secrets.yml
-  label_secret $rails_secret
-fi
-
-# Shell ssh host keys
-ssh-keygen -A
-mkdir -p host_keys
-cp /etc/ssh/ssh_host_* host_keys/
-generate_secret_if_needed {{ template "gitlab.gitlab-shell.hostKeys.secret" . }} --from-file host_keys
-
-# Gitlab-workhorse secret
-generate_secret_if_needed {{ template "gitlab.workhorse.secret" . }} --from-literal={{ template "gitlab.workhorse.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
-
-# Registry http.secret secret
-generate_secret_if_needed {{ template "gitlab.registry.httpSecret.secret" . }} --from-literal={{ template "gitlab.registry.httpSecret.key" . }}=$(gen_random 'a-z0-9' 128 | base64 -w 0)
-
-# Container Registry notification_secret
-generate_secret_if_needed {{ template "gitlab.registry.notificationSecret.secret" . }} --from-literal={{ template "gitlab.registry.notificationSecret.key" . }}=[\"$(gen_random 'a-zA-Z0-9' 32)\"]
-
-{{ if .Values.global.praefect.enabled -}}
-{{   if not .Values.global.praefect.psql.host -}}
-# Praefect DB password
-generate_secret_if_needed {{ template "gitlab.praefect.dbSecret.secret" . }} --from-literal={{ template "gitlab.praefect.dbSecret.key" . }}=$(gen_random 'a-zA-Z0-9' 32)
-{{   end }}
-
-# Praefect auth token
-generate_secret_if_needed {{ template "gitlab.praefect.authToken.secret" . }} --from-literal={{ template "gitlab.praefect.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
-{{ end }}
-
-{{ if .Values.openbao.install -}}
-gen_random_bytes 32 > bao-unseal
-generate_secret_if_needed {{ template "gitlab.openbao.unseal.secret" . }} --from-file={{ template "gitlab.openbao.unseal.key" . }}=bao-unseal
-{{ end }}
-
-{{ if or .Values.openbao.install .Values.global.openbao.enabled -}}
-# Authentication token secret for Openbao Rails requests
-generate_secret_if_needed {{ template "gitlab.openbao.authenticationTokenSecretFilePath.secret" . }} --from-literal={{ template "gitlab.openbao.authenticationTokenSecretFilePath.key" . }}="$(gen_random 'a-zA-Z0-9' 32)"
-{{ end -}}
-
-{{ if .Values.global.appConfig.iamAuthService.enabled -}}
-# Service token used by GitLab to authenticate internal API requests to the iam-auth service
-generate_secret_if_needed {{ template "gitlab.appConfig.iamAuthService.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.iamAuthService.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
-{{ end }}
-
-{{ if .Values.global.appConfig.iamDataAccessService.enabled -}}
-# Service token used by GitLab to authenticate internal API requests to the iam-data-access service
-generate_secret_if_needed {{ template "gitlab.appConfig.iamDataAccessService.authToken.secret" . }} --from-literal={{ template "gitlab.appConfig.iamDataAccessService.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
-{{ end }}
-
-{{ if index .Values "ai-gateway" "install" -}}
-# AI Gateway JWT signing keys
-
-# Duo workflow signing key
-openssl genrsa -out duo_workflow_signing.key 4096
-generate_secret_if_needed {{ template "ai-gateway.duoWorkflowSigningKey.secret" . }} --from-file={{ template "ai-gateway.duoWorkflowSigningKey.key" . }}=duo_workflow_signing.key
-
-# Duo workflow validation key
-openssl genrsa -out duo_workflow_validation.key 4096
-generate_secret_if_needed {{ template "ai-gateway.duoWorkflowValidationKey.secret" . }} --from-file={{ template "ai-gateway.duoWorkflowValidationKey.key" . }}=duo_workflow_validation.key
-
-openssl genrsa -out aigw_signing.key 4096
-generate_secret_if_needed {{ template "ai-gateway.aigwSigningKey.secret" . }} --from-file={{ template "ai-gateway.aigwSigningKey.key" . }}=aigw_signing.key
-
-# AI Gateway validation key
-openssl genrsa -out aigw_validation.key 4096
-generate_secret_if_needed {{ template "ai-gateway.aigwValidationKey.secret" . }} --from-file={{ template "ai-gateway.aigwValidationKey.key" . }}=aigw_validation.key
-{{ end }}
+# {{ $secret.comment }}
+{{-     include "gitlab.secrets.shell.prepare" $secret }}
+generate_secret_if_needed {{ $secret.name | quote }}{{ include "gitlab.secrets.shell.args" $secret }}
+{{-   end }}
+{{- end }}

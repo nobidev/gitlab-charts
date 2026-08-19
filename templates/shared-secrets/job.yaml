@@ -1,5 +1,5 @@
 {{- $sharedSecretValues := index .Values "shared-secrets" -}}
-{{- if $sharedSecretValues.enabled }}
+{{- if eq (include "gitlab.shared-secrets.job.enabled" .) "true" }}
 {{-   $imageCfg := dict "global" .Values.global.image "local" .Values.global.kubectl.image -}}
 apiVersion: batch/v1
 kind: Job
