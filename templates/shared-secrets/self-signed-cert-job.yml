@@ -1,5 +1,5 @@
 {{- $sharedSecretValues := index .Values "shared-secrets" -}}
-{{- if $sharedSecretValues.enabled }}
+{{- if eq (include "gitlab.shared-secrets.job.enabled" .) "true" }}
 {{-   if not .Values.global.ingress.configureCertmanager }}
 {{-     if (eq (include "gitlab.global.ingress.tls.enabled" .) "true") }}
 {{-       if not (eq (include "gitlab.ingress.tls.configured" .) "true") }}

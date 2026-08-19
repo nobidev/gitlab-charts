@@ -167,11 +167,18 @@ registry:
 {{- end -}}
 {{- /* END gitlab.deprecate.registry.notifications.endpoints.threshold */}}
 
-{{- /* If shared-secrets is disable, manual secret creation will be needed */}}
+{{- /* If shared-secrets is disabled, manual secret creation will be needed */}}
 {{- if not (index .Values "shared-secrets").enabled }}
 {{ $NOTICE }}
 The automatic generation of secrets has been disabled.
 The user should ensure all necessary secrets are created according to documentation, or the deployment will fail to operate correctly.
+{{- else if eq (include "gitlab.shared-secrets.provider" .) "controller" }}
+{{ $NOTICE }}
+Secret generation has been delegated to a controller via `shared-secrets.provider=controller`.
+A GitLabSecrets resource has been rendered, but this chart has not generated any secret values.
+Unless a controller that reconciles `apps.gitlab.com/v2alpha1` GitLabSecrets is running in this
+cluster, the deployment will not become ready. This provider is intended for use with the GitLab
+Operator. See https://docs.gitlab.com/charts/charts/shared-secrets/
 {{- end }}
 
 {{- /* Runner notice if .install && ! .runners.privileged */}}

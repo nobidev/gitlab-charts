@@ -1,5 +1,4 @@
-{{- $sharedSecretEnabled := index .Values "shared-secrets" "enabled" -}}
-{{- if $sharedSecretEnabled -}}
+{{- if eq (include "gitlab.shared-secrets.job.enabled" .) "true" -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
