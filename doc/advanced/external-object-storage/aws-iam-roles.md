@@ -38,7 +38,8 @@ s3:
   region: us-east-1
 ```
 
-*Note*: If you provide the key pair, IAM role will be ignored. See [AWS documentation](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html#credentials-default) for more details.
+> [!note]
+> If you provide the key pair, IAM role will be ignored. See [AWS documentation](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html#credentials-default) for more details.
 
 ### LFS, Artifacts, Uploads, Packages
 

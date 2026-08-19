@@ -622,7 +622,7 @@ instance that uses Sentinels. Please refer to the [Sentinel configuration](#redi
 for the attributes that are used to configure Sentinel servers.
 
 For example, when defining the `cache` instance separately, the `sentinels`
-list must be repeated under that instance. It is **not** inherited from
+list must be repeated under that instance. It is not inherited from
 `global.redis.sentinels`. Omitting it causes the instance to connect directly
 instead of through Sentinel:
 
@@ -2542,7 +2542,7 @@ extra labels.
 
 Custom labels can be applied to various Deployments and Jobs. These labels are
 supplementary to existing or preconfigured labels constructed by this Helm
-chart. These supplementary labels will **not** be utilized for `matchSelectors`.
+chart. These supplementary labels will not be utilized for `matchSelectors`.
 
 ```yaml
 global:

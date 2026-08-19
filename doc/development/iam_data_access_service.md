@@ -56,7 +56,7 @@ The secret is created during the initial deployment and persists across upgrades
 
 ## Important notes
 
-- This feature is **not** intended for use outside of GitLab.com
+- This feature is not intended for use outside of GitLab.com
 - Configuration changes may occur without notice
 - The service endpoint and authentication mechanism may change
 - Do not rely on this feature for production deployments

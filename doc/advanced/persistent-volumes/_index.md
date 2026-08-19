@@ -284,7 +284,7 @@ kubectl --namespace <namespace> get PersistentVolume <volume name> -o yaml > <vo
 There are a couple of things to keep in mind when following the driver documentation:
 
 - You need to use the driver to create a [Persistent Volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes), not a Pod object with a volume as shown in a lot of the documentation.
-- You do **not** want to create a [PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) for the volume, we will be editing the existing claim instead.
+- You do not want to create a [PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) for the volume, we will be editing the existing claim instead.
 
 The driver documentation often includes examples for using the driver in a Pod, for example:
 
