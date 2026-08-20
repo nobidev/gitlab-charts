@@ -88,7 +88,10 @@ absent, and the controller backend is told `policy: fill-missing`.
 | `sshHostKeys` | None | SSH host keys from `ssh-keygen -A` |
 | `railsSecrets` | `key`, `env`, `fields` | The Rails `secrets.yml` document |
 
-`charset` is one of `alphanumeric`, `hex`, or `lowerAlphanumeric`.
+`charset` is one of `alphanumeric`, `hex`, or `lowerAlphanumeric`, and is required on every
+`random` generator and every non-`pem` Rails field. There is no default on purpose. The
+controller reads the same field, so a value the chart filled in silently would reach the
+controller as absent and let it choose a different alphabet.
 
 `encoding` is `none`, `base64`, or `base64-nowrap`. The two base64 spellings differ.
 `base64` wraps at 76 columns and appends a newline. `base64-nowrap` does neither.

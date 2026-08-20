@@ -124,13 +124,17 @@ they produced the values already in the field.
 
 Random characters.
 
-| Field | Description |
-|-------|-------------|
-| `key` | Key to store the value under |
-| `charset` | `alphanumeric` (`a-zA-Z0-9`), `hex` (`a-f0-9`), or `lowerAlphanumeric` (`a-z0-9`) |
-| `length` | Number of characters, before encoding |
-| `encoding` | `none`, `base64`, or `base64-nowrap` |
-| `wrap` | `none` or `jsonArray` |
+| Field | Description | Default |
+|-------|-------------|---------|
+| `key` | Key to store the value under | required |
+| `charset` | `alphanumeric` (`a-zA-Z0-9`), `hex` (`a-f0-9`), or `lowerAlphanumeric` (`a-z0-9`) | required |
+| `length` | Number of characters, before encoding | required |
+| `encoding` | `none`, `base64`, or `base64-nowrap` | `none` |
+| `wrap` | `none` or `jsonArray` | `none` |
+
+`charset` and `length` are always present: the chart refuses to render a `random` generator
+without them, so that neither backend has to guess. `encoding` and `wrap` may be absent and
+mean "do not transform the value".
 
 `base64` wraps at 76 columns and appends a trailing newline. `base64-nowrap` does neither.
 Both appear in the field, so treat them as distinct.

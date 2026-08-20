@@ -391,6 +391,21 @@ Usage:
 {{-         fail (printf "shared-secrets: %q generator %q in entry %q needs a positive length" $generator.type (default "" $generator.key) $entry.name) -}}
 {{-       end -}}
 {{-     end -}}
+{{/*    charset must be spelled out. Defaulting it in the shell would leave the field
+        absent from the GitLabSecrets resource, so the controller would apply a default
+        of its own and the two backends could disagree on the alphabet. */}}
+{{-     if eq $generator.type "random" -}}
+{{-       if not $generator.charset -}}
+{{-         fail (printf "shared-secrets: random generator %q in entry %q must set a charset" (default "" $generator.key) $entry.name) -}}
+{{-       end -}}
+{{-     end -}}
+{{-     if eq $generator.type "railsSecrets" -}}
+{{-       range $field := $generator.fields -}}
+{{-         if and (ne $field.shape "pem") (not $field.charset) -}}
+{{-           fail (printf "shared-secrets: rails field %q in entry %q must set a charset" $field.path $entry.name) -}}
+{{-         end -}}
+{{-       end -}}
+{{-     end -}}
 {{/*    The shell backend dispatches on the first generator, so railsSecrets has to
         stand alone rather than be mixed with others. */}}
 {{-     if and (eq $generator.type "railsSecrets") (gt (len $entry.generators) 1) -}}

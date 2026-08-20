@@ -17,18 +17,25 @@ Recipes reproduce what the hand-written script did, including the base64 spellin
 are kept distinct so existing installs see no change in value shape.
 */}}
 
-{{/* Args: charset name. Returns the tr(1) character class. */}}
+{{/*
+Args: charset name. Returns the tr(1) character class.
+
+There is deliberately no default. `hex` and `alphanumeric` draw from different alphabets,
+so guessing one would silently change what a secret looks like. It also has to stay
+explicit because the controller backend reads the same field: a value the chart defaults
+in shell would reach the controller as absent, leaving it to apply a default of its own.
+*/}}
 {{- define "gitlab.secrets.shell.charset" -}}
 {{-   if eq . "alphanumeric" -}}a-zA-Z0-9
 {{-   else if eq . "hex" -}}a-f0-9
 {{-   else if eq . "lowerAlphanumeric" -}}a-z0-9
-{{-   else -}}{{ fail (printf "shared-secrets: unknown charset %q" .) }}
+{{-   else -}}{{ fail (printf "shared-secrets: unknown charset %v, expected alphanumeric, hex or lowerAlphanumeric" .) }}
 {{-   end -}}
 {{- end -}}
 
 {{/* Args: a generator map. Returns the command substitution producing its value. */}}
 {{- define "gitlab.secrets.shell.value" -}}
-{{-   $charset := include "gitlab.secrets.shell.charset" (default "alphanumeric" .charset) -}}
+{{-   $charset := include "gitlab.secrets.shell.charset" .charset -}}
 {{-   $raw := printf "gen_random '%s' %d" $charset (int .length) -}}
 {{-   $encoding := default "none" .encoding -}}
 {{-   if eq $encoding "base64" -}}
