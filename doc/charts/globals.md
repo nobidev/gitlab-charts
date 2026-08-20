@@ -1586,6 +1586,9 @@ To configure `kas` to use the certificates you created, set the following values
 | `global.kas.tls.verify`       | When `true`, instructs NGINX Ingress to verify the backend TLS certificate of KAS. Must be set to `false` for self-signed certificates. If using [Gateway API](../advanced/gateway-api/_index.md#tls-between-gateway-and-backend-services), the Gateway API controller always verifies the certificate. |
 | `global.kas.tls.caSecretName` | Specifies which Kubernetes TLS secret stores your custom CA. |
 
+AutoFlow is configured under `global.kas.autoflow`; see
+[Enable AutoFlow](gitlab/kas/_index.md#enable-autoflow).
+
 For example, you could use the following in your `values.yaml` file to deploy your chart:
 
 ```yaml

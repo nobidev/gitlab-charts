@@ -199,6 +199,56 @@ You can pass these parameters to the `helm install` command by using the `--set`
 | `deployment.terminationGracePeriodSeconds`               | `300`                                                 | How much time in seconds a Pod is allowed to spend shutting down after receiving SIGTERM. |
 | `priorityClassName`                                      |                                                       | [Priority class](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/) assigned to pods. |
 
+## Enable AutoFlow
+
+AutoFlow runs inside `kas` and keeps its state in PostgreSQL. It is disabled by
+default. Enabling it needs a database that you provision yourself and a secret
+holding its connection strings; the chart neither creates the database nor the
+user.
+
+`kas` reads both DSNs from files, so they are supplied as secret keys rather
+than as values:
+
+```yaml
+global:
+  kas:
+    autoflow:
+      enabled: true
+      database:
+        dsn:
+          secret: autoflow-dsns
+          key: dsn
+        migrationDsn:
+          key: migration_dsn
+```
+
+| Value | Description |
+|-------|-------------|
+| `global.kas.autoflow.enabled` | Renders the `autoflow` configuration block and mounts the DSN secret. Defaults to `false`. |
+| `global.kas.autoflow.database.dsn.secret` | Secret holding the runtime DSN. Required when AutoFlow is enabled. |
+| `global.kas.autoflow.database.dsn.key` | Key within that secret. Defaults to `dsn`. |
+| `global.kas.autoflow.database.migrationDsn.secret` | Secret holding the migration DSN. Defaults to `dsn.secret`. |
+| `global.kas.autoflow.database.migrationDsn.key` | Key within that secret. Defaults to `migration_dsn`. |
+
+The migration DSN should be a direct connection to PostgreSQL: migrations take a
+session-level advisory lock, which is incompatible with transaction pooling. When
+no pooler sits in front of the database, both DSNs may point at the same place.
+
+For a first deployment one database is enough — the central catalog and a single
+workflow database can share it. Register the workflow database once, after the
+schema is migrated:
+
+```shell
+kas autocorectl central migrate up --apply --central-dsn-file /etc/kas/.autoflow_migration_dsn
+kas autocorectl central db add --db-id 1 \
+  --runtime-dsn-file /etc/kas/.autoflow_dsn \
+  --migration-dsn-file /etc/kas/.autoflow_migration_dsn \
+  --shards-range 1-16 --apply
+```
+
+Adding capacity later means registering a second database with a new shard
+range: new workflows are placed there, and existing ones stay where they are.
+
 ## Enable TLS communication
 
 Enable TLS communication between your `kas` pods and other GitLab chart components,
