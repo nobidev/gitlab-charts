@@ -350,6 +350,25 @@ describe 'shared-secrets provisioning' do
     end
   end
 
+  describe 'manifest validation' do
+    # charset must reach both backends explicitly. If the chart defaulted it, the
+    # GitLabSecrets resource would omit the field and the controller would pick its own.
+    it 'refuses a random generator with no charset' do
+      # Rendered by mutating the manifest is not possible from a spec, so assert the
+      # guard exists and that every shipped entry satisfies it.
+      manifest = File.read('templates/shared-secrets/_manifest.tpl')
+      expect(manifest).to include('must set a charset')
+    end
+
+    it 'gives every random generator an explicit charset' do
+      manifest = File.read('templates/shared-secrets/_manifest.tpl')
+      bodies = manifest.scan(/- type: random\n(.*?)(?=\n\s*- type:|\n\n|\Z)/m).flatten
+
+      expect(bodies).not_to be_empty
+      expect(bodies).to all(include('charset:'))
+    end
+  end
+
   describe 'conditional entries' do
     {
       'test-gitlab-kas-secret' => 'global.kas.enabled',
