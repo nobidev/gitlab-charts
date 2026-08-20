@@ -46,6 +46,13 @@ private_api:
     ca_certificate_file: "/etc/ssl/certs/ca-certificates.crt"
     {{- end }}
 
+{{- if (.Values.global.kas.autoflow).enabled }}
+autoflow:
+  database:
+    dsn_file: "/etc/kas/.autoflow_dsn"
+    migration_dsn_file: "/etc/kas/.autoflow_migration_dsn"
+{{- end }}
+
 {{- if .Values.global.workspaces.enabled }}
 workspaces:
   enabled: true

@@ -273,6 +273,99 @@ describe 'kas configuration' do
         end
       end
 
+      context 'when autoflow is enabled' do
+        let(:kas_values) do
+          default_kas_values.deep_merge!(YAML.safe_load(%(
+              global:
+                kas:
+                  autoflow:
+                    enabled: true
+                    database:
+                      dsn:
+                        secret: autoflow-dsns
+            )))
+        end
+
+        it 'configures the autoflow database from mounted files' do
+          expect(config_yaml_data['autoflow']).to eq(
+            "database" => {
+              "dsn_file" => "/etc/kas/.autoflow_dsn",
+              "migration_dsn_file" => "/etc/kas/.autoflow_migration_dsn"
+            }
+          )
+        end
+
+        it 'projects both DSN keys from the secret' do
+          sources = kas_enabled_template.projected_volume_sources(
+            'Deployment/test-kas',
+            'init-etc-kas'
+          ).select { |c| c.dig('secret', 'name') == 'autoflow-dsns' }
+
+          expect(sources.map { |s| s.dig('secret', 'items', 0, 'key') }).to contain_exactly('dsn', 'migration_dsn')
+          expect(sources.map { |s| s.dig('secret', 'items', 0, 'path') }).to contain_exactly('.autoflow_dsn', '.autoflow_migration_dsn')
+        end
+
+        context 'when the migration DSN lives in its own secret' do
+          let(:kas_values) do
+            default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  kas:
+                    autoflow:
+                      enabled: true
+                      database:
+                        dsn:
+                          secret: autoflow-dsns
+                          key: runtime
+                        migrationDsn:
+                          secret: autoflow-migration-dsn
+                          key: migration
+              )))
+          end
+
+          it 'projects each DSN from its own secret' do
+            sources = kas_enabled_template.projected_volume_sources(
+              'Deployment/test-kas',
+              'init-etc-kas'
+            ).select { |c| %w[autoflow-dsns autoflow-migration-dsn].include?(c.dig('secret', 'name')) }
+
+            expect(sources.map { |s| [s.dig('secret', 'name'), s.dig('secret', 'items', 0, 'key')] }).to contain_exactly(
+              %w[autoflow-dsns runtime],
+              %w[autoflow-migration-dsn migration]
+            )
+          end
+        end
+
+        context 'when no secret is given' do
+          let(:kas_values) do
+            default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  kas:
+                    autoflow:
+                      enabled: true
+              )))
+          end
+
+          it 'fails the render' do
+            expect(kas_enabled_template.exit_code).not_to eq(0)
+            expect(kas_enabled_template.stderr).to include('global.kas.autoflow.database.dsn.secret is required')
+          end
+        end
+      end
+
+      context 'when autoflow is disabled' do
+        it 'omits the autoflow config node' do
+          expect(config_yaml_data).not_to have_key('autoflow')
+        end
+
+        it 'mounts no autoflow secret' do
+          sources = kas_enabled_template.projected_volume_sources(
+            'Deployment/test-kas',
+            'init-etc-kas'
+          )
+          expect(sources.map { |s| s.dig('secret', 'items', 0, 'path') }).not_to include('.autoflow_dsn')
+        end
+      end
+
       context 'when customConfig is given' do
         let(:custom_config) do
           YAML.safe_load(%(

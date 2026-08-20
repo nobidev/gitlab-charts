@@ -68,3 +68,32 @@ otherwise the hostname will be assembed using `kas` as the prefix, and the `gitl
 {{- define "gitlab.kas.hostname" -}}
 {{- coalesce $.Values.global.hosts.kas.name (include "gitlab.assembleHost"  (dict "name" "kas" "context" . )) -}}
 {{- end -}}
+
+{{/*
+Return the secret and key holding the AutoFlow central database DSNs.
+
+Both DSNs commonly live in one secret, so the migration DSN falls back to the
+runtime DSN's secret name and only its key has to be given.
+*/}}
+
+{{- define "gitlab.kas.autoflow.dsn.secret" -}}
+{{- $dsn := ((.Values.global.kas.autoflow).database).dsn | default dict -}}
+{{- required "global.kas.autoflow.database.dsn.secret is required when global.kas.autoflow.enabled is true" $dsn.secret | quote -}}
+{{- end -}}
+
+{{- define "gitlab.kas.autoflow.dsn.key" -}}
+{{- $dsn := ((.Values.global.kas.autoflow).database).dsn | default dict -}}
+{{- default "dsn" $dsn.key | quote -}}
+{{- end -}}
+
+{{- define "gitlab.kas.autoflow.migrationDsn.secret" -}}
+{{- $db := (.Values.global.kas.autoflow).database | default dict -}}
+{{- $migration := $db.migrationDsn | default dict -}}
+{{- $dsn := $db.dsn | default dict -}}
+{{- required "global.kas.autoflow.database.dsn.secret is required when global.kas.autoflow.enabled is true" (default $dsn.secret $migration.secret) | quote -}}
+{{- end -}}
+
+{{- define "gitlab.kas.autoflow.migrationDsn.key" -}}
+{{- $migration := ((.Values.global.kas.autoflow).database).migrationDsn | default dict -}}
+{{- default "migration_dsn" $migration.key | quote -}}
+{{- end -}}

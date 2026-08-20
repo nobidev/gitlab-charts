@@ -761,6 +761,16 @@ global:
       verify: true
       # secretName:
       # caSecretName:
+    ## https://docs.gitlab.com/charts/charts/gitlab/kas/#autoflow
+    autoflow:
+      enabled: false
+      database:
+        dsn: {}
+        # secret:
+        # key: dsn
+        migrationDsn: {}
+        # secret:
+        # key: migration_dsn
 
   workspaces:
     ## If workspaces is enabled, you must provide a hostname under global.hosts

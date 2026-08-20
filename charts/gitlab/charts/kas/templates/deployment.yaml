@@ -148,6 +148,18 @@ spec:
                   - key: tls.key
                     path: tls.key
             {{- end }}
+            {{- if (.Values.global.kas.autoflow).enabled }}
+            - secret:
+                name: {{ include "gitlab.kas.autoflow.dsn.secret" . }}
+                items:
+                  - key: {{ include "gitlab.kas.autoflow.dsn.key" . }}
+                    path: .autoflow_dsn
+            - secret:
+                name: {{ include "gitlab.kas.autoflow.migrationDsn.secret" . }}
+                items:
+                  - key: {{ include "gitlab.kas.autoflow.migrationDsn.key" . }}
+                    path: .autoflow_migration_dsn
+            {{- end }}
             {{- $instance := empty .Values.global.redis.kas | ternary "sharedState" "kas" }}
             {{- include "gitlab.redis.secrets" (dict "globalContext" $ "instances" $instance "mountRedisYmlOverrideSecrets" false) | nindent 12 }}
             {{- include "gitlab.redisSentinel.secret" $ | nindent 12 }}
