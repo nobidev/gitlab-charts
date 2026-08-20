@@ -123,6 +123,7 @@ data:
       {{- include "gitlab.appConfig.ldap.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.omniauth.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.kerberos.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.mobilePush.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.duo.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.duo.configuration" $ | nindent 6 }}
       shared:

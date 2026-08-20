@@ -664,6 +664,16 @@ global:
         https: true
       simpleLdapLinkingAllowedRealms: []
 
+    ## https://docs.gitlab.com/charts/charts/globals#mobile-push-notification-settings
+    mobilePush:
+      apns:
+        authKey:
+          # secret:
+          key: auth_key
+        keyId: ""
+        teamId: ""
+        topic: ""
+
     ## https://docs.gitlab.com/charts/charts/globals#configure-appconfig-settings
     sentry:
       enabled: false

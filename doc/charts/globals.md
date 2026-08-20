@@ -1929,6 +1929,54 @@ global:
 | `clientside_dsn` | String  |         | Sentry DSN for front-end errors |
 | `environment`    | String  |         | See [Sentry environments](https://docs.sentry.io/concepts/key-terms/environments/) |
 
+### Mobile push notification settings
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/248026) in GitLab 19.3 [with flags](https://docs.gitlab.com/administration/feature_flags/) named `mobile_push_registration_api`, `mobile_push_notifications_dispatch`, and `mobile_push_notifications`. Disabled by default.
+
+{{< /history >}}
+
+Use these settings to let GitLab deliver mobile push notifications through the
+Apple Push Notification service (APNs). The `.p8` provider token signing key is
+mounted into the Webservice, Sidekiq, and Toolbox pods from a Kubernetes
+secret; delivery is skipped entirely when no key is configured. See
+[mobile push APNs signing key](../installation/secrets.md#mobile-push-apns-signing-key)
+for creating the secret.
+
+The server-side feature is controlled by
+[feature flags](https://docs.gitlab.com/administration/feature_flags/) that are
+disabled by default: `mobile_push_registration_api` gates the
+[mobile push subscriptions API](https://docs.gitlab.com/api/mobile_push_subscriptions/)
+that devices register with, and `mobile_push_notifications_dispatch` and
+`mobile_push_notifications` gate delivery. Devices cannot register and no
+pushes are delivered until an administrator enables all three.
+
+```yaml
+global:
+  appConfig:
+    mobilePush:
+      apns:
+        authKey:
+          secret: gitlab-mobile-push-apns-auth-key
+          key: auth_key
+        keyId: "ABC123DEFG"
+        teamId: "DEF456GHIJ"
+        topic: ""
+```
+
+| Name             |  Type  | Default    | Description |
+|:-----------------|:------:|:-----------|:------------|
+| `authKey.secret` | String |            | The name of the Kubernetes secret holding the APNs provider token signing key (`.p8`) |
+| `authKey.key`    | String | `auth_key` | The key within the secret that contains the `.p8` file contents |
+| `keyId`          | String |            | The 10-character identifier of the APNs signing key |
+| `teamId`         | String |            | The Apple Developer team identifier |
+| `topic`          | String |            | `apns-topic` header for subscriptions that carry no bundle identifier; when unset, Rails defaults to `com.gitlab-mobile.app` |
+
+Pushes are dispatched by the Sidekiq pods of the site where to-dos are
+created — on a [Geo](../advanced/geo/_index.md) deployment, the primary site. Configure
+these settings on all sites so that a promoted secondary can deliver pushes.
+
 ### `gitlab_docs` settings
 
 Use these settings to enable `gitlab_docs`.
