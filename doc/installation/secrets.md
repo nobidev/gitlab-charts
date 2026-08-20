@@ -624,6 +624,24 @@ setting. If keys other than `appid` and `appsecret` are used, they can be
 specified using `global.oauth.<service name>.appIdKey` and
 `global.oauth.<service name>.appSecretKey` settings.
 
+### Mobile push APNs signing key
+
+To deliver mobile push notifications through the Apple Push Notification
+service (APNs), GitLab needs an APNs provider token signing key: a `.p8` file
+issued by an Apple Developer account. This key cannot be generated — obtain it
+from the [Apple Developer portal](https://developer.apple.com/documentation/usernotifications/establishing-a-token-based-connection-to-apns)
+along with its key ID and the Apple Developer team ID.
+
+```shell
+kubectl create secret generic gitlab-mobile-push-apns-auth-key --from-file=auth_key=./AuthKey.p8
+```
+
+The key used within the secret is `auth_key` by default; a different key can be
+specified with the `global.appConfig.mobilePush.apns.authKey.key` setting.
+
+This secret is referenced by the `global.appConfig.mobilePush.apns.authKey.secret`
+setting. See the [mobile push notification settings](../charts/globals.md#mobile-push-notification-settings).
+
 ## Next steps
 
 Once all secrets have been generated and stored, you can proceed [deploying GitLab](deployment.md).
