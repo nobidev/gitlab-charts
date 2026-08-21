@@ -2041,7 +2041,7 @@ global:
 ```
 
 > [!note]
-> シークレットのキー名にある`.crt`拡張子は、[Debian update-ca-certificatesパッケージ](https://manpages.debian.org/bullseye/ca-certificates/update-ca-certificates.8.en.html)にとって重要です。この手順を実行すれば、カスタムCAファイルがその拡張子でマウントされ、証明書`initContainers`で処理されることが保証されます。以前は、[ドキュメント](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)の記述とは異なり、証明書ヘルパーイメージがalpineベースだった場合、実際にはファイル拡張子が必須ではありませんでした。UBIベースの`update-ca-trust`ユーティリティには、同じ要件はないようです。
+> シークレットのキー名にある`.crt`拡張子は、[Debian update-ca-certificatesパッケージ](https://manpages.debian.org/trixie/ca-certificates/update-ca-certificates.8.en.html)にとって重要です。この手順を実行すれば、カスタムCAファイルがその拡張子でマウントされ、証明書`initContainers`で処理されることが保証されます。以前は、[ドキュメント](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)の記述とは異なり、証明書ヘルパーイメージがalpineベースだった場合、実際にはファイル拡張子が必須ではありませんでした。UBIベースの`update-ca-trust`ユーティリティには、同じ要件はないようです。
 
 任意の数のシークレットまたはConfigMapを指定し、それぞれに、PEMエンコードのCA証明書を保持するキーを必要な数だけ設定できます。これらは、`global.certificates.customCAs`の下のエントリとして設定します。マウントする特定のキーのリストを`keys:`に指定しない限り、すべてのキーがマウントされます。すべてのシークレットおよびConfigMapにわたるマウント対象のキーは、いずれも一意でなければなりません。シークレットとConfigMapには任意の名前を付けることができますが、キー名が*競合してはいけません*。
 

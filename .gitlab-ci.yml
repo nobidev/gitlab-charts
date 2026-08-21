@@ -49,7 +49,7 @@ variables:
   QA_FULL_SUITE_OPTIONS: '--tag ~smoke --tag ~skip_live_env --tag ~orchestrated --tag ~transient'
   QA_SANITY_SUITE_OPTIONS: '--tag smoke --tag ~skip_live_env --tag ~orchestrated'
   GITLAB_QA_ADMIN_ACCESS_TOKEN: $GITLAB_ADMIN_TOKEN
-  DEBIAN_VERSION: bookworm-slim
+  DEBIAN_VERSION: trixie-slim
   BUSYBOX_VERSION: "1.37"
   RUBY_VERSION: "3.3.11"
   CI_TOOLS_VERSION: "5.53.0"
