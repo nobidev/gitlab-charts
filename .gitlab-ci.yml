@@ -51,7 +51,7 @@ variables:
   GITLAB_QA_ADMIN_ACCESS_TOKEN: $GITLAB_ADMIN_TOKEN
   DEBIAN_VERSION: trixie-slim
   BUSYBOX_VERSION: "1.37"
-  RUBY_VERSION: "3.3.11"
+  RUBY_VERSION: "3.3.12"
   CI_TOOLS_VERSION: "5.53.0"
   CI_TOOLS_NAMESPACE: "gitlab-org"
   GITLAB_NAMESPACE: "gitlab-org"
@@ -461,12 +461,6 @@ k3d_nginx:
     - .dind
   variables:
     GITLAB_PASSWORD: $ROOT_PASSWORD
-    # The trixie CI image is built with a different Ruby/Go/Chrome matrix than
-    # the chart-base image (see
-    # https://gitlab.com/gitlab-org/gitlab-build-images/-/merge_requests/1101),
-    # so override the shared RUBY_VERSION here to a combination that is
-    # actually published.
-    RUBY_VERSION: "3.3.12"
     RUBYGEMS_VERSION: "3.6"
     GO_VERSION: "1.25"
     NODE_VERSION: "22.12"
