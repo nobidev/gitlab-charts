@@ -18,7 +18,6 @@
     # By default, deploy the Review App using the `main` branch of the `gitlab-org/gitlab-docs` project
     #DOCS_BRANCH: main
     DOCS_BRANCH: jcole-ext/set-review-languages
-    DOCS_PROJECT_PATH: gitlab-com/localization/tech-docs-forked-projects/prod/gitlab-docs
   when: manual
   rules:
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
