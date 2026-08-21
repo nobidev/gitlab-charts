@@ -5,6 +5,8 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: GitLab Helm 차트 출처 검증
 ---
 
+test change
+
 [Helm 출처 검증](https://helm.sh/docs/topics/provenance/)을 사용하여 GitLab Helm 차트의 무결성과 출처를 확인할 수 있습니다.
 
 GitLab Helm 차트는 GNUPG 키 쌍으로 서명됩니다. 키 쌍의 공개 부분은 차트를 확인하기 전에 다운로드하고 내보내야 합니다. [GNU 개인정보 보호 핸드북](https://www.gnupg.org/gph/en/manual/x56.html)에는 GPG 키를 관리하는 방법에 대한 자세한 지침이 있습니다.
