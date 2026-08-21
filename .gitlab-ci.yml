@@ -462,8 +462,10 @@ k3d_nginx:
   variables:
     GITLAB_PASSWORD: $ROOT_PASSWORD
     # The trixie CI image is built with a different Ruby/Go/Chrome matrix than
-    # the chart-base image (see gitlab-build-images!1101), so override the
-    # shared RUBY_VERSION here to a combination that is actually published.
+    # the chart-base image (see
+    # https://gitlab.com/gitlab-org/gitlab-build-images/-/merge_requests/1101),
+    # so override the shared RUBY_VERSION here to a combination that is
+    # actually published.
     RUBY_VERSION: "3.3.12"
     RUBYGEMS_VERSION: "3.6"
     GO_VERSION: "1.25"
