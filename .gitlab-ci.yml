@@ -24,7 +24,7 @@
 # Note: Auto CI does not work with multiple buildpacks yet
 
 default:
-  image: "${CI_REGISTRY}/${GITLAB_NAMESPACE}/gitlab-build-images/debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}:gcloud-526-kubectl-1.33-helm-${HELM_MINOR_VERSION}-helm_kubeconform-0.1.17-vcluster-0.30-awscli-1.40.35-vault-1.19.5"
+  image: "${CI_REGISTRY}/${GITLAB_NAMESPACE}/gitlab-build-images/debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}:gcloud-526-kubectl-1.35-helm-${HELM_MINOR_VERSION}-helm_kubeconform-0.1.17-vcluster-0.30-awscli-1.44.59-vault-1.19.5"
 
 variables:
   AUTO_DEPLOY_TAG_REGEX: '^[0-9]+\.[0-9]+\.[0-9]+\+[a-z0-9]{7,}$'
@@ -461,12 +461,16 @@ k3d_nginx:
     - .dind
   variables:
     GITLAB_PASSWORD: $ROOT_PASSWORD
+    # The trixie CI image is built with a different Ruby/Go/Chrome matrix than
+    # the chart-base image (see gitlab-build-images!1101), so override the
+    # shared RUBY_VERSION here to a combination that is actually published.
+    RUBY_VERSION: "3.3.12"
     RUBYGEMS_VERSION: "3.6"
-    GO_VERSION: "1.24"
+    GO_VERSION: "1.25"
     NODE_VERSION: "22.12"
     PYTHON_VERSION: "3.12"
     PG_VERSION: "16"
-    CHROME_VERSION: "133"
+    CHROME_VERSION: "151"
   script:
     - ./scripts/ci/install_spec_dependencies.sh
     - set_context
