@@ -156,13 +156,12 @@ include:
   - local: '/.gitlab/ci/k3d-version-pipeline-arm64.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "k3d_version_arm64"'
-  # Caproni review environment. Parent pipeline only: it needs pin_image_versions,
-  # which runs only here, and there is no K8s version matrix to fan out over yet.
-  # Gating on an empty LIMIT_TO also means this file is never included inside a child
-  # pipeline, so these jobs cannot recurse the way the k3d bridges can.
-  - local: '/.gitlab/ci/caproni.gitlab-ci.yml'
+  - local: '/.gitlab/ci/caproni-templates.gitlab-ci.yml'
     rules:
-      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
+      - if: '$LIMIT_TO == "caproni_version"'
+  - local: '/.gitlab/ci/caproni-version-pipeline.gitlab-ci.yml'
+    rules:
+      - if: '$LIMIT_TO == "caproni_version"'
   - local: '/.gitlab/ci/operator.gitlab-ci.yml'
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
@@ -422,6 +421,32 @@ k3d_nginx:
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
       when: never
     - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+      when: manual
+      allow_failure: true
+
+# Caproni review environment (parent pipeline bridge job).
+# Triggers a child pipeline with review_specs_caproni and qa_caproni jobs.
+# Like k3d, these are manual and non-blocking; they run alongside k3d jobs.
+caproni:
+  extends: .trigger_review_job
+  variables:
+    LIMIT_TO: caproni_version
+  rules:
+    - !reference [.rule:skip_if_fork]
+    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: never
+    - if: '$PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
+      when: manual
+      allow_failure: true
+    - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
+      when: manual
+      allow_failure: true
+    - if: '$PIPELINE_TYPE =~ /STABLE_BRANCH_PIPELINE$/'
+      when: manual
+      allow_failure: true
+    - if: '$PIPELINE_TYPE =~ /FEATURE_BRANCH_PIPELINE$/'
       when: manual
       allow_failure: true
 
