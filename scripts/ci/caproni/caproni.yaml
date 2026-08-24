@@ -127,10 +127,42 @@ deployers:
         # helm.repository, which OCI charts do not use.
         chart: oci://registry.gitlab.com/gitlab-org/cloud-native/charts/gitlab-dev-stack/gitlab-dev-stack:1.6.0
 
+  # --- License secret ------------------------------------------------------------
+  #
+  # Renders the <release>-gitlab-license Secret before `gitlab` installs, so its
+  # migrations Job mounts a real license from the start - matching the ordering
+  # `deploy()` in scripts/ci/autodevops.sh gets on the k3d path by creating that
+  # Secret before `helm upgrade`. Caproni has no pre-deploy hook with a kubeconfig,
+  # so a tiny rig-local chart plus `needs` is the substitute; see
+  # gitlab-org/gitlab-caproni's charts/artifact-registry-secrets for the pattern
+  # this is modelled on. Renders nothing (see the chart's own guard) when
+  # QA_EE_ACTIVATION_CODE is unset, e.g. on forks.
+  gitlab-license-secret:
+    type: helm
+    needs: []
+    helm:
+      namespace: ${KUBE_NAMESPACE}
+      # ${QA_EE_ACTIVATION_CODE} is expanded from caproni's own process environment
+      # (internal/variables/resolver.go falls back to os.Getenv), not written to any
+      # values file first - see the chart's templates/secret.yaml for why that matters.
+      dynamic_overrides:
+        - type: inline
+          value_map:
+            license: ${QA_EE_ACTIVATION_CODE}
+      release:
+        name: gitlab-license-secret
+        # Must be absolute, same as the gitlab deployer's chart path below: unlike
+        # values_file, caproni does not resolve a chart path relative to this config
+        # file, only relative to its own working directory (${CI_PROJECT_DIR}, where
+        # caproni_deploy.sh invokes `caproni up`). A relative "./charts/..." here
+        # resolved to "${CI_PROJECT_DIR}/charts/gitlab-license-secret", which doesn't
+        # exist - "INSTALLATION FAILED: path ... not found".
+        chart: ${CI_PROJECT_DIR}/scripts/ci/caproni/charts/gitlab-license-secret
+
   # --- The chart under test -----------------------------------------------------
   gitlab:
     type: helm
-    needs: [gitlab-dev-stack]
+    needs: [gitlab-dev-stack, gitlab-license-secret]
     helm:
       namespace: ${KUBE_NAMESPACE}
       # Mirrors `helm upgrade --install --wait --timeout 900s` in
@@ -142,9 +174,10 @@ deployers:
       # the same scripts/ci/values/gitlab-chart/* inputs the k3d path passes as
       # separate -f flags, plus ci.digests.yaml, into this one file.
       #
-      # helm.dynamic_overrides (type: inline) is the escape hatch for a value that
-      # has to be computed at deploy time. Nothing needs it today, because
-      # prepare_values() already envsubsts the dynamic parts.
+      # This deployer needs no helm.dynamic_overrides: prepare_values() already
+      # envsubsts the dynamic parts before the merge. See gitlab-license-secret
+      # above for a deployer that does need dynamic_overrides, because its value
+      # (the activation code) must come from the environment, not a values file.
       values_file: ./.values/gitlab.values.yaml
       release:
         # Fixed, and mirrored by GITLAB_RELEASE_NAME_OVERRIDE in

@@ -99,9 +99,11 @@ kubectl wait clienttrafficpolicies.gateway.envoyproxy.io \
 # --- Post-deploy credentials ------------------------------------------------------
 #
 # The k3d path pre-creates the root password and license Secrets before installing.
-# Caproni has no pre-deploy hook that carries a kubeconfig, so instead the chart
-# generates the root password and we read it back, and the license is applied through
-# the toolbox pod afterwards.
+# Caproni has no pre-deploy hook that carries a kubeconfig, so the license Secret is
+# created by the gitlab-license-secret deployer in caproni.yaml instead (ordered
+# before `gitlab` via `needs`, so the chart boots already licensed same as on k3d).
+# The root password has no such substitute: it's chart-generated, so it's simply
+# read back here.
 echo "Reading the chart-generated root password..."
 ROOT_PASSWORD="$(kubectl get secret -n "${NAMESPACE}" \
   "$(gitlab_release_name)-gitlab-initial-root-password" \
@@ -110,8 +112,6 @@ if [ -z "${ROOT_PASSWORD}" ]; then
   echo "ERROR: could not read $(gitlab_release_name)-gitlab-initial-root-password"
   exit 1
 fi
-
-caproni_activate_license
 
 _admin_pat=$(create_admin_pat)
 if [ -z "${_admin_pat}" ]; then

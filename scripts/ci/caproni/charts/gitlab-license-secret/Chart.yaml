@@ -1,0 +1,10 @@
+apiVersion: v2
+name: gitlab-license-secret
+description: >-
+  Renders the <release>-gitlab-license Secret that the GitLab chart's migrations Job
+  mounts, from the QA_EE_ACTIVATION_CODE the CI job already has in its environment.
+  Exists only because Caproni has no pre-deploy hook carrying a kubeconfig, so this is
+  registered as its own deployer, ordered via `needs` before the `gitlab` deployer, to
+  reproduce the ordering the k3d path gets from creating the Secret before `helm upgrade`.
+type: application
+version: 0.1.0

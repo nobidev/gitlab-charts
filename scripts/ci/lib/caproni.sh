@@ -71,15 +71,19 @@ function caproni_merge_values() {
 
   mkdir -p "$(dirname "${CAPRONI_VALUES_FILE}")"
 
-  # ci-license.values.yaml points global.gitlab.license.secret at a Secret that
-  # autodevops.sh's deploy() creates before `helm upgrade`. Caproni has no
-  # pre-deploy hook carrying a kubeconfig, so that Secret cannot exist yet, and the
-  # migrations Job mounts it unconditionally once the value is set - leaving the
-  # reference in place would stop that pod from ever starting. Drop the reference
-  # and keep the GITLAB_LICENSE_MODE / CUSTOMER_PORTAL_URL env; the license is
-  # applied post-deploy by caproni_activate_license instead.
-  yq 'del(.global.gitlab.license)' \
-    "${values_dir}/ci-license.values.yaml" > "${values_dir}/ci-license.caproni.values.yaml"
+  # ci-license.values.yaml points global.gitlab.license.secret at
+  # ${GITLAB_RELEASE_NAME}-gitlab-license. On the k3d path autodevops.sh's deploy()
+  # creates that Secret before `helm upgrade`; here the gitlab-license-secret
+  # deployer in caproni.yaml does, ordered before `gitlab` via `needs`. When
+  # QA_EE_ACTIVATION_CODE is unset that deployer renders no Secret (e.g. on forks),
+  # so the reference must be dropped here too - otherwise the migrations Job would
+  # mount a Secret nothing creates and never start.
+  if [ -n "${QA_EE_ACTIVATION_CODE}" ]; then
+    cp "${values_dir}/ci-license.values.yaml" "${values_dir}/ci-license.caproni.values.yaml"
+  else
+    yq 'del(.global.gitlab.license)' \
+      "${values_dir}/ci-license.values.yaml" > "${values_dir}/ci-license.caproni.values.yaml"
+  fi
 
   if [ ! -f "${digests}" ]; then
     echo "ERROR: ${digests} not found. The job needs the pin_image_versions artifact."
@@ -97,49 +101,16 @@ function caproni_merge_values() {
 
   echo "Merged caproni values into ${CAPRONI_VALUES_FILE}"
 
-  # Fail loudly rather than 15 minutes into a helm wait.
-  if [ "$(yq '.global.gitlab.license // "absent"' "${CAPRONI_VALUES_FILE}")" != "absent" ]; then
-    echo "ERROR: global.gitlab.license survived the merge; the migrations Job will not start."
+  # Fail loudly rather than 15 minutes into a helm wait: the license Secret's
+  # presence must agree with whether gitlab-license-secret will actually create it,
+  # or the migrations Job mounts a Secret that never appears.
+  local merged_license
+  merged_license="$(yq '.global.gitlab.license.secret // "absent"' "${CAPRONI_VALUES_FILE}")"
+  if [ -n "${QA_EE_ACTIVATION_CODE}" ] && [ "${merged_license}" != "gitlab-gitlab-license" ]; then
+    echo "ERROR: QA_EE_ACTIVATION_CODE is set but global.gitlab.license.secret is '${merged_license}', not gitlab-gitlab-license."
+    return 1
+  elif [ -z "${QA_EE_ACTIVATION_CODE}" ] && [ "${merged_license}" != "absent" ]; then
+    echo "ERROR: global.gitlab.license.secret survived the merge with QA_EE_ACTIVATION_CODE unset; the migrations Job will not start."
     return 1
   fi
-}
-
-# caproni_activate_license applies the EE activation code through the toolbox pod.
-#
-# The k3d path instead creates a `<release>-gitlab-license` Secret before installing,
-# which the migrations Job mounts, so GitLab boots already licensed. Caproni offers no
-# equivalent pre-deploy step, so this runs afterwards and GitLab is briefly unlicensed.
-# Modelled on scripts/activate-license.sh in gitlab-org/gitlab-caproni.
-function caproni_activate_license() {
-  if [ -z "${QA_EE_ACTIVATION_CODE}" ]; then
-    echo "QA_EE_ACTIVATION_CODE is unset; leaving the instance unlicensed."
-    return 0
-  fi
-
-  wait_for_toolbox
-
-  local toolbox_pod
-  toolbox_pod=$(kubectl get pods -n "${NAMESPACE}" \
-    -lrelease="$(gitlab_release_name)",app=toolbox \
-    -o custom-columns=":metadata.name" --no-headers | tr -d '[:space:]')
-
-  if [ -z "${toolbox_pod}" ]; then
-    echo "ERROR: no toolbox pod found for release $(gitlab_release_name) in ${NAMESPACE}"
-    return 1
-  fi
-
-  echo "Activating EE license via ${toolbox_pod}"
-  # `env VAR=... gitlab-rails runner -` with the script on stdin, rather than passing
-  # the code as an argument, so the activation code never appears in the process list
-  # or in the job log. Matches scripts/activate-license.sh in gitlab-org/gitlab-caproni.
-  kubectl exec -i -n "${NAMESPACE}" "${toolbox_pod}" -c toolbox -- \
-    env ACTIVATION_CODE="${QA_EE_ACTIVATION_CODE}" gitlab-rails runner - <<'RUBY'
-code = ENV.fetch('ACTIVATION_CODE')
-if License.current&.cloud?
-  puts "License already active"
-else
-  license = License.create!(data: code.gsub("\\n", "\n"), cloud: true)
-  puts "License activated: #{license.plan}"
-end
-RUBY
 }
