@@ -54,7 +54,7 @@ SSHレプリカを容易にサポートし、SSH認証キーの共有ストレ�
 | `config.lfs.pureSSHProtocol`                             | `false`                                                 | LFS Pure SSHプロトコルサポートを有効にします |
 | `config.pat.enabled`                                     | `true`                                                  | SSHを使用したPATを有効にします |
 | `config.pat.allowedScopes`                               | `[]`                                                    | SSHで生成されたPATに許可されるスコープの配列 |
-| `opensshd.supplemental_config`                           |                                                         | 追加構成、`sshd_config`に追加。[manページ](https://manpages.debian.org/bookworm/openssh-server/sshd_config.5.en.html)への厳密なアラインメント |
+| `opensshd.supplemental_config`                           |                                                         | 追加構成、`sshd_config`に追加。[manページ](https://manpages.debian.org/trixie/openssh-server/sshd_config.5.en.html)への厳密なアラインメント |
 | `deployment.livenessProbe.initialDelaySeconds`           | `10`                                                    | Livenessプローブが開始されるまでの遅延 |
 | `deployment.livenessProbe.periodSeconds`                 | `10`                                                    | Livenessプローブを実行する頻度 |
 | `deployment.livenessProbe.timeoutSeconds`                | `3`                                                     | Livenessプローブがタイムアウトした場合 |

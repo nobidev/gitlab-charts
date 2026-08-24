@@ -56,7 +56,7 @@ SSH 복제본을 쉽게 지원하고 SSH 승인된 키에 대한 공유 스토�
 | `config.pat.allowedScopes`                               | `[]`                                                    | SSH로 생성된 PAT에 대해 허용되는 범위의 배열입니다. |
 | `config.trustedUserCAKeys.secret`                        |                                                         | 인스턴스 수준 SSH 인증서 인증을 위한 신뢰할 수 있는 사용자 CA 공개 키를 포함하는 Kubernetes 비밀의 이름입니다. `sshDaemon`이 `gitlab-sshd`일 때만 적용됩니다. |
 | `config.trustedUserCAKeys.keys`                          | `[]`                                                    | 비밀 내에 CA 공개 키 데이터를 포함하는 키 이름 목록(예: `["ca1.pub", "ca2.pub"]`). 이러한 CA 키로 서명된 인증서는 인증을 위해 신뢰되며, 인증서의 `KeyId`이 GitLab 사용자 이름으로 사용됩니다. |
-| `opensshd.supplemental_config`                           |                                                         | `sshd_config`에 추가되는 추가 구성입니다. [설명서](https://manpages.debian.org/bookworm/openssh-server/sshd_config.5.en.html)에 엄격하게 정렬합니다. |
+| `opensshd.supplemental_config`                           |                                                         | `sshd_config`에 추가되는 추가 구성입니다. [설명서](https://manpages.debian.org/trixie/openssh-server/sshd_config.5.en.html)에 엄격하게 정렬합니다. |
 | `deployment.livenessProbe.initialDelaySeconds`           | `10`                                                    | 생동성 프로브가 시작되기 전의 지연 |
 | `deployment.livenessProbe.periodSeconds`                 | `10`                                                    | 생동성 프로브를 수행하는 빈도 |
 | `deployment.livenessProbe.timeoutSeconds`                | `3`                                                     | 생동성 프로브 시간이 초과될 때 |

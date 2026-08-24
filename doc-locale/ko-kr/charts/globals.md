@@ -1994,7 +1994,7 @@ global:
 ```
 
 > [!note]
-> 시크릿의 키 이름에 있는 `.crt` 확장자는 [Debian update-ca-certificates 패키지](https://manpages.debian.org/bullseye/ca-certificates/update-ca-certificates.8.en.html)에 중요합니다. 이 단계는 사용자 정의 CA 파일이 해당 확장자로 마운트되고 인증서 `initContainers`에서 처리되도록 합니다. 이전에 인증서 도우미 이미지가 Alpine 기반이었을 때는 [설명서](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)에서 필요하다고 명시했지만 파일 확장자가 실제로 필요하지 않았습니다. UBI 기반 `update-ca-trust` 유틸리티는 동일한 요구 사항이 없는 것으로 보입니다.
+> 시크릿의 키 이름에 있는 `.crt` 확장자는 [Debian update-ca-certificates 패키지](https://manpages.debian.org/trixie/ca-certificates/update-ca-certificates.8.en.html)에 중요합니다. 이 단계는 사용자 정의 CA 파일이 해당 확장자로 마운트되고 인증서 `initContainers`에서 처리되도록 합니다. 이전에 인증서 도우미 이미지가 Alpine 기반이었을 때는 [설명서](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)에서 필요하다고 명시했지만 파일 확장자가 실제로 필요하지 않았습니다. UBI 기반 `update-ca-trust` 유틸리티는 동일한 요구 사항이 없는 것으로 보입니다.
 
 PEM으로 인코딩된 CA 인증서를 보유한 모든 키가 포함된 시크릿 또는 ConfigMap을 원하는 개수만큼 제공할 수 있습니다. 이러한 항목은 `global.certificates.customCAs` 아래에 항목으로 구성됩니다. `keys:`가 마운트할 특정 키 목록과 함께 제공되지 않는 한 모든 키가 마운트됩니다. 모든 시크릿 및 ConfigMap에 걸쳐 마운트된 모든 키는 고유해야 합니다. 시크릿 및 ConfigMap의 이름은 자유롭게 지정할 수 있지만 *충돌하는 키 이름을 포함하면 안 됩니다*.
 

@@ -2310,7 +2310,7 @@ global:
 
 > [!note]
 > The `.crt` extension in the Secret's key name is important for the
-> [Debian update-ca-certificates package](https://manpages.debian.org/bullseye/ca-certificates/update-ca-certificates.8.en.html).
+> [Debian update-ca-certificates package](https://manpages.debian.org/trixie/ca-certificates/update-ca-certificates.8.en.html).
 > This step ensures that the custom CA file is mounted with that extension and is processed
 > in the Certificates `initContainers`.
 > Previously, when the certificates helper image was Alpine-based, the file extension was not actually required

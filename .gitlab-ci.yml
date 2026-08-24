@@ -24,11 +24,11 @@
 # Note: Auto CI does not work with multiple buildpacks yet
 
 default:
-  image: "${CI_REGISTRY}/${GITLAB_NAMESPACE}/gitlab-build-images/debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}:gcloud-526-kubectl-1.33-helm-${HELM_MINOR_VERSION}-helm_kubeconform-0.1.17-vcluster-0.30-awscli-1.40.35-vault-1.19.5"
+  image: "${CI_REGISTRY}/${GITLAB_NAMESPACE}/gitlab-build-images/debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}:gcloud-526-kubectl-1.35-helm-${HELM_MINOR_VERSION}-helm_kubeconform-0.1.17-vcluster-0.30-awscli-1.44.59-vault-1.19.5"
 
 variables:
   AUTO_DEPLOY_TAG_REGEX: '^[0-9]+\.[0-9]+\.[0-9]+\+[a-z0-9]{7,}$'
-  DOCKER_VERSION: "28.0.1"
+  DOCKER_VERSION: "28.1.0"
   HELM_VERSION: "4.2.3"
   HELM_MINOR_VERSION: "4.1"
   KUBECTL_VERSION: "1.33.1"
@@ -49,9 +49,9 @@ variables:
   QA_FULL_SUITE_OPTIONS: '--tag ~smoke --tag ~skip_live_env --tag ~orchestrated --tag ~transient'
   QA_SANITY_SUITE_OPTIONS: '--tag smoke --tag ~skip_live_env --tag ~orchestrated'
   GITLAB_QA_ADMIN_ACCESS_TOKEN: $GITLAB_ADMIN_TOKEN
-  DEBIAN_VERSION: bookworm-slim
+  DEBIAN_VERSION: trixie-slim
   BUSYBOX_VERSION: "1.37"
-  RUBY_VERSION: "3.3.11"
+  RUBY_VERSION: "3.3.12"
   CI_TOOLS_VERSION: "5.53.0"
   CI_TOOLS_NAMESPACE: "gitlab-org"
   GITLAB_NAMESPACE: "gitlab-org"
@@ -462,11 +462,11 @@ k3d_nginx:
   variables:
     GITLAB_PASSWORD: $ROOT_PASSWORD
     RUBYGEMS_VERSION: "3.6"
-    GO_VERSION: "1.24"
+    GO_VERSION: "1.25"
     NODE_VERSION: "22.12"
     PYTHON_VERSION: "3.12"
     PG_VERSION: "16"
-    CHROME_VERSION: "133"
+    CHROME_VERSION: "151"
   script:
     - ./scripts/ci/install_spec_dependencies.sh
     - set_context
