@@ -2149,9 +2149,15 @@ global:
 
 ### Port
 
-You can control the port used by the Ingress to pass SSH traffic, as well as the port used
-in SSH URLs provided from GitLab via `global.shell.port`. This is reflected in the
-port on which the service listens, as well as the SSH clone URLs provided in project UI.
+`global.shell.port` sets the port used to route SSH traffic to GitLab Shell. This value applies to:
+
+- The port the GitLab Shell service listens on.
+- The backend port that Ingress controllers and the Gateway API `TCPRoute` use to reach the
+  GitLab Shell service.
+- The port used in SSH clone URLs shown in the project UI.
+
+For NGINX Ingress and the Gateway API, this value also sets the external SSH port, since both
+derive their externally exposed port from `global.shell.port` directly.
 
 ```yaml
 global:
@@ -2175,10 +2181,45 @@ nginx-ingress:
       type: NodePort
 ```
 
+For Traefik, `global.shell.port` only sets the backend port. The external SSH port is set
+separately with `traefik.ports.gitlab-shell.exposedPort` (default `22`).
+
+```yaml
+global:
+  shell:
+    port: 32022
+
+traefik:
+  ports:
+    gitlab-shell:
+      exposedPort: 32022
+```
+
+For HAProxy, `global.shell.port` only sets the port in the TCP services ConfigMap that HAProxy
+reads to open the SSH frontend. The Service and container port are set separately with
+`haproxy.controller.service.tcpPorts`, which defaults to port `22`. Set both `port` and
+`targetPort` to match `global.shell.port`.
+
+```yaml
+global:
+  shell:
+    port: 32022
+
+haproxy:
+  controller:
+    service:
+      tcpPorts:
+        - name: ssh
+          port: 32022
+          targetPort: 32022
+```
+
 ### TCP proxy protocol
 
-You can enable handling [proxy protocol](https://www.haproxy.com/blog/use-the-proxy-protocol-to-preserve-a-clients-ip-address) on the SSH Ingress to properly handle a connection from an upstream proxy that adds the proxy protocol header.
-By doing so, this will prevent SSH from receiving the additional headers and not break SSH.
+You can enable handling [proxy protocol](https://www.haproxy.com/blog/use-the-proxy-protocol-to-preserve-a-clients-ip-address)
+for SSH traffic routed through an Ingress controller or the Gateway API, to handle a connection from an upstream proxy that adds
+the proxy protocol header. Enabling this setting prevents SSH from receiving the additional headers, so the connection does not
+break.
 
 One common environment where one needs to enable handling of proxy protocol is when using AWS with an ELB handling the inbound connections to the cluster. You can consult the [AWS layer 4 load balancer example](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/aws/elb-layer4-loadbalancer.yaml) to properly set it up.
 

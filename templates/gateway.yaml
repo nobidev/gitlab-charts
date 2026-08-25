@@ -85,7 +85,7 @@ spec:
   {{- if index .Values.gitlab "gitlab-shell" "enabled" }}
     {{- $listener = index $listeners "gitlab-ssh" }}
     {{- $_ := set $listener "name" "gitlab-ssh" }}
-    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig) | nindent 2 }}
+    {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig "context" .) | nindent 2 }}
   {{- end }}
   {{- if .Values.openbao.install }}
     {{- $listener = index $listeners "openbao-web" }}
