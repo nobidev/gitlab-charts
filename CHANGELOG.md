@@ -37,6 +37,12 @@ entry.
 - [Update gitlab-runner to v0.91.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6f8ff0bf646aa6fa2dc3b658b710f3570ba46cd0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5201))
 - [Update prometheus to v29.17.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/de64cf4a6c18fe3b1cd7d2f707eb9ca0a6b1720f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5097))
 
+## 10.2.5 (2026-08-25)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.91.2](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/f11b6ad256a25fc26e4fc5674649b299823e73a7)
+
 ## 10.2.4 (2026-08-14)
 
 No changes.
