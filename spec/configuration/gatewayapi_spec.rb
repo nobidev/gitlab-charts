@@ -102,6 +102,32 @@ describe 'Gateway API configuration' do
       end
     end
 
+    describe 'gitlab-ssh Gateway listener port' do
+      let(:ssh_listener) { gateway['spec']['listeners'].find { |l| l['name'] == 'gitlab-ssh' } }
+
+      it 'defaults to port 22, matching the TCPRoute backend port' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        expect(ssh_listener['port']).to eq(22)
+        expect(shell_route['spec']['rules'][0]['backendRefs'][0]['port']).to eq(22)
+      end
+
+      context 'when global.shell.port is customized' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              shell:
+                port: 32022
+          )))
+        end
+
+        it 'follows global.shell.port on both the listener and the TCPRoute backend' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(ssh_listener['port']).to eq(32022)
+          expect(shell_route['spec']['rules'][0]['backendRefs'][0]['port']).to eq(32022)
+        end
+      end
+    end
+
     context 'KAS k8s-proxy route split' do
       it 'routes the k8s-proxy path to its own HTTPRoute on the KAS Kubernetes API port' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"

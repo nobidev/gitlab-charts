@@ -72,7 +72,9 @@ The root protocol serves as a default when no local protocol is specified,
 enabling centralized protocol configuration for all HTTP(S) workloads and
 listeners through a single setting.
 
-Port assignment is automatically determined based on the selected protocol.
+Port assignment is automatically determined based on the selected protocol. Note: `context`
+(the root template context) must be supplied when the resolved protocol is TCP, since it is
+needed to resolve `gitlab.shell.port`.
 */}}
 {{- define "gitlab.gatewayApi.gateway.listener" -}}
 {{- $name := .local.name }}
@@ -82,7 +84,7 @@ Port assignment is automatically determined based on the selected protocol.
 {{-   $port = 80 }}
 {{- end }}
 {{- if eq "TCP" $protocol }}
-{{-   $port = 22 }}
+{{-   $port = (include "gitlab.shell.port" .context | int) }}
 {{- end }}
 - name: {{ $name }}
   protocol: {{ $protocol }}
