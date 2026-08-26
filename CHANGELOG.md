@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.3.1 (2026-08-25)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.92.0](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/25e30d1a6b2397ed332730f2413eea81774eb7f9)
+
 ## 10.3.0 (2026-08-20)
 
 ### Added (4 changes)
@@ -30,6 +36,12 @@ entry.
 - [Update helm to v4.2.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4e5bc5b7d74e118096452890ddb971c6364a7c0a) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5202))
 - [Update gitlab-runner to v0.91.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6f8ff0bf646aa6fa2dc3b658b710f3570ba46cd0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5201))
 - [Update prometheus to v29.17.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/de64cf4a6c18fe3b1cd7d2f707eb9ca0a6b1720f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5097))
+
+## 10.2.5 (2026-08-25)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.91.2](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/f11b6ad256a25fc26e4fc5674649b299823e73a7)
 
 ## 10.2.4 (2026-08-14)
 
@@ -71,6 +83,10 @@ No changes.
 - [Update helm to v4.2.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a534dceb707369d69c458e09e60a7db2b8897fb5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5130))
 - [Update container-registry to v4.40.2-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/991bf40f76b4ea6f948765cb404f314daa0dd179) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5144))
 - [Update gitlab-runner to v0.90.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/68c3e43166a2bdcb7b50f16e185dc2773059a778) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5127))
+
+## 10.1.7 (2026-08-25)
+
+No changes.
 
 ## 10.1.6 (2026-08-14)
 
