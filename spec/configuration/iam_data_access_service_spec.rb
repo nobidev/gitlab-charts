@@ -60,6 +60,38 @@ describe 'iamDataAccessService templates' do
           expect(config).to include('5005')
         end
       end
+
+      it 'defaults grpc.secure to true' do
+        t = HelmTemplate.new(enabled_values)
+        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+        configmaps.each do |configmap|
+          config = t.dig(configmap, 'data', 'gitlab.yml.erb')
+          expect(config).to include(%(port: 5005\n      secure: true))
+        end
+      end
+    end
+
+    context 'when grpc.secure is disabled' do
+      let(:values) do
+        enabled_values.deep_merge(YAML.safe_load(%(
+          global:
+            appConfig:
+              iamDataAccessService:
+                grpc:
+                  secure: false
+        )))
+      end
+
+      it 'renders grpc.secure as false' do
+        t = HelmTemplate.new(values)
+        expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+        configmaps.each do |configmap|
+          config = t.dig(configmap, 'data', 'gitlab.yml.erb')
+          expect(config).to include(%(port: 5005\n      secure: false))
+        end
+      end
     end
   end
 
