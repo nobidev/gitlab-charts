@@ -129,6 +129,12 @@ data:
         cert_file: "/etc/gitlab-secrets/shell/topology-service/tls.crt"
         key_file: "/etc/gitlab-secrets/shell/topology-service/tls.key"
       {{- end }}
+      # How GitLab Shell reaches the cell internal API resolved by the Topology
+      # Service. Required by gitlab-shell when topology_service is enabled; the
+      # port always overrides any port returned by the Topology Service.
+      cell_endpoint:
+        scheme: {{ required "gitlab-shell config.topologyService.cellEndpoint.scheme must be set when topology service is enabled (http or https)" .Values.config.topologyService.cellEndpoint.scheme | quote }}
+        port: {{ required "gitlab-shell config.topologyService.cellEndpoint.port must be set when topology service is enabled" .Values.config.topologyService.cellEndpoint.port }}
     {{- end }}
   krb5.conf: |
     {{- .Values.config.gssapi.krb5Config | nindent 4 }}
