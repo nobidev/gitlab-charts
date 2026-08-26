@@ -537,28 +537,33 @@ describe 'gitlab-shell configuration' do
       YAML.safe_load(rendered, aliases: true)
     end
 
-    # Helper that builds values with the global topology service address
-    # configured, plus the GitLab Shell opt-in toggle and the global Cells
-    # setting. The two are separate concerns: `config.topologyService.enabled`
-    # turns on GitLab Shell's use of the service, while the global Cells setting
-    # (`global.appConfig.cell.enabled`) drives mTLS.
-    def topology_values(shell_enabled:, cell_enabled:)
-      default_values.deep_merge(YAML.safe_load(%(
-        global:
-          appConfig:
-            cell:
-              enabled: #{cell_enabled}
-              id: 1
-              topologyServiceClient:
-                address: "topology-grpc.staging.runway.gitlab.net:443"
-                tls:
-                  secret: cell-1-staging-mtls-cert
-        gitlab:
-          gitlab-shell:
-            config:
-              topologyService:
-                enabled: #{shell_enabled}
-      )))
+    let(:rendered_config_text) { RuntimeTemplate.gomplate(raw_template: config) }
+
+    def topology_values(shell_enabled:, cell_enabled:, cell_endpoint: :default)
+      topology_service = { 'enabled' => shell_enabled }
+      topology_service['cellEndpoint'] = cell_endpoint unless cell_endpoint == :default
+
+      default_values.deep_merge(
+        {
+          'global' => {
+            'appConfig' => {
+              'cell' => {
+                'enabled' => cell_enabled,
+                'id' => 1,
+                'topologyServiceClient' => {
+                  'address' => 'topology-grpc.staging.runway.gitlab.net:443',
+                  'tls' => { 'secret' => 'cell-1-staging-mtls-cert' }
+                }
+              }
+            }
+          },
+          'gitlab' => {
+            'gitlab-shell' => {
+              'config' => { 'topologyService' => topology_service }
+            }
+          }
+        }
+      )
     end
 
     def topology_service_secret_source
@@ -606,7 +611,7 @@ describe 'gitlab-shell configuration' do
     context 'when GitLab Shell opts in with global Cells enabled' do
       let(:values) { topology_values(shell_enabled: true, cell_enabled: true) }
 
-      it 'renders the topology_service config with the mTLS section' do
+      it 'renders the topology_service config with the mTLS section and default cell endpoint', :aggregate_failures do
         expect_successful_exit_code
 
         expect(rendered_config['topology_service']).to eq(
@@ -616,8 +621,37 @@ describe 'gitlab-shell configuration' do
             'enabled' => true,
             'cert_file' => '/etc/gitlab-secrets/shell/topology-service/tls.crt',
             'key_file' => '/etc/gitlab-secrets/shell/topology-service/tls.key'
+          },
+          'cell_endpoint' => {
+            'scheme' => 'https',
+            'port' => 8181
           }
         )
+        expect(rendered_config['topology_service']['cell_endpoint']['port']).to be_an(Integer)
+        expect(rendered_config_text).to match(/scheme: "https"/)
+        expect(rendered_config_text).to match(/port: 8181\b/)
+      end
+
+      context 'with a custom cell endpoint' do
+        let(:values) do
+          topology_values(
+            shell_enabled: true,
+            cell_enabled: true,
+            cell_endpoint: { 'scheme' => 'http', 'port' => 8182 }
+          )
+        end
+
+        it 'renders the custom cell endpoint', :aggregate_failures do
+          expect_successful_exit_code
+
+          expect(rendered_config['topology_service']['cell_endpoint']).to eq(
+            'scheme' => 'http',
+            'port' => 8182
+          )
+          expect(rendered_config['topology_service']['cell_endpoint']['port']).to be_an(Integer)
+          expect(rendered_config_text).to match(/scheme: "http"/)
+          expect(rendered_config_text).to match(/port: 8182\b/)
+        end
       end
 
       it 'adds the topology service secret to the shell-init-secrets projected volume' do
@@ -660,13 +694,18 @@ describe 'gitlab-shell configuration' do
     context 'when GitLab Shell opts in with global Cells disabled' do
       let(:values) { topology_values(shell_enabled: true, cell_enabled: false) }
 
-      it 'renders the topology_service config without the mTLS section' do
+      it 'renders the topology_service config without the mTLS section', :aggregate_failures do
         expect_successful_exit_code
 
         expect(rendered_config['topology_service']).to eq(
           'enabled' => true,
-          'address' => 'topology-grpc.staging.runway.gitlab.net:443'
+          'address' => 'topology-grpc.staging.runway.gitlab.net:443',
+          'cell_endpoint' => {
+            'scheme' => 'https',
+            'port' => 8181
+          }
         )
+        expect(rendered_config['topology_service']['cell_endpoint']['port']).to be_an(Integer)
       end
 
       it 'does not add the topology service secret to the projected volume' do
@@ -691,12 +730,80 @@ describe 'gitlab-shell configuration' do
               config:
                 topologyService:
                   enabled: true
+                  cellEndpoint:
+                    scheme: https
+                    port: 8181
         )))
       end
 
-      it 'fails rendering with a clear error about the missing address' do
+      it 'fails rendering with a clear error about the missing address', :aggregate_failures do
         expect(t.exit_code).not_to eq(0)
         expect(t.stderr).to include('global.appConfig.cell.topologyServiceClient.address must be set')
+      end
+    end
+
+    context 'when GitLab Shell opts in with an invalid cell endpoint' do
+      context 'with an explicit null scheme' do
+        using RSpec::Parameterized::TableSyntax
+
+        where(:cell_enabled, :expected_error) do
+          false | 'config.topologyService.cellEndpoint.scheme must be set'
+          true  | 'config.topologyService.cellEndpoint.scheme must be set'
+        end
+
+        with_them do
+          let(:values) do
+            topology_values(
+              shell_enabled: true,
+              cell_enabled: cell_enabled,
+              cell_endpoint: { 'scheme' => nil, 'port' => 8181 }
+            )
+          end
+
+          it 'fails rendering with a clear error about the null scheme', :aggregate_failures do
+            expect(t.exit_code).not_to eq(0)
+            expect(t.stderr).to include(expected_error)
+          end
+        end
+      end
+
+      context 'with an explicit null port' do
+        using RSpec::Parameterized::TableSyntax
+
+        where(:cell_enabled, :expected_error) do
+          false | 'config.topologyService.cellEndpoint.port must be set'
+          true  | 'config.topologyService.cellEndpoint.port must be set'
+        end
+
+        with_them do
+          let(:values) do
+            topology_values(
+              shell_enabled: true,
+              cell_enabled: cell_enabled,
+              cell_endpoint: { 'scheme' => 'https', 'port' => nil }
+            )
+          end
+
+          it 'fails rendering with a clear error about the null port', :aggregate_failures do
+            expect(t.exit_code).not_to eq(0)
+            expect(t.stderr).to include(expected_error)
+          end
+        end
+      end
+
+      context 'with an out-of-range port' do
+        let(:values) do
+          topology_values(
+            shell_enabled: true,
+            cell_enabled: false,
+            cell_endpoint: { 'scheme' => 'https', 'port' => 0 }
+          )
+        end
+
+        it 'fails schema validation before rendering', :aggregate_failures do
+          expect(t.exit_code).not_to eq(0)
+          expect(t.stderr).to include('/config/topologyService/cellEndpoint/port')
+        end
       end
     end
   end
