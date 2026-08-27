@@ -74,7 +74,7 @@ gatewayRoute:
       backendRequest: 0s
     filters: []
 backendTLSPolicy:
-  hostname: ""
+  {{- .Values.backendTLSPolicy | toYaml | nindent 2 }}
 common:
   labels: {{ mergeOverwrite (deepCopy .Values.global.common.labels) (deepCopy .Values.common.labels) | toYaml | nindent 4 }}
 deployment:

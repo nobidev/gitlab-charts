@@ -18,7 +18,7 @@ spec:
     hostname: {{ .Values.backendTLSPolicy.hostname | default $serviceAddress | quote }}
     caCertificateRefs:
     - group: ""
-      kind: Secret
+      kind: {{ .Values.backendTLSPolicy.kind | default "Secret" | quote }}
       name: {{ .Values.tls.caSecretName | quote }}
 {{-   end }}
 {{- end }}
