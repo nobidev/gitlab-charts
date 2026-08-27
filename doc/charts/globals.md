@@ -54,7 +54,7 @@ global:
 | `hostSuffix`              | String  |               | [See Below](#hostsuffix). |
 | `gitlab.https`            | Boolean | `false`       | If `hosts.https` or `gitlab.https` are `true`, the GitLab external URL will use `https://` instead of `http://`. |
 | `gitlab.name`             | String  |               | The hostname for GitLab. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
-| `gitlab.hostnameOverride` | String  |               | Override the hostname used in Ingress configuration of the Webservice. Useful if GitLab has to be reachable behind a WAF that rewrites the Hostname to an internal hostname (e.g.: `gitlab.example.com` --> `gitlab.cluster.local`). |
+| `gitlab.hostnameOverride` | String  |               | Override the hostname used in the Webservice Ingress or, when [Gateway API](../advanced/gateway-api/_index.md#hostname-override) is used, the webservice `HTTPRoute`. Useful if GitLab has to be reachable behind a proxy that rewrites the Hostname to an internal hostname (e.g.: `gitlab.example.com` --> `gitlab.cluster.local`). |
 | `gitlab.serviceName`      | String  | `webservice`  | The name of the `service` which is operating the GitLab server. The chart will template the hostname of the service (and current `.Release.Name`) to create the proper internal `serviceName`. |
 | `gitlab.servicePort`      | String  | `workhorse`   | The named port of the `service` where the GitLab server can be reached. |
 | `keda.enabled`            | Boolean | `false`       | Use [KEDA](https://keda.sh/) `ScaledObjects` instead of `HorizontalPodAutoscalers` |

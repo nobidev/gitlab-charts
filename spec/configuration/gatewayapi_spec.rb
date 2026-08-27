@@ -883,6 +883,47 @@ describe 'Gateway API configuration' do
       end
     end
 
+    context 'hostnameOverride' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+          hosts:
+            gitlab:
+              name: gitlab.example.com
+              hostnameOverride: gitlab.example.internal
+        ))
+      end
+
+      it 'uses the override hostname on the webservice HTTPRoute' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(webservice_route['spec']['hostnames']).to eq(['gitlab.example.internal'])
+      end
+
+      it 'uses the override hostname on the matching gitlab-web Gateway listener, so the HTTPRoute attaches' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        gitlab_web_listener = gateway['spec']['listeners'].find { |l| l['name'] == 'gitlab-web' }
+        expect(gitlab_web_listener['hostname']).to eq('gitlab.example.internal')
+      end
+
+      it 'keeps the public hostname as the Rails base URL' do
+        configmaps = template.resources_by_kind('ConfigMap').filter { |_, content| content['data']&.has_key?('gitlab.yml.erb') }
+
+        expect(configmaps).not_to be_empty
+        configmaps.each do |name, content|
+          expect(content['data']['gitlab.yml.erb']).to include('host: gitlab.example.com'), "Expected #{name} to keep the public hostname"
+          expect(content['data']['gitlab.yml.erb']).not_to include('gitlab.example.internal')
+        end
+      end
+    end
+
     context 'ClientTrafficPolicy overrides' do
       let(:values) do
         HelmTemplate.with_defaults(%(

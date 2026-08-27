@@ -162,6 +162,19 @@ cert-manager.io/issuer: {{ include "gitlab.gatewayApi.certmanager.issuer" . }}
 {{- end -}}
 
 {{/*
+Returns the effective hostname for the gitlab-web Gateway listener and the
+webservice HTTPRoute. When global.hosts.gitlab.hostnameOverride is set it
+takes precedence; otherwise the standard gitlab hostname is used.
+
+Both the Gateway listener and the HTTPRoute must match on the same hostname
+for the route to attach, so a single template keeps the two call sites in
+sync if the override logic ever changes.
+*/}}
+{{- define "gitlab.gitlab.gatewayHostname" -}}
+{{- .Values.global.hosts.gitlab.hostnameOverride | default (include "gitlab.gitlab.hostname" .) -}}
+{{- end -}}
+
+{{/*
 Renders true if Gateway resources should be configured for Geo traffic.
 */}}
 {{- define "gitlab.gatewayApi.gateway.geo.configure" -}}

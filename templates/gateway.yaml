@@ -39,7 +39,7 @@ spec:
   {{- if .Values.gitlab.webservice.enabled }}
     {{- $listener = index $listeners "gitlab-web" }}
     {{- $_ := set $listener "name" "gitlab-web" }}
-    {{- $_ := set $listener "hostname" (include "gitlab.gitlab.hostname" .) }}
+    {{- $_ := set $listener "hostname" (include "gitlab.gitlab.gatewayHostname" .) }}
     {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig) | nindent 2 }}
   {{- end }}
   {{- if eq "true" (include "gitlab.gatewayApi.gateway.geo.configure" .) -}}
