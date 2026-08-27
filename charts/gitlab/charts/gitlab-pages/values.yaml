@@ -124,6 +124,13 @@ gatewayRoute:
   timeouts: {}
   filters: []
 
+# Envoy Gateway BackendTrafficPolicy rendered for the GitLab Pages HTTPRoute.
+# No default spec; set `spec` to render the policy. Only takes effect when
+# global.pages.externalHttp/externalHttps are both empty, since the HTTPRoute
+# it targets is not rendered otherwise (custom domains bypass it).
+backendTrafficPolicy:
+  spec: null
+
 # Tolerations for pod scheduling
 tolerations: []
 

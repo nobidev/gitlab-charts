@@ -82,6 +82,13 @@ gatewayRoute:
   apiVersion: "gateway.networking.k8s.io/v1"
   annotations: {}
 
+# Envoy Gateway BackendTrafficPolicy rendered for the GitLab Shell TCPRoute
+# when PROXY protocol is enabled. Set `spec: null` to skip rendering the policy.
+backendTrafficPolicy:
+  spec:
+    proxyProtocol:
+      version: V2
+
 # When using traefik ingress
 traefik:
   entrypoint: gitlab-shell

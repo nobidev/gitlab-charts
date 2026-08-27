@@ -20,6 +20,8 @@ describe 'Gateway API configuration' do
   let(:webservice_backendtrafficpolicy) { template["BackendTrafficPolicy/test-webservice-btp"] }
   let(:webservice_smartcard_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp-smartcard"] }
   let(:webservice_geo_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp-geo"] }
+  let(:registry_backendtrafficpolicy) { template["BackendTrafficPolicy/test-registry-btp"] }
+  let(:pages_backendtrafficpolicy) { template["BackendTrafficPolicy/test-gitlab-pages-btp"] }
 
   let(:shell_route) { template["TCPRoute/test-gitlab-shell"] }
   let(:webservice_route) { template["HTTPRoute/test-gitlab"] }
@@ -734,6 +736,135 @@ describe 'Gateway API configuration' do
         it 'does not render a shell BackendTrafficPolicy' do
           expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
           expect(shell_backendtrafficpolicy).to be_nil
+        end
+      end
+
+      context 'with an overridden spec' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              shell:
+                tcp:
+                  proxyProtocol: true
+            gitlab:
+              gitlab-shell:
+                sshDaemon: gitlab-sshd
+                config:
+                  proxyPolicy: use
+                backendTrafficPolicy:
+                  spec:
+                    proxyProtocol:
+                      version: V1
+          )))
+        end
+
+        it 'renders the overridden spec while injecting targetRefs' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          expect(shell_backendtrafficpolicy["spec"]["proxyProtocol"]["version"]).to eq("V1")
+          expect(shell_backendtrafficpolicy["spec"]["targetRefs"][0]["kind"]).to eq("TCPRoute")
+          expect(shell_backendtrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gitlab-shell")
+        end
+      end
+
+      context 'with spec set to null' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              shell:
+                tcp:
+                  proxyProtocol: true
+            gitlab:
+              gitlab-shell:
+                sshDaemon: gitlab-sshd
+                config:
+                  proxyPolicy: use
+                backendTrafficPolicy:
+                  spec: null
+          )))
+        end
+
+        it 'does not render the policy' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(shell_backendtrafficpolicy).to be_nil
+        end
+      end
+    end
+
+    context 'KAS BackendTrafficPolicy' do
+      context 'with an overridden spec' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            gitlab:
+              kas:
+                backendTrafficPolicy:
+                  spec:
+                    useClientProtocol: false
+          )))
+        end
+
+        it 'renders the overridden spec while injecting targetRefs' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          expect(kas_backendtrafficpolicy["spec"]["useClientProtocol"]).to be(false)
+          expect(kas_backendtrafficpolicy["spec"]["targetRefs"][0]["kind"]).to eq("HTTPRoute")
+          expect(kas_backendtrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-kas")
+        end
+      end
+
+      context 'with spec set to null' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            gitlab:
+              kas:
+                backendTrafficPolicy:
+                  spec: null
+          )))
+        end
+
+        it 'does not render the policy' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(kas_backendtrafficpolicy).to be_nil
+        end
+      end
+    end
+
+    context 'Registry and GitLab Pages BackendTrafficPolicy' do
+      it 'does not render a policy by default' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        expect(registry_backendtrafficpolicy).to be_nil
+        expect(pages_backendtrafficpolicy).to be_nil
+      end
+
+      context 'with a configured spec' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            registry:
+              backendTrafficPolicy:
+                spec:
+                  timeout:
+                    http:
+                      streamIdleTimeout: 900s
+            gitlab:
+              gitlab-pages:
+                backendTrafficPolicy:
+                  spec:
+                    timeout:
+                      http:
+                        streamIdleTimeout: 300s
+          )))
+        end
+
+        it 'renders the policies while injecting targetRefs' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          expect(registry_backendtrafficpolicy["spec"]["timeout"]["http"]["streamIdleTimeout"]).to eq("900s")
+          expect(registry_backendtrafficpolicy["spec"]["targetRefs"][0]["kind"]).to eq("HTTPRoute")
+          expect(registry_backendtrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-registry")
+
+          expect(pages_backendtrafficpolicy["spec"]["timeout"]["http"]["streamIdleTimeout"]).to eq("300s")
+          expect(pages_backendtrafficpolicy["spec"]["targetRefs"][0]["kind"]).to eq("HTTPRoute")
+          expect(pages_backendtrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gitlab-pages")
         end
       end
     end

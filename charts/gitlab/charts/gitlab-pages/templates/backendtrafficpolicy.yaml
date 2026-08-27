@@ -1,8 +1,8 @@
-{{- if .Values.global.kas.enabled -}}
+{{- $externalAddresses := concat $.Values.global.pages.externalHttp $.Values.global.pages.externalHttps | uniq }}
+{{- if empty $externalAddresses }}
 {{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
 {{- if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
 {{- if .Values.backendTrafficPolicy.spec -}}
-{{/* See values.yaml and the chart docs for the default spec and its rationale. */}}
 {{- $spec := deepCopy .Values.backendTrafficPolicy.spec }}
 {{- if not $spec.targetRefs }}
 {{-   $ref := dict "group" "gateway.networking.k8s.io" "kind" "HTTPRoute" "name" (include "fullname" .) }}
@@ -11,11 +11,11 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
 metadata:
-  name: {{ template "fullname" . }}
-  namespace: {{ $.Release.Namespace }}
+  name: {{ template "fullname" . }}-btp
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" $ | nindent 4 }}
-    {{- include "gitlab.commonLabels" $ | nindent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
 spec:
   {{- $spec | toYaml | nindent 2 }}
 {{- end }}

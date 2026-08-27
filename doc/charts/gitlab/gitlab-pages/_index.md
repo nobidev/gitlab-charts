@@ -192,6 +192,30 @@ This section controls the GitLab Pages Ingress.
 | `tls.enabled`          | Boolean |         | When set to `false`, you disable TLS for the Pages subchart. This is mainly useful for cases in which you cannot use TLS termination at `ingress-level`, like when you have a TLS-terminating proxy before the Ingress Controller. |
 | `tls.secretName`       | String  |         | The name of the Kubernetes TLS Secret that contains a valid certificate and key for the pages URL. When not set, the `global.ingress.tls.secretName` is used instead. Defaults to not being set. |
 
+### Backend traffic policy
+
+When Envoy Gateway is used, you can render a
+[`BackendTrafficPolicy`](https://gateway.envoyproxy.io/docs/api/extension_types/#backendtrafficpolicy)
+targeting the GitLab Pages `HTTPRoute` by setting `backendTrafficPolicy.spec`. No policy renders
+by default:
+
+```yaml
+gitlab:
+  gitlab-pages:
+    backendTrafficPolicy:
+      spec:
+        timeout:
+          http:
+            streamIdleTimeout: 300s
+```
+
+The chart injects `spec.targetRefs` with the GitLab Pages `HTTPRoute` when you omit it.
+
+This policy only renders when [`global.pages.externalHttp` and `global.pages.externalHttps`](../../globals.md#configure-gitlab-pages)
+are both empty. When either is set, GitLab Pages serves custom domains outside the shared
+`HTTPRoute`, so no `HTTPRoute` exists for the policy to target and it does not render, regardless
+of `backendTrafficPolicy.spec`.
+
 ## Chart configuration examples
 
 ### extraVolumes

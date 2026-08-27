@@ -204,6 +204,27 @@ You can pass these parameters to the `helm install` command by using the `--set`
 Enable TLS communication between your `kas` pods and other GitLab chart components,
 through the [global KAS attribute](../../globals.md#tls-settings-1).
 
+## Backend traffic policy
+
+When Envoy Gateway is used, the chart renders a
+[`BackendTrafficPolicy`](https://gateway.envoyproxy.io/docs/api/extension_types/#backendtrafficpolicy)
+targeting the KAS `HTTPRoute`. The policy sets `useClientProtocol: true` so Envoy forwards
+requests as HTTP/2, which KAS requires to cross serve WebSocket and gRPC traffic on the same
+hostname and port.
+
+To change the policy, override the specification wholesale under `backendTrafficPolicy.spec`:
+
+```yaml
+gitlab:
+  kas:
+    backendTrafficPolicy:
+      spec:
+        useClientProtocol: true
+```
+
+The chart injects `spec.targetRefs` with the KAS `HTTPRoute` when you omit it. Set
+`backendTrafficPolicy.spec: null` to skip rendering the policy.
+
 ## Test the `kas` chart
 
 To install the chart:

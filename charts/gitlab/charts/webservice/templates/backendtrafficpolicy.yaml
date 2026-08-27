@@ -1,11 +1,6 @@
 {{- if and .Values.enabled (eq "true" (include "gitlab.gatewayApi.route.enabled" .)) (eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .)) }}
 {{- if .Values.backendTrafficPolicy.spec }}
-{{/*
-BackendTrafficPolicy applying upstream timeout defaults to the Webservice
-HTTPRoute: `tcp.connectTimeout` mirrors an NGINX proxy-connect-timeout and
-`http.streamIdleTimeout` is the closest equivalent to an NGINX
-proxy-read-timeout.
-*/}}
+{{/* See values.yaml and the chart docs for the default spec and its rationale. */}}
 {{- $spec := deepCopy .Values.backendTrafficPolicy.spec }}
 {{- if not $spec.targetRefs }}
 {{-   $ref := dict "group" "gateway.networking.k8s.io" "kind" "HTTPRoute" "name" (include "webservice.gatewayRoute.name" .) }}

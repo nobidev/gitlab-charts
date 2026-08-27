@@ -464,6 +464,35 @@ To configure the chart:
    contain CA public key data. Each key is mounted and passed to
    `gitlab-sshd` as a `trusted_user_ca_keys` file path.
 
+### Backend traffic policy
+
+When Envoy Gateway is used and PROXY protocol is enabled, the chart renders a
+[`BackendTrafficPolicy`](https://gateway.envoyproxy.io/docs/api/extension_types/#backendtrafficpolicy)
+targeting the GitLab Shell `TCPRoute`, instructing Envoy to send PROXY v2 headers on the backend
+connection to GitLab Shell. Without this policy, GitLab Shell records the Envoy source address
+instead of the real client address, breaking auditability, rate limiting, and stricter
+`config.proxyPolicy` settings.
+
+The policy renders only when both:
+
+- `global.shell.tcp.proxyProtocol` is `true`, so Envoy has a real client address to forward.
+- GitLab Shell can accept PROXY v2 on its backend leg, either through `config.proxyProtocol: true`,
+  or through `sshDaemon: gitlab-sshd` with `config.proxyPolicy` not set to `reject`.
+
+To change the policy, override the specification wholesale under `backendTrafficPolicy.spec`:
+
+```yaml
+gitlab:
+  gitlab-shell:
+    backendTrafficPolicy:
+      spec:
+        proxyProtocol:
+          version: V2
+```
+
+The chart injects `spec.targetRefs` with the GitLab Shell `TCPRoute` when you omit it. Set
+`backendTrafficPolicy.spec: null` to skip rendering the policy.
+
 ### Configuring the `networkpolicy`
 
 This section controls the

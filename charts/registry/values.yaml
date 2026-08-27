@@ -95,6 +95,11 @@ gatewayRoute:
     backendRequest: 900s
   filters: []
 
+# Envoy Gateway BackendTrafficPolicy rendered for the Registry HTTPRoute.
+# No default spec; set `spec` to render the policy.
+backendTrafficPolicy:
+  spec: null
+
 backendTLSPolicy:
   hostname: ""
 
