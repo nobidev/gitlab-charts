@@ -1136,6 +1136,124 @@ describe 'Gateway API configuration' do
         expect(webservice_policy).not_to be_nil
         expect(webservice_policy['spec']['targetRefs'][0]['name']).to eq('test-webservice-default')
       end
+
+      context 'with custom hostnames' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            hosts:
+              registry:
+                protocol: https
+            kas:
+              tls:
+                enabled: true
+                caSecretName: kas-tls-ca
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+            workhorse:
+              tls:
+                enabled: true
+
+          registry:
+            backendTLSPolicy:
+              hostname: "custom-hostname"
+            tls:
+              enabled: true
+              caSecretName: registry-tls-ca
+
+          gitlab:
+            kas:
+              backendTLSPolicy:
+                hostname: "custom-hostname"
+            webservice:
+              backendTLSPolicy:
+                hostname: "custom-hostname"
+              workhorse:
+                tls:
+                  enabled: true
+                  caSecretName: workhorse-tls-ca
+          ))
+        end
+
+        it 'creates BackendTLSPolicy with custom hostnames' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          kas_policy = template["BackendTLSPolicy/test-kas"]
+          expect(kas_policy).not_to be_nil
+          expect(kas_policy['spec']['validation']['hostname']).to eq('custom-hostname')
+
+          registry_policy = template["BackendTLSPolicy/test-registry"]
+          expect(registry_policy).not_to be_nil
+          expect(registry_policy['spec']['validation']['hostname']).to eq('custom-hostname')
+
+          webservice_policy = template["BackendTLSPolicy/test-webservice-default"]
+          expect(webservice_policy).not_to be_nil
+          expect(webservice_policy['spec']['validation']['hostname']).to eq('custom-hostname')
+        end
+      end
+
+      context 'with kind: ConfigMap' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            hosts:
+              registry:
+                protocol: https
+            kas:
+              tls:
+                enabled: true
+                caSecretName: kas-tls-ca
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+            workhorse:
+              tls:
+                enabled: true
+
+          registry:
+            backendTLSPolicy:
+              kind: ConfigMap
+            tls:
+              enabled: true
+              caSecretName: registry-tls-ca
+
+          gitlab:
+            kas:
+              backendTLSPolicy:
+                kind: ConfigMap
+            webservice:
+              backendTLSPolicy:
+                kind: ConfigMap
+              workhorse:
+                tls:
+                  enabled: true
+                  caSecretName: workhorse-tls-ca
+          ))
+        end
+
+        it 'creates BackendTLSPolicy with CA cert stored in a ConfigMap' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          kas_policy = template["BackendTLSPolicy/test-kas"]
+          expect(kas_policy).not_to be_nil
+          expect(kas_policy['spec']['validation']['caCertificateRefs'][0]['kind']).to eq('ConfigMap')
+
+          registry_policy = template["BackendTLSPolicy/test-registry"]
+          expect(registry_policy).not_to be_nil
+          expect(registry_policy['spec']['validation']['caCertificateRefs'][0]['kind']).to eq('ConfigMap')
+
+          webservice_policy = template["BackendTLSPolicy/test-webservice-default"]
+          expect(webservice_policy).not_to be_nil
+          expect(webservice_policy['spec']['validation']['caCertificateRefs'][0]['kind']).to eq('ConfigMap')
+        end
+      end
     end
   end
 end

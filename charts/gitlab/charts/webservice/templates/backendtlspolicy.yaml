@@ -22,7 +22,7 @@ spec:
     hostname: {{ .backendTLSPolicy.hostname | default $serviceAddress | quote }}
     caCertificateRefs:
     - group: ""
-      kind: Secret
+      kind: {{ .backendTLSPolicy.kind | default "Secret" | quote }}
       name: {{ .workhorse.tls.caSecretName | quote }}
 {{-     end }}
 {{-   end }}

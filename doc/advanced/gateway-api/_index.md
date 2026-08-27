@@ -292,6 +292,24 @@ gitlab:
       hostname: workhorse.example.internal
 ```
 
+The validation `caCertificateRefs` defaults to an object of `kind: Secret`. Both `Secret` and `ConfigMap` are supported.
+Override it with `backendTLSPolicy.kind`:
+
+```yaml
+global:
+  workhorse:
+    tls:
+      enabled: true
+gitlab:
+  webservice:
+    workhorse:
+      tls:
+        enabled: true
+        caSecretName: workhorse-tls-ca
+    backendTLSPolicy:
+      kind: ConfigMap
+```
+
 For information on configuring optional deployment-level overrides, see the
 [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#tls-between-gateway-and-workhorse).
 
@@ -317,6 +335,21 @@ gitlab:
       hostname: kas.example.internal
 ```
 
+The validation `caCertificateRefs` defaults to an object of `kind: Secret`. Both `Secret` and `ConfigMap` are supported.
+Override it with `backendTLSPolicy.kind`:
+
+```yaml
+global:
+  kas:
+    tls:
+      enabled: true
+      caSecretName: kas-tls-ca
+gitlab:
+  kas:
+    backendTLSPolicy:
+      kind: ConfigMap
+```
+
 #### Enable internal TLS for Registry
 
 Backend TLS for Registry is controlled by `registry.tls.enabled`. The validation hostname defaults
@@ -334,6 +367,22 @@ registry:
     caSecretName: registry-tls-ca
   backendTLSPolicy:
     hostname: registry.example.internal
+```
+
+The validation `caCertificateRefs` defaults to an object of `kind: Secret`. Both `Secret` and `ConfigMap` are supported.
+Override it with `backendTLSPolicy.kind`:
+
+```yaml
+global:
+  hosts:
+    registry:
+      protocol: https
+registry:
+  tls:
+    enabled: true
+    caSecretName: registry-tls-ca
+  backendTLSPolicy:
+    kind: ConfigMap
 ```
 
 ### GitLab Geo

@@ -688,6 +688,16 @@ gitlab:
       hostname: workhorse.example.internal
 ```
 
+The validation `caCertificateRefs` defaults to an object of `kind: Secret`. Both `Secret` and `ConfigMap` are supported.
+Override it with `backendTLSPolicy.kind`:
+
+```yaml
+gitlab:
+  webservice:
+    backendTLSPolicy:
+      kind: ConfigMap
+```
+
 For full details, see [Gateway API](../../../advanced/gateway-api/_index.md#tls-between-gateway-and-backend-services) documentation.
 
 ### Customize the ClientTrafficPolicy
