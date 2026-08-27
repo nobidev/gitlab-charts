@@ -502,6 +502,24 @@ This section controls the registry Ingress.
 | `tls.secretName`       | String  |         | The name of the Kubernetes TLS Secret that contains a valid certificate and key for the registry URL. When not set, the `global.ingress.tls.secretName` is used instead. Defaults to not being set. |
 | `tls.cipherSuites`     |  Array  | `[]`    | The list of cipher suites that Container registry should present to the client during TLS handshake. |
 
+## Backend traffic policy
+
+When Envoy Gateway is used, you can render a
+[`BackendTrafficPolicy`](https://gateway.envoyproxy.io/docs/api/extension_types/#backendtrafficpolicy)
+targeting the Registry `HTTPRoute` by setting `backendTrafficPolicy.spec`. No policy renders by
+default:
+
+```yaml
+registry:
+  backendTrafficPolicy:
+    spec:
+      timeout:
+        http:
+          streamIdleTimeout: 900s
+```
+
+The chart injects `spec.targetRefs` with the Registry `HTTPRoute` when you omit it.
+
 ## Configuring TLS
 
 Container Registry supports TLS which secures its communication with other components,

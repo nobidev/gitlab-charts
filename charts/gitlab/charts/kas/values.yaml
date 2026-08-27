@@ -86,6 +86,12 @@ gatewayRoute:
 backendTLSPolicy:
   hostname: ""
 
+# Envoy Gateway BackendTrafficPolicy rendered for the KAS HTTPRoute.
+# Set `spec: null` to skip rendering the policy.
+backendTrafficPolicy:
+  spec:
+    useClientProtocol: true
+
 ingress:
   apiVersion:
   annotations: {}
