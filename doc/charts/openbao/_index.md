@@ -277,7 +277,7 @@ also a prerequisite for [rotating the static unseal key](#rotate-the-static-unse
 | Parameter                                                | Default                                                 | Description |
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
 | `global.openbao.unseal.currentKeyField`                  | `key`                                                   | Field of the unseal secret holding the current key. |
-| `global.openbao.unseal.previousKeyField`                 |                                                         | Field of the unseal secret holding the previous key, used to [rotate the key](#rotate-the-static-unseal-key). Required whenever `config.unseal.static.previousKeyId` is set. |
+| `global.openbao.unseal.previousKeyField`                 |                                                         | Field of the unseal secret holding the previous key, used to [rotate the key](#rotate-the-static-unseal-key). Set with `config.unseal.static.previousKeyId`, or leave both empty. Setting one alone stops the chart from rendering. |
 | `config.unseal.static.enabled`                           | true                                                    | Enable static auto unsealing. |
 | `config.unseal.static.currentKeyId`                      | `gl-unseal-1`                                            | ID of the current static unsealing key. |
 | `config.unseal.static.currentKey`                        | `/srv/openbao/keys/gl-unseal-1`                          | Path of the current static unsealing key. |

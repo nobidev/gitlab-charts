@@ -995,7 +995,7 @@ global:
       # Fields of the unseal secret holding the current and previous keys. Rotation adds
       # the new key under a new field name and switches currentKeyField to it, so no key
       # is ever overwritten in place. previousKeyField has no default because no field
-      # holds a previous key until you rotate; set it whenever previousKeyId is set.
+      # holds a previous key until you rotate; set it and previousKeyId together, or neither.
       ## https://docs.gitlab.com/charts/charts/openbao/#rotate-the-static-unseal-key
       currentKeyField: "key"
       previousKeyField: ""
@@ -1516,7 +1516,7 @@ openbao:
     {{- if .Values.config.unseal.static.previousKeyId }}
     - name: unseal
       mountPath: {{ .Values.config.unseal.static.previousKey }}
-      subPath: '{{ template "gitlab.openbao.unseal.previousKey" . }}'
+      subPath: '{{ template "gitlab.openbao.unseal.previousKeyField" . }}'
       readOnly: true
     {{- end }}
     {{- end }}

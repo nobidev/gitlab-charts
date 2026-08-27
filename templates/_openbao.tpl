@@ -108,7 +108,7 @@ Render the OpenBao postgresql configuration yaml.
 {{- .Values.global.openbao.unseal.currentKeyField -}}
 {{- end -}}
 
-{{- define "gitlab.openbao.unseal.previousKey" -}}
+{{- define "gitlab.openbao.unseal.previousKeyField" -}}
 {{- .Values.global.openbao.unseal.previousKeyField -}}
 {{- end -}}
 

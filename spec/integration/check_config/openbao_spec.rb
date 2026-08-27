@@ -170,6 +170,31 @@ describe 'openbao config check' do
                        error_description: 'when a previous key ID is set but no field names it'
     end
 
+    context 'when previousKeyField is set without previousKeyId' do
+      let(:error_values) do
+        YAML.safe_load(%(
+          openbao:
+            install: true
+          global:
+            openbao:
+              unseal:
+                previousKeyField: key
+              psql:
+                host: gitlab-checkconfig-test-postgresql.default.svc
+                username: gitlab
+                password:
+                  secret: openbao-db-password
+                  key: password
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'no previous unseal key ID configured' }
+
+      include_examples 'config validation',
+                       success_description: nil,
+                       error_description: 'when a previous key field is named but no ID enables it'
+    end
+
     context 'when currentKeyField is empty' do
       let(:error_values) do
         YAML.safe_load(%(
@@ -212,6 +237,8 @@ describe 'openbao config check' do
                   region: us-east-1
           global:
             openbao:
+              unseal:
+                previousKeyField: key
               psql:
                 host: gitlab-checkconfig-test-postgresql.default.svc
                 username: gitlab

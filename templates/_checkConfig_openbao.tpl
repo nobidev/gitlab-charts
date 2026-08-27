@@ -36,6 +36,10 @@ Both mounts take their subPath from global.openbao.unseal.*Field. An empty value
 subPath, which the API server rejects, and an empty currentKeyField also makes the shared-secrets
 job generate `--from-file==bao-unseal`. Neither surfaces a usable error.
 
+previousKeyField without previousKeyId renders cleanly - the previous mount is gated on the ID - but
+it means a rotation was only half configured. Once currentKey* names the new key that leaves OpenBao
+holding the new key alone, with the root key still wrapped under the old one, and it cannot unseal.
+
 Gated on static.enabled to match the mounts themselves: with static unsealing off nothing reads
 these values, so leftover rotation settings must not block an AWS KMS render.
 */}}
@@ -52,6 +56,10 @@ openbao: no current unseal key field configured
 {{-     if and $static.previousKeyId (not $unseal.previousKeyField) }}
 openbao: no previous unseal key field configured
     `config.unseal.static.previousKeyId` is set but `global.openbao.unseal.previousKeyField` is empty. Set it to the unseal secret field holding the previous key. See https://docs.gitlab.com/charts/charts/openbao/#rotate-the-static-unseal-key
+{{-     end -}}
+{{-     if and $unseal.previousKeyField (not $static.previousKeyId) }}
+openbao: no previous unseal key ID configured
+    `global.openbao.unseal.previousKeyField` is set but `config.unseal.static.previousKeyId` is empty, so the previous key is neither mounted nor configured. Set the previous key ID and path, or remove `previousKeyField` if the rotation is complete. See https://docs.gitlab.com/charts/charts/openbao/#rotate-the-static-unseal-key
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
