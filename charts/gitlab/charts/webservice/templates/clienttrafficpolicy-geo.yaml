@@ -1,4 +1,4 @@
-{{- if and .Values.enabled .Values.global.gatewayApi.installEnvoy (eq "true" (include "gitlab.gatewayApi.gateway.geo.configure" .)) }}
+{{- if and .Values.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) (eq "true" (include "gitlab.gatewayApi.gateway.geo.configure" .)) }}
 {{/*
 ClientTrafficPolicy targeting the Geo Rails listener (gitlab-web-geo).
 Keeps paths with escaped slashes unchanged, as they are commonly used

@@ -18,7 +18,8 @@ but remains available until its full removal in GitLab 20.0.
 | `global.gatewayApi.gatewayRef.name`                 | String  |                | Gateway name rendered to all Gateway API resources. Use this to reference an externally managed Gateway and to disable the Gateway provided by the chart. |
 | `global.gatewayApi.gatewayRef.namespace`            | String  |                | Gateway namespace rendered to all Gateway API resources. Use this to reference an externally managed Gateway in another namespace and to disable the Gateway provided by the chart. |
 | `global.gatewayApi.httpToHttpsRedirect`             | Boolean | true           | Create an HTTPRoute that redirects all HTTP traffic to HTTPS with a 301 status code. Only effective when `protocol` is `HTTPS` and the Gateway is managed (no `gatewayRef`). |
-| `global.gatewayApi.installEnvoy`                    | Boolean | true           | Install Envoy Gateway subchart and configure a `GatewayClass` and [Envoy Gateway API extensions](../../charts/envoygateway/_index.md). Default flipped to `true` in GitLab 19.0. |
+| `global.gatewayApi.installEnvoy`                    | Boolean | true           | Install the [bundled Envoy Gateway](../../charts/envoygateway/_index.md) subchart. Default flipped to `true` in GitLab 19.0. |
+| `global.gatewayApi.configureEnvoy`                  | Boolean | unset          | Configure Envoy Gateway's Gateway API resources (`GatewayClass`, `EnvoyProxy`, `ClientTrafficPolicy`, `BackendTrafficPolicy`, `SecurityPolicy`). Defaults to the value of `global.gatewayApi.installEnvoy` when unset. Set explicitly to configure these resources for an externally managed Envoy Gateway without installing the bundled subchart. |
 
 ### Cluster domain
 
@@ -47,6 +48,7 @@ GitLab chart allows you to customize the managed `Gateway`, `GatewayClass`, and 
 
 | Name                           |  Type   | Default        | Description |
 |:-------------------------------|:-------:|:---------------|:------------|
+| `gatewayApiResources.class.enabled`                | Boolean | unset          | Render the chart-managed `GatewayClass`. Defaults to the value of `global.gatewayApi.configureEnvoy` when unset. Set to `false` to provide your own `GatewayClass` while keeping the policy resources chart-managed; the `EnvoyProxy` is only rendered when the `GatewayClass` is also chart-managed. |
 | `gatewayApiResources.class.name`                   | String  | `gitlab-gw`    | Name of the Gateway class bound to the Gateway. |
 | `gatewayApiResources.class.controllerName`         | String  | `gateway.envoyproxy.io/gitlab-gatewayclass-controller` | Controller name of the GatewayClass. |
 | `gatewayApiResources.gateway.addresses`            | Array   | false          | Array of addresses to be added to the Gateway. |
@@ -113,14 +115,15 @@ listeners:
 
 #### Envoy Gateway extensions
 
-If the bundled Envoy Gateway is used, you can customize the `EnvoyProxy` and optionally create a `ClientTrafficPolicy`
-and a `SecurityPolicy` bound to the managed `Gateway`.
+When Envoy Gateway's Gateway API resources are configured (`global.gatewayApi.configureEnvoy`,
+see [Global configuration](#global-configuration)), you can customize the `EnvoyProxy` and
+optionally create a `ClientTrafficPolicy` and a `SecurityPolicy` bound to the managed `Gateway`.
 
 | Name                                                |  Type   | Default        | Description |
 |:----------------------------------------------------|:-------:|:---------------|:------------|
-| `gatewayApiResources.envoy.proxySpec`               | Object  | see values     | `EnvoyProxy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
-| `gatewayApiResources.envoy.clientTrafficPolicySpec` | Object  | see values     | Envoy's `ClientTrafficPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
-| `gatewayApiResources.envoy.securityPolicySpec`      | Object  | see values     | Envoy's `SecurityPolicy` specification. Only enabled if `global.gatewayApi.installEnvoy` is true.|
+| `gatewayApiResources.envoy.proxySpec`               | Object  | see values     | `EnvoyProxy` specification. Only enabled if `global.gatewayApi.configureEnvoy` is true and `gatewayApiResources.class.enabled` resolves to true. |
+| `gatewayApiResources.envoy.clientTrafficPolicySpec` | Object  | see values     | Envoy's `ClientTrafficPolicy` specification. Only enabled if `global.gatewayApi.configureEnvoy` is true.|
+| `gatewayApiResources.envoy.securityPolicySpec`      | Object  | see values     | Envoy's `SecurityPolicy` specification. Only enabled if `global.gatewayApi.configureEnvoy` is true.|
 
 > [!note]
 > The Webservice chart renders its own section-scoped `ClientTrafficPolicy` resources for the
@@ -354,15 +357,22 @@ working configurations with other Gateway API providers.
 
 There are two ways to opt out of the bundled Envoy Gateway:
 
-- Set `global.gatewayApi.installEnvoy: false` to skip the Envoy Gateway subchart and Envoy-specific
-  custom resources. The chart still renders the `Gateway`, route resources, and any
-  `BackendTLSPolicy` resources. You provide the `GatewayClass`.
+- Set `global.gatewayApi.installEnvoy: false` to skip the Envoy Gateway subchart. By default this
+  also skips the `GatewayClass` and Envoy-specific custom resources (`global.gatewayApi.configureEnvoy`
+  defaults to the value of `installEnvoy`). The chart still renders the `Gateway`, route resources,
+  and any `BackendTLSPolicy` resources. You provide the `GatewayClass`.
 - Set `global.gatewayApi.gatewayRef.name` and `global.gatewayApi.gatewayRef.namespace` to reference
   an externally managed `Gateway`. The chart skips the managed `Gateway` and all listener
   configuration. You provide the `Gateway`, its listeners, and the `GatewayClass`.
 
 The two options can be combined. For more information, see the
 [configuration recipes](#configuration-recipes).
+
+If your external provider is Envoy Gateway (for example, installed cluster-wide by your platform
+team), set `global.gatewayApi.configureEnvoy: true` alongside `installEnvoy: false`. The chart
+then renders the `GatewayClass`, `EnvoyProxy`, and the Envoy-specific policy resources described
+in [Additional requirements](#additional-requirements) against that installation, without
+installing the bundled Envoy Gateway subchart.
 
 #### Requirements
 
@@ -421,10 +431,11 @@ If you get GitLab working on another Gateway API provider, please contribute upd
 
 #### Additional requirements
 
-The behaviors described under [Requirements](#requirements) are
-configured automatically when the bundled Envoy Gateway is installed (`installEnvoy: true`). When
-it is disabled, the chart skips its Envoy-specific custom resources and you become responsible for
-configuring the equivalent behavior on your provider:
+The behaviors described under [Requirements](#requirements) are configured automatically when
+Envoy Gateway's Gateway API extensions are installed (`global.gatewayApi.configureEnvoy`,
+which defaults to the value of `installEnvoy`). When the extensions are disabled, the chart skips
+its Envoy-specific custom resources and you become responsible for configuring the equivalent
+behavior on your provider:
 
 - Preserving escaped slashes.
 - Cross-serving HTTP and HTTP/2 for KAS.
@@ -485,8 +496,50 @@ gatewayApiResources:
 ##### Use an externally managed Envoy Gateway
 
 You can also use Envoy Gateway as an external provider (for example, when it is installed
-cluster-wide by your platform team). Set `installEnvoy: false` to disable the bundled subchart,
-then either reference an external `Gateway` through `gatewayRef` or point at the
-externally-installed `GatewayClass`. The chart only renders Envoy-specific custom resources when
-`installEnvoy` is `true`, so you must configure escaped slash handling, KAS gRPC forwarding, and
-smartcard mutual TLS yourself on that external Envoy Gateway installation.
+cluster-wide by your platform team), while letting the chart manage the `GatewayClass`,
+`EnvoyProxy`, and Envoy-specific policy resources for it. Set `installEnvoy: false` to skip the
+bundled subchart, and `configureEnvoy: true` to render those resources against the external
+installation instead. Point `gatewayApiResources.class.controllerName` at the controller name
+configured on that installation:
+
+```yaml
+global:
+  gatewayApi:
+    enabled: true
+    # Skip the Envoy Gateway subchart itself.
+    installEnvoy: false
+    # Render the GatewayClass, EnvoyProxy, and Envoy-specific policy resources
+    # against the externally managed Envoy Gateway.
+    configureEnvoy: true
+gatewayApiResources:
+  class:
+    # Controller name configured on the externally managed Envoy Gateway.
+    controllerName: "gateway.envoyproxy.io/custom-gatewayclass-controller"
+```
+
+Combine this with [an externally managed Gateway](#use-an-externally-managed-gateway) through
+`gatewayRef` if the `Gateway` resource itself is also managed outside the chart.
+
+To skip the `GatewayClass`, `EnvoyProxy`, and policy resources instead and manage them yourself,
+leave `configureEnvoy` unset. For more information, see
+[use the chart-managed Gateway with an external GatewayClass](#use-the-chart-managed-gateway-with-an-external-gatewayclass).
+
+##### Use chart-managed policies with your own GatewayClass
+
+To keep the Envoy-specific policy resources chart-managed, but provide your own `GatewayClass`,
+set `configureEnvoy: true` and `gatewayApiResources.class.enabled: false`. The chart then skips
+its `GatewayClass` and, because the `EnvoyProxy` is only rendered when the `GatewayClass` is
+chart-managed, skips the `EnvoyProxy` too:
+
+```yaml
+global:
+  gatewayApi:
+    enabled: true
+    installEnvoy: false
+    configureEnvoy: true
+gatewayApiResources:
+  class:
+    enabled: false
+    # Name of the GatewayClass backed by your Gateway API controller.
+    name: custom-class
+```

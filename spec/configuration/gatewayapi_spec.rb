@@ -245,6 +245,173 @@ describe 'Gateway API configuration' do
       end
     end
 
+    describe "Externally managed Envoy Gateway is configured via configureEnvoy" do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          hosts:
+            externalIP: 127.0.0.1
+          pages:
+            enabled: true
+          shell:
+            tcp:
+              proxyProtocol: true
+          appConfig:
+            smartcard:
+              enabled: true
+              CASecret: smartcard-ca-secret
+          geo:
+            enabled: true
+            gatewayApi:
+              additionalHostname: geo.example.com
+          gatewayApi:
+            enabled: true
+            installEnvoy: false
+            configureEnvoy: true
+            gatewayRef:
+              name: "external-gateway"
+              namespace: "default"
+        gitlab:
+          gitlab-shell:
+            sshDaemon: gitlab-sshd
+            config:
+              proxyPolicy: use
+        ))
+      end
+
+      it 'renders the template' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'configures Envoy Gateway resources without installing the bundled Envoy Gateway' do
+        # The bundled Envoy Gateway subchart is skipped; the managed Gateway is also skipped
+        # because gatewayRef points at an externally managed Gateway.
+        expect(gateway).to be_nil
+
+        # GatewayClass, EnvoyProxy, and the policy resources are still rendered against
+        # the externally managed Envoy Gateway.
+        expect(gatewayclass).not_to be_nil
+        expect(envoyproxy).not_to be_nil
+        expect(kas_backendtrafficpolicy).not_to be_nil
+        expect(shell_backendtrafficpolicy).not_to be_nil
+        expect(webservice_backendtrafficpolicy).not_to be_nil
+        expect(webservice_clienttrafficpolicy).not_to be_nil
+        expect(webservice_smartcard_clienttrafficpolicy).not_to be_nil
+        expect(webservice_geo_clienttrafficpolicy).not_to be_nil
+      end
+    end
+
+    describe "configureEnvoy explicitly disabled while installEnvoy is enabled" do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          hosts:
+            externalIP: 127.0.0.1
+          appConfig:
+            smartcard:
+              enabled: true
+              CASecret: smartcard-ca-secret
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+            configureEnvoy: false
+        ))
+      end
+
+      it 'renders the template' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'installs Envoy Gateway itself without configuring its Gateway API resources' do
+        # configureEnvoy takes precedence over installEnvoy: the bundled subchart is installed,
+        # but the chart renders neither the GatewayClass/EnvoyProxy nor the policy resources.
+        expect(gateway).not_to be_nil
+
+        expect(gatewayclass).to be_nil
+        expect(envoyproxy).to be_nil
+        expect(kas_backendtrafficpolicy).to be_nil
+        expect(webservice_backendtrafficpolicy).to be_nil
+        expect(webservice_clienttrafficpolicy).to be_nil
+        expect(webservice_smartcard_clienttrafficpolicy).to be_nil
+      end
+    end
+
+    describe "gatewayApiResources.class.enabled explicitly disabled while configureEnvoy is enabled" do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          hosts:
+            externalIP: 127.0.0.1
+          gatewayApi:
+            enabled: true
+            installEnvoy: false
+            configureEnvoy: true
+        gatewayApiResources:
+          class:
+            enabled: false
+        ))
+      end
+
+      it 'renders the template' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'skips the GatewayClass and EnvoyProxy but keeps the policy resources' do
+        # The EnvoyProxy is only rendered when the GatewayClass is also chart-managed.
+        expect(gatewayclass).to be_nil
+        expect(envoyproxy).to be_nil
+
+        expect(kas_backendtrafficpolicy).not_to be_nil
+        expect(webservice_backendtrafficpolicy).not_to be_nil
+        expect(webservice_clienttrafficpolicy).not_to be_nil
+      end
+    end
+
+    describe "gatewayApiResources.class.enabled explicitly enabled while configureEnvoy is disabled" do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          hosts:
+            externalIP: 127.0.0.1
+          gatewayApi:
+            enabled: true
+            installEnvoy: false
+            configureEnvoy: false
+        gatewayApiResources:
+          class:
+            enabled: true
+            controllerName: "gateway.envoyproxy.io/custom-gatewayclass-controller"
+        ))
+      end
+
+      it 'renders the template' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'renders a GatewayClass without a parametersRef and without the policy resources' do
+        expect(gatewayclass).not_to be_nil
+        expect(gatewayclass["spec"]).not_to have_key("parametersRef")
+        expect(gatewayclass["spec"]["controllerName"]).to eq("gateway.envoyproxy.io/custom-gatewayclass-controller")
+
+        expect(envoyproxy).to be_nil
+        expect(kas_backendtrafficpolicy).to be_nil
+        expect(webservice_backendtrafficpolicy).to be_nil
+        expect(webservice_clienttrafficpolicy).to be_nil
+      end
+    end
+
     context 'HTTP listener' do
       let(:values) do
         HelmTemplate.with_defaults(%(

@@ -1,4 +1,4 @@
-{{- if and .Values.global.appConfig.smartcard.enabled .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy }}
+{{- if and .Values.global.appConfig.smartcard.enabled .Values.global.gatewayApi.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) }}
 {{/*
 ClientTrafficPolicy to handle smartcard traffic with Envoy Gateway by handling mutual
 TLS and passing the client certificate to the backend.

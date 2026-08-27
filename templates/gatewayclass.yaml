@@ -1,4 +1,4 @@
-{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy }}
+{{- if and .Values.global.gatewayApi.enabled (eq "true" (include "gitlab.gatewayApi.class.enabled" .)) }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
 metadata:
@@ -9,9 +9,11 @@ metadata:
     {{- include "gitlab.serviceLabels" . | nindent 4 }}
 spec:
   controllerName: {{ .Values.gatewayApiResources.class.controllerName }}
+{{- if eq "true" (include "gitlab.gatewayApi.envoy.proxy.enabled" .) }}
   parametersRef:
     group: gateway.envoyproxy.io
     kind: EnvoyProxy
     name: {{ include "gitlab.gatewayApi.envoy.config.name" . }}
     namespace: {{ .Release.Namespace | quote }}
+{{- end }}
 {{- end }}

@@ -27,14 +27,62 @@ for usage in Envoy policy custom resources.
 {{- end -}}
 
 {{/*
-Returns true if envoy policies should be installed. Policies are installed if bundled envoy is installed
-and if Gateway is in same namespace.
+Checks if Envoy Gateway's Gateway API resources (GatewayClass, EnvoyProxy,
+ClientTrafficPolicy, BackendTrafficPolicy, SecurityPolicy) should be configured. Mirrors
+global.gatewayApi.installEnvoy, but global.gatewayApi.configureEnvoy takes precedence when
+set explicitly. This allows the chart to manage the GatewayClass, EnvoyProxy, and policy
+resources for an externally managed Envoy Gateway, without installing the bundled Envoy
+Gateway subchart itself.
+*/}}
+{{- define "gitlab.gatewayApi.configureEnvoy" -}}
+{{- if not (eq nil .Values.global.gatewayApi.configureEnvoy) -}}
+{{-   .Values.global.gatewayApi.configureEnvoy -}}
+{{- else -}}
+{{-   .Values.global.gatewayApi.installEnvoy -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Checks if the chart-managed GatewayClass should be rendered. Mirrors
+gitlab.gatewayApi.configureEnvoy, but gatewayApiResources.class.enabled takes precedence
+when set explicitly. Use this to keep the policy resources managed by the chart while
+providing your own GatewayClass. The EnvoyProxy resource is only rendered when the
+GatewayClass is also chart-managed; see gitlab.gatewayApi.envoy.proxy.enabled.
+*/}}
+{{- define "gitlab.gatewayApi.class.enabled" -}}
+{{- if not (eq nil .Values.gatewayApiResources.class.enabled) -}}
+{{-   .Values.gatewayApiResources.class.enabled -}}
+{{- else -}}
+{{-   include "gitlab.gatewayApi.configureEnvoy" . -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Checks if the chart-managed EnvoyProxy resource should be rendered. The EnvoyProxy is only
+useful when the chart also manages the GatewayClass referencing it through parametersRef,
+so this is true when both Envoy Gateway's Gateway API resources are configured
+(gitlab.gatewayApi.configureEnvoy) and the GatewayClass is chart-managed
+(gitlab.gatewayApi.class.enabled).
+*/}}
+{{- define "gitlab.gatewayApi.envoy.proxy.enabled" -}}
+{{- $configureEnvoy := eq "true" (include "gitlab.gatewayApi.configureEnvoy" .) -}}
+{{- $classEnabled := eq "true" (include "gitlab.gatewayApi.class.enabled" .) -}}
+{{- if and $configureEnvoy $classEnabled -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
+Returns true if envoy policies should be installed. Policies are installed if Envoy Gateway
+is configured (see gitlab.gatewayApi.configureEnvoy) and if Gateway is in same namespace.
 */}}
 {{- define "gitlab.gatewayApi.envoy.installPolicies" -}}
-{{- $installEnvoy := and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy -}}
+{{- $configureEnvoy := and .Values.global.gatewayApi.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) -}}
 {{- $gatewayNamespace := (include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray | first).namespace -}}
 {{- $gatewayInSameNamespace := eq .Release.Namespace $gatewayNamespace -}}
-{{- if and $installEnvoy $gatewayInSameNamespace -}}
+{{- if and $configureEnvoy $gatewayInSameNamespace -}}
 true
 {{- else -}}
 false

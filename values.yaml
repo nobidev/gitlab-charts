@@ -80,6 +80,10 @@ global:
       # name: ""
       # namespace: ""
     installEnvoy: true
+    ## Configure Envoy Gateway's Gateway API resources (GatewayClass, EnvoyProxy,
+    ## ClientTrafficPolicy, BackendTrafficPolicy, SecurityPolicy) without installing the bundled
+    ## Envoy Gateway subchart. Defaults to the value of installEnvoy, unless set explicitly.
+    configureEnvoy:
     configureCertmanager: true
     httpToHttpsRedirect: true
 
@@ -1597,6 +1601,9 @@ openbao:
 
 gatewayApiResources:
   class:
+    ## Render the chart-managed GatewayClass. Defaults to the value of
+    ## global.gatewayApi.configureEnvoy, unless set explicitly.
+    enabled:
     name: "gitlab-gw"
     controllerName: "gateway.envoyproxy.io/gitlab-gatewayclass-controller"
   gateway:
