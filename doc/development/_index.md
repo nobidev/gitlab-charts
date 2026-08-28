@@ -166,6 +166,9 @@ Note that adding the certificate is more secure than the insecure registry solut
 1. IAM Data Access Service configuration (GitLab.com only)
    - IAM Data Access Service integration is currently experimental and available only on GitLab.com for testing a pre-release service. This feature is subject to change and should not be used in production environments. For details, see: [IAM Data Access Service configuration](iam_data_access_service.md)
 
+1. Artifact Registry configuration (GitLab.com only)
+   - The Artifact Registry integration is currently experimental and available only on GitLab.com for connecting to a pre-release service. This feature is subject to change and should not be used in production environments. For details, see: [Artifact Registry configuration](artifact_registry.md)
+
 ## Troubleshooting a development environment
 
 Developers may encounter unique issues while working on new chart features.

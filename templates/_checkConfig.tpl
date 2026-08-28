@@ -133,6 +133,9 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.port" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.iamDataAccessService.grpc.secure" .) -}}
 
+{{/* _checkConfig_artifact_registry.tpl*/}}
+{{- $messages = append $messages (include "gitlab.checkConfig.artifactRegistry.apiUrl" .) -}}
+
 {{/* _checkConfig_outgoingEmail.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.outgoingEmail.mailerExclusive" .) -}}
 

@@ -607,6 +607,18 @@ global:
         # secret:
         # key:
 
+    ## Artifact Registry configuration
+    ## Connection from GitLab Rails to the Artifact Registry service. The service
+    ## token is shared with that service and is operator-supplied; the chart does
+    ## not generate it.
+    ## Optional for self-managed; GitLab.com enables it via its own deployment values.
+    artifactRegistry:
+      enabled: false
+      # apiUrl:
+      # authToken:
+        # secret:
+        # key:
+
     workspaces: {}
 
     ## Configure Database Traffic Capture. This is a Gitlab internal-use experiment.
