@@ -67,6 +67,7 @@ global:
 | `kas.https`               | Boolean | `false`       | If `hosts.https` or `kas.https` are `true`, the KAS external URL will use `wss://` instead of `ws://`. |
 | `pages.name`              | String  | `pages`       | The hostname for GitLab Pages. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
 | `pages.https`             | String  |               | If `global.pages.https` or `global.hosts.pages.https` or `global.hosts.https` are `true`, then URL for GitLab Pages in the Project settings UI will use `https://` instead of `http://`. |
+| `pages.hostnameOverride`  | String  |               | Override the hostname used on the GitLab Pages [Gateway API](../advanced/gateway-api/_index.md#hostname-override) `HTTPRoute` and listener. Useful if GitLab Pages has to be reachable behind a proxy that rewrites the Hostname to an internal hostname. |
 | `ssh`                     | String  |               | The hostname for cloning repositories over SSH. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
 
 ### `hostSuffix`

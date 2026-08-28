@@ -229,6 +229,24 @@ requires the hostname to resolve publicly, so an internal-only override requires
 `configureCertmanager` and provide your own certificate for that hostname instead, similarly to
 [internal TLS between Gateway and Workhorse](#enable-internal-tls-for-webservice).
 
+GitLab Pages supports the same override with `global.hosts.pages.hostnameOverride`:
+
+```yaml
+global:
+  hosts:
+    pages:
+      name: pages.example.com
+      hostnameOverride: pages.example.internal
+```
+
+When `global.pages.namespaceInPath` is `false` (the default), the Pages `HTTPRoute` and the
+`pages-web` listener match on the wildcard form of the hostname, so the override is also
+wildcarded, for example `*.pages.example.internal`.
+
+Registry has no `hostnameOverride`, because `global.registry.host` already lets you set the
+Rails-facing registry URL independently of the hostname used for routing
+(`global.hosts.registry.name`).
+
 #### SSH route
 
 Repository access over SSH is exposed by a `TCPRoute`. `TCPRoute` graduated to `v1` in Gateway
