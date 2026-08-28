@@ -45,6 +45,7 @@ global:
 | `enabled` | boolean | `false` | Enable or disable IAM Data Access Service integration |
 | `grpc.host` | string |  | Hostname of the gRPC endpoint. Required when enabled. |
 | `grpc.port` | integer |  | Port number of the gRPC endpoint. Required when enabled. |
+| `grpc.secure` | boolean | `true` | Use TLS for the gRPC connection. Set to `false` only when the connection runs over a trusted network. |
 | `authToken.secret` | string | `<Release.Name>-iam-data-access-secret` | Kubernetes secret name containing the authentication token |
 | `authToken.key` | string | `iam_data_access_service_token` | Key within the secret containing the authentication token |
 

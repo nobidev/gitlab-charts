@@ -738,7 +738,8 @@ describe 'gitlab.yml.erb configuration' do
               },
               'grpc' => {
                 'host' => '',
-                'port' => 0
+                'port' => 0,
+                'secure' => true
               }
             }
           )
@@ -781,7 +782,8 @@ describe 'gitlab.yml.erb configuration' do
               },
               'grpc' => {
                 'host' => 'grpc.localhost',
-                'port' => 5005
+                'port' => 5005,
+                'secure' => true
               }
             }
           )

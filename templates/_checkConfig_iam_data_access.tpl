@@ -27,3 +27,21 @@ iamDataAccessService:
   {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.iamDataAccessService.grpc.port */}}
+
+{{/*
+Ensures that grpc.secure is a boolean when iamDataAccessService is enabled
+*/}}
+{{- define "gitlab.checkConfig.iamDataAccessService.grpc.secure" -}}
+  {{- with .Values.global.appConfig.iamDataAccessService -}}
+    {{- if .enabled -}}
+      {{- $grpc := dig "grpc" dict . -}}
+      {{- if and (kindIs "map" $grpc) (hasKey $grpc "secure") -}}
+        {{- if not (kindIs "bool" $grpc.secure) }}
+iamDataAccessService:
+    grpc.secure must be a boolean. Please set `global.appConfig.iamDataAccessService.grpc.secure` to `true` or `false`.
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.iamDataAccessService.grpc.secure */}}

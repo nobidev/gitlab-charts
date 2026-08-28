@@ -72,3 +72,21 @@ iamAuthService:
   {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.iamAuthService.jwtIssuer */}}
+
+{{/*
+Ensures that grpc.secure is a boolean when iamAuthService is enabled
+*/}}
+{{- define "gitlab.checkConfig.iamAuthService.grpc.secure" -}}
+  {{- with .Values.global.appConfig.iamAuthService -}}
+    {{- if .enabled -}}
+      {{- $grpc := dig "grpc" dict . -}}
+      {{- if and (kindIs "map" $grpc) (hasKey $grpc "secure") -}}
+        {{- if not (kindIs "bool" $grpc.secure) }}
+iamAuthService:
+    grpc.secure must be a boolean. Please set `global.appConfig.iamAuthService.grpc.secure` to `true` or `false`.
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.iamAuthService.grpc.secure */}}

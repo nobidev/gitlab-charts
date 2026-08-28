@@ -47,6 +47,7 @@ global:
 | `http.port` | integer |  | Port number of the HTTP endpoint |
 | `grpc.host` | string |  | Hostname of the gRPC endpoint |
 | `grpc.port` | integer |  | Port number of the gRPC endpoint |
+| `grpc.secure` | boolean | `true` | Use TLS for the gRPC connection. Set to `false` only when the connection runs over a trusted network. |
 | `jwtAudience` | string | `gitlab-rails` | The value used for the `aud` scope in JWTs sent to this service |
 | `jwtIssuer` | string |  | The value used to validate the `iss` claim in JWTs sent to this service by the IAM Auth service. This must match the name used in the IAM Auth service's configuration. |
 | `authToken.secret` | string |  | Kubernetes secret name containing the authentication token |
