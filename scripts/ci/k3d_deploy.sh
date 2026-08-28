@@ -15,7 +15,7 @@ echo "K3D_K8S_IMAGE=${K3D_K8S_IMAGE}"
 
 mkdir -p "$(dirname "${VARIABLES_FILE}")"
 
-deploy_external_components
+deploy_dev_stack
 deploy
 wait_for_deploy
 # check_domain_ip is skipped: nip.io resolves immediately without DNS propagation

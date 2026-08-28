@@ -5,9 +5,8 @@
 # subcommand to run one stage in isolation.
 #
 # Subcommands:
-#   up        Create the shared network, pull-through registry caches, the k3d
-#             cluster, and the CloudNativePG operator. Idempotent — already-up
-#             pieces are skipped.
+#   up        Create the shared network, pull-through registry caches, and the
+#             k3d cluster. Idempotent — already-up pieces are skipped.
 #   deploy    Run `bash scripts/ci/autodevops.sh` against the cluster. Creates
 #             the EE license Secret (empty if $QA_EE_ACTIVATION_CODE is unset).
 #   specs     Run the chart feature specs (`bundle exec rspec -t type:feature`).
@@ -39,13 +38,17 @@
 #                               deploy/qa (fails fast if unset). Export from
 #                               your password manager before running.
 #   GITLAB_QA_VERSION=15.7.2    gitlab-qa gem version (matches .gitlab-ci.yml).
-#   CNPG_CHART_VERSION=0.28.0
-#   CNPG_POSTGRESQL_TAG=17      Match .gitlab-ci.yml.
+#   DEV_STACK_CHART_VERSION     gitlab-dev-stack umbrella chart version.
+#   CNPG_CHART_VERSION          CloudNativePG operator chart version.
+#   CNPG_POSTGRESQL_TAG         PostgreSQL image tag for the CNPG cluster.
+#   GARAGE_APP_VERSION          Garage version the umbrella release runs.
+#                               All four default to the values in
+#                               .gitlab-ci.yml; override to test a bump.
 #   GARAGE_APP_VERSION=2.3.0    Match .gitlab-ci.yml.
 #
 # Usage:
 #   ./scripts/local-qa.sh             # full pipeline including QA
-#   ./scripts/local-qa.sh up          # just the cluster + CNPG
+#   ./scripts/local-qa.sh up          # just the cluster
 #   ./scripts/local-qa.sh deploy      # just autodevops.sh
 #   ./scripts/local-qa.sh all --skip-qa
 #   ./scripts/local-qa.sh down
@@ -79,10 +82,6 @@ TMUX_SESSION="${TMUX_SESSION:-local-qa}"
 
 : "${QA_SHARDS:=5}"
 : "${GITLAB_QA_VERSION:=15.7.2}"
-: "${CNPG_CHART_VERSION:=0.28.0}"
-: "${CNPG_POSTGRESQL_TAG:=17}"
-: "${GARAGE_APP_VERSION:=2.3.0}"
-export CNPG_POSTGRESQL_TAG GARAGE_APP_VERSION
 
 log()   { printf '\033[36m[local-qa]\033[0m %s\n' "$*"; }
 warn()  { printf '\033[33m[local-qa] WARN\033[0m %s\n' "$*"; }
@@ -107,21 +106,25 @@ seed_env() {
   source "${PROJECT_ROOT}/scripts/ci/lib/helpers.sh"
   export NAMESPACE="${NAMESPACE:-default}"
   export KUBE_NAMESPACE="${NAMESPACE}"
-  export USE_DEV_STACK="${USE_DEV_STACK:-true}"
   export K3D_MODE="${K3D_MODE:-true}"
-  export K3D_USE_NGINX_INGRESS="${K3D_USE_NGINX_INGRESS:-1}"
+  # K3D_MODE makes external_protocol default to http; USE_NGINX_INGRESS picks
+  # the ingress-http overlay, matching CI's k3d jobs.
+  export USE_NGINX_INGRESS="${USE_NGINX_INGRESS:-true}"
   export HOST_SUFFIX="${HOST_SUFFIX:-}"
 
-  # Source DEV_STACK_CHART_VERSION from .gitlab-ci.yml so local runs track
-  # what CI ships — avoids the silent drift the hardcoded fallbacks above
-  # (CNPG/GARAGE) suffer from. Only read once per shell.
-  if [[ -z "${DEV_STACK_CHART_VERSION:-}" ]]; then
+  # Read the gitlab-dev-stack chart version and the component versions it
+  # pins from .gitlab-ci.yml, so a local run provisions exactly what CI does
+  # rather than drifting behind a second set of hardcoded defaults. Exported
+  # because cmd_deploy runs autodevops.sh as a subprocess.
+  local var
+  for var in DEV_STACK_CHART_VERSION CNPG_CHART_VERSION CNPG_POSTGRESQL_TAG GARAGE_APP_VERSION; do
+    [[ -n "${!var:-}" ]] && continue
     require yq
-    DEV_STACK_CHART_VERSION="$(yq '.variables.DEV_STACK_CHART_VERSION' "${PROJECT_ROOT}/.gitlab-ci.yml")"
-    [[ -n "${DEV_STACK_CHART_VERSION}" && "${DEV_STACK_CHART_VERSION}" != "null" ]] \
-      || die "could not read DEV_STACK_CHART_VERSION from .gitlab-ci.yml"
-    export DEV_STACK_CHART_VERSION
-  fi
+    printf -v "${var}" '%s' "$(yq ".variables.${var}" "${PROJECT_ROOT}/.gitlab-ci.yml")"
+    [[ -n "${!var}" && "${!var}" != "null" ]] \
+      || die "could not read ${var} from .gitlab-ci.yml"
+    export "${var?}"
+  done
   export QA_DOCKER_NETWORK="${QA_DOCKER_NETWORK:-${DOCKER_NETWORK}}"
 
   # k3d merges the new cluster's entry into the user's default kubeconfig
@@ -144,7 +147,7 @@ seed_env() {
 # ──────────────────────────────────────────────────────────────────────────────
 
 cmd_up() {
-  log "==> up: provisioning docker network, registry caches, k3d cluster, CNPG operator"
+  log "==> up: provisioning docker network, registry caches, k3d cluster"
   require docker k3d helm kubectl jq envsubst skopeo
 
   if ! docker network inspect "${DOCKER_NETWORK}" >/dev/null 2>&1; then
@@ -186,11 +189,8 @@ cmd_up() {
   log "kubectl context: $(kubectl config current-context)"
   kubectl wait --for=condition=Ready --timeout=120s -n kube-system pods --all >/dev/null
 
-  helm repo add cnpg https://cloudnative-pg.github.io/charts >/dev/null 2>&1 || true
-  log "installing CloudNativePG operator (chart ${CNPG_CHART_VERSION})"
-  helm upgrade --install cnpg cnpg/cloudnative-pg --version "${CNPG_CHART_VERSION}" \
-    -n cnpg-system --create-namespace --wait >/dev/null
-
+  # The CloudNativePG operator is installed by deploy_dev_stack (see
+  # scripts/ci/lib/dev_stack.sh) so CI and local runs provision it identically.
   log "cluster ready (LB_IP=${LB_IP}, KUBE_INGRESS_BASE_DOMAIN=${KUBE_INGRESS_BASE_DOMAIN})"
 }
 

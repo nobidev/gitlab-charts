@@ -28,9 +28,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${SCRIPT_DIR}/../.."
 
 source "$SCRIPT_DIR/lib/helpers.sh"
-source "$SCRIPT_DIR/lib/valkey.sh"
-source "$SCRIPT_DIR/lib/cloudnativepg.sh"
-source "$SCRIPT_DIR/lib/garage.sh"
 source "$SCRIPT_DIR/lib/dev_stack.sh"
 source "$SCRIPT_DIR/lib/deploy.sh"
 
@@ -42,7 +39,7 @@ function main() {
   fi
   set_context
   ensure_namespace
-  deploy_external_components
+  deploy_dev_stack
   deploy_chart
   wait_for_pods
 }

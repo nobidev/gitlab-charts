@@ -1,6 +1,7 @@
 # Wires the GitLab chart to the Secrets and Services emitted by the
-# gitlab-dev-stack umbrella release. Replaces external-postgresql,
-# external-valkey, and external-garage when USE_DEV_STACK=true.
+# gitlab-dev-stack umbrella release (scripts/ci/lib/dev_stack.sh), which is
+# the only supported source of PostgreSQL, Valkey, and object storage for CI
+# and local development. Layered unconditionally by deploy_chart.
 global:
   psql:
     host: ${DEV_STACK_RELEASE_NAME}-gitlab-rw.${NAMESPACE}.svc

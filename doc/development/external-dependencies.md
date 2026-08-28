@@ -10,6 +10,12 @@ The bundled PostgreSQL, Redis, and MinIO charts have been
 and were removed in GitLab 19.0. Use `scripts/dev_dependencies.sh` to quickly provision
 externally managed replacements (CloudNativePG, Valkey, and Garage) in your cluster.
 
+The script deploys the
+[`gitlab-dev-stack`](https://gitlab.com/gitlab-org/cloud-native/charts/gitlab-dev-stack)
+umbrella chart, which is the same mechanism CI uses for review environments. There is no
+separate local code path, so a dependency problem you hit locally reproduces in CI and
+vice versa.
+
 For migrating an existing installation, see
 [Migrate from the bundled Redis, PostgreSQL, and MinIO charts](../installation/migration/bundled_chart_migration.md).
 
@@ -17,18 +23,9 @@ For migrating an existing installation, see
 
 - A running local Kubernetes cluster: [k3s](https://k3s.io), [KinD](kind/_index.md), or [minikube](minikube/_index.md)
 - `kubectl` connected to your cluster
-- `helm` v4 or later (required by the Garage installation, which uses the `helm-git` plugin with `--verify` support)
+- `helm` v4 or later
+- `yq` and `envsubst`, used to read dependency versions from `.gitlab-ci.yml` and render values
 - Approximately 2 CPU cores, 4 GiB of memory, and 12 GiB of persistent storage
-
-> [!NOTE]
-> The Garage setup adds a Helm repository named `garage` to your local Helm configuration.
-> If you already have a `garage` repository registered with a different version, the setup fails.
-> Remove it first, then re-run setup:
->
-> ```shell
-> helm repo remove garage
-> bash scripts/dev_dependencies.sh setup
-> ```
 
 See [Environment setup](environment_setup.md) for tool installation guidance.
 
@@ -63,10 +60,21 @@ See [Environment setup](environment_setup.md) for tool installation guidance.
 
 ## What the script does
 
-1. **Valkey** - deploys a standalone instance with authentication and a 2 GiB persistent volume. A random password is auto-generated and stored in a Kubernetes Secret on first run; subsequent runs reuse the existing secret.
-1. **CloudNativePG** - installs the operator (namespace-scoped) and creates a single-instance PostgreSQL cluster with the `gitlabhq_production` database.
-1. **Garage** - installs the object storage service, creates the GitLab buckets, and writes three Kubernetes Secrets (`gitlab-object-storage`, `gitlab-object-storage-s3cmd`, `gitlab-registry-storage`).
-1. **Values file** - writes `.values/dev-external.values.yaml` with connection settings for all three services.
+1. **CloudNativePG operator** - installs the operator namespace-scoped, because
+   `gitlab-dev-stack` ships the PostgreSQL `Cluster` resource but not the operator that
+   reconciles it.
+1. **`gitlab-dev-stack`** - installs one Helm release providing all three dependencies:
+   - **PostgreSQL** - a single-instance CloudNativePG cluster with the
+     `gitlabhq_production` and `registry` databases and the extensions the chart needs.
+   - **Valkey** - a standalone instance with authentication enabled.
+   - **Garage** - object storage with the GitLab buckets pre-created.
+
+   The release emits one `-conn` Secret per component holding the credentials and
+   endpoints the GitLab chart consumes.
+1. **Values file** - writes `.values/dev-external.values.yaml`, which points the GitLab
+   chart at those Secrets. It is rendered from
+   `scripts/ci/values/gitlab-chart/dev-stack.values.yaml`, the same overlay CI layers into
+   every deploy.
 
 ## Managing the setup
 
@@ -90,11 +98,18 @@ helm uninstall gitlab --namespace gitlab
 
 ## Configuration
 
-| Variable              | Default | Description                                |
-|-----------------------|---------|--------------------------------------------|
-| `NAMESPACE`           | `gitlab` | Kubernetes namespace for all services     |
-| `GARAGE_APP_VERSION`  | `2.3.0` | Garage version to install                  |
-| `CNPG_POSTGRESQL_TAG` | `17`    | PostgreSQL image tag used by CloudNativePG |
+| Variable                  | Default             | Description                                     |
+|---------------------------|---------------------|-------------------------------------------------|
+| `NAMESPACE`               | `gitlab`            | Kubernetes namespace for all services           |
+| `DEV_STACK_CHART_VERSION` | from `.gitlab-ci.yml` | `gitlab-dev-stack` chart version              |
+| `CNPG_CHART_VERSION`      | from `.gitlab-ci.yml` | CloudNativePG operator chart version          |
+| `CNPG_POSTGRESQL_TAG`     | from `.gitlab-ci.yml` | PostgreSQL image tag used by CloudNativePG    |
+| `GARAGE_APP_VERSION`      | from `.gitlab-ci.yml` | Garage version to install                     |
+
+The version defaults are read from the `variables:` block in `.gitlab-ci.yml`, so a local
+stack matches the one CI provisions. Override any of them to try a bump before changing CI.
+Run `bash scripts/dev_dependencies.sh` with no arguments to print the values currently in
+effect.
 
 ## Further reading
 

@@ -11,11 +11,11 @@ clickhouse:
   enabled: false
 
 postgres:
-  # Mirrors cloudnativepg.sh: a single CNPG cluster holding both the GitLab
-  # application DB and an extra `registry` DB for the container registry's
-  # metadata database. Each `databases[]` entry is provisioned by the chart
-  # as a CNPG `Database` CR plus a dedicated owner role (managed.roles[]),
-  # with a per-DB `${cluster}-${db}-conn` Secret containing PGPASSWORD/etc.
+  # A single CNPG cluster holding both the GitLab application DB and an extra
+  # `registry` DB for the container registry's metadata database. Each
+  # `databases[]` entry is provisioned by the chart as a CNPG `Database` CR
+  # plus a dedicated owner role (managed.roles[]), with a per-DB
+  # "<cluster>-<db>-conn" Secret containing PGPASSWORD/etc.
   clusters:
     - name: gitlab
       image: ghcr.io/cloudnative-pg/postgresql:${CNPG_POSTGRESQL_TAG}
@@ -25,7 +25,6 @@ postgres:
       databases:
         - name: gitlabhq_production
           owner: gitlab
-          # Match the postInitSQL the per-component cloudnativepg.sh ran.
           # plpgsql is in PG by default — omit it.
           extensions:
             - pg_trgm

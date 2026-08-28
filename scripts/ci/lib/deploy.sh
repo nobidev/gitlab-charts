@@ -25,44 +25,6 @@ SCRIPT_DIR="${SCRIPT_DIR:-${_DEPLOY_LIB_DIR}/..}"
 PROJECT_ROOT="${PROJECT_ROOT:-${_DEPLOY_LIB_DIR}/../../..}"
 VALUES_DIR="${VALUES_DIR:-${ARTIFACTS_DIR:-${CI_PROJECT_DIR:-${PROJECT_ROOT}}}/.values}"
 
-function deploy_external_components() {
-  if use_dev_stack; then
-    deploy_dev_stack
-    return
-  fi
-
-  if use_external_valkey; then
-    deploy_external_valkey
-  fi
-
-  if use_external_postgresql; then
-    deploy_external_postgresql
-  fi
-
-  if use_external_garage; then
-      deploy_external_garage
-  fi
-}
-
-function remove_external_components() {
-  if use_dev_stack; then
-    remove_dev_stack
-    return
-  fi
-
-  if use_external_valkey; then
-    remove_external_valkey
-  fi
-
-  if use_external_postgresql; then
-    remove_external_postgresql
-  fi
-
-  if use_external_garage; then
-      remove_external_garage
-  fi
-}
-
 # deploy_chart renders the values stack and runs `helm upgrade --install`.
 # Historical name `deploy` is kept as an alias for existing CI YAML callers.
 function deploy_chart() {
@@ -101,22 +63,15 @@ function deploy_chart() {
     echo "WARNING: ci.digests.yaml not found in PROJECT_ROOT — image digests will not be pinned." >&2
   fi
 
+  # One overlay per (controller, protocol) pair. external_protocol defaults to
+  # http for k3d and https elsewhere; see lib/helpers.sh.
   local NETWORKING_CONFIGURATION
-  if is_k3d_deployment; then
-    echo "K3D deployment detected"
-    if [ -n "${K3D_USE_NGINX_INGRESS}" ]; then
-      echo "K3D_USE_NGINX_INGRESS set: using NGINX ingress"
-      NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/k3d.ingress.values.yaml"
-    else
-      echo "Using Envoy Gateway API (default for k3d)"
-      NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/k3d.gatewayapi.values.yaml"
-    fi
+  if use_nginx_ingress; then
+    echo "Exposing GitLab via NGINX Ingress in $(external_protocol) mode"
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress-$(external_protocol).values.yaml"
   else
-    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi.values.yaml"
-    if use_nginx_ingress; then
-      echo "NGINX Ingress deployment detected"
-      NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress.values.yaml"
-    fi
+    echo "Exposing GitLab via Gateway API in $(external_protocol) mode"
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi-$(external_protocol).values.yaml"
   fi
 
   local SENTRY_CONFIGURATION=""
@@ -125,42 +80,16 @@ function deploy_chart() {
     SENTRY_CONFIGURATION="-f ${VALUES_DIR}/sentry.values.yaml"
   fi
 
-  local VALKEY_CONFIGURATION=""
-  local POSTGRESQL_CONFIGURATION="-f ${VALUES_DIR}/bundled-postgresql.values.yaml"
-  local GARAGE_CONFIGURATION=""
-  local DEV_STACK_CONFIGURATION=""
-
-  if use_dev_stack; then
-    echo "gitlab-dev-stack deployment detected — wiring GitLab to umbrella secrets"
-    # Replaces the three external-* overlays: a single overlay points the
-    # GitLab chart at the *-conn Secrets emitted by gitlab-dev-stack.
-    POSTGRESQL_CONFIGURATION=""
-    DEV_STACK_CONFIGURATION="-f ${VALUES_DIR}/dev-stack.values.yaml"
-  else
-    if use_external_valkey; then
-      echo "External Valkey deployment detected"
-      VALKEY_CONFIGURATION="-f ${VALUES_DIR}/external-valkey.values.yaml"
-    fi
-
-    if use_external_postgresql; then
-      echo "External PostgreSQL deployment detected"
-      POSTGRESQL_CONFIGURATION="-f ${VALUES_DIR}/external-postgresql.values.yaml"
-    fi
-
-    if use_external_garage; then
-        echo "External object storage (Garage) deployment detected"
-        GARAGE_CONFIGURATION="-f ${VALUES_DIR}/external-garage.values.yaml"
-    fi
-  fi
+  # Postgres, Valkey, and object storage always come from the gitlab-dev-stack
+  # umbrella release (scripts/ci/lib/dev_stack.sh). This overlay points the
+  # GitLab chart at the *-conn Secrets and Services that release emits.
+  local DEV_STACK_CONFIGURATION="-f ${VALUES_DIR}/dev-stack.values.yaml"
 
   helm upgrade --install \
     --wait --timeout 900s \
     ${CI_CONFIGURATION} \
     ${SENTRY_CONFIGURATION} \
     ${NETWORKING_CONFIGURATION} \
-    ${VALKEY_CONFIGURATION} \
-    ${POSTGRESQL_CONFIGURATION} \
-    ${GARAGE_CONFIGURATION} \
     ${DEV_STACK_CONFIGURATION} \
     --namespace="$NAMESPACE" \
     $HELM_EXTRA_ARGS \
@@ -184,13 +113,6 @@ function prepare_values() {
   for f in "${values_src}"/*; do
     env \
       GITLAB_RELEASE_NAME="$(gitlab_release_name)" \
-      VALKEY_RELEASE_NAME="$(valkey_release_name)" \
-      VALKEY_AUTH_SECRET="$(valkey_auth_secret)" \
-      VALKEY_AUTH_SECRET_KEY="$(valkey_auth_secret_key)" \
-      CNPG_CLUSTER_HOST="$(cnpg_cluster_host)" \
-      CNPG_CLUSTER_SECRET="$(cnpg_cluster_secret)" \
-      CNPG_CLUSTER_REGISTRY_SECRET="$(cnpg_cluster_registry_secret)" \
-      GARAGE_RELEASE_NAME="$(garage_release_name)" \
       DEV_STACK_RELEASE_NAME="$(dev_stack_release_name)" \
       NAMESPACE="${NAMESPACE}" \
         envsubst < "$f" > "${VALUES_DIR}/$(basename "$f")"

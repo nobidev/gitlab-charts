@@ -56,15 +56,16 @@ variables:
   CI_TOOLS_NAMESPACE: "gitlab-org"
   GITLAB_NAMESPACE: "gitlab-org"
   GITLAB_QA_VERSION: "15.8.0"
-  # Valkey deployed to CI review envionments
-  VALKEY_CHART_VERSION: "0.11.0"
-  GARAGE_APP_VERSION: "2.3.0"
-  # CloudNativePg (PostgreSQL) deployed to CI envionments
-  CNPG_CHART_VERSION: "0.29.0"
-  CNPG_POSTGRESQL_TAG: "17"
-  # gitlab-dev-stack umbrella chart — replaces VALKEY/CNPG/GARAGE installers
-  # when USE_DEV_STACK=true is set on the environment (e.g. gke135).
+  # gitlab-dev-stack umbrella chart: the only way the chart's external
+  # dependencies (PostgreSQL, Valkey, Garage) are provisioned for CI and
+  # local development. See scripts/ci/lib/dev_stack.sh.
   DEV_STACK_CHART_VERSION: "1.4.0"
+  # Component versions the umbrella release is pinned to.
+  GARAGE_APP_VERSION: "2.3.0"
+  CNPG_POSTGRESQL_TAG: "17"
+  # CloudNativePG operator, installed namespaced on clusters without a
+  # cluster-wide operator (k3d, vcluster, local).
+  CNPG_CHART_VERSION: "0.29.0"
   # STRICT_VERSIONS is used in RSpecs to ensure exact version match for tools like "helm" and "kubectl"
   STRICT_VERSIONS: "true"
   KUBE_CRD_SCHEMA_URL: "https://raw.githubusercontent.com/kubernetes/kubernetes/master/api/openapi-spec/v3/apis__apiextensions.k8s.io__v1_openapi.json"
@@ -258,7 +259,7 @@ pin_image_versions:
 .set_up_namespace_secret_and_deploy:
   script:
     - ensure_namespace
-    - deploy_external_components
+    - deploy_dev_stack
     - deploy
     - wait_for_deploy
 
@@ -447,7 +448,7 @@ k3d_nginx:
     - source scripts/ci/autodevops.sh
     - set_context
     - delete
-    - remove_external_components
+    - remove_dev_stack
     - cleanup
   when: manual
   allow_failure: true

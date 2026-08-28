@@ -26,10 +26,9 @@ Linux users have these via their package manager or [mise](https://mise.jdx.dev/
 | Docker     | any            | k3d runtime; runs the `gitlab-ee-qa` container.    |
 | `k3d`      | `5.8.3`        | Cluster lifecycle (matches CI's `K3D_VERSION`).    |
 | `helm`     | `4.1.4`        | Chart install (matches CI's `HELM_VERSION`).       |
-| CNPG chart | `0.28.0`       | CloudNativePG operator install.                     |
-| dev-stack  | `1.5.0`        | GitLab-dev-stack umbrella chart.                    |
-| garage     | `2.3.0`        | Object storage (matches `.gitlab-ci.yml`).         |
-| CNPG       | `17`           | PostgreSQL image tag (matches `.gitlab-ci.yml`).   |
+| dev-stack  | `.gitlab-ci.yml` | GitLab dev-stack umbrella chart (PostgreSQL, Valkey, Garage). |
+| CNPG chart | `.gitlab-ci.yml` | CloudNativePG operator install.                   |
+| `yq`       | any            | Reads dependency versions out of `.gitlab-ci.yml`.  |
 | `kubectl`  | any 1.28+      | Cluster interaction.                                |
 | `skopeo`   | any            | `scripts/ci/pin_image_digests.sh`.                  |
 | `envsubst` | any            | Provided by `gettext` (`brew install gettext`).    |
@@ -119,7 +118,7 @@ Notes on the flags:
   resolve and the QA container can reach the cluster directly.
 - `--k3s-arg "--disable=traefik@server:*"` disables the k3d-bundled
   Traefik — the GitLab chart provides its own `NGINX-Ingress` controller
-  via the `k3d.ingress` overlay (matching CI's `gke135` behavior).
+  via the `ingress-http` overlay (matching CI's `gke135` behavior).
 - The three `--port` mappings forward HTTP / HTTPS / SSH from the host
   into the k3d serverLoadBalancer (see the explanation above).
 
@@ -134,14 +133,10 @@ echo "$LB_IP"          # e.g. 172.20.0.4
 
 ### 3. CloudNativePG operator
 
-`gitlab-dev-stack` requires the CNPG operator to be installed cluster-wide
-*before* its release lands (the chart deliberately doesn't bundle CRDs).
-
-```shell
-helm repo add cnpg https://cloudnative-pg.github.io/charts
-helm upgrade --install cnpg cnpg/cloudnative-pg \
-  --version 0.28.0 -n cnpg-system --create-namespace --wait
-```
+`gitlab-dev-stack` ships the PostgreSQL `Cluster` resource but not the operator
+that reconciles it. On a k3d cluster, `deploy_dev_stack` installs the operator
+into `$NAMESPACE` before the umbrella release, so you do not install it by hand.
+For more information, see `scripts/ci/lib/dev_stack.sh`.
 
 ## Environment seed (per-shell)
 
@@ -152,7 +147,10 @@ inline in your shell):
 # Cluster + namespace
 export NAMESPACE=default
 export KUBE_NAMESPACE="${NAMESPACE}"
-export USE_DEV_STACK=true
+export K3D_MODE=true
+# K3D_MODE makes external_protocol default to http; USE_NGINX_INGRESS selects
+# the ingress-http values overlay, the same pair CI's k3d jobs deploy.
+export USE_NGINX_INGRESS=true
 export GITLAB_RELEASE_NAME=gitlab
 export DEV_STACK_RELEASE_NAME=gitlab-dev-stack
 export HOST_SUFFIX=""
@@ -170,9 +168,9 @@ export LB_IP=$(k3d cluster list gitlab-local -o json \
 export KUBE_INGRESS_BASE_DOMAIN="${LB_IP}.nip.io"
 export GITLAB_URL="gitlab.${KUBE_INGRESS_BASE_DOMAIN}"
 
-# Versions pinned to match .gitlab-ci.yml — keep these in sync if CI bumps.
-export CNPG_POSTGRESQL_TAG=17
-export GARAGE_APP_VERSION=2.3.0
+# Dependency versions default to the `variables:` block in .gitlab-ci.yml.
+# Export any of DEV_STACK_CHART_VERSION, CNPG_CHART_VERSION,
+# CNPG_POSTGRESQL_TAG, or GARAGE_APP_VERSION to override one.
 
 # QA passwords reuse the same SHA-256 derivation CI uses — see scripts/ci/qa.sh.
 export QA_DOCKER_NETWORK=k3d-gitlab-local
@@ -208,9 +206,9 @@ kubectl create secret generic -n "${NAMESPACE}" \
   --from-literal=license="${QA_EE_ACTIVATION_CODE:-}" \
   -o yaml --dry-run=client | kubectl apply -f -
 
-# 3. Deploy. autodevops.sh handles ensure_namespace → deploy_external_components
-#    (gitlab-dev-stack) → deploy_chart (helm upgrade --install with the
-#    full CI values stack) → wait_for_pods.
+# 3. Deploy. autodevops.sh handles ensure_namespace → deploy_dev_stack
+#    (PostgreSQL, Valkey, Garage) → deploy_chart (helm upgrade --install
+#    with the full CI values stack) → wait_for_pods.
 bash scripts/ci/autodevops.sh
 ```
 
@@ -333,9 +331,9 @@ docker network rm k3d-gitlab-local
 
 ## Troubleshooting
 
-- `kubectl get pods -n cnpg-system` shows the CNPG operator. If it's
-  missing the dev-stack `Cluster` CR apply will fail with
-  "no matches for kind 'Cluster'".
+- `kubectl get pods -n "${NAMESPACE}" -l app.kubernetes.io/name=cloudnative-pg`
+  shows the CNPG operator. If it's missing, the dev-stack `Cluster` CR apply
+  fails with "no matches for kind 'Cluster'".
 - `FailedCreatePodSandBox` with `failed size validation: 316621 != 901`
   (or similar) on a freshly created cluster typically means a
   `registry:2` pull-through cache mis-served an OCI image-index. The
