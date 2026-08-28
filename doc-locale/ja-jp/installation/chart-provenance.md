@@ -5,6 +5,8 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: GitLab Helm GitLabチャートのプロベナンス
 ---
 
+test change
+
 [Helm来歴](https://helm.sh/docs/topics/provenance/)を使用することにより、GitLab Helmチャートの整合性と起源を検証できます。
 
 GitLab Helmチャートは、GNUPGキーペアで署名されています。チャートを検証するには、キーペアの公開部分をダウンロードし、場合によってはエクスポートする必要があります。[GNU Privacyハンドブック](https://www.gnupg.org/gph/en/manual/x56.html)には、GPGキーを管理する方法が詳しく記載されています。
