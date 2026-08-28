@@ -304,6 +304,67 @@ describe 'Gateway API configuration' do
       end
     end
 
+    describe "Externally managed Envoy Gateway is configured via configureEnvoy, Gateway in another namespace" do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          hosts:
+            externalIP: 127.0.0.1
+          pages:
+            enabled: true
+          shell:
+            tcp:
+              proxyProtocol: true
+          appConfig:
+            smartcard:
+              enabled: true
+              CASecret: smartcard-ca-secret
+          geo:
+            enabled: true
+            gatewayApi:
+              additionalHostname: geo.example.com
+          gatewayApi:
+            enabled: true
+            installEnvoy: false
+            configureEnvoy: true
+            gatewayRef:
+              name: "external-gateway"
+              namespace: "external-gateway-namespace"
+        gitlab:
+          gitlab-shell:
+            sshDaemon: gitlab-sshd
+            config:
+              proxyPolicy: use
+        ))
+      end
+
+      it 'renders the template' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'skips the policy resources, since they cannot target a Gateway in another namespace' do
+        # ClientTrafficPolicy, BackendTrafficPolicy, and SecurityPolicy target the Gateway
+        # through a LocalPolicyTargetReference, which has no namespace field, so none of
+        # them can be rendered when the Gateway lives in a different namespace.
+        expect(clienttrafficpolicy).to be_nil
+        expect(securitypolicy).to be_nil
+        expect(kas_backendtrafficpolicy).to be_nil
+        expect(shell_backendtrafficpolicy).to be_nil
+        expect(webservice_backendtrafficpolicy).to be_nil
+        expect(webservice_clienttrafficpolicy).to be_nil
+        expect(webservice_smartcard_clienttrafficpolicy).to be_nil
+        expect(webservice_geo_clienttrafficpolicy).to be_nil
+
+        # The GatewayClass and EnvoyProxy are unaffected: they don't target the Gateway
+        # through a namespace-constrained policy targetRef.
+        expect(gatewayclass).not_to be_nil
+        expect(envoyproxy).not_to be_nil
+      end
+    end
+
     describe "configureEnvoy explicitly disabled while installEnvoy is enabled" do
       let(:values) do
         HelmTemplate.with_defaults(%(

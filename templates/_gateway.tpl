@@ -75,13 +75,25 @@ false
 {{- end -}}
 
 {{/*
+Returns true if the Gateway targeted by gatewayRef is in the same namespace as this release.
+Envoy's policy custom resources (ClientTrafficPolicy, BackendTrafficPolicy, SecurityPolicy)
+target the Gateway through a LocalPolicyTargetReference, which has no namespace field: a
+targetRef always resolves to a Gateway in the same namespace as the policy. Any template
+rendering one of these policies must check this first, or it silently targets the wrong
+(local) Gateway, or none at all, whenever gatewayRef points at a Gateway in another namespace.
+*/}}
+{{- define "gitlab.gatewayApi.gateway.sameNamespace" -}}
+{{- $gatewayNamespace := (include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray | first).namespace -}}
+{{- eq .Release.Namespace $gatewayNamespace -}}
+{{- end -}}
+
+{{/*
 Returns true if envoy policies should be installed. Policies are installed if Envoy Gateway
 is configured (see gitlab.gatewayApi.configureEnvoy) and if Gateway is in same namespace.
 */}}
 {{- define "gitlab.gatewayApi.envoy.installPolicies" -}}
 {{- $configureEnvoy := and .Values.global.gatewayApi.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) -}}
-{{- $gatewayNamespace := (include "gitlab.gatewayApi.gatewayRef" . | fromYamlArray | first).namespace -}}
-{{- $gatewayInSameNamespace := eq .Release.Namespace $gatewayNamespace -}}
+{{- $gatewayInSameNamespace := eq "true" (include "gitlab.gatewayApi.gateway.sameNamespace" .) -}}
 {{- if and $configureEnvoy $gatewayInSameNamespace -}}
 true
 {{- else -}}

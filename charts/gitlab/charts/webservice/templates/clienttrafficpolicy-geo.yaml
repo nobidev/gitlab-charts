@@ -1,8 +1,11 @@
-{{- if and .Values.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) (eq "true" (include "gitlab.gatewayApi.gateway.geo.configure" .)) }}
+{{- if and .Values.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) (eq "true" (include "gitlab.gatewayApi.gateway.sameNamespace" .)) (eq "true" (include "gitlab.gatewayApi.gateway.geo.configure" .)) }}
 {{/*
 ClientTrafficPolicy targeting the Geo Rails listener (gitlab-web-geo).
 Keeps paths with escaped slashes unchanged, as they are commonly used
 in GitLab API calls to identify projects.
+
+Only rendered when the Gateway is in the same namespace as this release: targetRefs below
+uses a LocalPolicyTargetReference, which has no namespace field.
 */}}
 {{- $spec := deepCopy .Values.clientTrafficPolicy.geo.spec }}
 {{- if not $spec.targetRefs }}
