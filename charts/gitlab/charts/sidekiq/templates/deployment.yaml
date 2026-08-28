@@ -372,6 +372,7 @@ spec:
           {{- include "gitlab.kas.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.iamAuthService.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.iamDataAccessService.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.artifactRegistry.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.knowledgeGraph.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.mobilePush.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store) | nindent 10 }}
