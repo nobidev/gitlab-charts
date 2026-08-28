@@ -88,6 +88,7 @@ iam_auth_service:
   grpc:
     host: {{ dig "grpc" "host" "" . | quote }}
     port: {{ dig "grpc" "port" 0 . | int }}
+    secure: {{ dig "grpc" "secure" true . }}
   jwt_audience: {{ dig "jwtAudience" "gitlab-rails" . | quote }}
   jwt_issuer: {{ dig "jwtIssuer" "" . | quote }}
   {{- end }}
@@ -101,6 +102,7 @@ iam_data_access_service:
   grpc:
     host: {{ dig "grpc" "host" "" . | quote }}
     port: {{ dig "grpc" "port" 0 . | int }}
+    secure: {{ dig "grpc" "secure" true . }}
   {{- end }}
 {{- end }}
 

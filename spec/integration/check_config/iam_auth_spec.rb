@@ -144,4 +144,53 @@ describe 'checkConfig iamAuthService' do
                      success_description: 'when iamAuthService is enabled and jwtIssuer is set',
                      error_description: 'when iamAuthService is enabled but jwtIssuer is missing'
   end
+
+  describe 'gitlab.checkConfig.iamAuthService.grpc.secure' do
+    def values_with_secure(secure)
+      YAML.safe_load(%(
+        global:
+          appConfig:
+            iamAuthService:
+              enabled: true
+              http:
+                host: iam-auth.example.com
+                port: 443
+              grpc:
+                host: iam-auth.example.com
+                port: 5004
+                secure: #{secure}
+              jwtIssuer: https://iam-auth.example.com
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_output) { 'grpc.secure must be a boolean' }
+
+    context 'with a boolean' do
+      let(:success_values) { values_with_secure('false') }
+
+      include_examples 'config validation',
+                       success_description: 'when iamAuthService is enabled and grpc.secure is a boolean'
+    end
+
+    context 'with a quoted string' do
+      let(:error_values) { values_with_secure('"false"') }
+
+      include_examples 'config validation',
+                       error_description: 'when iamAuthService is enabled and grpc.secure is a string'
+    end
+
+    context 'with an integer' do
+      let(:error_values) { values_with_secure('0') }
+
+      include_examples 'config validation',
+                       error_description: 'when iamAuthService is enabled and grpc.secure is an integer'
+    end
+
+    context 'with no value' do
+      let(:error_values) { values_with_secure('') }
+
+      include_examples 'config validation',
+                       error_description: 'when iamAuthService is enabled and grpc.secure is empty'
+    end
+  end
 end

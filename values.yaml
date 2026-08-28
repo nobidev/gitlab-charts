@@ -585,6 +585,8 @@ global:
       # grpc:
         # host:
         # port:
+        ## Use TLS for the gRPC connection. Set to false only on a trusted network.
+        # secure: true
       # jwtAudience:
       # jwtIssuer:
       # authToken:
@@ -599,6 +601,8 @@ global:
       # grpc:
         # host:
         # port:
+        ## Use TLS for the gRPC connection. Set to false only on a trusted network.
+        # secure: true
       # authToken:
         # secret:
         # key:

@@ -199,4 +199,48 @@ describe 'iamAuthService templates' do
       end
     end
   end
+
+  describe 'gitlab.appConfig.iamAuthService grpc.secure' do
+    let(:configmaps) do
+      [
+        'ConfigMap/test-webservice',
+        'ConfigMap/test-sidekiq',
+        'ConfigMap/test-toolbox'
+      ]
+    end
+
+    context 'when not specified' do
+      let(:values) { default_values.deep_merge(enabled_values) }
+
+      it 'defaults to true' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        configmaps.each do |configmap|
+          config = template.dig(configmap, 'data', 'gitlab.yml.erb')
+          expect(config).to include(%(port: 5004\n      secure: true))
+        end
+      end
+    end
+
+    context 'when disabled' do
+      let(:values) do
+        default_values.deep_merge(enabled_values.deep_merge(YAML.safe_load(%(
+          global:
+            appConfig:
+              iamAuthService:
+                grpc:
+                  secure: false
+        ))))
+      end
+
+      it 'renders false' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        configmaps.each do |configmap|
+          config = template.dig(configmap, 'data', 'gitlab.yml.erb')
+          expect(config).to include(%(port: 5004\n      secure: false))
+        end
+      end
+    end
+  end
 end
