@@ -53,7 +53,7 @@ true
 Renders all hostnames webservice accepts traffic for.
 */}}
 {{- define "webservice.gatewayApi.hostnames" }}
-- {{ include "gitlab.gitlab.hostname" . | quote }}
+- {{ include "gitlab.gitlab.gatewayHostname" . | quote }}
 {{-   with .Values.global.geo.gatewayApi.additionalHostname }}
 - {{ . | quote }}
 {{-   end }}

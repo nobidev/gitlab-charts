@@ -205,6 +205,48 @@ If you configure multiple webservice deployments, the route rules (including fil
 customized per rule. Check the [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#gateway-api)
 for details.
 
+#### Hostname override
+
+`global.hosts.gitlab.name` sets both the Rails base URL and the hostname the webservice
+`HTTPRoute` and the chart-managed Gateway's `gitlab-web` listener match on. Set
+`global.hosts.gitlab.hostnameOverride` to use a different hostname on both the `HTTPRoute` and the
+`gitlab-web` listener, while keeping `global.hosts.gitlab.name` as the Rails base URL. This
+mirrors the [Ingress hostname override](../../charts/globals.md#configure-host-settings) and is
+useful when a proxy in front of the Gateway rewrites the request `Host` header to an internal
+hostname, for example `gitlab.example.com` to `gitlab.example.internal`.
+
+```yaml
+global:
+  hosts:
+    gitlab:
+      name: gitlab.example.com
+      hostnameOverride: gitlab.example.internal
+```
+
+If you use `global.gatewayApi.configureCertmanager`, cert-manager requests a certificate for the
+`hostnameOverride` value instead of `global.hosts.gitlab.name`. The Let's Encrypt HTTP-01 solver
+requires the hostname to resolve publicly, so an internal-only override requires you to disable
+`configureCertmanager` and provide your own certificate for that hostname instead, similarly to
+[internal TLS between Gateway and Workhorse](#enable-internal-tls-for-webservice).
+
+GitLab Pages supports the same override with `global.hosts.pages.hostnameOverride`:
+
+```yaml
+global:
+  hosts:
+    pages:
+      name: pages.example.com
+      hostnameOverride: pages.example.internal
+```
+
+When `global.pages.namespaceInPath` is `false` (the default), the Pages `HTTPRoute` and the
+`pages-web` listener match on the wildcard form of the hostname, so the override is also
+wildcarded, for example `*.pages.example.internal`.
+
+Registry has no `hostnameOverride`, because `global.registry.host` already lets you set the
+Rails-facing registry URL independently of the hostname used for routing
+(`global.hosts.registry.name`).
+
 #### SSH route
 
 Repository access over SSH is exposed by a `TCPRoute`. `TCPRoute` graduated to `v1` in Gateway

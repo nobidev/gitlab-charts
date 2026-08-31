@@ -1014,6 +1014,136 @@ describe 'Gateway API configuration' do
       end
     end
 
+    context 'hostnameOverride' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+          hosts:
+            gitlab:
+              name: gitlab.example.com
+              hostnameOverride: gitlab.example.internal
+        ))
+      end
+
+      it 'uses the override hostname on the webservice HTTPRoute' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(webservice_route['spec']['hostnames']).to eq(['gitlab.example.internal'])
+      end
+
+      it 'uses the override hostname on the matching gitlab-web Gateway listener, so the HTTPRoute attaches' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        gitlab_web_listener = gateway['spec']['listeners'].find { |l| l['name'] == 'gitlab-web' }
+        expect(gitlab_web_listener['hostname']).to eq('gitlab.example.internal')
+      end
+
+      it 'keeps the public hostname as the Rails base URL' do
+        configmaps = template.resources_by_kind('ConfigMap').filter { |_, content| content['data']&.has_key?('gitlab.yml.erb') }
+
+        expect(configmaps).not_to be_empty
+        configmaps.each do |name, content|
+          expect(content['data']['gitlab.yml.erb']).to include('host: gitlab.example.com'), "Expected #{name} to keep the public hostname"
+          expect(content['data']['gitlab.yml.erb']).not_to include('gitlab.example.internal')
+        end
+      end
+    end
+
+    context 'Pages hostnameOverride' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+          pages:
+            enabled: true
+          hosts:
+            pages:
+              name: pages.example.com
+              hostnameOverride: pages.example.internal
+        ))
+      end
+
+      it 'uses the wildcarded override hostname on the pages HTTPRoute' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(pages_route['spec']['hostnames']).to eq(['*.pages.example.internal'])
+      end
+
+      it 'uses the same wildcarded override hostname on the matching pages-web Gateway listener' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        pages_web_listener = gateway['spec']['listeners'].find { |l| l['name'] == 'pages-web' }
+        expect(pages_web_listener['hostname']).to eq('*.pages.example.internal')
+      end
+
+      it 'keeps the public hostname in the Pages Rails config' do
+        configmaps = template.resources_by_kind('ConfigMap').filter { |_, content| content['data']&.has_key?('gitlab.yml.erb') }
+
+        expect(configmaps).not_to be_empty
+        configmaps.each do |name, content|
+          expect(content['data']['gitlab.yml.erb']).not_to include('pages.example.internal'), "Expected #{name} not to reference the internal hostname"
+        end
+        # Not every configmap (e.g. migrations) renders the pages.host entry, so assert its
+        # presence only on a configmap known to include it.
+        expect(template['ConfigMap/test-webservice']['data']['gitlab.yml.erb']).to include('host: pages.example.com')
+      end
+    end
+
+    context 'Registry with a Rails-facing host override (global.registry.host)' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+          hosts:
+            registry:
+              name: registry.example.internal
+          registry:
+            host: registry.example.com
+        ))
+      end
+
+      it 'routes on global.hosts.registry.name, not the Rails-facing global.registry.host' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        expect(registry_route['spec']['hostnames']).to eq(['registry.example.internal'])
+      end
+
+      it 'uses the same hostname on the matching registry-web Gateway listener, so the HTTPRoute attaches' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        registry_web_listener = gateway['spec']['listeners'].find { |l| l['name'] == 'registry-web' }
+        expect(registry_web_listener['hostname']).to eq('registry.example.internal')
+      end
+
+      it 'keeps the public hostname in the Rails registry config' do
+        configmaps = template.resources_by_kind('ConfigMap').filter { |_, content| content['data']&.has_key?('gitlab.yml.erb') }
+
+        expect(configmaps).not_to be_empty
+        configmaps.each do |name, content|
+          expect(content['data']['gitlab.yml.erb']).not_to include('registry.example.internal'), "Expected #{name} not to reference the internal hostname"
+        end
+        # Not every configmap (e.g. migrations) renders the registry.host entry, so assert its
+        # presence only on a configmap known to include it.
+        expect(template['ConfigMap/test-webservice']['data']['gitlab.yml.erb']).to include('host: registry.example.com')
+      end
+    end
+
     context 'ClientTrafficPolicy overrides' do
       let(:values) do
         HelmTemplate.with_defaults(%(

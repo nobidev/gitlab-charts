@@ -39,7 +39,7 @@ spec:
   {{- if .Values.gitlab.webservice.enabled }}
     {{- $listener = index $listeners "gitlab-web" }}
     {{- $_ := set $listener "name" "gitlab-web" }}
-    {{- $_ := set $listener "hostname" (include "gitlab.gitlab.hostname" .) }}
+    {{- $_ := set $listener "hostname" (include "gitlab.gitlab.gatewayHostname" .) }}
     {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig) | nindent 2 }}
   {{- end }}
   {{- if eq "true" (include "gitlab.gatewayApi.gateway.geo.configure" .) -}}
@@ -57,17 +57,20 @@ spec:
   {{- if .Values.global.pages.enabled }}
     {{- $listener = index $listeners "pages-web" }}
     {{- $_ := set $listener "name" "pages-web" }}
-    {{- $hostname := (include "gitlab.pages.hostname" .) }}
-    {{- if not $.Values.global.pages.namespaceInPath }}
-    {{-   $hostname = (printf "*.%s" $hostname) }}
-    {{- end }}
-    {{- $_ := set $listener "hostname" $hostname }}
+    {{- $_ := set $listener "hostname" (include "gitlab.pages.gatewayHostname" .) }}
     {{ include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig) | nindent 2 }}
   {{- end }}
   {{- if .Values.registry.enabled }}
     {{- $listener = index $listeners "registry-web" }}
     {{- $_ := set $listener "name" "registry-web" }}
-    {{- $_ := set $listener "hostname" (include "gitlab.registry.hostname" .) }}
+    {{/*
+    Deliberately "registry.hostname", not "gitlab.registry.hostname": the
+    latter also honors global.registry.host, which is meant to override the
+    Rails-facing registry URL, not the routing hostname. The Registry
+    HTTPRoute (charts/registry/templates/httproute.yaml) matches on
+    "registry.hostname" too, so using it here keeps the two in sync.
+    */}}
+    {{- $_ := set $listener "hostname" (include "registry.hostname" .) }}
     {{- include "gitlab.gatewayApi.gateway.listener" (dict "local" $listener "root" $gatewayConfig) | nindent 2 }}
   {{- end }}
   {{- if .Values.global.kas.enabled }}

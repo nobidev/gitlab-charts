@@ -28,3 +28,20 @@ otherwise the hostname will be assembed using `pages` as the prefix, and the `gi
 {{- define "gitlab.pages.hostname" -}}
 {{- coalesce $.Values.global.pages.host $.Values.global.hosts.pages.name (include "gitlab.assembleHost"  (dict "name" "pages" "context" . )) -}}
 {{- end -}}
+
+{{/*
+Returns the effective hostname for the pages-web Gateway listener and the
+GitLab Pages HTTPRoute. When global.hosts.pages.hostnameOverride is set it
+takes precedence; otherwise the standard Pages hostname is used. The
+wildcard prefix is applied here too, since both the Gateway listener and the
+HTTPRoute must match on the exact same hostname for the route to attach, so
+a single template keeps the two call sites in sync if the override or
+wildcard logic ever changes.
+*/}}
+{{- define "gitlab.pages.gatewayHostname" -}}
+{{- $hostname := .Values.global.hosts.pages.hostnameOverride | default (include "gitlab.pages.hostname" .) -}}
+{{- if not .Values.global.pages.namespaceInPath -}}
+{{- $hostname = printf "*.%s" $hostname -}}
+{{- end -}}
+{{- $hostname -}}
+{{- end -}}
