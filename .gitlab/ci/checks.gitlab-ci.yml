@@ -4,7 +4,7 @@ rubocop:
   stage: prepare
   dependencies: []
   before_script:
-    - apk add make gcc libc-dev
+    - apk add make gcc libc-dev yaml-dev
   script:
     - bundle config set --local path 'gems'
     - bundle config set --local frozen 'true'
