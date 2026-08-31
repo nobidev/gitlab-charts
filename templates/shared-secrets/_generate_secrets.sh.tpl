@@ -190,9 +190,9 @@ stringData:
       openid_connect_signing_key: |
 $(echo "${openid_connect_signing_key}" | awk '{print "        " $0}')
       active_record_encryption_primary_key:
-        $active_record_encryption_primary_keys
+$(echo "${active_record_encryption_primary_keys}" | awk '{print "        " $0}')
       active_record_encryption_deterministic_key:
-        $active_record_encryption_deterministic_keys
+$(echo "${active_record_encryption_deterministic_keys}" | awk '{print "        " $0}')
       active_record_encryption_key_derivation_salt: $active_record_encryption_key_derivation_salt
 EOF
   kubectl --validate=false --namespace=$namespace apply -f rails-secrets.yml
