@@ -64,21 +64,26 @@ cluster:
         # ports 80 and 443. Read only at cluster creation.
         - traefik
     extra_args:
-      # Publish the API server on the Docker-in-Docker container's address, as
-      # scripts/ci/k3d.sh:105 does. Without it k3d picks a random host port and
-      # writes https://0.0.0.0:<port> into the kubeconfig, which from the job
-      # container resolves to the job container. spec/spec_helper.rb:44, every
-      # helper in spec/gitlab_test_helper.rb, and k3d_collect_debug all shell out
-      # to bare kubectl, so they need a genuinely reachable API address. k3d adds
-      # this host to the API server's TLS SANs.
+      # No --api-port here, unlike scripts/ci/k3d.sh:105. k3d itself publishes the
+      # API server on the Docker-in-Docker daemon's address: when no --api-port host
+      # is given, pkg/client/cluster.go:382-389 (v5.8.3) replaces the default
+      # 0.0.0.0 with the host parsed out of DOCKER_HOST, which .dind sets to
+      # tcp://docker:2375. That address lands in both the kubeconfig `server:` and
+      # the API server's TLS SANs, and the `docker` service alias resolves from the
+      # job container - so bare kubectl (spec/spec_helper.rb:44, the helpers in
+      # spec/gitlab_test_helper.rb, k3d_collect_debug) reaches it. Caproni's own
+      # DinD end-to-end suite relies on this same behaviour with no --api-port.
       #
-      # caproni has no field for this; extra_args entries are appended verbatim to
-      # `k3d cluster create`, one argv token per entry.
-      - "--api-port"
-      - "${DOCKER_HOST_IP}:6443"
-      # caproni's k3d driver passes neither, and `caproni up` only polls the API
-      # rather than waiting for nodes to become Ready. Restores the gate that
-      # scripts/ci/k3d.sh:110-111 has.
+      # If the API server ever becomes unreachable here, check `k3d kubeconfig get
+      # caproni | grep server:` first: DOCKER_HOST empty (a bind-mounted docker
+      # socket rather than tcp://) makes k3d fall back to 0.0.0.0, and then an
+      # explicit `--api-port ${DOCKER_HOST_IP}:6443` is the fix.
+      #
+      # caproni's k3d driver passes neither of the following, and `caproni up` only
+      # polls the API rather than waiting for nodes to become Ready. Restores the
+      # gate that scripts/ci/k3d.sh:110-111 has. caproni has no field for these;
+      # extra_args entries are appended verbatim to `k3d cluster create`, one argv
+      # token per entry.
       - "--wait"
       - "--timeout"
       - "120s"
