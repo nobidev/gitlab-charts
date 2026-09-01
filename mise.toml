@@ -3,7 +3,7 @@ kubectl = "1.36.2"
 minikube = "1.38.1"
 helm = "4.2.3"
 stern = "1.23.0"
-yq = "4.53.3"
+yq = "4.53.6"
 gomplate = "5.0.0"
 
 # For linting documentation
