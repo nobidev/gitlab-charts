@@ -296,33 +296,33 @@ also a prerequisite for [rotating the static unseal key](#rotate-the-static-unse
 
 #### Rotate the static unseal key
 
-Rotate the static unseal key by running the new key alongside the old one until OpenBao rewraps its
-root key with the new key, then remove the old key.
+Run the new key alongside the old one until OpenBao rewraps its root key with the new key. Then
+remove the old key.
 
 The keys are fields of the `<release>-openbao-unseal` secret. `global.openbao.unseal.currentKeyField`
 names the field holding the current key, `previousKeyField` names the one holding the previous key.
-Rotation adds the new key under a new field, so no key is overwritten. Name each field after the key
-ID it carries, so the secret is readable on its own.
+Rotation adds the new key under a new field, so no key is overwritten. Name each field so you can
+tell which key it holds.
 
 Every field the configuration names must exist in the secret. Name one that does not and the pods fail
 to start, logging `is a directory` for that key path.
 
-Until the rewrap completes you can back out by restoring the previous values. Afterwards the root key
-is wrapped under the new key, so backing out means swapping the pair instead: make the old key
-current again and the new key previous, swapping `currentKeyField` and `previousKeyField` along with
-the IDs and paths, then let it rewrap back.
+To undo a rotation, see
+[Back out a static unseal key rotation](#back-out-a-static-unseal-key-rotation).
 
 On [Geo](https://docs.gitlab.com/administration/geo/) deployments, follow
 [Rotate the static unseal key on Geo](#rotate-the-static-unseal-key-on-geo), which adds steps on
 every secondary site.
 
-Before you start:
+Prerequisites:
 
 - Store a recovery key if you have not already, with
   [recovery key management](https://docs.gitlab.com/administration/secrets_manager/recovery_key/).
   OpenBao rewraps the recovery key before the root key and stops on the first failure, so without one
   the rewrap in step 4 never runs and the rotation cannot complete.
 - Back up the `<release>-openbao-unseal` secret and the OpenBao database.
+
+To rotate the static unseal key:
 
 1. Generate a new key. Use 32 raw bytes, not base64 text. Set a restrictive `umask` first, because
    `openssl` creates the file with the ambient one:
@@ -387,7 +387,7 @@ Before you start:
    rewrap was never attempted - store one, then restart the pods.
 
    Do not rotate again to a fresh key. The configuration names two keys at a time, however many the
-   secret holds, so a second rotation drops the key the root key is still wrapped under and OpenBao
+   secret holds. A second rotation drops the key the root key is still wrapped under, and OpenBao
    stops unsealing.
 
 1. Remove the old key.
@@ -427,9 +427,9 @@ On [Geo](https://docs.gitlab.com/administration/geo/) deployments, prefer
 [AWS KMS unsealing](#aws-kms-unsealing) with a multi-Region key over a static key. Key material then
 replicates with the key, and rotation needs none of the steps below.
 
-If you use a static key on Geo, the unseal secret is not replicated between sites. Only the OpenBao
-database replicates. A secondary runs on a read replica and cannot rewrap the root key for itself, so
-every secondary needs the new key before the rewrapped root key reaches it.
+If you use a static key on Geo, the unseal secret is not replicated between sites. A secondary runs
+on a read replica and cannot rewrap the root key for itself. Each secondary needs the new key before
+the rewrapped root key reaches it.
 
 1. Generate one new key, as in the main procedure. Use the same key on every site.
 1. On every secondary, add the new key to the unseal secret and run `helm upgrade` with the same
@@ -441,6 +441,27 @@ every secondary needs the new key before the rewrapped root key reaches it.
    the check: while both keys are configured a secondary unseals under either one, so it cannot tell
    you whether the rewrapped root key has arrived.
 1. Remove the old key on every site.
+
+#### Back out a static unseal key rotation
+
+How you back out depends on whether the active node has finished rewrapping the root key. Check with
+the log command in [Rotate the static unseal key](#rotate-the-static-unseal-key). Both paths need the
+old key still in the secret. If you have deleted its field, restore the secret from your backup
+first.
+
+Before the rewrap completes, the root key is still wrapped under the old key:
+
+1. Restore the values you had before the rotation.
+1. Run `helm upgrade` and wait for the pods to be ready.
+1. Delete the field holding the new key.
+
+After the rewrap completes, the root key is wrapped under the new key, so the pair swaps instead:
+
+1. Make the old key current again and the new key previous. Swap `currentKeyField` and
+   `previousKeyField`, and swap the IDs and paths with them.
+1. Run `helm upgrade` and wait for the pods to be ready.
+1. Confirm the rewrap back, with the same log check.
+1. Remove the new key, the way the main procedure removes the old one.
 
 #### AWS KMS unsealing
 
@@ -469,8 +490,8 @@ The IAM role needs only `kms:Encrypt`, `kms:Decrypt`, and `kms:DescribeKey` on t
 encrypts client side, so do not grant `kms:GenerateDataKey`.
 
 Reference the key by an alias, such as `alias/my-openbao-key`, instead of a key ID or ARN. An alias
-lets you point OpenBao at a different key later without editing the chart values, though the switch
-still needs a restart and a rewrap. See [Rotate the AWS KMS key](#rotate-the-aws-kms-key).
+lets you point OpenBao at a different key later without editing the chart values. The switch still
+needs a restart and a rewrap. See [Change the AWS KMS key](#change-the-aws-kms-key).
 
 For [Geo](https://docs.gitlab.com/administration/geo/) deployments, use a
 [multi-Region KMS key](https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html)
@@ -489,20 +510,23 @@ replaces the key material while the key itself stays the same, so it is transpar
 ARN does not change, and AWS decrypts with whichever version of the material encrypted the data. Take
 no action.
 
-To move OpenBao to a different KMS key, follow these steps. This is a configuration change, not a
-seal migration, so do not run `bao operator unseal -migrate`.
+#### Change the AWS KMS key
 
-1. Point OpenBao at the new key. On Geo, the new key must also be a multi-Region key with a replica
-   in every site's Region.
+To move OpenBao to a different KMS key, follow these steps. Changing the key is a configuration
+change, not a seal migration, so do not run `bao operator unseal -migrate`.
 
-   Changing `config.unseal.awskms.kmsKeyId` and running `helm upgrade` restarts the pods for you.
-   Repointing an alias does not: the chart values are identical, so nothing in the rendered
-   configuration changes and no pod restarts. In that case restart them yourself, otherwise no
-   rewrap happens:
+1. Point OpenBao at the new key. On Geo, it must also be a
+   [multi-Region key](#aws-kms-unsealing). What restarts the pods depends on how you reference the
+   key:
 
-   ```shell
-   kubectl --namespace <namespace> rollout restart deployment -l app.kubernetes.io/name=openbao,app.kubernetes.io/instance=<release>
-   ```
+   - If you set `config.unseal.awskms.kmsKeyId` to the new key, `helm upgrade` restarts the pods for
+     you.
+   - If you repoint an alias, nothing in the rendered configuration changes, so no pod restarts.
+     Restart them yourself, otherwise no rewrap happens:
+
+     ```shell
+     kubectl --namespace <namespace> rollout restart deployment -l app.kubernetes.io/name=openbao,app.kubernetes.io/instance=<release>
+     ```
 
 1. Confirm the active node rewrapped its root key, using the log check in
    [Rotate the static unseal key](#rotate-the-static-unseal-key).

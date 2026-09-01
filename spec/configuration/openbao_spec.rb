@@ -163,8 +163,14 @@ describe 'OpenBao installation' do
         expect(openbao_mounts.count { |m| m['name'] == 'unseal' }).to eq(1)
       end
 
+      it 'renders the current key in the seal config' do
+        expect(seal_config['static']).to include(
+          'current_key_id' => 'gl-unseal-1',
+          'current_key' => 'file:///srv/openbao/keys/gl-unseal-1'
+        )
+      end
+
       it 'does not render a previous key in the seal config' do
-        expect(seal_config['static']).to include('current_key_id' => 'gl-unseal-1')
         expect(seal_config['static']).not_to include('previous_key_id', 'previous_key')
       end
     end
@@ -208,9 +214,15 @@ describe 'OpenBao installation' do
         expect(generate_secrets).not_to include('--from-file=key=bao-unseal')
       end
 
-      it 'renders the previous key in the seal config' do
+      it 'renders the current key in the seal config' do
         expect(seal_config['static']).to include(
           'current_key_id' => 'gl-unseal-2',
+          'current_key' => 'file:///srv/openbao/keys/gl-unseal-2'
+        )
+      end
+
+      it 'renders the previous key in the seal config' do
+        expect(seal_config['static']).to include(
           'previous_key_id' => 'gl-unseal-1',
           'previous_key' => 'file:///srv/openbao/keys/gl-unseal-1'
         )
