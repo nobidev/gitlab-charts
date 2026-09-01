@@ -163,14 +163,14 @@ configurations that can be supplied to the `helm install` command using the
 | `zipCache.refresh`          | int     | See: [Zip Serving and Cache Configuration](https://docs.gitlab.com/administration/pages/#zip-serving-and-cache-configuration) |
 | `zipOpenTimeout`            | int     | See: [Zip Serving and Cache Configuration](https://docs.gitlab.com/administration/pages/#zip-serving-and-cache-configuration) |
 | `zipHTTPClientTimeout`      | int     | See: [Zip Serving and Cache Configuration](https://docs.gitlab.com/administration/pages/#zip-serving-and-cache-configuration) |
-| `rateLimitSourceIP`         |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/#rate-limits). |
-| `rateLimitSourceIPBurst`    |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/#rate-limits) |
-| `rateLimitDomain`           |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/#rate-limits). |
-| `rateLimitDomainBurst`      |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/#rate-limits) |
-| `rateLimitTLSSourceIP`      |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/#rate-limits). |
-| `rateLimitTLSSourceIPBurst` |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/#rate-limits) |
-| `rateLimitTLSDomain`        |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/#rate-limits). |
-| `rateLimitTLSDomainBurst`   |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/#rate-limits) |
+| `rateLimitSourceIP`         |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/rate-limits/). |
+| `rateLimitSourceIPBurst`    |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/rate-limits/) |
+| `rateLimitDomain`           |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/rate-limits/). |
+| `rateLimitDomainBurst`      |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/rate-limits/) |
+| `rateLimitTLSSourceIP`      |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/rate-limits/). |
+| `rateLimitTLSSourceIPBurst` |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/rate-limits/) |
+| `rateLimitTLSDomain`        |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/rate-limits/). |
+| `rateLimitTLSDomainBurst`   |         | See: [GitLab Pages rate-limits](https://docs.gitlab.com/administration/pages/rate-limits/) |
 | `rateLimitSubnetsAllowList` |         | See: [GitLab Pages rate-limits](#rate-limits) |
 | `serverReadTimeout`         | `5s`    | See: [GitLab Pages global settings](https://docs.gitlab.com/administration/pages/#global-settings) |
 | `serverReadHeaderTimeout`   | `1s`    | See: [GitLab Pages global settings](https://docs.gitlab.com/administration/pages/#global-settings) |
@@ -415,7 +415,7 @@ To have TLS access to the GitLab Pages feature you must:
 
 ### Rate limits
 
-You can enforce rate limits to help minimize the risk of a Denial of Service (DoS) attack. Detailed [rate limits documentation](https://docs.gitlab.com/administration/pages/#rate-limits) is available.
+You can enforce rate limits to help minimize the risk of a Denial of Service (DoS) attack. Detailed [rate limits documentation](https://docs.gitlab.com/administration/pages/rate-limits/) is available.
 
 To allow certain IP ranges (subnets) to bypass all rate limits:
 
