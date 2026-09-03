@@ -1516,6 +1516,40 @@ describe 'Gateway API configuration' do
         end
       end
     end
+
+    context 'OpenBao HTTPRoute' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+        nginx-ingress:
+          enabled: false
+
+        global:
+          gatewayApi:
+            enabled: true
+            installEnvoy: true
+          openbao:
+            psql:
+              host: openbao-psql.example.com
+              username: openbao
+              password:
+                secret: openbao-db-password
+                key: password
+
+        openbao:
+          install: true
+        ))
+      end
+
+      let(:openbao_route) { template["HTTPRoute/test-openbao"] }
+
+      it 'attaches to the chart-managed Gateway rather than the subchart default' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        expect(openbao_route).not_to be_nil
+        expect(openbao_route['spec']['parentRefs'][0]['name']).to eq('test-gw')
+        expect(openbao_route['spec']['parentRefs'][0]['namespace']).to eq('default')
+        expect(openbao_route['spec']['parentRefs'][0]['sectionName']).to eq('openbao-web')
+      end
+    end
   end
 end
 # rubocop:enable RSpec/MultipleMemoizedHelpers
