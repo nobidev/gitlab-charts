@@ -510,33 +510,44 @@ emptyDir: {{ toYaml $values | nindent 2 }}
 {{- end -}}
 
 {{/*
+Return a container-level SecurityContext definition from an arbitrary map of
+values.
+
+Unlike gitlab.podSecurityContext, this is not restricted to Pod-level
+fields: it renders whatever is provided as-is, so it also supports fields
+that are only valid in a container's securityContext (e.g. privileged,
+allowPrivilegeEscalation, capabilities). Do not use this to render a Pod's
+securityContext.
+
+Usage:
+  {{ include "gitlab.containerSecurityContextRoot" .Values.cgroups.initContainer.securityContext }}
+*/}}
+{{- define "gitlab.containerSecurityContextRoot" -}}
+{{- if . }}
+securityContext:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Return upgradeCheck container specific securityContext template
 */}}
 {{- define "upgradeCheck.containerSecurityContext" }}
-{{- if .Values.upgradeCheck.containerSecurityContext }}
-securityContext:
-  {{- toYaml .Values.upgradeCheck.containerSecurityContext | nindent 2 }}
-{{- end }}
+{{- include "gitlab.containerSecurityContextRoot" .Values.upgradeCheck.containerSecurityContext }}
 {{- end }}
 
 {{/*
 Return init container specific securityContext template
 */}}
 {{- define "gitlab.init.containerSecurityContext" }}
-{{- if .Values.init.containerSecurityContext }}
-securityContext:
-  {{- toYaml .Values.init.containerSecurityContext | nindent 2 }}
-{{- end }}
+{{- include "gitlab.containerSecurityContextRoot" .Values.init.containerSecurityContext }}
 {{- end }}
 
 {{/*
 Return container specific securityContext template
 */}}
 {{- define "gitlab.containerSecurityContext" }}
-{{- if .Values.containerSecurityContext }}
-securityContext:
-  {{- toYaml .Values.containerSecurityContext | nindent 2 }}
-{{- end }}
+{{- include "gitlab.containerSecurityContextRoot" .Values.containerSecurityContext }}
 {{- end }}
 
 {{/*
@@ -568,46 +579,6 @@ securityContext:
   seccompProfile:
     {{- toYaml $psc.seccompProfile | nindent 4 }}
 {{- end }}
-{{-   if $psc.seLinuxOptions }}
-  seLinuxOptions:
-    {{- toYaml $psc.seLinuxOptions | nindent 4 }}
-{{-   end }}
-{{-   if $psc.appArmorProfile }}
-  appArmorProfile:
-    {{- toYaml $psc.appArmorProfile | nindent 4 }}
-{{-   end }}
-{{- end }}
-{{- end -}}
-
-
-{{/*
-Return a PodSecurityContext definition that allows to it to run as root.
-Usage:
-  {{ include "gitlab.podSecurityContextRoot" .Values.securityContext }}
-*/}}
-{{- define "gitlab.podSecurityContextRoot" -}}
-{{- $psc := . }}
-{{- if $psc }}
-securityContext:
-{{-   if not (eq $psc.runAsUser nil) }}
-  runAsUser: {{ $psc.runAsUser }}
-{{-   end }}
-{{-   if not (eq $psc.runAsGroup nil) }}
-  runAsGroup: {{ $psc.runAsGroup }}
-{{-   end }}
-{{-   if not (eq $psc.fsGroup nil) }}
-  fsGroup: {{ $psc.fsGroup }}
-{{-   end }}
-{{-   if not (eq $psc.runAsNonRoot nil) }}
-  runAsNonRoot: {{ $psc.runAsNonRoot }}
-{{-   end }}
-{{-   if not (eq $psc.fsGroupChangePolicy nil) }}
-  fsGroupChangePolicy: {{ $psc.fsGroupChangePolicy }}
-{{-   end }}
-{{-   if $psc.seccompProfile }}
-  seccompProfile:
-    {{- toYaml $psc.seccompProfile | nindent 4 }}
-{{-   end }}
 {{-   if $psc.seLinuxOptions }}
   seLinuxOptions:
     {{- toYaml $psc.seLinuxOptions | nindent 4 }}
