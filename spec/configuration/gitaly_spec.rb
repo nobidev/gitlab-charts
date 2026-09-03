@@ -939,6 +939,44 @@ describe 'Gitaly configuration' do
           .not_to include('init-cgroups')
       end
     end
+
+    context 'when a privileged securityContext is configured for the init container' do
+      let(:cgroups_enabled) { true }
+      let(:values) do
+        default_values.deep_merge(YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              cgroups:
+                enabled: #{cgroups_enabled}
+                initContainer:
+                  image:
+                    repository: registry.gitlab.com/gitlab-org/build/cng/gitaly-init-cgroups
+                    tag: master
+                    pullPolicy: IfNotPresent
+                  securityContext:
+                    allowPrivilegeEscalation: true
+                    privileged: true
+                    runAsGroup: 0
+                    runAsNonRoot: false
+                    runAsUser: 0
+                mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
+                hierarchyRoot: gitaly
+        )))
+      end
+
+      it 'renders the configured privileged fields on the init-cgroups container' do
+        gitaly_init_container = statefulset['spec']['template']['spec']['initContainers'][0]
+
+        expect(gitaly_init_container['name']).to eq('init-cgroups')
+        expect(gitaly_init_container['securityContext']).to eq(
+          'allowPrivilegeEscalation' => true,
+          'privileged' => true,
+          'runAsGroup' => 0,
+          'runAsNonRoot' => false,
+          'runAsUser' => 0
+        )
+      end
+    end
   end
 
   context 'startupProbe' do

@@ -65,7 +65,7 @@ spec:
         - name: init-cgroups
           image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.cgroups.initContainer.image) | quote }}
           {{- include "gitlab.image.pullPolicy" $initCgroupsImageCfg | indent 10 }}
-          {{- include "gitlab.podSecurityContextRoot" .Values.cgroups.initContainer.securityContext | nindent 10 }}
+          {{- include "gitlab.containerSecurityContextRoot" .Values.cgroups.initContainer.securityContext | nindent 10 }}
           env:
             - name: GITALY_POD_UID
               valueFrom:
