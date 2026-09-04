@@ -992,13 +992,9 @@ global:
       secret: ""
       key: "token"
     unseal:
-      # Fields of the unseal secret holding the current and previous keys. Rotation adds
-      # the new key under a new field name and switches currentKeyField to it, so no key
-      # is ever overwritten in place. previousKeyField has no default because no field
-      # holds a previous key until you rotate; set it and previousKeyId together, or neither.
-      # currentKeyField defaults to "key", the field existing installs already have. A
-      # different default would mount a field the secret does not contain, and
-      # shared-secrets does not backfill --from-file keys into an existing secret.
+      # Fields of the unseal secret holding the current and previous keys. Rotation adds the
+      # new key under a new field and switches currentKeyField to it, so no key is overwritten.
+      # currentKeyField defaults to "key" because that is the field existing installs already have.
       ## https://docs.gitlab.com/charts/charts/openbao/#rotate-the-static-unseal-key
       currentKeyField: "key"
       previousKeyField: ""

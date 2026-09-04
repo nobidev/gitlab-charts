@@ -195,6 +195,72 @@ describe 'openbao config check' do
                        error_description: 'when a previous key field is named but no ID enables it'
     end
 
+    context 'when previousKeyId and currentKeyId are the same' do
+      let(:error_values) do
+        YAML.safe_load(%(
+          openbao:
+            install: true
+            config:
+              unseal:
+                static:
+                  currentKeyId: gl-unseal-1
+                  currentKey: /srv/openbao/keys/gl-unseal-1
+                  previousKeyId: gl-unseal-1
+                  previousKey: /srv/openbao/keys/gl-unseal-1-previous
+          global:
+            openbao:
+              unseal:
+                currentKeyField: gl-unseal-2
+                previousKeyField: key
+              psql:
+                host: gitlab-checkconfig-test-postgresql.default.svc
+                username: gitlab
+                password:
+                  secret: openbao-db-password
+                  key: password
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'unseal key IDs are the same' }
+
+      include_examples 'config validation',
+                       success_description: nil,
+                       error_description: 'when two different keys are configured under one ID'
+    end
+
+    context 'when previousKeyField and currentKeyField are the same' do
+      let(:error_values) do
+        YAML.safe_load(%(
+          openbao:
+            install: true
+            config:
+              unseal:
+                static:
+                  currentKeyId: gl-unseal-2
+                  currentKey: /srv/openbao/keys/gl-unseal-2
+                  previousKeyId: gl-unseal-1
+                  previousKey: /srv/openbao/keys/gl-unseal-1
+          global:
+            openbao:
+              unseal:
+                currentKeyField: key
+                previousKeyField: key
+              psql:
+                host: gitlab-checkconfig-test-postgresql.default.svc
+                username: gitlab
+                password:
+                  secret: openbao-db-password
+                  key: password
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'unseal key fields are the same' }
+
+      include_examples 'config validation',
+                       success_description: nil,
+                       error_description: 'when both key IDs mount one secret field'
+    end
+
     context 'when currentKeyField is empty' do
       let(:error_values) do
         YAML.safe_load(%(
