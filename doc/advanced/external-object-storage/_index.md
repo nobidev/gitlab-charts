@@ -37,7 +37,7 @@ These temporary credential mechanisms improve security by:
 ## Azure Blob Storage
 
 Direct support for Azure Blob storage is available for
-[uploaded attachments, CI job artifacts, LFS, and other object types supported via the consolidated settings](https://docs.gitlab.com/administration/object_storage/#storage-specific-configuration). In previous GitLab versions, an [Azure MinIO gateway](azure-minio-gateway.md) was needed.
+[uploaded attachments, CI job artifacts, LFS, and other object types supported via the consolidated settings](https://docs.gitlab.com/administration/object_storage/#configure-each-object-type-to-define-its-own-storage-connection-storage-specific-form). In previous GitLab versions, an [Azure MinIO gateway](azure-minio-gateway.md) was needed.
 
 > [!note]
 > GitLab [does not support](https://github.com/minio/minio/issues/9978) the Azure MinIO gateway as the storage for the Docker Registry.
@@ -385,5 +385,5 @@ To use Cloud CDN:
 ### Azure Blob: `URL [FILTERED] is blocked: Requests to the local network are not allowed`
 
 This happens when the Azure Blob hostname is resolved to a [RFC1918 (local / private) IP address](https://learn.microsoft.com/en-us/azure/storage/common/storage-private-endpoints#dns-changes-for-private-endpoints). As a workaround,
-allow [Outbound requests](https://docs.gitlab.com/security/webhooks/#allowlist-for-local-requests)
+allow [Outbound requests](https://docs.gitlab.com/security/webhooks/#allow-requests-to-the-local-network-from-webhooks-and-integrations)
 for your Azure Blob hostname (`yourinstance.blob.core.windows.net`).

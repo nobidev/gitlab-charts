@@ -7,6 +7,6 @@ if issuer_job_changed && !chart_yaml_changed
   failure <<~MSG
    Jobs templates are immutable. Changing it breaks upgrades if there's an existing job with the same name.
    Please bump the certmanager-issuer chart version, so that it gets a different generated name
-   as per [globals Jobs documentation](https://docs.gitlab.com/charts/charts/globals.html#jobs).
+   as per [globals Jobs documentation](https://docs.gitlab.com/charts/charts/globals/#jobs).
   MSG
 end

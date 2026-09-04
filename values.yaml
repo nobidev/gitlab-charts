@@ -459,8 +459,8 @@ global:
         secret: ""
         key: secret_access_key
 
-    ## https://docs.gitlab.com/charts/installation/command-line-options.html#incoming-email-configuration
-    ## https://docs.gitlab.com/charts/charts/gitlab/mailroom/index.html#incoming-email
+    ## https://docs.gitlab.com/charts/installation/command-line-options/#incoming-email-configuration
+    ## https://docs.gitlab.com/charts/charts/gitlab/mailroom/#incoming-email
     incomingEmail:
       enabled: false
       address: ""
@@ -487,7 +487,7 @@ global:
         # secret:
         # key:
 
-    ## https://docs.gitlab.com/charts/charts/gitlab/mailroom/index.html#service-desk-email
+    ## https://docs.gitlab.com/charts/charts/gitlab/mailroom/#service-desk-email
     serviceDeskEmail:
       enabled: false
       address: ""
@@ -1448,7 +1448,7 @@ prometheus:
 
 ## Automatic shared secret generation
 ## https://docs.gitlab.com/charts/installation/secrets
-## https://docs.gitlab.com/charts/charts/shared-secrets.html
+## https://docs.gitlab.com/charts/charts/shared-secrets/
 shared-secrets:
   enabled: true
   rbac:

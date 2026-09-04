@@ -170,7 +170,7 @@ Ensure that sentry has a DSN configured if enabled
 {{-     if (not (or $.Values.global.appConfig.sentry.dsn $.Values.global.appConfig.sentry.clientside_dsn)) }}
 sentry:
     When enabling sentry, you must configure at least one DSN.
-    See https://docs.gitlab.com/charts/charts/globals.html#sentry-settings
+    See https://docs.gitlab.com/charts/charts/globals/#sentry-settings
 {{-     end -}}
 {{-   end -}}
 {{- end -}}

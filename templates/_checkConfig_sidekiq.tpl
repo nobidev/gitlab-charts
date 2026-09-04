@@ -58,7 +58,7 @@ Ensure that Sidekiq routingRules configuration is in a valid format
 {{- if eq false $validRoutingRules }}
 sidekiq:
     The Sidekiq's routing rules list must be an ordered array of tuples of query and corresponding queue.
-    See https://docs.gitlab.com/charts/charts/globals.html#sidekiq-routing-rules-settings
+    See https://docs.gitlab.com/charts/charts/globals/#sidekiq-routing-rules-settings
 {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.sidekiq.routingRules */}}
@@ -72,7 +72,7 @@ Ensure that metrics and health check servers bind different ports
 {{- if and $metricsEnabled $portsMatch }}
 sidekiq:
     metrics.port and health_checks.port must not be equal.
-    See https://docs.gitlab.com/charts/charts/gitlab/sidekiq/index.html#configuration
+    See https://docs.gitlab.com/charts/charts/gitlab/sidekiq/#configuration
 {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.sidekiq.server_ports */}}

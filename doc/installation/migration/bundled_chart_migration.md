@@ -36,7 +36,7 @@ Before you begin migrating from the bundled Redis, MinIO, or PostgreSQL:
 - Evaluate services that align with the [installation requirements](https://docs.gitlab.com/install/requirements/).
   Consider cloud provider services or other alternatives that meet your infrastructure needs and organizational requirements.
   For general reference architecture considerations and recommended providers, see the
-  [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/#recommended-cloud-providers-and-services).
+  [reference architecture documentation](https://docs.gitlab.com/administration/reference_architectures/#cloud-provider-services).
 - As a result of this migration, upgrading the GitLab chart will no longer upgrade your Redis or
   PostgreSQL deployments. Major GitLab upgrades may require newer versions of Valkey/Redis or PostgreSQL.
   Before following this guide, or before doing a major GitLab upgrade, check the
@@ -67,7 +67,7 @@ Please note that:
 ## Provision external services
 
 To replace the bundled Redis, PostgreSQL, and MinIO charts, provision externally managed replacements.
-For an overview on the available options check the [recommended providers and services](https://docs.gitlab.com/administration/reference_architectures/#recommended-cloud-providers-and-services)
+For an overview on the available options check the [recommended providers and services](https://docs.gitlab.com/administration/reference_architectures/#cloud-provider-services)
 and make sure they meet the [current minimum requirements](https://docs.gitlab.com/install/requirements/).
 
 ### Provision external Valkey or Redis

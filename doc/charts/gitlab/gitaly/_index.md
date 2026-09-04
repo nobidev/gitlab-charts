@@ -496,7 +496,7 @@ The `gitaly_address` values from the previous step show which names the certific
 
 ### Global server hooks
 
-The Gitaly StatefulSet has support for [Global server hooks](https://docs.gitlab.com/administration/server_hooks/#create-a-global-server-hook-for-all-repositories). The hook scripts run on the Gitaly pod, and are therefore limited to the tools available in the [Gitaly container](https://gitlab.com/gitlab-org/build/CNG/-/blob/master/gitaly/Dockerfile).
+The Gitaly StatefulSet has support for [Global server hooks](https://docs.gitlab.com/administration/server_hooks/#create-global-server-hooks-for-all-repositories). The hook scripts run on the Gitaly pod, and are therefore limited to the tools available in the [Gitaly container](https://gitlab.com/gitlab-org/build/CNG/-/blob/master/gitaly/Dockerfile).
 
 The hooks are populated using [ConfigMaps](https://kubernetes.io/docs/concepts/configuration/configmap/), and can be used by setting the following values as appropriate:
 

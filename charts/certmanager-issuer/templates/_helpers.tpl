@@ -30,7 +30,7 @@ If the IngressClass is "none", the field is not set.
 
 For backwards compatibility, the default is to use the legacy class attribute.
 It is still required by some ingress providers, such as GKE Ingress.
-  See: https://docs.gitlab.com/charts/releases/7_0.html#bundled-certmanager
+  See: https://docs.gitlab.com/charts/releases/7_0/#bundled-certmanager
 */}}
 {{- define "certmanager-issuer.http01.ingress.class.spec" -}}
 {{- $ingressCfg := dict "global" $.Values.global.ingress "local" .ingress "context" $ -}}

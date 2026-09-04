@@ -10,7 +10,7 @@ Configure the GitLab Helm chart with an external Redis or Valkey instance, which
 If you don't have Redis configured, for on-premise or deployment to VM,
 consider using our [Linux package](external-omnibus-redis.md).
 
-For details about currently supported Redis versions, see [Installation system requirements](https://docs.gitlab.com/install/requirements/#redis).
+For details about currently supported Redis versions, see [Installation system requirements](https://docs.gitlab.com/install/requirements/#redis-or-valkey).
 
 ## Configure the chart
 
@@ -136,7 +136,7 @@ The flip side of the flexibility of `redisYmlOverride` is that it is less user f
 ### Error: `ERR Error running script (...): @user_script:7: ERR syntax error`
 
 You might see the following error in the logs of `webservice` and `sidekiq` pods
-if you use external Redis 5 with Helm chart 7.2 or later. Redis 5 [is not supported](https://docs.gitlab.com/install/requirements/#redis).
+if you use external Redis 5 with Helm chart 7.2 or later. Redis 5 [is not supported](https://docs.gitlab.com/install/requirements/#redis-or-valkey).
 
 - `ERR Error running script (call to f_5962bd591b624c0e0afce6631ff54e7e4402ebd8): @user_script:7: ERR syntax error`
 

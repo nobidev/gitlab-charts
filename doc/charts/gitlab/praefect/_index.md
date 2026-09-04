@@ -103,7 +103,7 @@ global:
 
 ## defaultReplicationFactor
 
-`defaultReplicationFactor` can be configured on each virtual storages. (see [configure replication-factor](https://docs.gitlab.com/administration/gitaly/praefect/#configure-replication-factor) documentation).
+`defaultReplicationFactor` can be configured on each virtual storages. (see [configure replication-factor](https://docs.gitlab.com/administration/gitaly/praefect/#replication-factor) documentation).
 
 ```yaml
 global:
@@ -168,7 +168,7 @@ global:
 The instructions to [migrate to Gitaly Cluster (Praefect)](https://docs.gitlab.com/administration/gitaly/praefect/#migrate-to-gitaly-cluster-praefect)
 can be followed again to move data from `virtualStorage2` to the newly-added `default` storage if desired.
 
-Finally, see the [repository storage paths documentation](https://docs.gitlab.com/administration/repository_storage_paths/#choose-where-new-repositories-are-stored)
+Finally, see the [repository storage paths documentation](https://docs.gitlab.com/administration/repository_storage_paths/#configure-where-new-repositories-are-stored)
 to configure where new repositories are stored.
 
 ### Creating the database
