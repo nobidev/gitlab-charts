@@ -16,7 +16,7 @@ The `migrations` sub-chart provides a single migration [Job](https://kubernetes.
 
 If [ClickHouse](../../../development/clickhouse.md) is enabled, then this sub-chart runs migrations for [ClickHouse](../../../development/clickhouse.md) as well.
 
-After migrating, this Job also edits the application settings in the database to turn off [writes to authorized keys file](https://docs.gitlab.com/administration/operations/fast_ssh_key_lookup/#setting-up-fast-lookup-via-gitlab-shell). In the charts we are only supporting use of the GitLab Authorized Keys API with the SSH `AuthorizedKeysCommand` instead of support for writing to an authorized keys file.
+After migrating, this Job also edits the application settings in the database to turn off [writes to authorized keys file](https://docs.gitlab.com/administration/operations/fast_ssh_key_lookup/#set-up-fast-lookup). In the charts we are only supporting use of the GitLab Authorized Keys API with the SSH `AuthorizedKeysCommand` instead of support for writing to an authorized keys file.
 
 ## Requirements
 

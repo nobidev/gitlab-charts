@@ -7,7 +7,7 @@ title: TLS Configuration for Cells Components (Development Only)
 
 ## Context
 
-As part of the ongoing development of [Cells architecture](https://docs.gitlab.com/ee/development/cells/), TLS configuration has been introduced to support secure communication between the monolith and cell services (e.g., the Topology Service).
+As part of the ongoing development of [Cells architecture](https://docs.gitlab.com/development/cells/), TLS configuration has been introduced to support secure communication between the monolith and cell services (e.g., the Topology Service).
 
 At present, TLS-related settings for Cells are placed under:
 

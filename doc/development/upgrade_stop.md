@@ -6,7 +6,7 @@ title: Maintaining the upgrade stop in the charts project
 ---
 
 The GitLab chart creates a pre-upgrade hook that checks if the upgrade follows a
-[valid upgrade path](https://docs.gitlab.com/update/#upgrade-paths).
+[valid upgrade path](https://docs.gitlab.com/update/upgrade_paths/).
 
 If the upgrade path is invalid, the upgrade will be aborted.
 

@@ -44,7 +44,7 @@ Before the migration, a few prerequisites must be met:
       avatars are rendered fine, image and other files added to issues load
       correctly, etc.
 
-1. [Create a backup tarball](https://docs.gitlab.com/administration/backup_restore/backup_gitlab/) and [exclude all the already migrated directories](https://docs.gitlab.com/administration/backup_restore/backup_gitlab/#excluding-specific-directories-from-the-backup).
+1. [Create a backup tarball](https://docs.gitlab.com/administration/backup_restore/backup_gitlab/) and [exclude all the already migrated directories](https://docs.gitlab.com/administration/backup_restore/backup_gitlab/#excluding-specific-data-from-the-backup).
 
    For local backups (default), the backup file is stored under `/var/opt/gitlab/backups`, unless you
    [explicitly changed the location](https://docs.gitlab.com/omnibus/settings/backups/#manually-manage-backup-directory).

@@ -30,7 +30,7 @@ if [ -d "${secrets_dir}" ]; then
       notify "You seem to be upgrading from a previous version of GitLab using the bundled PostgreSQL chart"
       notify "There are some manual steps which need to be performed in order to upgrade the database"
       notify "Please see the upgrade documentation for instructions on how to proceed:"
-      notify "https://docs.gitlab.com/charts/installation/upgrade.html"
+      notify "https://docs.gitlab.com/charts/installation/upgrade/"
       exit 1
     fi
   fi
@@ -54,7 +54,7 @@ NEW_CHART_MINOR_VERSION=$(echo $CHART_VERSION | awk -F "." '{print $1"."$2}')
 
 if [ ! -f /chart-info/gitlabVersion ]; then
   notify "It seems you are attempting an unsupported upgrade path."
-  notify "Please follow the upgrade documentation at https://docs.gitlab.com/update/#upgrade-paths"
+  notify "Please follow the upgrade documentation at https://docs.gitlab.com/update/upgrade_paths/"
   exit 1
 fi
 
@@ -78,7 +78,7 @@ if ( ! greater_version "$OLD_MINOR_VERSION" "$MIN_VERSION" ) || ( ! greater_vers
   notify "It is required to upgrade to the latest ${CHART_MIN_VERSION}.x version first before proceeding."
   # Link to upgrade docs if it is a major version jump
   if [ "${OLD_MAJOR_VERSION}" -lt "${NEW_MAJOR_VERSION}" ] || [ "${OLD_CHART_MAJOR_VERSION}" -lt "${NEW_CHART_MAJOR_VERSION}" ]; then
-    notify "Please follow the upgrade documentation at https://docs.gitlab.com/charts/releases/8_0.html"
+    notify "Please follow the upgrade documentation at https://docs.gitlab.com/charts/releases/8_0/"
     notify "and upgrade to GitLab Helm Chart version ${CHART_MIN_VERSION}.x before upgrading to ${CHART_VERSION}."
   fi
   exit 1

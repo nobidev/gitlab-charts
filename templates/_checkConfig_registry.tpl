@@ -212,7 +212,7 @@ registry:
     When Registry debug TLS is enabled a `registry.debug.tls.secretName`
     secret is required when not enabling TLS for the non-debug Registry endpoint.
     You must provide a secret containing a TLS certificate and key pair.
-    See https://docs.gitlab.com/charts/charts/registry/index.html#configuring-tls-for-the-debug-port
+    See https://docs.gitlab.com/charts/charts/registry/#configuring-tls-for-the-debug-port
 {{-       end -}}
 {{-     end -}}
 {{-   end -}}

@@ -15,7 +15,7 @@ title: AI Gateway chart
 
 The AI Gateway chart deploys the AI Gateway as a sub-chart alongside your GitLab instance.
 It enables GitLab Duo Self-Hosted and the GitLab Duo Agent Platform on Kubernetes.
-This feature is an [experiment](https://docs.gitlab.com/ee/policy/experiment-beta-support.html).
+This feature is an [experiment](https://docs.gitlab.com/policy/development_stages_support/).
 
 Prerequisites:
 
