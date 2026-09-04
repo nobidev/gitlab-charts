@@ -149,6 +149,11 @@ the `helm install` command using the `--set` flags.
 | `cgroups.initContainer.image.repository`                 | `registry.com/gitlab-org/build/cng/gitaly-init-cgroups` | Gitaly image repository |
 | `cgroups.initContainer.image.tag`                        | `master`                                                | Gitaly image tag |
 | `cgroups.initContainer.image.pullPolicy`                 | `IfNotPresent`                                          | Gitaly image pull policy |
+| `cgroups.initContainer.securityContext`                  |                                                         | Container [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) for the `init-cgroups` container. The map is rendered as-is, so any valid container-level field is accepted. |
+| `cgroups.initContainer.securityContext.runAsUser`        | `0`                                                     | User ID under which the `init-cgroups` container runs. Must be `0` (root) so the container can set cgroup ownership. |
+| `cgroups.initContainer.securityContext.runAsGroup`       | `0`                                                     | Group ID under which the `init-cgroups` container runs. |
+| `cgroups.initContainer.securityContext.privileged`       |                                                         | When `true`, runs the `init-cgroups` container in privileged mode. Required on clusters that enforce strict security policies, such as OpenShift with the `restricted` SCC. |
+| `cgroups.initContainer.securityContext.allowPrivilegeEscalation` |                                                 | Controls whether the `init-cgroups` container process can gain more privileges than its parent. Set to `true` when `privileged` is also `true`. |
 | `cgroups.mountpoint`                                     | `/etc/gitlab-secrets/gitaly-pod-cgroup`                 | Where the parent cgroup directory is mounted. |
 | `cgroups.hierarchyRoot`                                  | `gitaly`                                                | Parent cgroup under which Gitaly creates groups, and is expected to be owned by the user and group Gitaly runs as. |
 | `cgroups.memoryBytes`                                    |                                                         | The total memory limit that is imposed collectively on all Git processes that Gitaly spawns. 0 implies no limit. |
@@ -355,9 +360,9 @@ To prevent exhaustion, Gitaly uses **cgroups** to assign Git processes to a
 cgroup based on the repository being operated on. Each cgroup has memory
 and CPU limits, ensuring system stability and preventing resource saturation.
 
-Please note that the `initContainer` that runs before Gitaly starts requires to be
-**executed as root**. This container will configure the permissions so that Gitaly can manage cgroups.
-Hence, it will mount a volume on the filesystem to have write access to `/sys/fs/cgroup`.
+The `init-cgroups` init container runs before Gitaly starts and configures
+cgroup ownership so that Gitaly can manage cgroups. It must run as root
+(`runAsUser: 0`) and mounts a volume with write access to `/sys/fs/cgroup`.
 
 [Example of Oversubscription](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#configuring-oversubscription)
 
@@ -374,6 +379,34 @@ cgroups:
     memoryBytes: 32212254720 # 30GiB
     cpuShares: 512
     cpuQuotaUs: 400000 # 4 cores
+```
+
+#### `init-cgroups` container security context
+
+The `init-cgroups` container security context is configured through
+`cgroups.initContainer.securityContext`. The map is rendered directly into the
+container manifest, so any field valid in a Kubernetes
+[`SecurityContext`](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core)
+is accepted. An unrecognized or Pod-level field causes a Kubernetes API
+validation error rather than being silently ignored.
+
+On clusters that enforce strict security policies, such as OpenShift with the
+`restricted` Security Context Constraint (SCC), the `init-cgroups` container
+also requires `privileged: true` and `allowPrivilegeEscalation: true` to
+perform the necessary cgroup ownership changes.
+
+```yaml
+gitlab:
+  gitaly:
+    cgroups:
+      enabled: true
+      initContainer:
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          privileged: true
+          allowPrivilegeEscalation: true
 ```
 
 ## External Services
