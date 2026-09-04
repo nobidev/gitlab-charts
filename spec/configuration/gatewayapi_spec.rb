@@ -1540,10 +1540,9 @@ describe 'Gateway API configuration' do
         ))
       end
 
-      let(:openbao_route) { template["HTTPRoute/test-openbao"] }
-
       it 'attaches to the chart-managed Gateway rather than the subchart default' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        openbao_route = template["HTTPRoute/test-openbao"]
         expect(openbao_route).not_to be_nil
         expect(openbao_route['spec']['parentRefs'].length).to eq(1)
         expect(openbao_route['spec']['parentRefs'][0]['name']).to eq('test-gw')
