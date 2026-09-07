@@ -134,15 +134,3 @@ instructions:
       (https://docs.gitlab.com/operator/developer/charts_dependency)." Since this MR
       changes `values.yaml` or `values.schema.json`, remind the reviewer of this
       checklist item.
-
-  - name: Automated Dependency Upgrades
-    fileFilters:
-      - "Chart.yaml"
-      - "charts/**/Chart.yaml"
-      - "requirements.yaml"
-    instructions: |
-      You do not have a web search/fetch tool, so you cannot reliably compare this
-      dependency's upstream release notes yourself. Do not attempt to fetch or
-      summarize upstream release notes. Instead, note in your review that a human
-      reviewer needs to check the upstream release notes for breaking changes before
-      merging.
