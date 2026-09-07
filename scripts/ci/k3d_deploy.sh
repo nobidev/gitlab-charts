@@ -34,28 +34,28 @@ if ! use_nginx_ingress; then
   _ctp_deadline=$(( $(date +%s) + 120 ))
   _ctp_result="timeout"
   while [ "$(date +%s)" -lt "${_ctp_deadline}" ]; do
-    # ClientTrafficPolicy resources are created declaratively by the Helm
-    # release itself (already applied above), so if none exist at all there
-    # is nothing to poll for — only their *status* is filled in
-    # asynchronously by the Envoy Gateway controller.
-    _ctp_names=$(kubectl get clienttrafficpolicies.gateway.envoyproxy.io \
-      -n "${NAMESPACE}" -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || true)
-    if [ -z "${_ctp_names}" ]; then
+    # One call per iteration: emit "<name>\t<Accepted statuses for that policy>"
+    # per line, so a policy whose .status.ancestors isn't populated yet is
+    # judged on its own line rather than silently vanishing from a flattened
+    # cross-policy list (which could let one accepted policy mask another
+    # that has no status at all).
+    _ctp_lines=$(kubectl get clienttrafficpolicies.gateway.envoyproxy.io \
+      -n "${NAMESPACE}" \
+      -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{range .status.ancestors[*]}{.conditions[?(@.type=="Accepted")].status}{" "}{end}{"\n"}{end}' \
+      2>/dev/null || true)
+    if [ -z "${_ctp_lines}" ]; then
       _ctp_result="none"
       break
     fi
-    _ctp_statuses=$(kubectl get clienttrafficpolicies.gateway.envoyproxy.io \
-      -n "${NAMESPACE}" \
-      -o jsonpath='{.items[*].status.ancestors[*].conditions[?(@.type=="Accepted")].status}' \
-      2>/dev/null || true)
-    # All policies must report "True"; there must be at least one.
-    # jsonpath renders multiple matches space-separated on one line, so
-    # split on whitespace and match each value exactly.
-    if [ -n "${_ctp_statuses}" ] && \
-       ! echo "${_ctp_statuses}" | tr ' ' '\n' | grep -qv '^True$'; then
-      _ctp_result="accepted"
-      break
-    fi
+    _ctp_all_accepted=true
+    while IFS=$'\t' read -r _ctp_name _ctp_statuses; do
+      [ -z "${_ctp_name}" ] && continue
+      if [ -z "${_ctp_statuses}" ] || echo "${_ctp_statuses}" | tr ' ' '\n' | grep -qv '^True$\|^$'; then
+        _ctp_all_accepted=false
+        break
+      fi
+    done <<< "${_ctp_lines}"
+    [ "${_ctp_all_accepted}" = true ] && { _ctp_result="accepted"; break; }
     sleep 5
   done
   case "${_ctp_result}" in
