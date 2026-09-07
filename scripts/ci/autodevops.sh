@@ -11,6 +11,7 @@ source "$SCRIPT_DIR/lib/helpers.sh"
 source "$SCRIPT_DIR/lib/valkey.sh"
 source "$SCRIPT_DIR/lib/cloudnativepg.sh"
 source "$SCRIPT_DIR/lib/garage.sh"
+source "$SCRIPT_DIR/lib/pebble.sh"
 
 PROJECT_ROOT="${SCRIPT_DIR}/../.."
 VALUES_DIR="${PROJECT_ROOT}/.values"
@@ -27,6 +28,10 @@ function deploy_external_components() {
   if use_external_garage; then
       deploy_external_garage
   fi
+
+  if use_pebble; then
+    deploy_pebble
+  fi
 }
 
 function remove_external_components() {
@@ -40,6 +45,10 @@ function remove_external_components() {
 
   if use_external_garage; then
       remove_external_garage
+  fi
+
+  if use_pebble; then
+    remove_pebble
   fi
 }
 
@@ -67,12 +76,23 @@ function deploy() {
     CI_CONFIGURATION="-f ${VALUES_DIR}/ci-base.values.yaml -f ${VALUES_DIR}/ci-scale.values.yaml -f ${VALUES_DIR}/ci-license.values.yaml -f ci.digests.yaml"
   fi
 
+  # k3d has no pre-provisioned wildcard cert (unlike the GKE review apps that
+  # the plain *-https values target): HTTPS k3d deployments use the -k3d
+  # variant, where cert-manager issues certificates from the in-cluster
+  # Pebble ACME server (scripts/ci/lib/pebble.sh). Gateway API only — the
+  # NGINX ingress path is deprecated (removal announced for 20.0) and k3d
+  # NGINX deployments are forced to HTTP in k3d_deploy.sh.
+  K3D_VALUES_SUFFIX=""
+  if is_k3d_deployment && [ "$(external_protocol)" = "https" ]; then
+    K3D_VALUES_SUFFIX="-k3d"
+  fi
+
   if use_nginx_ingress; then
     echo "Exposing GitLab via NGINX Ingress in $(external_protocol) mode"
     NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress-$(external_protocol).values.yaml"
   else
     echo "Exposing GitLab via Gateway API in $(external_protocol) mode"
-    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi-$(external_protocol).values.yaml"
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi-$(external_protocol)${K3D_VALUES_SUFFIX}.values.yaml"
   fi
 
   if [ -n "${REVIEW_APPS_SENTRY_DSN}" ] && [ -n "${REVIEW_APPS_SENTRY_ENVIRONMENT}" ]; then

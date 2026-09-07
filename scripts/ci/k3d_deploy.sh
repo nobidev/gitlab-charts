@@ -15,6 +15,15 @@ echo "K3D_K8S_IMAGE=${K3D_K8S_IMAGE}"
 
 mkdir -p "$(dirname "${VARIABLES_FILE}")"
 
+# The cert-manager/Pebble HTTPS path is Gateway API only (NGINX ingress is
+# deprecated, removal announced for 20.0). Force k3d NGINX deployments back to
+# HTTP so k3d_nginx keeps working with the review-specs template defaults.
+if use_nginx_ingress && [ "$(external_protocol)" = "https" ]; then
+  echo "k3d NGINX ingress does not support the cert-manager HTTPS path; using HTTP"
+  export EXTERNAL_PROTOCOL=http
+  export DEPLOY_PEBBLE=false
+fi
+
 deploy_external_components
 deploy
 wait_for_deploy
@@ -33,6 +42,13 @@ if ! use_nginx_ingress; then
     --timeout=120s \
     && echo "ClientTrafficPolicy accepted." \
     || echo "Warning: ClientTrafficPolicy not yet accepted — proceeding anyway."
+fi
+
+# On HTTPS deployments, prove the cert-manager integration before handing over
+# to the test steps: ACME Issuer Ready, Certificates issued via HTTP-01 against
+# Pebble, and the served certificates chain to Pebble's issuing root.
+if [ "$(external_protocol)" = "https" ]; then
+  ./scripts/ci/verify_certmanager.sh
 fi
 
 echo "export GITLAB_RELEASE_NAME=$(gitlab_release_name)"                          >> "${VARIABLES_FILE}"

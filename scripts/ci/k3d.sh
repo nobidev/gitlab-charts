@@ -171,6 +171,24 @@ function k3d_collect_debug() {
       -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{range .spec.containers[*]}  spec:   {.name}={.image}{"\n"}{end}{range .status.containerStatuses[*]}  status: {.name}={.image} imageID={.imageID}{"\n"}{end}{"\n"}{end}' \
       > "${debug_dir}/pod-images.txt" 2>&1 || true
 
+    # cert-manager / ACME state (HTTPS k3d deployments; cheap no-op when the
+    # CRDs are absent, i.e. on HTTP-only jobs).
+    if kubectl get crd certificates.cert-manager.io >/dev/null 2>&1; then
+      local r
+      for r in certificates certificaterequests orders challenges issuers; do
+        { kubectl get "${r}" -A -o wide; echo "---"; kubectl describe "${r}" -n "${ns}"; } \
+          > "${debug_dir}/certmanager-${r}.txt" 2>&1 || true
+      done
+      kubectl logs -n "${ns}" \
+        -l "app.kubernetes.io/name=certmanager,app.kubernetes.io/component=controller" \
+        --tail=2000 > "${debug_dir}/certmanager-controller.log" 2>&1 || true
+    fi
+    if kubectl get crd gateways.gateway.networking.k8s.io >/dev/null 2>&1; then
+      { kubectl get gateways,httproutes -A -o wide; echo "---"; kubectl describe gateways,httproutes -n "${ns}"; } \
+        > "${debug_dir}/gateway-api.txt" 2>&1 || true
+    fi
+    kubectl logs -n "${ns}" deployment/pebble --tail=2000 > "${debug_dir}/pebble.log" 2>&1 || true
+
     # Logs from pods not Running in the release namespace.
     local not_running
     not_running=$(kubectl get pods -n "${ns}" \

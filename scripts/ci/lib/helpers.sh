@@ -85,6 +85,12 @@ function use_external_garage() {
   [[ "${SKIP_EXTERNAL_GARAGE}" != "true" ]]
 }
 
+# Pebble (in-cluster ACME test server) is opt-in: only HTTPS k3d jobs deploy it
+# to exercise the chart's cert-manager integration. See scripts/ci/lib/pebble.sh.
+function use_pebble() {
+  [[ "${DEPLOY_PEBBLE}" == "true" ]]
+}
+
 # common_openshift_values returns values needed to deploy Garage
 # and Valkey into OpenShift clusters.
 function common_openshift_values() {
