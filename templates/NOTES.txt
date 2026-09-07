@@ -179,7 +179,7 @@ The user should ensure all necessary secrets are created according to documentat
 {{ $NOTICE }}
 You've installed GitLab Runner without the ability to use 'docker in docker'.
 The GitLab Runner chart (gitlab/gitlab-runner) is deployed without the `privileged` flag by default for security purposes. This can be changed by setting `gitlab-runner.runners.privileged` to `true`. Before doing so, please read the GitLab Runner chart's documentation on why we
-chose not to enable this by default. See https://docs.gitlab.com/runner/install/kubernetes/#running-docker-in-docker-containers-with-gitlab-runners
+chose not to enable this by default. See https://docs.gitlab.com/runner/install/kubernetes_helm_chart_configuration/#run-docker-in-docker-containers-with-gitlab-runner
 {{- end }}
 
 {{- /* toolbox replicas */}}
@@ -198,7 +198,7 @@ redis:
     The configuration key `global.redis.password` has been renamed. Please use
     `global.redis.auth` instead. This is the source of the `coalesce.go` warning
     message from Helm as well. For more details, please see:
-    https://docs.gitlab.com/charts/installation/upgrade/#use-of-globalredispassword
+    https://archives.docs.gitlab.com/18.4/charts/installation/upgrade/#use-of-globalredispassword
 {{- end -}}
 
 {{- /* Deprecation notice for global.appConfig.knowledgeGraph */}}
