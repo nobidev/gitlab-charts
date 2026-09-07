@@ -212,6 +212,14 @@ tag_auto_deploy:
       - charts/*.tgz
       - .chart-lock.sha256
 
+# Cache for ensure_external_chart (valkey/cnpg/garage), keyed on their
+# pinned versions since they aren't tracked by a lockfile.
+.external_charts_cache:
+  cache:
+    key: "external-charts-${VALKEY_CHART_VERSION}-${CNPG_CHART_VERSION}-${GARAGE_APP_VERSION}"
+    paths:
+      - .external-charts/
+
 update-trigger-branch:
   stage: prepare
   allow_failure: true # Failures are expected if there are parrallel runs, and we hit git locks
@@ -277,6 +285,9 @@ pin_image_versions:
     VARIABLES_FILE: "variables/${CI_JOB_NAME}"
   retry: 1
   extends: .source_autodevops
+  cache:
+    - !reference [.chart_deps_cache, cache]
+    - !reference [.external_charts_cache, cache]
   needs:
     - pipeline: $PARENT_PIPELINE_ID
       job: pin_image_versions
