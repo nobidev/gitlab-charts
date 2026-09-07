@@ -5,20 +5,20 @@
 function deploy_external_valkey() {
   echo "Installing/upgrading external Valkey"
 
-  VERSION_FLAG=""
-  if [ -n "${VALKEY_CHART_VERSION}" ]; then
-    VERSION_FLAG="--version ${VALKEY_CHART_VERSION}"
-  fi
-
   # Create auth secret if it doesn't exist yet.
   kubectl get secret "$(valkey_auth_secret)" -n "${NAMESPACE}" &>/dev/null || \
     kubectl create secret generic "$(valkey_auth_secret)" -n "${NAMESPACE}" \
       --from-literal="$(valkey_auth_secret_key)"="$(valkey_password)"
 
-  helm repo add valkey https://valkey.io/valkey-helm/
-  helm upgrade --install "$(valkey_release_name)" valkey/valkey \
+  local chart="valkey/valkey"
+  if [ -n "${VALKEY_CHART_VERSION}" ]; then
+    chart="$(ensure_external_chart valkey https://valkey.io/valkey-helm/ valkey "${VALKEY_CHART_VERSION}" --version "${VALKEY_CHART_VERSION}")"
+  else
+    helm repo add valkey https://valkey.io/valkey-helm/
+  fi
+
+  helm upgrade --install "$(valkey_release_name)" "${chart}" \
     -n "${NAMESPACE}" \
-    ${VERSION_FLAG} \
     --set dataStorage.enabled=true \
     --set dataStorage.requestedSize=100Mi \
     --set dataStorage.keepPvc=false \

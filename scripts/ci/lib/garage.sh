@@ -16,14 +16,27 @@ function deploy_external_garage() {
 
     # default to v2.2.0 as that is the first version we tested with
     # garage charts are not tagged, we use the garage app release versions to get the charts
-   if ! helm plugin ls | grep -q helm-git; then
-      helm plugin install https://github.com/aslafy-z/helm-git --verify=false
-   fi
     GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.2.0}"
-    helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v${GARAGE_APP_VERSION}"
-    helm repo update
 
-    helm upgrade --install "$(garage_release_name)" garage/garage \
+    # garage's chart comes from a git ref rather than a versioned repo index,
+    # so cache the pulled .tgz by that ref instead of using ensure_external_chart.
+    local chart_dir="${EXTERNAL_CHARTS_DIR}/garage-${GARAGE_APP_VERSION}"
+    local chart=""
+    if [[ -d "${chart_dir}" ]]; then
+      chart="$(find "${chart_dir}" -name '*.tgz' -print -quit)"
+    fi
+    if [[ -z "${chart}" ]]; then
+      if ! helm plugin ls | grep -q helm-git; then
+        helm plugin install https://github.com/aslafy-z/helm-git --verify=false
+      fi
+      mkdir -p "${chart_dir}"
+      helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v${GARAGE_APP_VERSION}"
+      helm repo update
+      helm pull garage/garage --destination "${chart_dir}"
+      chart="$(find "${chart_dir}" -name '*.tgz' -print -quit)"
+    fi
+
+    helm upgrade --install "$(garage_release_name)" "${chart}" \
         -n "${NAMESPACE}" \
         --set garage.replicationFactor=1 \
         --set deployment.replicaCount=1 \
