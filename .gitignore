@@ -1,6 +1,7 @@
 config.yaml
 template_settings.yaml
 charts/*.tgz
+.chart-lock.sha256
 .DS_Store
 tags
 .markdownlintrc
