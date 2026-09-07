@@ -202,6 +202,16 @@ tag_auto_deploy:
       alias: docker
       entrypoint: [ "sh", "-c", "dockerd-entrypoint.sh $DOCKER_OPTIONS" ]
 
+# Cache for scripts/ci/ensure_chart_deps.sh, keyed on Chart.lock.
+.chart_deps_cache:
+  cache:
+    key:
+      files:
+        - Chart.lock
+    paths:
+      - charts/*.tgz
+      - .chart-lock.sha256
+
 update-trigger-branch:
   stage: prepare
   allow_failure: true # Failures are expected if there are parrallel runs, and we hit git locks
@@ -477,9 +487,10 @@ k3d_nginx:
     paths:
     - tmp/capybara
   cache:
-    key: "debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}-${CI_JOB_NAME}"
-    paths:
-    - gems
+    - key: "debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}-${CI_JOB_NAME}"
+      paths:
+      - gems
+    - !reference [.chart_deps_cache, cache]
   rules:
     - if: '$PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
     - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
@@ -555,6 +566,7 @@ wait_for_dev_images:
 
 .publish_chart_package:
   # publish chart into repo's Packages
+  extends: .chart_deps_cache
   stage: package
   dependencies: []
   variables:
@@ -562,7 +574,7 @@ wait_for_dev_images:
     # CHANNEL: "unstable"
     VERSION_SUFFIX: ""
   script:
-    - helm dependency update
+    - bash ./scripts/ci/ensure_chart_deps.sh
     - EXTRACTED_VERSION=$(awk '/^version/ {print $2}' Chart.yaml)
     - VERSION=${VERSION:-${EXTRACTED_VERSION}}
     - echo "Packaging ${VERSION}${VERSION_SUFFIX} for ${CHANNEL}"
