@@ -72,6 +72,33 @@ instructions:
       Do not ask for a changelog entry for changes that are purely developer-facing
       (refactors, test-only changes, CI-only changes) or documentation-only changes.
 
+  - name: End-to-End Validation on Real Cluster
+    fileFilters:
+      - "charts/**/templates/**/*"
+      - "templates/**/*"
+      - "charts/**/values.yaml"
+      - "values.yaml"
+    instructions: |
+      This MR changes chart runtime behavior (templates or default values). The MR
+      template's author checklist asks: "Have you validated that your change works
+      end-to-end on a real cluster deployment? - Describe how you did it in a
+      comment." Check the MR description and comments for that confirmation.
+
+      ONLY IF this confirmation could not be reliably located, `create_merge_request_note`
+      with this message verbatim:
+
+      Ask the author:
+      "I couldn't find a description of end-to-end validation for this change.
+
+      Before requesting a review, please confirm you've validated this change
+      end-to-end on a real cluster deployment and describe how in a comment, then
+      check off the corresponding item in the MR checklist. See
+      doc/development/environment_setup.md if you need to set up a local
+      development cluster.
+
+      This MR affects chart runtime behavior - skipping end-to-end validation risks
+      shipping a broken deployment."
+
   - name: Documentation and Test Coverage
     instructions: |
       1. If this MR adds or changes a user-facing `values.yaml` option or behavior,
