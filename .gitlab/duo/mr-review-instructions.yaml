@@ -4,14 +4,22 @@ instructions:
       - "charts/**/values.yaml"
       - "values.yaml"
     instructions: |
-      1. If a key was added, removed, renamed, or had its type changed in this
-         `values.yaml`, check whether the sibling `values.schema.json` in the same
-         chart was updated to match, including type validation for any new key.
+      1. If a new entry was added to this `values.yaml`, or an existing entry was
+         modified, check whether the sibling `values.schema.json` in the same chart
+         was updated to match, with type validation for the entry.
       2. If `values.schema.json` was not updated, ask the author to update it, or to
          explain why the schema doesn't need a change.
-      3. If a Statefulset-backed component's spec fields changed (e.g. under
-         `persistence`, `volumeClaimTemplates`), flag that some Statefulset fields are
-         immutable and the change could break `helm upgrade` for existing installs.
+      See: doc/development/validation.md.
+
+  - name: Statefulset Immutable Fields
+    fileFilters:
+      - "charts/**/templates/**/statefulset*.yaml"
+      - "charts/**/templates/**/*statefulset*.yaml"
+    instructions: |
+      Only the `replicas`, `template`, and `updateStrategy` fields of a Kubernetes
+      StatefulSet spec can be changed after creation; any other spec field change
+      breaks `helm upgrade` for existing installs. Check whether this change modifies
+      any StatefulSet spec field other than those three, and flag it if so.
       See: doc/development/validation.md.
 
   - name: Helm Template Style Guide
@@ -41,7 +49,6 @@ instructions:
   - name: Deprecations and Removals
     fileFilters:
       - "templates/_removals.tpl"
-      - "charts/**/templates/_removals.tpl"
       - "templates/NOTES.txt"
       - "charts/**/templates/NOTES.txt"
     instructions: |
@@ -69,8 +76,9 @@ instructions:
       `Changelog:` trailer to the relevant commit? See doc/development/changelog.md
       for the workflow and accepted values."
 
-      Do not ask for a changelog entry for changes that are purely developer-facing
-      (refactors, test-only changes, CI-only changes) or documentation-only changes.
+      Per doc/development/changelog.md, do not ask for a changelog entry for changes
+      that are purely developer-facing, such as refactoring, technical debt
+      remediation, or test suite changes.
 
   - name: End-to-End Validation on Real Cluster
     fileFilters:
@@ -101,14 +109,18 @@ instructions:
 
   - name: Documentation and Test Coverage
     instructions: |
+      The MR author checklist includes "Documentation created/updated." and "Tests
+      added/updated.", and states: "For anything in this list which will not be
+      completed, please provide a reason in the MR discussion."
+
       1. If this MR adds or changes a user-facing `values.yaml` option or behavior,
-         check that `doc/` was updated to describe it. If it looks missing, ask:
-         "Have you updated the relevant documentation, or opened a follow-up issue
-         to do so?"
+         check whether `doc/` was updated to describe it. If it looks missing and no
+         reason was given in the MR discussion, ask the author to confirm the
+         "Documentation created/updated" checklist item or provide a reason.
       2. If this MR changes template logic (`templates/**/*.tpl`, `charts/**/templates/**`),
-         check that a corresponding RSpec spec under `spec/` was added or updated to
-         cover the new or changed behavior. If missing, ask the author to add
-         coverage or explain why it isn't needed.
+         check whether a corresponding RSpec spec under `spec/` was added or updated.
+         If missing and no reason was given, ask the author to confirm the "Tests
+         added/updated" checklist item or provide a reason.
       See: doc/development/rspec.md.
 
   - name: Downstream Impact on GitLab Operator
@@ -117,12 +129,11 @@ instructions:
       - "charts/**/values.yaml"
       - "**/values.schema.json"
     instructions: |
-      Renaming, removing, or restructuring a `values.yaml` key (not just adding one)
-      can break consumers that set values programmatically, including the GitLab
-      Operator. ONLY IF this MR renames, removes, or restructures existing values
-      (not a pure addition), ask: "Since this changes existing values.yaml structure,
-      have you considered downstream impact to the GitLab Operator? See
-      https://docs.gitlab.com/operator/developer/charts_dependency."
+      The MR reviewers checklist includes: "Consider downstream impact to the
+      Operator, as per evaluating impact from changes to GitLab chart
+      (https://docs.gitlab.com/operator/developer/charts_dependency)." Since this MR
+      changes `values.yaml` or `values.schema.json`, remind the reviewer of this
+      checklist item.
 
   - name: Automated Dependency Upgrades
     fileFilters:
@@ -130,12 +141,8 @@ instructions:
       - "charts/**/Chart.yaml"
       - "requirements.yaml"
     instructions: |
-      1. Check that the version bump is consistent across all files that reference
-         it (e.g. `Chart.yaml` `version`/`appVersion`, any pinned image tags or
-         checksums referencing the same dependency).
-      2. Do not attempt to fetch or compare upstream release notes yourself; flag
-         instead whether the MR description already summarizes the change and any
-         breaking changes, since that comparison needs a human reviewer with web
-         access.
-      3. For a major version bump, flag it explicitly so a reviewer gives it closer
-         attention than a patch/minor bump.
+      You do not have a web search/fetch tool, so you cannot reliably compare this
+      dependency's upstream release notes yourself. Do not attempt to fetch or
+      summarize upstream release notes. Instead, note in your review that a human
+      reviewer needs to check the upstream release notes for breaking changes before
+      merging.
