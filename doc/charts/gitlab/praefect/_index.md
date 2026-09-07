@@ -103,7 +103,7 @@ global:
 
 ## defaultReplicationFactor
 
-`defaultReplicationFactor` can be configured on each virtual storages. (see [configure replication-factor](https://docs.gitlab.com/administration/gitaly/praefect/#replication-factor) documentation).
+`defaultReplicationFactor` can be configured on each virtual storages. (see [configure replication-factor](https://docs.gitlab.com/administration/gitaly/praefect/configure/#configure-replication-factor) documentation).
 
 ```yaml
 global:
