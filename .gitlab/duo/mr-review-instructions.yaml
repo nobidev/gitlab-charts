@@ -1,0 +1,114 @@
+instructions:
+  - name: Values Schema Kept in Sync
+    fileFilters:
+      - "charts/**/values.yaml"
+      - "values.yaml"
+    instructions: |
+      1. If a key was added, removed, renamed, or had its type changed in this
+         `values.yaml`, check whether the sibling `values.schema.json` in the same
+         chart was updated to match, including type validation for any new key.
+      2. If `values.schema.json` was not updated, ask the author to update it, or to
+         explain why the schema doesn't need a change.
+      3. If a Statefulset-backed component's spec fields changed (e.g. under
+         `persistence`, `volumeClaimTemplates`), flag that some Statefulset fields are
+         immutable and the change could break `helm upgrade` for existing installs.
+      See: doc/development/validation.md.
+
+  - name: Helm Template Style Guide
+    fileFilters:
+      - "charts/**/templates/**/*.tpl"
+      - "charts/**/templates/**/*.yaml"
+      - "charts/**/templates/**/*.yml"
+      - "templates/**/*.tpl"
+      - "templates/**/*.yaml"
+    instructions: |
+      1. New template/property names should use camelCase (e.g. `assembleHost`), not
+         kebab-case or PascalCase.
+      2. Prefer `nindent` over `indent` for readability.
+      3. When accessing nested `.Values` paths that may not fully exist, prefer safe
+         access (`dig`, `index`, or parenthesized navigation) over direct chained
+         access like `.Values.foo.bar.baz`, unless the full path is guaranteed to
+         exist.
+      4. Question broad use of `toYaml` on user-supplied config blocks without a
+         documented reason; prefer exposing specific, minimal override keys unless a
+         fully flexible passthrough is clearly needed.
+      5. For content rendered into Secrets or ConfigMaps via ERB/gomplate that may
+         contain sensitive, user-supplied strings (passwords, tokens), check that
+         values are encoded with a format-native encoder (e.g. `.to_json` in ERB,
+         `data.ToJSON` in gomplate) rather than being wrapped in raw quotes.
+      See: doc/development/style_guide.md.
+
+  - name: Deprecations and Removals
+    fileFilters:
+      - "templates/_removals.tpl"
+      - "charts/**/templates/_removals.tpl"
+      - "templates/NOTES.txt"
+      - "charts/**/templates/NOTES.txt"
+    instructions: |
+      1. New deprecation/removal templates should follow the `gitlab.removal.*`
+         naming convention and be added under the `add templates here` marker in the
+         `gitlab.removals` template.
+      2. Deprecation and removal messages should identify the affected chart
+         (relative to the global chart, e.g. `gitlab.webservice`) and name the
+         property relative to that chart, plus the action the user should take.
+      3. The `if` guarding a message should not trim the trailing newline (`}}`, not
+         `-}}`), so the rendered output stays readable.
+      4. Detection logic should not assume intermediate keys exist; check for use of
+         `hasKey` / `empty` / safe navigation before accessing nested properties.
+      See: doc/development/deprecations.md.
+
+  - name: Changelog Entry for User-Facing Changes
+    instructions: |
+      If this MR contains a user-facing change (a change to behavior, defaults, or
+      configuration that operators or chart users would notice), check whether any
+      commit in the MR includes a `Changelog:` git trailer (one of added, fixed,
+      changed, deprecated, removed, security, performance, other).
+
+      ONLY IF the change looks user-facing and no commit has a `Changelog:` trailer,
+      ask the author: "This looks like a user-facing change. Could you add a
+      `Changelog:` trailer to the relevant commit? See doc/development/changelog.md
+      for the workflow and accepted values."
+
+      Do not ask for a changelog entry for changes that are purely developer-facing
+      (refactors, test-only changes, CI-only changes) or documentation-only changes.
+
+  - name: Documentation and Test Coverage
+    instructions: |
+      1. If this MR adds or changes a user-facing `values.yaml` option or behavior,
+         check that `doc/` was updated to describe it. If it looks missing, ask:
+         "Have you updated the relevant documentation, or opened a follow-up issue
+         to do so?"
+      2. If this MR changes template logic (`templates/**/*.tpl`, `charts/**/templates/**`),
+         check that a corresponding RSpec spec under `spec/` was added or updated to
+         cover the new or changed behavior. If missing, ask the author to add
+         coverage or explain why it isn't needed.
+      See: doc/development/rspec.md.
+
+  - name: Downstream Impact on GitLab Operator
+    fileFilters:
+      - "values.yaml"
+      - "charts/**/values.yaml"
+      - "**/values.schema.json"
+    instructions: |
+      Renaming, removing, or restructuring a `values.yaml` key (not just adding one)
+      can break consumers that set values programmatically, including the GitLab
+      Operator. ONLY IF this MR renames, removes, or restructures existing values
+      (not a pure addition), ask: "Since this changes existing values.yaml structure,
+      have you considered downstream impact to the GitLab Operator? See
+      https://docs.gitlab.com/operator/developer/charts_dependency."
+
+  - name: Automated Dependency Upgrades
+    fileFilters:
+      - "Chart.yaml"
+      - "charts/**/Chart.yaml"
+      - "requirements.yaml"
+    instructions: |
+      1. Check that the version bump is consistent across all files that reference
+         it (e.g. `Chart.yaml` `version`/`appVersion`, any pinned image tags or
+         checksums referencing the same dependency).
+      2. Do not attempt to fetch or compare upstream release notes yourself; flag
+         instead whether the MR description already summarizes the change and any
+         breaking changes, since that comparison needs a human reviewer with web
+         access.
+      3. For a major version bump, flag it explicitly so a reviewer gives it closer
+         attention than a patch/minor bump.
