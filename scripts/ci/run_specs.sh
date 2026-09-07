@@ -4,7 +4,7 @@ set -e
 if [[ -n "${VARIABLES_FILE}" ]]; then
   source "${VARIABLES_FILE}"
 else
-  ./scripts/ci/integration_spec_setup.sh
+  ./scripts/ci/ensure_chart_deps.sh
 fi
 
 bundle config set --local path 'gems'

@@ -17,15 +17,15 @@ function deploy_external_postgresql() {
 }
 
 function install_cnpg_operator {
-  VERSION_FLAG=""
+  local chart="cnpg/cloudnative-pg"
   if [ -n "${CNPG_CHART_VERSION}" ]; then
-    VERSION_FLAG="--version ${CNPG_CHART_VERSION}"
+    chart="$(ensure_external_chart cnpg https://cloudnative-pg.github.io/charts cloudnative-pg "${CNPG_CHART_VERSION}" --version "${CNPG_CHART_VERSION}")"
+  else
+    helm repo add cnpg https://cloudnative-pg.github.io/charts
   fi
 
-  helm repo add cnpg https://cloudnative-pg.github.io/charts
-  helm upgrade "$(cnpg_release_name)" cnpg/cloudnative-pg \
+  helm upgrade "$(cnpg_release_name)" "${chart}" \
     --install \
-    ${VERSION_FLAG} \
     --namespace ${NAMESPACE} \
     --set config.clusterWide=false \
     --wait \

@@ -58,7 +58,7 @@ function deploy() {
     exit 1
   fi
 
-  helm dependency update .
+  "${SCRIPT_DIR}/ensure_chart_deps.sh"
   prepare_values
 
   CI_CONFIGURATION=""
