@@ -224,7 +224,7 @@ generate_secret_if_needed {{ template "gitlab.praefect.dbSecret.secret" . }} --f
 generate_secret_if_needed {{ template "gitlab.praefect.authToken.secret" . }} --from-literal={{ template "gitlab.praefect.authToken.key" . }}=$(gen_random 'a-zA-Z0-9' 64)
 {{ end }}
 
-{{ if .Values.openbao.install -}}
+{{ if and .Values.openbao.install (dig "config" "unseal" "static" "enabled" false .Values.openbao) -}}
 gen_random_bytes 32 > bao-unseal
 generate_secret_if_needed {{ template "gitlab.openbao.unseal.secret" . }} --from-file={{ template "gitlab.openbao.unseal.key" . }}=bao-unseal
 {{ end }}
