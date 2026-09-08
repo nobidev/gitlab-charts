@@ -39,6 +39,14 @@ def proxy_pod(gateway):
     ).strip()
 
 
+def webservice_route():
+    return run(
+        "kubectl", "get", "httproute", "-n", os.environ["NAMESPACE"],
+        "-l", "app=webservice",
+        "-o", "jsonpath={.items[0].metadata.name}"
+    ).strip()
+
+
 def start_metrics_port_forward(pod):
     process = subprocess.Popen(
         ["kubectl", "port-forward", "-n", os.environ["NAMESPACE"], pod, "19001:19001"],
@@ -83,12 +91,15 @@ def active_connections(metrics, phase, cluster):
     return metric_value(metrics, METRIC, cluster)
 
 
-def webservice_cluster(metrics):
+def webservice_cluster(metrics, route):
+    prefix = f"httproute/{os.environ['NAMESPACE']}/{route}/"
     for labels, _ in re.findall(rf"^{METRIC}(\{{[^}}]*\}})?\s+([0-9.eE+-]+)$", metrics, re.MULTILINE):
-        match = re.search(r'envoy_cluster_name="([^"]*webservice[^"]*)"', labels or "")
-        if match:
+        match = re.search(r'envoy_cluster_name="([^"]+)"', labels or "")
+        if match and match.group(1).startswith(prefix):
             return match.group(1)
-    raise RuntimeError("Could not find an Envoy upstream cluster for webservice after the first request burst")
+    raise RuntimeError(
+        f"Could not find an Envoy upstream cluster for HTTPRoute {route} after the first request burst"
+    )
 
 
 def request(connection):
@@ -147,7 +158,8 @@ def main():
     ARTIFACT_DIR.mkdir(exist_ok=True)
     gateway = gateway_name()
     pod = proxy_pod(gateway)
-    print(f"Gateway: {gateway}; Envoy proxy pod: {pod}")
+    route = webservice_route()
+    print(f"Gateway: {gateway}; Envoy proxy pod: {pod}; webservice HTTPRoute: {route}")
 
     port_forward, metrics = start_metrics_port_forward(pod)
     try:
@@ -163,9 +175,11 @@ def main():
             request_burst(connections)
             if cycle == 1:
                 metrics = read_metrics()
-                cluster = webservice_cluster(metrics)
+                # Retain the raw first-burst scrape if discovery itself fails.
+                (ARTIFACT_DIR / f"envoy-metrics-cycle-{cycle}.prometheus").write_text(metrics)
+                cluster = webservice_cluster(metrics, route)
                 print(f"Webservice upstream cluster: {cluster}")
-                current = active_connections(metrics, f"cycle-{cycle}", cluster)
+                current = metric_value(metrics, METRIC, cluster)
             else:
                 current = read_active_connections(f"cycle-{cycle}", cluster)
             print(f"Cycle {cycle}: active upstream connections: {current}")
