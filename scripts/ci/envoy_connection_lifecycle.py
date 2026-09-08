@@ -83,6 +83,14 @@ def active_connections(metrics, phase, cluster):
     return metric_value(metrics, METRIC, cluster)
 
 
+def webservice_cluster(metrics):
+    for labels, _ in re.findall(rf"^{METRIC}(\{{[^}}]*\}})?\s+([0-9.eE+-]+)$", metrics, re.MULTILINE):
+        match = re.search(r'envoy_cluster_name="([^"]*webservice[^"]*)"', labels or "")
+        if match:
+            return match.group(1)
+    raise RuntimeError("Could not find an Envoy upstream cluster for webservice after the first request burst")
+
+
 def request(connection):
     connection.request("GET", "/users/sign_in", headers={"Host": os.environ["GITLAB_URL"]})
     response = connection.getresponse()
@@ -143,20 +151,23 @@ def main():
 
     port_forward, metrics = start_metrics_port_forward(pod)
     try:
-        clusters = re.findall(r'envoy_cluster_upstream_cx_active\{[^}]*envoy_cluster_name="([^"]*webservice[^"]*)"', metrics)
-        if not clusters:
-            raise RuntimeError("Could not find an Envoy upstream cluster for webservice")
-        cluster = clusters[0]
-        print(f"Webservice upstream cluster: {cluster}")
-        baseline = active_connections(metrics, "baseline", cluster)
-        print(f"Baseline active upstream connections: {baseline}")
+        (ARTIFACT_DIR / "envoy-metrics-baseline.prometheus").write_text(metrics)
+        # Envoy emits an upstream metric series only after it has opened a connection.
+        # Before the first request there is therefore no cluster-specific baseline to read.
+        baseline = 0
         connections = [
             http.client.HTTPConnection(os.environ["GITLAB_URL"], 80, timeout=30)
             for _ in range(CONNECTIONS)
         ]
         for cycle in range(1, CYCLES + 1):
             request_burst(connections)
-            current = read_active_connections(f"cycle-{cycle}", cluster)
+            if cycle == 1:
+                metrics = read_metrics()
+                cluster = webservice_cluster(metrics)
+                print(f"Webservice upstream cluster: {cluster}")
+                current = active_connections(metrics, f"cycle-{cycle}", cluster)
+            else:
+                current = read_active_connections(f"cycle-{cycle}", cluster)
             print(f"Cycle {cycle}: active upstream connections: {current}")
             if current <= baseline:
                 raise RuntimeError(
