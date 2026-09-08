@@ -16,10 +16,17 @@ instructions:
       - "charts/**/templates/**/statefulset*.yaml"
       - "charts/**/templates/**/*statefulset*.yaml"
     instructions: |
-      Only the `replicas`, `template`, and `updateStrategy` fields of a Kubernetes
-      StatefulSet spec can be changed after creation; any other spec field change
-      breaks `helm upgrade` for existing installs. Check whether this change modifies
-      any StatefulSet spec field other than those three, and flag it if so.
+      Only the `replicas`, `ordinals`, `template`, `updateStrategy`,
+      `persistentVolumeClaimRetentionPolicy`, and `minReadySeconds` fields of a
+      Kubernetes StatefulSet spec can be changed after creation; any other spec
+      field change (including `volumeClaimTemplates`, `serviceName`, or
+      `selector`) breaks `helm upgrade` for existing installs. Check whether this
+      change modifies a StatefulSet spec field outside that list, and flag it if
+      so.
+
+      Note: doc/development/validation.md gives an older, shorter version of this
+      list (only `replicas`, `template`, `updateStrategy`); the list above reflects
+      the current Kubernetes API server validation and is what to enforce.
       See: doc/development/validation.md.
 
   - name: Helm Template Style Guide
@@ -36,7 +43,11 @@ instructions:
       3. When accessing nested `.Values` paths that may not fully exist, prefer safe
          access (`dig`, `index`, or parenthesized navigation) over direct chained
          access like `.Values.foo.bar.baz`, unless the full path is guaranteed to
-         exist.
+         exist. Exception: on this project's pinned Helm version, calling `dig`
+         directly on the bare root `.Values` (e.g. `dig "a" "b" "c" .Values`)
+         errors at render time instead of returning a default; `dig` must be
+         called on a sub-value (e.g. `.Values.global`) instead, or use `index` /
+         parenthesized navigation on the root.
       4. Question broad use of `toYaml` on user-supplied config blocks without a
          documented reason; prefer exposing specific, minimal override keys unless a
          fully flexible passthrough is clearly needed.
