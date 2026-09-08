@@ -101,8 +101,8 @@ instructions:
       Before requesting a review, please confirm you've validated this change
       end-to-end on a real cluster deployment and describe how in a comment, then
       check off the corresponding item in the MR checklist. See
-      doc/development/environment_setup.md if you need to set up a local
-      development cluster.
+      https://docs.gitlab.com/charts/development/environment_setup/
+      if you need to set up a local development cluster.
 
       This MR affects chart runtime behavior - skipping end-to-end validation risks
       shipping a broken deployment."
