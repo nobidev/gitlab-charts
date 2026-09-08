@@ -113,6 +113,41 @@
   variables:
     TEST_SUITE: $QA_FULL_SUITE_OPTIONS
 
+.k3d_envoy_connection_lifecycle_template:
+  extends:
+    - .specs
+    - .k3d_base
+  # The Envoy connection-lifecycle check deploys a complete chart and needs
+  # the same dependency caches as the other k3d deployment jobs.
+  cache:
+    - key: "debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}-${CI_JOB_NAME}"
+      paths:
+      - gems
+    - !reference [.chart_deps_cache, cache]
+    - !reference [.external_charts_cache, cache]
+  before_script:
+    - source scripts/ci/autodevops.sh
+    - source scripts/ci/k3d.sh
+    - k3d_install
+  script:
+    - mkdir -p "$(dirname "${VARIABLES_FILE}")"
+    - k3d_create
+    - k3d_info
+    - kubectl version --output=json
+    - ./scripts/ci/k3d_deploy.sh
+    - source "${VARIABLES_FILE}"
+    - ./scripts/ci/envoy_connection_lifecycle.py
+  after_script:
+    - source scripts/ci/k3d.sh
+    - k3d_collect_debug
+    - k3d_delete
+  artifacts:
+    when: always
+    expire_in: 7d
+    paths:
+      - ./envoy-connection-lifecycle/
+      - ./k3d-debug/
+
 .k3d_review_specs_template:
   extends:
     - .specs

@@ -3,8 +3,8 @@
 # (LIMIT_TO=k3d_version). K3D_K8S_IMAGE, PARENT_PIPELINE_ID, and PIPELINE_TYPE
 # are passed explicitly by the bridge. DANGER_GITLAB_API_TOKEN and QA_ALLURE_* are CI/CD
 # project variables available in all pipelines automatically.
-# .k3d_review_specs_template and .k3d_qa_template are provided by k3d-templates.gitlab-ci.yml,
-# which .gitlab-ci.yml includes for LIMIT_TO=k3d_version.
+# k3d job templates are provided by k3d-templates.gitlab-ci.yml, which
+# .gitlab-ci.yml includes for LIMIT_TO=k3d_version.
 
 include:
   - component: "gitlab.com/gitlab-org/quality/pipeline-common/allure-report@9.6.3"
@@ -47,6 +47,18 @@ qa_k3d:
       job: pin_image_versions
   rules:
     - when: on_success
+
+envoy_connection_lifecycle_k3d:
+  extends: .k3d_envoy_connection_lifecycle_template
+  stage: specs
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: pin_image_versions
+  # The primary k3d version is the regular Gateway API coverage target. Run
+  # this focused check once rather than multiplying a connection soak by the
+  # compatibility matrix.
+  rules:
+    - if: '$K3D_PRIMARY == "primary"'
 
 qa_k3d_manual_full_suite:
   extends: .k3d_qa_manual_full_suite_template
