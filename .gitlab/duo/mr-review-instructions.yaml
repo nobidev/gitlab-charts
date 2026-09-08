@@ -46,23 +46,34 @@ instructions:
          `data.ToJSON` in gomplate) rather than being wrapped in raw quotes.
       See: doc/development/style_guide.md.
 
-  - name: Deprecations and Removals
+  - name: Deprecations, Removals, and Config Checks
     fileFilters:
       - "templates/_removals.tpl"
+      - "templates/_checkConfig.tpl"
       - "templates/NOTES.txt"
       - "charts/**/templates/NOTES.txt"
     instructions: |
       1. New deprecation/removal templates should follow the `gitlab.removal.*`
-         naming convention and be added under the `add templates here` marker in the
-         `gitlab.removals` template.
-      2. Deprecation and removal messages should identify the affected chart
-         (relative to the global chart, e.g. `gitlab.webservice`) and name the
-         property relative to that chart, plus the action the user should take.
-      3. The `if` guarding a message should not trim the trailing newline (`}}`, not
-         `-}}`), so the rendered output stays readable.
-      4. Detection logic should not assume intermediate keys exist; check for use of
-         `hasKey` / `empty` / safe navigation before accessing nested properties.
-      See: doc/development/deprecations.md.
+         naming convention and be added under the `add templates here` marker in
+         the `gitlab.removals` template (`templates/_removals.tpl`). New
+         problematic-configuration checks should follow `gitlab.checkConfig.*` and
+         be added under the same marker in the `gitlab.checkConfig` template
+         (`templates/_checkConfig.tpl`).
+      2. Deprecation, removal, and checkConfig messages should identify the
+         affected chart (relative to the global chart, e.g. `gitlab.webservice`)
+         and name the property relative to that chart, plus the action the user
+         should take.
+      3. The `if` guarding a message should not trim the trailing newline (`}}`,
+         not `-}}`), so the rendered output stays readable.
+      4. checkConfig messages should not use hard line breaks to wrap paragraphs,
+         since the message may interpolate configuration values that would break
+         the hard wrapping.
+      5. Detection logic should not assume intermediate keys exist; check for use
+         of `hasKey` / `empty` / safe navigation before accessing nested
+         properties.
+      6. If a new checkConfig check was added, check whether
+         `spec/integration/check_config_spec.rb` was updated to cover it.
+      See: doc/development/deprecations.md, doc/development/checkconfig.md.
 
   - name: Changelog Entry for User-Facing Changes
     instructions: |
@@ -120,7 +131,6 @@ instructions:
 
          This MR affects chart runtime behavior - skipping end-to-end validation
          risks shipping a broken deployment."
-      See: doc/development/rspec.md.
 
   - name: RSpec Test Practices
     fileFilters:
