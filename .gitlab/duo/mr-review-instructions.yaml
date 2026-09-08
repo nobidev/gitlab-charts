@@ -7,8 +7,8 @@ instructions:
       1. If a new entry was added to this `values.yaml`, or an existing entry was
          modified, check whether the sibling `values.schema.json` in the same chart
          was updated to match, with type validation for the entry.
-      2. If `values.schema.json` was not updated, ask the author to update it, or to
-         explain why the schema doesn't need a change.
+      2. If `values.schema.json` was not updated to match, ask the author to update
+         it.
       See: doc/development/validation.md.
 
   - name: Statefulset Immutable Fields
@@ -60,9 +60,8 @@ instructions:
          property relative to that chart, plus the action the user should take.
       3. The `if` guarding a message should not trim the trailing newline (`}}`,
          not `-}}`), so the rendered output stays readable.
-      4. Detection logic should not assume intermediate keys exist; check for use
-         of `hasKey` / `empty` / safe navigation before accessing nested
-         properties.
+      4. Detection logic should not assume a key, or parent key, exists; check for
+         use of `if`, `hasKey`, and `empty` before accessing nested properties.
       See: doc/development/deprecations.md.
 
   - name: Configuration Validation Checks (checkConfig)
@@ -85,9 +84,8 @@ instructions:
       4. Messages should not use hard line breaks to wrap paragraphs, since the
          message may interpolate configuration values that would break the hard
          wrapping.
-      5. Detection logic should not assume intermediate keys exist; check for use
-         of `hasKey` / `empty` / safe navigation before accessing nested
-         properties.
+      5. Detection logic should not assume a key, or parent key, exists; check for
+         use of `if`, `hasKey`, and `empty` before accessing nested properties.
       6. If a new check was added, check whether
          `spec/integration/check_config_spec.rb` was updated to cover it.
       See: doc/development/checkconfig.md.
@@ -153,9 +151,10 @@ instructions:
     fileFilters:
       - "spec/**/*.rb"
     instructions: |
-      1. Flag a `:focus` tag (e.g. `it 'x', :focus => true do`) left on a `describe`,
-         `context`, or `it` block: with this tag present, only tagged tests run,
-         so it should not be committed.
+      1. Flag a `:focus` tag (e.g. `it 'x', :focus => true do`) left on a
+         `describe`, `context`, or `it` block: per doc/development/rspec.md, with
+         this tag present, only tagged tests run, so check whether it was left in
+         by mistake.
       2. If a test sets a value to `{}` to represent removing or clearing a key,
          flag it: an empty hash produces no change when merged, whereas Helm's
          `coalesceValues` (unlike Ruby's `deep_merge`) removes the key only when it
