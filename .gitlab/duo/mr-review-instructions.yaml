@@ -80,7 +80,7 @@ instructions:
       that are purely developer-facing, such as refactoring, technical debt
       remediation, or test suite changes.
 
-  - name: End-to-End Validation on Real Cluster
+  - name: MR Author Checklist for Runtime Changes
     fileFilters:
       - "charts/**/templates/**/*"
       - "templates/**/*"
@@ -88,39 +88,38 @@ instructions:
       - "values.yaml"
     instructions: |
       This MR changes chart runtime behavior (templates or default values). The MR
-      template's author checklist asks: "Have you validated that your change works
-      end-to-end on a real cluster deployment? - Describe how you did it in a
-      comment." Check the MR description and comments for that confirmation.
-
-      ONLY IF this confirmation could not be reliably located, `create_merge_request_note`
-      with this message verbatim:
-
-      Ask the author:
-      "I couldn't find a description of end-to-end validation for this change.
-
-      Before requesting a review, please confirm you've validated this change
-      end-to-end on a real cluster deployment and describe how in a comment, then
-      check off the corresponding item in the MR checklist. See
-      https://docs.gitlab.com/charts/development/environment_setup/
-      if you need to set up a local development cluster.
-
-      This MR affects chart runtime behavior - skipping end-to-end validation risks
-      shipping a broken deployment."
-
-  - name: Documentation and Test Coverage
-    instructions: |
-      The MR author checklist includes "Documentation created/updated." and "Tests
-      added/updated.", and states: "For anything in this list which will not be
-      completed, please provide a reason in the MR discussion."
+      author checklist includes:
+      - "Documentation created/updated."
+      - "Tests added/updated."
+      - "Have you validated that your change works end-to-end on a real cluster
+        deployment? - Describe how you did it in a comment."
+      It also states: "For anything in this list which will not be completed,
+      please provide a reason in the MR discussion."
 
       1. If this MR adds or changes a user-facing `values.yaml` option or behavior,
-         check whether `doc/` was updated to describe it. If it looks missing and no
-         reason was given in the MR discussion, ask the author to confirm the
+         check whether `doc/` was updated to describe it. If missing and no reason
+         was given in the MR discussion, ask the author to confirm the
          "Documentation created/updated" checklist item or provide a reason.
-      2. If this MR changes template logic (`templates/**/*.tpl`, `charts/**/templates/**`),
-         check whether a corresponding RSpec spec under `spec/` was added or updated.
-         If missing and no reason was given, ask the author to confirm the "Tests
-         added/updated" checklist item or provide a reason.
+      2. If this MR changes template logic, check whether a corresponding RSpec
+         spec under `spec/` was added or updated. If missing and no reason was
+         given, ask the author to confirm the "Tests added/updated" checklist item
+         or provide a reason.
+      3. Check the MR description and comments for confirmation of end-to-end
+         validation on a real cluster deployment. ONLY IF this confirmation could
+         not be reliably located, `create_merge_request_note` with this message
+         verbatim:
+
+         Ask the author:
+         "I couldn't find a description of end-to-end validation for this change.
+
+         Before requesting a review, please confirm you've validated this change
+         end-to-end on a real cluster deployment and describe how in a comment,
+         then check off the corresponding item in the MR checklist. See
+         https://docs.gitlab.com/charts/development/environment_setup/
+         if you need to set up a local development cluster.
+
+         This MR affects chart runtime behavior - skipping end-to-end validation
+         risks shipping a broken deployment."
       See: doc/development/rspec.md.
 
   - name: RSpec Test Practices
