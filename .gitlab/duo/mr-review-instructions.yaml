@@ -13,7 +13,6 @@ instructions:
 
   - name: Statefulset Immutable Fields
     fileFilters:
-      - "charts/**/templates/**/statefulset*.yaml"
       - "charts/**/templates/**/*statefulset*.yaml"
     instructions: |
       Only the `replicas`, `ordinals`, `template`, `updateStrategy`,
@@ -36,6 +35,7 @@ instructions:
       - "charts/**/templates/**/*.yml"
       - "templates/**/*.tpl"
       - "templates/**/*.yaml"
+      - "templates/**/*.yml"
     instructions: |
       1. New template/property names should use camelCase (e.g. `assembleHost`), not
          kebab-case or PascalCase.
@@ -97,8 +97,9 @@ instructions:
          wrapping.
       5. Detection logic should not assume a key, or parent key, exists; check for
          use of `if`, `hasKey`, and `empty` before accessing nested properties.
-      6. If a new check was added, check whether
-         `spec/integration/check_config_spec.rb` was updated to cover it.
+      6. If a new check was added, check whether `spec/integration/check_config_spec.rb`
+         (or the relevant grouped spec under `spec/integration/check_config/`, e.g.
+         `gitaly_spec.rb`, `postgresql_spec.rb`) was updated to cover it.
       See: doc/development/checkconfig.md.
 
   - name: Changelog Entry for User-Facing Changes
@@ -143,10 +144,9 @@ instructions:
          or provide a reason.
       3. Check the MR description and comments for confirmation of end-to-end
          validation on a real cluster deployment. ONLY IF this confirmation could
-         not be reliably located, `create_merge_request_note` with this message
-         verbatim:
+         not be reliably located, call `create_merge_request_note` using exactly
+         the following text as the note body:
 
-         Ask the author:
          "I couldn't find a description of end-to-end validation for this change.
 
          Before requesting a review, please confirm you've validated this change
