@@ -335,11 +335,23 @@ describe 'Gateway API configuration' do
             gatewayRef:
               name: "external-gateway"
               namespace: "external-gateway-namespace"
+        registry:
+          backendTrafficPolicy:
+            spec:
+              timeout:
+                http:
+                  streamIdleTimeout: 900s
         gitlab:
           gitlab-shell:
             sshDaemon: gitlab-sshd
             config:
               proxyPolicy: use
+          gitlab-pages:
+            backendTrafficPolicy:
+              spec:
+                timeout:
+                  http:
+                    streamIdleTimeout: 300s
         ))
       end
 
@@ -347,18 +359,25 @@ describe 'Gateway API configuration' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
       end
 
-      it 'skips the policy resources, since they cannot target a Gateway in another namespace' do
-        # ClientTrafficPolicy, BackendTrafficPolicy, and SecurityPolicy target the Gateway
-        # through a LocalPolicyTargetReference, which has no namespace field, so none of
-        # them can be rendered when the Gateway lives in a different namespace.
+      it 'skips policies targeting the Gateway, but keeps policies targeting a chart-managed route' do
+        # ClientTrafficPolicy and SecurityPolicy target the Gateway through a
+        # LocalPolicyTargetReference, which has no namespace field, so they cannot be
+        # rendered when the Gateway lives in a different namespace.
         expect(clienttrafficpolicy).to be_nil
         expect(securitypolicy).to be_nil
-        expect(kas_backendtrafficpolicy).to be_nil
-        expect(shell_backendtrafficpolicy).to be_nil
-        expect(webservice_backendtrafficpolicy).to be_nil
         expect(webservice_clienttrafficpolicy).to be_nil
         expect(webservice_smartcard_clienttrafficpolicy).to be_nil
         expect(webservice_geo_clienttrafficpolicy).to be_nil
+
+        # BackendTrafficPolicy targets a chart-managed HTTPRoute/TCPRoute instead, which
+        # always lives in the release namespace regardless of where the Gateway lives, so
+        # the Gateway's namespace has no bearing on it.
+        expect(kas_backendtrafficpolicy).not_to be_nil
+        expect(kas_backendtrafficpolicy["spec"]["useClientProtocol"]).to be(true)
+        expect(shell_backendtrafficpolicy).not_to be_nil
+        expect(webservice_backendtrafficpolicy).not_to be_nil
+        expect(registry_backendtrafficpolicy).not_to be_nil
+        expect(pages_backendtrafficpolicy).not_to be_nil
 
         # The GatewayClass and EnvoyProxy are unaffected: they don't target the Gateway
         # through a namespace-constrained policy targetRef.

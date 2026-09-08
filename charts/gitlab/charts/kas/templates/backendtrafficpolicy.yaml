@@ -1,6 +1,6 @@
 {{- if .Values.global.kas.enabled -}}
 {{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
-{{- if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
+{{- if eq "true" (include "gitlab.gatewayApi.envoy.installRoutePolicies" .) -}}
 {{- if .Values.backendTrafficPolicy.spec -}}
 {{/* See values.yaml and the chart docs for the default spec and its rationale. */}}
 {{- $spec := deepCopy .Values.backendTrafficPolicy.spec }}
