@@ -172,3 +172,4 @@ spec:
                   path: "praefect.key"
           {{- end }}
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
+      {{- include "gitlab.extraVolumes" $ | nindent 6 }}

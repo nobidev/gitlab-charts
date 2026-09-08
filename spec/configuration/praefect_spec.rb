@@ -94,6 +94,26 @@ describe 'Praefect configuration' do
       expect(template.dig('ConfigMap/test-praefect', 'data', 'config.toml.tpl')).to include('prometheus_exclude_database_from_default_metrics = true')
     end
 
+    context 'with extraVolumes' do
+      let(:values_with_extra_volumes) do
+        YAML.safe_load(%(
+          gitlab:
+            praefect:
+              extraVolumes: |-
+                - name: {{ .Release.Name }}-extra
+                  emptyDir: {}
+        )).deep_merge(values_praefect_enabled)
+      end
+
+      let(:template) { HelmTemplate.new(values_with_extra_volumes) }
+
+      it 'renders the templated volume exactly once in the StatefulSet' do
+        volumes = template.dig('StatefulSet/test-praefect', 'spec', 'template', 'spec', 'volumes')
+
+        expect(volumes.count { |volume| volume['name'] == 'test-extra' }).to eq(1)
+      end
+    end
+
     context 'without replacing Gitaly' do
       let(:values_with_internal_gitaly) do
         YAML.safe_load(%(

@@ -38,6 +38,24 @@ By default, this chart will create 3 Gitaly Replicas.
 
 The chart is disabled by default. To enable it as part of a chart deploy set `global.praefect.enabled=true`.
 
+### Extra volumes
+
+Use `gitlab.praefect.extraVolumes` with `gitlab.praefect.extraVolumeMounts` to add volumes and mount them in the Praefect container.
+Both values are template strings, so they can reference Helm template variables.
+
+For example:
+
+```yaml
+gitlab:
+  praefect:
+    extraVolumes: |
+      - name: '{{ .Release.Name }}-praefect-data'
+        emptyDir: {}
+    extraVolumeMounts: |
+      - name: '{{ .Release.Name }}-praefect-data'
+        mountPath: /example
+```
+
 ### Replicas
 
 The default number of replicas to deploy is 3. This can be changed by setting `global.praefect.virtualStorages[].gitalyReplicas` with the desired number of replicas. For example:
