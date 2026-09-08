@@ -1,7 +1,7 @@
 {{- $externalAddresses := concat $.Values.global.pages.externalHttp $.Values.global.pages.externalHttps | uniq }}
 {{- if empty $externalAddresses }}
 {{- if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
-{{- if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
+{{- if eq "true" (include "gitlab.gatewayApi.envoy.installRoutePolicies" .) -}}
 {{- if .Values.backendTrafficPolicy.spec -}}
 {{- $spec := deepCopy .Values.backendTrafficPolicy.spec }}
 {{- if not $spec.targetRefs }}

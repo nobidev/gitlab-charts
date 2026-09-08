@@ -523,14 +523,24 @@ If you get GitLab working on another Gateway API provider, please contribute upd
 #### Additional requirements
 
 The behaviors described under [Requirements](#requirements) are configured automatically when
-Envoy Gateway's Gateway API extensions are installed (`global.gatewayApi.configureEnvoy`,
-which defaults to the value of `installEnvoy`). When the extensions are disabled, the chart skips
-its Envoy-specific custom resources and you become responsible for configuring the equivalent
+Envoy Gateway's Gateway API resources are configured (`global.gatewayApi.configureEnvoy`, which
+defaults to the value of `installEnvoy`). When they are not configured, the chart skips its
+Envoy-specific custom resources and you become responsible for configuring the equivalent
 behavior on your provider:
 
 - Preserving escaped slashes.
 - Cross-serving HTTP and HTTP/2 for KAS.
 - Smartcard mutual TLS, if applicable.
+- Upstream timeout defaults.
+- PROXY protocol forwarding to GitLab Shell, if applicable.
+
+> [!note]
+> Preserving escaped slashes and smartcard mutual TLS use a `ClientTrafficPolicy` that targets the
+> `Gateway` directly, so they additionally require the `Gateway` to be in the same namespace as
+> this release. The other three behaviors use a `BackendTrafficPolicy` that targets a
+> chart-managed `HTTPRoute` or `TCPRoute` instead, so they render regardless of the Gateway's
+> namespace. See [use an externally managed Envoy Gateway](#use-an-externally-managed-envoy-gateway)
+> for a configuration that combines `configureEnvoy` with a Gateway in another namespace.
 
 When `global.gatewayApi.gatewayRef` is set, the chart additionally skips the managed `Gateway` and
 everything attached to it. You are responsible for:
@@ -609,7 +619,9 @@ gatewayApiResources:
 ```
 
 Combine this with [an externally managed Gateway](#use-an-externally-managed-gateway) through
-`gatewayRef` if the `Gateway` resource itself is also managed outside the chart.
+`gatewayRef` if the `Gateway` resource itself is also managed outside the chart. If that Gateway is
+in another namespace, the chart cannot render `ClientTrafficPolicy` or `SecurityPolicy` resources
+against it; see the note under [additional requirements](#additional-requirements).
 
 To skip the `GatewayClass`, `EnvoyProxy`, and policy resources instead and manage them yourself,
 leave `configureEnvoy` unset. For more information, see

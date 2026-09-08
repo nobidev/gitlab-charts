@@ -1,6 +1,6 @@
 {{- if .Values.enabled -}}
 {{-   if eq "true" (include "gitlab.gatewayApi.route.enabled" .) -}}
-{{-     if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
+{{-     if eq "true" (include "gitlab.gatewayApi.envoy.installRoutePolicies" .) -}}
 {{-       if and .Values.global.shell.tcp.proxyProtocol (eq "true" (include "gitlab.shell.proxyProtocol.outbound" .)) -}}
 {{-         if .Values.backendTrafficPolicy.spec -}}
 {{/* See values.yaml and the chart docs for the default spec, render conditions, and rationale. */}}
