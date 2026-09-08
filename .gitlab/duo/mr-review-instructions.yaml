@@ -46,34 +46,51 @@ instructions:
          `data.ToJSON` in gomplate) rather than being wrapped in raw quotes.
       See: doc/development/style_guide.md.
 
-  - name: Deprecations, Removals, and Config Checks
+  - name: Deprecations and Removals
     fileFilters:
-      - "templates/_removals.tpl"
-      - "templates/_checkConfig.tpl"
+      - "templates/_removal*.tpl"
       - "templates/NOTES.txt"
       - "charts/**/templates/NOTES.txt"
     instructions: |
       1. New deprecation/removal templates should follow the `gitlab.removal.*`
          naming convention and be added under the `add templates here` marker in
-         the `gitlab.removals` template (`templates/_removals.tpl`). New
-         problematic-configuration checks should follow `gitlab.checkConfig.*` and
-         be added under the same marker in the `gitlab.checkConfig` template
-         (`templates/_checkConfig.tpl`).
-      2. Deprecation, removal, and checkConfig messages should identify the
-         affected chart (relative to the global chart, e.g. `gitlab.webservice`)
-         and name the property relative to that chart, plus the action the user
-         should take.
+         the `gitlab.removals` template (`templates/_removals.tpl`).
+      2. Deprecation and removal messages should identify the affected chart
+         (relative to the global chart, e.g. `gitlab.webservice`) and name the
+         property relative to that chart, plus the action the user should take.
       3. The `if` guarding a message should not trim the trailing newline (`}}`,
          not `-}}`), so the rendered output stays readable.
-      4. checkConfig messages should not use hard line breaks to wrap paragraphs,
-         since the message may interpolate configuration values that would break
-         the hard wrapping.
+      4. Detection logic should not assume intermediate keys exist; check for use
+         of `hasKey` / `empty` / safe navigation before accessing nested
+         properties.
+      See: doc/development/deprecations.md.
+
+  - name: Configuration Validation Checks (checkConfig)
+    fileFilters:
+      - "templates/_checkConfig*.tpl"
+    instructions: |
+      This template family fails the deployment early (via `fail`) when it detects
+      a known-problematic configuration, regardless of whether that configuration
+      is deprecated. This is a distinct mechanism from deprecation/removal
+      messaging.
+
+      1. New checks should follow the `gitlab.checkConfig.*` naming convention and
+         be added under the `add templates here` marker in the `gitlab.checkConfig`
+         template (`templates/_checkConfig.tpl`).
+      2. Messages should identify the affected chart(s) (relative to the global
+         chart, e.g. `global.psql`, `registry`) and name the property relative to
+         the affected chart, plus the action the user should take.
+      3. The `if` guarding a message should not trim the trailing newline (`}}`,
+         not `-}}`), so the rendered output stays readable.
+      4. Messages should not use hard line breaks to wrap paragraphs, since the
+         message may interpolate configuration values that would break the hard
+         wrapping.
       5. Detection logic should not assume intermediate keys exist; check for use
          of `hasKey` / `empty` / safe navigation before accessing nested
          properties.
-      6. If a new checkConfig check was added, check whether
+      6. If a new check was added, check whether
          `spec/integration/check_config_spec.rb` was updated to cover it.
-      See: doc/development/deprecations.md, doc/development/checkconfig.md.
+      See: doc/development/checkconfig.md.
 
   - name: Changelog Entry for User-Facing Changes
     instructions: |
