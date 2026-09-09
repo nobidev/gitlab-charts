@@ -1235,13 +1235,14 @@ describe 'kas configuration' do
         end
 
         describe 'the derived external URL' do
-          context 'when Gateway API is disabled and the NGINX provider renders the gRPC Ingress' do
+          context 'when Gateway API is disabled and the NGINX Ingress is enabled globally' do
             let(:kas_values) do
               default_kas_values.deep_merge!(YAML.safe_load(%(
                 global:
                   gatewayApi:
                     enabled: false
                   ingress:
+                    enabled: true
                     provider: nginx
               )))
             end
@@ -1251,12 +1252,46 @@ describe 'kas configuration' do
             end
           end
 
+          context 'when Gateway API is disabled and Ingress is not enabled globally' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  gatewayApi:
+                    enabled: false
+                  ingress:
+                    enabled: false
+              )))
+            end
+
+            it 'falls back to wss, routing is outside the chart' do
+              expect(gitlab_yml(chart)).to include('external_url' => 'wss://kas.example.com')
+            end
+
+            context 'when the gRPC Ingress is forced on globally' do
+              let(:kas_values) do
+                super().deep_merge!(YAML.safe_load(%(
+                  global:
+                    kas:
+                      ingress:
+                        grpc:
+                          enabled: true
+                )))
+              end
+
+              it 'uses grpcs' do
+                expect(gitlab_yml(chart)).to include('external_url' => 'grpcs://kas.example.com')
+              end
+            end
+          end
+
           context 'when Gateway API is disabled and the gRPC Ingress is disabled globally' do
             let(:kas_values) do
               default_kas_values.deep_merge!(YAML.safe_load(%(
                 global:
                   gatewayApi:
                     enabled: false
+                  ingress:
+                    enabled: true
                   kas:
                     ingress:
                       grpc:
@@ -1276,6 +1311,7 @@ describe 'kas configuration' do
                   gatewayApi:
                     enabled: false
                   ingress:
+                    enabled: true
                     provider: traefik
               )))
             end
