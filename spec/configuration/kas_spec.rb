@@ -1230,8 +1230,104 @@ describe 'kas configuration' do
           expect(gitlab_yml(chart)).to include(YAML.safe_load(%(
             enabled: true
             internal_url: grpc://test-kas.default.svc:8153
-            external_url: wss://kas.example.com
+            external_url: grpcs://kas.example.com
           )))
+        end
+
+        describe 'the derived external URL' do
+          context 'when Gateway API is disabled and the NGINX provider renders the gRPC Ingress' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  gatewayApi:
+                    enabled: false
+                  ingress:
+                    provider: nginx
+              )))
+            end
+
+            it 'uses grpcs' do
+              expect(gitlab_yml(chart)).to include('external_url' => 'grpcs://kas.example.com')
+            end
+          end
+
+          context 'when Gateway API is disabled and the gRPC Ingress is disabled globally' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  gatewayApi:
+                    enabled: false
+                  kas:
+                    ingress:
+                      grpc:
+                        enabled: false
+              )))
+            end
+
+            it 'falls back to wss' do
+              expect(gitlab_yml(chart)).to include('external_url' => 'wss://kas.example.com')
+            end
+          end
+
+          context 'when Gateway API is disabled and the Ingress provider is not nginx' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  gatewayApi:
+                    enabled: false
+                  ingress:
+                    provider: traefik
+              )))
+            end
+
+            it 'falls back to wss' do
+              expect(gitlab_yml(chart)).to include('external_url' => 'wss://kas.example.com')
+            end
+
+            context 'when the gRPC Ingress is forced on globally' do
+              let(:kas_values) do
+                super().deep_merge!(YAML.safe_load(%(
+                  global:
+                    kas:
+                      ingress:
+                        grpc:
+                          enabled: true
+                )))
+              end
+
+              it 'uses grpcs' do
+                expect(gitlab_yml(chart)).to include('external_url' => 'grpcs://kas.example.com')
+              end
+            end
+          end
+
+          context 'when a relative URL root is set' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  appConfig:
+                    relativeUrlRoot: /gitlab
+              )))
+            end
+
+            it 'falls back to wss' do
+              expect(gitlab_yml(chart)).to include('external_url' => 'wss://kas.example.com')
+            end
+          end
+
+          context 'when https is disabled' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  hosts:
+                    https: false
+              )))
+            end
+
+            it 'uses ws' do
+              expect(gitlab_yml(chart)).to include('external_url' => 'ws://kas.example.com')
+            end
+          end
         end
 
         context 'when using a custom external hostname' do
@@ -1246,7 +1342,7 @@ describe 'kas configuration' do
 
           it 'uses the custom host for the external URL' do
             expect(gitlab_yml(chart)).to include(YAML.safe_load(%(
-              external_url: wss://kas.other.example.com
+              external_url: grpcs://kas.other.example.com
             )))
           end
         end
@@ -1323,6 +1419,109 @@ describe 'kas configuration' do
             )))
           end
         end
+      end
+    end
+  end
+
+  describe 'templates/ingress-grpc.yaml' do
+    let(:helm_template) { HelmTemplate.new(default_values.deep_merge(kas_values)) }
+
+    it 'is rendered by default for the nginx provider' do
+      expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+      expect(helm_template.dig('Ingress/test-kas-grpc', 'spec', 'rules', 0, 'http', 'paths', 0, 'path')).to eq('/gitlab\\.agent\\.(.+)')
+      expect(helm_template.annotations('Ingress/test-kas-grpc')).to include('nginx.ingress.kubernetes.io/backend-protocol' => 'GRPC')
+    end
+
+    context 'when disabled globally' do
+      let(:kas_values) do
+        default_kas_values.deep_merge!(YAML.safe_load(%(
+          global:
+            kas:
+              ingress:
+                grpc:
+                  enabled: false
+        )))
+      end
+
+      it 'is not rendered' do
+        expect(helm_template.resource_exists?('Ingress/test-kas-grpc')).to be(false)
+      end
+
+      context 'when enabled locally' do
+        let(:kas_values) do
+          super().deep_merge!(YAML.safe_load(%(
+            gitlab:
+              kas:
+                ingress:
+                  grpc:
+                    enabled: true
+          )))
+        end
+
+        it 'is rendered, the local setting wins' do
+          expect(helm_template.resource_exists?('Ingress/test-kas-grpc')).to be(true)
+        end
+      end
+    end
+
+    context 'when disabled locally' do
+      let(:kas_values) do
+        default_kas_values.deep_merge!(YAML.safe_load(%(
+          gitlab:
+            kas:
+              ingress:
+                grpc:
+                  enabled: false
+        )))
+      end
+
+      it 'is not rendered' do
+        expect(helm_template.resource_exists?('Ingress/test-kas-grpc')).to be(false)
+      end
+    end
+
+    context 'when the Ingress provider is not nginx' do
+      let(:kas_values) do
+        default_kas_values.deep_merge!(YAML.safe_load(%(
+          global:
+            ingress:
+              provider: traefik
+        )))
+      end
+
+      it 'is not rendered' do
+        expect(helm_template.resource_exists?('Ingress/test-kas-grpc')).to be(false)
+      end
+
+      context 'when forced on globally' do
+        let(:kas_values) do
+          super().deep_merge!(YAML.safe_load(%(
+            global:
+              kas:
+                ingress:
+                  grpc:
+                    enabled: true
+          )))
+        end
+
+        it 'is rendered without nginx annotations' do
+          expect(helm_template.resource_exists?('Ingress/test-kas-grpc')).to be(true)
+          expect(helm_template.annotations('Ingress/test-kas-grpc')).not_to include('nginx.ingress.kubernetes.io/backend-protocol')
+        end
+      end
+    end
+
+    context 'when a relative URL root is set' do
+      let(:kas_values) do
+        default_kas_values.deep_merge!(YAML.safe_load(%(
+          global:
+            appConfig:
+              relativeUrlRoot: /gitlab
+        )))
+      end
+
+      it 'is not rendered' do
+        expect(helm_template.resource_exists?('Ingress/test-kas-grpc')).to be(false)
       end
     end
   end

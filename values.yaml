@@ -776,6 +776,12 @@ global:
     enabled: true
     service:
       apiExternalPort: 8153 # port for connections from the GitLab backend
+    ingress:
+      grpc:
+        # Whether the KAS gRPC Ingress is rendered, and therefore whether agents are
+        # pointed at grpcs:// when Ingress is used. Unset renders it for the NGINX
+        # Ingress provider only. Set `true` or `false` to force it.
+        enabled:
     tls:
       enabled: false
       verify: true

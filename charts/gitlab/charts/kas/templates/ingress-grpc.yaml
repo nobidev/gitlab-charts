@@ -5,9 +5,10 @@
 {{- $ingressCfg := dict "global" .Values.global.ingress "local" .Values.ingress "context" . -}}
 {{- $isIngressProviderNginx := eq .Values.global.ingress.provider "nginx" -}}
 {{- $relativeUrlRoot := default "" .Values.global.appConfig.relativeUrlRoot -}}
+{{- $grpcEnabled := include "gitlab.kas.ingress.grpc.enabled" (dict "local" .Values.ingress.grpc.enabled "global" .Values.global.kas.ingress.grpc.enabled "provider" .Values.global.ingress.provider) -}}
 {{/*  * This needs special handling for <no value> objects because these are not*/}}
 {{/*considered empty: https://github.com/helm/helm/issues/13487.*/}}
-{{- if and (eq .Values.ingress.grpc.enabled true) (ne $hostname "") (ne $hostname "<no value>") (eq $relativeUrlRoot "") }}
+{{- if and (eq $grpcEnabled "true") (ne $hostname "") (ne $hostname "<no value>") (eq $relativeUrlRoot "") }}
 apiVersion: {{ template "gitlab.ingress.apiVersion" $ingressCfg }}
 kind: Ingress
 metadata:

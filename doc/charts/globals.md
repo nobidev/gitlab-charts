@@ -64,7 +64,7 @@ global:
 | `registry.servicePort`    | String  | `registry`    | The named port of the `service` where the Registry server can be reached. |
 | `smartcard.name`          | String  | `smartcard`   | The hostname for smartcard authentication. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
 | `kas.name`                | String  | `kas`         | The hostname for the KAS. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
-| `kas.https`               | Boolean | `false`       | If `hosts.https` or `kas.https` are `true`, the KAS external URL will use `wss://` instead of `ws://`. |
+| `kas.https`               | Boolean | `false`       | If `hosts.https` or `kas.https` are `true`, the KAS external URL uses `grpcs://`, or `wss://` where the chart does not route gRPC, instead of `ws://`. See [agent connection protocol](gitlab/kas/_index.md#agent-connection-protocol). |
 | `pages.name`              | String  | `pages`       | The hostname for GitLab Pages. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
 | `pages.https`             | String  |               | If `global.pages.https` or `global.hosts.pages.https` or `global.hosts.https` are `true`, then URL for GitLab Pages in the Project settings UI will use `https://` instead of `http://`. |
 | `pages.hostnameOverride`  | String  |               | Override the hostname used on the GitLab Pages [Gateway API](../advanced/gateway-api/_index.md#hostname-override) `HTTPRoute` and listener. Useful if GitLab Pages has to be reachable behind a proxy that rewrites the Hostname to an internal hostname. |
@@ -1521,6 +1521,11 @@ global:
 If you'd like to customize the secret value, refer to the [secrets documentation](../installation/secrets.md#gitlab-kas-secret).
 
 #### Custom URLs
+
+By default the external URL advertised to agents is derived from your networking setup, see
+[agent connection protocol](gitlab/kas/_index.md#agent-connection-protocol). Whether it uses
+native gRPC over Ingress is controlled by `global.kas.ingress.grpc.enabled`, see
+[gRPC Ingress support](gitlab/kas/_index.md#grpc-ingress-support).
 
 The URLs used for KAS by the GitLab backend can be customized
 using Helm's `--set variable` option:

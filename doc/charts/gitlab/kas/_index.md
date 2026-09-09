@@ -63,6 +63,24 @@ This example uses `kas.my-other-domain.com` as the host for the KAS Ingress alon
 The rest of the services (including GitLab, Registry, and GitLab Pages) use the domain
 specified in `global.hosts.domain`.
 
+### Agent connection protocol
+
+Agents connect to KAS over native gRPC (`grpcs://`) or WebSocket (`wss://`). KAS serves both
+on the same port. The chart advertises one address in `gitlab_kas.external_url`, which the
+agent installation instructions show, and derives it from your networking setup unless you set
+`global.appConfig.gitlab_kas.externalUrl`:
+
+| Setup | Advertised address |
+|-------|--------------------|
+| Gateway API (default). The KAS `HTTPRoute` and its `BackendTrafficPolicy` carry gRPC. | `grpcs://kas.example.com` |
+| Ingress with the [gRPC Ingress](#grpc-ingress-support) rendered. | `grpcs://kas.example.com` |
+| Ingress without the gRPC Ingress. | `wss://kas.example.com` |
+| [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root) set. | `wss://kas.example.com` |
+| `global.hosts.https` and `global.hosts.kas.https` both `false`. | `ws://kas.example.com` |
+
+Agents that were installed with a `wss://` address keep working when the default changes.
+To keep advertising WebSocket, set `global.appConfig.gitlab_kas.externalUrl`.
+
 ### gRPC Ingress Support
 
 The KAS service supports gRPC traffic through the same port as WebSocket traffic, using path-based routing with regex matching to distinguish between the two protocols.
@@ -72,8 +90,8 @@ The KAS service supports gRPC traffic through the same port as WebSocket traffic
 
 #### Controller Support
 
-- **NGINX Ingress Controller**: Fully supported with automatic configuration
-- **Other Controllers**: Any controller that supports regex-based path matching can be used
+- **NGINX Ingress Controller**: Fully supported. The gRPC Ingress is rendered by default.
+- **Other Controllers**: Any controller that supports regex-based path matching can be used. Set `global.kas.ingress.grpc.enabled: true` to render the gRPC Ingress.
 
 #### Path Pattern
 
@@ -87,15 +105,24 @@ This pattern ensures proper routing of gRPC traffic to the KAS service while mai
 
 #### Configuration
 
-To enable gRPC Ingress, set `gitlab.kas.ingress.grpc.enabled` and make sure that KAS is running under its own subdomain:
+`global.kas.ingress.grpc.enabled` controls the gRPC Ingress and, through it, the
+[advertised agent address](#agent-connection-protocol):
+
+- Unset (default): the gRPC Ingress is rendered when `global.ingress.provider` is `nginx`.
+- `true`: the gRPC Ingress is always rendered. Use this with other controllers.
+- `false`: the gRPC Ingress is never rendered and agents are pointed at `wss://`.
 
 ```yaml
-gitlab:
+global:
   kas:
     ingress:
       grpc:
         enabled: true
 ```
+
+`gitlab.kas.ingress.grpc.enabled` takes precedence for the Ingress itself, but the other charts
+cannot see it when deriving the advertised address. Prefer the global setting, or set
+`global.appConfig.gitlab_kas.externalUrl` explicitly when you use the local one.
 
 No additional configuration is needed when using the NGINX Ingress Controller as it's automatically set up.
 For other controllers, add relevant annotations to support gRPC and ensure they support regex-based path matching and configure them to route the specified path pattern to the KAS service.
@@ -143,6 +170,7 @@ You can pass these parameters to the `helm install` command by using the `--set`
 | `ingress.tls`                                            | `{}`                                                  | Ingress TLS configuration. |
 | `ingress.agentPath`                                      | `/`                                                   | Ingress path for the agent API endpoint. |
 | `ingress.k8sApiPath`                                     | `/k8s-proxy`                                          | Ingress path for Kubernetes API endpoint. |
+| `ingress.grpc.enabled`                                   | Unset, uses `global.kas.ingress.grpc.enabled`         | Render the [gRPC Ingress](#grpc-ingress-support). `true` always, `false` never. |
 | `keda.enabled`                                           | `false`                                               | Use [KEDA](https://keda.sh/) `ScaledObjects` instead of `HorizontalPodAutoscalers` |
 | `keda.pollingInterval`                                   | `30`                                                  | The interval to check each trigger on |
 | `keda.cooldownPeriod`                                    | `300`                                                 | The period to wait after the last trigger reported active before scaling the resource back to 0 |
