@@ -125,18 +125,20 @@
       - gems
     - !reference [.chart_deps_cache, cache]
     - !reference [.external_charts_cache, cache]
+  variables:
+    RSPEC_TAGS: envoy_connection_lifecycle
   before_script:
     - source scripts/ci/autodevops.sh
     - source scripts/ci/k3d.sh
     - k3d_install
   script:
+    - ./scripts/ci/install_spec_dependencies.sh
     - mkdir -p "$(dirname "${VARIABLES_FILE}")"
     - k3d_create
     - k3d_info
     - kubectl version --output=json
     - ./scripts/ci/k3d_deploy.sh
-    - source "${VARIABLES_FILE}"
-    - ./scripts/ci/envoy_connection_lifecycle.py
+    - ./scripts/ci/run_specs.sh
   after_script:
     - source scripts/ci/k3d.sh
     - k3d_collect_debug

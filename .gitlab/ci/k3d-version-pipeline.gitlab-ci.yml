@@ -24,8 +24,8 @@ include:
         when: never
       - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
 
-# Both jobs share the "specs" stage so they start simultaneously.
-# The allure report job runs after both complete in the "qa-report" stage.
+# These jobs share the "specs" stage so they start simultaneously.
+# The allure report job runs after the QA jobs complete in the "qa-report" stage.
 
 review_specs_k3d:
   extends: .k3d_review_specs_template
