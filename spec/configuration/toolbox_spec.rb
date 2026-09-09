@@ -486,28 +486,6 @@ describe 'toolbox configuration' do
         end
       end
 
-      # Actually executes the rendered container command in a real shell, instead of pattern
-      # matching its source text, so this proves the *behavior* the bug report cares about: the
-      # main process must not exit just because /etc/gitlab/.s3cfg is missing on the runner
-      # (which it genuinely is, since this isn't a real toolbox container). `wait_thr.join` with a
-      # timeout tells us whether the process is still alive when time is up, without depending on
-      # any external `timeout` binary.
-      def still_running_after?(cmd, env: {}, seconds: 2)
-        stdin, stdout, stderr, wait_thr = Open3.popen3(env, 'bash', '-c', cmd)
-        finished = wait_thr.join(seconds)
-        if finished.nil?
-          Process.kill('TERM', wait_thr.pid)
-          true
-        else
-          warn "command exited early (status #{wait_thr.value.exitstatus}): #{stderr.read}" if ENV['DEBUG']
-          false
-        end
-      ensure
-        stdin&.close
-        stdout&.close
-        stderr&.close
-      end
-
       it 'renders the template' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
       end
@@ -524,8 +502,18 @@ describe 'toolbox configuration' do
         deployment_spec = template.dig("Deployment/test-toolbox", 'spec', 'template', 'spec')
         cmd = deployment_spec.dig('containers', 0, 'args').last
 
+        # Substitute the tail keep-alive command with an observable marker rather than actually
+        # sleeping. `sleep inf` is only guaranteed to block on the toolbox image's GNU coreutils
+        # (verified separately against a live pod); the host running this spec may be on BSD
+        # sleep (e.g. macOS), which errors out immediately on `inf` and would make this test
+        # depend on the test runner's own `sleep`, not the guard logic being verified here.
+        testable_cmd = cmd.sub('sleep inf', 'echo KEEP_ALIVE_REACHED')
+        raise "expected to find the keep-alive command in: #{cmd.inspect}" if testable_cmd == cmd
+
         Dir.mktmpdir do |home|
-          expect(still_running_after?(cmd, env: { 'HOME' => home })).to be(true)
+          stdout, stderr, status = Open3.capture3({ 'HOME' => home }, 'bash', '-c', testable_cmd)
+          expect(status.success?).to be(true), "command failed even with the file absent: #{stderr}"
+          expect(stdout).to include('KEEP_ALIVE_REACHED')
         end
       end
 
