@@ -324,6 +324,11 @@ describe 'Redis configuration' do
         end
 
         it 'renders the password verbatim, without URL-encoding' do
+          # This test is only meaningful if the fixture password contains
+          # characters outside the URL-safe set, otherwise URL-encoding would
+          # be a no-op and the buggy code would pass too.
+          expect(RuntimeTemplate::JUNK_PASSWORD).to match(/[^A-Za-z0-9_.~-]/)
+
           t = HelmTemplate.new(values)
           expect(t.exit_code).to eq(0)
 

@@ -99,7 +99,7 @@ Return a standalone (non-URL-encoded) Redis password value, for use in a
 this does not percent-encode the value, so passwords containing characters outside
 the URL-safe set are sent to Redis verbatim.
 */}}
-{{- define "gitlab.redis.password" -}}
+{{- define "gitlab.redis.plainPassword" -}}
 {{- include "gitlab.redis.configMerge" . -}}
 {{- $password := printf "%s-%spassword" (default "redis" .redisConfigName) (ternary "override-" "" (default false .usingOverride)) -}}
 {{- if .redisMergedConfig.password.enabled -}}<%= File.read("/etc/gitlab/redis/{{ $password }}").strip.to_json %>{{- end -}}

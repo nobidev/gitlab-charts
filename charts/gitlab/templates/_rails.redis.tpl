@@ -151,7 +151,7 @@ If no `global.redis.actioncable`, use `global.redis`
 {{-     if kindIs "map" $settings -}}
 {{-       $_ := set $ "redisConfigName" $redis -}}
 {{-       $_ := set $ "usingOverride" true -}}
-{{-       $password := include "gitlab.redis.password" $ -}}
+{{-       $password := include "gitlab.redis.plainPassword" $ -}}
 {{-       if kindIs "map" (dig $.redisConfigName "password" "" $.Values.global.redis.redisYmlOverride) -}}
 {{-         if dig "password" "enabled" true $settings -}}
 {{-           $_ := set $settings "password" $password -}}
