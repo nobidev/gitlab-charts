@@ -164,6 +164,11 @@ function k3d_collect_debug() {
     kubectl describe pods -n "${ns}" > "${debug_dir}/pods-describe.txt" 2>&1 || true
     kubectl get events -A --sort-by=.lastTimestamp > "${debug_dir}/events.txt" 2>&1 || true
     { kubectl get nodes -o wide; echo "---"; kubectl describe nodes; } > "${debug_dir}/nodes.txt" 2>&1 || true
+    # Gateway API policy resources — capture status so ancestor conditions are visible.
+    kubectl get clienttrafficpolicies.gateway.envoyproxy.io -n "${ns}" -o yaml \
+      > "${debug_dir}/clienttrafficpolicies.yaml" 2>&1 || true
+    kubectl get backendtrafficpolicies.gateway.envoyproxy.io -n "${ns}" -o yaml \
+      > "${debug_dir}/backendtrafficpolicies.yaml" 2>&1 || true
     # Image strings as scheduled (spec) and as resolved by the kubelet (status/imageID).
     # To answer "were the ci.digests.yaml pins respected?",
     # compare the outputs of ci.digests.yaml and pod-images.txt

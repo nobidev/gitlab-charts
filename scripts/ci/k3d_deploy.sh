@@ -25,14 +25,44 @@ if ! use_nginx_ingress; then
   # controller before running tests.  Without this, there is a race where tests
   # start before the escaped-slash policy takes effect, causing 307/404 errors on
   # API paths that include %2F (e.g. root%2Fproject).
+  #
+  # NOTE: `kubectl wait --for=condition=Accepted` cannot work here because
+  # ClientTrafficPolicy uses Gateway API PolicyStatus, which reports conditions
+  # under .status.ancestors[].conditions — not at the top-level .status.conditions
+  # that kubectl wait inspects.  We poll the ancestor conditions directly instead.
   echo "Waiting for ClientTrafficPolicy reconciliation (up to 120s)..."
-  kubectl wait clienttrafficpolicies.gateway.envoyproxy.io \
-    --for=condition=Accepted \
-    --all \
-    -n "${NAMESPACE}" \
-    --timeout=120s \
-    && echo "ClientTrafficPolicy accepted." \
-    || echo "Warning: ClientTrafficPolicy not yet accepted — proceeding anyway."
+  _ctp_deadline=$(( $(date +%s) + 120 ))
+  _ctp_result="timeout"
+  while [ "$(date +%s)" -lt "${_ctp_deadline}" ]; do
+    # One call per iteration: emit "<name>\t<Accepted statuses for that policy>"
+    # per line, so a policy whose .status.ancestors isn't populated yet is
+    # judged on its own line rather than silently vanishing from a flattened
+    # cross-policy list (which could let one accepted policy mask another
+    # that has no status at all).
+    _ctp_lines=$(kubectl get clienttrafficpolicies.gateway.envoyproxy.io \
+      -n "${NAMESPACE}" \
+      -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{range .status.ancestors[*]}{.conditions[?(@.type=="Accepted")].status}{" "}{end}{"\n"}{end}' \
+      2>/dev/null || true)
+    if [ -z "${_ctp_lines}" ]; then
+      _ctp_result="none"
+      break
+    fi
+    _ctp_all_accepted=true
+    while IFS=$'\t' read -r _ctp_name _ctp_statuses; do
+      [ -z "${_ctp_name}" ] && continue
+      if [ -z "${_ctp_statuses}" ] || echo "${_ctp_statuses}" | tr ' ' '\n' | grep -qv '^True$\|^$'; then
+        _ctp_all_accepted=false
+        break
+      fi
+    done <<< "${_ctp_lines}"
+    [ "${_ctp_all_accepted}" = true ] && { _ctp_result="accepted"; break; }
+    sleep 5
+  done
+  case "${_ctp_result}" in
+    accepted) echo "ClientTrafficPolicy accepted." ;;
+    none) echo "No ClientTrafficPolicy resources found; skipping reconciliation wait." ;;
+    *) echo "Warning: ClientTrafficPolicy not yet accepted — proceeding anyway." ;;
+  esac
 fi
 
 echo "export GITLAB_RELEASE_NAME=$(gitlab_release_name)"                          >> "${VARIABLES_FILE}"
