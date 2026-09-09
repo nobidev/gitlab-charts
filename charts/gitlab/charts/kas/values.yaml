@@ -100,7 +100,10 @@ ingress:
   workspacesServerApiPath: /workspaces
   k8sApiPath: /k8s-proxy
   grpc:
-    enabled: false
+    # Renders a second Ingress that routes native gRPC (`/gitlab.agent.*`) to KAS.
+    # Leave unset to render it automatically for the NGINX Ingress provider, which
+    # the template knows how to annotate. Set `true` or `false` to force it.
+    enabled:
 maxReplicas: 10
 maxUnavailable: 1
 minReplicas: 2
