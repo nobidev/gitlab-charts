@@ -315,6 +315,8 @@ the `helm install` command using the `--set` flags.
 | `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                           | initContainer specific: Controls whether a process can gain more privileges than its parent process |
 | `init.containerSecurityContext.runAsNonRoot`             | `true`                                            | initContainer specific: Controls whether the container runs with a non-root user |
 | `init.containerSecurityContext.capabilities.drop`        | `[ "ALL" ]`                                       | initContainer specific: Removes [Linux capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html) for the container |
+| `extraVolumeMounts`                                      |                                                   | List of extra volumes mounts to do |
+| `extraVolumes`                                           |                                                   | List of extra volumes to create |
 | `extraEnvFrom`                                           |                                                   | List of extra environment variables from other data sources to expose |
 | `logging.level`                                          |                                                   | Log level   |
 | `logging.format`                                         | `json`                                            | Log format  |
