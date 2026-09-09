@@ -42,10 +42,13 @@ Input: dict "context" $ "name" string
     {{- if $write_timeout }}
     write_timeout: {{ $write_timeout }}
     {{- end }}
-    {{- include "gitlab.redis.sentinels" .context | nindent 4 }}
-    {{- $password := include "gitlab.redis.sentinel.password" .context }}
-    {{- if $password }}
-    sentinel_password: "{{- include "gitlab.redis.sentinel.password" .context }}"
+    {{- $sentinels := include "gitlab.redis.sentinels" .context }}
+    {{- $sentinels | nindent 4 }}
+    {{- if $sentinels }}
+    {{-   $password := include "gitlab.redis.sentinel.password" .context }}
+    {{-   if $password }}
+    sentinel_password: "{{ $password }}"
+    {{-   end }}
     {{- end }}
     id:
     {{- if eq .name "cable" }}

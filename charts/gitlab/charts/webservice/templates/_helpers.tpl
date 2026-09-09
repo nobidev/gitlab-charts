@@ -286,7 +286,7 @@ Sentinel = [ {{ template "gitlab.redis.workhorse.sentinel-list" $ }} ]
 {{-   $passwordPath := printf "%s-password" (default "redis" .redisConfigName) }}
 Password = {% file.Read "/etc/gitlab/redis/{{ $passwordPath }}" | strings.TrimSpace | data.ToJSON %}
 {{- end }}
-{{- if .redisMergedConfig.sentinelAuth.enabled }}
+{{- if and .redisMergedConfig.sentinels .redisMergedConfig.sentinelAuth.enabled }}
 SentinelPassword = {% file.Read "/etc/gitlab/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON %}
 {{- end }}
 {{- include "gitlab.workhorse.redis.tls" . }}

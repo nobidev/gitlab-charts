@@ -108,6 +108,10 @@ describe 'Redis configuration' do
       default_values.deep_merge(YAML.safe_load(%(
         global:
           redis:
+            host: resque.redis
+            sentinels:
+            - host: s1.resque.redis
+              port: 26379
             sentinelAuth:
               enabled: true
       )))
@@ -622,6 +626,39 @@ describe 'Redis configuration' do
         expect(t.dig('ConfigMap/test-webservice','data','resque.yml.erb')).not_to include("sentinels:")
         expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("sentinels:")
         expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).to include("s1.cache.redis")
+      end
+    end
+
+    context 'When sentinelAuth is enabled and an instance has no Sentinels' do
+      let(:values) do
+        default_values.deep_merge(YAML.safe_load(%(
+          global:
+            redis:
+              host: resque.redis
+              port: 6379
+              sentinels:
+              - host: s1.resque.redis
+                port: 26379
+              sentinelAuth:
+                enabled: true
+                secret: gitlab-redis
+                key: sentinel
+              cache:
+                host: cache.redis
+        )))
+      end
+
+      it 'only emits sentinel_password for instances that render sentinels' do
+        t = HelmTemplate.new(values)
+        expect(t.exit_code).to eq(0)
+        # The Sentinel-backed main instance gets both sentinels and the password.
+        expect(t.dig('ConfigMap/test-webservice','data','resque.yml.erb')).to include("sentinels:")
+        expect(t.dig('ConfigMap/test-webservice','data','resque.yml.erb')).to include("sentinel_password:")
+        # The Sentinel-less cache instance gets neither. Emitting sentinel_password
+        # without sentinels breaks Rails boot. See
+        # https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6651.
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).not_to include("sentinels:")
+        expect(t.dig('ConfigMap/test-webservice','data','redis.cache.yml.erb')).not_to include("sentinel_password:")
       end
     end
 
