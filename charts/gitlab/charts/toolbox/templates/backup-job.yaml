@@ -42,7 +42,7 @@ spec:
           annotations:
             checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
             cluster-autoscaler.kubernetes.io/safe-to-evict: {{ .Values.backups.cron.safeToEvict | quote }}
-          {{- range $key, $value := .Values.annotations }}
+          {{- range $key, $value := merge (default (dict) .Values.backups.cron.annotations) (deepCopy .Values.annotations) }}
             {{ $key }}: {{ $value | quote }}
           {{- end }}
         spec:

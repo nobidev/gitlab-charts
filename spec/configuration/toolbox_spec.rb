@@ -241,6 +241,50 @@ describe 'toolbox configuration' do
     end
   end
 
+  context 'cron job annotations' do
+    let(:toolbox_annotations) do
+      {
+        'example.com/component' => 'toolbox',
+        'example.com/shared' => 'shared'
+      }
+    end
+    let(:cron_annotations) { {} }
+    let(:values) do
+      default_values.deep_merge(
+        'gitlab' => {
+          'toolbox' => {
+            'annotations' => toolbox_annotations,
+            'backups' => { 'cron' => { 'annotations' => cron_annotations } }
+          }
+        }
+      )
+    end
+    let(:template) { HelmTemplate.new(values) }
+    let(:pod_annotations) do
+      template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'metadata', 'annotations')
+    end
+
+    it 'inherits the toolbox annotations by default' do
+      expect(pod_annotations).to include(toolbox_annotations)
+    end
+
+    context 'when backup cron annotations are set' do
+      let(:cron_annotations) do
+        {
+          'example.com/component' => 'toolbox-backup',
+          'example.com/backup' => 'backup'
+        }
+      end
+
+      it 'merges the backup cron annotations over the toolbox annotations' do
+        expect(pod_annotations).to include(cron_annotations)
+        expect(pod_annotations).to include('example.com/shared' => 'shared')
+        expect(template.dig('Deployment/test-toolbox', 'spec', 'template', 'metadata', 'annotations'))
+          .to include(toolbox_annotations)
+      end
+    end
+  end
+
   context 'when setting cron job nodeSelector' do
     let(:values) do
       HelmTemplate.with_defaults %(

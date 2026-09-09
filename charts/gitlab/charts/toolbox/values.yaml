@@ -156,6 +156,8 @@ global:
 backups:
   cron:
     enabled: false
+    # Annotations for the backup pod. These are merged with `annotations` and take precedence.
+    annotations: {}
     concurrencyPolicy: Replace
     failedJobsHistoryLimit: 1
     schedule: "0 1 * * *"
