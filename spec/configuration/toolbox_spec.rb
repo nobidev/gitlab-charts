@@ -455,5 +455,38 @@ describe 'toolbox configuration' do
         expect(token_secret["items"]).to eq([{ "key" => 'azconf', "path" => 'objectstorage/azure_config' }])
       end
     end
+
+    context 'using s3 backend without objectStorage.config' do
+      let(:values) do
+        default_values.deep_merge!(
+          YAML.safe_load(%(
+          global:
+            appConfig:
+              object_store:
+                enabled: true
+          ))
+        )
+      end
+
+      let(:template) do
+        HelmTemplate.new(values)
+      end
+
+      it 'renders the template' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      end
+
+      it 'guards the .s3cfg copy on the deployment so the container does not crash when the file is absent' do
+        deployment_spec = template.dig("Deployment/test-toolbox", 'spec', 'template', 'spec')
+        args = deployment_spec.dig('containers', 0, 'args')
+        expect(args.last).to eq('[ -f /etc/gitlab/.s3cfg ] && cp -v -r -L /etc/gitlab/.s3cfg $HOME/.s3cfg; while sleep 3600; do :; done')
+      end
+
+      it 'guards the .s3cfg copy on the cronjob so the job does not fail before running backup-utility' do
+        cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
+        args = cronjob_spec.dig('containers', 0, 'args')
+        expect(args.last).to eq('[ -f /etc/gitlab/.s3cfg ] && cp /etc/gitlab/.s3cfg $HOME/.s3cfg; backup-utility ')
+      end
+    end
   end
 end
