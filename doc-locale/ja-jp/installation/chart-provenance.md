@@ -5,7 +5,6 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: GitLab Helm GitLabチャートのプロベナンス
 ---
 
-test change
 
 [Helm来歴](https://helm.sh/docs/topics/provenance/)を使用することにより、GitLab Helmチャートの整合性と起源を検証できます。
 
