@@ -92,6 +92,7 @@ gitlab:
 | `common.labels`                                          | `{}`                                                         | Supplemental labels that are applied to all objects created by this chart. |
 | `antiAffinityLabels.matchLabels`                         |                                                              | Labels for setting anti-affinity options |
 | `backups.cron.activeDeadlineSeconds`                     | `null`                                                       | Backup CronJob active deadline seconds (if null, no active deadline is applied) |
+| `backups.cron.annotations`                               | `{}`                                                         | Annotations for the backup pod. Merged with `annotations`, with these values taking precedence. |
 | `backups.cron.ttlSecondsAfterFinished`                   | `null`                                                       | Backup CronJob job time to live after finished (if null, no time to liveis applied) |
 | `backups.cron.safeToEvict`                               | `false`                                                      | Autoscaling safe-to-evict annotation |
 | `backups.cron.backoffLimit`                              | `6`                                                          | Backup CronJob backoff limit |
