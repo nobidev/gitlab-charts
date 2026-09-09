@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'helm_template_helper'
 require 'yaml'
 require 'hash_deep_merge'
+require 'tmpdir'
 
 describe 'toolbox configuration' do
   def env_value(name, value)
@@ -485,24 +486,62 @@ describe 'toolbox configuration' do
         end
       end
 
+      # Actually executes the rendered container command in a real shell, instead of pattern
+      # matching its source text, so this proves the *behavior* the bug report cares about: the
+      # main process must not exit just because /etc/gitlab/.s3cfg is missing on the runner
+      # (which it genuinely is, since this isn't a real toolbox container). `wait_thr.join` with a
+      # timeout tells us whether the process is still alive when time is up, without depending on
+      # any external `timeout` binary.
+      def still_running_after?(cmd, env: {}, seconds: 2)
+        stdin, stdout, stderr, wait_thr = Open3.popen3(env, 'bash', '-c', cmd)
+        finished = wait_thr.join(seconds)
+        if finished.nil?
+          Process.kill('TERM', wait_thr.pid)
+          true
+        else
+          warn "command exited early (status #{wait_thr.value.exitstatus}): #{stderr.read}" if ENV['DEBUG']
+          false
+        end
+      ensure
+        stdin&.close
+        stdout&.close
+        stderr&.close
+      end
+
       it 'renders the template' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
       end
 
-      it 'does not project a .s3cfg secret, matching the missing config, and still guards the copy on the deployment' do
+      it 'does not project a .s3cfg secret, matching the missing config' do
         deployment_spec = template.dig("Deployment/test-toolbox", 'spec', 'template', 'spec')
-        expect(s3cfg_secret_sources(deployment_spec)).to be_empty
+        cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
 
-        args = deployment_spec.dig('containers', 0, 'args')
-        expect(args.last).to start_with('[ -f /etc/gitlab/.s3cfg ] &&')
+        expect(s3cfg_secret_sources(deployment_spec)).to be_empty
+        expect(s3cfg_secret_sources(cronjob_spec)).to be_empty
       end
 
-      it 'does not project a .s3cfg secret, matching the missing config, and still guards the copy on the cronjob' do
-        cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
-        expect(s3cfg_secret_sources(cronjob_spec)).to be_empty
+      it 'keeps the toolbox container alive instead of exiting when .s3cfg is absent' do
+        deployment_spec = template.dig("Deployment/test-toolbox", 'spec', 'template', 'spec')
+        cmd = deployment_spec.dig('containers', 0, 'args').last
 
-        args = cronjob_spec.dig('containers', 0, 'args')
-        expect(args.last).to start_with('[ -f /etc/gitlab/.s3cfg ] &&')
+        Dir.mktmpdir do |home|
+          expect(still_running_after?(cmd, env: { 'HOME' => home })).to be(true)
+        end
+      end
+
+      it 'still runs backup-utility on the cronjob when .s3cfg is absent' do
+        cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
+        cmd = cronjob_spec.dig('containers', 0, 'args').last
+
+        Dir.mktmpdir do |bindir|
+          stub = File.join(bindir, 'backup-utility')
+          File.write(stub, "#!/bin/sh\necho BACKUP_UTILITY_CALLED\n")
+          File.chmod(0o755, stub)
+
+          stdout, stderr, status = Open3.capture3({ 'PATH' => "#{bindir}:#{ENV.fetch('PATH')}" }, 'bash', '-c', cmd)
+          expect(status.success?).to be(true), "backup-utility did not run successfully: #{stderr}"
+          expect(stdout).to include('BACKUP_UTILITY_CALLED')
+        end
       end
     end
   end
