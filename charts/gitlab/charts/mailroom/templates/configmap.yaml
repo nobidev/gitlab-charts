@@ -51,8 +51,9 @@ data:
           :redis_url: {{ include "gitlab.mailroom.redis.url" $ }}
           :queue: email_receiver
           :worker: EmailReceiverWorker
-          {{- include "gitlab.mailroom.redis.sentinels" $ | nindent 10 }}
-          {{- if $sentinel_password }}
+          {{- $sentinels := include "gitlab.mailroom.redis.sentinels" $ }}
+          {{- $sentinels | nindent 10 }}
+          {{- if and $sentinels $sentinel_password }}
           :sentinel_password: "{{ $sentinel_password }}"
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" $ | nindent 10 }}
@@ -72,8 +73,9 @@ data:
         :arbitration_options:
           :redis_url: {{ include "gitlab.mailroom.redis.url" . }}
           :namespace: mail_room:gitlab
-          {{- include "gitlab.mailroom.redis.sentinels" . | nindent 10 }}
-          {{- if $sentinel_password }}
+          {{- $sentinels := include "gitlab.mailroom.redis.sentinels" . }}
+          {{- $sentinels | nindent 10 }}
+          {{- if and $sentinels $sentinel_password }}
           :sentinel_password: "{{ $sentinel_password }}"
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" . | nindent 10 }}
@@ -116,8 +118,9 @@ data:
           :redis_url: {{ template "gitlab.redis.url" $ }}
           :queue: service_desk_email_receiver
           :worker: ServiceDeskEmailReceiverWorker
-          {{- include "gitlab.mailroom.redis.sentinels" $ | nindent 10 }}
-          {{- if $sentinel_password }}
+          {{- $sentinels := include "gitlab.mailroom.redis.sentinels" $ }}
+          {{- $sentinels | nindent 10 }}
+          {{- if and $sentinels $sentinel_password }}
           :sentinel_password: "{{ $sentinel_password }}"
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" $ | nindent 10 }}
@@ -137,8 +140,9 @@ data:
         :arbitration_options:
           :redis_url: {{ template "gitlab.redis.url" . }}
           :namespace: mail_room:gitlab
-          {{- include "gitlab.mailroom.redis.sentinels" . | nindent 10 }}
-          {{- if $sentinel_password }}
+          {{- $sentinels := include "gitlab.mailroom.redis.sentinels" . }}
+          {{- $sentinels | nindent 10 }}
+          {{- if and $sentinels $sentinel_password }}
           :sentinel_password: "{{ $sentinel_password }}"
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" . | nindent 10 }}

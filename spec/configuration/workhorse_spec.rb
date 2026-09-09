@@ -477,6 +477,35 @@ CFG
           expect(redis_workhorse_yml['production']['sentinel_password']).to eq(global_redis_sentinel_password)
         end
       end
+
+      context 'with sentinelAuth enabled but no Sentinels' do
+        let(:values) do
+          default_values.deep_merge(YAML.safe_load(%(
+            global:
+              redis:
+                host: global.redis
+                auth:
+                  enabled: true
+                  secret: global-secret
+                sentinelAuth:
+                  enabled: true
+                  secret: redis-sentinel-secret
+                  key: password
+          )))
+        end
+
+        it 'omits SentinelPassword' do
+          # sentinelAuth is enabled but no Sentinels are configured, so the
+          # plain URL is used. Emitting SentinelPassword without a Sentinel
+          # list breaks boot. See
+          # https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6651.
+          toml = render_toml(raw_toml)
+
+          redis_config = toml['redis']
+          expect(redis_config.keys).to match_array(%w[URL Password DB])
+          expect(redis_config).not_to have_key('SentinelPassword')
+        end
+      end
     end
   end
 

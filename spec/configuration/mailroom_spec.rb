@@ -462,6 +462,25 @@ describe 'Mailroom configuration' do
       expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).to include("s1.queue.redis")
       expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).not_to include("s1.resque.redis")
     end
+
+    it 'omits sentinel_password when the queues instance has no Sentinels' do
+      # global has Sentinels + sentinelAuth, but the queues instance mailroom
+      # targets has none. Emitting :sentinel_password: without :sentinels:
+      # breaks boot. See
+      # https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6651.
+      local = YAML.safe_load(%(
+        global:
+          redis:
+            sentinelAuth:
+              enabled: true
+              secret: redis-sentinel-secret
+              key: password
+      ))
+      t = HelmTemplate.new(values.deep_merge(local))
+      expect(t.exit_code).to eq(0)
+      expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).not_to include(":sentinels:")
+      expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).not_to include(":sentinel_password:")
+    end
   end
 
   context 'When customer provides additional annotations' do
