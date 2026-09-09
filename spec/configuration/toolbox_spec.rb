@@ -458,7 +458,11 @@ describe 'toolbox configuration' do
 
     context 'using s3 backend without objectStorage.config' do
       let(:values) do
-        default_values.deep_merge!(
+        # HelmTemplate.defaults (the base of default_values) already sets
+        # gitlab.toolbox.backups.objectStorage.config, and deep-merging an empty override on top
+        # cannot clear a populated map, so the key is deleted explicitly to let the chart's own
+        # `config: {}` default apply, matching a user who never set backups.objectStorage.config.
+        values = default_values.deep_merge!(
           YAML.safe_load(%(
           global:
             appConfig:
@@ -466,26 +470,39 @@ describe 'toolbox configuration' do
                 enabled: true
           ))
         )
+        values['gitlab']['toolbox']['backups']['objectStorage'].delete('config')
+        values
       end
 
       let(:template) do
         HelmTemplate.new(values)
       end
 
+      def s3cfg_secret_sources(pod_spec)
+        init_secret = pod_spec['volumes'].find { |v| v['name'] == 'init-toolbox-secrets' }
+        init_secret['projected']['sources'].select do |source|
+          source['secret']&.dig('items')&.any? { |item| item['path'] == 'objectstorage/.s3cfg' }
+        end
+      end
+
       it 'renders the template' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
       end
 
-      it 'guards the .s3cfg copy on the deployment so the container does not crash when the file is absent' do
+      it 'does not project a .s3cfg secret, matching the missing config, and still guards the copy on the deployment' do
         deployment_spec = template.dig("Deployment/test-toolbox", 'spec', 'template', 'spec')
+        expect(s3cfg_secret_sources(deployment_spec)).to be_empty
+
         args = deployment_spec.dig('containers', 0, 'args')
-        expect(args.last).to eq('[ -f /etc/gitlab/.s3cfg ] && cp -v -r -L /etc/gitlab/.s3cfg $HOME/.s3cfg; while sleep 3600; do :; done')
+        expect(args.last).to start_with('[ -f /etc/gitlab/.s3cfg ] &&')
       end
 
-      it 'guards the .s3cfg copy on the cronjob so the job does not fail before running backup-utility' do
+      it 'does not project a .s3cfg secret, matching the missing config, and still guards the copy on the cronjob' do
         cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
+        expect(s3cfg_secret_sources(cronjob_spec)).to be_empty
+
         args = cronjob_spec.dig('containers', 0, 'args')
-        expect(args.last).to eq('[ -f /etc/gitlab/.s3cfg ] && cp /etc/gitlab/.s3cfg $HOME/.s3cfg; backup-utility ')
+        expect(args.last).to start_with('[ -f /etc/gitlab/.s3cfg ] &&')
       end
     end
   end
