@@ -24,6 +24,7 @@ For anything in this list which will not be completed, please provide a reason i
 - [ ] Have you validated that your change works end-to-end on a real cluster deployment?
    - Describe how you did it in a comment.
 - [ ] Equivalent MR/issue for [omnibus-gitlab](https://gitlab.com/gitlab-org/omnibus-gitlab) opened.
+- [ ] When ready for review, MR is marked as ready (not a draft) and assigned to a reviewer.
 
 ## Reviewers checklist
 
