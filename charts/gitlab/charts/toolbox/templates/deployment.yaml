@@ -87,7 +87,7 @@ spec:
             - /bin/bash
             - -c
             {{- if eq .Values.backups.objectStorage.backend "s3" }}
-            - '[ -f /etc/gitlab/.s3cfg ] && cp -v -r -L /etc/gitlab/.s3cfg $HOME/.s3cfg; sleep inf'
+            - test -f /etc/gitlab/.s3cfg && cp -v -r -L /etc/gitlab/.s3cfg $HOME/.s3cfg; sleep inf
             {{- else if eq .Values.backups.objectStorage.backend "gcs" }}
             - sh /var/opt/gitlab/templates/configure-gcloud-storage && sleep inf
             {{- else if eq .Values.backups.objectStorage.backend "azure" }}

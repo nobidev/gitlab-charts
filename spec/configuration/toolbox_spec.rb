@@ -501,14 +501,41 @@ describe 'toolbox configuration' do
         deployment_spec = template.dig("Deployment/test-toolbox", 'spec', 'template', 'spec')
         cmd = deployment_spec.dig('containers', 0, 'args').last
 
-        expect(cmd).to eq('[ -f /etc/gitlab/.s3cfg ] && cp -v -r -L /etc/gitlab/.s3cfg $HOME/.s3cfg; sleep inf')
+        expect(cmd).to eq('test -f /etc/gitlab/.s3cfg && cp -v -r -L /etc/gitlab/.s3cfg $HOME/.s3cfg; sleep inf')
       end
 
       it 'guards the .s3cfg copy so the cronjob still runs backup-utility when it is absent' do
         cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
         cmd = cronjob_spec.dig('containers', 0, 'args').last
 
-        expect(cmd).to eq('[ -f /etc/gitlab/.s3cfg ] && cp /etc/gitlab/.s3cfg $HOME/.s3cfg; backup-utility ')
+        expect(cmd).to eq('test -f /etc/gitlab/.s3cfg && cp /etc/gitlab/.s3cfg $HOME/.s3cfg; backup-utility')
+      end
+    end
+
+    context 'using s3 backend with a single quote in cron extraArgs' do
+      let(:values) do
+        default_values.deep_merge!(
+          YAML.safe_load(%(
+          gitlab:
+            toolbox:
+              backups:
+                cron:
+                  enabled: true
+                  extraArgs: "--foo 'bar'"
+          ))
+        )
+      end
+
+      let(:template) do
+        HelmTemplate.new(values)
+      end
+
+      it 'still renders the cronjob, since the guard is not YAML-quoted' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
+        cmd = cronjob_spec.dig('containers', 0, 'args').last
+        expect(cmd).to eq("test -f /etc/gitlab/.s3cfg && cp /etc/gitlab/.s3cfg $HOME/.s3cfg; backup-utility --foo 'bar'")
       end
     end
   end
