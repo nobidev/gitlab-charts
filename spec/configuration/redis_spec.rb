@@ -307,7 +307,7 @@ describe 'Redis configuration' do
                 # enabled secret
                 'cache' => {
                   'host' => 'gprd-redis-cache',
-                  'password' => "<%= ERB::Util::url_encode(File.read(\"/etc/gitlab/redis/cache-override-password\").strip) %>",
+                  'password' => "<%= File.read(\"/etc/gitlab/redis/cache-override-password\").strip.to_json %>",
                   'other_keys' => %w[node1 node2]
                 },
                 # disabled secret
@@ -321,6 +321,20 @@ describe 'Redis configuration' do
                 }
               }
             })
+        end
+
+        it 'renders the password verbatim, without URL-encoding' do
+          t = HelmTemplate.new(values)
+          expect(t.exit_code).to eq(0)
+
+          raw = t.dig('ConfigMap/test-webservice', 'data', 'redis.yml.erb')
+          files = RuntimeTemplate.mock_files.merge(
+            '/etc/gitlab/redis/cache-override-password' => RuntimeTemplate::JUNK_PASSWORD,
+            '/etc/gitlab/redis/some-password' => RuntimeTemplate::JUNK_PASSWORD
+          )
+          rendered = YAML.safe_load(RuntimeTemplate.erb(raw_template: raw, files: files))
+
+          expect(rendered.dig('production', 'cache', 'password')).to eq(RuntimeTemplate::JUNK_PASSWORD)
         end
       end
     end
