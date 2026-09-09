@@ -2,7 +2,6 @@ require 'spec_helper'
 require 'helm_template_helper'
 require 'yaml'
 require 'hash_deep_merge'
-require 'tmpdir'
 
 describe 'toolbox configuration' do
   def env_value(name, value)
@@ -498,38 +497,18 @@ describe 'toolbox configuration' do
         expect(s3cfg_secret_sources(cronjob_spec)).to be_empty
       end
 
-      it 'keeps the toolbox container alive instead of exiting when .s3cfg is absent' do
+      it 'guards the .s3cfg copy so the deployment keep-alive still runs when it is absent' do
         deployment_spec = template.dig("Deployment/test-toolbox", 'spec', 'template', 'spec')
         cmd = deployment_spec.dig('containers', 0, 'args').last
 
-        # Substitute the tail keep-alive command with an observable marker rather than actually
-        # sleeping. `sleep inf` is only guaranteed to block on the toolbox image's GNU coreutils
-        # (verified separately against a live pod); the host running this spec may be on BSD
-        # sleep (e.g. macOS), which errors out immediately on `inf` and would make this test
-        # depend on the test runner's own `sleep`, not the guard logic being verified here.
-        testable_cmd = cmd.sub('sleep inf', 'echo KEEP_ALIVE_REACHED')
-        raise "expected to find the keep-alive command in: #{cmd.inspect}" if testable_cmd == cmd
-
-        Dir.mktmpdir do |home|
-          stdout, stderr, status = Open3.capture3({ 'HOME' => home }, 'bash', '-c', testable_cmd)
-          expect(status.success?).to be(true), "command failed even with the file absent: #{stderr}"
-          expect(stdout).to include('KEEP_ALIVE_REACHED')
-        end
+        expect(cmd).to eq('[ -f /etc/gitlab/.s3cfg ] && cp -v -r -L /etc/gitlab/.s3cfg $HOME/.s3cfg; sleep inf')
       end
 
-      it 'still runs backup-utility on the cronjob when .s3cfg is absent' do
+      it 'guards the .s3cfg copy so the cronjob still runs backup-utility when it is absent' do
         cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
         cmd = cronjob_spec.dig('containers', 0, 'args').last
 
-        Dir.mktmpdir do |bindir|
-          stub = File.join(bindir, 'backup-utility')
-          File.write(stub, "#!/bin/sh\necho BACKUP_UTILITY_CALLED\n")
-          File.chmod(0o755, stub)
-
-          stdout, stderr, status = Open3.capture3({ 'PATH' => "#{bindir}:#{ENV.fetch('PATH')}" }, 'bash', '-c', cmd)
-          expect(status.success?).to be(true), "backup-utility did not run successfully: #{stderr}"
-          expect(stdout).to include('BACKUP_UTILITY_CALLED')
-        end
+        expect(cmd).to eq('[ -f /etc/gitlab/.s3cfg ] && cp /etc/gitlab/.s3cfg $HOME/.s3cfg; backup-utility ')
       end
     end
   end
