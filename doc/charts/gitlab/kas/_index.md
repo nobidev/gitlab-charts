@@ -73,8 +73,8 @@ agent installation instructions show, and derives it from your networking setup 
 | Setup | Advertised address |
 |-------|--------------------|
 | Gateway API (default). The KAS `HTTPRoute` and its `BackendTrafficPolicy` carry gRPC. | `grpcs://kas.example.com` |
-| Ingress with the [gRPC Ingress](#grpc-ingress-support) rendered. | `grpcs://kas.example.com` |
-| Ingress without the gRPC Ingress. | `wss://kas.example.com` |
+| Ingress enabled globally with the NGINX provider, which renders the [gRPC Ingress](#grpc-ingress-support), or `global.kas.ingress.grpc.enabled: true`. | `grpcs://kas.example.com` |
+| Ingress with another provider, `global.kas.ingress.grpc.enabled: false`, or routing handled outside the chart. | `wss://kas.example.com` |
 | [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root) set. | `wss://kas.example.com` |
 | `global.hosts.https` and `global.hosts.kas.https` both `false`. | `ws://kas.example.com` |
 
@@ -109,7 +109,10 @@ This pattern ensures proper routing of gRPC traffic to the KAS service while mai
 [advertised agent address](#agent-connection-protocol):
 
 - Unset (default): the gRPC Ingress is rendered when `global.ingress.provider` is `nginx`.
-- `true`: the gRPC Ingress is always rendered. Use this with other controllers.
+  Agents are pointed at `grpcs://` only when Ingress is also enabled globally with
+  `global.ingress.enabled`, so that routing handled outside the chart keeps `wss://`.
+- `true`: the gRPC Ingress is always rendered and agents are pointed at `grpcs://`. Use this
+  with other controllers, or when you route gRPC to KAS yourself.
 - `false`: the gRPC Ingress is never rendered and agents are pointed at `wss://`.
 
 ```yaml

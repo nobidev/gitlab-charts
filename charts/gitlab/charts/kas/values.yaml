@@ -103,6 +103,9 @@ ingress:
     # Renders a second Ingress that routes native gRPC (`/gitlab.agent.*`) to KAS.
     # Leave unset to render it automatically for the NGINX Ingress provider, which
     # the template knows how to annotate. Set `true` or `false` to force it.
+    # This local toggle is invisible to the webservice, sidekiq and toolbox charts,
+    # so it does not change the advertised grpcs:// or wss:// URL. Use
+    # `global.kas.ingress.grpc.enabled` to keep the Ingress and the URL in sync.
     enabled:
 maxReplicas: 10
 maxUnavailable: 1

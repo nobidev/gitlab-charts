@@ -56,11 +56,25 @@ KAS gRPC Ingress. Never with a relative URL root, because the gRPC path cannot b
 Only reads `global` values, because it is evaluated from the webservice, sidekiq and
 toolbox charts, which cannot see the kas chart's values. Prefer
 `global.kas.ingress.grpc.enabled` over the kas chart's local toggle for that reason.
+An explicit `global.kas.ingress.grpc.enabled` is trusted as is. When it is unset, the
+gRPC Ingress only counts if Ingress is enabled globally (`global.ingress.enabled`, unset
+means enabled, like `gitlab.ingress.enabled`) and the provider is NGINX. That keeps
+WebSocket as the advertised protocol when routing is handled outside the chart.
 */}}
 {{- define "gitlab.kas.grpc.available" -}}
 {{-   $relativeUrlRoot := default "" .Values.global.appConfig.relativeUrlRoot -}}
-{{-   $grpcIngress := include "gitlab.kas.ingress.grpc.enabled" (dict "local" nil "global" .Values.global.kas.ingress.grpc.enabled "provider" .Values.global.ingress.provider) -}}
-{{-   if and (eq $relativeUrlRoot "") (or .Values.global.gatewayApi.enabled (eq $grpcIngress "true")) -}}
+{{-   $globalToggle := .Values.global.kas.ingress.grpc.enabled -}}
+{{-   $ingressEnabled := true -}}
+{{-   if kindIs "bool" .Values.global.ingress.enabled -}}
+{{-     $ingressEnabled = .Values.global.ingress.enabled -}}
+{{-   end -}}
+{{-   $grpcIngress := false -}}
+{{-   if kindIs "bool" $globalToggle -}}
+{{-     $grpcIngress = $globalToggle -}}
+{{-   else -}}
+{{-     $grpcIngress = and $ingressEnabled (eq (default "" .Values.global.ingress.provider) "nginx") -}}
+{{-   end -}}
+{{-   if and (eq $relativeUrlRoot "") (or .Values.global.gatewayApi.enabled $grpcIngress) -}}
 true
 {{-   end -}}
 {{- end -}}
