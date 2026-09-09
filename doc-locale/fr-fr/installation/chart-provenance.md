@@ -5,6 +5,8 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Provenance du chart Helm GitLab
 ---
 
+test edit
+
 Vous pouvez vérifier l'intégrité et l'origine des charts Helm GitLab en utilisant [Helm provenance](https://helm.sh/docs/topics/provenance/).
 
 Les charts Helm GitLab sont signés avec une paire de clés GNUPG. La partie publique de la paire de clés doit être téléchargée et éventuellement exportée avant de pouvoir être utilisée pour vérifier les charts. Le [GNU Privacy Handbook](https://www.gnupg.org/gph/en/manual/x56.html) contient des instructions détaillées sur la gestion des clés GPG.
