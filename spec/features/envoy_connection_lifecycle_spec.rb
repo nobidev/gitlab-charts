@@ -3,13 +3,33 @@ require 'fileutils'
 require 'net/http'
 
 describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
-  CONNECTIONS = 24
-  CYCLES = 3
-  IDLE_SECONDS = 5
-  DRAIN_TIMEOUT = 30
-  METRIC = 'envoy_cluster_upstream_cx_active'.freeze
-  OVERFLOW_METRIC = 'envoy_cluster_upstream_cx_overflow'.freeze
-  ARTIFACT_DIR = 'envoy-connection-lifecycle'.freeze
+  def connections_count
+    24
+  end
+
+  def cycles_count
+    3
+  end
+
+  def idle_seconds
+    5
+  end
+
+  def drain_timeout
+    30
+  end
+
+  def active_connections_metric
+    'envoy_cluster_upstream_cx_active'
+  end
+
+  def overflow_metric
+    'envoy_cluster_upstream_cx_overflow'
+  end
+
+  def artifact_dir
+    'envoy-connection-lifecycle'
+  end
 
   def kubectl(*args)
     stdout, stderr, status = Open3.capture3('kubectl', *args)
@@ -60,10 +80,12 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
     yield
   ensure
     Process.kill('TERM', wait_thread.pid) unless wait_thread.nil? || wait_thread.join(0)
+
     unless wait_thread.nil? || wait_thread.join(10)
       Process.kill('KILL', wait_thread.pid)
       wait_thread.join
     end
+
     stdout&.close
     stderr&.close
   end
@@ -80,7 +102,7 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
 
   def webservice_cluster(metrics, route)
     prefix = "httproute/#{ENV.fetch('NAMESPACE')}/#{route}/"
-    metrics.scan(/^#{Regexp.escape(METRIC)}(\{[^}]*\})?\s+[0-9.eE+-]+$/).each do |labels|
+    metrics.scan(/^#{Regexp.escape(active_connections_metric)}(\{[^}]*\})?\s+[0-9.eE+-]+$/o).each do |labels|
       match = labels.first.to_s.match(/envoy_cluster_name="([^"]+)"/)
       return match[1] if match && match[1].start_with?(prefix)
     end
@@ -89,12 +111,12 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
   end
 
   def write_metrics(phase, metrics)
-    File.write(File.join(ARTIFACT_DIR, "envoy-metrics-#{phase}.prometheus"), metrics)
+    File.write(File.join(artifact_dir, "envoy-metrics-#{phase}.prometheus"), metrics)
   end
 
   def persistent_connections
     uri = URI("http://#{ENV.fetch('GITLAB_URL')}")
-    Array.new(CONNECTIONS) do
+    Array.new(connections_count) do
       Net::HTTP.start(uri.host, uri.port, open_timeout: 30, read_timeout: 30)
     end
   end
@@ -109,23 +131,23 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
         release.pop
         response = connection.get('/users/sign_in', 'Host' => ENV.fetch('GITLAB_URL'))
         errors << "GET /users/sign_in returned HTTP #{response.code}, expected 200" unless response.code == '200'
-      rescue StandardError => error
-        errors << error
+      rescue StandardError => e
+        errors << e
       end
     end
 
-    CONNECTIONS.times { ready.pop }
-    CONNECTIONS.times { release << true }
+    connections_count.times { ready.pop }
+    connections_count.times { release << true }
     threads.each(&:join)
     raise errors.pop unless errors.empty?
   end
 
   def wait_for_drain(baseline, cluster)
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + DRAIN_TIMEOUT
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + drain_timeout
     loop do
       snapshot = metrics
       write_metrics('drain', snapshot)
-      current = metric_value(snapshot, METRIC, cluster)
+      current = metric_value(snapshot, active_connections_metric, cluster)
       return if current <= baseline
 
       raise "Upstream connections did not drain to baseline #{baseline}" if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
@@ -135,7 +157,7 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
   end
 
   it 'drains webservice upstream connections after bursts and idle periods' do
-    FileUtils.mkdir_p(ARTIFACT_DIR)
+    FileUtils.mkdir_p(artifact_dir)
     gateway = gateway_name
     pod = proxy_pod(gateway)
     route = webservice_route
@@ -149,19 +171,19 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
       write_metrics('baseline', snapshot)
       connections = persistent_connections
 
-      (1..CYCLES).each do |cycle|
+      (1..cycles_count).each do |cycle|
         request_burst(connections)
         snapshot = metrics
         write_metrics("cycle-#{cycle}", snapshot)
         cluster ||= webservice_cluster(snapshot, route)
-        current = metric_value(snapshot, METRIC, cluster)
+        current = metric_value(snapshot, active_connections_metric, cluster)
         expect(current).to be > baseline,
           "Cycle #{cycle}: active upstream connections rose to #{current}, expected more than baseline #{baseline}"
 
-        sleep IDLE_SECONDS
+        sleep idle_seconds
         snapshot = metrics
         write_metrics("cycle-#{cycle}-idle", snapshot)
-        idle = metric_value(snapshot, METRIC, cluster)
+        idle = metric_value(snapshot, active_connections_metric, cluster)
         expect(idle).to be > baseline,
           "Cycle #{cycle}: upstream connections returned to #{idle} during the idle period"
       end
@@ -173,7 +195,7 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
       wait_for_drain(baseline, cluster)
       snapshot = metrics
       write_metrics('final', snapshot)
-      overflow = metric_value(snapshot, OVERFLOW_METRIC, cluster)
+      overflow = metric_value(snapshot, overflow_metric, cluster)
       expect(overflow).to eq(0), "Envoy rejected #{overflow} webservice upstream connections"
     end
   end
