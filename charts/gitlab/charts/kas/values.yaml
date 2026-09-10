@@ -92,6 +92,19 @@ backendTrafficPolicy:
   spec:
     useClientProtocol: true
 
+# Envoy Gateway ClientTrafficPolicy rendered for the KAS listener (gatewayRoute.sectionName).
+# Envoy Gateway stops advertising HTTP/2 (ALPN h2) on a listener whose certificate overlaps
+# with another listener on the same port, for example one wildcard certificate shared by
+# every host (Gateway API GEP-3567). Agents need HTTP/2 for native gRPC (grpcs://), so the
+# chart enables it explicitly on the KAS listener only. When `spec.targetRefs` is omitted the
+# chart injects the Gateway and listener reference. Set `spec: null` to skip the policy.
+clientTrafficPolicy:
+  spec:
+    tls:
+      alpnProtocols:
+        - h2
+        - http/1.1
+
 ingress:
   apiVersion:
   annotations: {}

@@ -72,7 +72,7 @@ agent installation instructions show, and derives it from your networking setup 
 
 | Setup | Advertised address |
 |-------|--------------------|
-| Gateway API with the chart-managed Envoy Gateway policies (default). The `BackendTrafficPolicy` on the KAS `HTTPRoute` forwards the client protocol. | `grpcs://kas.example.com` |
+| Gateway API with the chart-managed Envoy Gateway policies (default). The `BackendTrafficPolicy` on the KAS `HTTPRoute` forwards the client protocol, and the [`ClientTrafficPolicy`](#client-traffic-policy) on the KAS listener keeps HTTP/2 enabled. | `grpcs://kas.example.com` |
 | Gateway API with another Gateway controller, or `global.gatewayApi.installEnvoy: false` without `configureEnvoy: true`. | `wss://kas.example.com` |
 | Ingress enabled globally with the NGINX provider, which renders the [gRPC Ingress](#grpc-ingress-support), or `global.kas.ingress.grpc.enabled: true`. | `grpcs://kas.example.com` |
 | Ingress with another provider, `global.kas.ingress.grpc.enabled: false`, or routing handled outside the chart. | `wss://kas.example.com` |
@@ -258,6 +258,36 @@ gitlab:
 
 The chart injects `spec.targetRefs` with the KAS `HTTPRoute` when you omit it. Set
 `backendTrafficPolicy.spec: null` to skip rendering the policy.
+
+## Client traffic policy
+
+When Envoy Gateway is used and the KAS listener is HTTPS, the chart renders a
+[`ClientTrafficPolicy`](https://gateway.envoyproxy.io/docs/api/extension_types/#clienttrafficpolicy)
+targeting the KAS listener (`gatewayRoute.sectionName`, default `kas-web`) that sets
+`tls.alpnProtocols` to `h2` and `http/1.1`. Envoy Gateway otherwise stops advertising HTTP/2 on a
+listener whose certificate overlaps with another listener on the same port, for example one
+wildcard certificate used for every host, to prevent HTTP/2 connection coalescing
+([Gateway API GEP-3567](https://gateway-api.sigs.k8s.io/geps/gep-3567/)). Agents need HTTP/2 for
+native gRPC, so without this policy `grpcs://` connections fail on such installations while
+WebSocket keeps working. The policy only affects the KAS listener.
+
+To change the policy, override the specification wholesale under `clientTrafficPolicy.spec`:
+
+```yaml
+gitlab:
+  kas:
+    clientTrafficPolicy:
+      spec:
+        tls:
+          alpnProtocols:
+            - h2
+            - http/1.1
+```
+
+The chart injects `spec.targetRefs` with the Gateway and the KAS listener when you omit it. Set
+`clientTrafficPolicy.spec: null` to skip rendering the policy. The policy is not rendered when the
+Gateway lives in another namespace; in that case make sure the KAS listener negotiates HTTP/2, or
+set `global.appConfig.gitlab_kas.externalUrl` to a `wss://` address.
 
 ## Test the `kas` chart
 
