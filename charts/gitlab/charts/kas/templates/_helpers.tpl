@@ -95,3 +95,18 @@ Uses `ingress.tls.workspacesSecretName` first and falls back to `global.ingress.
 {{- end -}}
 {{- pluck "workspacesSecretName" .Values.ingress.tls .Values.global.ingress.tls $defaultName | first -}}
 {{- end -}}
+
+{{/*
+Whether the section-scoped ClientTrafficPolicy for the KAS listener is rendered: Envoy Gateway
+is configured by the chart, the Gateway lives in the release namespace (the policy targets it
+with a LocalPolicyTargetReference), and the KAS listener is HTTPS. In HTTP-only deployments all
+listeners share port 80 and Envoy Gateway rejects section-scoped policies for them.
+*/}}
+{{- define "kas.gatewayApi.sectionCtp.enabled" -}}
+{{- $envoy := and .Values.global.gatewayApi.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) -}}
+{{- $sameNamespace := eq "true" (include "gitlab.gatewayApi.gateway.sameNamespace" .) -}}
+{{- $https := or .Values.global.hosts.https .Values.global.hosts.kas.https -}}
+{{- if and $envoy $sameNamespace $https -}}
+true
+{{- end -}}
+{{- end -}}

@@ -133,6 +133,9 @@ optionally create a `ClientTrafficPolicy` and a `SecurityPolicy` bound to the ma
 > The Webservice chart also renders a `BackendTrafficPolicy` with default inactivity-based
 > upstream timeouts. See
 > [Gateway timeouts](../../charts/gitlab/webservice/_index.md#gateway-timeouts).
+> The KAS chart renders a section-scoped `ClientTrafficPolicy` for the `kas-web` listener that
+> keeps HTTP/2 enabled for the agent for Kubernetes. See
+> [Client traffic policy](../../charts/gitlab/kas/_index.md#client-traffic-policy).
 
 #### Envoy Gateway metrics
 
@@ -490,8 +493,11 @@ specification leaves implementation-defined:
   need an equivalent configuration on the listeners that serve GitLab API traffic.
 - **Cross-serve HTTP/1.1 and gRPC (HTTP/2) on the GitLab Relay (KAS) hostname.** KAS exposes both
   gRPC and HTTP (including WebSocket) endpoints on the same hostname and port. With the bundled
-  Envoy Gateway, the chart sets `useClientProtocol: true` on a `BackendTrafficPolicy`. Other
-  providers must forward gRPC as HTTP/2 to the backend while still accepting HTTP/1.1 from clients.
+  Envoy Gateway, the chart sets `useClientProtocol: true` on a `BackendTrafficPolicy`, and keeps
+  HTTP/2 enabled on the KAS listener with a `ClientTrafficPolicy` (`tls.alpnProtocols`), because
+  Envoy Gateway drops HTTP/2 from listeners with overlapping certificates. Other providers must
+  negotiate HTTP/2 with agents on the KAS hostname and forward gRPC as HTTP/2 to the backend while
+  still accepting HTTP/1.1 from clients.
   The KAS Kubernetes API proxy (`ingress.k8sApiPath`, default `/k8s-proxy`) serves only HTTP/1.1,
   so the chart exposes it through a separate `HTTPRoute` (`{release}-kas-k8s-proxy`) that the
   `BackendTrafficPolicy` does not target. This prevents the proxy backend from receiving cleartext
