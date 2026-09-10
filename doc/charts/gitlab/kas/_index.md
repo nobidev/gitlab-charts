@@ -126,9 +126,9 @@ global:
         enabled: true
 ```
 
-`gitlab.kas.ingress.grpc.enabled` takes precedence for the Ingress itself, but the other charts
-cannot see it when deriving the advertised address. Prefer the global setting, or set
-`global.appConfig.gitlab_kas.externalUrl` explicitly when you use the local one.
+`gitlab.kas.ingress.grpc.enabled` is deprecated and planned for removal in GitLab 20.0 (chart 11.0).
+It still takes precedence for the Ingress itself, but the other charts cannot see it when deriving
+the advertised address, so the two can disagree. Use the global setting instead.
 
 No additional configuration is needed when using the NGINX Ingress Controller as it's automatically set up.
 For other controllers, add relevant annotations to support gRPC and ensure they support regex-based path matching and configure them to route the specified path pattern to the KAS service.
@@ -176,7 +176,7 @@ You can pass these parameters to the `helm install` command by using the `--set`
 | `ingress.tls`                                            | `{}`                                                  | Ingress TLS configuration. |
 | `ingress.agentPath`                                      | `/`                                                   | Ingress path for the agent API endpoint. |
 | `ingress.k8sApiPath`                                     | `/k8s-proxy`                                          | Ingress path for Kubernetes API endpoint. |
-| `ingress.grpc.enabled`                                   | Unset, uses `global.kas.ingress.grpc.enabled`         | Render the [gRPC Ingress](#grpc-ingress-support). `true` always, `false` never. |
+| `ingress.grpc.enabled`                                   | Unset, uses `global.kas.ingress.grpc.enabled`         | Deprecated, removal planned for GitLab 20.0. Use `global.kas.ingress.grpc.enabled` to control the [gRPC Ingress](#grpc-ingress-support). |
 | `keda.enabled`                                           | `false`                                               | Use [KEDA](https://keda.sh/) `ScaledObjects` instead of `HorizontalPodAutoscalers` |
 | `keda.pollingInterval`                                   | `30`                                                  | The interval to check each trigger on |
 | `keda.cooldownPeriod`                                    | `300`                                                 | The period to wait after the last trigger reported active before scaling the resource back to 0 |

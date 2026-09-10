@@ -167,6 +167,16 @@ registry:
 {{- end -}}
 {{- /* END gitlab.deprecate.registry.notifications.endpoints.threshold */}}
 
+{{- /* The kas chart's local gRPC Ingress toggle is superseded by the global one */ -}}
+{{- if kindIs "bool" .Values.gitlab.kas.ingress.grpc.enabled }}
+{{ $NOTICE }}
+kas:
+    `gitlab.kas.ingress.grpc.enabled` has been deprecated and is planned for removal in GitLab 20.0 (chart 11.0).
+    Please use `global.kas.ingress.grpc.enabled` instead. The global setting also drives the address advertised
+    to agents, which the local one cannot: https://docs.gitlab.com/charts/charts/gitlab/kas/#grpc-ingress-support.
+{{- end -}}
+{{- /* END gitlab.deprecate.kas.ingress.grpc.enabled */}}
+
 {{- /* If shared-secrets is disable, manual secret creation will be needed */}}
 {{- if not (index .Values "shared-secrets").enabled }}
 {{ $NOTICE }}
