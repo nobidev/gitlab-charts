@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.3.2 (2026-09-10)
+
+### Changed (1 change)
+
+- [Update gitlab-runner to v0.92.1](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/b1bfdd07f5c75c98a3fc40e8d5dd820f85eaf411)
+
 ## 10.3.1 (2026-08-25)
 
 ### Changed (1 change)
