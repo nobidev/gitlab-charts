@@ -455,5 +455,77 @@ describe 'toolbox configuration' do
         expect(token_secret["items"]).to eq([{ "key" => 'azconf', "path" => 'objectstorage/azure_config' }])
       end
     end
+
+    context 'using s3 backend without objectStorage.config' do
+      let(:values) do
+        # HelmTemplate.defaults (the base of default_values) already sets
+        # gitlab.toolbox.backups.objectStorage.config, and deep-merging an empty override on top
+        # cannot clear a populated map, so the key is deleted explicitly to let the chart's own
+        # `config: {}` default apply, matching a user who never set backups.objectStorage.config.
+        values = default_values.deep_merge!(
+          YAML.safe_load(%(
+          global:
+            appConfig:
+              object_store:
+                enabled: true
+          ))
+        )
+        values['gitlab']['toolbox']['backups']['objectStorage'].delete('config')
+        values
+      end
+
+      let(:template) do
+        HelmTemplate.new(values)
+      end
+
+      def s3cfg_secret_sources(pod_spec)
+        init_secret = pod_spec['volumes'].find { |v| v['name'] == 'init-toolbox-secrets' }
+        init_secret['projected']['sources'].select do |source|
+          source['secret']&.dig('items')&.any? { |item| item['path'] == 'objectstorage/.s3cfg' }
+        end
+      end
+
+      it 'renders without a .s3cfg secret and guards the copy in both the deployment and cronjob' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        deployment_spec = template.dig("Deployment/test-toolbox", 'spec', 'template', 'spec')
+        cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
+
+        expect(s3cfg_secret_sources(deployment_spec)).to be_empty
+        expect(s3cfg_secret_sources(cronjob_spec)).to be_empty
+
+        expect(deployment_spec.dig('containers', 0, 'args').last)
+          .to eq('test -f /etc/gitlab/.s3cfg && cp -v -r -L /etc/gitlab/.s3cfg $HOME/.s3cfg; sleep inf')
+        expect(cronjob_spec.dig('containers', 0, 'args').last)
+          .to eq('test -f /etc/gitlab/.s3cfg && cp /etc/gitlab/.s3cfg $HOME/.s3cfg; backup-utility')
+      end
+    end
+
+    context 'using s3 backend with a single quote in cron extraArgs' do
+      let(:values) do
+        default_values.deep_merge!(
+          YAML.safe_load(%(
+          gitlab:
+            toolbox:
+              backups:
+                cron:
+                  enabled: true
+                  extraArgs: "--foo 'bar'"
+          ))
+        )
+      end
+
+      let(:template) do
+        HelmTemplate.new(values)
+      end
+
+      it 'still renders the cronjob, since the guard is not YAML-quoted' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
+        cmd = cronjob_spec.dig('containers', 0, 'args').last
+        expect(cmd).to eq("test -f /etc/gitlab/.s3cfg && cp /etc/gitlab/.s3cfg $HOME/.s3cfg; backup-utility --foo 'bar'")
+      end
+    end
   end
 end
