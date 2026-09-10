@@ -100,12 +100,10 @@ ingress:
   workspacesServerApiPath: /workspaces
   k8sApiPath: /k8s-proxy
   grpc:
-    # Renders a second Ingress that routes native gRPC (`/gitlab.agent.*`) to KAS.
-    # Leave unset to render it automatically for the NGINX Ingress provider, which
-    # the template knows how to annotate. Set `true` or `false` to force it.
-    # This local toggle is invisible to the webservice, sidekiq and toolbox charts,
-    # so it does not change the advertised grpcs:// or wss:// URL. Use
-    # `global.kas.ingress.grpc.enabled` to keep the Ingress and the URL in sync.
+    # DEPRECATED, planned for removal in GitLab 20.0 (chart 11.0): use
+    # `global.kas.ingress.grpc.enabled`. This local toggle still wins for the
+    # Ingress itself, but it is invisible to the webservice, sidekiq and toolbox
+    # charts, so it does not change the advertised grpcs:// or wss:// URL.
     enabled:
 maxReplicas: 10
 maxUnavailable: 1
