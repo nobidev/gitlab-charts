@@ -1,0 +1,173 @@
+instructions:
+  - name: Values Schema Kept in Sync
+    fileFilters:
+      - "charts/**/values.yaml"
+      - "values.yaml"
+    instructions: |
+      If a `values.yaml` entry was added or modified, check whether the sibling
+      `values.schema.json` in the same chart was updated to match, with type
+      validation for the entry. If not, ask the author to update it.
+      See: doc/development/validation.md.
+
+  - name: Statefulset Immutable Fields
+    fileFilters:
+      - "charts/**/templates/**/*statefulset*.yaml"
+    instructions: |
+      Only `replicas`, `ordinals`, `template`, `updateStrategy`,
+      `persistentVolumeClaimRetentionPolicy`, and `minReadySeconds` can change
+      after creation in a Kubernetes StatefulSet spec (most commonly hit via
+      `volumeClaimTemplates` edits). Flag any other spec field change, since it
+      breaks `helm upgrade` for existing installs.
+      See: doc/development/validation.md.
+
+  - name: Helm Template Style Guide
+    fileFilters:
+      - "charts/**/templates/**/*.tpl"
+      - "charts/**/templates/**/*.yaml"
+      - "charts/**/templates/**/*.yml"
+      - "templates/**/*.tpl"
+      - "templates/**/*.yaml"
+      - "templates/**/*.yml"
+    instructions: |
+      1. New template/property names should use camelCase (e.g. `assembleHost`), not
+         kebab-case or PascalCase.
+      2. Prefer `nindent` over `indent` for readability.
+      3. When accessing nested `.Values` paths that may not fully exist, prefer
+         safe access (`dig`, `index`, or parentheses) over direct chained access
+         like `.Values.foo.bar.baz`, unless the full path is guaranteed to exist.
+         Exception: `dig` errors when called directly on the bare root `.Values`
+         (e.g. `dig "a" "b" "c" .Values`); call it on a sub-value like
+         `.Values.global` instead, or use `index` / parentheses on the root.
+      4. Question undocumented broad use of `toYaml` on user-supplied config
+         blocks; prefer specific, minimal override keys unless a fully flexible
+         passthrough is clearly needed.
+      5. For sensitive, user-supplied strings (passwords, tokens) rendered into
+         Secrets/ConfigMaps via ERB/gomplate, check values use a format-native
+         encoder (e.g. `.to_json` in ERB, `data.ToJSON` in gomplate) rather than
+         being wrapped in raw quotes.
+      See: doc/development/style_guide.md.
+
+  - name: Deprecations and Removals
+    fileFilters:
+      - "templates/_removal*.tpl"
+      - "templates/NOTES.txt"
+      - "charts/**/templates/NOTES.txt"
+    instructions: |
+      1. New deprecation/removal templates should follow the `gitlab.removal.*`
+         naming convention and be added under the `add templates here` marker in
+         the `gitlab.removals` template (`templates/_removals.tpl`).
+      2. Deprecation and removal messages should identify the affected chart
+         (relative to the global chart, e.g. `gitlab.webservice`) and name the
+         property relative to that chart, plus the action the user should take.
+      3. The `if` guarding a message should not trim the trailing newline (`}}`,
+         not `-}}`), so the rendered output stays readable.
+      4. Detection logic should not assume a key, or parent key, exists; check for
+         use of `if`, `hasKey`, and `empty` before accessing nested properties.
+      See: doc/development/deprecations.md.
+
+  - name: Configuration Validation Checks (checkConfig)
+    fileFilters:
+      - "templates/_checkConfig*.tpl"
+    instructions: |
+      This template family fails the deployment early (via `fail`) on a
+      known-problematic configuration, regardless of deprecation status — a
+      distinct mechanism from deprecation/removal messaging.
+
+      1. New checks should follow the `gitlab.checkConfig.*` naming convention and
+         be added under the `add templates here` marker in the `gitlab.checkConfig`
+         template (`templates/_checkConfig.tpl`).
+      2. Messages should identify the affected chart(s) (relative to the global
+         chart, e.g. `global.psql`, `registry`) and name the property relative to
+         the affected chart, plus the action the user should take.
+      3. The `if` guarding a message should not trim the trailing newline (`}}`,
+         not `-}}`), and messages should avoid hard line breaks, since they may
+         interpolate configuration values that would break the hard wrapping.
+      4. Detection logic should not assume a key, or parent key, exists; check for
+         use of `if`, `hasKey`, and `empty` before accessing nested properties.
+      5. If a new check was added, check whether `spec/integration/check_config_spec.rb`
+         (or the relevant grouped spec under `spec/integration/check_config/`, e.g.
+         `gitaly_spec.rb`, `postgresql_spec.rb`) was updated to cover it.
+      See: doc/development/checkconfig.md.
+
+  - name: Changelog Entry for User-Facing Changes
+    instructions: |
+      If this MR contains a user-facing change (behavior, defaults, or config that
+      operators or chart users would notice), check whether any commit includes a
+      `Changelog:` git trailer (added, fixed, changed, deprecated, removed,
+      security, performance, or other).
+
+      ONLY IF the change looks user-facing and no commit has a `Changelog:` trailer,
+      ask the author: "This looks like a user-facing change. Could you add a
+      `Changelog:` trailer to the relevant commit? See doc/development/changelog.md
+      for the workflow and accepted values."
+
+      Per doc/development/changelog.md, do not ask for this on purely
+      developer-facing changes, such as refactoring, technical debt remediation,
+      or test suite changes.
+
+  - name: MR Author Checklist for Runtime Changes
+    fileFilters:
+      - "charts/**/templates/**/*"
+      - "templates/**/*"
+      - "charts/**/values.yaml"
+      - "values.yaml"
+    instructions: |
+      This MR changes chart runtime behavior (templates or default values). The MR
+      author checklist includes:
+      - "Documentation created/updated."
+      - "Tests added/updated."
+      - "Have you validated that your change works end-to-end on a real cluster
+        deployment? - Describe how you did it in a comment."
+      It also states: "For anything in this list which will not be completed,
+      please provide a reason in the MR discussion."
+
+      1. If this MR adds or changes a user-facing `values.yaml` option or behavior
+         and `doc/` wasn't updated, with no reason given in the MR discussion, ask
+         the author to confirm "Documentation created/updated" or provide a reason.
+      2. If this MR changes template logic and no corresponding RSpec spec under
+         `spec/` was added or updated, with no reason given, ask the author to
+         confirm "Tests added/updated" or provide a reason.
+      3. Check the MR description and comments for confirmation of end-to-end
+         validation on a real cluster deployment. ONLY IF this confirmation could
+         not be reliably located, call `create_merge_request_note` using exactly
+         the following text as the note body:
+
+         "I couldn't find a description of end-to-end validation for this change.
+         Before requesting a review, please confirm you've validated this change
+         end-to-end on a real cluster deployment and describe how in a comment,
+         then check off the corresponding item in the MR checklist. See
+         https://docs.gitlab.com/charts/development/environment_setup/
+         if you need to set up a local development cluster."
+
+  - name: RSpec Test Practices
+    fileFilters:
+      - "spec/**/*.rb"
+    instructions: |
+      1. Flag a `:focus` tag left on a `describe`/`context`/`it` block (e.g.
+         `it 'x', :focus => true do`); per doc/development/rspec.md it restricts
+         the run to tagged tests only, so check it wasn't left in by mistake.
+      2. Flag a test that sets a value to `{}` to represent removing/clearing a
+         key: an empty hash produces no change when merged, whereas Helm's
+         `coalesceValues` (unlike Ruby's `deep_merge`) removes the key only when
+         set to `null`. Use `null` for key removal in test values.
+      3. Flag use of the imperative `merge!` unless a comment explains why it's
+         needed.
+      4. If a new test needs a real Kubernetes cluster, check it's placed in
+         `spec/features` rather than alongside `helm template`-only specs.
+      5. If several new `it` blocks each make a single assertion against the same
+         `HelmTemplate` instance, suggest consolidating them into one `it` with
+         multiple `expect` calls, since each `it` block re-runs an expensive `helm
+         template` invocation.
+      See: doc/development/rspec.md.
+
+  - name: Downstream Impact on GitLab Operator
+    fileFilters:
+      - "values.yaml"
+      - "charts/**/values.yaml"
+      - "**/values.schema.json"
+    instructions: |
+      The MR reviewers checklist includes: "Consider downstream impact to the
+      Operator, as per evaluating impact from changes to GitLab chart
+      (https://docs.gitlab.com/operator/developer/charts_dependency)." Since this MR
+      changes `values.yaml` or `values.schema.json`, remind the reviewer of this
+      checklist item.
