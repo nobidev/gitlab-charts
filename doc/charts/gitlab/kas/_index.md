@@ -72,14 +72,17 @@ agent installation instructions show, and derives it from your networking setup 
 
 | Setup | Advertised address |
 |-------|--------------------|
-| Gateway API (default). The KAS `HTTPRoute` and its `BackendTrafficPolicy` carry gRPC. | `grpcs://kas.example.com` |
+| Gateway API with the chart-managed Envoy Gateway policies (default). The `BackendTrafficPolicy` on the KAS `HTTPRoute` forwards the client protocol. | `grpcs://kas.example.com` |
+| Gateway API with another Gateway controller, or `global.gatewayApi.installEnvoy: false` without `configureEnvoy: true`. | `wss://kas.example.com` |
 | Ingress enabled globally with the NGINX provider, which renders the [gRPC Ingress](#grpc-ingress-support), or `global.kas.ingress.grpc.enabled: true`. | `grpcs://kas.example.com` |
 | Ingress with another provider, `global.kas.ingress.grpc.enabled: false`, or routing handled outside the chart. | `wss://kas.example.com` |
 | [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root) set. | `wss://kas.example.com` |
 | `global.hosts.https` and `global.hosts.kas.https` both `false`. | `ws://kas.example.com` |
 
 Agents that were installed with a `wss://` address keep working when the default changes.
-To keep advertising WebSocket, set `global.appConfig.gitlab_kas.externalUrl`.
+To keep advertising WebSocket, set `global.appConfig.gitlab_kas.externalUrl`. The derivation
+reads global settings only, so the kas chart's local `gatewayRoute.enabled`,
+`backendTrafficPolicy.spec` and `ingress.grpc.enabled` do not influence it.
 
 ### gRPC Ingress Support
 

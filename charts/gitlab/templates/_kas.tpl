@@ -50,32 +50,41 @@ annotate for gRPC.
 {{- end -}}
 
 {{/*
-Returns "true" when native gRPC from agentk reaches KAS through the chart's networking:
-with Gateway API (Envoy forwards the client protocol on the KAS HTTPRoute), or with the
-KAS gRPC Ingress. Never with a relative URL root, because the gRPC path cannot be prefixed.
-Only reads `global` values, because it is evaluated from the webservice, sidekiq and
-toolbox charts, which cannot see the kas chart's values. Prefer
-`global.kas.ingress.grpc.enabled` over the kas chart's local toggle for that reason.
-An explicit `global.kas.ingress.grpc.enabled` is trusted as is. When it is unset, the
-gRPC Ingress only counts if Ingress is enabled globally (`global.ingress.enabled`, unset
-means enabled, like `gitlab.ingress.enabled`) and the provider is NGINX. That keeps
-WebSocket as the advertised protocol when routing is handled outside the chart.
+Returns "true" when native gRPC from agentk reaches KAS through the chart's networking.
+Never with a relative URL root, because the gRPC path cannot be prefixed. Otherwise:
+
+1. Gateway API with the chart-managed Envoy Gateway policies. gRPC passes through because
+   of the BackendTrafficPolicy (useClientProtocol) on the KAS HTTPRoute, not because of the
+   route itself, so this follows gitlab.gatewayApi.envoy.installRoutePolicies
+   (global.gatewayApi.enabled plus configureEnvoy or installEnvoy). An external Gateway of
+   another vendor keeps WebSocket.
+2. The KAS gRPC Ingress. An explicit global.kas.ingress.grpc.enabled is trusted as is. When
+   it is unset, the Ingress only counts if Ingress is enabled globally (global.ingress.enabled,
+   unset means enabled, like gitlab.ingress.enabled) and the provider is NGINX, the one the
+   template can annotate for gRPC. Routing handled outside the chart keeps WebSocket.
+
+Only reads `global` values, because it is evaluated from the webservice, sidekiq and toolbox
+charts, which cannot see the kas chart's values. The kas chart's local toggles
+(ingress.grpc.enabled, gatewayRoute.enabled, backendTrafficPolicy.spec) are therefore not
+seen here; prefer the global settings, or set global.appConfig.gitlab_kas.externalUrl.
 */}}
 {{- define "gitlab.kas.grpc.available" -}}
 {{-   $relativeUrlRoot := default "" .Values.global.appConfig.relativeUrlRoot -}}
-{{-   $globalToggle := .Values.global.kas.ingress.grpc.enabled -}}
-{{-   $ingressEnabled := true -}}
-{{-   if kindIs "bool" .Values.global.ingress.enabled -}}
-{{-     $ingressEnabled = .Values.global.ingress.enabled -}}
-{{-   end -}}
-{{-   $grpcIngress := false -}}
-{{-   if kindIs "bool" $globalToggle -}}
-{{-     $grpcIngress = $globalToggle -}}
-{{-   else -}}
-{{-     $grpcIngress = and $ingressEnabled (eq (default "" .Values.global.ingress.provider) "nginx") -}}
-{{-   end -}}
-{{-   if and (eq $relativeUrlRoot "") (or .Values.global.gatewayApi.enabled $grpcIngress) -}}
+{{-   if eq $relativeUrlRoot "" -}}
+{{-     if eq "true" (include "gitlab.gatewayApi.envoy.installRoutePolicies" .) -}}
 true
+{{-     else -}}
+{{-       $globalToggle := .Values.global.kas.ingress.grpc.enabled -}}
+{{-       $ingressEnabled := true -}}
+{{-       if kindIs "bool" .Values.global.ingress.enabled -}}
+{{-         $ingressEnabled = .Values.global.ingress.enabled -}}
+{{-       end -}}
+{{-       if kindIs "bool" $globalToggle -}}
+{{-         if $globalToggle }}true{{ end -}}
+{{-       else if and $ingressEnabled (eq (default "" .Values.global.ingress.provider) "nginx") -}}
+true
+{{-       end -}}
+{{-     end -}}
 {{-   end -}}
 {{- end -}}
 

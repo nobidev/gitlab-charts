@@ -1337,6 +1337,36 @@ describe 'kas configuration' do
             end
           end
 
+          context 'when Gateway API is enabled without the chart-managed Envoy policies' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  gatewayApi:
+                    installEnvoy: false
+                  ingress:
+                    enabled: false
+              )))
+            end
+
+            it 'falls back to wss, nothing forwards gRPC to KAS' do
+              expect(gitlab_yml(chart)).to include('external_url' => 'wss://kas.example.com')
+            end
+
+            context 'when the chart still configures the Envoy policies for an external Envoy Gateway' do
+              let(:kas_values) do
+                super().deep_merge!(YAML.safe_load(%(
+                  global:
+                    gatewayApi:
+                      configureEnvoy: true
+                )))
+              end
+
+              it 'uses grpcs' do
+                expect(gitlab_yml(chart)).to include('external_url' => 'grpcs://kas.example.com')
+              end
+            end
+          end
+
           context 'when a relative URL root is set' do
             let(:kas_values) do
               default_kas_values.deep_merge!(YAML.safe_load(%(
