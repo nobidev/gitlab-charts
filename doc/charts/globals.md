@@ -374,7 +374,7 @@ global:
 ```
 
 Further tuning is also available, in regards to the
-[handling of stale reads](https://docs.gitlab.com/administration/postgresql/database_load_balancing/#handling-stale-reads).
+[handling of stale reads](https://docs.gitlab.com/administration/postgresql/database_load_balancing/#stale-reads).
 The GitLab Administration documentation covers these items in detail,
 and those properties can be added directly under `load_balancing`.
 
