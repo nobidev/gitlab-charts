@@ -147,4 +147,36 @@ describe 'checkConfig object storage' do
                      success_description: 'when type-specific object storage is configured with connections for each enabled type',
                      error_description: 'when type-specific object storage is used but enabled types have empty connections'
   end
+
+  describe 'gitlab.checkConfig.objectStorage.allowedDownloadModes' do
+    let(:success_values) do
+      HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            object_store:
+              allowed_download_modes:
+                - proxy
+                - direct
+            artifacts:
+              allowed_download_modes:
+                - direct
+      ))
+    end
+
+    let(:error_values) do
+      HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            object_store:
+              allowed_download_modes:
+                - invalid_mode
+      ))
+    end
+
+    let(:error_output) { '`allowed_download_modes` contains invalid mode(s). Valid modes are: proxy, direct' }
+
+    include_examples 'config validation',
+                     success_description: 'when valid allowed_download_modes are provided',
+                     error_description: 'when an invalid allowed_download_mode is provided'
+  end
 end

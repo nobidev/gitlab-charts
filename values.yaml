@@ -375,6 +375,7 @@ global:
     object_store:
       enabled: false
       proxy_download: true
+      allowed_download_modes: []
       storage_options: {}
         # server_side_encryption:
         # server_side_encryption_kms_key_id

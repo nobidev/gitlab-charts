@@ -70,3 +70,32 @@ Object Storage:
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.objectStorage.typeSpecificConfig */}}
+
+{{- define "gitlab.checkConfig.objectStorage.allowedDownloadModes" -}}
+{{-   $validModes := list "proxy" "direct" -}}
+{{-   $invalidTypes := list -}}
+{{-   $allTypes := list "object_store" "artifacts" "lfs" "uploads" "packages" "externalDiffs" "terraformState" "dependencyProxy" "ciSecureFiles" -}}
+{{-   range $type := $allTypes -}}
+{{-     if hasKey $.Values.global.appConfig $type -}}
+{{-       $config := index $.Values.global.appConfig $type -}}
+{{-       if hasKey $config "allowed_download_modes" -}}
+{{-         $modes := index $config "allowed_download_modes" -}}
+{{-         if kindIs "slice" $modes -}}
+{{-           range $mode := $modes -}}
+{{-             if not (has $mode $validModes) -}}
+{{-               $invalidTypes = append $invalidTypes $type -}}
+{{-             end -}}
+{{-           end -}}
+{{-         else if not (empty $modes) -}}
+{{-           $invalidTypes = append $invalidTypes $type -}}
+{{-         end -}}
+{{-       end -}}
+{{-     end -}}
+{{-   end -}}
+{{-   $invalidTypes = uniq $invalidTypes -}}
+{{-   if not (empty $invalidTypes) }}
+Object Storage:
+  `allowed_download_modes` contains invalid mode(s). Valid modes are: {{ join ", " $validModes }}. Check the following object storage configuration(s): {{ join ", " $invalidTypes }}
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.objectStorage.allowedDownloadModes */}}

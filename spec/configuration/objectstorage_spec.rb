@@ -38,9 +38,14 @@ describe 'ObjectStorage configuration' do
               connection:
                 secret: gitlab-object-storage
                 key: connection
+              allowed_download_modes:
+                - direct
+                - proxy
             artifacts:
               bucket: artifacts-bucket
               proxy_download: false
+              allowed_download_modes:
+                - direct
               cdn:
                 secret: gitlab-cdn-storage
                 key: cdn
@@ -74,8 +79,10 @@ describe 'ObjectStorage configuration' do
           object_store_config = config.dig('production', 'object_store')
 
           expect(object_store_config['enabled']).to be true
+          expect(object_store_config['allowed_download_modes']).to eq(%w[direct proxy])
           expect(object_store_config.dig('objects', 'proxy_download')).to be_nil
           expect(object_store_config.dig('objects', 'artifacts', 'proxy_download')).to be false
+          expect(object_store_config.dig('objects', 'artifacts', 'allowed_download_modes')).to eq(%w[direct])
           expect(object_store_config.dig('objects', 'artifacts', 'bucket')).to eq('artifacts-bucket')
           expect(object_store_config.dig('objects', 'lfs', 'proxy_download')).to be true
           expect(object_store_config.dig('objects', 'lfs', 'bucket')).to eq('lfs-bucket')
@@ -119,6 +126,52 @@ describe 'ObjectStorage configuration' do
           end
 
           expect(secret_names).to include('gitlab-object-storage', 'gitlab-cdn-storage')
+        end
+      end
+    end
+
+    context 'without allowed_download_modes configured' do
+      context 'with consolidated object storage' do
+        it 'does not populate allowed_download_modes' do
+          values = HelmTemplate.with_defaults(%(
+            global:
+              appConfig:
+                object_store:
+                  enabled: true
+          ))
+          t = HelmTemplate.new(values)
+          expect(t.exit_code).to eq(0)
+
+          services.each do |cm|
+            raw_config = t.dig("ConfigMap/test-#{cm}", 'data', 'gitlab.yml.erb')
+            config = YAML.safe_load(raw_config)
+            object_store_config = config.dig('production', 'object_store')
+
+            expect(object_store_config).not_to have_key('allowed_download_modes')
+            object_store_config.fetch('objects').each_value do |object_config|
+              expect(object_config).not_to have_key('allowed_download_modes')
+            end
+          end
+        end
+      end
+
+      context 'with type-specific object storage' do
+        it 'does not populate allowed_download_modes' do
+          values = HelmTemplate.unconsolidated_defaults
+          t = HelmTemplate.new(values)
+          expect(t.exit_code).to eq(0)
+
+          types = %w[artifacts lfs uploads packages external_diffs terraform_state dependency_proxy ci_secure_files]
+
+          services.each do |cm|
+            raw_config = t.dig("ConfigMap/test-#{cm}", 'data', 'gitlab.yml.erb')
+            config = YAML.safe_load(raw_config)
+
+            types.each do |type|
+              type_config = config.dig('production', type, 'object_store')
+              expect(type_config).not_to have_key('allowed_download_modes') if type_config
+            end
+          end
         end
       end
     end
@@ -202,6 +255,22 @@ describe 'ObjectStorage configuration' do
       )
     end
 
+    let(:values_artifacts_allowed_download_modes) do
+      default_values.deep_merge(
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              artifacts:
+                connection:
+                  secret: gitlab-object-storage
+                  key: connection
+                allowed_download_modes:
+                  - direct
+                  - proxy
+        ))
+      )
+    end
+
     let(:values_artifacts_cdn) do
       YAML.safe_load(%(
         global:
@@ -222,6 +291,23 @@ describe 'ObjectStorage configuration' do
     it_behaves_like 'storage-specific settings'
 
     context 'when true' do
+      context 'with allowed_download_modes provided' do
+        it 'populates allowed_download_modes configuration' do
+          t = HelmTemplate.new(values_artifacts_allowed_download_modes)
+          expect(t.exit_code).to eq(0)
+
+          services.each do |cm|
+            raw_config = t.dig("ConfigMap/test-#{cm}", 'data', 'gitlab.yml.erb')
+            config = YAML.safe_load(raw_config)
+
+            artifacts_config = config.dig('production', 'artifacts')
+
+            expect(artifacts_config['enabled']).to be true
+            expect(artifacts_config.dig('object_store', 'allowed_download_modes')).to eq(%w[direct proxy])
+          end
+        end
+      end
+
       context 'with CDN provided' do
         it 'populates CDN configuration' do
           t = HelmTemplate.new(values_artifacts_cdn)

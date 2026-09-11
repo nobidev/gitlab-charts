@@ -1063,6 +1063,7 @@ global:
     object_store:
       enabled: false
       proxy_download: true
+      allowed_download_modes: []
       storage_options: {}
       connection: {}
     lfs:
@@ -1338,6 +1339,7 @@ are not individually configured with a `connection` property.
 object_store:
   enabled: true
   proxy_download: true
+  allowed_download_modes: []
   storage_options:
   connection:
     secret:
@@ -1348,6 +1350,7 @@ object_store:
 |:------------------|:-------:|:--------|:------------|
 | `enabled`         | Boolean | `false` | Enable the use of consolidated object storage. |
 | `proxy_download`  | Boolean | `true`  | Enable proxy of all downloads via GitLab, in place of direct downloads from the `bucket`. |
+| `allowed_download_modes` | Array | `[]` | Download modes API clients can request: `proxy` and `direct`. When empty, GitLab uses the mode set by `proxy_download`. See [Allow client override for proxy download](https://docs.gitlab.com/administration/object_storage/#allow-client-override-for-proxy-download) for details. |
 | `storage_options` | String  | `{}`    | [See below](#storage_options). |
 | `connection`      | String  | `{}`    | [See below](#connection). |
 
@@ -1355,7 +1358,7 @@ The property structure is shared, and all properties here can be overridden by t
 items below. The `connection` property structure is identical.
 
 > [!note]
-> The `bucket`, `enabled`, and `proxy_download` properties are the only properties that must be
+> The `bucket`, `enabled`, `proxy_download`, and `allowed_download_modes` properties can be
 > configured on a per-item level (`global.appConfig.artifacts.bucket`, ...) if you wish to
 > deviate from the default values.
 
@@ -1439,6 +1442,7 @@ as they are structurally identical aside from the default value of the `bucket` 
 ```yaml
   enabled: true
   proxy_download: true
+  allowed_download_modes: []
   bucket:
   connection:
     secret:
@@ -1449,6 +1453,7 @@ as they are structurally identical aside from the default value of the `bucket` 
 |:-----------------|:-------:|:-------------------------------------------------------------|:------------|
 | `enabled`        | Boolean | Defaults to `true` for LFS, artifacts, uploads, and packages | Enable the use of these features with object storage. |
 | `proxy_download` | Boolean | `true`                                                       | Enable proxy of all downloads via GitLab, in place of direct downloads from the `bucket`. |
+| `allowed_download_modes` | Array | `[]`                                                   | Download modes API clients can request: `proxy` and `direct`. When empty, GitLab uses the mode set by `proxy_download`. |
 | `bucket`         | String  | Various                                                      | Name of the bucket to use from object storage provider. Default will be `git-lfs`, `gitlab-artifacts`, `gitlab-uploads`, or `gitlab-packages`, depending on the service. |
 | `connection`     | String  | `{}`                                                         | [See below](#connection). |
 
