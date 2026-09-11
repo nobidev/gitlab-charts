@@ -10,7 +10,7 @@ omniauth.providers: each provider should only contain either:
         a) 'secret', and optionally 'key', or
         b) 'name', and optionally 'icon', and `label`
         A current value of global.appConfig.omniauth.providers[{{ $index }}] must be updated.
-        Please see https://docs.gitlab.com/charts/charts/globals.html#providers
+        Please see https://docs.gitlab.com/charts/charts/globals/#providers
 {{-     end }}
 {{-   end }}
 {{- end }}

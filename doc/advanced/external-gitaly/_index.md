@@ -152,7 +152,7 @@ with the `-f / --values` flag.
 
 ### Connecting to external Gitaly over TLS
 
-If your external [Gitaly server listens over TLS port](https://docs.gitlab.com/administration/gitaly/#enable-tls-support),
+If your external [Gitaly server listens over TLS port](https://docs.gitlab.com/administration/gitaly/tls_support/),
 you can make your GitLab instance communicate with it over TLS. To do this, you
 have to
 
@@ -397,7 +397,7 @@ After connectivity is confirmed, we can proceed to scheduling the repository sto
 
 #### Step 4: Schedule the repository storage move
 
-Schedule the move by following the steps indicated in [moving repositories](https://docs.gitlab.com/administration/operations/moving_repositories/#moving-repositories).
+Schedule the move by following the steps indicated in [moving repositories](https://docs.gitlab.com/administration/operations/moving_repositories/).
 
 #### Step 5: Final configuration and validation
 

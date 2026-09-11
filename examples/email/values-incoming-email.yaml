@@ -12,7 +12,7 @@ global:
       startTls: true
       user: myusername
       password:
-        # https://docs.gitlab.com/charts/installation/secrets.html#imap-password-for-incoming-emails#imap-password-for-incoming-emails
+        # https://docs.gitlab.com/charts/installation/secrets/#imap-password-for-incoming-emails
         # https://docs.gitlab.com/development/emails/
         secret: incoming-email-password
         key: secret
