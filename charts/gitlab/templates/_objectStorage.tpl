@@ -19,6 +19,9 @@ object_store:
   {{- end }}
   {{- if ne .name "pages" }}
   proxy_download: {{ or (not (kindIs "bool" .config.proxy_download)) .config.proxy_download }}
+  {{- if .config.allowed_download_modes }}
+  allowed_download_modes: {{ .config.allowed_download_modes | toJson }}
+  {{- end }}
   {{- end }}
   {{- if and .config.enabled .config.storage_options }}
   storage_options:
@@ -78,6 +81,9 @@ Usage:
   bucket: {{ .config.bucket }}
 {{-   if kindIs "bool" .config.proxy_download }}
   proxy_download: {{ .config.proxy_download }}
+{{-     end -}}
+{{-   if and (ne .name "pages") .config.allowed_download_modes }}
+  allowed_download_modes: {{ .config.allowed_download_modes | toJson }}
 {{-     end -}}
 {{-     if and .config.cdn (eq .name "artifacts") }}
   cdn: <%= YAML.load_file("/etc/gitlab/objectstorage/cdn/{{ .name }}").to_json %>
