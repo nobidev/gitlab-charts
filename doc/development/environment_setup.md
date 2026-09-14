@@ -72,6 +72,21 @@ The following cloud cluster options are supported:
 - [GKE](../installation/cloud/gke.md) - Google Kubernetes Engine, recommended
 - [EKS](../installation/cloud/eks.md) - Amazon Elastic Kubernetes Service
 
+## Nix
+
+Nix is an optional alternative to the mise and manual cluster setup described above.
+It gives you a reproducible dev shell and a one-command local GitLab deployment.
+
+With Nix and flakes enabled, you can:
+
+- Enter a dev shell with the required tools: `nix develop`.
+- Deploy a local GitLab in a single command: `nix run .#up`.
+- Tear the whole stack down: `nix run .#down`.
+
+The Nix workflow is additive. It does not change the mise or RSpec workflow.
+
+For more information, see the [Nix workflow documentation](../../nix/README.md).
+
 ## External dependencies
 
 To set up Valkey, CloudNativePG, and Garage as the required external services, see
