@@ -24,6 +24,42 @@ You can migrate from the bundled NGINX Ingress to Gateway API with either:
 
 If you do not want to migrate, you can [continue using an Ingress controller](#continue-using-an-ingress-controller).
 
+If your instance still runs GitLab 18.x, read [Choose when to migrate](#choose-when-to-migrate)
+before you start.
+
+## Choose when to migrate
+
+You can migrate to Gateway API either before or after you upgrade to GitLab 19.0.
+The two options have different support implications.
+
+In GitLab 18.x (chart 9.x), Gateway API and the bundled Envoy Gateway are in
+[Beta](https://docs.gitlab.com/policy/development_stages_support/#beta) and disabled by default.
+Bug fixes for Beta features are not backported to previous GitLab versions. A Gateway API
+bug found after you migrate on 18.x is fixed in GitLab 19.x only, and the only way to receive
+the fix is to upgrade.
+
+For example, the KAS Kubernetes API proxy did not work through the chart-managed Envoy Gateway
+because the `BackendTrafficPolicy` forced HTTP/2 onto an HTTP/1.1-only backend. See
+[issue 6557](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6557). The fix shipped in
+chart 10.0.5 (GitLab 19.0.5), 10.1.3 (GitLab 19.1.3), and 10.2.0 (GitLab 19.2.0). It was not
+backported to chart 9.11 (GitLab 18.11).
+
+Since GitLab 19.0, Gateway API with the bundled Envoy Gateway is the default and is
+covered by the regular [maintenance policy](https://docs.gitlab.com/policy/maintenance/).
+
+You should:
+
+1. Keep your existing Ingress controller while you upgrade from 18.x to 19.x. Staying on
+   the bundled NGINX Ingress across the 19.0 upgrade is supported. For the required values,
+   see [Continue using an Ingress controller](#continue-using-an-ingress-controller).
+1. Upgrade to the latest 19.x patch release available to you. Later patch releases include
+   additional Gateway API fixes.
+1. Migrate to Gateway API and Envoy Gateway with a
+   [one step](#migrate-in-one-step) or [zero downtime](#migrate-with-zero-downtime) migration.
+
+Migrating on 18.x is still possible. If you do, plan to upgrade to 19.x soon after,
+so that you can receive Gateway API bug fixes.
+
 ## Migrate in one step
 
 > [!warning]
