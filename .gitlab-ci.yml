@@ -216,11 +216,11 @@ tag_auto_deploy:
       - charts/*.tgz
       - .chart-lock.sha256
 
-# Cache for ensure_external_chart (valkey/cnpg/garage), keyed on their
-# pinned versions since they aren't tracked by a lockfile.
+# Cache for ensure_external_chart (gitlab-dev-stack, cnpg operator), keyed on
+# their pinned versions since they aren't tracked by a lockfile.
 .external_charts_cache:
   cache:
-    key: "external-charts-${VALKEY_CHART_VERSION}-${CNPG_CHART_VERSION}-${GARAGE_APP_VERSION}"
+    key: "external-charts-${DEV_STACK_CHART_VERSION}-${CNPG_CHART_VERSION}"
     paths:
       - .external-charts/
 

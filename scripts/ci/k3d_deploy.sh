@@ -2,6 +2,12 @@
 # Deploy GitLab chart to a k3d cluster and write the VARIABLES_FILE consumed
 # by downstream spec/QA steps within the same job.
 
+# This is an executed entry point, so it owns its own strict mode. The
+# libraries it sources deliberately don't set flags (they'd leak into a
+# developer's interactive shell), so without this a failed `deploy` would
+# fall through to `wait_for_deploy` and spin until the job timeout.
+set -eo pipefail
+
 source scripts/ci/autodevops.sh
 source scripts/ci/k3d.sh
 

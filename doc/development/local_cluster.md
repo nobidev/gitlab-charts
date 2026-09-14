@@ -206,9 +206,10 @@ kubectl create secret generic -n "${NAMESPACE}" \
   --from-literal=license="${QA_EE_ACTIVATION_CODE:-}" \
   -o yaml --dry-run=client | kubectl apply -f -
 
-# 3. Deploy. autodevops.sh handles ensure_namespace → deploy_dev_stack
-#    (PostgreSQL, Valkey, Garage) → deploy_chart (helm upgrade --install
-#    with the full CI values stack) → wait_for_pods.
+# 3. Deploy. autodevops.sh handles ensure_namespace →
+#    deploy_external_components (PostgreSQL, Valkey, Garage via
+#    gitlab-dev-stack) → deploy_chart (helm upgrade --install with the full
+#    CI values stack) → wait_for_pods.
 bash scripts/ci/autodevops.sh
 ```
 

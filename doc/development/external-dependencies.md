@@ -71,6 +71,11 @@ See [Environment setup](environment_setup.md) for tool installation guidance.
 
    The release emits one `-conn` Secret per component holding the credentials and
    endpoints the GitLab chart consumes.
+1. **Wait for PostgreSQL** - `helm --wait` only tracks built-in workload kinds, so it
+   returns while the CloudNativePG `Cluster` and `Database` resources are still
+   reconciling. The script waits for the cluster to be `Ready` and every database to
+   report `applied`, so a deploy that follows does not run migrations against a
+   PostgreSQL with no databases, roles, or extensions yet.
 1. **Values file** - writes `.values/dev-external.values.yaml`, which points the GitLab
    chart at those Secrets. It is rendered from
    `scripts/ci/values/gitlab-chart/dev-stack.values.yaml`, the same overlay CI layers into
@@ -105,6 +110,7 @@ helm uninstall gitlab --namespace gitlab
 | `CNPG_CHART_VERSION`      | from `.gitlab-ci.yml` | CloudNativePG operator chart version          |
 | `CNPG_POSTGRESQL_TAG`     | from `.gitlab-ci.yml` | PostgreSQL image tag used by CloudNativePG    |
 | `GARAGE_APP_VERSION`      | from `.gitlab-ci.yml` | Garage version to install                     |
+| `DEV_STACK_PG_WAIT_TIMEOUT` | `600`             | Seconds to wait for the CloudNativePG cluster and databases |
 
 The version defaults are read from the `variables:` block in `.gitlab-ci.yml`, so a local
 stack matches the one CI provisions. Override any of them to try a bump before changing CI.

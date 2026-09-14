@@ -133,11 +133,24 @@ function prepare_values() {
   done
 }
 
+# How long wait_for_pods will poll before giving up. These loops used to be
+# unbounded: a deploy that never converged sat here until the job hit its
+# (4 hour) timeout, hiding the real error and holding a runner the whole time.
+WAIT_FOR_PODS_TIMEOUT="${WAIT_FOR_PODS_TIMEOUT:-900}"
+
 function check_kas_status() {
+  local deadline=$(( SECONDS + WAIT_FOR_PODS_TIMEOUT ))
   local iteration=0
   local kasState=""
 
   while [ "${kasState[1]}" != "Running" ]; do
+    if [ "${SECONDS}" -ge "${deadline}" ]; then
+      echo ""
+      echo "ERROR: KAS Pod did not reach Running within ${WAIT_FOR_PODS_TIMEOUT}s" >&2
+      kubectl get pods -n "$NAMESPACE" -lrelease="$(gitlab_release_name)",app=kas >&2
+      return 1
+    fi
+
     if [ $iteration -eq 0 ]; then
       echo ""
       echo -n "Waiting for KAS deploy to complete.";
@@ -154,11 +167,19 @@ function check_kas_status() {
 # wait_for_pods polls for webservice + kas Pods to reach Running.
 # Historical name `wait_for_deploy` kept as an alias.
 function wait_for_pods {
+  local deadline=$(( SECONDS + WAIT_FOR_PODS_TIMEOUT ))
   local iteration=0
 
   # Watch for a `webservice` Pod to come online.
   local webserviceState=0
   while [ "$webserviceState" -lt 2 ]; do
+    if [ "${SECONDS}" -ge "${deadline}" ]; then
+      echo ""
+      echo "ERROR: no webservice Pod reached Running within ${WAIT_FOR_PODS_TIMEOUT}s" >&2
+      kubectl get pods -n "$NAMESPACE" -lrelease="$(gitlab_release_name)" >&2
+      return 1
+    fi
+
     # This will always return at least one line, `NAME`
     webserviceState=($(kubectl get pods -n "$NAMESPACE" -lrelease=$(gitlab_release_name),app=webservice --field-selector status.phase=Running -o=custom-columns=NAME:.metadata.name | wc -l))
     if [ $iteration -eq 0 ]; then
@@ -166,6 +187,7 @@ function wait_for_pods {
     else
       echo -n "."
     fi
+    iteration=$((iteration+1))
     sleep 5;
   done
 

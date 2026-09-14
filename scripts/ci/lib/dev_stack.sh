@@ -13,7 +13,10 @@
 # k3d) and local development get a namespaced one from install_cnpg_operator
 # below.
 
-DEV_STACK_CHART="${DEV_STACK_CHART:-oci://registry.gitlab.com/gitlab-org/cloud-native/charts/gitlab-dev-stack/gitlab-dev-stack}"
+DEV_STACK_CHART_REPO="${DEV_STACK_CHART_REPO:-oci://registry.gitlab.com/gitlab-org/cloud-native/charts/gitlab-dev-stack}"
+DEV_STACK_CHART_NAME="${DEV_STACK_CHART_NAME:-gitlab-dev-stack}"
+
+CNPG_CHART_REPO="${CNPG_CHART_REPO:-https://cloudnative-pg.github.io/charts}"
 
 # Release name for the namespaced CloudNativePG operator install. Distinct
 # from dev_stack_release_name so the operator can be upgraded or torn down
@@ -29,14 +32,18 @@ function needs_cnpg_operator() {
 }
 
 function install_cnpg_operator() {
-    local version_flag=""
+    local version_flag=()
     if [ -n "${CNPG_CHART_VERSION}" ]; then
-        version_flag="--version ${CNPG_CHART_VERSION}"
+        version_flag=(--version "${CNPG_CHART_VERSION}")
     fi
 
-    helm repo add cnpg https://cloudnative-pg.github.io/charts
-    helm upgrade --install "$(cnpg_operator_release_name)" cnpg/cloudnative-pg \
-        ${version_flag} \
+    # Install from a locally cached .tgz rather than a repo reference, so the
+    # CI cache (.external_charts_cache) can spare us the download.
+    local chart
+    chart="$(ensure_external_chart cnpg "${CNPG_CHART_REPO}" cloudnative-pg \
+        "${CNPG_CHART_VERSION:-latest}" "${version_flag[@]}")"
+
+    helm upgrade --install "$(cnpg_operator_release_name)" "${chart}" \
         --namespace "${NAMESPACE}" \
         --set config.clusterWide=false \
         --wait \
@@ -78,18 +85,49 @@ function deploy_dev_stack() {
 
     echo "Installing/upgrading gitlab-dev-stack as $(dev_stack_release_name)"
 
-    local version_flag=""
+    local version_flag=()
     if [ -n "${DEV_STACK_CHART_VERSION}" ]; then
-        version_flag="--version ${DEV_STACK_CHART_VERSION}"
+        version_flag=(--version "${DEV_STACK_CHART_VERSION}")
     fi
+
+    local chart
+    chart="$(ensure_external_chart dev-stack "${DEV_STACK_CHART_REPO}" \
+        "${DEV_STACK_CHART_NAME}" "${DEV_STACK_CHART_VERSION:-latest}" "${version_flag[@]}")"
 
     render_dev_stack_values
 
-    helm upgrade --install "$(dev_stack_release_name)" "${DEV_STACK_CHART}" \
-        ${version_flag} \
+    helm upgrade --install "$(dev_stack_release_name)" "${chart}" \
         -n "${NAMESPACE}" \
         -f "${VALUES_DIR}/dev-stack/values.yaml" \
         --wait --timeout 600s --hide-notes
+
+    wait_for_dev_stack_postgres
+}
+
+# `helm --wait` only tracks built-in workload kinds, so it returns while the
+# CloudNativePG Cluster and Database CRs it created are still reconciling —
+# `helm install` reports success against a Postgres that has no databases,
+# roles, or extensions yet. The GitLab chart deploy that follows starts its
+# migrations Job immediately and fails against that half-built Postgres, so
+# wait for the CRs here instead.
+function wait_for_dev_stack_postgres() {
+    local timeout="${DEV_STACK_PG_WAIT_TIMEOUT:-600}"
+    local selector="app.kubernetes.io/instance=$(dev_stack_release_name),app.kubernetes.io/component=postgres"
+
+    echo "Waiting for CloudNativePG clusters to become Ready"
+    kubectl wait --for=condition=Ready --timeout="${timeout}s" \
+        -n "${NAMESPACE}" -l "${selector}" cluster.postgresql.cnpg.io --all
+
+    # Database CRs expose no conditions, only a boolean `status.applied`. They
+    # briefly report `role "<owner>" does not exist` while the Cluster's
+    # managed roles are still being created, then reconcile on retry.
+    echo "Waiting for CloudNativePG databases to be applied"
+    if ! kubectl wait --for=jsonpath='{.status.applied}'=true --timeout="${timeout}s" \
+        -n "${NAMESPACE}" -l "${selector}" database.postgresql.cnpg.io --all; then
+        kubectl get database.postgresql.cnpg.io -n "${NAMESPACE}" -l "${selector}" \
+            -o custom-columns=NAME:.metadata.name,APPLIED:.status.applied,MESSAGE:.status.message >&2
+        return 1
+    fi
 }
 
 function remove_dev_stack() {

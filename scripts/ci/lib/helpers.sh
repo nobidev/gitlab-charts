@@ -90,9 +90,10 @@ function external_protocol() {
 EXTERNAL_CHARTS_DIR=".external-charts"
 
 # ensure_external_chart pulls <chart> from <repo_url> (registered under
-# <alias>) into a directory keyed on <cache_tag> - typically the chart
-# version - skipping the pull if already cached, and prints the resulting
-# .tgz path. Extra args are passed through to `helm pull` (e.g. --version).
+# <alias>, or pulled directly when <repo_url> is an oci:// reference) into a
+# directory keyed on <cache_tag> - typically the chart version - skipping the
+# pull if already cached, and prints the resulting .tgz path. Extra args are
+# passed through to `helm pull` (e.g. --version).
 #
 # Meant so callers can `helm upgrade --install` from that local path instead
 # of a repo/chart reference, which always re-downloads the chart even if an
@@ -108,8 +109,13 @@ function ensure_external_chart() {
 
   if [[ -z "${dest}" ]]; then
     mkdir -p "${dest_dir}"
-    helm repo add "${alias}" "${repo_url}" >&2
-    helm pull "${alias}/${chart}" --destination "${dest_dir}" "$@" >&2
+    if [[ "${repo_url}" == oci://* ]]; then
+      # OCI registries have no repo index to add; pull the ref directly.
+      helm pull "${repo_url}/${chart}" --destination "${dest_dir}" "$@" >&2
+    else
+      helm repo add "${alias}" "${repo_url}" >&2
+      helm pull "${alias}/${chart}" --destination "${dest_dir}" "$@" >&2
+    fi
     dest="$(find "${dest_dir}" -name '*.tgz' -print -quit)"
   fi
 
