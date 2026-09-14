@@ -1,5 +1,11 @@
 #!/bin/bash
-set -e
+
+# Strict mode only when executed directly, not when sourced. Sourcing a
+# `set -e` script into a dev shell terminates that shell on first error
+# (see local-ci-spike.md §"Friction-point catalog"). CI invokes this via
+# `./scripts/ci/run_specs.sh` so the executed path keeps the original
+# behaviour.
+(return 0 2>/dev/null) || set -e
 
 if [[ -n "${VARIABLES_FILE}" ]]; then
   source "${VARIABLES_FILE}"

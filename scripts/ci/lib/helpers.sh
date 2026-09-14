@@ -1,5 +1,30 @@
 #!/bin/bash
 
+# ARTIFACTS_DIR is the parent of everything a CI job (or a local dev run)
+# emits onto disk — rendered values files, debug bundles, skopeo error logs.
+# Defaults to the CI project root (so existing CI artifact paths like
+# `./k3d-debug/` and `./.values/` keep landing where they always did) or
+# the current working directory when running locally without CI envvars.
+: "${ARTIFACTS_DIR:=${CI_PROJECT_DIR:-$(pwd)}}"
+export ARTIFACTS_DIR
+
+_HELPERS_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CI_YAML="${CI_YAML:-${_HELPERS_LIB_DIR}/../../../.gitlab-ci.yml}"
+
+# ci_variable echoes a top-level `variables:` entry from .gitlab-ci.yml. Local
+# tooling reads dependency versions through it so a developer provisions what
+# CI provisions, rather than carrying a second set of defaults that silently
+# drift. Requires yq (pinned in mise.toml).
+function ci_variable() {
+  local name="${1}" value
+  value="$(yq ".variables.${name}" "${CI_YAML}")"
+  if [ -z "${value}" ] || [ "${value}" = "null" ]; then
+    echo "ci_variable: ${name} not found in ${CI_YAML}" >&2
+    return 1
+  fi
+  echo -n "${value}"
+}
+
 function is_ci_deployment() {
   [[ -n "${CI_PIPELINE_ID}" ]]
 }
@@ -13,10 +38,6 @@ function is_local_deployment() {
 # still has vcluster environments.
 function is_vcluster_deployment() {
   [[ -n "${VCLUSTER_K8S_VERSION}" ]]
-}
-
-function is_openshift_deployment() {
-  [[ -n "${OPENSHIFT_DEPLOYMENT}" ]]
 }
 
 function is_k3d_deployment() {
@@ -37,64 +58,16 @@ function gitlab_release_name() {
   echo -n "$(release_name_base)-gitlab"
 }
 
-function valkey_release_name() {
-  echo -n "$(release_name_base)-valkey"
-}
-
-function valkey_auth_secret() {
-  echo -n "$(valkey_release_name)-auth"
-}
-
-function valkey_auth_secret_key() {
-  echo -n "default"
-}
-
-function cnpg_release_name() {
-  echo -n "$(release_name_base)-cnpg"
-}
-
-function cnpg_cluster_name() {
-  echo -n "$(release_name_base)-cluster"
-}
-
-function cnpg_cluster_host() {
-  echo -n "$(cnpg_cluster_name)-rw"
-}
-
-function cnpg_cluster_secret() {
-  echo -n "$(cnpg_cluster_name)-app"
-}
-
-function cnpg_cluster_registry_secret() {
-  echo -n "$(cnpg_cluster_name)-registry-app"
-}
-
-function use_external_valkey() {
-  [[ "${SKIP_EXTERNAL_VALKEY}" != "true" ]]
-}
-
-function use_external_postgresql() {
-  [[ "${SKIP_EXTERNAL_POSTGRESQL}" != "true" ]]
-}
-
-function garage_release_name() {
-  echo -n "$(release_name_base)-garage"
-}
-
-function use_external_garage() {
-  [[ "${SKIP_EXTERNAL_GARAGE}" != "true" ]]
+# The gitlab-dev-stack umbrella release provisions Postgres, Valkey, and
+# Garage. See scripts/ci/lib/dev_stack.sh.
+function dev_stack_release_name() {
+  echo -n "$(release_name_base)-stack"
 }
 
 # Pebble (in-cluster ACME test server) is opt-in: only HTTPS k3d jobs deploy it
 # to exercise the chart's cert-manager integration. See scripts/ci/lib/pebble.sh.
 function use_pebble() {
   [[ "${DEPLOY_PEBBLE}" == "true" ]]
-}
-
-# common_openshift_values returns values needed to deploy Garage
-# and Valkey into OpenShift clusters.
-function common_openshift_values() {
-  echo "--set podSecurityContext.fsGroup=null --set podSecurityContext.runAsUser=null --set podSecurityContext.runAsGroup=null"
 }
 
 function use_nginx_ingress() {

@@ -1,5 +1,10 @@
 #!/bin/bash
-set -e
+
+# Strict mode only when executed directly, not when sourced. The bats suite
+# (scripts/ci/pin_image_digests.bats) sources this file to exercise
+# individual functions, and devs do the same from a dev shell.
+# See local-ci-spike.md §"Friction-point catalog".
+(return 0 2>/dev/null) || set -e
 
 # This script collects the current digest for each specified image
 # and writes the results into a Helm values file. This allows us
@@ -13,12 +18,28 @@ set -e
 # - skopeo_errors.log: Captures detailed error output from skopeo for debugging
 #   This file should be included as a CI artifact to help diagnose registry issues
 #
+# Environment:
+#   CNG_REGISTRY      Registry path the CNG component images live under.
+#                     Defaults to the canonical `registry.gitlab.com/gitlab-org/build/cng`.
+#                     Override only for testing against a mirror; pulls during
+#                     deploy still flow through the chart's own image references,
+#                     so the override here only affects manifest reads.
+#   GITLAB_VERSION    Tag to pin against (defaults to Chart.yaml's appVersion;
+#                     stable branches map vX.Y.Z → X-Y-stable automatically).
+#   DIGESTS_FILE      Output path (defaults to <repo>/ci.digests.yaml).
+#   CHART_FILE        Chart.yaml location used to derive default tag.
+#
 # Usage:
 # $ bash ./scripts/ci/pin_image_digests.sh
 
 PROJECT_ROOT="$(dirname -- "${BASH_SOURCE[0]}")/../.."
 DIGESTS_FILE="${DIGESTS_FILE:-$PROJECT_ROOT/ci.digests.yaml}"
 CHART_FILE="${CHART_FILE:-$PROJECT_ROOT/Chart.yaml}"
+CNG_REGISTRY="${CNG_REGISTRY:-registry.gitlab.com/gitlab-org/build/cng}"
+# ARTIFACTS_DIR defaults to ${CI_PROJECT_DIR:-$(pwd)}, which is the same path
+# CI's `artifacts: paths: [skopeo_errors.log]` resolves against.
+SKOPEO_ERROR_LOG="${SKOPEO_ERROR_LOG:-${ARTIFACTS_DIR:-${CI_PROJECT_DIR:-$(pwd)}}/skopeo_errors.log}"
+mkdir -p "$(dirname "${SKOPEO_ERROR_LOG}")"
 
 function main() {
   if [ $SOURCED -eq 0 ]; then
@@ -75,7 +96,16 @@ function get_digest() {
   while [ $attempt -le $max_retries ]; do
     # Try to get the digest, with failures logged silently
     # All error details are captured in skopeo_errors.log for later analysis
-    if digest=$(skopeo inspect docker://registry.gitlab.com/gitlab-org/build/cng/$component:$tag --format "{{.Digest}}" --no-tags 2>>"skopeo_errors.log"); then
+    # --override-os linux pins manifest selection to the Linux entry in
+    # multi-arch image indexes. Without it skopeo defaults to the host's
+    # OS/arch (e.g. darwin/arm64 on a Mac dev shell) and fails on
+    # Linux-only CNG images. Architecture defaults to the host's arch,
+    # which is fine — the manifest-list digest skopeo emits is the same
+    # across platforms (containerd resolves the per-arch sub-manifest on
+    # pull). CI on linux/amd64 sees identical output.
+    if digest=$(skopeo inspect --override-os linux \
+        "docker://${CNG_REGISTRY}/${component}:${tag}" \
+        --format "{{.Digest}}" --no-tags 2>>"${SKOPEO_ERROR_LOG}"); then
       # Success - return the digest without any logging
       echo -n "${digest}"
       return 0
@@ -94,7 +124,7 @@ function get_digest() {
   # Only log error after retries have been exhausted
   echo "Error: Failed to get digest for $component:$tag after $max_retries attempts" >&2
   echo "Detailed error information:" >&2
-  cat skopeo_errors.log >&2
+  cat "${SKOPEO_ERROR_LOG}" >&2
   return 1
 }
 

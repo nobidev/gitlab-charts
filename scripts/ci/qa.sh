@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# In the event we don't have `CI_PIPELINE_CREATED_AT`, mock it consistently.
-export QA_SCRIPT_SOURCED_DATE=`date --universal --iso-8601=seconds`
+# Portable ISO-8601 UTC timestamp; GNU `date --iso-8601` and BSD `date -Iseconds`
+# differ enough to break either platform, so use the explicit format string
+# that both `date` implementations honour.
+export QA_SCRIPT_SOURCED_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 function qa_export_passwords() {
   for x in {1..6}; do
@@ -15,9 +17,15 @@ function qa_export_passwords() {
 # - CI_COMMIT_SHORT_SHA, which is unique per commit/pipelines
 # - Input user "number" if provided
 function qa_generate_password() {
-  USER=${1:-1}
-  REF=${CI_COMMIT_SHORT_SHA:-abcdef12345678}
-  CREATED=${CI_PIPELINE_CREATED_AT:-QA_SCRIPT_SOURCED_DATE}
+  local user="${1:-1}"
+  local ref="${CI_COMMIT_SHORT_SHA:-abcdef12345678}"
+  local created="${CI_PIPELINE_CREATED_AT:-${QA_SCRIPT_SOURCED_DATE}}"
 
-  echo -n "${REF}-${CREATED}-${USER}" | sha256sum -t - | cut -f1 -d' '
+  # `sha256sum` ships with coreutils (Linux/CI runner); macOS dev shells have
+  # only `shasum`. Pick whichever is available.
+  if command -v sha256sum >/dev/null 2>&1; then
+    echo -n "${ref}-${created}-${user}" | sha256sum | cut -f1 -d' '
+  else
+    echo -n "${ref}-${created}-${user}" | shasum -a 256 | cut -f1 -d' '
+  fi
 }
