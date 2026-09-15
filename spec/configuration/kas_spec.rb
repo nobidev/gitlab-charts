@@ -1337,6 +1337,42 @@ describe 'kas configuration' do
             end
           end
 
+          context 'when the Gateway is referenced in another namespace' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  gatewayApi:
+                    gatewayRef:
+                      name: shared-gateway
+                      namespace: gateways
+                  ingress:
+                    enabled: false
+              )))
+            end
+
+            it 'falls back to wss, the ClientTrafficPolicy cannot target the Gateway' do
+              expect(gitlab_yml(chart)).to include('external_url' => 'wss://kas.example.com')
+            end
+          end
+
+          context 'when the Gateway is referenced in the release namespace' do
+            let(:kas_values) do
+              default_kas_values.deep_merge!(YAML.safe_load(%(
+                global:
+                  gatewayApi:
+                    gatewayRef:
+                      name: shared-gateway
+                      namespace: default
+                  ingress:
+                    enabled: false
+              )))
+            end
+
+            it 'uses grpcs' do
+              expect(gitlab_yml(chart)).to include('external_url' => 'grpcs://kas.example.com')
+            end
+          end
+
           context 'when Gateway API is enabled without the chart-managed Envoy policies' do
             let(:kas_values) do
               default_kas_values.deep_merge!(YAML.safe_load(%(

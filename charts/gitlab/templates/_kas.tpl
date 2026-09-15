@@ -56,8 +56,11 @@ Never with a relative URL root, because the gRPC path cannot be prefixed. Otherw
 1. Gateway API with the chart-managed Envoy Gateway policies. gRPC passes through because
    of the BackendTrafficPolicy (useClientProtocol) on the KAS HTTPRoute, not because of the
    route itself, so this follows gitlab.gatewayApi.envoy.installRoutePolicies
-   (global.gatewayApi.enabled plus configureEnvoy or installEnvoy). An external Gateway of
-   another vendor keeps WebSocket.
+   (global.gatewayApi.enabled plus configureEnvoy or installEnvoy). The Gateway must also live
+   in the release namespace (global.gatewayApi.gatewayRef.namespace unset or equal to it),
+   because the KAS ClientTrafficPolicy that keeps HTTP/2 on the listener can only target a
+   Gateway in the same namespace. An external Gateway of another vendor, or one in another
+   namespace, keeps WebSocket.
 2. The KAS gRPC Ingress. An explicit global.kas.ingress.grpc.enabled is trusted as is. When
    it is unset, the Ingress only counts if Ingress is enabled globally (global.ingress.enabled,
    unset means enabled, like gitlab.ingress.enabled) and the provider is NGINX, the one the
@@ -65,14 +68,18 @@ Never with a relative URL root, because the gRPC path cannot be prefixed. Otherw
 
 Only reads `global` values, because it is evaluated from the webservice, sidekiq and toolbox
 charts, which cannot see the kas chart's values. The kas chart's local toggles
-(ingress.grpc.enabled, gatewayRoute.enabled, backendTrafficPolicy.spec) are therefore not
-seen here; prefer the global settings, or set global.appConfig.gitlab_kas.externalUrl.
+(ingress.grpc.enabled, gatewayRoute.enabled, gatewayRoute.gatewayNamespace,
+backendTrafficPolicy.spec, clientTrafficPolicy.spec) are therefore not seen here; prefer the
+global settings, or set global.appConfig.gitlab_kas.externalUrl.
 */}}
 {{- define "gitlab.kas.grpc.available" -}}
 {{-   $relativeUrlRoot := default "" .Values.global.appConfig.relativeUrlRoot -}}
 {{-   if eq $relativeUrlRoot "" -}}
 {{-     if eq "true" (include "gitlab.gatewayApi.envoy.installRoutePolicies" .) -}}
+{{-       $gatewayNamespace := default .Release.Namespace .Values.global.gatewayApi.gatewayRef.namespace -}}
+{{-       if eq $gatewayNamespace .Release.Namespace -}}
 true
+{{-       end -}}
 {{-     else -}}
 {{-       $globalToggle := .Values.global.kas.ingress.grpc.enabled -}}
 {{-       $ingressEnabled := true -}}

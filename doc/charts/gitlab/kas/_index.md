@@ -73,7 +73,7 @@ agent installation instructions show, and derives it from your networking setup 
 | Setup | Advertised address |
 |-------|--------------------|
 | Gateway API with the chart-managed Envoy Gateway policies (default). The `BackendTrafficPolicy` on the KAS `HTTPRoute` forwards the client protocol, and the [`ClientTrafficPolicy`](#client-traffic-policy) on the KAS listener keeps HTTP/2 enabled. | `grpcs://kas.example.com` |
-| Gateway API with another Gateway controller, or `global.gatewayApi.installEnvoy: false` without `configureEnvoy: true`. | `wss://kas.example.com` |
+| Gateway API with another Gateway controller, `global.gatewayApi.installEnvoy: false` without `configureEnvoy: true`, or a [Gateway in another namespace](#client-traffic-policy) referenced through `global.gatewayApi.gatewayRef.namespace`. | `wss://kas.example.com` |
 | Ingress enabled globally with the NGINX provider, which renders the [gRPC Ingress](#grpc-ingress-support), or `global.kas.ingress.grpc.enabled: true`. | `grpcs://kas.example.com` |
 | Ingress with another provider, `global.kas.ingress.grpc.enabled: false`, or routing handled outside the chart. | `wss://kas.example.com` |
 | [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root) set. | `wss://kas.example.com` |
@@ -286,8 +286,11 @@ gitlab:
 
 The chart injects `spec.targetRefs` with the Gateway and the KAS listener when you omit it. Set
 `clientTrafficPolicy.spec: null` to skip rendering the policy. The policy is not rendered when the
-Gateway lives in another namespace; in that case make sure the KAS listener negotiates HTTP/2, or
-set `global.appConfig.gitlab_kas.externalUrl` to a `wss://` address.
+Gateway lives in another namespace, because a `ClientTrafficPolicy` can only target a Gateway in its
+own namespace. When you reference such a Gateway through `global.gatewayApi.gatewayRef.namespace`,
+the chart advertises `wss://` instead. If you set the namespace only through the local
+`gatewayRoute.gatewayNamespace`, the derivation does not see it: make sure the KAS listener
+negotiates HTTP/2, or set `global.appConfig.gitlab_kas.externalUrl` to a `wss://` address.
 
 ## Test the `kas` chart
 
