@@ -74,7 +74,7 @@ adding a Helm chart repository:
 
 ```shell
 helm upgrade --install gitlab oci://registry.gitlab.com/charts/charts.gitlab.io/release/gitlab \
-  --version 10.4.0 \
+  --version <CHART_VERSION> \
   --timeout 600s \
   --set global.hosts.domain=example.com \
   --set global.hosts.externalIP=10.10.10.10 \
