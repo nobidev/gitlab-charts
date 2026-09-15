@@ -37,7 +37,9 @@ function remove_external_valkey() {
 }
 
 function valkey_password() {
-  tr -dc A-Za-z0-9 </dev/urandom | head -c 10
+  # Not `tr -dc ... </dev/urandom`: in a UTF-8 locale BSD tr (macOS) fails on /dev/urandom with
+  # "Illegal byte sequence" and the password comes out empty. Same generator as cloudnativepg.sh.
+  openssl rand -hex 16
 }
 
 function valkey_openshift_values() {
