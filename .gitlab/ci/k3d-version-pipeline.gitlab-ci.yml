@@ -49,16 +49,56 @@ qa_k3d:
     - when: on_success
 
 envoy_connection_lifecycle_k3d:
-  extends: .k3d_envoy_connection_lifecycle_template
+  extends:
+    - .specs
+    - .k3d_base
   stage: specs
+  cache:
+    - key: "debian-${DEBIAN_VERSION}-ruby-${RUBY_VERSION}-${CI_JOB_NAME}"
+      paths:
+      - gems
+    - !reference [.chart_deps_cache, cache]
+    - !reference [.external_charts_cache, cache]
+  variables:
+    RSPEC_TAGS: envoy_connection_lifecycle
   needs:
     - pipeline: $PARENT_PIPELINE_ID
       job: pin_image_versions
+  before_script:
+    - source scripts/ci/autodevops.sh
+    - source scripts/ci/k3d.sh
+    - k3d_install
+  script:
+    - ./scripts/ci/install_spec_dependencies.sh
+    - mkdir -p "$(dirname "${VARIABLES_FILE}")"
+    - k3d_create
+    - k3d_info
+    - kubectl version --output=json
+    - ./scripts/ci/k3d_deploy.sh
+    - ./scripts/ci/run_specs.sh
+  after_script:
+    - source scripts/ci/k3d.sh
+    - k3d_collect_debug
+    - k3d_delete
+  artifacts:
+    when: always
+    expire_in: 7d
+    paths:
+      - ./envoy-connection-lifecycle/
+      - ./k3d-debug/
   # The primary k3d version is the regular Gateway API coverage target. Run
-  # this focused check once rather than multiplying a connection soak by the
-  # compatibility matrix.
+  # this focused check only when its test or webservice Envoy policy changes.
   rules:
     - if: '$K3D_PRIMARY == "primary"'
+      changes:
+        compare_to: $CI_DEFAULT_BRANCH
+        paths:
+          - .gitlab/ci/k3d-version-pipeline.gitlab-ci.yml
+          - scripts/ci/values/gitlab-chart/gatewayapi-http.values.yaml
+          - spec/features/envoy_connection_lifecycle_spec.rb
+          - templates/envoy/**
+          - charts/gitlab/charts/webservice/templates/backendtrafficpolicy.yaml
+
 
 qa_k3d_manual_full_suite:
   extends: .k3d_qa_manual_full_suite_template

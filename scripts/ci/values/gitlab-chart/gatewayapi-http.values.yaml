@@ -33,3 +33,14 @@ gatewayApiResources:
       headers:
         host:
           stripTrailingHostDot: true
+
+# Keep the lifecycle probe deterministic without changing the chart default:
+# Envoy closes idle upstream Webservice connections after the clients close and
+# before the spec's 30-second drain deadline.
+gitlab:
+  webservice:
+    backendTrafficPolicy:
+      spec:
+        timeout:
+          http:
+            connectionIdleTimeout: 15s
