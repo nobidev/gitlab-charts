@@ -1,0 +1,28 @@
+test-gitaly-secret/token: random charset=alphanumeric length=64
+test-gitlab-initial-root-password/password: random charset=alphanumeric length=64
+test-gitlab-kas-secret/kas_shared_secret: random charset=alphanumeric length=32 encoding=base64
+test-gitlab-pages-auth-secret/password: random charset=alphanumeric length=64 encoding=base64-nowrap
+test-gitlab-pages-secret/shared_secret: random charset=alphanumeric length=32 encoding=base64
+test-gitlab-runner-secret/runner-registration-token: random charset=alphanumeric length=64
+test-gitlab-runner-secret/runner-token: static value=""
+test-gitlab-shell-host-keys/host_keys: sshHostKeys
+test-gitlab-shell-secret/secret: random charset=alphanumeric length=64
+test-gitlab-workhorse-secret/shared_secret: random charset=alphanumeric length=32 encoding=base64
+test-kas-private-api/kas_private_api_secret: random charset=alphanumeric length=32 encoding=base64
+test-kas-websocket-token/kas_websocket_token_secret: bytes encoding=base64 length=72
+test-oauth-gitlab-pages-secret/appid: random charset=alphanumeric length=64
+test-oauth-gitlab-pages-secret/appsecret: random charset=alphanumeric length=64
+test-praefect-dbsecret/secret: random charset=alphanumeric length=32
+test-praefect-secret/token: random charset=alphanumeric length=64
+test-rails-secret/secrets.yml[active_record_encryption_deterministic_key]: rails-list charset=alphanumeric length=32
+test-rails-secret/secrets.yml[active_record_encryption_key_derivation_salt]: rails-scalar charset=alphanumeric length=32
+test-rails-secret/secrets.yml[active_record_encryption_primary_key]: rails-list charset=alphanumeric length=32
+test-rails-secret/secrets.yml[db_key_base]: rails-scalar charset=hex length=128
+test-rails-secret/secrets.yml[encrypted_settings_key_base]: rails-scalar charset=hex length=128
+test-rails-secret/secrets.yml[openid_connect_signing_key]: rails-pem bits=2048
+test-rails-secret/secrets.yml[otp_key_base]: rails-scalar charset=hex length=128
+test-rails-secret/secrets.yml[secret_key_base]: rails-scalar charset=hex length=128
+test-registry-httpsecret/secret: random charset=lowerAlphanumeric length=128 encoding=base64-nowrap
+test-registry-notification/secret: random charset=alphanumeric length=32 wrap=jsonArray
+test-registry-secret/registry-auth.crt: x509 bits=4096 cn=gitlab-issuer days=3650 role=cert
+test-registry-secret/registry-auth.key: x509 bits=4096 cn=gitlab-issuer days=3650 role=key
