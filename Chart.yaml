@@ -31,7 +31,7 @@ dependencies:
   condition: prometheus.install
 - name: gitlab-runner
   version: 0.92.2
-  repository: https://charts.gitlab.io/
+  repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
   condition: gitlab-runner.install
 - name: nginx-ingress
   condition: nginx-ingress.enabled
