@@ -2,6 +2,39 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.4.0 (2026-09-16)
+
+### Added (6 changes)
+
+- [Add allowed download modes Helm configuration](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/bc842c24de5d5c97f240918477b0705e3817337e) by @duewel1982 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5313))
+- [Allow backup cron template to have custom annotations](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/eb5292aeb326a1289ac4dc592706f1a7a2e0f9db) by @vivekyarra567 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5322))
+- [Add extraVolumes support to Praefect](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b865528a05fd9f9cd0793b00c771161efae99af3) by @vivekyarra567 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5214))
+- [Implement Openbao unseal rotation](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/eab177067a67c96baf75e396180bb5ecc14e30df) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5186))
+- [Make BackendTrafficPolicies configurable, add missing ones](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/a0e1d70fa81a6cfaeece6e8a96386685853edb0f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5296))
+- [Add mobile push APNs configuration](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/908089f0d3536c32fd539228eb581f3ebaa6967a) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5257))
+
+### Fixed (4 changes)
+
+- [Guard toolbox .s3cfg copy so it starts without backups.objectStorage.config](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7bd35f172aa042979fe0bacefe5bab7e87310366) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5334))
+- [Fix redisYmlOverride writing URL-encoded Redis password](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/218cd8f5c729f75a2e8e59633caf5100848f32f8) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5332))
+- [Only render sentinel_password when instance has Sentinels](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/848abae5cf56ca0f2b557a814325a8a61dcc1467) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5331))
+- [Stop skipping route-targeting Envoy policies for a cross-namespace Gateway](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/35817a5bceab5c2d853a6872d3895efe6f026585) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5328))
+
+### Changed (12 changes)
+
+- [Update gitlab-runner to v0.92.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/e34bf38b4f0627f90d77e0b784a94a4f3e5e2542) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5354))
+- [Update prometheus to v29.29.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0854cb13cd7d9cce0edb9995730c671b3cc96d8d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5339))
+- [Update cert-manager to v1.21.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7d199209981a3dd1000dd39cff9da625c9892965) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5341))
+- [Update helm to v4.2.4](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/44e21083c3630bf8630b194d749b751db2887b66) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5280))
+- [Update prometheus to v29.27.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/845ac6aa073fa4f3d3c4716fe2166e977e703e54) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5323))
+- [Update gitlab-exporter to v17.0.2](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/392188d1d313048ad2b15ab9ff2926cf68db4a0c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5311))
+- [Update gitlab-exporter to v17](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/7067d6d1fbaaf630d96617a158df11f5b491fc17) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5308))
+- [Update openbao to v0.18.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/cff40725077b84e6547422a068f3c106c4b63981) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5299))
+- [Update Envoy Gateway to v1.9.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2267d872ea48127684da85ca92243cc521d5cf8f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5300))
+- [Update gitlab-runner to v0.92.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4058ff60a97d518b5c4d71dbb2804af8f7d74ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5292))
+- [Update Debian base from bookworm to trixie](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f22d142fdac57c5d3832bdcb2647f4c7d57bccf9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5281))
+- [Update gitlab-runner to v0.92.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fca325450df764b23edaf3962066423af5a148c0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5276))
+
 ## 10.3.2 (2026-09-10)
 
 ### Changed (1 change)
