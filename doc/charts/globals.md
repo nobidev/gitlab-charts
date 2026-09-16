@@ -1388,7 +1388,6 @@ By default, GitLab uses these bucket names for each type:
 | Agent Plan Content (optional)  | `gitlab-agent-plan-content` |
 | CI Catalog Bundles (optional)  | `gitlab-ci-catalog-bundles` |
 | Dependency Proxy               | `gitlab-dependency-proxy` |
-| Pages                          | `gitlab-pages` |
 
 You can use these defaults or configure the bucket names:
 
@@ -1404,6 +1403,12 @@ You can use these defaults or configure the bucket names:
 --set global.appConfig.ciCatalogBundles.bucket=<BUCKET NAME> \
 --set global.appConfig.dependencyProxy.bucket=<BUCKET NAME>
 ```
+
+The Pages bucket and the backup buckets are not part of the consolidated object
+storage settings, and are configured separately. For the Pages bucket, see
+[Configure GitLab Pages](#configure-gitlab-pages). For the backup and temporary
+restore buckets, see
+[Backups](../advanced/external-object-storage/_index.md#backups).
 
 #### `storage_options`
 
