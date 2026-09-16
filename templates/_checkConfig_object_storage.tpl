@@ -74,7 +74,7 @@ Object Storage:
 {{- define "gitlab.checkConfig.objectStorage.allowedDownloadModes" -}}
 {{-   $validModes := list "proxy" "direct" -}}
 {{-   $invalidTypes := list -}}
-{{-   $allTypes := list "object_store" "artifacts" "lfs" "uploads" "packages" "externalDiffs" "terraformState" "dependencyProxy" "ciSecureFiles" -}}
+{{-   $allTypes := list "object_store" "artifacts" "lfs" "uploads" "packages" "externalDiffs" "terraformState" "dependencyProxy" "ciSecureFiles" "agentPlanContent" "ciCatalogBundles" -}}
 {{-   range $type := $allTypes -}}
 {{-     if hasKey $.Values.global.appConfig $type -}}
 {{-       $config := index $.Values.global.appConfig $type -}}
