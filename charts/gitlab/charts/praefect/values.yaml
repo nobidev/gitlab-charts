@@ -13,6 +13,8 @@ image:
 
 service:
   tls: {}
+  # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
+  # trafficDistribution: PreferClose
 
 init:
   resources: {}

@@ -46,6 +46,8 @@ service:
   internalPort: 5000
   clusterIP:
   loadBalancerIP:
+  # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
+  # trafficDistribution: PreferClose
 
 ## Support for tolerations for pod scheduling
 tolerations: []

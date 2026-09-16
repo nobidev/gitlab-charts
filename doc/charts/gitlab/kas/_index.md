@@ -181,6 +181,7 @@ You can pass these parameters to the `helm install` command by using the `--set`
 | `service.loadBalancerSourceRanges`                       | `nil`                                                 | A list of custom load balancer source ranges when `service.type` is `LoadBalancer`. |
 | `service.kubernetesApiPort`                              | `8154`                                                | External port to expose proxied Kubernetes API on. |
 | `service.privateApiPort`                                 | `8155`                                                | Internal port to expose `kas`' private API on (for `kas` -> `kas` communication). |
+| `service.trafficDistribution`                            | `nil`                                                 | Sets [`spec.trafficDistribution`](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) on the Service. Not set by default. |
 | `serviceAccount.annotations`                             | `{}`                                                  | ServiceAccount annotations. |
 | `serviceAccount.automountServiceAccountToken`            | `false`                                               | Indicates whether or not the default ServiceAccount access token should be mounted in pods. |
 | `serviceAccount.create`                                  | `false`                                               | Indicates whether or not a ServiceAccount should be created. |

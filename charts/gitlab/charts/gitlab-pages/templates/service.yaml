@@ -24,6 +24,9 @@ spec:
   selector:
     app: {{ template "name" . }}
     release: {{ .Release.Name }}
+  {{- if .Values.service.trafficDistribution }}
+  trafficDistribution: {{ .Values.service.trafficDistribution }}
+  {{- end }}
   {{- if .Values.service.sessionAffinity }}
   sessionAffinity: {{ .Values.service.sessionAffinity }}
   {{- end }}
