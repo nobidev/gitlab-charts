@@ -153,10 +153,12 @@ module SecretShapes
   # are keyed `<secret>/<key>[<field path>]` so they sort together under their secret.
   def rails_shapes(script)
     name = script[/^\s*rails_secret=(\S+)$/, 1]
-    return [] unless name
+    raise 'no rails_secret= assignment found in the rendered script' unless name
 
     secret = name.delete('"')
     key = script[/^\s{2}(\S+): \|-$/, 1]
+    raise 'the railsSecrets stringData key was not found in the rendered script' unless key
+
     block = script[RAILS_DEFAULTS_BLOCK, 1]
     raise 'the railsSecrets defaults block is missing from the rendered script' if block.nil?
 
@@ -283,13 +285,15 @@ describe 'shared-secrets value shapes' do
     # Belt and braces around the fixtures. If the railsSecrets extraction ever stopped
     # finding fields, a regenerated fixture would happily record their absence, and
     # db_key_base is the one value worth naming out loud: without it every encrypted
-    # column in the database is unreadable.
-    template = HelmTemplate.new(HelmTemplate.with_defaults('{}'))
-    expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+    # column in the database is unreadable. The threat being guarded is a committed
+    # fixture that has lost them, so this asserts against the fixture on disk -- the
+    # 'with defaults' context above already holds the render to that same file, and
+    # re-rendering here would only buy a second `helm template` call.
+    #
+    # Read with an explicit encoding, for the same reason the comparison above does.
+    recorded = File.read(File.join(fixture_dir, 'defaults.txt'), encoding: 'UTF-8')
 
-    shapes = SecretShapes.extract(template.dig('ConfigMap/test-shared-secrets', 'data', 'generate-secrets'))
-
-    expect(shapes).to include(a_string_matching(/\[db_key_base\]: rails-scalar charset=hex length=128\z/))
-    expect(shapes).to include(a_string_matching(/\[openid_connect_signing_key\]: rails-pem bits=\d+\z/))
+    expect(recorded).to match(/\[db_key_base\]: rails-scalar charset=hex length=128$/)
+    expect(recorded).to match(/\[openid_connect_signing_key\]: rails-pem bits=\d+$/)
   end
 end
