@@ -19,7 +19,7 @@ title: Using NGINX
 > For more information, see the [deprecation announcement](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress).
 > Plan your migration to the [bundled Envoy Gateway](../envoygateway/_index.md) or an
 > [external Ingress controller](../../advanced/external-ingress/_index.md) before the removal in 20.0.
-> If your instance still runs GitLab 18.x, upgrade to 19.x with NGINX Ingress enabled first, and migrate
+> If your instance still runs GitLab 18.x, it's recommended to upgrade to 19.x with NGINX Ingress enabled first, and migrate
 > to Gateway API afterwards. For details, see
 > [Choose when to migrate](../../installation/migration/envoy_gateway_migration.md#choose-when-to-migrate).
 
