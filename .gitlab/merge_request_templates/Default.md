@@ -28,11 +28,10 @@ For anything in this list which will not be completed, please provide a reason i
 
 ## Reviewers checklist
 
-- [ ] As soon as you begin reviewing, select **Start a review** on your first comment so the MR shows *Reviewer started review*, per the [Distribution MR workflow](https://handbook.gitlab.com/handbook/engineering/infrastructure-platforms/gitlab-delivery/distribution/merge_requests/).
+- [ ] As soon as you begin reviewing, select **Start a review** on your first comment so the MR shows *Reviewer started review*.
 - [ ] MR has a green pipeline on https://gitlab.com/gitlab-org/charts/gitlab.
 - [ ] Consider downstream impact to the Operator, as per [evaluating impact from changes to GitLab chart](https://docs.gitlab.com/operator/developer/charts_dependency).
 
-/label ~"workflow::in dev"
 /label ~"section::infrastructure platforms" ~"devops::gitlab delivery" ~"group::operate"
 /assign me
 
