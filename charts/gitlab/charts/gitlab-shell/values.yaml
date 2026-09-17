@@ -19,6 +19,8 @@ service:
   # externalIPs:
   # - x.x.x.x
   # - y.y.y.y
+  # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
+  # trafficDistribution: PreferClose
 
 init:
   image: {}

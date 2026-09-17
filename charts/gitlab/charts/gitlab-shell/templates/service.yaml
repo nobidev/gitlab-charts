@@ -45,6 +45,9 @@ spec:
   externalIPs:
     {{- toYaml .Values.service.externalIPs | nindent 4  }}
 {{- end }}
+{{- if .Values.service.trafficDistribution }}
+  trafficDistribution: {{ .Values.service.trafficDistribution }}
+{{- end }}
   selector:
     {{- include "gitlab.selectorLabels" . | nindent 4 }}
 {{- end }}

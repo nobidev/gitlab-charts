@@ -75,6 +75,7 @@ to the `helm install` command using the `--set` flags.
 | `service.internalPort`                                   | `9168`                                                     | GitLab Exporter internal port |
 | `service.name`                                           | `gitlab-exporter`                                          | GitLab Exporter service name |
 | `service.type`                                           | `ClusterIP`                                                | GitLab Exporter service type |
+| `service.trafficDistribution`                            |                                                             | Sets [`spec.trafficDistribution`](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) on the Service. Not set by default. |
 | `serviceAccount.annotations`                             | `{}`                                                       | ServiceAccount annotations |
 | `serviceAccount.automountServiceAccountToken`            | `false`                                                    | Indicates whether or not the default ServiceAccount access token should be mounted in pods |
 | `serviceAccount.create`                                  | `false`                                                    | Indicates whether or not a ServiceAccount should be created |

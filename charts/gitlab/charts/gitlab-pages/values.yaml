@@ -72,6 +72,8 @@ service:
     annotations: {}
   metrics:
     annotations: {}
+    # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
+    # trafficDistribution: PreferClose
   primary:
     annotations: {}
   # Set `sessionAffinity` to `ClientIP` to configure gitlab-pages with session affinity.
@@ -84,6 +86,9 @@ service:
   # sessionAffinityConfig:
   #  clientIP:
   #    timeoutSeconds: 10800
+  # Applies to both the primary and customDomains Services.
+  # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
+  # trafficDistribution: PreferClose
 
 init:
   image: {}

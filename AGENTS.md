@@ -72,6 +72,15 @@ Those containers originate from `gitlab.com/gitlab-org/build/CNG`, and their sou
 
 See the [development docs](doc/development/_index.md) for architecture details, style guide, and contribution guidelines.
 
+### Values Schema Files
+
+Many sub-charts ship a sibling `values.schema.json` (for example
+`charts/gitlab/charts/gitlab-shell/values.schema.json`) that Helm validates `values.yaml`
+against at render time. When adding or changing a `values.yaml` entry, check whether the
+chart has a `values.schema.json` and update it to match, including using JSON Schema
+`enum` (not just `type: string`) when the value only accepts a fixed set of options, such
+as one mirroring a Kubernetes API enum. See `doc/development/validation.md`.
+
 ### Examples Directory
 
 There is an `examples/` directory. It contains a mix of Helm values files and other snippets.

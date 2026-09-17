@@ -23,6 +23,9 @@ spec:
   {{- end }}
   {{- end }}
   {{- end }}
+  {{- if .Values.service.trafficDistribution }}
+  trafficDistribution: {{ .Values.service.trafficDistribution | quote }}
+  {{- end }}
   ports:
     - port: {{ .Values.service.externalPort }}
       targetPort: {{ .Values.service.internalPort }}

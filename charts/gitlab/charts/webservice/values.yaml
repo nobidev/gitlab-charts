@@ -110,6 +110,8 @@ service:
     internalPort: 8081
   # loadBalancerIP:
   # loadBalancerSourceRanges:
+  # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
+  # trafficDistribution: PreferClose
 enabled: true
 
 ## NATS connection settings are configured globally under global.appConfig.nats.

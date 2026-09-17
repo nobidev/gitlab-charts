@@ -23,6 +23,10 @@ Guidelines for developers regarding usage of schema files:
 - All settings configurable via `values.yaml` must have type validations (ensure they
   accept only the correct data types as values) implemented in the `values.schema.json`
   file. This must be completed in the first iteration.
+- If a setting only accepts a fixed set of string options, such as one mirroring a
+  defined Kubernetes API enum, constrain it with JSON Schema `enum` instead of a plain
+  `type: string`. This catches invalid values at `helm template`/`helm install` time
+  instead of failing later against the Kubernetes API.
 - During the first iteration, validation of required fields can be limited to ensuring
   the settings a user has defined in their `values.yaml` file is sufficient to spin up a
   pod with just that component, and without any error being reported in the logs. In

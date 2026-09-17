@@ -45,6 +45,8 @@ service:
   tls: {}
   type: ClusterIP
   clusterIP: None
+  # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
+  # trafficDistribution: PreferClose
 annotations: {}
 common:
   labels: {}
