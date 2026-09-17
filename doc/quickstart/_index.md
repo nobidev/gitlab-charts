@@ -84,6 +84,10 @@ Add the GitLab Helm repository to `helm`'s configuration:
 helm repo add gitlab https://charts.gitlab.io/
 ```
 
+Starting with chart version 10.4 (GitLab 19.4), you can alternatively install the chart directly from an OCI
+registry, without adding a Helm chart repository. For details, see
+[Install by using the OCI registry](../installation/deployment.md#install-by-using-the-oci-registry).
+
 ## Install GitLab
 
 Here's the beauty of what this chart is capable of. One command. Poof! All
