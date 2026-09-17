@@ -16,6 +16,9 @@ metadata:
     {{- end }}
 spec:
   type: ClusterIP
+  {{- if .Values.service.metrics.trafficDistribution }}
+  trafficDistribution: {{ .Values.service.metrics.trafficDistribution }}
+  {{- end }}
   ports:
     - port: {{ .Values.metrics.port | int }}
       targetPort: http-metrics

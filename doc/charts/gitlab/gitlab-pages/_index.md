@@ -107,6 +107,7 @@ configurations that can be supplied to the `helm install` command using the
 | `service.annotations`                                    |                                                         | Annotations for all pages services. |
 | `service.primary.annotations`                            |                                                         | Annotations for the primary service only. |
 | `service.metrics.annotations`                            |                                                         | Annotations for the metrics service only. |
+| `service.metrics.trafficDistribution`                    |                                                         | Sets [`spec.trafficDistribution`](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) on the metrics service only. Not set by default. |
 | `service.customDomains.annotations`                      |                                                         | Annotations for the custom domains service only. |
 | `service.customDomains.type`                             | `LoadBalancer`                                          | Type of service created for handling custom domains |
 | `service.customDomains.internalHttpsPort`                | `8091`                                                  | Port where Pages daemon listens for HTTPS requests |
@@ -115,6 +116,7 @@ configurations that can be supplied to the `helm install` command using the
 | `service.customDomains.nodePort.https`                   |                                                         | Node Port to be opened for HTTPS connections. Valid only if `service.customDomains.type` is `NodePort` |
 | `service.sessionAffinity`                                | `None`                                                  | Type of the session affinity. Must be either `ClientIP` or `None` (this only makes sense for traffic originating from within the cluster) |
 | `service.sessionAffinityConfig`                          |                                                         | Session affinity config. If `service.sessionAffinity` == `ClientIP` the default session sticky time is 3 hours (`10800`) |
+| `service.trafficDistribution`                            |                                                         | Sets [`spec.trafficDistribution`](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) on the primary and custom domains services. Not set by default. |
 | `serviceAccount.annotations`                             | `{}`                                                    | ServiceAccount annotations |
 | `serviceAccount.automountServiceAccountToken`            | `false`                                                 | Indicates whether or not the default ServiceAccount access token should be mounted in pods |
 | `serviceAccount.create`                                  | `false`                                                 | Indicates whether or not a ServiceAccount should be created |

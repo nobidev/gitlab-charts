@@ -142,6 +142,8 @@ service:
   type: ClusterIP
   # loadBalancerIP:
   # loadBalancerSourceRanges:
+  # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
+  # trafficDistribution: PreferClose
 metrics:
   enabled: true
   path: /metrics

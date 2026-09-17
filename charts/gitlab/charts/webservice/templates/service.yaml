@@ -37,6 +37,9 @@ spec:
     - {{ . | quote }}
     {{- end }}
   {{- end }}
+  {{- if .service.trafficDistribution }}
+  trafficDistribution: {{ .service.trafficDistribution }}
+  {{- end }}
   ports:
     {{- if $.Values.http.enabled }}
     - port: {{ $.Values.service.externalPort }}

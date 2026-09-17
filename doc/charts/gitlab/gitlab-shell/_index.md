@@ -127,6 +127,7 @@ controlled by `global.shell.port`.
 | `service.type`                                           | `ClusterIP`                                             | Shell service type |
 | `service.loadBalancerIP`                                 |                                                         | IP address to assign to LoadBalancer (if supported) |
 | `service.loadBalancerSourceRanges`                       |                                                         | List of IP CIDRs allowed access to LoadBalancer (if supported) |
+| `service.trafficDistribution`                            |                                                         | Sets [`spec.trafficDistribution`](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) on the Service. Not set by default. |
 | `serviceAccount.annotations`                             | `{}`                                                    | ServiceAccount annotations |
 | `serviceAccount.automountServiceAccountToken`            | `false`                                                 | Indicates whether or not the default ServiceAccount access token should be mounted in pods |
 | `serviceAccount.create`                                  | `false`                                                 | Indicates whether or not a ServiceAccount should be created |

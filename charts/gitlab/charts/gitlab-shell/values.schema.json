@@ -531,6 +531,15 @@
         "type": {
           "title": "Type of the service",
           "type": "string"
+        },
+        "trafficDistribution": {
+          "title": "Traffic distribution policy for the Service",
+          "type": "string",
+          "enum": [
+            "PreferClose",
+            "PreferSameZone",
+            "PreferSameNode"
+          ]
         }
       },
       "required": [

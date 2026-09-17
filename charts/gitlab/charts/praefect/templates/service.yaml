@@ -19,6 +19,9 @@ metadata:
 spec:
   type: {{ coalesce .Values.service.type .Values.global.praefect.service.type }}
   clusterIP: None
+  {{- if .Values.service.trafficDistribution }}
+  trafficDistribution: {{ .Values.service.trafficDistribution }}
+  {{- end }}
   ports:
   - name: grpc-{{ coalesce .Values.service.name .Values.global.praefect.service.name }}
     port: {{ include "gitlab.praefect.externalPort" . }}

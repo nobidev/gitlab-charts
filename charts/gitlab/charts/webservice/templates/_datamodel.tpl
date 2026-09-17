@@ -102,6 +102,9 @@ service:
     - {{ . | quote }}
     {{- end }}
   {{- end }}
+  {{- if .Values.service.trafficDistribution }}
+  trafficDistribution: {{ .Values.service.trafficDistribution }}
+  {{- end }}
   annotations: # additional annotations to .service.annotations
     {{- if .Values.service.annotations }}
     {{ toYaml .Values.service.annotations | nindent 4 }}

@@ -310,6 +310,7 @@ the `helm install` command using the `--set` flags.
 | `service.type`                                           | ClusterIP                                         | The type of service to create |
 | `service.internalPort`                                   | 8075                                              | The internal port number that the Praefect pod will be listening on |
 | `service.externalPort`                                   | 8075                                              | The port number the Praefect service should expose in the cluster |
+| `service.trafficDistribution`                            |                                                    | Sets [`spec.trafficDistribution`](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) on the Service. Not set by default. |
 | `init.resources`                                         |                                                   |             |
 | `init.image`                                             |                                                   |             |
 | `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                           | initContainer specific: Controls whether a process can gain more privileges than its parent process |
