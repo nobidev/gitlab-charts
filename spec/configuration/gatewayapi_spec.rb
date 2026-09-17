@@ -15,6 +15,7 @@ describe 'Gateway API configuration' do
   let(:clienttrafficpolicy) { template["ClientTrafficPolicy/test-policy"] }
   let(:securitypolicy) { template["SecurityPolicy/test-policy"] }
   let(:kas_backendtrafficpolicy) { template["BackendTrafficPolicy/test-kas"] }
+  let(:kas_clienttrafficpolicy) { template["ClientTrafficPolicy/test-kas-ctp"] }
   let(:shell_backendtrafficpolicy) { template["BackendTrafficPolicy/test-gitlab-shell"] }
   let(:webservice_clienttrafficpolicy) { template["ClientTrafficPolicy/test-webservice-ctp"] }
   let(:webservice_backendtrafficpolicy) { template["BackendTrafficPolicy/test-webservice-btp"] }
@@ -188,6 +189,15 @@ describe 'Gateway API configuration' do
         # target the k8s-proxy route, whose backend only speaks HTTP/1.1 (issue #6557).
         expect(kas_backendtrafficpolicy["spec"]["targetRefs"].map { |ref| ref["name"] }).not_to include("test-kas-k8s-proxy")
 
+        # Envoy Gateway drops h2 from listeners with overlapping certificates (GEP-3567); agents
+        # need HTTP/2 for grpcs://, so the kas chart re-enables it on its listener only.
+        expect(kas_clienttrafficpolicy).not_to be_nil
+        expect(kas_clienttrafficpolicy["spec"]["targetRefs"][0]["kind"]).to eq("Gateway")
+        expect(kas_clienttrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
+        expect(kas_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("kas-web")
+        expect(kas_clienttrafficpolicy["spec"]["targetRefs"][0]).not_to have_key("namespace")
+        expect(kas_clienttrafficpolicy["spec"]["tls"]["alpnProtocols"]).to eq(%w[h2 http/1.1])
+
         # Additional policies for webservice are only created if smartcard/geo is enabled
         expect(webservice_smartcard_clienttrafficpolicy).to be_nil
         expect(webservice_geo_clienttrafficpolicy).to be_nil
@@ -231,6 +241,7 @@ describe 'Gateway API configuration' do
         expect(clienttrafficpolicy).to be_nil
         expect(securitypolicy).to be_nil
         expect(kas_backendtrafficpolicy).to be_nil
+        expect(kas_clienttrafficpolicy).to be_nil
         expect(webservice_backendtrafficpolicy).to be_nil
 
         # Route objects reference external Gateway
@@ -418,6 +429,7 @@ describe 'Gateway API configuration' do
         expect(gatewayclass).to be_nil
         expect(envoyproxy).to be_nil
         expect(kas_backendtrafficpolicy).to be_nil
+        expect(kas_clienttrafficpolicy).to be_nil
         expect(webservice_backendtrafficpolicy).to be_nil
         expect(webservice_clienttrafficpolicy).to be_nil
         expect(webservice_smartcard_clienttrafficpolicy).to be_nil
@@ -489,6 +501,7 @@ describe 'Gateway API configuration' do
 
         expect(envoyproxy).to be_nil
         expect(kas_backendtrafficpolicy).to be_nil
+        expect(kas_clienttrafficpolicy).to be_nil
         expect(webservice_backendtrafficpolicy).to be_nil
         expect(webservice_clienttrafficpolicy).to be_nil
       end
