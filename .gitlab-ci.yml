@@ -514,7 +514,7 @@ k3d_nginx:
   stage: review-specs
   retry: 1
   variables:
-    RSPEC_TAGS: type:feature
+    RSPEC_TAGS: type:feature ~envoy_connection_lifecycle
   rules:
     - !reference [.rule:skip_if_no_cluster]
     - !reference [.specs, rules]

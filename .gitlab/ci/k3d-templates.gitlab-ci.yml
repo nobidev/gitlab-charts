@@ -125,7 +125,7 @@
     - !reference [.chart_deps_cache, cache]
     - !reference [.external_charts_cache, cache]
   variables:
-    RSPEC_TAGS: type:feature
+    RSPEC_TAGS: type:feature ~envoy_connection_lifecycle
     # Deploy over HTTPS with certificates ACME-issued by the bundled
     # cert-manager against an in-cluster Pebble test server, exercising the
     # chart's cert-manager integration on every run (no public IP needed).

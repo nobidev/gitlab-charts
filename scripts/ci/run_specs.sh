@@ -15,5 +15,9 @@ bundle install -j $(nproc)
 if [[ "${RSPEC_TAGS}" == "~type:feature" ]] && [[ "${KNAPSACK_GENERATE_REPORT}" != "true" ]]; then
   bundle exec rake "knapsack:rspec[--color --format documentation --tag '${RSPEC_TAGS}']"
 else
-  bundle exec rspec -c -f d spec -t "${RSPEC_TAGS}"
+  rspec_tags=()
+  for tag in ${RSPEC_TAGS}; do
+    rspec_tags+=(-t "${tag}")
+  done
+  bundle exec rspec -c -f d spec "${rspec_tags[@]}"
 fi

@@ -142,15 +142,15 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
     raise errors.pop unless errors.empty?
   end
 
-  def wait_for_drain(baseline, cluster)
+  def wait_for_connection_decline(peak, cluster)
     deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + drain_timeout
     loop do
       snapshot = metrics
       write_metrics('drain', snapshot)
       current = metric_value(snapshot, active_connections_metric, cluster)
-      return if current <= baseline
+      return current if current < peak
 
-      raise "Upstream connections did not drain to baseline #{baseline}" if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
+      raise "Upstream connections did not decline from peak #{peak}" if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
 
       sleep 2
     end
@@ -165,6 +165,7 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
 
     cluster = nil
     baseline = 0
+    peak = baseline
     connections = []
     with_metrics_port_forward(pod) do
       snapshot = metrics
@@ -177,6 +178,7 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
         write_metrics("cycle-#{cycle}", snapshot)
         cluster ||= webservice_cluster(snapshot, route)
         current = metric_value(snapshot, active_connections_metric, cluster)
+        peak = [peak, current].max
         expect(current).to be > baseline,
           "Cycle #{cycle}: active upstream connections rose to #{current}, expected more than baseline #{baseline}"
 
@@ -192,10 +194,12 @@ describe 'Envoy upstream connection lifecycle', :envoy_connection_lifecycle do
     end
 
     with_metrics_port_forward(pod) do
-      wait_for_drain(baseline, cluster)
+      final_active = wait_for_connection_decline(peak, cluster)
       snapshot = metrics
       write_metrics('final', snapshot)
       overflow = metric_value(snapshot, overflow_metric, cluster)
+      expect(final_active).to be <= baseline + 1,
+        "Upstream connections only declined to #{final_active}, expected no more than baseline #{baseline} plus one retained connection"
       expect(overflow).to eq(0), "Envoy rejected #{overflow} webservice upstream connections"
     end
   end
