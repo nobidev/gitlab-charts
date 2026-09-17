@@ -161,7 +161,7 @@ describe 'ObjectStorage configuration' do
           t = HelmTemplate.new(values)
           expect(t.exit_code).to eq(0)
 
-          types = %w[artifacts lfs uploads packages external_diffs terraform_state dependency_proxy ci_secure_files]
+          types = %w[artifacts lfs uploads packages external_diffs terraform_state dependency_proxy ci_secure_files agent_plan_content ci_catalog_bundles]
 
           services.each do |cm|
             raw_config = t.dig("ConfigMap/test-#{cm}", 'data', 'gitlab.yml.erb')
