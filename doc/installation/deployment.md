@@ -60,6 +60,33 @@ For mappings between chart versions and GitLab versions, read [GitLab version ma
 
 Instructions for installing a development branch rather than a tagged release can be found in the [developer deploy documentation](../development/deploy.md).
 
+## Install by using the OCI registry
+
+Starting with chart version 10.4 (GitLab 19.4), the GitLab Helm chart is also available as an OCI artifact, in
+addition to the traditional Helm chart repository. The chart is published to:
+
+```plaintext
+registry.gitlab.com/charts/charts.gitlab.io/release/gitlab
+```
+
+To install the chart from the OCI registry, run `helm install` or `helm upgrade` with the `oci://` URL instead of
+adding a Helm chart repository:
+
+```shell
+helm upgrade --install gitlab oci://registry.gitlab.com/charts/charts.gitlab.io/release/gitlab \
+  --version <CHART_VERSION> \
+  --timeout 600s \
+  --set global.hosts.domain=example.com \
+  --set global.hosts.externalIP=10.10.10.10 \
+  --set certmanager-issuer.email=me@example.com
+```
+
+Note the following:
+
+- OCI registries require the `--version` option. Unlike a Helm chart repository, an OCI registry does not support
+  `helm search repo` to list available versions.
+- For mappings between chart versions and GitLab versions, read [GitLab version mappings](version_mappings.md).
+
 ## Verifying the integrity and origin of GitLab Helm charts
 
 You can verify the integrity and origin of GitLab Helm charts by using
