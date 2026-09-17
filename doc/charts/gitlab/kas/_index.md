@@ -63,6 +63,27 @@ This example uses `kas.my-other-domain.com` as the host for the KAS Ingress alon
 The rest of the services (including GitLab, Registry, and GitLab Pages) use the domain
 specified in `global.hosts.domain`.
 
+### Agent connection protocol
+
+Agents connect to KAS over native gRPC (`grpcs://`) or WebSocket (`wss://`). KAS serves both
+on the same port. The chart advertises one address in `gitlab_kas.external_url`, which the
+agent installation instructions show, and derives it from your networking setup unless you set
+`global.appConfig.gitlab_kas.externalUrl`:
+
+| Setup | Advertised address |
+|-------|--------------------|
+| Gateway API with the chart-managed Envoy Gateway policies (default). The `BackendTrafficPolicy` on the KAS `HTTPRoute` forwards the client protocol, and the [`ClientTrafficPolicy`](#client-traffic-policy) on the KAS listener keeps HTTP/2 enabled. | `grpcs://kas.example.com` |
+| Gateway API with another Gateway controller, `global.gatewayApi.installEnvoy: false` without `configureEnvoy: true`, or a [Gateway in another namespace](#client-traffic-policy) referenced through `global.gatewayApi.gatewayRef.namespace`. | `wss://kas.example.com` |
+| Ingress enabled globally with the NGINX provider, which renders the [gRPC Ingress](#grpc-ingress-support), or `global.kas.ingress.grpc.enabled: true`. | `grpcs://kas.example.com` |
+| Ingress with another provider, `global.kas.ingress.grpc.enabled: false`, or routing handled outside the chart. | `wss://kas.example.com` |
+| [`global.appConfig.relativeUrlRoot`](../../globals.md#configure-a-relative-url-root) set. | `wss://kas.example.com` |
+| `global.hosts.https` and `global.hosts.kas.https` both `false`. | `ws://kas.example.com` |
+
+Agents that were installed with a `wss://` address keep working when the default changes.
+To keep advertising WebSocket, set `global.appConfig.gitlab_kas.externalUrl`. The derivation
+reads global settings only, so the kas chart's local `gatewayRoute.enabled`,
+`backendTrafficPolicy.spec` and `ingress.grpc.enabled` do not influence it.
+
 ### gRPC Ingress Support
 
 The KAS service supports gRPC traffic through the same port as WebSocket traffic, using path-based routing with regex matching to distinguish between the two protocols.
@@ -72,8 +93,8 @@ The KAS service supports gRPC traffic through the same port as WebSocket traffic
 
 #### Controller Support
 
-- **NGINX Ingress Controller**: Fully supported with automatic configuration
-- **Other Controllers**: Any controller that supports regex-based path matching can be used
+- **NGINX Ingress Controller**: Fully supported. The gRPC Ingress is rendered by default.
+- **Other Controllers**: Any controller that supports regex-based path matching can be used. Set `global.kas.ingress.grpc.enabled: true` to render the gRPC Ingress.
 
 #### Path Pattern
 
@@ -87,15 +108,27 @@ This pattern ensures proper routing of gRPC traffic to the KAS service while mai
 
 #### Configuration
 
-To enable gRPC Ingress, set `gitlab.kas.ingress.grpc.enabled` and make sure that KAS is running under its own subdomain:
+`global.kas.ingress.grpc.enabled` controls the gRPC Ingress and, through it, the
+[advertised agent address](#agent-connection-protocol):
+
+- Unset (default): the gRPC Ingress is rendered when `global.ingress.provider` is `nginx`.
+  Agents are pointed at `grpcs://` only when Ingress is also enabled globally with
+  `global.ingress.enabled`, so that routing handled outside the chart keeps `wss://`.
+- `true`: the gRPC Ingress is always rendered and agents are pointed at `grpcs://`. Use this
+  with other controllers, or when you route gRPC to KAS yourself.
+- `false`: the gRPC Ingress is never rendered and agents are pointed at `wss://`.
 
 ```yaml
-gitlab:
+global:
   kas:
     ingress:
       grpc:
         enabled: true
 ```
+
+`gitlab.kas.ingress.grpc.enabled` is deprecated and planned for removal in GitLab 20.0 (chart 11.0).
+It still takes precedence for the Ingress itself, but the other charts cannot see it when deriving
+the advertised address, so the two can disagree. Use the global setting instead.
 
 No additional configuration is needed when using the NGINX Ingress Controller as it's automatically set up.
 For other controllers, add relevant annotations to support gRPC and ensure they support regex-based path matching and configure them to route the specified path pattern to the KAS service.
@@ -143,6 +176,7 @@ You can pass these parameters to the `helm install` command by using the `--set`
 | `ingress.tls`                                            | `{}`                                                  | Ingress TLS configuration. |
 | `ingress.agentPath`                                      | `/`                                                   | Ingress path for the agent API endpoint. |
 | `ingress.k8sApiPath`                                     | `/k8s-proxy`                                          | Ingress path for Kubernetes API endpoint. |
+| `ingress.grpc.enabled`                                   | Unset, uses `global.kas.ingress.grpc.enabled`         | Deprecated, removal planned for GitLab 20.0. Use `global.kas.ingress.grpc.enabled` to control the [gRPC Ingress](#grpc-ingress-support). |
 | `keda.enabled`                                           | `false`                                               | Use [KEDA](https://keda.sh/) `ScaledObjects` instead of `HorizontalPodAutoscalers` |
 | `keda.pollingInterval`                                   | `30`                                                  | The interval to check each trigger on |
 | `keda.cooldownPeriod`                                    | `300`                                                 | The period to wait after the last trigger reported active before scaling the resource back to 0 |
@@ -224,6 +258,39 @@ gitlab:
 
 The chart injects `spec.targetRefs` with the KAS `HTTPRoute` when you omit it. Set
 `backendTrafficPolicy.spec: null` to skip rendering the policy.
+
+## Client traffic policy
+
+When Envoy Gateway is used and the KAS listener is HTTPS, the chart renders a
+[`ClientTrafficPolicy`](https://gateway.envoyproxy.io/docs/api/extension_types/#clienttrafficpolicy)
+targeting the KAS listener (`gatewayRoute.sectionName`, default `kas-web`) that sets
+`tls.alpnProtocols` to `h2` and `http/1.1`. Envoy Gateway otherwise stops advertising HTTP/2 on a
+listener whose certificate overlaps with another listener on the same port, for example one
+wildcard certificate used for every host, to prevent HTTP/2 connection coalescing
+([Gateway API GEP-3567](https://gateway-api.sigs.k8s.io/geps/gep-3567/)). Agents need HTTP/2 for
+native gRPC, so without this policy `grpcs://` connections fail on such installations while
+WebSocket keeps working. The policy only affects the KAS listener.
+
+To change the policy, override the specification wholesale under `clientTrafficPolicy.spec`:
+
+```yaml
+gitlab:
+  kas:
+    clientTrafficPolicy:
+      spec:
+        tls:
+          alpnProtocols:
+            - h2
+            - http/1.1
+```
+
+The chart injects `spec.targetRefs` with the Gateway and the KAS listener when you omit it. Set
+`clientTrafficPolicy.spec: null` to skip rendering the policy. The policy is not rendered when the
+Gateway lives in another namespace, because a `ClientTrafficPolicy` can only target a Gateway in its
+own namespace. When you reference such a Gateway through `global.gatewayApi.gatewayRef.namespace`,
+the chart advertises `wss://` instead. If you set the namespace only through the local
+`gatewayRoute.gatewayNamespace`, the derivation does not see it: make sure the KAS listener
+negotiates HTTP/2, or set `global.appConfig.gitlab_kas.externalUrl` to a `wss://` address.
 
 ## Test the `kas` chart
 
