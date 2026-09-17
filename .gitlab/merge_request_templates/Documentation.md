@@ -33,7 +33,7 @@ These labels cause the MR to be added to code verification QA issues.
 
 Documentation-related MRs should be reviewed by a Technical Writer for a non-blocking review, based on [Documentation Guidelines](https://docs.gitlab.com/development/documentation/) and the [Style Guide](https://docs.gitlab.com/development/documentation/styleguide/).
 
-- [ ] As soon as you begin reviewing, select **Start a review** on your first comment so the MR shows *Reviewer started review*, per the [Distribution MR workflow](https://handbook.gitlab.com/handbook/engineering/infrastructure-platforms/gitlab-delivery/distribution/merge_requests/).
+- [ ] As soon as you begin reviewing, select **Start a review** on your first comment so the MR shows *Reviewer started review*.
 - [ ] If the content requires it, ensure the information is reviewed by a subject matter expert.
 - Technical writer review items:
   - [ ] Ensure docs metadata is present and up-to-date.
@@ -46,6 +46,6 @@ Documentation-related MRs should be reviewed by a Technical Writer for a non-blo
 - [ ] Review by assigned maintainer, who can always request/require the above reviews. Maintainer's review can occur before or after a technical writer review.
 - [ ] Ensure a release milestone is set.
 
-/label ~documentation ~"type::maintenance" ~"maintenance::refactor"  ~"workflow::in dev"
+/label ~documentation ~"type::maintenance" ~"maintenance::refactor"
 /label ~"section::infrastructure platforms" ~"devops::gitlab delivery" ~"group::operate"
 /assign me
