@@ -21,7 +21,7 @@ title: Using NGINX
 > [external Ingress controller](../../advanced/external-ingress/_index.md) before the removal in 20.0.
 > If your instance still runs GitLab 18.x, it's recommended to upgrade to 19.x with NGINX Ingress enabled first, and migrate
 > to Gateway API afterwards. For details, see
-> [Choose when to migrate](../../installation/migration/envoy_gateway_migration.md#choose-when-to-migrate).
+> [When to migrate](../../installation/migration/envoy_gateway_migration.md#when-to-migrate).
 
 We provide a complete NGINX deployment to be used as an Ingress Controller. Not all
 Kubernetes providers natively support the NGINX [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls),

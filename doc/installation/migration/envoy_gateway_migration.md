@@ -24,10 +24,10 @@ You can migrate from the bundled NGINX Ingress to Gateway API with either:
 
 If you do not want to migrate, you can [continue using an Ingress controller](#continue-using-an-ingress-controller).
 
-If your instance still runs GitLab 18.x, read [Choose when to migrate](#choose-when-to-migrate)
+If your instance still runs GitLab 18.x, read [When to migrate](#when-to-migrate)
 before you start.
 
-## Choose when to migrate
+## When to migrate
 
 In GitLab 18.x (chart 9.x), Gateway API and the bundled Envoy Gateway are in
 [Beta](https://docs.gitlab.com/policy/development_stages_support/#beta) and disabled by default.
