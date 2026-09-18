@@ -474,6 +474,49 @@ Create a default fully qualified job name for shared-secrets.
 {{- end -}}
 
 {{/*
+Return which backend provisions the generated secrets.
+
+  job         The pre-install/pre-upgrade hook Job runs the generation script. Default.
+  controller  Render an apps.gitlab.com/v2alpha1 GitLabSecrets resource and let a
+              controller do the generation. No hook and no custom RBAC, which is what
+              lets the GitLab Operator manage releases outside its own namespace.
+
+`shared-secrets.enabled: false` still disables provisioning entirely, whatever this is
+set to. Validated by gitlab.checkConfig.sharedSecrets.provider.
+*/}}
+{{- define "gitlab.shared-secrets.provider" -}}
+{{- default "job" (index .Values "shared-secrets" "provider") -}}
+{{- end -}}
+
+{{/*
+True when the shared-secrets hook Job and its RBAC should be rendered.
+*/}}
+{{- define "gitlab.shared-secrets.job.enabled" -}}
+{{- and (index .Values "shared-secrets" "enabled") (eq (include "gitlab.shared-secrets.provider" .) "job") -}}
+{{- end -}}
+
+{{/*
+Whether the chart has to produce a self-signed wildcard certificate.
+
+These are the conditions the self-signed certificate Job has always used: no cert-manager,
+TLS wanted, and no certificate supplied. Both provisioning backends need the same answer --
+the Job renders on it, and the GitLabSecrets resource emits a `certificates` entry on it.
+
+Returns the string "true" or "false".
+*/}}
+{{- define "gitlab.shared-secrets.selfSignedTls.required" -}}
+{{- if and (index .Values "shared-secrets" "enabled") (not .Values.global.ingress.configureCertmanager) -}}
+{{-   if eq (include "gitlab.global.ingress.tls.enabled" .) "true" -}}
+{{-     not (eq (include "gitlab.ingress.tls.configured" .) "true") -}}
+{{-   else -}}
+false
+{{-   end -}}
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
 Create the name of the service account to use for shared-secrets job
 */}}
 {{- define "shared-secrets.serviceAccountName" -}}

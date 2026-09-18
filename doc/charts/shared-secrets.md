@@ -31,6 +31,7 @@ the `helm install` command using the `--set` flag:
 |------------------------------|------------------------------------------------------------|-------------|
 | `enabled`                    | `true`                                                     | [See Below](#disable-functionality) |
 | `env`                        | `production`                                               | Rails environment |
+| `provider`                   | `job`                                                      | [See Below](#select-a-provisioning-backend) |
 | `podLabels`                  |                                                            | Supplemental Pod labels. Will not be used for selectors. |
 | `annotations`                |                                                            | Supplemental Pod annotations. |
 | `image.pullPolicy`           | `Always`                                                   | **DEPRECATED**: Use `global.kubectl.image.pullPolicy` instead. |
@@ -73,6 +74,25 @@ tolerations:
   effect: "NoExecute"
 ```
 
+## Select a provisioning backend
+
+`provider` selects what provisions the secrets. Keep the default value, `job`. A
+`pre-install` and `pre-upgrade` hook job then generates the secrets.
+
+> [!warning]
+> `job` is the only supported value. Other values are reserved for internal use, are not
+> supported, and are not intended to be set. Do not change `provider` unless you know what
+> you are doing.
+
+Setting a `secret` value such as `global.gitaly.authToken.secret` changes which Secret the
+chart uses. The chart still creates that Secret if it is missing, and still adds keys that
+are absent from it. Existing values are never overwritten, so a Secret you created by hand
+keeps the values you set.
+
+> [!note]
+> Generated secrets are not owned by the Helm release, so `helm uninstall` does not remove
+> them. For more information, see [uninstall](../installation/uninstall.md).
+
 ## Disable functionality
 
 Some users may wish to explicitly disable the functionality provided by this job.
@@ -90,3 +110,8 @@ shared-secrets:
 > If you disable this job, you **must** manually create all secrets,
 > and provide all necessary secret content. See [installation/secrets](../installation/secrets.md#manual-secret-creation-optional)
 > for further details.
+
+`enabled: false` disables provisioning entirely.
+
+To add a new generated secret to the chart, see
+[Add a generated secret](../development/secrets.md).
