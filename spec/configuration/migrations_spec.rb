@@ -84,6 +84,36 @@ describe 'migrations configuration' do
     end
   end
 
+  context 'The shared pod-spec fragments' do
+    # Guards the DRY extraction in _migrations-shared.tpl against indentation or
+    # structural drift: the migrations Job must keep the init container, config
+    # volume mounts, and config/secret volumes the shared helpers render.
+    def migrations_job
+      t = HelmTemplate.new(default_values)
+      expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+      jobs = t.resources_by_kind('Job').select do |key, _|
+        key.start_with?('Job/test-migrations-') && !key.start_with?('Job/test-migrations-bbm-')
+      end
+      expect(jobs.length).to eq(1)
+      jobs.values[0]
+    end
+
+    it 'renders the configure init container' do
+      pod = migrations_job['spec']['template']['spec']
+      expect(pod['initContainers'].map { |c| c['name'] }).to include('configure')
+    end
+
+    it 'mounts the migrations config and secrets on the main container' do
+      container = migrations_job['spec']['template']['spec']['containers'].find { |c| c['name'] == 'migrations' }
+      expect(container['volumeMounts'].map { |m| m['name'] }).to include('migrations-config', 'migrations-secrets')
+    end
+
+    it 'renders the config and secret volumes' do
+      volumes = migrations_job['spec']['template']['spec']['volumes'].map { |v| v['name'] }
+      expect(volumes).to include('migrations-config', 'init-migrations-secrets', 'migrations-secrets')
+    end
+  end
+
   context 'When customer provides no job suffix' do
     let(:kind) { "Job" }
     let(:name) { "test-migrations" }

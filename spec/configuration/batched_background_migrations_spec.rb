@@ -41,6 +41,36 @@ describe 'batched background migrations wait Job' do
       expect(jobs.length).to eq(1)
     end
 
+    it 'gives the wait Job a name distinct from the schema-migrations Job, within the 63-char limit' do
+      t, jobs = bbm_job
+      bbm_name = jobs.values[0]['metadata']['name']
+
+      migrations_jobs = t.resources_by_kind('Job').select do |key, _|
+        key.start_with?('Job/test-migrations-') && !key.start_with?('Job/test-migrations-bbm-')
+      end
+      expect(migrations_jobs.length).to eq(1)
+
+      expect(bbm_name).not_to eq(migrations_jobs.values[0]['metadata']['name'])
+      expect(bbm_name.length).to be <= 63
+    end
+
+    it 'does not render a second ServiceAccount for the wait Job' do
+      with_sa = values.deep_merge(YAML.safe_load(%(
+        gitlab:
+          migrations:
+            serviceAccount:
+              enabled: true
+              create: true
+      )))
+      t = HelmTemplate.new(with_sa)
+      expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+      service_accounts = t.resources_by_kind('ServiceAccount').select do |key, _|
+        key.start_with?('ServiceAccount/test-migrations')
+      end
+      expect(service_accounts.length).to eq(1)
+    end
+
     it 'carries the distinguishing label the Operator selects on, plus the migrations app and target-version labels' do
       _t, jobs = bbm_job
       job = jobs.values[0]
