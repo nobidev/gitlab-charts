@@ -1,6 +1,5 @@
 {{- if .Values.enabled }}
 {{- $imageCfg := dict "global" .Values.global.image "local" .Values.image -}}
-{{- $initImageCfg := include "gitlab.configure.config" .Values | fromYaml -}}
 {{- include "database.datamodel.prepare" . -}}
 apiVersion: batch/v1
 kind: Job
