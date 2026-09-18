@@ -119,3 +119,22 @@ scriptTpl: |
   {{- else }}
   /scripts/db-migrate;
   {{- end}}
+
+## Wait Job that holds a zero-downtime upgrade until the current version's batched
+## background migrations finish, so the next upgrade starts from a consistent schema.
+## Disabled by default; the GitLab Operator turns this on during an upgrade to render
+## the wait Job it gates on. Requires a toolbox image that ships
+## /scripts/wait-for-batched-background-migrations.
+batchedBackgroundMigrationsCheck:
+  enabled: false
+  activeDeadlineSeconds: 3600
+  backoffLimit: 6
+  resources:
+    requests:
+      cpu: 250m
+      memory: 200Mi
+  # The wait loop lives in the toolbox image; the script polls the queued and
+  # finalizing batched background migrations and exits once none remain.
+  scriptTpl: |
+    set -e;
+    /scripts/wait-for-batched-background-migrations;
