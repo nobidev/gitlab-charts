@@ -10,7 +10,7 @@ describe 'batched background migrations wait Job' do
     ))
   end
 
-  let(:bbm_job) do
+  def bbm_job
     t = HelmTemplate.new(values)
     expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
     jobs = t.resources_by_kind('Job').select { |key, _| key.start_with?('Job/test-migrations-bbm-') }
