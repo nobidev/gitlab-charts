@@ -99,6 +99,7 @@ spec:
           {{- include "gitlab.init.containerSecurityContext" $ | indent 10 }}
           command: ["/scripts/wait-for-deps"]
           volumeMounts:
+            {{- include "gitlab.certificates.volumeMount" $ | nindent 12 }}
             - name: registry-server-config
               mountPath: /etc/docker/registry/
               readOnly: true
