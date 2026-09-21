@@ -15,7 +15,7 @@ dependencies:
   repository: oci://ghcr.io/prometheus-community/charts
   version: 29.30.2
 - name: gitlab-runner
-  repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
+  repository: https://charts.gitlab.io/
   version: 0.92.2
 - name: nginx-ingress
   repository: ""
@@ -41,5 +41,5 @@ dependencies:
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   version: 0.15.1
-digest: sha256:59c98aef29501b4d64dae0069f205bfc6fa799f90a5531b088ba030bb249bd8b
-generated: "2026-09-18T18:18:00.999077+02:00"
+digest: sha256:7936d51a17c5f775018a13ebf0b5ee78d5c679b8ab8acfb806d6a6caf5dc07ba
+generated: "2026-09-21T12:04:30.905043+02:00"
