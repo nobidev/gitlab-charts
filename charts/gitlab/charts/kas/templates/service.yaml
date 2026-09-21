@@ -31,10 +31,16 @@ spec:
       targetPort: {{ .Values.service.internalPort }}
       protocol: TCP
       name: tcp-{{ template "name" . }}-external-api
+      {{- with .Values.service.appProtocol }}
+      appProtocol: {{ . | quote }}
+      {{- end }}
     - port: {{ .Values.global.kas.service.apiExternalPort }}
       targetPort: {{ .Values.service.apiInternalPort }}
       protocol: TCP
       name: tcp-{{ template "name" . }}-internal-api
+      {{- with .Values.service.appProtocol }}
+      appProtocol: {{ . | quote }}
+      {{- end }}
     - port: {{ .Values.service.kubernetesApiPort }}
       targetPort: {{ .Values.service.kubernetesApiPort }}
       protocol: TCP

@@ -211,6 +211,7 @@ You can pass these parameters to the `helm install` command by using the `--set`
 | `service.externalPort`                                   | `8150`                                                | External port (for `agentk` connections). |
 | `service.internalPort`                                   | `8150`                                                | Internal port (for `agentk` connections). |
 | `service.apiInternalPort`                                | `8153`                                                | Internal port for the internal API (for GitLab backend). |
+| `service.appProtocol`                                    | `""`                                                  | Sets `spec.ports[].appProtocol` on the `external-api` and `internal-api` ports, e.g. `"grpc"` or `"kubernetes.io/h2c"`. Not set by default. |
 | `service.loadBalancerIP`                                 | `nil`                                                 | A custom load balancer IP when `service.type` is `LoadBalancer`. |
 | `service.loadBalancerSourceRanges`                       | `nil`                                                 | A list of custom load balancer source ranges when `service.type` is `LoadBalancer`. |
 | `service.kubernetesApiPort`                              | `8154`                                                | External port to expose proxied Kubernetes API on. |
