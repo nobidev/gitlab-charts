@@ -1,0 +1,86 @@
+{{- if .Values.enabled }}
+{{- $incoming := .Values.global.appConfig.incomingEmail -}}
+{{- $serviceDesk := .Values.global.appConfig.serviceDeskEmail -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+data:
+  # The service reads a GitLab-format config file (config/gitlab.yml) the same
+  # way the in-cell mailroom does, rather than mail_room.yml. IMAP passwords are
+  # read from mounted secret files at runtime via ERB, so they are never baked
+  # into the ConfigMap.
+  gitlab.yml: |
+    production:
+      gitlab:
+        host: {{ .Values.global.hosts.domain | default "example.com" | quote }}
+      {{- if $incoming.enabled }}
+      incoming_email:
+        enabled: true
+        address: {{ $incoming.address | quote }}
+        user: {{ $incoming.user | quote }}
+        password: <%= File.read("/etc/gitlab/mailroom/password_incoming_email").strip.to_json %>
+        host: {{ $incoming.host | quote }}
+        port: {{ $incoming.port }}
+        ssl: {{ $incoming.ssl }}
+        start_tls: {{ $incoming.startTls }}
+        mailbox: {{ $incoming.mailbox | quote }}
+        idle_timeout: {{ $incoming.idleTimeout }}
+        delete_after_delivery: {{ $incoming.deleteAfterDelivery }}
+        expunge_deleted: {{ $incoming.expungeDeleted }}
+        signing_key_file: /etc/gitlab/cells-mailroom/signing_key
+      {{- end }}
+      {{- if $serviceDesk.enabled }}
+      service_desk_email:
+        enabled: true
+        address: {{ $serviceDesk.address | quote }}
+        user: {{ $serviceDesk.user | quote }}
+        password: <%= File.read("/etc/gitlab/mailroom/password_service_desk").strip.to_json %>
+        host: {{ $serviceDesk.host | quote }}
+        port: {{ $serviceDesk.port }}
+        ssl: {{ $serviceDesk.ssl }}
+        start_tls: {{ $serviceDesk.startTls }}
+        mailbox: {{ $serviceDesk.mailbox | quote }}
+        idle_timeout: {{ $serviceDesk.idleTimeout }}
+        delete_after_delivery: {{ $serviceDesk.deleteAfterDelivery }}
+        expunge_deleted: {{ $serviceDesk.expungeDeleted }}
+        signing_key_file: /etc/gitlab/cells-mailroom/signing_key
+      {{- end }}
+      cell:
+        topology_service_client:
+          address: {{ .Values.global.appConfig.cell.topologyServiceClient.address | quote }}
+          tls:
+            enabled: {{ .Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+          {{- if .Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+          certificate_file: /srv/gitlab/config/topology-service/tls.crt
+          private_key_file: /srv/gitlab/config/topology-service/tls.key
+          {{- end }}
+        email_forwarding:
+          cell_endpoint:
+            scheme: {{ .Values.cellEndpoint.scheme | quote }}
+            port: {{ .Values.cellEndpoint.port }}
+          health_check:
+            address: {{ .Values.healthCheck.address | quote }}
+            port: {{ .Values.healthCheck.port }}
+          # Arbitration reuses the queues Redis and the same lock namespace as
+          # the in-cell mailroom, so the two never double-process a message.
+          # Keys here are plain (redis_url, sentinels) because the service reads
+          # them directly, not through mail_room's config file.
+          arbitration:
+            {{- if $.Values.global.redis.queues }}
+            {{- $_ := set $ "redisConfigName" "queues" }}
+            {{- end }}
+            redis_url: {{ include "gitlab.redis.url" . | quote }}
+            {{- $sentinels := include "gitlab.redis.sentinels" . }}
+            {{- if $sentinels }}
+            {{- $sentinels | nindent 12 }}
+            {{- $sentinelPassword := include "gitlab.redis.sentinel.password" . }}
+            {{- if $sentinelPassword }}
+            sentinel_password: {{ $sentinelPassword | quote }}
+            {{- end }}
+            {{- end }}
+{{- end }}

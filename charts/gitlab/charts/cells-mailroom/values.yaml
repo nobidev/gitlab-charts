@@ -1,0 +1,172 @@
+image:
+  # registry:
+  repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-cells-mailroom
+  # tag:
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+
+# This service routes email across cells. Unlike the in-cell mailroom it is
+# deployed once for all cells, so it is opt-in and disabled by default.
+enabled: false
+
+init:
+  image: {}
+    # repository:
+    # tag:
+  resources:
+    requests:
+      cpu: 50m
+  containerSecurityContext: {}
+
+annotations: {}
+
+# Tolerations for pod scheduling
+tolerations: []
+
+# Pod-level DNS configuration. Overrides `global.dnsConfig` when set.
+dnsConfig: {}
+
+podLabels: {}
+common:
+  labels: {}
+
+# Settings for reaching a cell's internal API when forwarding email. The
+# Topology Service returns a bare host, so the scheme is chosen here; a port,
+# when set, replaces the one the Topology Service returns. Mirrors GitLab
+# Shell's cell endpoint handling.
+cellEndpoint:
+  scheme: https
+  port: 8181
+
+# Requests forwarded to a cell are signed with an asymmetric JWT (ES256). This
+# service holds the private key; each cell holds the matching public key. The
+# secret is a Kubernetes secret with the PEM-encoded EC private key under the
+# given key.
+signingKey:
+  secret: ""
+  key: tls.key
+
+# health check server (mail_room serves /liveness). Disabled with port: 0.
+healthCheck:
+  address: "0.0.0.0"
+  port: 8080
+
+global:
+  redis:
+    auth: {}
+  appConfig:
+    cell:
+      enabled: false
+      topologyServiceClient:
+        address: topology-service.default.svc.cluster.local:443
+        tls:
+          enabled: true
+          # secret:
+    incomingEmail:
+      enabled: false
+      address:
+      host:
+      port: 993
+      ssl: true
+      startTls: false
+      user:
+      password:
+        secret: ""
+        key: password
+      deleteAfterDelivery: true
+      expungeDeleted: false
+      mailbox: inbox
+      idleTimeout: 60
+      inboxMethod: "imap"
+      pollInterval: 60
+
+    serviceDeskEmail:
+      enabled: false
+      address:
+      host:
+      port: 993
+      ssl: true
+      startTls: false
+      user:
+      password:
+        secret: ""
+        key: password
+      deleteAfterDelivery: true
+      expungeDeleted: false
+      mailbox: inbox
+      idleTimeout: 60
+      inboxMethod: "imap"
+      pollInterval: 60
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 2
+  cpu:
+    targetType: Utilization  # Utilization or AverageValue
+    targetAverageUtilization: 75
+  customMetrics: []  # Overrides HPA metrics definition
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+
+keda:
+  enabled: false
+  pollingInterval: 30
+  cooldownPeriod: 300
+
+# This service, like the in-cell mailroom, only makes outbound connections
+# (IMAP, Redis, the Topology Service, and cell internal APIs). See the in-cell
+# mailroom values for an example egress-only policy.
+networkpolicy:
+  enabled: false
+  egress:
+    enabled: false
+    rules: []
+  ingress:
+    enabled: false
+    rules: []
+  annotations: {}
+
+redis:
+  auth: {}
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 150M
+
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+  # fsGroupChangePolicy: OnRootMismatch
+
+containerSecurityContext:
+  runAsUser: 1000
+
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  # name:
+
+deployment:
+  strategy: {}
+  livenessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    successThreshold: 1
+    failureThreshold: 3
+  # revisionHistoryLimit: 10
+
+affinity:
+  podAntiAffinity:
+    topologyKey:
+  nodeAffinity:
+       key:
+       values:
+
+# Priority class assigned to pods
+priorityClassName: ""
+
+topologySpreadConstraints: []

@@ -1,0 +1,19 @@
+---
+apiVersion: v2
+name: cells-mailroom
+version: 0.1.0
+appVersion: master
+description: Cells-aware incoming email routing
+keywords:
+- gitlab
+- mailroom
+- cells
+home: https://about.gitlab.com/
+icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.svg
+sources:
+- https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/cells-mailroom
+- https://gitlab.com/gitlab-org/gitlab/tree/master/cells-mailroom
+- https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-cells-mailroom
+maintainers:
+- name: GitLab Inc.
+  email: support@gitlab.com

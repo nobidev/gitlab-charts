@@ -1,0 +1,161 @@
+{{- if .Values.enabled }}
+{{- $incoming := .Values.global.appConfig.incomingEmail -}}
+{{- $serviceDesk := .Values.global.appConfig.serviceDeskEmail -}}
+{{- $imageCfg := dict "global" .Values.global.image "local" .Values.image "context" $ -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+    {{- include "gitlab.app.kubernetes.io.labels" $ | nindent 4 }}
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
+spec:
+  # Don't provide replicas when HPA are present
+  # replicas: {{ .Values.hpa.minReplicas }}
+  selector:
+    matchLabels:
+      {{- include "gitlab.selectorLabels" . | nindent 6 }}
+  {{- if .Values.deployment.strategy }}
+  strategy: {{ .Values.deployment.strategy | toYaml | nindent 4 }}
+  {{- end }}
+  {{- if hasKey .Values.deployment "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  {{- else if hasKey $.Values.global "revisionHistoryLimit" }}
+  revisionHistoryLimit: {{ $.Values.global.revisionHistoryLimit }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "gitlab.standardLabels" . | nindent 8 }}
+        {{- include "gitlab.commonLabels" . | nindent 8 }}
+        {{- include "gitlab.app.kubernetes.io.labels" $ | nindent 8 }}
+        {{- include "gitlab.podLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- range $key, $value := .Values.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+    spec:
+      {{- if $.Values.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml $.Values.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
+      {{- include "gitlab.podSecurityContext" .Values.securityContext | nindent 6 }}
+      {{- include "gitlab.affinity" . | nindent 6 }}
+      {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+      {{- end }}
+      {{- include "gitlab.automountServiceAccountToken" . | nindent 6 }}
+      {{- include "gitlab.priorityClassName" . | nindent 6 }}
+      initContainers:
+        {{- include "gitlab.extraInitContainers" . | nindent 8 }}
+        {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
+        # Copy the projected secrets (Topology Service mTLS cert/key) onto a
+        # writable in-memory volume, the same way the Rails and Shell pods do.
+        - name: configure
+          command: ['sh', '-c', 'cp -v -r -L /init-config/. /init-secrets/ 2>/dev/null || true']
+          image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.init.image) | quote }}
+          {{- include "gitlab.init.containerSecurityContext" $ | indent 10 }}
+          env:
+          {{- include "gitlab.timeZone.env" . | nindent 10 }}
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
+          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
+          volumeMounts:
+          {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
+          - name: init-cells-mailroom-secrets
+            mountPath: /init-config
+            readOnly: true
+          - name: cells-mailroom-secrets
+            mountPath: /init-secrets
+            readOnly: false
+          resources:
+            {{- toYaml .Values.init.resources | nindent 12 }}
+      {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
+      containers:
+        {{- include "gitlab.extraContainers" . | nindent 8 }}
+        - name: {{ .Chart.Name }}
+          image: {{ include "gitlab.image.fullPath" $imageCfg }}
+          {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
+          {{- include "gitlab.containerSecurityContext" $ | indent 10 }}
+          env:
+          {{- include "gitlab.timeZone.env" . | nindent 10 }}
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
+          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
+          volumeMounts:
+            - name: cells-mailroom-config
+              mountPath: /srv/gitlab/config/gitlab.yml
+              subPath: gitlab.yml
+            - name: cells-mailroom-secrets
+              mountPath: '/etc/gitlab'
+              readOnly: true
+            {{- if .Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+            - name: cells-mailroom-secrets
+              mountPath: /srv/gitlab/config/topology-service/tls.crt
+              subPath: topology-service/tls.crt
+              readOnly: true
+            - name: cells-mailroom-secrets
+              mountPath: /srv/gitlab/config/topology-service/tls.key
+              subPath: topology-service/tls.key
+              readOnly: true
+            {{- end }}
+            {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
+            {{- include "gitlab.certificates.volumeMount" . | nindent 12 }}
+          {{- if .Values.healthCheck.port }}
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: {{ .Values.healthCheck.port }}
+            initialDelaySeconds: {{ .Values.deployment.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.deployment.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.deployment.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.deployment.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.deployment.livenessProbe.failureThreshold }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      {{- include "gitlab.extraVolumes" . | nindent 6 }}
+      - name: cells-mailroom-config
+        configMap:
+          name: {{ template "fullname" . }}
+      - name: init-cells-mailroom-secrets
+        projected:
+          defaultMode: 0400
+          sources:
+          {{- if $incoming.enabled }}
+          - secret:
+              name: {{ $incoming.password.secret | required "Missing secret containing the IMAP password for incoming email. Set global.appConfig.incomingEmail.password.secret" }}
+              items:
+                - key: {{ $incoming.password.key }}
+                  path: mailroom/password_incoming_email
+          {{- end }}
+          {{- if $serviceDesk.enabled }}
+          - secret:
+              name: {{ $serviceDesk.password.secret | required "Missing secret containing the IMAP password for service desk email. Set global.appConfig.serviceDeskEmail.password.secret" }}
+              items:
+                - key: {{ $serviceDesk.password.key }}
+                  path: mailroom/password_service_desk
+          {{- end }}
+          - secret:
+              name: {{ .Values.signingKey.secret | required "Missing secret containing the JWT signing key. Set signingKey.secret" }}
+              items:
+                - key: {{ .Values.signingKey.key }}
+                  path: cells-mailroom/signing_key
+          {{- include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
+      - name: cells-mailroom-secrets
+        emptyDir:
+          medium: "Memory"
+      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
+      {{- include "gitlab.nodeSelector" . | nindent 6 }}
+      {{- if .Values.tolerations }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.dnsConfig }}
+      dnsConfig:
+        {{- toYaml .Values.dnsConfig | nindent 8 }}
+      {{- end }}
+{{- end }}

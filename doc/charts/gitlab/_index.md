@@ -8,6 +8,7 @@ title: GitLab Helm subcharts
 The GitLab Helm chart is made up of multiple subcharts,
 which provide the core GitLab components:
 
+- [Cells Mailroom](cells-mailroom/_index.md)
 - [Gitaly](gitaly/_index.md)
 - [GitLab Exporter](gitlab-exporter/_index.md)
 - [GitLab Pages](gitlab-pages/_index.md)
