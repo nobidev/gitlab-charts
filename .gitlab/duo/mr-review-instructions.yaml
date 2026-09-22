@@ -1,12 +1,23 @@
 instructions:
   - name: Values Schema Kept in Sync
     fileFilters:
-      - "charts/**/values.yaml"
-      - "values.yaml"
+      - "charts/gitlab/charts/gitlab-shell/values.yaml"
+      - "charts/gitlab/charts/webservice/values.yaml"
     instructions: |
-      If a `values.yaml` entry was added or modified, check whether the sibling
-      `values.schema.json` in the same chart was updated to match, with type
-      validation for the entry. If not, ask the author to update it.
+      Only some sub-charts currently have a `values.schema.json` file. As of this
+      writing, that's:
+      - `charts/gitlab/charts/gitlab-shell/values.schema.json`
+      - `charts/gitlab/charts/webservice/values.schema.json`
+
+      Since this MR modifies the `values.yaml` for one of these charts, check
+      whether the sibling `values.schema.json` above was updated to match, with
+      type validation for the added/modified entry. If not, ask the author to
+      update it.
+
+      Duo Code Review only sees changed files, so it cannot see whether a
+      `values.schema.json` exists for charts outside this list — this fixed list
+      is the only reliable signal. If a new chart gains a `values.schema.json`
+      file, update this list to include it.
       See: doc/development/validation.md.
 
   - name: Statefulset Immutable Fields
