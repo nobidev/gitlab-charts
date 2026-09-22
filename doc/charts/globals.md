@@ -1905,12 +1905,16 @@ passed to `helm` with `-f omniauth.yaml`.
 ### Cron jobs related settings
 
 Sidekiq includes maintenance jobs that can be configured to run on a periodic
-basis using cron style schedules. A few examples are included below. See the
-`cron_jobs` and `ee_cron_jobs` sections in the sample [`gitlab.yml`](https://gitlab.com/gitlab-org/gitlab/blob/master/config/gitlab.yml.example)
-for more job examples.
+basis using cron style schedules. These settings are shared between Sidekiq,
+Webservice (for showing tooltips in UI), and Toolbox pods (for debugging purposes).
 
-These settings are shared between Sidekiq, Webservice (for showing tooltips in UI)
-and Toolbox (for debugging purposes) pods.
+The default schedule of every cron worker is defined in
+[`config/schedule.yml`](https://gitlab.com/gitlab-org/gitlab/blob/master/config/schedule.yml)
+and [`ee/config/schedule.yml`](https://gitlab.com/gitlab-org/gitlab/blob/master/ee/config/schedule.yml).
+To override a schedule, use the worker's top-level key from those files as the
+key under `cron_jobs`.
+
+In the following example, we override a few schedules:
 
 ```yaml
 global:
@@ -1922,7 +1926,13 @@ global:
         cron: "3-59/10 * * * *"
       expire_build_artifacts_worker:
         cron: "*/7 * * * *"
+      import_export_project_cleanup_worker:
+        cron: "0 0 * * *"
 ```
+
+See the `cron_jobs` and `ee_cron_jobs` sections in the sample
+[`gitlab.yml`](https://gitlab.com/gitlab-org/gitlab/blob/master/config/gitlab.yml.example)
+for more job examples.
 
 ### Sentry settings
 
