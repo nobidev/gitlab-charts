@@ -1310,7 +1310,31 @@ prometheus:
     enabled: false
   prometheus-pushgateway:
     enabled: false
-  scrapeConfigs: []
+  # Disable the default scrape jobs of the Prometheus chart. GitLab supplies
+  # its own jobs in `serverFiles."prometheus.yml".scrape_configs` below. Two
+  # sources of jobs make duplicate job names, and Prometheus does not start.
+  # Issue #6413 tracks the move of the GitLab jobs to this structure.
+  scrapeConfigs:
+    prometheus:
+      enabled: false
+    kubernetes-api-servers:
+      enabled: false
+    kubernetes-nodes:
+      enabled: false
+    kubernetes-nodes-cadvisor:
+      enabled: false
+    kubernetes-service-endpoints:
+      enabled: false
+    kubernetes-service-endpoints-slow:
+      enabled: false
+    prometheus-pushgateway:
+      enabled: false
+    kubernetes-services:
+      enabled: false
+    kubernetes-pods:
+      enabled: false
+    kubernetes-pods-slow:
+      enabled: false
   server:
     retention: 15d
     strategy:
