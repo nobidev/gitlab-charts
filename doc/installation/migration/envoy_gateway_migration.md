@@ -29,7 +29,7 @@ before you start.
 
 ## When to migrate
 
-In GitLab 18.x (chart 9.x), Gateway API and the bundled Envoy Gateway are in
+In GitLab 18.x (chart 9.x), Gateway API and the bundled Envoy Gateway were in
 [Beta](https://docs.gitlab.com/policy/development_stages_support/#beta) and disabled by default.
 Gateway API bug fixes are not backported to 18.x. For example, the fix for
 [issue 6557](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6557) shipped only in chart 10.0.5
@@ -38,10 +38,9 @@ the default and is covered by the regular [maintenance policy](https://docs.gitl
 
 If your instance still runs GitLab 18.x, don't migrate to Gateway API yet. Instead:
 
-1. Upgrade to GitLab 19.x with your existing Ingress controller enabled. Staying on the
-   bundled NGINX Ingress across the 19.0 upgrade is supported. For the required values,
-   see [Continue using an Ingress controller](#continue-using-an-ingress-controller).
-1. Upgrade to the latest 19.x patch release available to you.
+1. Upgrade to the latest GitLab 19.x patch release with your existing Ingress controller enabled.
+   Staying on the bundled NGINX Ingress across the 19.0 upgrade is supported. For the required
+   values, see [Continue using an Ingress controller](#continue-using-an-ingress-controller).
 1. Migrate to Gateway API and Envoy Gateway with a
    [one step](#migrate-in-one-step) or [zero downtime](#migrate-with-zero-downtime) migration.
 

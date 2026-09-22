@@ -13,7 +13,7 @@ title: Using Envoy Gateway
 {{< /details >}}
 
 GitLab chart bundles the official Envoy Gateway to support migrating from the bundled NGINX Ingress towards Gateway API.
-Since GitLab 19.0, Gateway API with the bundled Envoy Gateway is the default. In GitLab 18.x, it is in
+Since GitLab 19.0, Gateway API with the bundled Envoy Gateway is the default. In GitLab 18.x, it was in
 [Beta](https://docs.gitlab.com/policy/development_stages_support/#beta) and disabled by default. For the
 recommended migration order, see
 [When to migrate](../../installation/migration/envoy_gateway_migration.md#when-to-migrate).
