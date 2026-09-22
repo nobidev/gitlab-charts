@@ -12,12 +12,9 @@ title: Using the Cells Mailroom chart
 
 {{< /details >}}
 
-{{< alert type="warning" >}}
-
-This chart is experimental and intended for the GitLab [Cells](https://docs.gitlab.com/development/cells/)
-architecture. It is disabled by default.
-
-{{< /alert >}}
+> [!warning]
+> This chart is experimental and intended for the GitLab [Cells](https://docs.gitlab.com/development/cells/)
+> architecture. It is disabled by default.
 
 The Cells Mailroom chart deploys the cells-aware mailroom service. Like the
 [Mailroom](../mailroom/_index.md) chart it polls the incoming email and Service
