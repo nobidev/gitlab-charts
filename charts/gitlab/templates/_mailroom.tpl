@@ -11,7 +11,7 @@
 {{- end }}
 {{- range $i, $entry := $.Values.global.appConfig.incomingEmail.publicKeyFiles }}
 - secret:
-    name: {{ $entry.secret | quote }}
+    name: {{ $entry.secret | required "Each global.appConfig.incomingEmail.publicKeyFiles entry needs a secret" | quote }}
     items:
       - key: {{ $entry.key | default "tls.pub" | quote }}
         path: mailroom/incoming_email_public_key_{{ $i }}
@@ -29,7 +29,7 @@
 {{- end }}
 {{- range $i, $entry := $.Values.global.appConfig.serviceDeskEmail.publicKeyFiles }}
 - secret:
-    name: {{ $entry.secret | quote }}
+    name: {{ $entry.secret | required "Each global.appConfig.serviceDeskEmail.publicKeyFiles entry needs a secret" | quote }}
     items:
       - key: {{ $entry.key | default "tls.pub" | quote }}
         path: mailroom/service_desk_email_public_key_{{ $i }}

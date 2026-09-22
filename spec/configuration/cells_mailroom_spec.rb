@@ -48,17 +48,17 @@ describe 'cells-mailroom configuration' do
 
     it 'renders no cells-mailroom resources' do
       expect(template.exit_code).to eq(0)
-      expect(template.dig('Deployment/test-cells-mailroom')).to be_nil
-      expect(template.dig('ConfigMap/test-cells-mailroom')).to be_nil
+      expect(template['Deployment/test-cells-mailroom']).to be_nil
+      expect(template['ConfigMap/test-cells-mailroom']).to be_nil
     end
   end
 
   context 'when enabled' do
     it 'renders a Deployment and ConfigMap but no Service' do
       expect(template.exit_code).to eq(0)
-      expect(template.dig('Deployment/test-cells-mailroom')).not_to be_nil
-      expect(template.dig('ConfigMap/test-cells-mailroom')).not_to be_nil
-      expect(template.dig('Service/test-cells-mailroom')).to be_nil
+      expect(template['Deployment/test-cells-mailroom']).not_to be_nil
+      expect(template['ConfigMap/test-cells-mailroom']).not_to be_nil
+      expect(template['Service/test-cells-mailroom']).to be_nil
     end
 
     it 'renders the incoming_email mailbox with delivery cleanup settings' do
@@ -109,9 +109,63 @@ describe 'cells-mailroom configuration' do
       expect(names).to include('incoming-pw', 'cells-mailroom-signing-key', 'ts-tls')
     end
 
+    it 'projects the Redis password secret needed by the arbitration config' do
+      # The arbitration redis_url embeds ERB that reads the Redis password file
+      # at startup, so the secret must be mounted or the pod crash-loops.
+      sources = template.projected_volume_sources('Deployment/test-cells-mailroom', 'init-cells-mailroom-secrets')
+      redis = sources.select { |s| s['secret']['items'].any? { |i| i['path'].start_with?('redis/') } }
+      expect(redis).not_to be_empty
+    end
+
+    it 'copies secrets with the shared configure script rather than a fail-open copy' do
+      configure = template.dig('ConfigMap/test-cells-mailroom', 'data', 'configure')
+      expect(configure).to include('set -e')
+      expect(configure).to include('topology-service/tls.crt')
+      expect(configure).not_to include('2>/dev/null || true')
+    end
+
     it 'reuses the shared mailroom arbitration namespace via redis config' do
       arbitration = gitlab_yml['cell']['email_forwarding']['arbitration']
       expect(arbitration['redis_url']).to include('redis')
+    end
+  end
+
+  context 'when a mailbox uses the microsoft_graph inbox method' do
+    let(:values) do
+      HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            cell:
+              enabled: true
+              topologyServiceClient:
+                address: "ts.example.com:443"
+                tls:
+                  enabled: true
+                  secret: ts-tls
+            incomingEmail:
+              enabled: true
+              inboxMethod: microsoft_graph
+              address: "incoming+%{key}@example.com"
+              user: "incoming@example.com"
+              tenantId: tenant
+              clientId: client
+              clientSecret:
+                secret: incoming-graph
+              password:
+                secret: incoming-pw
+        gitlab:
+          mailroom:
+            enabled: false
+          cells-mailroom:
+            enabled: true
+            signingKey:
+              secret: cells-mailroom-signing-key
+      ))
+    end
+
+    it 'fails the render with a clear message' do
+      expect(template.exit_code).not_to eq(0)
+      expect(template.stderr).to include('does not support the microsoft_graph inbox method')
     end
   end
 

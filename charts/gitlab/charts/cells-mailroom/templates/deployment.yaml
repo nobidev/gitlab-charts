@@ -2,6 +2,7 @@
 {{- $incoming := .Values.global.appConfig.incomingEmail -}}
 {{- $serviceDesk := .Values.global.appConfig.serviceDeskEmail -}}
 {{- $imageCfg := dict "global" .Values.global.image "local" .Values.image "context" $ -}}
+{{- $initImageCfg := include "gitlab.configure.config" .Values | fromYaml -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -53,11 +54,14 @@ spec:
       initContainers:
         {{- include "gitlab.extraInitContainers" . | nindent 8 }}
         {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
-        # Copy the projected secrets (Topology Service mTLS cert/key) onto a
-        # writable in-memory volume, the same way the Rails and Shell pods do.
+        # Copies the projected secrets (IMAP passwords, JWT signing key, Redis
+        # password/TLS, Topology Service mTLS cert/key) onto a writable
+        # in-memory volume, using the shared configure-secrets script so a
+        # missing required secret fails the init container loudly.
         - name: configure
-          command: ['sh', '-c', 'cp -v -r -L /init-config/. /init-secrets/ 2>/dev/null || true']
+          command: ['sh', '/config/configure']
           image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.init.image) | quote }}
+          {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
           {{- include "gitlab.init.containerSecurityContext" $ | indent 10 }}
           env:
           {{- include "gitlab.timeZone.env" . | nindent 10 }}
@@ -65,6 +69,10 @@ spec:
           {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
           volumeMounts:
           {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
+          - name: cells-mailroom-config
+            mountPath: /config/configure
+            subPath: configure
+            readOnly: true
           - name: init-cells-mailroom-secrets
             mountPath: /init-config
             readOnly: true
@@ -125,6 +133,8 @@ spec:
         projected:
           defaultMode: 0400
           sources:
+          {{- include "gitlab.redis.secret" . | nindent 10 }}
+          {{- include "gitlab.redisSentinel.secret" . | nindent 10 }}
           {{- if $incoming.enabled }}
           - secret:
               name: {{ $incoming.password.secret | required "Missing secret containing the IMAP password for incoming email. Set global.appConfig.incomingEmail.password.secret" }}

@@ -1,6 +1,9 @@
 {{- if .Values.enabled }}
 {{- $incoming := .Values.global.appConfig.incomingEmail -}}
 {{- $serviceDesk := .Values.global.appConfig.serviceDeskEmail -}}
+{{- if or (and $incoming.enabled (eq (default "imap" $incoming.inboxMethod) "microsoft_graph")) (and $serviceDesk.enabled (eq (default "imap" $serviceDesk.inboxMethod) "microsoft_graph")) -}}
+{{- fail "cells-mailroom does not support the microsoft_graph inbox method; set inboxMethod to imap for the mailboxes it polls" -}}
+{{- end -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -69,7 +72,9 @@ data:
           # Arbitration reuses the queues Redis and the same lock namespace as
           # the in-cell mailroom, so the two never double-process a message.
           # Keys here are plain (redis_url, sentinels) because the service reads
-          # them directly, not through mail_room's config file.
+          # them directly, not through mail_room's config file. The Redis
+          # password and TLS files are read at runtime by the ERB above, from
+          # the secrets the configure init container copies into /etc/gitlab.
           arbitration:
             {{- if $.Values.global.redis.queues }}
             {{- $_ := set $ "redisConfigName" "queues" }}
@@ -83,4 +88,11 @@ data:
             sentinel_password: {{ $sentinelPassword | quote }}
             {{- end }}
             {{- end }}
+            {{- $_ := set $ "sslParamName" "redis_ssl_params" }}
+            {{- include "gitlab.redis.sslParams" . | nindent 12 }}
+
+  configure: |
+    {{- include "gitlab.scripts.configure.secrets" (dict "required" "cells-mailroom" "optional" "redis redis-sentinel mailroom") | nindent 4 }}
+    {{- include "gitlab.topologyService.configureScript" $ | nindent 4 }}
+# Leave this here - This line denotes end of block to the parser.
 {{- end }}
