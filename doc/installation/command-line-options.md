@@ -70,6 +70,7 @@ helm inspect values gitlab/gitlab
 | Parameter                         | Default               | Description |
 |-----------------------------------|-----------------------|-------------|
 | `global.email.display_name`       | `GitLab`              | Name that appears as the sender for emails from GitLab |
+| `global.email.enabled`            | `true`                | Enable outgoing email from GitLab |
 | `global.email.from`               | `gitlab@example.com`  | Email address that appears as the sender for emails from GitLab |
 | `global.email.reply_to`           | `noreply@example.com` | Reply-to email listed in emails from GitLab |
 | `global.email.smime.certName`     | `tls.crt`             | Secret object key value for locating the S/MIME certificate file |
@@ -80,7 +81,7 @@ helm inspect values gitlab/gitlab
 | `global.smtp.address`             | `smtp.mailgun.org`    | Hostname or IP of the remote mail server |
 | `global.smtp.authentication`      | `plain`               | Type of SMTP authentication ("plain", "login", "cram_md5", or "" for no authentication) |
 | `global.smtp.domain`              | `""`                  | Optional HELO domain for SMTP |
-| `global.smtp.enabled`             | `false`               | Enable outgoing email |
+| `global.smtp.enabled`             | `false`               | Enable outgoing email through SMTP. If `true`, requires that `global.email.enabled` also be `true` |
 | `global.smtp.openssl_verify_mode` | `peer`                | TLS verification mode ("none", "peer", "client_once", or "fail_if_no_peer_cert") |
 | `global.smtp.password.key`        | `password`            | Key in `global.smtp.password.secret` that contains the SMTP password |
 | `global.smtp.password.secret`     | `""`                  | Name of a `Secret` containing the SMTP password |

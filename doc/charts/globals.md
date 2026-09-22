@@ -2831,9 +2831,15 @@ The `global.appConfig.kerberos.simpleLdapLinkingAllowedRealms` can be used to sp
 
 Outgoing email configuration is available via `global.smtp.*`, `global.appConfig.microsoft_graph_mailer.*`, `global.appConfig.amazon_ses_mailer.*` and `global.email.*`.
 
+To disable all outgoing email, set `global.email.enabled` to `false`. This setting:
+
+- Disables notifications, password reset messages, and other outgoing email. 
+- Prevents GitLab from using any email delivery method, regardless of other settings.
+
 ```yaml
 global:
   email:
+    enabled: true
     display_name: 'GitLab'
     from: 'gitlab@example.com'
     reply_to: 'noreply@example.com'

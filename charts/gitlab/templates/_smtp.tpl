@@ -74,6 +74,7 @@ ActionMailer::Base.smtp_settings = smtp_settings
 
 {{/* Outgoing email settings */}}
 {{- define "gitlab.outgoing_email_settings" }}
+email_enabled: {{ .Values.global.email.enabled }}
 email_from: {{ template "gitlab.email.from" . }}
 email_display_name: {{ .Values.global.email.display_name | quote }}
 email_reply_to: {{ template "gitlab.email.reply_to" . }}
