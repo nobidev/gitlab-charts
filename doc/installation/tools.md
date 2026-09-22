@@ -289,8 +289,11 @@ for additional details.
 
 ### Outgoing email
 
-By default, outgoing email is disabled. To enable it, provide details for your SMTP server
-using the `global.smtp` and `global.email` settings. You can find details for these settings in the
+SMTP delivery is disabled by default. GitLab can use another delivery method when SMTP is disabled.
+To disable all outgoing email, regardless of delivery method, set `global.email.enabled` to `false`.
+
+To enable SMTP delivery, provide details for your SMTP server by using the `global.smtp` and
+`global.email` settings. For more information, see the
 [command line options](command-line-options.md#outgoing-email-configuration).
 
 If your SMTP server requires authentication, make sure to read the section on providing

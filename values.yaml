@@ -935,6 +935,7 @@ global:
   ## https://docs.gitlab.com/charts/charts/globals#outgoing-email
   ## Email persona used in email sent by GitLab
   email:
+    enabled: true
     from: ""
     display_name: GitLab
     reply_to: ""
