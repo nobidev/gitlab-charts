@@ -30,7 +30,7 @@ To upgrade the CRDs:
 
    ```shell
    helm template eg-crds oci://docker.io/envoyproxy/gateway-crds-helm \
-     --version v1.9.0 \
+     --version v1.9.1 \
      --set crds.gatewayAPI.enabled=true \
      --set crds.envoyGateway.enabled=true \
      | kubectl apply --server-side -f -
