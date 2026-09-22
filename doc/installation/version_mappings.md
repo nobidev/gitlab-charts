@@ -58,6 +58,7 @@ The table below maps supported GitLab Helm chart versions to supported GitLab ve
 | 10.0.2 | 19.0.2 |
 | 10.0.1 | 19.0.1 |
 | 10.0.0 | 19.0.0 |
+| 9.11.13 | 18.11.12 |
 | 9.11.12 | 18.11.11 |
 | 9.11.11 | 18.11.10 |
 | 9.11.10 | 18.11.9 |
