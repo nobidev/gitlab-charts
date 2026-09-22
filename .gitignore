@@ -14,7 +14,9 @@ Chart.*.yaml
 ci.digests.test.yaml
 scripts/debug/chart-info
 .idea
+# Agents: local state and worktrees, which Git must not track.
 .claude/settings.local.json
+.claude/worktrees/
 .values
 result
 result-*

@@ -48,3 +48,6 @@ doc-locale/
 examples/
 scripts/
 spec/
+# Agents: Non-hidden artifacts, which Helm should not process.
+skills/
+AGENTS.md
