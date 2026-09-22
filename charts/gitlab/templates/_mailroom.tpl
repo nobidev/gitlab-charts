@@ -9,6 +9,13 @@
       - key: {{ template "gitlab.appConfig.incomingEmail.authToken.key" . }}
         path: mailroom/incoming_email_webhook_secret
 {{- end }}
+{{- range $i, $entry := $.Values.global.appConfig.incomingEmail.publicKeyFiles }}
+- secret:
+    name: {{ $entry.secret | quote }}
+    items:
+      - key: {{ $entry.key | default "tls.pub" | quote }}
+        path: mailroom/incoming_email_public_key_{{ $i }}
+{{- end }}
 {{- end -}}{{/* "gitlab.appConfig.incomingEmail.mountSecrets" "*/}}
 
 {{- define "gitlab.appConfig.serviceDeskEmail.mountSecrets" -}}
@@ -19,6 +26,13 @@
     items:
       - key: {{ template "gitlab.appConfig.serviceDeskEmail.authToken.key" . }}
         path: mailroom/service_desk_email_webhook_secret
+{{- end }}
+{{- range $i, $entry := $.Values.global.appConfig.serviceDeskEmail.publicKeyFiles }}
+- secret:
+    name: {{ $entry.secret | quote }}
+    items:
+      - key: {{ $entry.key | default "tls.pub" | quote }}
+        path: mailroom/service_desk_email_public_key_{{ $i }}
 {{- end }}
 {{- end -}}{{/* "gitlab.appConfig.serviceDeskEmail.mountSecrets" "*/}}
 
