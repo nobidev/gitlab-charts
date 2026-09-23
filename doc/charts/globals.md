@@ -2843,7 +2843,7 @@ Outgoing email configuration is available via `global.smtp.*`, `global.appConfig
 
 To disable all outgoing email, set `global.email.enabled` to `false`. This setting:
 
-- Disables notifications, password reset messages, and other outgoing email. 
+- Disables notifications, password reset messages, and other outgoing email.
 - Prevents GitLab from using any email delivery method, regardless of other settings.
 
 ```yaml
