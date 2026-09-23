@@ -1,5 +1,5 @@
 {{- $ingressConfigureCertmanager := pluck "configureCertmanager" .Values.global.ingress (dict "configureCertmanager" false) | first -}}
-{{- $configureGatewayCertmanager := .Values.global.gatewayApi.configureCertmanager }}
+{{- $configureGatewayCertmanager := eq "true" (include "gitlab.gatewayApi.configureCertmanager" .) }}
 {{ if and .Values.rbac.create (or $ingressConfigureCertmanager $configureGatewayCertmanager) }}
 apiVersion: v1
 kind: ServiceAccount

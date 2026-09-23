@@ -1665,6 +1665,11 @@ gatewayApiResources:
     infrastructure: {}
     addresses: []
     protocol: "HTTPS"
+    ## Name of a single TLS Secret to serve from every HTTPS/TLS listener, replacing the
+    ## per-listener certificateRefs below. Use this when one certificate (for example a
+    ## wildcard) covers all hostnames. Leave empty to configure listeners individually.
+    tls:
+      secretName: ""
     listeners:
       http-default:
         protocol: HTTP
