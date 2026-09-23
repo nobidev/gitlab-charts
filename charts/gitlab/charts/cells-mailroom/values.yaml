@@ -55,13 +55,11 @@ global:
   redis:
     auth: {}
   appConfig:
-    cell:
-      enabled: false
-      topologyServiceClient:
-        address: topology-service.default.svc.cluster.local:443
-        tls:
-          enabled: true
-          # secret:
+    # global.appConfig.cell (including topologyServiceClient) is defined by the
+    # parent chart and shared with the Rails components. It is intentionally not
+    # redeclared here: defaulting it would leak into the shared global scope and,
+    # for example, mask the "topologyServiceClient.address must be set" guard in
+    # other subcharts.
     incomingEmail:
       enabled: false
       address:
