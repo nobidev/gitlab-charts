@@ -47,7 +47,7 @@ Creating Issuers and managing TLS through them is controlled separately per rout
 
 Both routing paths create independent HTTP01 Issuers.
 
-The chart creates an `Issuer` when either path has cert-manager wired in, so deactivating it
+The chart creates an `Issuer` when `configureCertmanager` is `true` for either path, so deactivating it
 completely means setting both settings to `false`. Setting only
 `global.ingress.configureCertmanager=false` is not enough, because the Gateway API setting defaults
 to `true`: on a cluster where cert-manager is not installed, the Job that applies the `Issuer` then
@@ -393,8 +393,8 @@ also use directly for GitLab Runner via `gitlab-runner.certsSecretName=RELEASE-w
 
 {{< tab title="Gateway API" >}}
 
-The Gateway listeners are not wired to the generated wildcard secret automatically, so point them
-at `RELEASE-wildcard-tls` yourself:
+The Gateway listeners do not use the generated wildcard secret automatically, so set it
+explicitly:
 
 ```yaml
 installCertmanager: false
@@ -501,8 +501,8 @@ This section contains possible solutions for problems you might encounter.
 
 ### Deployment stalls with a failing issuer Job
 
-If you deactivated cert-manager but the `RELEASE-issuer-<suffix>` Job fails, the chart is still
-wiring cert-manager in on one of the two routing paths. Check both settings:
+If you deactivated cert-manager but the `RELEASE-issuer-<suffix>` Job fails, `configureCertmanager` is
+still `true` for one of the two routing paths. Check both settings:
 
 ```shell
 helm get values <release> --all | grep -A2 configureCertmanager
