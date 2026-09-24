@@ -41,6 +41,12 @@ entry.
 - [Update Debian base from bookworm to trixie](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f22d142fdac57c5d3832bdcb2647f4c7d57bccf9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5281))
 - [Update gitlab-runner to v0.92.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fca325450df764b23edaf3962066423af5a148c0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5276))
 
+## 10.3.4 (2026-09-24)
+
+### Changed (1 change)
+
+- [Update ai-gateway to v0.15.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/8e7c032facbd95ea1c701e62f3fc2bd80924a364) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5398))
+
 ## 10.3.3 (2026-09-22)
 
 ### Changed (1 change)
