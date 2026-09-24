@@ -69,8 +69,8 @@ Each routing path reads certificate secrets from a different place:
 The Gateway listeners default to fixed secret names, which cert-manager populates when
 `global.gatewayApi.configureCertmanager` is `true`. When you provide your own certificates instead,
 set `gatewayApiResources.gateway.tls.secretName` to serve one certificate from every listener that
-terminates TLS. When it is set, it replaces the `certificateRefs` of all of those listeners, so
-leave it empty if you need a different certificate per listener and set `certificateRefs` on each
+terminates TLS. When it is set, it replaces the `certificateRefs` field of all of those listeners, so
+leave it empty if you need a different certificate per listener and set `certificateRefs` fields on each
 one instead:
 
 | Listener | Rendered when | Default secret |
