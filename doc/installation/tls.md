@@ -54,7 +54,7 @@ to `true`: on a cluster where cert-manager is not installed, the Job that applie
 fails and the deployment does not complete.
 
 > [!note]
-> In chart versions before 10.5.0 (GitLab 19.5), the Gateway API `Issuer` did not require
+> In chart versions before 10.5 (GitLab 19.5), the Gateway API `Issuer` did not require
 > `global.gatewayApi.enabled`, so deactivating Gateway API alone left the `Issuer` in place.
 
 ### Certificate secret settings
@@ -506,7 +506,7 @@ helm get values <release> --all | grep -A2 configureCertmanager
 
 `global.gatewayApi.configureCertmanager` defaults to `true`, so setting only
 `global.ingress.configureCertmanager=false` leaves the Gateway API `Issuer` in place. On chart
-versions before 10.5.0 (GitLab 19.5), `global.gatewayApi.enabled=false` does not deactivate it
+versions before 10.5 (GitLab 19.5), `global.gatewayApi.enabled=false` does not deactivate it
 either. See [cert-manager settings](#cert-manager-settings).
 
 Under the GitLab Operator this surfaces only as a reconcile error in the controller log, with the

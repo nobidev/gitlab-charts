@@ -238,8 +238,6 @@ Checks if cert-manager should be wired into the Gateway API routing path. Requir
 global.gatewayApi.enabled and global.gatewayApi.configureCertmanager: the Issuer this
 produces solves HTTP01 challenges through a gatewayHTTPRoute, so it is inert without a
 Gateway to attach to.
-
-Returns the string "true" or "false".
 */}}
 {{- define "gitlab.gatewayApi.configureCertmanager" -}}
 {{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.configureCertmanager -}}
