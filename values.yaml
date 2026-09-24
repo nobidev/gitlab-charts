@@ -1749,6 +1749,8 @@ gatewayApiResources:
 ## (for AI features like code suggestions) and the gRPC duo-workflow-service.
 ## Service discovery settings are under global.ai-gateway above.
 ai-gateway:
+  image:
+    tag: "self-hosted-v19.2.0-ee"
   install: false
   ingress:
     enabled: false
