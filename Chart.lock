@@ -15,7 +15,7 @@ dependencies:
   repository: oci://ghcr.io/prometheus-community/charts
   version: 29.31.1
 - name: gitlab-runner
-  repository: https://charts.gitlab.io/
+  repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
   version: 0.93.0
 - name: nginx-ingress
   repository: ""
@@ -27,7 +27,7 @@ dependencies:
   repository: https://charts.gitlab.io/
   version: 4.1.0
 - name: openbao
-  repository: https://charts.gitlab.io/
+  repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
   version: 0.19.0
 - name: traefik
   repository: https://helm.traefik.io/traefik
@@ -41,5 +41,5 @@ dependencies:
 - name: ai-gateway
   repository: https://gitlab.com/api/v4/projects/gitlab-org%2fcharts%2fai-gateway-helm-chart/packages/helm/devel
   version: 0.15.3
-digest: sha256:93602f11a63ea7ec82d2dbf5279d9433792bf4bd6a28cc916234678a2f36003a
-generated: "2026-09-23T16:59:41.10522+02:00"
+digest: sha256:1d0c6ca0085871b853d3a4ca138cbe5b65173a4317b2371de1152fe6279afa82
+generated: "2026-09-24T09:46:50.029321776+02:00"
