@@ -37,7 +37,7 @@ The Ingress examples cover TLS only. They assume you have already enabled the In
 
 ### cert-manager settings
 
-Installing `cert-manager` is controlled by the `installCertmanager` setting (`true` by default).
+Installing cert-manager is controlled by the `installCertmanager` setting (`true` by default).
 Creating Issuers and managing TLS through them is controlled separately per routing path:
 
 | Setting | Routing path | Default | Also requires |
@@ -138,7 +138,7 @@ global:
 
 ### External cert-manager and internal Issuer
 
-It is possible to make use of an external `cert-manager` but provide an Issuer as a part of this chart.
+It is possible to make use of an external cert-manager but provide an Issuer as a part of this chart.
 
 {{< tabs >}}
 
@@ -178,11 +178,11 @@ global:
 
 ### External cert-manager and Issuer (external)
 
-To make use of an external `cert-manager` and `Issuer` resource, so that self-signed certificates
+To make use of an external cert-manager and `Issuer` resource, so that self-signed certificates
 are not activated, you must:
 
 1. Deactivate both chart Issuers, so that the chart does not create one of its own.
-1. Add annotations to activate the external `cert-manager`. For more information, see the
+1. Add annotations to activate the external cert-manager. For more information, see the
    [Gateway API](https://cert-manager.io/docs/usage/gateway/) or
    [Ingress](https://cert-manager.io/docs/usage/ingress/#supported-annotations) documentation.
 1. Name TLS secrets for each service, which deactivates
