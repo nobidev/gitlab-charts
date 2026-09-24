@@ -13,7 +13,7 @@ but remains available until its full removal in GitLab 20.0.
 
 | Name                                                |  Type   | Default        | Description |
 |:----------------------------------------------------|:-------:|:---------------|:------------|
-| `global.gatewayApi.enabled`                         | Boolean | true           | Enable deployment of GatewayAPI resources. Default flipped to `true` in GitLab 19.0. |
+| `global.gatewayApi.enabled`                         | Boolean | true           | Enable deployment of Gateway API resources. Default flipped to `true` in GitLab 19.0. |
 | `global.gatewayApi.configureCertmanager`            | Boolean | true           | Configure cert-manager to get certificates from Let's Encrypt via a Gateway API HTTP-01 solver. Requires `certmanager-issuer.email`. |
 | `global.gatewayApi.gatewayRef.name`                 | String  |                | Gateway name rendered to all Gateway API resources. Use this to reference an externally managed Gateway and to disable the Gateway provided by the chart. |
 | `global.gatewayApi.gatewayRef.namespace`            | String  |                | Gateway namespace rendered to all Gateway API resources. Use this to reference an externally managed Gateway in another namespace and to disable the Gateway provided by the chart. |
@@ -51,7 +51,7 @@ GitLab chart allows you to customize the managed `Gateway`, `GatewayClass`, and 
 | `gatewayApiResources.class.enabled`                | Boolean | unset          | Render the chart-managed `GatewayClass`. Defaults to the value of `global.gatewayApi.configureEnvoy` when unset. Set to `false` to provide your own `GatewayClass` while keeping the policy resources chart-managed; the `EnvoyProxy` is only rendered when the `GatewayClass` is also chart-managed. |
 | `gatewayApiResources.class.name`                   | String  | `gitlab-gw`    | Name of the Gateway class bound to the Gateway. |
 | `gatewayApiResources.class.controllerName`         | String  | `gateway.envoyproxy.io/gitlab-gatewayclass-controller` | Controller name of the GatewayClass. |
-| `gatewayApiResources.gateway.addresses`            | Array   | false          | Array of addresses to be added to the Gateway. |
+| `gatewayApiResources.gateway.addresses`            | Array   | []             | Array of addresses to be added to the Gateway. |
 | `gatewayApiResources.gateway.protocol`             | String  | `HTTPS`        | Default listener protocol. |
 | `gatewayApiResources.gateway.annotations`          | Map     | `{}`           | Annotations to add to the managed Gateway. |
 | `gatewayApiResources.gateway.infrastructure`       | Object  | `{}`           | [GatewayInfrastructure](https://gateway-api.sigs.k8s.io/reference/spec/#gatewayinfrastructure) added to the managed Gateway. |
@@ -80,7 +80,6 @@ listeners:
       certificateRefs:
         - name: gitlab-web-geo-tls
   gitlab-smartcard-web:
-    protocol: ""
     tls:
       mode: Terminate
       certificateRefs:
@@ -112,10 +111,23 @@ listeners:
       mode: Terminate
       certificateRefs:
         - name: openbao-tls
+  ai-gateway-web:
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: ai-gateway-tls
+  ai-gateway-grpc:
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: ai-gateway-grpc-tls
 ```
 
-When cert-manager is wired into the chart (`global.gatewayApi.configureCertmanager`, `true` by
-default), it populates these secrets for you. When you supply your own certificates and one of them
+The chart renders each listener only when the component behind it is enabled. For the conditions,
+see [Certificate secret settings](../../installation/tls.md#certificate-secret-settings).
+
+When `global.gatewayApi.configureCertmanager` is `true` (the default), cert-manager populates
+these secrets for you. When you supply your own certificates and one of them
 covers all hostnames, set `gatewayApiResources.gateway.tls.secretName` instead of repeating it on
 each listener:
 
@@ -572,8 +584,9 @@ everything attached to it. You are responsible for:
   attach by `sectionName`; the defaults match the listener names in the
   [example listener configuration](#listener-configuration) (`gitlab-web`, `gitlab-web-geo`,
   `gitlab-smartcard-web`, `registry-web`, `pages-web`, `kas-web`, `kas-workspaces-web`,
-  `gitlab-ssh`, `openbao-web`). Each sub-chart accepts a `gatewayRoute.sectionName` override if
-  your listener names differ.
+  `gitlab-ssh`, `openbao-web`, `ai-gateway-web`, `ai-gateway-grpc`). Each sub-chart accepts a
+  `gatewayRoute.sectionName` override if your listener names differ. For the `ai-gateway-grpc`
+  listener, use `ai-gateway.gatewayRoute.grpc.sectionName`.
 - Configuring an HTTP-to-HTTPS redirect on your `Gateway` if you need one. The
   `global.gatewayApi.httpToHttpsRedirect` flag only applies to the chart-managed `Gateway`.
 - Annotating your `Gateway` for TLS certificates. The chart still creates a cert-manager `Issuer`

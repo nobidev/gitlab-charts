@@ -81,19 +81,20 @@ one instead:
 | `gitlab-web-geo` | `global.geo.enabled` and `global.geo.gatewayApi.additionalHostname` are set | `gitlab-web-geo-tls` |
 | `gitlab-smartcard-web` | `global.appConfig.smartcard.enabled` is `true` | `gitlab-smartcard-tls` |
 | `pages-web` | `global.pages.enabled` is `true` | `pages-tls` |
-| `kas-workspaces-web` | `global.workspaces.enabled` is `true` | `kas-workspaces-tls` |
+| `kas-workspaces-web` | `global.kas.enabled` and `global.workspaces.enabled` are `true` | `kas-workspaces-tls` |
 | `openbao-web` | `openbao.install` is `true` | `openbao-tls` |
 | `ai-gateway-web` | `ai-gateway.install` is `true` | `ai-gateway-tls` |
 | `ai-gateway-grpc` | `ai-gateway.install` is `true` | `ai-gateway-grpc-tls` |
 
-The `gitlab-ssh` listener uses TCP and has no TLS configuration.
+The `gitlab-ssh` listener uses TCP and the `http-default` listener uses HTTP, so neither has a TLS
+configuration.
 
 An override of the `certificateRefs` field merges with the listener defaults, so you do not need to repeat
 `mode: Terminate`.
 
 ## Option 1: cert-manager and Let's Encrypt
 
-Let’s Encrypt is a free, automated, and open Certificate Authority. Certificates can be automatically requested
+Let's Encrypt is a free, automated, and open Certificate Authority. Certificates can be automatically requested
 using various tools. This chart comes ready to integrate with a popular choice [cert-manager](https://github.com/cert-manager/cert-manager).
 
 - If you are already using cert-manager, configure
@@ -242,7 +243,7 @@ registry:
 
 ## Option 2: Use your own wildcard certificate
 
-Add your full chain certificate and key to the cluster as a `Secret`, e.g.:
+Add your full chain certificate and key to the cluster as a `Secret`, for example:
 
 ```shell
 kubectl create secret tls <tls-secret-name> --cert=<path/to-full-chain.crt> --key=<path/to.key>
@@ -372,7 +373,7 @@ registry:
 
 ## Option 4: Use auto-generated self-signed wildcard certificate
 
-These charts also provide the capability to provide a auto-generated self-signed wildcard certificate.
+These charts also provide the capability to provide an auto-generated self-signed wildcard certificate.
 This can be useful in environments where Let's Encrypt is not an option, but security via SSL is still
 desired. This functionality is provided by the [shared-secrets](../charts/shared-secrets.md) job.
 
@@ -438,20 +439,20 @@ For [GitLab Pages with TLS support](https://docs.gitlab.com/administration/pages
 a wildcard certificate applicable for `*.<pages domain>` (default value of
 `<pages domain>` is `pages.<base domain>`) is required.
 
-Because a wild card certificate is required, it can not be automatically created
+Because a wildcard certificate is required, it cannot be automatically created
 by cert-manager and Let's Encrypt. cert-manager is therefore by default disabled
-for GitLab Pages (via `gitlab-pages.ingress.configureCertmanager`), so you will
-have to provide your own k8s Secret containing a wild card certificate. If you
+for GitLab Pages (via `gitlab.gitlab-pages.ingress.configureCertmanager`), so you will
+have to provide your own Kubernetes Secret containing a wildcard certificate. If you
 have an external cert-manager configured using `global.ingress.annotations`, you
 probably also want to override such annotations in
-`gitlab-pages.ingress.annotations`.
+`gitlab.gitlab-pages.ingress.annotations`.
 
 {{< tabs >}}
 
 {{< tab title="Gateway API" >}}
 
 The Pages certificate is referenced by the `pages-web` listener, which defaults to the `pages-tls`
-secret. Override it with `certificateRefs` field:
+secret. Override it with the `certificateRefs` field:
 
 ```yaml
 global:
@@ -489,7 +490,7 @@ gitlab:
 {{< /tabs >}}
 
 > [!note]
-> There is no per-listener equivalent of `gitlab-pages.ingress.configureCertmanager` on the Gateway
+> There is no per-listener equivalent of `gitlab.gitlab-pages.ingress.configureCertmanager` on the Gateway
 > API path. The cert-manager annotation applies to the whole Gateway, including the `pages-web`
 > listener, and cert-manager cannot satisfy an HTTP-01 challenge for the Pages wildcard domain. If
 > you enable Pages together with the chart's cert-manager integration, provide the Pages certificate
