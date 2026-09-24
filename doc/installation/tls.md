@@ -88,7 +88,7 @@ one instead:
 
 The `gitlab-ssh` listener uses TCP and has no TLS configuration.
 
-An override of `certificateRefs` merges with the listener defaults, so you do not need to repeat
+An override of the `certificateRefs` field merges with the listener defaults, so you do not need to repeat
 `mode: Terminate`.
 
 ## Option 1: cert-manager and Let's Encrypt
