@@ -9,6 +9,24 @@ instructions:
       validation for the entry. If not, ask the author to update it.
       See: doc/development/validation.md.
 
+  - name: Gateway Listener Docs Kept in Sync
+    fileFilters:
+      - "templates/gateway.yaml"
+      - "values.yaml"
+    instructions: |
+      If a listener on the chart-managed Gateway was added, renamed, or removed
+      (`templates/gateway.yaml` or `gatewayApiResources.gateway.listeners` in
+      `values.yaml`), check that the same MR updates:
+      1. `doc/installation/tls.md`: the listener table under "Certificate secret
+         settings" (name, render condition from `templates/gateway.yaml`, default
+         secret), or the sentence after it for listeners without TLS.
+      2. `doc/advanced/gateway-api/_index.md`: the listener example under
+         "Listener configuration" and the default `sectionName` list under
+         "Additional requirements".
+      3. If the listener gets a section-scoped `ClientTrafficPolicy`, the note
+         under "Envoy Gateway extensions" and the "Requirements" list.
+      If not, ask the author to update them.
+
   - name: Statefulset Immutable Fields
     fileFilters:
       - "charts/**/templates/**/*statefulset*.yaml"
