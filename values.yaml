@@ -1692,6 +1692,8 @@ gatewayApiResources:
 ## Service discovery settings are under global.ai-gateway above.
 ai-gateway:
   install: false
+  image:
+    tag: "self-hosted-v19.3.2-ee"
   ingress:
     enabled: false
   init:
