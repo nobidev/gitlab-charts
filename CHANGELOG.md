@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.3.4 (2026-09-24)
+
+### Changed (1 change)
+
+- [Update ai-gateway to v0.15.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/8e7c032facbd95ea1c701e62f3fc2bd80924a364) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5398))
+
 ## 10.3.3 (2026-09-22)
 
 ### Changed (1 change)
