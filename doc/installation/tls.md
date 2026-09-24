@@ -20,7 +20,8 @@ acquire the TLS certificates for your deployment. Extensive details can be found
 ## Routing paths and TLS settings
 
 Since GitLab 19.0 (chart 10.0), Gateway API is the default routing path and NGINX Ingress is
-deprecated. Each path has its own settings for cert-manager and for certificate secrets, and the
+[deprecated](https://docs.gitlab.com/update/deprecations/#support-for-nginx-ingress).
+Each path has its own settings for cert-manager and for certificate secrets, and the
 settings for one path have no effect on the other. Before you follow any recipe on this page,
 determine which path you use and apply the matching settings.
 
