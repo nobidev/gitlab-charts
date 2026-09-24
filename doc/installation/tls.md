@@ -96,11 +96,13 @@ An override of `certificateRefs` merges with the listener defaults, so you do no
 Let’s Encrypt is a free, automated, and open Certificate Authority. Certificates can be automatically requested
 using various tools. This chart comes ready to integrate with a popular choice [cert-manager](https://github.com/cert-manager/cert-manager).
 
-*If you are already using cert-manager*, you can configure [appropriate annotations](https://cert-manager.io/docs/usage/gateway/)
-on the Gateway with `gatewayApiResources.gateway.annotations`, or [Ingress annotations](https://cert-manager.io/docs/usage/ingress/#supported-annotations)
-with `global.ingress.annotations`.
-
-*If you don't already have cert-manager installed in your cluster*, you can install and configure it as a dependency of this chart.
+- If you are already using cert-manager, configure
+  [appropriate annotations](https://cert-manager.io/docs/usage/gateway/) on the Gateway with
+  `gatewayApiResources.gateway.annotations`, or
+  [Ingress annotations](https://cert-manager.io/docs/usage/ingress/#supported-annotations)
+  with `global.ingress.annotations`.
+- If you don't already have cert-manager installed in your cluster, install and configure it as a
+  dependency of this chart.
 
 ### Internal cert-manager and Issuer
 
@@ -176,13 +178,15 @@ global:
 
 ### External cert-manager and Issuer (external)
 
-To make use of an external `cert-manager` and `Issuer` resource you must provide several items, so that self-signed certificates
-are not activated.
+To make use of an external `cert-manager` and `Issuer` resource, so that self-signed certificates
+are not activated, you must:
 
-1. Deactivation of both chart Issuers, so that the chart does not create one of its own
-1. Annotations to activate the external `cert-manager` (see the [Gateway API](https://cert-manager.io/docs/usage/gateway/)
-   or [Ingress](https://cert-manager.io/docs/usage/ingress/#supported-annotations) documentation for further details)
-1. Names of TLS secrets for each service (this deactivates [self-signed behaviors](#option-4-use-auto-generated-self-signed-wildcard-certificate))
+1. Deactivate both chart Issuers, so that the chart does not create one of its own.
+1. Add annotations to activate the external `cert-manager`. For more information, see the
+   [Gateway API](https://cert-manager.io/docs/usage/gateway/) or
+   [Ingress](https://cert-manager.io/docs/usage/ingress/#supported-annotations) documentation.
+1. Name TLS secrets for each service, which deactivates
+   [self-signed behaviors](#option-4-use-auto-generated-self-signed-wildcard-certificate).
 
 {{< tabs >}}
 
@@ -447,7 +451,7 @@ probably also want to override such annotations in
 {{< tab title="Gateway API" >}}
 
 The Pages certificate is referenced by the `pages-web` listener, which defaults to the `pages-tls`
-secret. Override it with `certificateRefs`:
+secret. Override it with `certificateRefs` field:
 
 ```yaml
 global:

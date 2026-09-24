@@ -55,7 +55,7 @@ GitLab chart allows you to customize the managed `Gateway`, `GatewayClass`, and 
 | `gatewayApiResources.gateway.protocol`             | String  | `HTTPS`        | Default listener protocol. |
 | `gatewayApiResources.gateway.annotations`          | Map     | `{}`           | Annotations to add to the managed Gateway. |
 | `gatewayApiResources.gateway.infrastructure`       | Object  | `{}`           | [GatewayInfrastructure](https://gateway-api.sigs.k8s.io/reference/spec/#gatewayinfrastructure) added to the managed Gateway. |
-| `gatewayApiResources.gateway.tls.secretName`       | String  | `""`           | Name of a single TLS Secret to serve from every listener that terminates TLS, replacing their `certificateRefs`. Leave empty to configure certificates per listener. |
+| `gatewayApiResources.gateway.tls.secretName`       | String  | `""`           | Name of a single TLS Secret to serve from every listener that terminates TLS, replacing their `certificateRefs` field. Leave empty to configure certificates per listener. |
 | `gatewayApiResources.gateway.listeners`            | Object  |                | Listener configuration for the managed Gateway. See below for an example. |
 
 #### Listener configuration
@@ -126,7 +126,7 @@ gatewayApiResources:
       secretName: my-wildcard-tls
 ```
 
-That replaces the `certificateRefs` of every listener that terminates TLS, and leaves the
+That replaces the `certificateRefs` field of every listener that terminates TLS, and leaves the
 `gitlab-ssh` listener untouched because it uses TCP. For more information, see
 [Configure TLS for the GitLab chart](../../installation/tls.md).
 
