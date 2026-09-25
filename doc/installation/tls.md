@@ -50,8 +50,8 @@ Both routing paths create independent HTTP01 Issuers.
 
 The chart creates an `Issuer` when `configureCertmanager` is `true` for either path, so deactivating it
 completely means setting both settings to `false`. Setting only
-`global.ingress.configureCertmanager=false` is not enough, because the Gateway API setting defaults
-to `true`: on a cluster where cert-manager is not installed, the Job that applies the `Issuer` then
+`global.ingress.configureCertmanager=false` is not enough because the Gateway API setting defaults
+to `true`. On a cluster where cert-manager is not installed, the Job that applies the `Issuer` then
 fails and the deployment does not complete.
 
 > [!note]
@@ -183,7 +183,7 @@ global:
 To make use of an external cert-manager and `Issuer` resource, so that self-signed certificates
 are not activated, you must:
 
-1. Deactivate both chart Issuers, so that the chart does not create one of its own.
+1. Deactivate both chart Issuers so that the chart does not create one of its own.
 1. Add annotations to activate the external cert-manager. For more information, see the
    [Gateway API](https://cert-manager.io/docs/usage/gateway/) or
    [Ingress](https://cert-manager.io/docs/usage/ingress/#supported-annotations) documentation.
@@ -194,7 +194,7 @@ are not activated, you must:
 
 {{< tab title="Gateway API" >}}
 
-cert-manager writes the certificates into the secrets named by the listeners, so the defaults can
+cert-manager writes the certificates into the secrets named by the listeners so the defaults can
 be kept and only the annotation is required:
 
 ```yaml
