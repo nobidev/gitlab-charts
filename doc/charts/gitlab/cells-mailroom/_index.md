@@ -75,18 +75,56 @@ gitlab:
 Forwarded requests are signed with an asymmetric JWT (ES256). Each cell verifies
 them with the matching public key, configured through
 `global.appConfig.incomingEmail.publicKeyFiles` and
-`global.appConfig.serviceDeskEmail.publicKeyFiles`. Each entry names a secret and
-key holding a PEM-encoded public key:
+`global.appConfig.serviceDeskEmail.publicKeyFiles`. The keys are fields of one
+secret, and each field holds a PEM-encoded public key:
 
 ```yaml
 global:
   appConfig:
     incomingEmail:
       publicKeyFiles:
-        - secret: incoming-email-mailroom-public-key
-          key: tls.pub
+        secret: incoming-email-mailroom-public-keys
+        keys: [current.pub]
 ```
 
-These are mounted into the Webservice pods, which serve the internal API that
-verifies the token, and listed under `public_key_files` in `gitlab.yml`
-alongside the existing symmetric `authToken`.
+The named fields are mounted into the Webservice pods, which serve the internal
+API that verifies the token, and listed under `public_key_files` in `gitlab.yml`
+alongside the existing symmetric `authToken`. A cell configured with both
+accepts either token type, selecting one per request from the token's key ID, so
+the in-cell mailroom and cells-mailroom can run at the same time.
+
+#### Rotate a public key
+
+More than one key can be trusted at a time, which is what allows a rotation
+without a cutover: publish the new key everywhere first, switch the signer, then
+drop the old key.
+
+> [!warning]
+> Add the key to the secret before you name its field in `keys`. Naming a field
+> the secret does not have leaves the cell unable to verify tokens signed with
+> that key.
+
+1. Add the new public key to the secret under a new field, leaving the existing
+   fields alone. Name each field so you can tell which key it holds.
+1. Add that field to `keys`, keeping the old one, and run `helm upgrade`:
+
+   ```yaml
+   global:
+     appConfig:
+       incomingEmail:
+         publicKeyFiles:
+           secret: incoming-email-mailroom-public-keys
+           keys: [next.pub, current.pub]
+   ```
+
+   The cells now accept tokens signed with either key. Changing `keys` changes
+   the rendered `gitlab.yml`, which rolls the Webservice pods; the keys are read
+   once at startup, so this restart is what puts the new key into use. Editing
+   only the secret does not roll the pods and has no effect.
+1. Switch cells-mailroom to the new private key (`signingKey`), so it starts
+   signing with the key the cells already trust.
+1. Once no token is signed with the old key, remove its field from `keys` and
+   run `helm upgrade` again. Delete it from the secret afterwards.
+
+Roll back by reversing the order: move the signer back to the old key before
+removing the new one from `keys`.

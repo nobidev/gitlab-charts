@@ -9,12 +9,15 @@
       - key: {{ template "gitlab.appConfig.incomingEmail.authToken.key" . }}
         path: mailroom/incoming_email_webhook_secret
 {{- end }}
-{{- range $i, $entry := $.Values.global.appConfig.incomingEmail.publicKeyFiles }}
+{{- $incomingPublicKeys := $.Values.global.appConfig.incomingEmail.publicKeyFiles | default (dict) }}
+{{- if and $incomingPublicKeys.secret $incomingPublicKeys.keys }}
 - secret:
-    name: {{ $entry.secret | required "Each global.appConfig.incomingEmail.publicKeyFiles entry needs a secret" | quote }}
+    name: {{ $incomingPublicKeys.secret | quote }}
     items:
-      - key: {{ $entry.key | default "tls.pub" | quote }}
-        path: mailroom/incoming_email_public_key_{{ $i }}
+      {{- range $incomingPublicKeys.keys }}
+      - key: {{ . | quote }}
+        path: mailroom/incoming_email_public_key_{{ . }}
+      {{- end }}
 {{- end }}
 {{- end -}}{{/* "gitlab.appConfig.incomingEmail.mountSecrets" "*/}}
 
@@ -27,12 +30,15 @@
       - key: {{ template "gitlab.appConfig.serviceDeskEmail.authToken.key" . }}
         path: mailroom/service_desk_email_webhook_secret
 {{- end }}
-{{- range $i, $entry := $.Values.global.appConfig.serviceDeskEmail.publicKeyFiles }}
+{{- $serviceDeskPublicKeys := $.Values.global.appConfig.serviceDeskEmail.publicKeyFiles | default (dict) }}
+{{- if and $serviceDeskPublicKeys.secret $serviceDeskPublicKeys.keys }}
 - secret:
-    name: {{ $entry.secret | required "Each global.appConfig.serviceDeskEmail.publicKeyFiles entry needs a secret" | quote }}
+    name: {{ $serviceDeskPublicKeys.secret | quote }}
     items:
-      - key: {{ $entry.key | default "tls.pub" | quote }}
-        path: mailroom/service_desk_email_public_key_{{ $i }}
+      {{- range $serviceDeskPublicKeys.keys }}
+      - key: {{ . | quote }}
+        path: mailroom/service_desk_email_public_key_{{ . }}
+      {{- end }}
 {{- end }}
 {{- end -}}{{/* "gitlab.appConfig.serviceDeskEmail.mountSecrets" "*/}}
 

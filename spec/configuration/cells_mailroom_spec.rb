@@ -217,6 +217,14 @@ describe 'cells-mailroom configuration' do
 end
 
 describe 'mailroom asymmetric JWT public keys' do
+  let(:public_key_files) do
+    %(
+            publicKeyFiles:
+              secret: incoming-email-public-keys
+              keys: [current.pub]
+    )
+  end
+
   let(:values) do
     HelmTemplate.with_defaults(%(
       global:
@@ -226,24 +234,90 @@ describe 'mailroom asymmetric JWT public keys' do
             address: "incoming+%{key}@example.com"
             password:
               secret: incoming-pw
-            publicKeyFiles:
-              - secret: incoming-email-public-key
-                key: tls.pub
+      #{public_key_files}
     ))
   end
 
   let(:template) { HelmTemplate.new(values) }
+  let(:rails_config) { template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb') }
 
   it 'renders public_key_files in the Rails gitlab.yml' do
-    config = template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb')
-    expect(config).to include('public_key_files:')
-    expect(config).to include('/etc/gitlab/mailroom/incoming_email_public_key_0')
+    expect(rails_config).to include('public_key_files:')
+    expect(rails_config).to include('/etc/gitlab/mailroom/incoming_email_public_key_current.pub')
   end
 
-  it 'projects the public key secret onto the webservice pod' do
+  it 'keeps the symmetric secret_file alongside it, so both token types verify' do
+    expect(rails_config).to include('/etc/gitlab/mailroom/incoming_email_webhook_secret')
+  end
+
+  it 'projects each named field from the one public key secret' do
     sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
-    match = sources.select { |s| s['secret']['name'] == 'incoming-email-public-key' }
+    match = sources.select { |s| s['secret']['name'] == 'incoming-email-public-keys' }
+
     expect(match.length).to eq(1)
-    expect(match.first['secret']['items'].first['path']).to eq('mailroom/incoming_email_public_key_0')
+    expect(match.first['secret']['items']).to contain_exactly(
+      a_hash_including('key' => 'current.pub', 'path' => 'mailroom/incoming_email_public_key_current.pub')
+    )
+  end
+
+  context 'with a second key trusted during rotation' do
+    let(:public_key_files) do
+      %(
+            publicKeyFiles:
+              secret: incoming-email-public-keys
+              keys: [current.pub, previous.pub]
+      )
+    end
+
+    it 'lists both keys so tokens signed with either are accepted' do
+      expect(rails_config).to include('/etc/gitlab/mailroom/incoming_email_public_key_current.pub')
+      expect(rails_config).to include('/etc/gitlab/mailroom/incoming_email_public_key_previous.pub')
+    end
+
+    it 'mounts both fields from the same secret' do
+      sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+      match = sources.select { |s| s['secret']['name'] == 'incoming-email-public-keys' }
+
+      expect(match.first['secret']['items'].map { |i| i['key'] }).to eq(['current.pub', 'previous.pub'])
+    end
+  end
+
+  context 'when not configured' do
+    let(:public_key_files) { '' }
+
+    it 'renders no public_key_files, so only symmetric tokens are accepted' do
+      expect(template.exit_code).to eq(0)
+      expect(rails_config).not_to include('public_key_files:')
+    end
+  end
+
+  context 'when a secret is named without any keys' do
+    let(:public_key_files) do
+      %(
+            publicKeyFiles:
+              secret: incoming-email-public-keys
+              keys: []
+      )
+    end
+
+    it 'fails the render rather than mounting nothing' do
+      expect(template.exit_code).not_to eq(0)
+      expect(template.stderr).to include('is set but `keys` is empty')
+    end
+  end
+
+  context 'when keys are named without a secret' do
+    let(:public_key_files) do
+      %(
+            publicKeyFiles:
+              secret: ""
+              keys: [current.pub]
+      )
+    end
+
+    it 'fails the render rather than mounting nothing' do
+      expect(template.exit_code).not_to eq(0)
+      expect(template.stderr).to include('is set but `secret` is empty')
+    end
   end
 end

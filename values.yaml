@@ -491,13 +491,16 @@ global:
       authToken: {}
         # secret:
         # key:
-      # Public keys (PEM) that verify asymmetric (ES256) mailroom JWTs, in
-      # addition to the symmetric authToken. Used by cells-mailroom. Each entry
-      # is a secret projected to config/mailroom/. Leave empty to accept only
-      # symmetric tokens.
-      publicKeyFiles: []
-        # - secret: incoming-email-mailroom-public-key
-        #   key: tls.pub
+      # Public keys that verify asymmetric (ES256) mailroom JWTs, in addition to
+      # the symmetric authToken. Used by cells-mailroom. The keys live in one
+      # secret; `keys` names the fields to trust, and each field holds a
+      # PEM-encoded public key. Trust the new key alongside the old one to
+      # rotate without a cutover. Leave empty to accept only symmetric tokens.
+      publicKeyFiles:
+        secret: ""
+        keys: []
+        # secret: incoming-email-mailroom-public-keys
+        # keys: [current.pub, previous.pub]
 
     ## https://docs.gitlab.com/charts/charts/gitlab/mailroom/#service-desk-email
     serviceDeskEmail:
@@ -525,9 +528,11 @@ global:
       authToken: {}
         # secret:
         # key:
-      publicKeyFiles: []
-        # - secret: service-desk-email-mailroom-public-key
-        #   key: tls.pub
+      publicKeyFiles:
+        secret: ""
+        keys: []
+        # secret: service-desk-email-mailroom-public-keys
+        # keys: [current.pub, previous.pub]
 
     ## https://docs.gitlab.com/charts/charts/globals#ldap
     ldap:
