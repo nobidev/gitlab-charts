@@ -1,5 +1,5 @@
 {{- $configureIngressCertmanager := (pluck "configureCertmanager" .Values.global.ingress (dict "configureCertmanager" false) | first) }}
-{{- $configureGatewayCertmanager := .Values.global.gatewayApi.configureCertmanager }}
+{{- $configureGatewayCertmanager := eq "true" (include "gitlab.gatewayApi.configureCertmanager" .) }}
 {{- if or $configureGatewayCertmanager $configureIngressCertmanager }}
 {{- $imageCfg := dict "global" .Values.global.image "local" .Values.global.kubectl.image -}}
 apiVersion: batch/v1

@@ -38,7 +38,7 @@ describe 'certmanager_issuer configuration' do
           "namespace" => "default",
           "labels" => {
             "app" => "certmanager-issuer",
-            "chart" => "certmanager-issuer-0.5.1",
+            "chart" => "certmanager-issuer-0.5.2",
             "release" => "test",
             "heritage" => "Helm"
           }
@@ -50,7 +50,7 @@ describe 'certmanager_issuer configuration' do
             "metadata" => include(
               "labels" => include(
                 "app" => "certmanager-issuer",
-                "chart" => "certmanager-issuer-0.5.1",
+                "chart" => "certmanager-issuer-0.5.2",
                 "release" => "test",
                 "heritage" => "Helm"
               )
@@ -98,6 +98,26 @@ describe 'certmanager_issuer configuration' do
       end
 
       expect(template.resources_by_kind("Job").keys.select { |k| k.start_with?("Job/test-issuer-") }).to be_empty
+    end
+  end
+
+  context 'when Gateway API is disabled' do
+    it 'does not create the Gateway API Issuer, which would have no Gateway to attach to' do
+      template = HelmTemplate.new(default_values.deep_merge!(
+        { 'global' => {
+          'gatewayApi' => { 'enabled' => false }
+        } }))
+
+      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+      required_resources.each do |resource|
+        resource_name = "#{resource}/test-certmanager-issuer"
+
+        expect(template.resources_by_kind(resource)[resource_name]).to be_nil
+      end
+
+      expect(template.resources_by_kind("Job").keys.select { |k| k.start_with?("Job/test-issuer-") }).to be_empty
+      expect(template.resources_by_kind("ConfigMap")["ConfigMap/test-certmanager-issuer-certmanager"]).to be_nil
     end
   end
 end
