@@ -539,6 +539,14 @@ these files in the GitLab source:
 In addition to configuring `gitlab.sidekiq.pods[].queues`, you must also configure `global.appConfig.sidekiq.routingRules`. For more information, see
 [Sidekiq routing rules settings](../../globals.md#sidekiq-routing-rules-settings).
 
+> [!note]
+> Mailer jobs are not affected by `routingRules` and are always added to the
+> `mailers` queue, even when a wildcard rule such as `["*", "default"]` is set.
+> If you set `queues` on every pod, include `mailers` in at least one of them,
+> otherwise emails are never sent. Typically, `mailers` is listed alongside the
+> `default` queue. For more information, see
+> [routing rules](https://docs.gitlab.com/administration/sidekiq/processing_specific_job_classes/#routing-rules).
+
 ### Example `pod` entry
 
 ```yaml
@@ -568,7 +576,7 @@ pods:
 
 ### Full example of Sidekiq configuration
 
-The following is a full example of Sidekiq configuration using a separate Sidekiq pod for import-related jobs, a Sidekiq pod for export-related jobs using a separate Redis instance and another pod for everything else.
+The following is a full example of Sidekiq configuration using a separate Sidekiq pod for import-related jobs, a Sidekiq pod for export-related jobs using a separate Redis instance and another pod for everything else, including the `mailers` queue.
 
 ```yaml
 ...
@@ -593,6 +601,7 @@ gitlab:
       extraEnv:
         SIDEKIQ_SHARD_NAME: queues_shard_extra_shard # to match key in global.redis.redisYmlOverride
     - name: default
+      queues: default,mailers # mailers is not routed by routingRules and must be listed explicitly
 ...
 ```
 
