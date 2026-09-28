@@ -1810,6 +1810,59 @@ describe 'Gateway API configuration' do
         expect(openbao_route['spec']['parentRefs'][0]['sectionName']).to eq('openbao-web')
       end
     end
+
+    context 'shared listener certificate' do
+      let(:tls_listeners) { gateway['spec']['listeners'].select { |l| l['tls'] } }
+
+      context 'when gatewayApiResources.gateway.tls.secretName is unset' do
+        it 'keeps the per-listener certificateRefs' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          refs = tls_listeners.to_h { |l| [l['name'], l['tls']['certificateRefs'].map { |r| r['name'] }] }
+          expect(refs).to include(
+            'gitlab-web' => ['gitlab-tls'],
+            'registry-web' => ['registry-tls'],
+            'kas-web' => ['kas-tls']
+          )
+        end
+      end
+
+      context 'when gatewayApiResources.gateway.tls.secretName is set' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            pages:
+              enabled: true
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+
+          gatewayApiResources:
+            gateway:
+              tls:
+                secretName: my-wildcard-tls
+          ))
+        end
+
+        it 'serves it from every TLS-terminating listener, leaving the rest untouched' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          expect(tls_listeners).not_to be_empty
+          tls_listeners.each do |listener|
+            expect(listener['tls']['certificateRefs']).to eq([{ 'name' => 'my-wildcard-tls' }]),
+              "listener #{listener['name']} did not use the shared certificate"
+            expect(listener['tls']['mode']).to eq('Terminate')
+          end
+
+          ssh_listener = gateway['spec']['listeners'].find { |l| l['name'] == 'gitlab-ssh' }
+          expect(ssh_listener['protocol']).to eq('TCP')
+          expect(ssh_listener).not_to have_key('tls')
+        end
+      end
+    end
   end
 end
 # rubocop:enable RSpec/MultipleMemoizedHelpers
