@@ -27,6 +27,14 @@ Return Praefect's database port
 {{- end -}}
 
 {{/*
+Return Praefect's PostgreSQL SSL configuration, falling back to the global
+PostgreSQL SSL configuration.
+*/}}
+{{- define "gitlab.praefect.psql.ssl" -}}
+{{- coalesce .Values.global.praefect.psql.ssl .Values.global.psql.ssl | toYaml -}}
+{{- end -}}
+
+{{/*
 Return Praefect's database username
 */}}
 {{- define "gitlab.praefect.psql.user" -}}

@@ -114,6 +114,87 @@ describe 'Praefect configuration' do
       end
     end
 
+    context 'with PostgreSQL SSL configured' do
+      let(:values_with_postgresql_ssl) do
+        YAML.safe_load(%(
+          global:
+            praefect:
+              psql:
+                sslMode: verify-full
+            psql:
+              ssl:
+                secret: postgresql-ssl
+                clientKey: client-key
+                clientCertificate: client-certificate
+                serverCA: server-ca
+        )).deep_merge(values_praefect_enabled)
+      end
+
+      let(:template) { HelmTemplate.new(values_with_postgresql_ssl) }
+      let(:statefulset) { template.dig('StatefulSet/test-praefect', 'spec', 'template', 'spec') }
+      let(:praefect_container) { statefulset['containers'].find { |container| container['name'] == 'praefect' } }
+
+      it 'configures the mounted certificates for a verified Praefect database connection' do
+        database_config = template.dig('ConfigMap/test-praefect', 'data', 'config.toml.tpl')
+
+        expect(database_config).to include("sslmode = 'verify-full'")
+        expect(database_config).to include("sslcert = '/etc/postgresql/ssl/client-certificate.pem'")
+        expect(database_config).to include("sslkey = '/etc/postgresql/ssl/client-key.pem'")
+        expect(database_config).to include("sslrootcert = '/etc/postgresql/ssl/server-ca.pem'")
+      end
+
+      it 'mounts the PostgreSQL SSL secret in the Praefect container' do
+        expect(praefect_container['volumeMounts']).to include(
+          'name' => 'postgresql-ssl-secrets',
+          'mountPath' => '/etc/postgresql/ssl/',
+          'readOnly' => true
+        )
+        expect(statefulset['volumes']).to include(
+          a_hash_including(
+            'name' => 'postgresql-ssl-secrets',
+            'projected' => a_hash_including(
+              'sources' => include(a_hash_including('secret' => a_hash_including('name' => 'postgresql-ssl')))
+            )
+          )
+        )
+      end
+
+      context 'with a Praefect-specific SSL secret' do
+        let(:values_with_postgresql_ssl) do
+          super().deep_merge(YAML.safe_load(%(
+            global:
+              praefect:
+                psql:
+                  ssl:
+                    secret: praefect-postgresql-ssl
+                    clientKey: praefect-client-key
+                    clientCertificate: praefect-client-certificate
+                    serverCA: praefect-server-ca
+          )))
+        end
+
+        it 'uses the Praefect override instead of the global PostgreSQL SSL secret' do
+          ssl_volume = statefulset['volumes'].find { |volume| volume['name'] == 'postgresql-ssl-secrets' }
+
+          expect(ssl_volume.dig('projected', 'sources', 0, 'secret', 'name')).to eq('praefect-postgresql-ssl')
+        end
+      end
+    end
+
+    context 'without PostgreSQL SSL configured' do
+      let(:statefulset) { template.dig('StatefulSet/test-praefect', 'spec', 'template', 'spec') }
+      let(:praefect_container) { statefulset['containers'].find { |container| container['name'] == 'praefect' } }
+
+      it 'does not configure or mount PostgreSQL certificates' do
+        database_config = template.dig('ConfigMap/test-praefect', 'data', 'config.toml.tpl')
+
+        expect(database_config).to include("sslmode = 'disable'")
+        expect(database_config).not_to include('sslcert =')
+        expect(praefect_container['volumeMounts'].map { |mount| mount['name'] }).not_to include('postgresql-ssl-secrets')
+        expect(statefulset['volumes'].map { |volume| volume['name'] }).not_to include('postgresql-ssl-secrets')
+      end
+    end
+
     context 'without replacing Gitaly' do
       let(:values_with_internal_gitaly) do
         YAML.safe_load(%(
