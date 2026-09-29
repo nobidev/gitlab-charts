@@ -46,6 +46,32 @@ describe 'Mailroom configuration' do
     end
   end
 
+  context 'security context defaults' do
+    let(:template) { HelmTemplate.new(default_values) }
+    let(:pod_spec) { template.dig('Deployment/test-mailroom', 'spec', 'template', 'spec') }
+    let(:restricted_container_context) do
+      {
+        'runAsUser' => 1000,
+        'allowPrivilegeEscalation' => false,
+        'runAsNonRoot' => true,
+        'capabilities' => { 'drop' => ['ALL'] }
+      }
+    end
+
+    it 'sets the RuntimeDefault seccomp profile on the pod' do
+      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      expect(pod_spec.dig('securityContext', 'seccompProfile')).to eq({ 'type' => 'RuntimeDefault' })
+    end
+
+    it 'sets a restricted security context on all containers' do
+      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      containers = pod_spec['initContainers'] + pod_spec['containers']
+      containers.each do |container|
+        expect(container['securityContext']).to eq(restricted_container_context), "container #{container['name']}"
+      end
+    end
+  end
+
   context 'with IMAP settings' do
     let(:incoming_email_settings) do
       YAML.safe_load(%(

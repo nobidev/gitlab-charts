@@ -14,7 +14,12 @@ init:
   resources:
     requests:
       cpu: 50m
-  containerSecurityContext: {}
+  containerSecurityContext:
+    runAsUser: 1000
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    capabilities:
+      drop: [ "ALL" ]
 
 annotations: {}
 
@@ -184,10 +189,16 @@ securityContext:
   fsGroup: 1000
   # fsGroupChangePolicy: OnRootMismatch
   # seLinuxChangePolicy: MountOption
+  seccompProfile:
+    type: "RuntimeDefault"
 
 ## Allow to overwrite the specific security context under which the container is running.
 containerSecurityContext:
   runAsUser: 1000
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  capabilities:
+    drop: [ "ALL" ]
 
 ## Enable deployment to use a serviceAccount
 serviceAccount:
