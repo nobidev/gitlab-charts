@@ -249,6 +249,65 @@ these settings in the [command line options](../../../installation/command-line-
 You will also have to create a Kubernetes secret containing the client secret
 as described in the [secrets guide](../../../installation/secrets.md#imap-password-for-service-desk-emails).
 
+### Asymmetric token verification
+
+With the `webhook` delivery method, mailroom signs each delivery with a token that GitLab verifies.
+By default, mailroom and GitLab share the `authToken` secret.
+A mailroom deployed outside this chart can instead sign tokens with an ES256 private key.
+GitLab then needs only the matching public key, so the private key never leaves that mailroom.
+
+To trust public keys, store them as fields of one secret, and list the fields in `publicKeyFiles.keys`.
+Each field holds one PEM-encoded public key:
+
+```yaml
+global:
+  appConfig:
+    incomingEmail:
+      publicKeyFiles:
+        secret: incoming-email-mailroom-public-keys
+        keys: [current.pub]
+```
+
+Configure `global.appConfig.serviceDeskEmail.publicKeyFiles` the same way for Service Desk email.
+
+The chart mounts the listed fields into the Webservice pods and adds them under `public_key_files` in `gitlab.yml`.
+The `authToken` stays configured alongside them.
+GitLab picks the check for each token from its key ID, so it accepts both token types at the same time.
+You can run the chart mailroom and an external mailroom side by side.
+
+#### Rotate a public key
+
+GitLab trusts every key listed in `keys`.
+To rotate keys without rejecting valid tokens, trust the new key first, switch the signer, and then remove the old key.
+
+> [!warning]
+> Add the key to the secret before you list its field in `keys`.
+> If you list a field that the secret does not have, GitLab cannot verify tokens signed with that key.
+
+1. Add the new public key to the secret under a new field.
+   Leave the existing fields unchanged.
+   GitLab matches keys by their content, so the field name is only a label.
+1. Add the new field to `keys`, keep the old one, and run `helm upgrade`:
+
+   ```yaml
+   global:
+     appConfig:
+       incomingEmail:
+         publicKeyFiles:
+           secret: incoming-email-mailroom-public-keys
+           keys: [next.pub, current.pub]
+   ```
+
+   GitLab now accepts tokens signed with either key.
+   Webservice reads the keys only at startup.
+   Changing `keys` changes `gitlab.yml`, which restarts the Webservice pods and loads the new key.
+   Changing only the secret does not restart the pods and has no effect.
+1. Switch the mailroom that signs tokens to the new private key.
+1. After no tokens are signed with the old key, remove its field from `keys` and run `helm upgrade`.
+   Then delete the field from the secret.
+
+To roll back, switch the signer back to the old key before you remove the new key from `keys`.
+
 ### serviceAccount
 
 This section controls if a ServiceAccount should be created and if the default access token should be mounted in pods.

@@ -137,6 +137,8 @@ for more information.
 | `global.appConfig.incomingEmail.deliveryMethod`      | `webhook`                                  | How mailroom can send an email content to Rails app for processing. Either `sidekiq` or `webhook` |
 | `gitlab.appConfig.incomingEmail.authToken.key`       | `authToken`                                | Key to incoming email token in incoming email secret. Effective when the delivery method is webhook. |
 | `gitlab.appConfig.incomingEmail.authToken.secret`    | `{Release.Name}-incoming-email-auth-token` | Incoming email authentication secret. Effective when the delivery method is webhook. |
+| `global.appConfig.incomingEmail.publicKeyFiles.secret` | empty | Name of a `Secret` containing PEM public keys that verify asymmetric mailroom tokens. See [asymmetric token verification](../charts/gitlab/mailroom/_index.md#asymmetric-token-verification). |
+| `global.appConfig.incomingEmail.publicKeyFiles.keys` | `[]` | Fields in `publicKeyFiles.secret` to trust, each holding one PEM public key. Effective when the delivery method is webhook. |
 
 ### IMAP settings
 
@@ -187,6 +189,8 @@ must be `+%{key}`.
 | `global.appConfig.serviceDeskEmail.deliveryMethod`      | `webhook`                                      | How mailroom can send an email content to Rails app for processing. Either `sidekiq` or `webhook` |
 | `gitlab.appConfig.serviceDeskEmail.authToken.key`       | `authToken`                                    | Key to Service Desk email token in Service Desk email secret. Effective when the delivery method is webhook. |
 | `gitlab.appConfig.serviceDeskEmail.authToken.secret`    | `{Release.Name}-service-desk-email-auth-token` | service-desk email authentication secret. Effective when the delivery method is webhook. |
+| `global.appConfig.serviceDeskEmail.publicKeyFiles.secret` | empty | Name of a `Secret` containing PEM public keys that verify asymmetric mailroom tokens. See [asymmetric token verification](../charts/gitlab/mailroom/_index.md#asymmetric-token-verification). |
+| `global.appConfig.serviceDeskEmail.publicKeyFiles.keys` | `[]` | Fields in `publicKeyFiles.secret` to trust, each holding one PEM public key. Effective when the delivery method is webhook. |
 
 ### IMAP settings
 

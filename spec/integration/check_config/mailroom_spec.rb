@@ -240,4 +240,115 @@ describe 'checkConfig mailroom' do
       end
     end
   end
+
+  describe 'mailroom.publicKeyFiles' do
+    let(:success_values) do
+      YAML.safe_load(%(
+        global:
+          appConfig:
+            incomingEmail:
+              enabled: true
+              password:
+                secret: password
+              publicKeyFiles:
+                secret: incoming-email-public-keys
+                keys: [current.pub]
+      )).deep_merge!(default_required_values)
+    end
+
+    context 'when a secret is named without any keys' do
+      let(:error_values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              incomingEmail:
+                enabled: true
+                password:
+                  secret: password
+                publicKeyFiles:
+                  secret: incoming-email-public-keys
+                  keys: []
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'is set but `keys` is empty' }
+
+      include_examples 'config validation',
+                       success_description: 'when publicKeyFiles names a secret and its keys',
+                       error_description: 'when publicKeyFiles names a secret without keys'
+    end
+
+    context 'when keys are named without a secret' do
+      let(:error_values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              incomingEmail:
+                enabled: true
+                address: "incoming+%{key}@example.com"
+                password:
+                  secret: password
+              serviceDeskEmail:
+                enabled: true
+                address: "service-desk+%{key}@example.com"
+                password:
+                  secret: password
+                publicKeyFiles:
+                  secret: ""
+                  keys: [current.pub]
+        )).deep_merge!(default_required_values)
+      end
+
+      let(:error_output) { 'is set but `secret` is empty' }
+
+      include_examples 'config validation',
+                       success_description: 'when publicKeyFiles names a secret and its keys',
+                       error_description: 'when publicKeyFiles names keys without a secret'
+    end
+
+    context 'when the mailbox is disabled' do
+      include_context 'check config setup'
+
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              serviceDeskEmail:
+                enabled: false
+                publicKeyFiles:
+                  secret: ""
+                  keys: [current.pub]
+        )).deep_merge!(default_required_values)
+      end
+
+      it 'succeeds, as nothing is mounted for a disabled mailbox' do
+        expect(stderr).to be_empty
+        expect(exit_code).to eq(0)
+      end
+    end
+
+    context 'with the sidekiq delivery method' do
+      include_context 'check config setup'
+
+      let(:values) do
+        YAML.safe_load(%(
+          global:
+            appConfig:
+              incomingEmail:
+                enabled: true
+                password:
+                  secret: password
+                deliveryMethod: sidekiq
+                publicKeyFiles:
+                  secret: incoming-email-public-keys
+                  keys: []
+        )).deep_merge!(default_required_values)
+      end
+
+      it 'succeeds, as sidekiq delivery sends no token to verify' do
+        expect(stderr).to be_empty
+        expect(exit_code).to eq(0)
+      end
+    end
+  end
 end

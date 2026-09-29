@@ -54,6 +54,13 @@ incoming_email:
   address: {{ .incomingEmail.address | quote }}
   {{- if eq .incomingEmail.deliveryMethod "webhook" }}
   secret_file: /etc/gitlab/mailroom/incoming_email_webhook_secret
+  {{- $publicKeys := .incomingEmail.publicKeyFiles | default (dict) }}
+  {{- if and $publicKeys.secret $publicKeys.keys }}
+  public_key_files:
+    {{- range $publicKeys.keys }}
+    - /etc/gitlab/mailroom/incoming_email_public_key_{{ . }}
+    {{- end }}
+  {{- end }}
   {{- end }}
 {{- end -}}
 
@@ -63,6 +70,13 @@ service_desk_email:
   address: {{ .serviceDeskEmail.address | quote }}
   {{- if eq .serviceDeskEmail.deliveryMethod "webhook" }}
   secret_file: /etc/gitlab/mailroom/service_desk_email_webhook_secret
+  {{- $publicKeys := .serviceDeskEmail.publicKeyFiles | default (dict) }}
+  {{- if and $publicKeys.secret $publicKeys.keys }}
+  public_key_files:
+    {{- range $publicKeys.keys }}
+    - /etc/gitlab/mailroom/service_desk_email_public_key_{{ . }}
+    {{- end }}
+  {{- end }}
   {{- end }}
 {{- end -}}
 

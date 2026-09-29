@@ -533,6 +533,8 @@ spec:
           {{- include "gitlab.appConfig.amazonSesMailer.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.incomingEmail.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.serviceDeskEmail.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.incomingEmail.mountPublicKeys" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.serviceDeskEmail.mountPublicKeys" $ | nindent 10 }}
           {{- include "gitlab.gitaly.clientSecrets" $ | nindent 10 }}
           {{- if $.Values.global.clickhouse.enabled }}
             {{- include "gitlab.clickhouse.main.secrets" $ | nindent 10 }}

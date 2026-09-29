@@ -492,6 +492,13 @@ global:
       authToken: {}
         # secret:
         # key:
+      # PEM public keys, as fields of one secret, that verify asymmetric (ES256)
+      # mailroom JWTs alongside authToken. Leave empty to accept only authToken.
+      publicKeyFiles:
+        secret: ""
+        keys: []
+        # secret: incoming-email-mailroom-public-keys
+        # keys: [current.pub, previous.pub]
 
     ## https://docs.gitlab.com/charts/charts/gitlab/mailroom/#service-desk-email
     serviceDeskEmail:
@@ -519,6 +526,11 @@ global:
       authToken: {}
         # secret:
         # key:
+      publicKeyFiles:
+        secret: ""
+        keys: []
+        # secret: service-desk-email-mailroom-public-keys
+        # keys: [current.pub, previous.pub]
 
     ## https://docs.gitlab.com/charts/charts/globals#ldap
     ldap:
