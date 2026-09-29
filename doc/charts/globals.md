@@ -108,7 +108,7 @@ The GitLab global host settings for `CronJobs` are located under the `global.bat
 
 | Name         |  Type  | Default | Description |
 |:-------------|:------:|:--------|:------------|
-| `apiVersion` | String |         | API version to use in the `CronJob` object definitions. |
+| `apiVersion` | String |         | API version to use in the `CronJob` object definitions. Defaults to `batch/v1`. |
 
 ## Configure Monitoring settings
 
