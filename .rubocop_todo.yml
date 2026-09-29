@@ -88,12 +88,6 @@ Layout/LineEndStringConcatenationIndentation:
     - 'spec/configuration/praefect_spec.rb'
     - 'spec/gitlab_test_helper.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Layout/SpaceAfterColon:
-  Exclude:
-    - 'spec/gitlab_test_helper.rb'
-
 # Offense count: 311
 # This cop supports safe autocorrection (--autocorrect).
 Layout/SpaceAfterComma:

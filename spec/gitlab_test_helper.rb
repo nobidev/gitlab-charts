@@ -37,7 +37,7 @@ module Gitlab
       env.map { |key, value| "#{key}=#{value}" }.join(' ')
     end
 
-    def wait_until_app_ready(retries:30, interval: 10)
+    def wait_until_app_ready(retries: 30, interval: 10)
       begin
         URI.parse(gitlab_url).read
       rescue
