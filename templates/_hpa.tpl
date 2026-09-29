@@ -1,7 +1,7 @@
 {{/* Common templates for HorizontalPodAutoscaler */}}
 
 {{/*
-Returns the appropriate apiVersion for HoritonzalPodAutoscaler.
+Returns the appropriate apiVersion for HorizontalPodAutoscaler.
 
 It expects a dictionary with three entries:
   - `global` which contains global HPA settings, e.g. .Values.global.hpa
@@ -13,12 +13,8 @@ It expects a dictionary with three entries:
 {{-     .local.apiVersion -}}
 {{-   else if .global.apiVersion -}}
 {{-     .global.apiVersion -}}
-{{-   else if .context.Capabilities.APIVersions.Has "autoscaling/v2/HorizontalPodAutoscaler" -}}
-{{-     print "autoscaling/v2" -}}
-{{-   else if .context.Capabilities.APIVersions.Has "autoscaling/v2beta2/HorizontalPodAutoscaler" -}}
-{{-     print "autoscaling/v2beta2" -}}
 {{-   else -}}
-{{-     print "autoscaling/v2beta1" -}}
+{{-     print "autoscaling/v2" -}}
 {{-   end -}}
 {{- end -}}
 
