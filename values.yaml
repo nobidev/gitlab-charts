@@ -241,6 +241,7 @@ global:
         maxUnavailable: 1
     psql:
       sslMode: disable
+      ssl: {}
     # serviceName:
     service:
       name: praefect

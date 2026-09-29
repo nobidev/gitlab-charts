@@ -1,3 +1,4 @@
+{{- $praefectSsl := include "gitlab.praefect.psql.ssl" $ | fromYaml -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -96,3 +97,8 @@ data:
     password = {% file.Read "/etc/gitlab-secrets/praefect/db_password" | strings.TrimSpace | data.ToJSON %}
     dbname = '{{ template "gitlab.praefect.psql.dbName" . }}'
     sslmode = '{{ $.Values.global.praefect.psql.sslMode }}'
+    {{- if $praefectSsl }}
+    sslcert = '/etc/postgresql/ssl/client-certificate.pem'
+    sslkey = '/etc/postgresql/ssl/client-key.pem'
+    sslrootcert = '/etc/postgresql/ssl/server-ca.pem'
+    {{- end }}

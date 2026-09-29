@@ -1003,7 +1003,9 @@ global:
       gitalyReplicas: 3
       maxUnavailable: 1
     dbSecret: {}
-    psql: {}
+    psql:
+      sslMode: disable
+      ssl: {}
 ```
 
 | Name              | Type    | Default    | Description |
@@ -1016,6 +1018,8 @@ global:
 | `psql.port`       | String  |            | The port number of the database server (when using an external database). |
 | `psql.user`       | String  | `praefect` | The database user to use. |
 | `psql.dbName`     | String  | `praefect` | The name of the database to use. |
+| `psql.sslMode`    | String  | `disable`  | The PostgreSQL SSL mode. Set this to an SSL mode such as `verify-full` when configuring certificates. |
+| `psql.ssl`        | Map     |            | PostgreSQL SSL certificate secret for Praefect. Falls back to `global.psql.ssl` when unset. See [PostgreSQL SSL](#postgresql-ssl). |
 
 ## Configure `appConfig` settings
 
