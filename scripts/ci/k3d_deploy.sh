@@ -15,11 +15,12 @@ echo "K3D_K8S_IMAGE=${K3D_K8S_IMAGE}"
 
 mkdir -p "$(dirname "${VARIABLES_FILE}")"
 
-# The cert-manager/Pebble HTTPS path is Gateway API only (NGINX ingress is
-# deprecated, removal announced for 20.0). Force k3d NGINX deployments back to
-# HTTP so k3d_nginx keeps working with the review-specs template defaults.
-if use_nginx_ingress && [ "$(external_protocol)" = "https" ]; then
-  echo "k3d NGINX ingress does not support the cert-manager HTTPS path; using HTTP"
+# The cert-manager/Pebble HTTPS path is Gateway API only (the bundled Ingress
+# controllers are deprecated, removal announced for 20.0). Force k3d Ingress
+# deployments back to HTTP so k3d_nginx and k3d_traefik keep working with the
+# review-specs template defaults.
+if use_ingress && [ "$(external_protocol)" = "https" ]; then
+  echo "k3d Ingress deployments do not support the cert-manager HTTPS path; using HTTP"
   export EXTERNAL_PROTOCOL=http
   export DEPLOY_PEBBLE=false
 fi
@@ -29,7 +30,7 @@ deploy
 wait_for_deploy
 # check_domain_ip is skipped: nip.io resolves immediately without DNS propagation
 
-if ! use_nginx_ingress; then
+if ! use_ingress; then
   # Wait for ClientTrafficPolicy resources to be reconciled by the Envoy Gateway
   # controller before running tests.  Without this, there is a race where tests
   # start before the escaped-slash policy takes effect, causing 307/404 errors on

@@ -33,7 +33,12 @@ variables:
   HELM_MINOR_VERSION: "4.2"
   KUBECTL_VERSION: "1.33.1"
   K3D_VERSION: "5.8.3"
-  STABLE_REPO_URL: "https://charts.helm.sh/stable"
+  # Kubernetes versions under test in the k3d review environments. The k3d job
+  # runs the full matrix; the single-version jobs (arm64, nginx, traefik) track
+  # K3D_K8S_IMAGE_LATEST. To roll the window forward, shift these three values.
+  K3D_K8S_IMAGE_LATEST: "rancher/k3s:v1.37.0-k3s1"
+  K3D_K8S_IMAGE_LATEST_MINUS_1: "rancher/k3s:v1.36.4-k3s1"
+  K3D_K8S_IMAGE_LATEST_MINUS_2: "rancher/k3s:v1.35.8-k3s1"
   GOOGLE_APPLICATION_CREDENTIALS: ${CI_PROJECT_DIR}/.google_keyfile.json
   # AUTO_DEVOPS_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
   # AUTO_DEVOPS_DOMAIN: domain.example.com
@@ -59,6 +64,8 @@ variables:
   # Valkey deployed to CI review envionments
   VALKEY_CHART_VERSION: "0.12.0"
   GARAGE_APP_VERSION: "2.2.0"
+  # Externally managed Traefik Ingress controller deployed to the k3d_traefik environment
+  TRAEFIK_CHART_VERSION: "41.6.0"
   # CloudNativePg (PostgreSQL) deployed to CI envionments
   CNPG_CHART_VERSION: "0.29.0"
   CNPG_POSTGRESQL_TAG: "17"
@@ -216,7 +223,7 @@ tag_auto_deploy:
 # pinned versions since they aren't tracked by a lockfile.
 .external_charts_cache:
   cache:
-    key: "external-charts-${VALKEY_CHART_VERSION}-${CNPG_CHART_VERSION}-${GARAGE_APP_VERSION}"
+    key: "external-charts-${VALKEY_CHART_VERSION}-${CNPG_CHART_VERSION}-${GARAGE_APP_VERSION}-${TRAEFIK_CHART_VERSION}"
     paths:
       - .external-charts/
 
@@ -327,6 +334,10 @@ pin_image_versions:
     forward:
       pipeline_variables: true
   inherit:
+    # Allowlist: these jobs inherit ONLY the global variables named here. A
+    # global referenced from a job's own `variables:` (including parallel:matrix
+    # values) must be listed, or it expands to an empty string before being
+    # forwarded downstream.
     variables:
       - CI_PROJECT_PATH
       - CANONICAL_PROJECT_PATH
@@ -337,6 +348,9 @@ pin_image_versions:
       - DANGER_GITLAB_API_TOKEN
       - QA_ALLURE_AWS_ACCESS_KEY_ID
       - QA_ALLURE_AWS_SECRET_ACCESS_KEY
+      - K3D_K8S_IMAGE_LATEST
+      - K3D_K8S_IMAGE_LATEST_MINUS_1
+      - K3D_K8S_IMAGE_LATEST_MINUS_2
   variables:
     PARENT_PIPELINE_ID: $CI_PIPELINE_ID
 
@@ -370,12 +384,12 @@ k3d:
     LIMIT_TO: k3d_version
   parallel:
     matrix:
-      - K3D_K8S_IMAGE: "rancher/k3s:v1.35.8-k3s1"
+      - K3D_K8S_IMAGE: "${K3D_K8S_IMAGE_LATEST_MINUS_2}"
         K3D_K8S_VERSION_SLUG: "v135"
         CNPG_POSTGRESQL_TAG: "18"
-      - K3D_K8S_IMAGE: "rancher/k3s:v1.36.4-k3s1"
+      - K3D_K8S_IMAGE: "${K3D_K8S_IMAGE_LATEST_MINUS_1}"
         K3D_K8S_VERSION_SLUG: "v136"
-      - K3D_K8S_IMAGE: "rancher/k3s:v1.37.0-k3s1"
+      - K3D_K8S_IMAGE: "${K3D_K8S_IMAGE_LATEST}"
         K3D_K8S_VERSION_SLUG: "v137"
         K3D_PRIMARY: "primary"
   rules:
@@ -403,7 +417,7 @@ k3d_arm64:
     LIMIT_TO: k3d_version_arm64
   parallel:
     matrix:
-      - K3D_K8S_IMAGE: "rancher/k3s:v1.37.0-k3s1"
+      - K3D_K8S_IMAGE: "${K3D_K8S_IMAGE_LATEST}"
         K3D_K8S_VERSION_SLUG: "arm64"
   rules:
     - !reference [.rule:skip_if_fork]
@@ -420,8 +434,10 @@ k3d_arm64:
       when: manual
       allow_failure: true
 
-# Manual: run the k3d suite with NGINX ingress instead of Envoy Gateway.
+# Manual: run the k3d suite with the bundled NGINX ingress instead of Envoy Gateway.
 # Single version — sanity check on the NGINX path, not a matrix.
+# Deprecated along with the other bundled Ingress controllers, removed in 20.0;
+# k3d_traefik below is what carries Ingress coverage past that removal.
 k3d_nginx:
   extends: .trigger_review_job
   variables:
@@ -429,12 +445,40 @@ k3d_nginx:
     USE_NGINX_INGRESS: "true"
   parallel:
     matrix:
-      - K3D_K8S_IMAGE: "rancher/k3s:v1.37.0-k3s1"
+      - K3D_K8S_IMAGE: "${K3D_K8S_IMAGE_LATEST}"
         K3D_K8S_VERSION_SLUG: "nginx"
   rules:
     - !reference [.rule:skip_if_fork]
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
       when: never
+    - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
+      when: manual
+      allow_failure: true
+
+# Run the k3d suite behind an EXTERNALLY managed Traefik installation instead of
+# Envoy Gateway. The upstream Traefik chart is installed into its own namespace
+# by scripts/ci/lib/traefik.sh; the chart's own deprecated `traefik` subchart
+# stays disabled. This is the environment that keeps the Ingress resources the
+# chart renders covered once the bundled NGINX/Traefik/HAProxy controllers are
+# removed in 20.0.
+# Single version — sanity check on the Ingress path, not a matrix.
+# Unlike k3d_nginx, this runs automatically on nightly pipelines: NGINX goes
+# away in 20.0, so this job is the one that has to keep Ingress covered, and
+# manual-only would mean nobody notices a regression. Manual elsewhere.
+k3d_traefik:
+  extends: .trigger_review_job
+  variables:
+    LIMIT_TO: k3d_version
+    USE_TRAEFIK_INGRESS: "true"
+  parallel:
+    matrix:
+      - K3D_K8S_IMAGE: "${K3D_K8S_IMAGE_LATEST}"
+        K3D_K8S_VERSION_SLUG: "traefik"
+  rules:
+    - !reference [.rule:skip_if_fork]
+    - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'
+      when: never
+    - if: '$PIPELINE_TYPE == "NIGHTLY_PIPELINE"'
     - if: '$CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "parent_pipeline"'
       when: manual
       allow_failure: true

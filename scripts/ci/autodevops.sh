@@ -12,11 +12,20 @@ source "$SCRIPT_DIR/lib/valkey.sh"
 source "$SCRIPT_DIR/lib/cloudnativepg.sh"
 source "$SCRIPT_DIR/lib/garage.sh"
 source "$SCRIPT_DIR/lib/pebble.sh"
+source "$SCRIPT_DIR/lib/traefik.sh"
 
 PROJECT_ROOT="${SCRIPT_DIR}/../.."
 VALUES_DIR="${PROJECT_ROOT}/.values"
 
 function deploy_external_components() {
+  assert_single_ingress_provider
+
+  # Before everything else: the GitLab chart's IngressRouteTCP needs Traefik's
+  # CRDs to already exist when it is templated.
+  if use_traefik_ingress; then
+    deploy_external_traefik
+  fi
+
   if use_external_valkey; then
     deploy_external_valkey
   fi
@@ -50,6 +59,10 @@ function remove_external_components() {
   if use_pebble; then
     remove_pebble
   fi
+
+  if use_traefik_ingress; then
+    remove_external_traefik
+  fi
 }
 
 function deploy() {
@@ -80,8 +93,8 @@ function deploy() {
   # the plain *-https values target): HTTPS k3d deployments use the -k3d
   # variant, where cert-manager issues certificates from the in-cluster
   # Pebble ACME server (scripts/ci/lib/pebble.sh). Gateway API only — the
-  # NGINX ingress path is deprecated (removal announced for 20.0) and k3d
-  # NGINX deployments are forced to HTTP in k3d_deploy.sh.
+  # Ingress path is deprecated (removal announced for 20.0) and k3d Ingress
+  # deployments are forced to HTTP in k3d_deploy.sh.
   K3D_VALUES_SUFFIX=""
   if is_k3d_deployment && [ "$(external_protocol)" = "https" ]; then
     K3D_VALUES_SUFFIX="-k3d"
@@ -90,6 +103,9 @@ function deploy() {
   if use_nginx_ingress; then
     echo "Exposing GitLab via NGINX Ingress in $(external_protocol) mode"
     NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress-$(external_protocol).values.yaml"
+  elif use_traefik_ingress; then
+    echo "Exposing GitLab via externally managed Traefik Ingress in $(external_protocol) mode"
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/traefik-$(external_protocol).values.yaml"
   else
     echo "Exposing GitLab via Gateway API in $(external_protocol) mode"
     NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi-$(external_protocol)${K3D_VALUES_SUFFIX}.values.yaml"

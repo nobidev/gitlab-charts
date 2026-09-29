@@ -1,0 +1,43 @@
+# Values for the externally managed Traefik installation used by the k3d
+# `traefik` review environment. Installed by scripts/ci/lib/traefik.sh from the
+# upstream Traefik chart, into its own namespace, before the GitLab chart.
+#
+# This is deliberately NOT the GitLab chart's bundled `traefik` subchart: the
+# bundled NGINX Ingress, Traefik and HAProxy subcharts are deprecated and are
+# removed in 20.0. This environment is what keeps the `Ingress` resources the
+# chart renders covered by CI once they are gone.
+
+# Named `traefik` so it matches `global.ingress.class` in
+# scripts/ci/values/gitlab-chart/traefik-http.values.yaml. Not the default
+# class: every GitLab Ingress sets `ingressClassName` explicitly, and so does
+# the IngressRouteTCP rendered for GitLab Shell.
+ingressClass:
+  enabled: true
+  isDefaultClass: false
+  name: traefik
+
+# k3s' servicelb publishes a LoadBalancer Service's ports as host ports on the
+# node, which `k3d cluster create --port` (see scripts/ci/k3d.sh) maps through
+# to the 22/80/443 the CI job reaches over nip.io.
+service:
+  spec:
+    type: LoadBalancer
+
+ports:
+  web:
+    expose:
+      default: true
+    exposedPort: 80
+  websecure:
+    expose:
+      default: true
+    exposedPort: 443
+  # Git over SSH. The entrypoint name must match
+  # `gitlab.gitlab-shell.traefik.entrypoint`, which the GitLab chart writes into
+  # the IngressRouteTCP it renders for GitLab Shell.
+  gitlab-shell:
+    port: 2222
+    exposedPort: 22
+    protocol: TCP
+    expose:
+      default: true

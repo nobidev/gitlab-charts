@@ -81,6 +81,17 @@ function garage_release_name() {
   echo -n "$(release_name_base)-garage"
 }
 
+function traefik_release_name() {
+  echo -n "$(release_name_base)-traefik"
+}
+
+# Namespace the externally managed Traefik is installed into. Lives here rather
+# than in lib/traefik.sh so k3d_collect_debug, which only sources this file, can
+# reach it too.
+function traefik_namespace() {
+  echo -n "${TRAEFIK_NAMESPACE:-traefik}"
+}
+
 function use_external_garage() {
   [[ "${SKIP_EXTERNAL_GARAGE}" != "true" ]]
 }
@@ -99,6 +110,30 @@ function common_openshift_values() {
 
 function use_nginx_ingress() {
   [[ "${USE_NGINX_INGRESS}" == "true" ]]
+}
+
+# Expose GitLab through an externally managed Traefik installation (the upstream
+# Traefik chart, deployed by scripts/ci/lib/traefik.sh) rather than through
+# Gateway API or a bundled Ingress controller. Mutually exclusive with
+# USE_NGINX_INGRESS.
+function use_traefik_ingress() {
+  [[ "${USE_TRAEFIK_INGRESS}" == "true" ]]
+}
+
+# True when GitLab is exposed through Ingress objects instead of Gateway API,
+# whichever controller serves them.
+function use_ingress() {
+  use_nginx_ingress || use_traefik_ingress
+}
+
+# Enforce the mutual exclusion the two helpers above document. Selecting both
+# would install the external Traefik chart while deploy() renders the NGINX
+# Ingress values, leaving a half-configured deployment and no error.
+function assert_single_ingress_provider() {
+  if use_nginx_ingress && use_traefik_ingress; then
+    echo "ERROR: USE_NGINX_INGRESS and USE_TRAEFIK_INGRESS are mutually exclusive; set at most one"
+    exit 1
+  fi
 }
 
 # external_protocol returns the protocol used for external access.
