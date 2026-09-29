@@ -82,11 +82,13 @@ describe 'batched background migrations wait Job' do
       expect(pod_labels).to include('gitlab.com/batched-background-migrations-check' => 'true')
     end
 
-    it 'runs the toolbox wait-for-batched-background-migrations script' do
+    it 'runs the gitlab:background_migrations:wait rake task after waiting for dependencies' do
       _t, jobs = bbm_job
       container = jobs.values[0]['spec']['template']['spec']['containers'].find { |c| c['name'] == 'migrations' }
       expect(container).not_to be_nil
-      expect(container['args'].join("\n")).to include('/scripts/wait-for-batched-background-migrations')
+      args = container['args'].join("\n")
+      expect(args).to include('/scripts/wait-for-deps')
+      expect(args).to include('gitlab:background_migrations:wait')
     end
 
     it 'does not bypass the schema version, since it only reads migration counts' do

@@ -123,8 +123,7 @@ scriptTpl: |
 ## Wait Job that holds a zero-downtime upgrade until the current version's batched
 ## background migrations finish, so the next upgrade starts from a consistent schema.
 ## Disabled by default; the GitLab Operator turns this on during an upgrade to render
-## the wait Job it gates on. Requires a toolbox image that ships
-## /scripts/wait-for-batched-background-migrations.
+## the wait Job it gates on.
 batchedBackgroundMigrationsCheck:
   enabled: false
   activeDeadlineSeconds: 3600
@@ -133,8 +132,13 @@ batchedBackgroundMigrationsCheck:
     requests:
       cpu: 250m
       memory: 200Mi
-  # The wait loop lives in the toolbox image; the script polls the queued and
-  # finalizing batched background migrations and exits once none remain.
+  # The wait loop lives in the Rails app as the gitlab:background_migrations:wait rake
+  # task, which polls the unfinished batched background migrations across every database
+  # and exits once none remain (or fails if any are in a failed state). The Job's
+  # activeDeadlineSeconds bounds the total wait, and backoffLimit retries it on transient
+  # database errors.
   scriptTpl: |
     set -e;
-    /scripts/wait-for-batched-background-migrations;
+    /scripts/wait-for-deps;
+    cd /srv/gitlab;
+    /srv/gitlab/bin/rake gitlab:background_migrations:wait;
