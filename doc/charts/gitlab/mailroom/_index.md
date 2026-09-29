@@ -109,6 +109,10 @@ serviceAccount:
 | `init.image.tag`                              |                                                            | Mailroom init image tag |
 | `init.resources`                              | `{ requests: { cpu: 50m }}`                                | Mailroom init container resource requirements |
 | `init.containerSecurityContext`               |                                                            | initContainer container specific [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) |
+| `init.containerSecurityContext.runAsUser`     | `1000`                                                     | initContainer specific: User ID under which the container should be started |
+| `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                                    | initContainer specific: Controls whether a process can gain more privileges than its parent process |
+| `init.containerSecurityContext.runAsNonRoot`  | `true`                                                     | initContainer specific: Controls whether the container runs with a non-root user |
+| `init.containerSecurityContext.capabilities.drop` | `[ "ALL" ]`                                                | initContainer specific: Removes [Linux capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html) for the container |
 | `keda.enabled`                                | `false`                                                    | Use [KEDA](https://keda.sh/) `ScaledObjects` instead of `HorizontalPodAutoscalers` |
 | `keda.pollingInterval`                        | `30`                                                       | The interval to check each trigger on |
 | `keda.cooldownPeriod`                         | `300`                                                      | The period to wait after the last trigger reported active before scaling the resource back to 0 |
@@ -131,8 +135,12 @@ serviceAccount:
 | `securityContext.fsGroup`                     | `1000`                                                     | Group ID under which the pod should be started |
 | `securityContext.runAsUser`                   | `1000`                                                     | User ID under which the pod should be started |
 | `securityContext.fsGroupChangePolicy`         |                                                            | Policy for changing ownership and permission of the volume (requires Kubernetes 1.23) |
+| `securityContext.seccompProfile.type`         | `RuntimeDefault`                                           | Seccomp profile to use |
 | `containerSecurityContext`                    |                                                            | Override container [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) under which the container is started |
 | `containerSecurityContext.runAsUser`          | `1000`                                                     | Allow to overwrite the specific security context under which the container is started |
+| `containerSecurityContext.allowPrivilegeEscalation` | `false`                                                    | Controls whether a process of the container can gain more privileges than its parent process |
+| `containerSecurityContext.runAsNonRoot`       | `true`                                                     | Controls whether the container runs with a non-root user |
+| `containerSecurityContext.capabilities.drop`  | `[ "ALL" ]`                                                | Removes [Linux capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html) for the container |
 | `serviceAccount.annotations`                  | `{}`                                                       | Annotations for ServiceAccount |
 | `serviceAccount.automountServiceAccountToken` | `false`                                                    | Indicates whether or not the default ServiceAccount access token should be mounted in pods |
 | `serviceAccount.enabled`                      | `false`                                                    | Indicates whether or not to use a ServiceAccount |
