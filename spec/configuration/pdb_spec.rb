@@ -26,13 +26,13 @@ describe 'PodDisruptionBudget configuration' do
 
   describe 'apiVersion' do
     context 'when not specified' do
-      it 'uses policy/v1beta1' do
+      it 'uses policy/v1' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-        expect(api_versions.values).to all(eq 'policy/v1beta1')
+        expect(api_versions.values).to all(eq 'policy/v1')
       end
     end
 
-    context 'when policy/v1 is supported' do
+    context 'when cluster reports policy/v1 and policy/v1beta1' do
       let :helm_args do
         '--api-versions=policy/v1/PodDisruptionBudget --api-versions=policy/v1beta1/PodDisruptionBudget'
       end
