@@ -112,7 +112,11 @@ We run k3d environments for:
 1. Each Kubernetes version supported by GitLab chart.
    - Note: The 1.34 envionment also tests GitLab with the next PostgreSQL major version (18).
 1. One environment to test arm64 deployments.
-1. One environment to test Ingress behavior (instead of Gateway API).
+1. One environment to test Ingress behavior (instead of Gateway API) with the bundled NGINX Ingress chart.
+1. One environment to test Ingress behavior against an externally managed Traefik installation.
+   - The bundled NGINX Ingress, Traefik, and HAProxy charts are deprecated and are removed in 20.0.
+     This environment installs the upstream Traefik chart into its own namespace, outside of the
+     GitLab chart, so that the `Ingress` resources the chart renders stay under test after the removal.
 
 ### Managing Review apps
 

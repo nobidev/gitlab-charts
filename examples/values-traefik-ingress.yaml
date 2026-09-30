@@ -1,4 +1,11 @@
-# Example configuration of using an external Traefik Ingress provider.
+# Example configuration of using Traefik as the Ingress provider, deployed by
+# the GitLab chart's bundled `traefik` subchart (see `traefik.install` below).
+#
+# The bundled NGINX Ingress, Traefik and HAProxy subcharts are deprecated and
+# are removed in 20.0. To point the chart at a Traefik installation you manage
+# yourself, keep the `global.ingress` settings below, set `traefik.install` to
+# `false`, and match `global.ingress.class` to your own IngressClass. See
+# doc/advanced/external-ingress/_index.md.
 
 global:
   ingress:
@@ -27,6 +34,8 @@ nginx-ingress:
   enabled: false
 
 traefik:
+  # Deploy the bundled Traefik subchart. Deprecated, removed in 20.0: set this
+  # to `false` when Traefik is managed outside of the GitLab chart.
   install: true
   # Ensure the IngressClass name and `global.ingress.class` value match.
   # This can be removed if `global.ingress.class` is set to `$releaseName-traefik`.

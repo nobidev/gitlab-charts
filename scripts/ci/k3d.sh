@@ -101,6 +101,8 @@ function k3d_create() {
   echo "DinD/Docker host IP for port mapping: ${docker_ip}"
 
   # Networking controllers and Gateway API CRDs are provided by GitLab chart so we disable the ones bundled with k3s.
+  # The k3d_traefik environment also keeps k3s' Traefik disabled: it installs a
+  # pinned upstream Traefik itself (scripts/ci/lib/traefik.sh).
   k3d cluster create "${cluster_name}" \
     --image "${DOCKERHUB_PREFIX:-docker.io}/${K3D_K8S_IMAGE}" \
     --api-port "${docker_ip}:6443" \
@@ -194,6 +196,24 @@ function k3d_collect_debug() {
       { kubectl get gateways,httproutes -A -o wide; echo "---"; kubectl describe gateways,httproutes -n "${ns}"; } \
         > "${debug_dir}/gateway-api.txt" 2>&1 || true
     fi
+
+    # Ingress state (k3d_nginx / k3d_traefik jobs; empty on Gateway API runs).
+    { kubectl get ingresses -A -o wide; echo "---"; kubectl describe ingresses -n "${ns}"; } \
+      > "${debug_dir}/ingresses.txt" 2>&1 || true
+
+    # Externally managed Traefik: the controller lives in its own namespace, and
+    # the GitLab Shell route is an IngressRouteTCP rather than an Ingress.
+    if kubectl get crd ingressroutetcps.traefik.io >/dev/null 2>&1; then
+      kubectl get ingressroutetcps.traefik.io -n "${ns}" -o yaml \
+        > "${debug_dir}/traefik-ingressroutetcps.yaml" 2>&1 || true
+      local traefik_ns
+      traefik_ns="$(traefik_namespace)"
+      { kubectl get all -n "${traefik_ns}" -o wide; echo "---"; kubectl describe pods -n "${traefik_ns}"; } \
+        > "${debug_dir}/traefik-namespace.txt" 2>&1 || true
+      kubectl logs -n "${traefik_ns}" -l app.kubernetes.io/name=traefik \
+        --tail=2000 > "${debug_dir}/traefik-controller.log" 2>&1 || true
+    fi
+
     kubectl logs -n "${ns}" deployment/pebble --tail=2000 > "${debug_dir}/pebble.log" 2>&1 || true
 
     # Logs from pods not Running in the release namespace.

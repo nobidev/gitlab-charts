@@ -1,0 +1,52 @@
+# Ingress overrides for k3d review environments fronted by an externally
+# managed Traefik installation (scripts/ci/lib/traefik.sh installs the upstream
+# Traefik chart into its own namespace before the GitLab chart is deployed).
+#
+# Replaces gatewayapi-http.values.yaml — the chart renders Ingress objects and,
+# for Git over SSH, an IngressRouteTCP, instead of HTTPRoute/TCPRoute.
+#
+# HTTP only: the cert-manager/Pebble HTTPS path is Gateway API only, and
+# k3d_deploy.sh forces Ingress deployments back to HTTP.
+#
+# None of the deprecated bundled Ingress controllers are installed here. That is
+# the point of this environment: NGINX Ingress, Traefik and HAProxy are removed
+# in 20.0, and this keeps the rendered Ingress resources covered by a controller
+# the chart does not manage.
+nginx-ingress:
+  enabled: false
+
+traefik:
+  install: false
+
+global:
+  hosts:
+    https: false
+  ingress:
+    enabled: true
+    provider: traefik
+    # Matches `ingressClass.name` in scripts/ci/values/traefik/traefik.values.yaml.
+    class: traefik
+    configureCertmanager: false
+    annotations:
+      # Bind the routers Traefik derives from these Ingresses to the HTTP
+      # entrypoint only. Without this they are bound to every entrypoint,
+      # including the `gitlab-shell` one that carries Git over SSH.
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+    tls:
+      enabled: false
+  gatewayApi:
+    enabled: false
+    installEnvoy: false
+    configureCertmanager: false
+    httpToHttpsRedirect: false
+
+gitlab:
+  gitlab-shell:
+    traefik:
+      # Matches the entrypoint declared in
+      # scripts/ci/values/traefik/traefik.values.yaml.
+      entrypoint: gitlab-shell
+      # Pinned rather than detected from the cluster's capabilities: Traefik v3
+      # dropped the older traefik.containo.us group, which is what the chart
+      # falls back to.
+      apiVersion: traefik.io/v1alpha1
