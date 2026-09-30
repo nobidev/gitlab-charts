@@ -2,7 +2,7 @@
 stage: GitLab Delivery
 group: Operate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
-title: Advanced configuration
+title: 'Advanced configuration: external services and customization'
 ---
 
 - Bringing your own custom [Docker images](custom-images/_index.md)
