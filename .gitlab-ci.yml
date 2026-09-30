@@ -82,8 +82,6 @@ variables:
         secret: registry-storage-secret
         key: config
     global:
-      ingress:
-        apiVersion: networking.k8s.io/v1
       hpa:
         apiVersion: autoscaling/v2
       batch:

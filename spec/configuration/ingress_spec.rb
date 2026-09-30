@@ -184,7 +184,7 @@ describe 'GitLab Ingress configuration(s)' do
 
         paths = get_paths(template, "test-webservice-root-smartcard")
         paths.each do |p|
-          expect(p["backend"]["serviceName"]).to eq("test-webservice-root")
+          expect(p.dig("backend", "service", "name")).to eq("test-webservice-root")
         end
       end
     end
@@ -214,26 +214,9 @@ describe 'GitLab Ingress configuration(s)' do
       )))
     end
 
-    context 'when not specified (without cluster connection)' do
-      it 'sets default version (extensions/v1beta1)' do
+    context 'when not specified' do
+      it 'sets default version (networking.k8s.io/v1)' do
         template = HelmTemplate.new(ingress_class_specified)
-        expect(template.exit_code).to eq(0)
-
-        ingress_names.each do |ingress_name|
-          api_version = get_api_version(template, ingress_name)
-          ingress_class_annotation = get_ingress_class_annotation(template, ingress_name)
-          ingress_class_spec = get_ingress_class_spec(template, ingress_name)
-          expect(api_version).to eq("extensions/v1beta1")
-          expect(ingress_class_annotation).to eq('fakeclass')
-          expect(ingress_class_spec).to be_nil
-        end
-      end
-    end
-
-    context 'when not specified (with cluster connection)' do
-      it 'sets highest cluster-supported version' do
-        api_versions_args = "--api-versions=networking.k8s.io/v1beta1/Ingress --api-versions=networking.k8s.io/v1/Ingress"
-        template = HelmTemplate.new(ingress_class_specified, 'test', api_versions_args)
         expect(template.exit_code).to eq(0)
 
         ingress_names.each do |ingress_name|
@@ -243,6 +226,19 @@ describe 'GitLab Ingress configuration(s)' do
           expect(api_version).to eq('networking.k8s.io/v1')
           expect(ingress_class_annotation).to be_nil
           expect(ingress_class_spec).to eq('fakeclass')
+        end
+      end
+
+      it 'renders networking.k8s.io/v1 backends' do
+        template = HelmTemplate.new(ingress_class_specified)
+        expect(template.exit_code).to eq(0)
+
+        ingress_names.each do |ingress_name|
+          get_paths(template, ingress_name).each do |p|
+            expect(p['backend']).to have_key('service'), "#{ingress_name}: #{p['backend']}"
+            expect(p['backend']).not_to have_key('serviceName')
+            expect(p).to have_key('pathType')
+          end
         end
       end
     end
@@ -294,6 +290,25 @@ describe 'GitLab Ingress configuration(s)' do
         ingress_names.each do |ingress_name|
           annotation = template.dig("Ingress/#{ingress_name}", 'metadata', 'annotations', 'kubernetes.io/ingress.class')
           expect(annotation).to eq('test-nginx')
+        end
+      end
+
+      it 'renders networking.k8s.io/v1beta1 backends' do
+        api_version = enable_all_ingress.deep_merge(YAML.safe_load(%(
+            global:
+              ingress:
+                apiVersion: networking.k8s.io/v1beta1
+          )))
+
+        template = HelmTemplate.new(api_version)
+        expect(template.exit_code).to eq(0)
+
+        # The KAS gRPC Ingress always renders networking.k8s.io/v1 backends.
+        (ingress_names - %w[test-kas-grpc]).each do |ingress_name|
+          get_paths(template, ingress_name).each do |p|
+            expect(p['backend']).to have_key('serviceName'), "#{ingress_name}: #{p['backend']}"
+            expect(p['backend']).not_to have_key('service')
+          end
         end
       end
     end

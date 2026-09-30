@@ -18,12 +18,8 @@ kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" $ingressC
 {{-     .local.apiVersion -}}
 {{-   else if .global.apiVersion -}}
 {{-     .global.apiVersion -}}
-{{-   else if .context.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" -}}
-{{-     print "networking.k8s.io/v1" -}}
-{{-   else if .context.Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" -}}
-{{-     print "networking.k8s.io/v1beta1" -}}
 {{-   else -}}
-{{-     print "extensions/v1beta1" -}}
+{{-     print "networking.k8s.io/v1" -}}
 {{-   end -}}
 {{- end -}}
 
