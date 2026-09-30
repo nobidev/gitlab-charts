@@ -19,6 +19,18 @@ describe 'shared-secrets provisioning' do
           accessControl: true
         praefect:
           enabled: true
+        openbao:
+          psql:
+            host: openbao-db.example.com
+            password:
+              secret: openbao-db-password
+              key: password
+      openbao:
+        install: true
+        config:
+          unseal:
+            static:
+              enabled: true
     ))
   end
 
@@ -168,6 +180,29 @@ describe 'shared-secrets provisioning' do
       expect(lengths).not_to be_empty
       expect(lengths).to all(be_a(Integer))
     end
+
+    context 'with every generator tied to persisted state enabled' do
+      let(:values) { as_controller(all_features) }
+
+      it 'marks exactly those generators persistent' do
+        # The controller reports, rather than regenerates, a missing value tied to
+        # persisted state. It cannot recognize these generators by type.
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        marked = resource['spec']['secrets'].flat_map do |secret|
+          secret['generators'].select { |generator| generator.key?('persistent') }
+                              .map { |generator| [secret['name'], generator['key'], generator['persistent']] }
+        end
+
+        expect(marked).to contain_exactly(
+          ['test-gitlab-runner-secret', 'runner-registration-token', true],
+          ['test-oauth-gitlab-pages-secret', 'appid', true],
+          ['test-oauth-gitlab-pages-secret', 'appsecret', true],
+          ['test-praefect-dbsecret', 'secret', true],
+          ['test-openbao-unseal', 'key', true]
+        )
+      end
+    end
   end
 
   describe 'the two backends stay in step' do
@@ -183,6 +218,18 @@ describe 'shared-secrets provisioning' do
             accessControl: true
           praefect:
             enabled: true
+          openbao:
+            psql:
+              host: openbao-db.example.com
+              password:
+                secret: openbao-db-password
+                key: password
+        openbao:
+          install: true
+          config:
+            unseal:
+              static:
+                enabled: true
       ),
       'praefect with an external database' => %(
         global:
@@ -366,6 +413,15 @@ describe 'shared-secrets provisioning' do
 
       expect(bodies).not_to be_empty
       expect(bodies).to all(include('charset:'))
+    end
+
+    it 'keeps the persistent marker out of the Job' do
+      # `persistent` is controller-only. A spec cannot inject a manifest entry, so assert
+      # the shell projection never reads the field.
+      %w[_manifest_shell.tpl _generate_secrets.sh.tpl].each do |file|
+        source = File.read("templates/shared-secrets/#{file}")
+        expect(source).not_to include('persistent'), "#{file} references `persistent`"
+      end
     end
   end
 

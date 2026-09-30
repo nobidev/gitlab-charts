@@ -38,6 +38,8 @@ Generator types
 They are job-backend detail and are stripped before the manifest reaches the controller.
   sshHostKeys  (no params; key names come from `ssh-keygen -A`)
   railsSecrets key, env, fields[] -- see the railsSecrets branch in _manifest_shell.tpl
+  (any)        persistent: true for a value tied to persisted state. Controller-only:
+               the Job ignores it. See doc/development/secrets_controller.md.
 
 Numbers are consumed through `gitlab.secrets.load`, which coerces them with `int`.
 Helm decodes YAML numbers as float64 while the GitLab Operator's renderer uses int64,
@@ -79,6 +81,7 @@ the controller backend and break the single source of truth.
       key: runner-registration-token
       charset: alphanumeric
       length: 64
+      persistent: true
     - type: static
       key: runner-token
       value: ""
@@ -111,10 +114,12 @@ the controller backend and break the single source of truth.
       key: {{ include "oauth.gitlab-pages.appIdKey" . }}
       charset: alphanumeric
       length: 64
+      persistent: true
     - type: random
       key: {{ include "oauth.gitlab-pages.appSecretKey" . }}
       charset: alphanumeric
       length: 64
+      persistent: true
 {{- end }}
 
 {{- if .Values.global.kas.enabled }}
@@ -269,6 +274,7 @@ the controller backend and break the single source of truth.
       key: {{ include "gitlab.praefect.dbSecret.key" . }}
       charset: alphanumeric
       length: 32
+      persistent: true
 {{-   end }}
 
 - name: {{ include "gitlab.praefect.authToken.secret" . }}
@@ -289,6 +295,7 @@ the controller backend and break the single source of truth.
       length: 32
       encoding: raw
       file: bao-unseal
+      persistent: true
 {{- end }}
 
 {{- if or .Values.openbao.install .Values.global.openbao.enabled }}

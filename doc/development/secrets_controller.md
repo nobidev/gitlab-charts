@@ -114,6 +114,15 @@ status:
       ready: true
 ```
 
+### Do not regenerate a persistent value
+
+Any generator can set `persistent: true`. Without it, generate the value whenever it is
+missing. With it, generate the value only until you have reported it ready. After that,
+never regenerate a missing value. Report it as missing in `status` instead.
+
+Marked values are copied into the GitLab database, a PostgreSQL role, or OpenBao storage,
+so a fresh value loses data or access. The Job ignores the field.
+
 ## Generator types
 
 The chart emits these types. Each type is the declarative form of a recipe the Job performs
