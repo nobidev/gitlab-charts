@@ -70,6 +70,31 @@ describe 'shared-secrets provisioning' do
     end
   end
 
+  # The value of every `--from-literal` argument the job passes, keyed by (secret, key).
+  def job_backend_literals(script)
+    script.scan(/^generate_secret_if_needed\s+(\S+)(.*)$/).each_with_object({}) do |(name, args), literals|
+      args.split(/ (?=--from-)/).grep(/\A--from-literal=/).each do |arg|
+        key, value = arg.delete_prefix('--from-literal=').split('=', 2)
+        literals[[name.delete('"'), key.delete('"')]] = value
+      end
+    end
+  end
+
+  # The job's shell for a `random` generator, rebuilt from its GitLabSecrets fields the
+  # way gitlab.secrets.shell.value builds it. `fetch` fails on a value it does not know.
+  def random_job_value(generator)
+    charset = { 'alphanumeric' => 'a-zA-Z0-9', 'hex' => 'a-f0-9', 'lowerAlphanumeric' => 'a-z0-9' }
+    encoding = { nil => '', 'none' => '', 'base64' => ' | base64 -w 0' }
+    command = "gen_random '#{charset.fetch(generator['charset'])}' #{generator['length']}"
+    value = "$(#{command}#{encoding.fetch(generator['encoding'])})"
+
+    case generator.fetch('wrap', 'none')
+    when 'none' then value
+    when 'jsonArray' then %([\\"#{value}\\"])
+    else raise ArgumentError, "unknown wrap #{generator['wrap'].inspect}"
+    end
+  end
+
   describe 'provider: job (the default)' do
     let(:template) { HelmTemplate.new(default_values) }
 
@@ -182,6 +207,17 @@ describe 'shared-secrets provisioning' do
           accessControl: true
         praefect:
           enabled: true
+        appConfig:
+          incomingEmail:
+            enabled: true
+            address: incoming+%{key}@example.com
+            password:
+              secret: mailroom-password
+          serviceDeskEmail:
+            enabled: true
+            address: servicedesk+%{key}@example.com
+            password:
+              secret: mailroom-password
     ),
     'praefect with an external database' => %(
       global:
@@ -218,6 +254,27 @@ describe 'shared-secrets provisioning' do
 
           expect(from_job).not_to be_empty
           expect(from_controller.sort).to eq(from_job.sort)
+        end
+
+        it 'renders every random generator as the exact job recipe for its fields' do
+          # One generate_secret_if_needed call serves both of the job's paths: it creates
+          # the Secret, or patches in missing keys from the same arguments. Pinning the
+          # argument pins what either path stores.
+          job = HelmTemplate.new(base)
+          expect(job.exit_code).to eq(0), "Unexpected error code #{job.exit_code} -- #{job.stderr}"
+
+          controller = HelmTemplate.new(as_controller(base))
+          expect(controller.exit_code).to eq(0), "Unexpected error code #{controller.exit_code} -- #{controller.stderr}"
+
+          secrets = controller.resources_by_kind('GitLabSecrets').values.first['spec']['secrets']
+          expected = secrets.each_with_object({}) do |secret, recipes|
+            secret['generators'].select { |generator| generator['type'] == 'random' }.each do |generator|
+              recipes[[secret['name'], generator['key']]] = random_job_value(generator)
+            end
+          end
+
+          expect(expected).not_to be_empty
+          expect(job_backend_literals(generate_secrets_script(job)).slice(*expected.keys)).to eq(expected)
         end
       end
     end
@@ -371,8 +428,8 @@ describe 'shared-secrets provisioning' do
       expect(bodies).to all(include('charset:'))
     end
 
-    # `base64` is standard base64 with no wrapping and no newline under both backends,
-    # so the job must never pipe a value through a bare, wrapping `base64`.
+    # `base64` is standard base64 with no wrapping and no newline under both backends.
+    # The job's recipe for it is pinned in 'the two backends stay in step'.
     value_matrix.each do |name, extra|
       it "gives every random generator an encoding of none or base64 with #{name}" do
         template = HelmTemplate.new(as_controller(HelmTemplate.with_defaults(extra)))
@@ -385,15 +442,6 @@ describe 'shared-secrets provisioning' do
 
         expect(encodings).to include('base64')
         expect(encodings).to all(be_nil.or(eq('none')).or(eq('base64')))
-      end
-
-      it "encodes every base64 random value with base64 -w 0 in the job with #{name}" do
-        template = HelmTemplate.new(HelmTemplate.with_defaults(extra))
-        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-
-        script = generate_secrets_script(template)
-        expect(script).to include('| base64 -w 0)')
-        expect(script).not_to match(/\| base64(?:\)| \|)/)
       end
     end
   end
