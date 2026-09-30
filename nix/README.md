@@ -25,7 +25,7 @@ system configuration instead.
 | File | Role |
 | --- | --- |
 | `flake.nix` | flake-parts entry; wires the modules; exports `lib` + `flakeModules` |
-| `nix/lib.nix` | portable helpers (chart deps / package / render) — no flake deps |
+| `nix/lib.nix` | portable helpers (`chartDeps` / `packagedChart` / `renderChart`, `chartVersion`, `mkDevValues`) — no flake deps |
 | `nix/args.nix` | shared perSystem args (`mise`, `helm`, `chartsLib`) |
 | `nix/devshell.nix` | `nix develop` shell (mise tools + Ruby) |
 | `nix/packages.nix` | `chart-deps`, `gitlab-chart`, `gitlab-chart-tgz`, `rendered` |
