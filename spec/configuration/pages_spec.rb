@@ -338,6 +338,35 @@ describe 'GitLab Pages' do
         end
       end
 
+      context 'with consolidated object storage and a redundant pages connection' do
+        let(:pages_enabled_values) do
+          YAML.safe_load(%(
+            global:
+              ingress:
+                enabled: true
+                configureCertmanager: true
+              pages:
+                enabled: true
+                objectStore:
+                  enabled: true
+                  bucket: gitlab-pages
+                  connection:
+                    secret: pages-secret
+                    key: connection
+          ))
+        end
+
+        it 'overrides the redundant per-pages connection with the consolidated config' do
+          expect(pages_enabled_template.exit_code).to eq(0), "Unexpected error code #{pages_enabled_template.exit_code} -- #{pages_enabled_template.stderr}"
+          # The redundant per-pages object_store block (and its connection) is not rendered ...
+          expect(config_yaml_data['production']['pages']).not_to have_key('object_store')
+          # ... instead pages is wired through the shared consolidated block with only its bucket,
+          # inheriting the shared object_store.connection.
+          expect(config_yaml_data['production']['object_store']['objects']['pages']).to eq('bucket' => 'gitlab-pages')
+          expect(config_yaml_data['production']['object_store']).to have_key('connection')
+        end
+      end
+
       describe 'https' do
         context 'by default' do
           let(:pages_enabled_values) do

@@ -76,6 +76,27 @@ describe 'checkConfig object storage' do
                      success_description: 'when consolidated storage is enabled, pages inherits the shared connection and needs no per-pages connection'
   end
 
+  describe 'gitlab.checkConfig.objectStorage.pages.configured (consolidated, redundant pages connection)' do
+    let(:success_values) do
+      values = HelmTemplate.defaults
+      values['global']['pages'] = {
+        'enabled' => true,
+        'objectStore' => {
+          'enabled' => true,
+          'bucket' => 'gitlab-pages',
+          'connection' => {
+            'secret' => 'pages-secret',
+            'key' => 'connection'
+          }
+        }
+      }
+      values
+    end
+
+    include_examples 'config validation',
+                     success_description: 'when consolidated storage is enabled, a redundant per-pages connection is ignored and does not fail validation'
+  end
+
   describe 'gitlab.checkConfig.objectStorage.pages.configured (pages object store disabled)' do
     let(:success_values) do
       values = HelmTemplate.defaults
