@@ -129,16 +129,15 @@ Random characters.
 | `key` | Key to store the value under | required |
 | `charset` | `alphanumeric` (`a-zA-Z0-9`), `hex` (`a-f0-9`), or `lowerAlphanumeric` (`a-z0-9`) | required |
 | `length` | Number of characters, before encoding | required |
-| `encoding` | `none`, `base64`, or `base64-nowrap` | `none` |
+| `encoding` | `none` or `base64` | `none` |
 | `wrap` | `none` or `jsonArray` | `none` |
 
 `charset` and `length` are always present: the chart refuses to render a `random` generator
 without them, so that neither backend has to guess. `encoding` and `wrap` may be absent and
 mean "do not transform the value".
 
-`base64` and `base64-nowrap` both store standard base64 with no line wrapping and no
-trailing newline. The chart rejects `base64` with a `length` above 57, where the Job's
-output would wrap.
+`base64` stores standard base64 with no line wrapping and no trailing newline, as it does
+on `bytes`.
 
 `wrap: jsonArray` encodes the value first, then stores it as `["<encoded value>"]`.
 

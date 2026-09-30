@@ -27,7 +27,7 @@ Entry fields
 Generator types
 ---------------
   random       key, charset (alphanumeric|hex|lowerAlphanumeric), length,
-               encoding (none|base64|base64-nowrap), wrap (none|jsonArray)
+               encoding (none|base64), wrap (none|jsonArray)
   bytes        key, length, encoding (raw|base64). `raw` also needs `file`, the scratch
                filename the job writes the bytes to before loading them.
   static       key, value
@@ -102,7 +102,7 @@ the controller backend and break the single source of truth.
       key: {{ include "gitlab.pages.authSecret.key" . }}
       charset: alphanumeric
       length: 64
-      encoding: base64-nowrap
+      encoding: base64
 
 - name: {{ include "oauth.gitlab-pages.secret" . }}
   comment: GitLab Pages OAuth secret
@@ -249,7 +249,7 @@ the controller backend and break the single source of truth.
       key: {{ include "gitlab.registry.httpSecret.key" . }}
       charset: lowerAlphanumeric
       length: 128
-      encoding: base64-nowrap
+      encoding: base64
 
 - name: {{ include "gitlab.registry.notificationSecret.secret" . }}
   comment: Container Registry notification_secret
@@ -398,11 +398,6 @@ Usage:
 {{-       if not $generator.charset -}}
 {{-         fail (printf "shared-secrets: random generator %q in entry %q must set a charset" (default "" $generator.key) $entry.name) -}}
 {{-       end -}}
-{{-     end -}}
-{{/*    Above 57 characters the Job's GNU `base64` wraps at 76 columns, and the unquoted
-        value splits in two: creating the Secret fails and patching a key truncates it. */}}
-{{-     if and (eq $generator.type "random") (eq (default "none" $generator.encoding) "base64") (gt (int $generator.length) 57) -}}
-{{-       fail (printf "shared-secrets: random generator %q in entry %q must use base64-nowrap, not base64, for a length above 57" (default "" $generator.key) $entry.name) -}}
 {{-     end -}}
 {{-     if eq $generator.type "railsSecrets" -}}
 {{-       range $field := $generator.fields -}}

@@ -93,10 +93,8 @@ absent, and the controller backend is told `policy: fill-missing`.
 controller reads the same field, so a value the chart filled in silently would reach the
 controller as absent and let it choose a different alphabet.
 
-`encoding` is `none`, `base64`, or `base64-nowrap`. Both base64 spellings store the value
-with no line wrapping and no trailing newline. Use `base64-nowrap` for new secrets. The
-chart rejects `base64` with a `length` above 57, because the job's `base64` would wrap the
-output and split the value.
+`encoding` is `none` or `base64`. `base64` stores standard base64 with no line wrapping and
+no trailing newline, as it does on `bytes`.
 
 `wrap: jsonArray` stores the value as a single-element JSON array. Only the container
 registry notification secret needs it.

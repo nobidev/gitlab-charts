@@ -371,25 +371,29 @@ describe 'shared-secrets provisioning' do
       expect(bodies).to all(include('charset:'))
     end
 
-    # The job's GNU base64 wraps past 57 input characters, which splits the value into two
-    # kubectl arguments. As above, assert the guard exists and that no entry trips it.
-    it 'refuses a base64 random generator longer than 57 characters' do
-      manifest = File.read('templates/shared-secrets/_manifest.tpl')
-      expect(manifest).to include('must use base64-nowrap, not base64, for a length above 57')
-    end
-
+    # `base64` is standard base64 with no wrapping and no newline under both backends,
+    # so the job must never pipe a value through a bare, wrapping `base64`.
     value_matrix.each do |name, extra|
-      it "keeps every base64 random generator at 57 characters or fewer with #{name}" do
+      it "gives every random generator an encoding of none or base64 with #{name}" do
         template = HelmTemplate.new(as_controller(HelmTemplate.with_defaults(extra)))
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
-        lengths = template.resources_by_kind('GitLabSecrets').values.first['spec']['secrets']
-                          .flat_map { |secret| secret['generators'] }
-                          .select { |generator| generator['type'] == 'random' && generator['encoding'] == 'base64' }
-                          .map { |generator| generator['length'] }
+        encodings = template.resources_by_kind('GitLabSecrets').values.first['spec']['secrets']
+                            .flat_map { |secret| secret['generators'] }
+                            .select { |generator| generator['type'] == 'random' }
+                            .map { |generator| generator['encoding'] }
 
-        expect(lengths).not_to be_empty
-        expect(lengths).to all(be <= 57)
+        expect(encodings).to include('base64')
+        expect(encodings).to all(be_nil.or(eq('none')).or(eq('base64')))
+      end
+
+      it "encodes every base64 random value with base64 -w 0 in the job with #{name}" do
+        template = HelmTemplate.new(HelmTemplate.with_defaults(extra))
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        script = generate_secrets_script(template)
+        expect(script).to include('| base64 -w 0)')
+        expect(script).not_to match(/\| base64(?:\)| \|)/)
       end
     end
   end

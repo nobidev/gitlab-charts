@@ -12,9 +12,8 @@ Two templates per entry:
                                 (openssl, ssh-keygen, writing random bytes to a file)
   gitlab.secrets.shell.args     the kubectl argument list
 
-Recipes reproduce what the hand-written script did, including both base64 spellings.
-Both store the value unwrapped with no trailing newline: the command substitution strips
-the newline, and gitlab.secrets.load keeps `base64` input short enough not to wrap.
+Recipes reproduce what the hand-written script did. `encoding: base64` is standard base64
+with no line wrapping and no trailing newline, the same as `bytes` with `encoding: base64`.
 */}}
 
 {{/*
@@ -39,8 +38,6 @@ in shell would reach the controller as absent, leaving it to apply a default of 
 {{-   $raw := printf "gen_random '%s' %d" $charset (int .length) -}}
 {{-   $encoding := default "none" .encoding -}}
 {{-   if eq $encoding "base64" -}}
-{{-     $raw = printf "%s | base64" $raw -}}
-{{-   else if eq $encoding "base64-nowrap" -}}
 {{-     $raw = printf "%s | base64 -w 0" $raw -}}
 {{-   else if ne $encoding "none" -}}
 {{-     fail (printf "shared-secrets: unknown encoding %q" $encoding) -}}
