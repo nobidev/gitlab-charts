@@ -136,10 +136,11 @@ Random characters.
 without them, so that neither backend has to guess. `encoding` and `wrap` may be absent and
 mean "do not transform the value".
 
-`base64` wraps at 76 columns and appends a trailing newline. `base64-nowrap` does neither.
-Both appear in the field, so treat them as distinct.
+`base64` and `base64-nowrap` both store standard base64 with no line wrapping and no
+trailing newline. The chart rejects `base64` with a `length` above 57, where the Job's
+output would wrap.
 
-`wrap: jsonArray` stores the value as `["<value>"]`, encoded after wrapping.
+`wrap: jsonArray` encodes the value first, then stores it as `["<encoded value>"]`.
 
 The Job's `gen_random` reads from `/dev/urandom` and filters with `tr`, which can return
 fewer characters than requested for a narrow `charset`. A controller should generate exactly

@@ -170,34 +170,37 @@ describe 'shared-secrets provisioning' do
     end
   end
 
+  # Value sets the rendered-manifest specs below iterate over.
+  value_matrix = {
+    'defaults' => '{}',
+    'all optional features' => %(
+      global:
+        kas:
+          enabled: true
+        pages:
+          enabled: true
+          accessControl: true
+        praefect:
+          enabled: true
+    ),
+    'praefect with an external database' => %(
+      global:
+        praefect:
+          enabled: true
+          psql:
+            host: db.example.com
+    ),
+    'a renamed secret' => %(
+      global:
+        gitaly:
+          authToken:
+            secret: my-gitaly
+    )
+  }
+
   describe 'the two backends stay in step' do
     # This is the spec that stops the manifest's two projections from drifting.
-    {
-      'defaults' => '{}',
-      'all optional features' => %(
-        global:
-          kas:
-            enabled: true
-          pages:
-            enabled: true
-            accessControl: true
-          praefect:
-            enabled: true
-      ),
-      'praefect with an external database' => %(
-        global:
-          praefect:
-            enabled: true
-            psql:
-              host: db.example.com
-      ),
-      'a renamed secret' => %(
-        global:
-          gitaly:
-            authToken:
-              secret: my-gitaly
-      )
-    }.each do |name, extra|
+    value_matrix.each do |name, extra|
       context "with #{name}" do
         let(:base) { HelmTemplate.with_defaults(extra) }
 
@@ -366,6 +369,28 @@ describe 'shared-secrets provisioning' do
 
       expect(bodies).not_to be_empty
       expect(bodies).to all(include('charset:'))
+    end
+
+    # The job's GNU base64 wraps past 57 input characters, which splits the value into two
+    # kubectl arguments. As above, assert the guard exists and that no entry trips it.
+    it 'refuses a base64 random generator longer than 57 characters' do
+      manifest = File.read('templates/shared-secrets/_manifest.tpl')
+      expect(manifest).to include('must use base64-nowrap, not base64, for a length above 57')
+    end
+
+    value_matrix.each do |name, extra|
+      it "keeps every base64 random generator at 57 characters or fewer with #{name}" do
+        template = HelmTemplate.new(as_controller(HelmTemplate.with_defaults(extra)))
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        lengths = template.resources_by_kind('GitLabSecrets').values.first['spec']['secrets']
+                          .flat_map { |secret| secret['generators'] }
+                          .select { |generator| generator['type'] == 'random' && generator['encoding'] == 'base64' }
+                          .map { |generator| generator['length'] }
+
+        expect(lengths).not_to be_empty
+        expect(lengths).to all(be <= 57)
+      end
     end
   end
 

@@ -12,9 +12,9 @@ Two templates per entry:
                                 (openssl, ssh-keygen, writing random bytes to a file)
   gitlab.secrets.shell.args     the kubectl argument list
 
-Recipes reproduce what the hand-written script did, including the base64 spellings:
-`base64` wraps at 76 columns and appends a newline, `base64 -w0` does neither. The two
-are kept distinct so existing installs see no change in value shape.
+Recipes reproduce what the hand-written script did, including both base64 spellings.
+Both store the value unwrapped with no trailing newline: the command substitution strips
+the newline, and gitlab.secrets.load keeps `base64` input short enough not to wrap.
 */}}
 
 {{/*

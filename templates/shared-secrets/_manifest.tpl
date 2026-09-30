@@ -399,6 +399,11 @@ Usage:
 {{-         fail (printf "shared-secrets: random generator %q in entry %q must set a charset" (default "" $generator.key) $entry.name) -}}
 {{-       end -}}
 {{-     end -}}
+{{/*    Above 57 characters the Job's GNU `base64` wraps at 76 columns, and the unquoted
+        value splits in two: creating the Secret fails and patching a key truncates it. */}}
+{{-     if and (eq $generator.type "random") (eq (default "none" $generator.encoding) "base64") (gt (int $generator.length) 57) -}}
+{{-       fail (printf "shared-secrets: random generator %q in entry %q must use base64-nowrap, not base64, for a length above 57" (default "" $generator.key) $entry.name) -}}
+{{-     end -}}
 {{-     if eq $generator.type "railsSecrets" -}}
 {{-       range $field := $generator.fields -}}
 {{-         if and (ne $field.shape "pem") (not $field.charset) -}}
