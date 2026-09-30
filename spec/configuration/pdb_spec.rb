@@ -43,6 +43,32 @@ describe 'PodDisruptionBudget configuration' do
       end
     end
 
+    context 'when cluster reports only policy/v1beta1' do
+      let :helm_args do
+        '--api-versions=policy/v1beta1/PodDisruptionBudget'
+      end
+
+      it 'uses policy/v1' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        expect(api_versions.values).to all(eq 'policy/v1')
+      end
+    end
+
+    context 'when global override is policy/v1beta1' do
+      let :values do
+        YAML.safe_load(%(
+          global:
+            pdb:
+              apiVersion: policy/v1beta1
+        ))
+      end
+
+      it 'uses policy/v1beta1' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        expect(api_versions.values).to all(eq 'policy/v1beta1')
+      end
+    end
+
     context 'when global override is set' do
       let :values do
         YAML.safe_load(%(
