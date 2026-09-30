@@ -14,9 +14,7 @@ It expects a dictionary with three entries:
 {{-     .local.apiVersion -}}
 {{-   else if .global.apiVersion -}}
 {{-     .global.apiVersion -}}
-{{-   else if .context.Capabilities.APIVersions.Has "policy/v1/PodDisruptionBudget" -}}
-{{-     print "policy/v1" -}}
 {{-   else -}}
-{{-     print "policy/v1beta1" -}}
+{{-     print "policy/v1" -}}
 {{-   end -}}
 {{- end -}}
