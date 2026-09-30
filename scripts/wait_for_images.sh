@@ -44,7 +44,7 @@ components=(gitlab-rails-ee gitlab-webservice-ee gitlab-workhorse-ee gitlab-side
 # ${CNG_REGISTRY%%/*} will get registry domain from the entire path. It
 # essentially says "delete the longest substring starting with a forward slash
 # from the end of the CNG_REGISTRY variable"
-skopeo login -u ${CNG_REGISTRY_USERNAME:-gitlab-ci-token} -p ${CNG_REGISTRY_PASSWORD:-$CI_JOB_TOKEN} ${CNG_REGISTRY%%/*}
+printf '%s' "${CNG_REGISTRY_PASSWORD:-$CI_JOB_TOKEN}" | skopeo login -u "${CNG_REGISTRY_USERNAME:-gitlab-ci-token}" --password-stdin "${CNG_REGISTRY%%/*}"
 
 for component in "${components[@]}"; do
   image="${CNG_REGISTRY}/${component}:${wait_on_version}"
