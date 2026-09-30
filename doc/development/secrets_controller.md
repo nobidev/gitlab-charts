@@ -82,8 +82,9 @@ The third and fourth rules matter most for Secrets a user created by hand, and f
 that predate a chart version which added a key. Filling in only what is missing is what
 makes those upgrades work.
 
-This matches `generate_secret_if_needed` in the Job, and the Job's Role, which grants
-`get`, `list`, `create`, and `patch` but deliberately not `update` or `delete`.
+The Job does not apply these rules to every Secret. For what it does, see
+[How the job treats existing secrets](../charts/shared-secrets.md#how-the-job-treats-existing-secrets).
+The Job's Role grants `get`, `list`, `create`, and `patch`, but not `update` or `delete`.
 
 Values are not rotated. `policy` exists so a future `rotate` can be added without changing
 the resource shape.
@@ -225,6 +226,10 @@ Reconciliation here is per field, not per key:
 - Generate a value only for fields that are absent or null.
 - Preserve every field already present, including fields the manifest does not declare.
 - Never shorten or reorder a list.
+
+The Job's merge differs from this list. It writes `secrets.yml` back from the declared
+fields under `env`, so it drops undeclared fields and the blocks of other environments. It
+also generates a field whose value is empty.
 
 The two `_key` fields are lists to support key rotation: the last key encrypts and every
 key decrypts, in order. Adding a key to the end and running a background re-encryption is

@@ -69,12 +69,16 @@ A user can point the chart at a differently named Secret, usually through a `sec
 such as `global.gitaly.authToken.secret`. That renames the Secret. It does not hand its
 contents over.
 
-Both backends still fill in missing keys, by design. A release that renamed a Secret years
-ago still picks up keys added to it in later chart versions, such as a new field inside the
-Rails `secrets.yml`. Skipping these secrets would break those upgrades silently.
+The job backend still generates renamed Secrets, by design. A release that renamed a Secret
+years ago still gets the literal keys and Rails fields that later chart versions add.
+Skipping these secrets would break those upgrades silently.
+The controller backend is told `policy: fill-missing`.
 
-Nothing is ever overwritten. `generate_secret_if_needed` patches in only the keys that are
-absent, and the controller backend is told `policy: fill-missing`.
+The job never overwrites an existing key. `generate_secret_if_needed` patches in only the
+missing keys it passes with `--from-literal`. It never patches a Secret it builds with
+`--from-file`. It rewrites the Rails `secrets.yml` from the declared fields. For the full
+behavior, see
+[How the job treats existing secrets](../charts/shared-secrets.md#how-the-job-treats-existing-secrets).
 
 ## Generator types
 
@@ -117,9 +121,17 @@ Numbers pass through `gitlab.secrets.load`, which coerces them with `int`. Helm 
 YAML numbers as float64 while the GitLab Operator's renderer uses int64. Without that
 coercion, `length: 4096` behaves differently in each.
 
-Generated secrets are never rotated. `generate_secret_if_needed` creates a secret once and
-afterwards only patches in keys that are missing, and the controller backend declares
-`policy: fill-missing` for the same reason. Adding a key to an existing secret is safe.
+Generated secrets are never rotated. `generate_secret_if_needed` creates a secret once.
+Afterwards it only patches in missing keys that it passes with `--from-literal`:
+
+- Adding a `random`, `static`, or `bytes` with `encoding: base64` key to an existing entry is
+  safe. Installed releases gain it on their next upgrade.
+- An `x509`, `rsa`, `sshHostKeys`, or `bytes` with `encoding: raw` key is loaded from a file.
+  The job never adds it to a Secret that already exists, so it reaches new installs only.
+- Adding a Rails field is safe. Removing one deletes it from the `secrets.yml` of every
+  installed release on its next upgrade, because the job writes back only the declared
+  fields.
+
 Changing the recipe for a key that already exists has no effect on installed releases.
 
 ## Document the secret

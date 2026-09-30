@@ -90,13 +90,16 @@ gen_random_bytes {{ int $generator.length }} > {{ $generator.file }}
 {{/*
 The Rails secret is the one entry that cannot use generate_secret_if_needed.
 
-Every other secret is created once and never touched again. This one has to survive
-partial content: fields are added to config/secrets.yml over releases, so the script
-reads whatever exists, generates only what is missing, and applies the merged result.
+generate_secret_if_needed creates every other secret once. Afterwards it only relabels it
+and patches in missing `--from-literal` keys; it never patches `--from-file` keys. This one
+has to survive partial content: fields are added to config/secrets.yml over releases, so
+the script reads whatever exists, generates only what is missing, and applies the result.
 Losing db_key_base here would make every encrypted column in the database unreadable.
 
-The field list comes from the manifest; the merge algorithm stays here because its
-semantics are fill-missing-leaves, never-overwrite, and never-shorten-a-list.
+The field list comes from the manifest; the merge algorithm stays here. It keeps every
+declared field that has a value, generates declared fields that are missing, null or
+empty, and keeps lists as they are. It writes the document back from the field list, so
+it drops undeclared fields and the blocks of every environment other than $env.
 
 Args: a manifest entry whose sole generator is of type railsSecrets.
 */}}

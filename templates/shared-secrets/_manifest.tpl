@@ -17,9 +17,11 @@ Entry fields
 ------------
   name          Secret name. Always resolve it through the existing name helper so the
                 generator and the consuming templates cannot drift. A user-supplied
-                `secret` value only renames the Secret; the chart still fills it in.
-                That is what lets a release pick up secret fields added in a later
-                version, such as a new key inside the Rails secrets.yml.
+                `secret` value only renames the Secret; the chart still generates it.
+                The job backend patches missing `--from-literal` keys and new Rails
+                fields into an existing Secret, which is what lets a release pick up
+                secret fields added in a later version. It never patches a Secret it
+                builds from files (x509, rsa, sshHostKeys, raw bytes).
   comment       Human-readable label, emitted as a shell comment by the job backend.
   generators    One or more generators. Most produce a single key; `x509` and
                 `sshHostKeys` produce several and name each one.
