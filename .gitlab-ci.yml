@@ -88,9 +88,6 @@ variables:
         apiVersion: policy/v1
       hpa:
         apiVersion: autoscaling/v2
-      batch:
-        cronJob:
-          apiVersion: batch/v1
       redis:
         host: redis.example.com
       psql:
