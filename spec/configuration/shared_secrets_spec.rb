@@ -241,41 +241,39 @@ describe 'shared-secrets provisioning' do
       context "with #{name}" do
         let(:base) { HelmTemplate.with_defaults(extra) }
 
-        it 'produces the same (secret, key) pairs under either provider' do
+        # One example, so each provider renders once per value set. aggregate_failures
+        # still reports every check below on its own.
+        it 'projects the same secrets, keys, and random recipes under either provider', :aggregate_failures do
           job = HelmTemplate.new(base)
           expect(job.exit_code).to eq(0), "Unexpected error code #{job.exit_code} -- #{job.stderr}"
 
           controller = HelmTemplate.new(as_controller(base))
           expect(controller.exit_code).to eq(0), "Unexpected error code #{controller.exit_code} -- #{controller.stderr}"
 
-          from_job = job_backend_pairs(generate_secrets_script(job))
-          from_controller = controller_backend_pairs(
-            controller.resources_by_kind('GitLabSecrets').values.first
-          )
-
-          expect(from_job).not_to be_empty
-          expect(from_controller.sort).to eq(from_job.sort)
-        end
-
-        it 'renders every random generator as the exact job recipe for its fields' do
-          # One generate_secret_if_needed call serves both of the job's paths: it creates
-          # the Secret, or patches in missing keys from the same arguments. Pinning the
-          # argument pins what either path stores.
-          job = HelmTemplate.new(base)
-          expect(job.exit_code).to eq(0), "Unexpected error code #{job.exit_code} -- #{job.stderr}"
-
-          controller = HelmTemplate.new(as_controller(base))
-          expect(controller.exit_code).to eq(0), "Unexpected error code #{controller.exit_code} -- #{controller.stderr}"
-
-          secrets = controller.resources_by_kind('GitLabSecrets').values.first['spec']['secrets']
-          expected = secrets.each_with_object({}) do |secret, recipes|
-            secret['generators'].select { |generator| generator['type'] == 'random' }.each do |generator|
-              recipes[[secret['name'], generator['key']]] = random_job_value(generator)
-            end
+          script = generate_secrets_script(job)
+          resource = controller.resources_by_kind('GitLabSecrets').values.first
+          randoms = resource['spec']['secrets'].flat_map do |secret|
+            secret['generators'].select { |generator| generator['type'] == 'random' }
+                                .map { |generator| [secret['name'], generator] }
           end
 
-          expect(expected).not_to be_empty
-          expect(job_backend_literals(generate_secrets_script(job)).slice(*expected.keys)).to eq(expected)
+          # The same (secret, key) pairs.
+          from_job = job_backend_pairs(script)
+          expect(from_job).not_to be_empty
+          expect(controller_backend_pairs(resource).sort).to eq(from_job.sort)
+
+          # A `random` encoding is none or base64: standard base64 with no wrapping and no
+          # newline under both backends.
+          encodings = randoms.map { |_, generator| generator['encoding'] }
+          expect(encodings).to include('base64')
+          expect(encodings).to all(be_nil.or(eq('none')).or(eq('base64')))
+
+          # The exact job recipe for each `random` generator's fields. One
+          # generate_secret_if_needed call serves both of the job's paths: it creates the
+          # Secret, or patches in missing keys from the same arguments. Pinning the
+          # argument pins what either path stores.
+          expected = randoms.to_h { |secret, generator| [[secret, generator['key']], random_job_value(generator)] }
+          expect(job_backend_literals(script).slice(*expected.keys)).to eq(expected)
         end
       end
     end
@@ -546,22 +544,8 @@ describe 'shared-secrets provisioning' do
       expect(bodies).to all(include('charset:'))
     end
 
-    # `base64` is standard base64 with no wrapping and no newline under both backends.
-    # The job's recipe for it is pinned in 'the two backends stay in step'.
-    value_matrix.each do |name, extra|
-      it "gives every random generator an encoding of none or base64 with #{name}" do
-        template = HelmTemplate.new(as_controller(HelmTemplate.with_defaults(extra)))
-        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-
-        encodings = template.resources_by_kind('GitLabSecrets').values.first['spec']['secrets']
-                            .flat_map { |secret| secret['generators'] }
-                            .select { |generator| generator['type'] == 'random' }
-                            .map { |generator| generator['encoding'] }
-
-        expect(encodings).to include('base64')
-        expect(encodings).to all(be_nil.or(eq('none')).or(eq('base64')))
-      end
-    end
+    # Each `random` generator's encoding, and its job recipe, are checked per value set in
+    # 'the two backends stay in step', which already renders both providers.
   end
 
   describe 'conditional entries' do
