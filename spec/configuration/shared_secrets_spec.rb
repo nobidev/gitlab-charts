@@ -4,6 +4,7 @@ require 'spec_helper'
 require 'helm_template_helper'
 require 'yaml'
 require 'hash_deep_merge'
+require 'shellwords'
 
 describe 'shared-secrets provisioning' do
   let(:default_values) { HelmTemplate.with_defaults('{}') }
@@ -315,6 +316,123 @@ describe 'shared-secrets provisioning' do
       names = template.resources_by_kind('GitLabSecrets').values.first['spec']['secrets'].map { |s| s['name'] }
       expect(names).to include('my-gitaly', 'my-shell')
       expect(names).not_to include('test-gitaly-secret')
+    end
+  end
+
+  describe 'a user-supplied name or key that YAML would read as another type' do
+    # gitlab.secrets.load parses the manifest with fromYamlArray, so a bare `0777` becomes
+    # the integer 511 and a bare `null` becomes nothing. Each of these is a valid Secret
+    # name or key except `~`, which is here as the other spelling of YAML null.
+    retyped = %w[0777 null true yes on 1e3 ~ 1.0]
+
+    # The value paths whose helpers return bare output. Every other name and key helper
+    # the manifest uses already quotes its output.
+    paths = [
+      %w[global pages authSecret secret],
+      %w[global oauth gitlab-pages secret],
+      %w[global openbao httpAudit secret],
+      %w[global pages authSecret key],
+      %w[global oauth gitlab-pages appIdKey],
+      %w[global oauth gitlab-pages appSecretKey],
+      %w[global openbao httpAudit key],
+      %w[global openbao unseal currentKeyField]
+    ]
+
+    # Passed with --set-string, as a user quoting them in values.yaml would. HelmTemplate
+    # writes values with YAML.dump, which leaves `1e3` bare, and Helm reads that back as
+    # the float 1000 before any template runs.
+    def set_string_args(assigned)
+      assigned.map { |path, value| "--set-string #{Shellwords.escape("#{path.join('.')}=#{value}")}" }.join(' ')
+    end
+
+    def retyped_values
+      HelmTemplate.with_defaults(%(
+        global:
+          pages:
+            enabled: true
+            accessControl: true
+          openbao:
+            enabled: true
+            psql:
+              host: openbao-db.example.com
+              password:
+                secret: openbao-db-password
+        openbao:
+          install: true
+          config:
+            unseal:
+              static:
+                enabled: true
+      ))
+    end
+
+    # (secret, key, --from-* source) the job has to pass, in the order of `paths`.
+    def expected_arguments(assigned)
+      auth_secret, oauth_secret, audit_secret, auth_key, app_id_key, app_secret_key, audit_key, unseal_key = assigned.values
+      [
+        [auth_secret, auth_key, 'literal'],
+        [oauth_secret, app_id_key, 'literal'],
+        [oauth_secret, app_secret_key, 'literal'],
+        [audit_secret, audit_key, 'literal'],
+        ['test-openbao-unseal', unseal_key, 'file']
+      ]
+    end
+
+    # Rotate the strings across the paths so every (path, string) pair is rendered once,
+    # and no two Secret names in one render collide.
+    retyped.each_index do |offset|
+      assigned = paths.each_with_index.to_h { |path, index| [path, retyped[(offset + index) % retyped.size]] }
+
+      context "with #{assigned.values.first.inspect} as the Pages auth secret name" do
+        it 'passes the exact string to the job, unquoted inside the argument' do
+          template = HelmTemplate.new(retyped_values, 'test', set_string_args(assigned))
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          script = generate_secrets_script(template)
+          expected_arguments(assigned).each do |secret, key, source|
+            call = /^generate_secret_if_needed "#{Regexp.escape(secret)}" .*--from-#{source}=#{Regexp.escape(key)}=/
+            expect(script).to match(call)
+          end
+
+          assigned.each_value do |string|
+            expect(script).not_to include(%(\\"#{string}\\"), %(""#{string}""), %("\\"#{string}), %(="#{string}"=))
+          end
+        end
+
+        it 'gives the GitLabSecrets resource the same strings' do
+          template = HelmTemplate.new(as_controller(retyped_values), 'test', set_string_args(assigned))
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+          pairs = controller_backend_pairs(template.resources_by_kind('GitLabSecrets').values.first)
+          expected_arguments(assigned).each do |secret, key, _|
+            expect(pairs).to include([secret, key])
+          end
+
+          pairs.flatten.each do |string|
+            expect(string).to be_a(String)
+            expect(string).not_to start_with('"')
+          end
+        end
+      end
+    end
+
+    it 'does not quote twice what a quoting helper returns' do
+      values = HelmTemplate.with_defaults(%(
+        global:
+          gitaly:
+            authToken:
+              secret: "0777"
+              key: "null"
+      ))
+
+      job = HelmTemplate.new(values)
+      expect(job.exit_code).to eq(0), "Unexpected error code #{job.exit_code} -- #{job.stderr}"
+      expect(generate_secrets_script(job)).to include('generate_secret_if_needed "0777" --from-literal=null=')
+
+      controller = HelmTemplate.new(as_controller(values))
+      expect(controller.exit_code).to eq(0), "Unexpected error code #{controller.exit_code} -- #{controller.stderr}"
+      expect(controller_backend_pairs(controller.resources_by_kind('GitLabSecrets').values.first))
+        .to include(%w[0777 null])
     end
   end
 

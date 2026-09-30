@@ -41,6 +41,13 @@ They are job-backend detail and are stripped before the manifest reaches the con
   sshHostKeys  (no params; key names come from `ssh-keygen -A`)
   railsSecrets key, env, fields[] -- see the railsSecrets branch in _manifest_shell.tpl
 
+Every `name` and `key` must reach YAML as a double-quoted string, because
+`gitlab.secrets.load` parses this list and a bare `0777`, `1e3` or `null` would become a
+number or nothing. Most helpers already end in `| quote`. The ones that return bare output
+get `| quote` here instead. The OpenBao helpers cannot quote themselves, because
+values.yaml calls them inside single-quoted `tpl` strings. Never add `| quote` to a helper
+that already quotes: that stores the quote characters in the name.
+
 Numbers are consumed through `gitlab.secrets.load`, which coerces them with `int`.
 Helm decodes YAML numbers as float64 while the GitLab Operator's renderer uses int64,
 so without that coercion `length: 4096` would behave differently in each.
@@ -97,24 +104,24 @@ the controller backend and break the single source of truth.
 {{- end }}
 
 {{- if and (eq .Values.global.pages.enabled true) (eq .Values.global.pages.accessControl true) }}
-- name: {{ include "gitlab.pages.authSecret.secret" . }}
+- name: {{ include "gitlab.pages.authSecret.secret" . | quote }}
   comment: GitLab Pages auth secret for hashing cookie store when using access control
   generators:
     - type: random
-      key: {{ include "gitlab.pages.authSecret.key" . }}
+      key: {{ include "gitlab.pages.authSecret.key" . | quote }}
       charset: alphanumeric
       length: 64
       encoding: base64
 
-- name: {{ include "oauth.gitlab-pages.secret" . }}
+- name: {{ include "oauth.gitlab-pages.secret" . | quote }}
   comment: GitLab Pages OAuth secret
   generators:
     - type: random
-      key: {{ include "oauth.gitlab-pages.appIdKey" . }}
+      key: {{ include "oauth.gitlab-pages.appIdKey" . | quote }}
       charset: alphanumeric
       length: 64
     - type: random
-      key: {{ include "oauth.gitlab-pages.appSecretKey" . }}
+      key: {{ include "oauth.gitlab-pages.appSecretKey" . | quote }}
       charset: alphanumeric
       length: 64
 {{- end }}
@@ -287,18 +294,18 @@ the controller backend and break the single source of truth.
   comment: OpenBao static unseal key
   generators:
     - type: bytes
-      key: {{ include "gitlab.openbao.unseal.key" . }}
+      key: {{ include "gitlab.openbao.unseal.key" . | quote }}
       length: 32
       encoding: raw
       file: bao-unseal
 {{- end }}
 
 {{- if or .Values.openbao.install .Values.global.openbao.enabled }}
-- name: {{ include "gitlab.openbao.authenticationTokenSecretFilePath.secret" . }}
+- name: {{ include "gitlab.openbao.authenticationTokenSecretFilePath.secret" . | quote }}
   comment: Authentication token secret for Openbao Rails requests
   generators:
     - type: random
-      key: {{ include "gitlab.openbao.authenticationTokenSecretFilePath.key" . }}
+      key: {{ include "gitlab.openbao.authenticationTokenSecretFilePath.key" . | quote }}
       charset: alphanumeric
       length: 32
 {{- end }}
