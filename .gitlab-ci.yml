@@ -84,8 +84,6 @@ variables:
     global:
       ingress:
         apiVersion: networking.k8s.io/v1
-      pdb:
-        apiVersion: policy/v1
       hpa:
         apiVersion: autoscaling/v2
       batch:
