@@ -132,26 +132,13 @@ describe 'GitLab HPA configuration(s)' do
     end
 
     context 'when not specified (without cluster connection)' do
-      it 'sets default version (autoscaling/v2beta1)' do
+      it 'sets default version (autoscaling/v2)' do
         template = HelmTemplate.new(enable_all_hpas)
         expect(template.exit_code).to eq(0)
 
         hpa_names.each do |hpa_name|
           api_version = get_api_version(template, hpa_name)
-          expect(api_version).to eq("autoscaling/v2beta1")
-        end
-      end
-    end
-
-    context 'when not specified (with cluster connection)' do
-      it 'sets highest cluster-supported version' do
-        api_versions_args = "--api-versions=autoscaling/v2beta1/HorizontalPodAutoscaler --api-versions=autoscaling/v2beta2/HorizontalPodAutoscaler --api-versions=autoscaling/v2/HorizontalPodAutoscaler"
-        template = HelmTemplate.new(enable_all_hpas, 'test', api_versions_args)
-        expect(template.exit_code).to eq(0)
-
-        hpa_names.each do |hpa_name|
-          api_version = get_api_version(template, hpa_name)
-          expect(api_version).to eq('autoscaling/v2')
+          expect(api_version).to eq("autoscaling/v2")
         end
       end
     end
