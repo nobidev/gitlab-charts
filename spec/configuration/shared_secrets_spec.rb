@@ -362,6 +362,15 @@ describe 'shared-secrets provisioning' do
       expect(entry.dig('authority', 'keySize')).to be_a(Integer)
     end
 
+    it 'states the validity the Job issues' do
+      # The Job's cfssl-self-sign never receives selfsign.expiry (charts/gitlab#6693), so
+      # it issues a 1825-day authority and a 365-day wildcard certificate.
+      entry = certificates('{}').first
+      expect(entry['caDays']).to eq(1825)
+      expect(entry['certDays']).to eq(365)
+      expect(entry['authority']).not_to have_key('expiry')
+    end
+
     {
       'cert-manager is configured' => %(
         global:

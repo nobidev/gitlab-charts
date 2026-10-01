@@ -255,8 +255,9 @@ spec:
         organizationalUnit: <release>
         algorithm: rsa
         keySize: 4096
-        expiry: 3650d
       domain: example.com
+      caDays: 1825
+      certDays: 365
       tlsSecret: RELEASE-wildcard-tls
       caSecret: RELEASE-wildcard-tls-ca
       caKey: cfssl_ca
@@ -277,6 +278,10 @@ The entry is absent when cert-manager is configured, when a certificate is suppl
 `global.ingress.tls.secretName`, or when TLS is disabled. Under `provider: job` the same
 three Secrets come from `templates/shared-secrets/self-signed-cert-job.yml`, which runs the
 `cfssl-self-sign` image. Match what that image produces.
+
+`caDays` and `certDays` give the validity, in days, of the authority and of the wildcard
+certificate. The chart sets them to what the Job issues, and `shared-secrets.selfsign.expiry`
+applies to neither backend ([issue 6693](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6693)).
 
 `fill-missing` applies here too: do not reissue a certificate that already exists. The Job
 never renews, so renewal on expiry would be new behavior. Decide it deliberately rather
