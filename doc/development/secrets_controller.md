@@ -206,7 +206,8 @@ of Rails secrets nested under the Rails environment name:
 production:
   secret_key_base: <128 hex characters>
   otp_key_base: <128 hex characters>
-  db_key_base: <128 hex characters>
+  db_key_base:
+    - <128 hex characters>
   encrypted_settings_key_base: <128 hex characters>
   openid_connect_signing_key: |
     -----BEGIN PRIVATE KEY-----
@@ -228,6 +229,11 @@ Each entry in `fields` has a `path`, and a `shape` of `scalar`, `pem`, or `list`
 uses `charset` and `length`. A `pem` uses `bits`. A `list` uses `charset` and `length` to
 produce a single-element list.
 
+A `list` with `acceptsScalar: true` is generated as a single-element list, but the existing
+value may be a string. Secrets created before the field became a list hold a string. Accept
+either type for that field. Never convert a string into a list, or a list into a string.
+`db_key_base` is the only such field.
+
 Reconciliation here is per field, not per key:
 
 - Parse the existing `secrets.yml` if the Secret exists.
@@ -243,6 +249,10 @@ The two `_key` fields are lists to support key rotation: the last key encrypts a
 key decrypts, in order. Adding a key to the end and running a background re-encryption is
 the supported rotation path. Truncating either list makes existing data unreadable. For
 more information, see [issue 494976](https://gitlab.com/gitlab-org/gitlab/-/issues/494976).
+
+`db_key_base` is a list for the same reason: the last key encrypts and every key decrypts.
+Its rotation is not supported yet. For more information, see
+[issue 631573](https://gitlab.com/gitlab-org/gitlab/-/work_items/631573).
 
 ## Certificates
 

@@ -5,6 +5,8 @@ require 'helm_template_helper'
 require 'yaml'
 require 'hash_deep_merge'
 require 'shellwords'
+require 'open3'
+require 'tmpdir'
 
 describe 'shared-secrets provisioning' do
   let(:default_values) { HelmTemplate.with_defaults('{}') }
@@ -146,6 +148,107 @@ describe 'shared-secrets provisioning' do
         expect(script).not_to include(%(#{field}:\n        $#{field}\n))
       end
     end
+
+    it 'generates db_key_base as a list but renders it as a list or a string' do
+      script = generate_secrets_script(template)
+
+      expect(script).to include(%(db_key_base=${db_key_base:-"- $(gen_random 'a-f0-9' 128)"}))
+      expect(script).to include(%(db_key_base: $(render_rails_scalar_or_list "${db_key_base}" "        ")))
+      expect(script).not_to include(%(db_key_base: $db_key_base\n))
+    end
+
+    # Runs the Rails secret merge from the rendered script against a stubbed kubectl, so
+    # the YAML that would be applied can be read back. fetch_rails_value needs mikefarah's
+    # yq v4, which the Job's image ships; skip where it is not installed.
+    describe 'merging db_key_base into an existing Rails secret' do
+      let(:script) { generate_secrets_script(template) }
+      let(:yq_v4) do
+        out, status = Open3.capture2e('yq', '--version')
+        status.success? && out.match?(/mikefarah.*version v?4\./)
+      rescue Errno::ENOENT
+        false
+      end
+
+      before do
+        skip 'mikefarah yq v4 is not installed' unless yq_v4
+      end
+
+      def merge_rails_secret(script, existing)
+        Dir.mktmpdir do |dir|
+          functions = script.scan(/^function \w+\(\)\{\n.*?^\}$/m).join("\n")
+          rails = script[/^if \[ -n "\$env" \]; then\n.*?^fi$/m]
+
+          File.write(File.join(dir, 'existing.yml'), existing) if existing
+          File.write(File.join(dir, 'kubectl'), <<~'SH')
+            #!/usr/bin/env bash
+            case "$*" in
+              *"get secret"*"-o jsonpath"*) base64 < "$DIR/existing.yml" ;;
+              *"get secret"*) [ -f "$DIR/existing.yml" ] ;;
+              *apply*) cp "${@: -1}" "$DIR/applied.yml" ;;
+            esac
+          SH
+          File.chmod(0o755, File.join(dir, 'kubectl'))
+          File.write(File.join(dir, 'run.sh'), <<~SH)
+            set -e
+            namespace=test
+            env=production
+            #{functions}
+            function label_secret(){ :; }
+            function gen_random(){ echo generated; }
+            function openssl(){ echo pem; }
+            cd "$(mktemp -d)"
+            #{rails}
+          SH
+
+          _, stderr, status = Open3.capture3({ 'DIR' => dir, 'PATH' => "#{dir}:#{ENV.fetch('PATH')}" },
+                                             'bash', File.join(dir, 'run.sh'))
+          expect(status).to be_success, stderr
+
+          applied = YAML.safe_load(File.read(File.join(dir, 'applied.yml')))
+          YAML.safe_load(applied.dig('stringData', 'secrets.yml')).fetch('production')
+        end
+      end
+
+      it 'generates a list of one key on a fresh install' do
+        expect(merge_rails_secret(script, nil)['db_key_base']).to eq(%w[generated])
+      end
+
+      it 'keeps an existing string as a string' do
+        existing = "production:\n  db_key_base: oldkey\n"
+
+        expect(merge_rails_secret(script, existing)['db_key_base']).to eq('oldkey')
+      end
+
+      it 'keeps an existing string as a string across repeated upgrades' do
+        existing = "production:\n  db_key_base: oldkey\n"
+        first = merge_rails_secret(script, existing)
+        second = merge_rails_secret(script, { 'production' => first }.to_yaml)
+
+        expect(second).to eq(first)
+        expect(second['db_key_base']).to eq('oldkey')
+      end
+
+      it 'keeps an existing list, in order' do
+        existing = "production:\n  db_key_base:\n    - oldkey\n    - newkey\n    - thirdkey\n"
+
+        expect(merge_rails_secret(script, existing)['db_key_base']).to eq(%w[oldkey newkey thirdkey])
+      end
+
+      it 'keeps a list written in flow style' do
+        existing = "production:\n  db_key_base: [newkey, oldkey]\n"
+
+        expect(merge_rails_secret(script, existing)['db_key_base']).to eq(%w[newkey oldkey])
+      end
+
+      it 'keeps the list across repeated upgrades' do
+        existing = "production:\n  db_key_base:\n    - newkey\n    - oldkey\n"
+        first = merge_rails_secret(script, existing)
+        second = merge_rails_secret(script, { 'production' => first }.to_yaml)
+
+        expect(second).to eq(first)
+        expect(second['db_key_base']).to eq(%w[newkey oldkey])
+      end
+    end
   end
 
   describe 'provider: controller' do
@@ -196,6 +299,15 @@ describe 'shared-secrets provisioning' do
           end
         end
       end
+    end
+
+    it 'tells the controller that db_key_base is a list that may hold a string' do
+      fields = resource['spec']['secrets'].find { |s| s['name'] == 'test-rails-secret' }
+                                          .dig('generators', 0, 'fields')
+      db_key_base = fields.find { |field| field['path'] == 'db_key_base' }
+
+      expect(db_key_base).to include('shape' => 'list', 'acceptsScalar' => true)
+      expect(fields.reject { |field| field['path'] == 'db_key_base' }).to all(satisfy { |f| !f.key?('acceptsScalar') })
     end
 
     it 'keeps numeric parameters as integers' do

@@ -212,8 +212,14 @@ the controller backend and break the single source of truth.
           charset: hex
           length: 128
           note: equivalent to secureRandom.hex(64)
+        # db_key_base is a YAML list on new installs, so that a key can be added later to
+        # rotate it: the last key encrypts, every key decrypts. Installs from before this
+        # change hold a single string, which is kept as it is and never turned into a list.
+        # Requires GitLab 19.5 or later, which reads the value only through Array().
+        # See https://gitlab.com/gitlab-org/gitlab/-/work_items/631573
         - path: db_key_base
-          shape: scalar
+          shape: list
+          acceptsScalar: true
           charset: hex
           length: 128
           note: equivalent to secureRandom.hex(64)

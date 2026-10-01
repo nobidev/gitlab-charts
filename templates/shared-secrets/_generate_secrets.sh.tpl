@@ -35,6 +35,17 @@ function fetch_rails_value(){
   if [ "${value}" != "null" ]; then echo "${value}"; fi
 }
 
+# Args: value, indent
+# Renders the value of a Rails secret that may be a string or a list. A string stays on
+# the key's line. A list, as fetch_rails_value prints it, starts on the next line with
+# every entry indented, so that its order and every entry survive.
+function render_rails_scalar_or_list(){
+  case "${1}" in
+    "- "*) echo; echo "${1}" | awk -v indent="${2}" '{print indent $0}' ;;
+    *) echo "${1}" ;;
+  esac
+}
+
 # Args: secretname
 function label_secret(){
   local secret_name=$1

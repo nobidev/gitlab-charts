@@ -220,6 +220,7 @@ This secret is referenced by the `global.praefect.authToken.secret` setting.
 {{< history >}}
 
 - The `active_record_encryption_*` keys were added in [GitLab 17.8](../releases/8_0.md#upgrade-to-880).
+- `db_key_base` generated as a list in chart version 10.5.
 
 {{< /history >}}
 
@@ -230,7 +231,8 @@ cat << EOF > secrets.yml
 production:
   secret_key_base: $(LC_CTYPE=C </dev/urandom tr -cd 'a-f0-9' | head -c 128)
   otp_key_base: $(LC_CTYPE=C </dev/urandom tr -cd 'a-f0-9' | head -c 128)
-  db_key_base: $(LC_CTYPE=C </dev/urandom tr -cd 'a-f0-9' | head -c 128)
+  db_key_base:
+    - $(LC_CTYPE=C </dev/urandom tr -cd 'a-f0-9' | head -c 128)
   encrypted_settings_key_base: $(LC_CTYPE=C </dev/urandom tr -cd 'a-f0-9' | head -c 128)
   openid_connect_signing_key: |
 $(openssl genrsa 2048 | awk '{print "    " $0}')
@@ -246,8 +248,15 @@ kubectl create secret generic <name>-rails-secret --from-file=secrets.yml
 
 This secret is referenced by the `global.railsSecrets.secret` setting.
 
+`db_key_base` is a list of keys. The shared-secrets job generates it as a list of one key. Secrets
+created before chart version 10.5 hold `db_key_base` as a single string. The shared-secrets job keeps
+that string as it is, and both forms work.
+
 It is not recommended to rotate this secret as it contains the database encryption keys. If the secret is
 rotated, the result will be the same behavior exhibited [when the secrets file is lost](https://docs.gitlab.com/administration/backup_restore/troubleshooting_backup_gitlab/#when-the-secrets-file-is-lost).
+Support for rotating `db_key_base` is being implemented, and is not ready yet. Until it is, do not add
+keys to the `db_key_base` list. For more information, see
+[epic 23829](https://gitlab.com/groups/gitlab-org/-/work_items/23829).
 
 ### GitLab Workhorse secret
 
