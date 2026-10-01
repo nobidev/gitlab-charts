@@ -19,6 +19,18 @@ describe 'shared-secrets provisioning' do
           accessControl: true
         praefect:
           enabled: true
+        openbao:
+          psql:
+            host: openbao-db.example.com
+            password:
+              secret: openbao-db-password
+              key: password
+      openbao:
+        install: true
+        config:
+          unseal:
+            static:
+              enabled: true
     ))
   end
 
@@ -126,8 +138,8 @@ describe 'shared-secrets provisioning' do
       expect(resource['kind']).to eq('GitLabSecrets')
     end
 
-    it 'declares the never-rotate policy' do
-      expect(resource.dig('spec', 'policy')).to eq('fill-missing')
+    it "declares no policy, since fill-missing is the controller's fixed behavior" do
+      expect(resource['spec']).not_to have_key('policy')
     end
 
     it 'renders no hook Job, ConfigMap, or RBAC' do
@@ -168,6 +180,29 @@ describe 'shared-secrets provisioning' do
       expect(lengths).not_to be_empty
       expect(lengths).to all(be_a(Integer))
     end
+
+    context 'with every generator tied to persisted state enabled' do
+      let(:values) { as_controller(all_features) }
+
+      it 'marks exactly those generators persistent' do
+        # The controller reports, rather than regenerates, a missing value tied to
+        # persisted state. It cannot recognize these generators by type.
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        marked = resource['spec']['secrets'].flat_map do |secret|
+          secret['generators'].select { |generator| generator.key?('persistent') }
+                              .map { |generator| [secret['name'], generator['key'], generator['persistent']] }
+        end
+
+        expect(marked).to contain_exactly(
+          ['test-gitlab-runner-secret', 'runner-registration-token', true],
+          ['test-oauth-gitlab-pages-secret', 'appid', true],
+          ['test-oauth-gitlab-pages-secret', 'appsecret', true],
+          ['test-praefect-dbsecret', 'secret', true],
+          ['test-openbao-unseal', 'key', true]
+        )
+      end
+    end
   end
 
   describe 'the two backends stay in step' do
@@ -183,6 +218,18 @@ describe 'shared-secrets provisioning' do
             accessControl: true
           praefect:
             enabled: true
+          openbao:
+            psql:
+              host: openbao-db.example.com
+              password:
+                secret: openbao-db-password
+                key: password
+        openbao:
+          install: true
+          config:
+            unseal:
+              static:
+                enabled: true
       ),
       'praefect with an external database' => %(
         global:
@@ -225,7 +272,7 @@ describe 'shared-secrets provisioning' do
     # Both backends still fill it in, which is what lets an existing release pick up
     # secret fields added in a later chart version -- a new key inside the Rails
     # secrets.yml, for instance. Nothing is ever overwritten: the job patches in only
-    # missing keys, and the controller is told `policy: fill-missing`.
+    # missing keys, and the controller does the same.
     let(:values) do
       HelmTemplate.with_defaults(%(
         global:
@@ -315,6 +362,15 @@ describe 'shared-secrets provisioning' do
       expect(entry.dig('authority', 'keySize')).to be_a(Integer)
     end
 
+    it 'states the validity the Job issues' do
+      # The Job's cfssl-self-sign never receives selfsign.expiry (charts/gitlab#6693), so
+      # it issues a 1825-day authority and a 365-day wildcard certificate.
+      entry = certificates('{}').first
+      expect(entry['caDays']).to eq(1825)
+      expect(entry['certDays']).to eq(365)
+      expect(entry['authority']).not_to have_key('expiry')
+    end
+
     {
       'cert-manager is configured' => %(
         global:
@@ -366,6 +422,15 @@ describe 'shared-secrets provisioning' do
 
       expect(bodies).not_to be_empty
       expect(bodies).to all(include('charset:'))
+    end
+
+    it 'keeps the persistent marker out of the Job' do
+      # `persistent` is controller-only. A spec cannot inject a manifest entry, so assert
+      # the shell projection never reads the field.
+      %w[_manifest_shell.tpl _generate_secrets.sh.tpl].each do |file|
+        source = File.read("templates/shared-secrets/#{file}")
+        expect(source).not_to include('persistent'), "#{file} references `persistent`"
+      end
     end
   end
 

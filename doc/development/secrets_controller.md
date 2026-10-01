@@ -38,7 +38,6 @@ metadata:
   name: gitlab
   namespace: gitlab-system
 spec:
-  policy: fill-missing
   secrets:
     - name: gitlab-gitaly-secret
       type: Opaque
@@ -51,7 +50,8 @@ spec:
 
 Some names in `spec.secrets` may have been chosen by the user rather than derived from the
 release name. A `secret` value in the chart's values renames a Secret but does not exempt it
-from generation, so treat every entry the same way. `fill-missing` is what makes this safe.
+from generation, so treat every entry the same way. Filling in only missing keys is what
+makes this safe.
 
 ## Requirements
 
@@ -71,7 +71,7 @@ survive `helm uninstall` for exactly this reason. The controller must preserve t
 
 ### Never overwrite an existing value
 
-`spec.policy: fill-missing` is the only policy the chart emits. It means:
+Fill in what is missing and change nothing else:
 
 - If the Secret does not exist, create it and generate every key.
 - If the Secret exists but a declared key is absent, generate and add only that key.
@@ -85,8 +85,7 @@ makes those upgrades work.
 This matches `generate_secret_if_needed` in the Job, and the Job's Role, which grants
 `get`, `list`, `create`, and `patch` but deliberately not `update` or `delete`.
 
-Values are not rotated. `policy` exists so a future `rotate` can be added without changing
-the resource shape.
+Values are not rotated.
 
 ### Label the Secrets
 
@@ -113,6 +112,15 @@ status:
     - name: gitlab-gitaly-secret
       ready: true
 ```
+
+### Do not regenerate a persistent value
+
+Any generator can set `persistent: true`. Without it, generate the value whenever it is
+missing. With it, generate the value only until you have reported it ready. After that,
+never regenerate a missing value. Report it as missing in `status` instead.
+
+Marked values are copied into the GitLab database, a PostgreSQL role, or OpenBao storage,
+so a fresh value loses data or access. The Job ignores the field.
 
 ## Generator types
 
@@ -246,8 +254,9 @@ spec:
         organizationalUnit: <release>
         algorithm: rsa
         keySize: 4096
-        expiry: 3650d
       domain: example.com
+      caDays: 1825
+      certDays: 365
       tlsSecret: RELEASE-wildcard-tls
       caSecret: RELEASE-wildcard-tls-ca
       caKey: cfssl_ca
@@ -269,9 +278,13 @@ The entry is absent when cert-manager is configured, when a certificate is suppl
 three Secrets come from `templates/shared-secrets/self-signed-cert-job.yml`, which runs the
 `cfssl-self-sign` image. Match what that image produces.
 
-`fill-missing` applies here too: do not reissue a certificate that already exists. The Job
-never renews, so renewal on expiry would be new behavior. Decide it deliberately rather
-than inheriting it by accident.
+`caDays` and `certDays` give the validity, in days, of the authority and of the wildcard
+certificate. The chart sets them to what the Job issues, and `shared-secrets.selfsign.expiry`
+applies to neither backend ([issue 6693](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6693)).
+
+The [never-overwrite rule](#never-overwrite-an-existing-value) applies here too: do not
+reissue a certificate that already exists. The Job never renews, so renewal on expiry would
+be new behavior. Decide it deliberately rather than inheriting it by accident.
 
 ## Validate the rendered resource
 
