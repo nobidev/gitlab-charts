@@ -17,9 +17,11 @@ Entry fields
 ------------
   name          Secret name. Always resolve it through the existing name helper so the
                 generator and the consuming templates cannot drift. A user-supplied
-                `secret` value only renames the Secret; the chart still fills it in.
-                That is what lets a release pick up secret fields added in a later
-                version, such as a new key inside the Rails secrets.yml.
+                `secret` value only renames the Secret; the chart still generates it.
+                The job backend patches missing `--from-literal` keys and new Rails
+                fields into an existing Secret, which is what lets a release pick up
+                secret fields added in a later version. It never patches a Secret it
+                builds from files (x509, rsa, sshHostKeys, raw bytes).
   comment       Human-readable label, emitted as a shell comment by the job backend.
   generators    One or more generators. Most produce a single key; `x509` and
                 `sshHostKeys` produce several and name each one.
@@ -27,7 +29,7 @@ Entry fields
 Generator types
 ---------------
   random       key, charset (alphanumeric|hex|lowerAlphanumeric), length,
-               encoding (none|base64|base64-nowrap), wrap (none|jsonArray)
+               encoding (none|base64), wrap (none|jsonArray)
   bytes        key, length, encoding (raw|base64). `raw` also needs `file`, the scratch
                filename the job writes the bytes to before loading them.
   static       key, value
@@ -40,6 +42,13 @@ They are job-backend detail and are stripped before the manifest reaches the con
   railsSecrets key, env, fields[] -- see the railsSecrets branch in _manifest_shell.tpl
   (any)        persistent: true for a value tied to persisted state. Controller-only:
                the Job ignores it. See doc/development/secrets_controller.md.
+
+Every `name` and `key` must reach YAML as a double-quoted string, because
+`gitlab.secrets.load` parses this list and a bare `0777`, `1e3` or `null` would become a
+number or nothing. Most helpers already end in `| quote`. The ones that return bare output
+get `| quote` here instead. The OpenBao helpers cannot quote themselves, because
+values.yaml calls them inside single-quoted `tpl` strings. Never add `| quote` to a helper
+that already quotes: that stores the quote characters in the name.
 
 Numbers are consumed through `gitlab.secrets.load`, which coerces them with `int`.
 Helm decodes YAML numbers as float64 while the GitLab Operator's renderer uses int64,
@@ -98,25 +107,25 @@ the controller backend and break the single source of truth.
 {{- end }}
 
 {{- if and (eq .Values.global.pages.enabled true) (eq .Values.global.pages.accessControl true) }}
-- name: {{ include "gitlab.pages.authSecret.secret" . }}
+- name: {{ include "gitlab.pages.authSecret.secret" . | quote }}
   comment: GitLab Pages auth secret for hashing cookie store when using access control
   generators:
     - type: random
-      key: {{ include "gitlab.pages.authSecret.key" . }}
+      key: {{ include "gitlab.pages.authSecret.key" . | quote }}
       charset: alphanumeric
       length: 64
-      encoding: base64-nowrap
+      encoding: base64
 
-- name: {{ include "oauth.gitlab-pages.secret" . }}
+- name: {{ include "oauth.gitlab-pages.secret" . | quote }}
   comment: GitLab Pages OAuth secret
   generators:
     - type: random
-      key: {{ include "oauth.gitlab-pages.appIdKey" . }}
+      key: {{ include "oauth.gitlab-pages.appIdKey" . | quote }}
       charset: alphanumeric
       length: 64
       persistent: true
     - type: random
-      key: {{ include "oauth.gitlab-pages.appSecretKey" . }}
+      key: {{ include "oauth.gitlab-pages.appSecretKey" . | quote }}
       charset: alphanumeric
       length: 64
       persistent: true
@@ -254,7 +263,7 @@ the controller backend and break the single source of truth.
       key: {{ include "gitlab.registry.httpSecret.key" . }}
       charset: lowerAlphanumeric
       length: 128
-      encoding: base64-nowrap
+      encoding: base64
 
 - name: {{ include "gitlab.registry.notificationSecret.secret" . }}
   comment: Container Registry notification_secret
@@ -291,7 +300,7 @@ the controller backend and break the single source of truth.
   comment: OpenBao static unseal key
   generators:
     - type: bytes
-      key: {{ include "gitlab.openbao.unseal.key" . }}
+      key: {{ include "gitlab.openbao.unseal.key" . | quote }}
       length: 32
       encoding: raw
       file: bao-unseal
@@ -299,11 +308,11 @@ the controller backend and break the single source of truth.
 {{- end }}
 
 {{- if or .Values.openbao.install .Values.global.openbao.enabled }}
-- name: {{ include "gitlab.openbao.authenticationTokenSecretFilePath.secret" . }}
+- name: {{ include "gitlab.openbao.authenticationTokenSecretFilePath.secret" . | quote }}
   comment: Authentication token secret for Openbao Rails requests
   generators:
     - type: random
-      key: {{ include "gitlab.openbao.authenticationTokenSecretFilePath.key" . }}
+      key: {{ include "gitlab.openbao.authenticationTokenSecretFilePath.key" . | quote }}
       charset: alphanumeric
       length: 32
 {{- end }}

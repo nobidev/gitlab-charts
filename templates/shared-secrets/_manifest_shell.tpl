@@ -12,9 +12,8 @@ Two templates per entry:
                                 (openssl, ssh-keygen, writing random bytes to a file)
   gitlab.secrets.shell.args     the kubectl argument list
 
-Recipes reproduce what the hand-written script did, including the base64 spellings:
-`base64` wraps at 76 columns and appends a newline, `base64 -w0` does neither. The two
-are kept distinct so existing installs see no change in value shape.
+Recipes reproduce what the hand-written script did. `encoding: base64` is standard base64
+with no line wrapping and no trailing newline, the same as `bytes` with `encoding: base64`.
 */}}
 
 {{/*
@@ -39,8 +38,6 @@ in shell would reach the controller as absent, leaving it to apply a default of 
 {{-   $raw := printf "gen_random '%s' %d" $charset (int .length) -}}
 {{-   $encoding := default "none" .encoding -}}
 {{-   if eq $encoding "base64" -}}
-{{-     $raw = printf "%s | base64" $raw -}}
-{{-   else if eq $encoding "base64-nowrap" -}}
 {{-     $raw = printf "%s | base64 -w 0" $raw -}}
 {{-   else if ne $encoding "none" -}}
 {{-     fail (printf "shared-secrets: unknown encoding %q" $encoding) -}}
@@ -93,13 +90,16 @@ gen_random_bytes {{ int $generator.length }} > {{ $generator.file }}
 {{/*
 The Rails secret is the one entry that cannot use generate_secret_if_needed.
 
-Every other secret is created once and never touched again. This one has to survive
-partial content: fields are added to config/secrets.yml over releases, so the script
-reads whatever exists, generates only what is missing, and applies the merged result.
+generate_secret_if_needed creates every other secret once. Afterwards it only relabels it
+and patches in missing `--from-literal` keys; it never patches `--from-file` keys. This one
+has to survive partial content: fields are added to config/secrets.yml over releases, so
+the script reads whatever exists, generates only what is missing, and applies the result.
 Losing db_key_base here would make every encrypted column in the database unreadable.
 
-The field list comes from the manifest; the merge algorithm stays here because its
-semantics are fill-missing-leaves, never-overwrite, and never-shorten-a-list.
+The field list comes from the manifest; the merge algorithm stays here. It keeps every
+declared field that has a value, generates declared fields that are missing, null or
+empty, and keeps lists as they are. It writes the document back from the field list, so
+it drops undeclared fields and the blocks of every environment other than $env.
 
 Args: a manifest entry whose sole generator is of type railsSecrets.
 */}}

@@ -69,12 +69,16 @@ A user can point the chart at a differently named Secret, usually through a `sec
 such as `global.gitaly.authToken.secret`. That renames the Secret. It does not hand its
 contents over.
 
-Both backends still fill in missing keys, by design. A release that renamed a Secret years
-ago still picks up keys added to it in later chart versions, such as a new field inside the
-Rails `secrets.yml`. Skipping these secrets would break those upgrades silently.
+The job backend still generates renamed Secrets, by design. A release that renamed a Secret
+years ago still gets the literal keys and Rails fields that later chart versions add.
+Skipping these secrets would break those upgrades silently.
 
-Nothing is ever overwritten. `generate_secret_if_needed` patches in only the keys that are
-absent, and the controller backend does the same.
+The job never overwrites an existing key. `generate_secret_if_needed` patches in only the
+missing keys it passes with `--from-literal`. It never patches a Secret it builds with
+`--from-file`. It rewrites the Rails `secrets.yml` from the declared fields. For the full
+behavior, see
+[How the job treats existing secrets](../charts/shared-secrets.md#how-the-job-treats-existing-secrets).
+The controller backend fills in missing keys.
 
 ## Generator types
 
@@ -93,10 +97,8 @@ absent, and the controller backend does the same.
 controller reads the same field, so a value the chart filled in silently would reach the
 controller as absent and let it choose a different alphabet.
 
-`encoding` is `none`, `base64`, or `base64-nowrap`. The two base64 spellings differ.
-`base64` wraps at 76 columns and appends a newline. `base64-nowrap` does neither.
-Existing secrets use both, so the chart keeps them distinct. Prefer `base64-nowrap` for
-new secrets.
+`encoding` is `none` or `base64`. `base64` stores standard base64 with no line wrapping and
+no trailing newline, as it does on `bytes`.
 
 `wrap: jsonArray` stores the value as a single-element JSON array. Only the container
 registry notification secret needs it.
@@ -119,10 +121,19 @@ Numbers pass through `gitlab.secrets.load`, which coerces them with `int`. Helm 
 YAML numbers as float64 while the GitLab Operator's renderer uses int64. Without that
 coercion, `length: 4096` behaves differently in each.
 
-Generated secrets are never rotated. `generate_secret_if_needed` creates a secret once and
-afterwards only patches in keys that are missing, and the controller backend does the same.
-Adding a key to an existing secret is safe. Changing the recipe for a key that already
-exists has no effect on installed releases.
+Generated secrets are never rotated. `generate_secret_if_needed` creates a secret once.
+Afterwards it only patches in missing keys that it passes with `--from-literal`:
+
+- Adding a `random`, `static`, or `bytes` with `encoding: base64` key to an existing entry is
+  safe. Installed releases gain it on their next upgrade.
+- An `x509`, `rsa`, `sshHostKeys`, or `bytes` with `encoding: raw` key is loaded from a file.
+  The job never adds it to a Secret that already exists, so it reaches new installs only.
+- Adding a Rails field is safe. Removing one deletes it from the `secrets.yml` of every
+  installed release on its next upgrade, because the job writes back only the declared
+  fields.
+
+The controller backend fills in missing keys.
+Changing the recipe for a key that already exists has no effect on installed releases.
 
 ## Document the secret
 
