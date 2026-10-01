@@ -67,7 +67,7 @@ variables:
   # Externally managed Traefik Ingress controller deployed to the k3d_traefik environment
   TRAEFIK_CHART_VERSION: "41.6.0"
   # CloudNativePg (PostgreSQL) deployed to CI envionments
-  CNPG_CHART_VERSION: "0.29.0"
+  CNPG_CHART_VERSION: "0.29.1"
   CNPG_POSTGRESQL_TAG: "17"
   # STRICT_VERSIONS is used in RSpecs to ensure exact version match for tools like "helm" and "kubectl"
   STRICT_VERSIONS: "true"
