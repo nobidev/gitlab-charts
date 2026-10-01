@@ -2489,6 +2489,21 @@ global:
     disktype: ssd
 ```
 
+To override the global value for an individual component, set `nodeSelector` on
+that subchart. The subchart value replaces the global one for that component.
+For example, to schedule the `webservice` pods on different nodes:
+
+```yaml
+global:
+  nodeSelector:
+    disktype: ssd
+
+gitlab:
+  webservice:
+    nodeSelector:
+      disktype: nvme
+```
+
 > [!note]
 > Charts that are maintained externally do not respect the `global.nodeSelector`
 > at this time and might need to be configured separately based on available chart values.
