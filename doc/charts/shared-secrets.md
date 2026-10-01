@@ -85,13 +85,35 @@ tolerations:
 > you are doing.
 
 Setting a `secret` value such as `global.gitaly.authToken.secret` changes which Secret the
-chart uses. The chart still creates that Secret if it is missing, and still adds keys that
-are absent from it. Existing values are never overwritten, so a Secret you created by hand
-keeps the values you set.
+chart uses. The job still generates that Secret, as described in
+[How the job treats existing secrets](#how-the-job-treats-existing-secrets).
 
 > [!note]
 > Generated secrets are not owned by the Helm release, so `helm uninstall` does not remove
 > them. For more information, see [uninstall](../installation/uninstall.md).
+
+## How the job treats existing secrets
+
+The job runs on every install and upgrade. It never rotates a value.
+
+- If a Secret does not exist, the job creates it with every key.
+- If a Secret exists, the job keeps every value in it. It adds a missing key only if the
+  job passes that key to `kubectl` as a literal. Every token and password is a literal.
+- The job never adds a missing key to a Secret it builds from files. If one of these
+  Secrets exists, the job leaves it unchanged, even if a key is missing:
+  - The registry authentication certificate, `registry-auth.crt` and `registry-auth.key`.
+  - The GitLab Shell SSH host keys.
+  - The AI Gateway signing and validation keys.
+  - The OpenBao static unseal key.
+- If every Secret and key exists, the job changes no value. It still applies its labels to
+  every Secret, and it writes the Rails `secrets.yml` back with the same content.
+
+The Rails secret is the exception. The job reads its `secrets.yml` and keeps every field
+the chart generates that has a value. It generates each of those fields that is missing,
+`null`, or empty. Then it writes the whole document back. The new document holds only the
+fields the chart generates, under the environment set in `env`. The job drops every other
+field, and the blocks of every other environment. It keeps a list as it is, so a rotated
+`active_record_encryption_primary_key` survives.
 
 ## Disable functionality
 
