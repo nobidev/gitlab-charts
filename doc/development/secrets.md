@@ -74,7 +74,7 @@ ago still picks up keys added to it in later chart versions, such as a new field
 Rails `secrets.yml`. Skipping these secrets would break those upgrades silently.
 
 Nothing is ever overwritten. `generate_secret_if_needed` patches in only the keys that are
-absent, and the controller backend is told `policy: fill-missing`.
+absent, and the controller backend does the same.
 
 ## Generator types
 
@@ -120,9 +120,9 @@ YAML numbers as float64 while the GitLab Operator's renderer uses int64. Without
 coercion, `length: 4096` behaves differently in each.
 
 Generated secrets are never rotated. `generate_secret_if_needed` creates a secret once and
-afterwards only patches in keys that are missing, and the controller backend declares
-`policy: fill-missing` for the same reason. Adding a key to an existing secret is safe.
-Changing the recipe for a key that already exists has no effect on installed releases.
+afterwards only patches in keys that are missing, and the controller backend does the same.
+Adding a key to an existing secret is safe. Changing the recipe for a key that already
+exists has no effect on installed releases.
 
 ## Document the secret
 
