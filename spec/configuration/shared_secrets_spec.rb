@@ -138,8 +138,8 @@ describe 'shared-secrets provisioning' do
       expect(resource['kind']).to eq('GitLabSecrets')
     end
 
-    it 'declares the never-rotate policy' do
-      expect(resource.dig('spec', 'policy')).to eq('fill-missing')
+    it "declares no policy, since fill-missing is the controller's fixed behavior" do
+      expect(resource['spec']).not_to have_key('policy')
     end
 
     it 'renders no hook Job, ConfigMap, or RBAC' do
@@ -272,7 +272,7 @@ describe 'shared-secrets provisioning' do
     # Both backends still fill it in, which is what lets an existing release pick up
     # secret fields added in a later chart version -- a new key inside the Rails
     # secrets.yml, for instance. Nothing is ever overwritten: the job patches in only
-    # missing keys, and the controller is told `policy: fill-missing`.
+    # missing keys, and the controller does the same.
     let(:values) do
       HelmTemplate.with_defaults(%(
         global:

@@ -38,7 +38,6 @@ metadata:
   name: gitlab
   namespace: gitlab-system
 spec:
-  policy: fill-missing
   secrets:
     - name: gitlab-gitaly-secret
       type: Opaque
@@ -51,7 +50,8 @@ spec:
 
 Some names in `spec.secrets` may have been chosen by the user rather than derived from the
 release name. A `secret` value in the chart's values renames a Secret but does not exempt it
-from generation, so treat every entry the same way. `fill-missing` is what makes this safe.
+from generation, so treat every entry the same way. Filling in only missing keys is what
+makes this safe.
 
 ## Requirements
 
@@ -71,7 +71,7 @@ survive `helm uninstall` for exactly this reason. The controller must preserve t
 
 ### Never overwrite an existing value
 
-`spec.policy: fill-missing` is the only policy the chart emits. It means:
+Fill in what is missing and change nothing else:
 
 - If the Secret does not exist, create it and generate every key.
 - If the Secret exists but a declared key is absent, generate and add only that key.
@@ -85,8 +85,7 @@ makes those upgrades work.
 This matches `generate_secret_if_needed` in the Job, and the Job's Role, which grants
 `get`, `list`, `create`, and `patch` but deliberately not `update` or `delete`.
 
-Values are not rotated. `policy` exists so a future `rotate` can be added without changing
-the resource shape.
+Values are not rotated.
 
 ### Label the Secrets
 
@@ -283,9 +282,9 @@ three Secrets come from `templates/shared-secrets/self-signed-cert-job.yml`, whi
 certificate. The chart sets them to what the Job issues, and `shared-secrets.selfsign.expiry`
 applies to neither backend ([issue 6693](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6693)).
 
-`fill-missing` applies here too: do not reissue a certificate that already exists. The Job
-never renews, so renewal on expiry would be new behavior. Decide it deliberately rather
-than inheriting it by accident.
+The [never-overwrite rule](#never-overwrite-an-existing-value) applies here too: do not
+reissue a certificate that already exists. The Job never renews, so renewal on expiry would
+be new behavior. Decide it deliberately rather than inheriting it by accident.
 
 ## Validate the rendered resource
 
