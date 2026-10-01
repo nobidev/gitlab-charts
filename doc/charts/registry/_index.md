@@ -993,6 +993,12 @@ as items to the `storage` map:
   to `/etc/docker/registry/storage/${extraKey}` within the container. This can be
   used to provide the `keyfile` for the `gcs` driver.
 
+Beyond the storage driver, the secret can also include other upstream
+[`storage` options](https://distribution.github.io/distribution/about/configuration/#storage)
+in the same YAML block. The most commonly useful is a
+[`cache`](https://distribution.github.io/distribution/about/configuration/#cache)
+(for example, `blobdescriptor: inmemory`) to reduce calls to the storage backend.
+
 ```shell
 # Example using S3
 kubectl create secret generic registry-storage \
