@@ -593,6 +593,7 @@ gitlab:
       extraEnv:
         SIDEKIQ_SHARD_NAME: queues_shard_extra_shard # to match key in global.redis.redisYmlOverride
     - name: default
+      queues: default,mailers
 ...
 ```
 
