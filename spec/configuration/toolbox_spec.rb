@@ -90,16 +90,16 @@ describe 'toolbox configuration' do
     let(:template) { HelmTemplate.new(values) }
 
     context 'default' do
-      it 'uses batch/v1beta1 CronJob' do
-        expect(template.dig('CronJob/test-toolbox-backup', 'apiVersion')).to eq 'batch/v1beta1'
+      it 'uses batch/v1 CronJob' do
+        expect(template.dig('CronJob/test-toolbox-backup', 'apiVersion')).to eq 'batch/v1'
       end
     end
 
-    context 'batch/v1' do
-      let(:api_version) { 'batch/v1' }
+    context 'when global override is set' do
+      let(:api_version) { 'batch/global/v1' }
 
-      it 'uses batch/v1 CronJob' do
-        expect(template.dig('CronJob/test-toolbox-backup', 'apiVersion')).to eq 'batch/v1'
+      it 'uses the global value' do
+        expect(template.dig('CronJob/test-toolbox-backup', 'apiVersion')).to eq 'batch/global/v1'
       end
     end
   end
