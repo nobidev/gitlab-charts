@@ -91,9 +91,6 @@ variables:
     global:
       ingress:
         apiVersion: networking.k8s.io/v1
-      batch:
-        cronJob:
-          apiVersion: batch/v1
       redis:
         host: redis.example.com
       psql:
