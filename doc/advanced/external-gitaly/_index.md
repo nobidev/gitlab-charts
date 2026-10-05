@@ -408,11 +408,15 @@ Schedule the move by following the steps indicated in [moving repositories](http
    helm get values <RELEASE_NAME> -o yaml > gitlab.yml
    ```
 
-1. Disable the internal Gitaly subchart in the `gitlab.yml` file, and point the new `default` repository storage to the external Gitaly service. [GitLab requires a default repository storage](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#gitlab-requires-a-default-repository-storage):
+1. Configure the `default` repository storage in the `gitlab.yml` file.
+   [GitLab requires a default repository storage](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#gitlab-requires-a-default-repository-storage).
 
    {{< tabs >}}
 
    {{< tab title="Gitaly" >}}
+
+   Disable the internal Gitaly subchart, and point the `default` repository storage to the external
+   Gitaly service.
 
    ```yaml
    global:
@@ -433,20 +437,33 @@ Schedule the move by following the steps indicated in [moving repositories](http
 
    {{< tab title="Gitaly Cluster (Praefect)" >}}
 
+   Keep the internal Gitaly subchart to provide the `default` repository storage, as configured in
+   [step 2](#step-2-configure-instance-to-use-new-gitaly-service).
+   Do not point `default` to Praefect. Praefect accepts only storage names that match one of its
+   virtual storages, so requests for `default` fail unless Praefect has a virtual storage with that name.
+   For example, server-side repository backups can fail with `virtual storage does not exist`.
+
    ```yaml
    global:
      gitaly:
-       enabled: false                      # Disable the internal Gitaly subchart
+       internal:
+         names:
+           - default                       # The internal Gitaly subchart provides the default storage
        external:
          - name: ext-gitaly-cluster        # required
            hostname: ha.git.example.com    # required
            port: 2305                      # Praefect uses port 2305
            tlsEnabled: false               # optional, overrides gitaly.tls.enabled
-         - name: default                   # Add the default repository storage, use the same settings as ext-gitaly-cluster
-           hostname: ha.git.example.com
-           port: 2305
-           tlsEnabled: false
    ```
+
+   After you apply the configuration, complete these tasks.
+
+   - Set the weight of the `default` storage to `0`, so that new repositories are stored in Gitaly Cluster
+     (Praefect). For more information, see
+     [configure where new repositories are stored](https://docs.gitlab.com/administration/repository_storage_paths/#configure-where-new-repositories-are-stored).
+   - If you use server-side repository backups, configure the internal Gitaly with the same backup
+     object storage as the Gitaly Cluster nodes. For more information, see
+     [server-side backups](../../charts/gitlab/gitaly/_index.md#server-side-backups).
 
       {{< /tab >}}
 
@@ -460,7 +477,9 @@ Schedule the move by following the steps indicated in [moving repositories](http
    ```
 
 1. Optional. Remove the changes made to each external Gitaly `/etc/hosts` file after following the [get the Gitaly pod IP and hostnames](#step-3-get-the-gitaly-pod-ip-and-hostnames) step.
-1. After you have confirmed everything is working as expected, you can delete the Gitaly PVC:
+1. If you disabled the internal Gitaly subchart, you can delete the Gitaly PVC after you have confirmed
+   everything is working as expected. If the internal Gitaly subchart still provides the `default` storage,
+   keep the PVC.
 
    WARNING: Do not delete the Gitaly PVC until you have double checked that everything is working as expected.
 
