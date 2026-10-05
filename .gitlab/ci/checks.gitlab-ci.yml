@@ -8,6 +8,7 @@ rubocop:
   script:
     - bundle config set --local path 'gems'
     - bundle config set --local frozen 'true'
+    - bundle config set --local without 'development'
     - bundle install -j $(nproc)
     - bundle exec rubocop --parallel
   cache:
