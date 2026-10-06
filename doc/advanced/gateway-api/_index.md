@@ -240,6 +240,35 @@ If you configure multiple webservice deployments, the route rules (including fil
 customized per rule. Check the [Webservice Gateway API documentation](../../charts/gitlab/webservice/_index.md#gateway-api)
 for details.
 
+##### Disable individual routes
+
+Each route is enabled by default when `global.gatewayApi.enabled` is `true`. To disable one route
+of a component, set `gatewayRoute.enabled` to `false` on the chart that owns it. The other routes
+are not affected.
+
+| Route                    | Setting |
+|:-------------------------|:--------|
+| Webservice `HTTPRoute`   | `gitlab.webservice.gatewayRoute.enabled` |
+| KAS `HTTPRoute`          | `gitlab.kas.gatewayRoute.enabled` |
+| Registry `HTTPRoute`     | `registry.gatewayRoute.enabled` |
+| GitLab Pages `HTTPRoute` | `gitlab.gitlab-pages.gatewayRoute.enabled` |
+| GitLab Shell `TCPRoute`  | `gitlab.gitlab-shell.gatewayRoute.enabled` |
+
+For example, to disable the GitLab Shell `TCPRoute`:
+
+```yaml
+gitlab:
+  gitlab-shell:
+    gatewayRoute:
+      enabled: false
+```
+
+With this setting, the chart does not render the GitLab Shell `TCPRoute`. GitLab Shell stays
+deployed. Expose SSH through a separate Service, such as a `LoadBalancer`, a `NodePort`, or an
+external proxy.
+
+To remove GitLab Shell completely, set `gitlab.gitlab-shell.enabled` to `false` instead.
+
 #### Hostname override
 
 `global.hosts.gitlab.name` sets both the Rails base URL and the hostname the webservice
