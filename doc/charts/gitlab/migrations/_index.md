@@ -86,6 +86,10 @@ Table below contains all the possible charts configurations that can be supplied
 | `extraEnv`                                               |                                                              | List of extra environment variables to expose |
 | `extraEnvFrom`                                           |                                                              | List of extra environment variables from other data sources to expose |
 | `priorityClassName`                                      |                                                              | [Priority class](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/) assigned to pods. |
+| `batchedBackgroundMigrationsCheck.enabled`               | `false`                                                      | Render a Job that waits for unfinished batched background migrations. Set by the GitLab Operator during upgrades. |
+| `batchedBackgroundMigrationsCheck.activeDeadlineSeconds` | `3600`                                                       | Maximum time the wait Job runs before it is terminated. |
+| `batchedBackgroundMigrationsCheck.backoffLimit`          | `6`                                                          | Number of retries before the wait Job is marked as failed. |
+| `batchedBackgroundMigrationsCheck.resources`             | `{requests: {cpu: 250m, memory: 200Mi}}`                     | Resource requests and limits for the wait Job. |
 
 ## Chart configuration examples
 

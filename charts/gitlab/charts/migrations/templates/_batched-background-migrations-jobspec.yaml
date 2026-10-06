@@ -9,10 +9,9 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
-    {{- /* The target version identifies the release whose batched background migrations
-           this Job waits on. The batched-background-migrations-check label lets the
-           Operator select this wait Job apart from the schema-migrations Job, which
-           shares the `app: migrations` label. */}}
+    {{- /* target-version is the incoming release being deployed. The Operator uses it with
+           the batched-background-migrations-check label to tell this wait Job apart from the
+           schema-migrations Job, which shares the `app: migrations` label. */}}
     gitlab.com/target-version: {{ include "gitlab.versionTag" . | quote }}
     gitlab.com/batched-background-migrations-check: "true"
   {{- if .Values.annotations }}
