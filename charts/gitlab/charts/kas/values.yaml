@@ -144,6 +144,13 @@ service:
   # loadBalancerSourceRanges:
   # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
   # trafficDistribution: PreferClose
+  #
+  # appProtocol:
+  # Sets Service.spec.ports[].appProtocol on the gRPC-carrying ports
+  # (external-api, internal-api), e.g. "grpc" or "kubernetes.io/h2c". Left
+  # unset by default. Set it if your mesh/ingress needs an explicit
+  # protocol hint to avoid downgrading kas's gRPC tunnel to HTTP/1.1.
+  appProtocol: ""
 metrics:
   enabled: true
   path: /metrics

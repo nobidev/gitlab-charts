@@ -896,6 +896,69 @@ describe 'kas configuration' do
           end
         end
       end
+
+      context 'when service.appProtocol is given' do
+        def service_port(name)
+          service['spec']['ports'].find { |port| port['name'] == name }
+        end
+
+        let(:kas_values) do
+          default_kas_values.deep_merge!(
+            'gitlab' => {
+              'kas' => {
+                'service' => { 'appProtocol' => 'grpc' }
+              }
+            }
+          )
+        end
+
+        it 'sets appProtocol on the external-api and internal-api ports' do
+          expect(service_port('tcp-kas-external-api')['appProtocol']).to eq('grpc')
+          expect(service_port('tcp-kas-internal-api')['appProtocol']).to eq('grpc')
+        end
+
+        it 'does not set appProtocol on the k8s-api port, which serves plain HTTP/1.1' do
+          expect(service_port('tcp-kas-k8s-api')).not_to have_key('appProtocol')
+        end
+
+        context 'and workspaces.enabled is true' do
+          let(:kas_values) do
+            default_kas_values.deep_merge!(
+              'gitlab' => {
+                'kas' => {
+                  'service' => { 'appProtocol' => 'grpc' },
+                  'workspaces' => {
+                    'enabled' => true,
+                    'listen' => {
+                      'listen_grace_period' => '10s',
+                      'shutdown_grace_period' => '100s',
+                      'network' => 'tcp',
+                      'address' => :"9000"
+                    }
+                  }
+                },
+                'global' => { 'hosts' => {
+                  'workspaces' => {
+                    'name' => 'workspaces.example.com'
+                  }
+                } }
+              }
+            )
+          end
+
+          it 'does not set appProtocol on the workspaces-server port, which serves plain HTTP/1.1 and WebSocket traffic' do
+            expect(service_port('tcp-kas-workspaces-server')).not_to have_key('appProtocol')
+          end
+        end
+      end
+
+      context 'when service.appProtocol is not given' do
+        it 'does not set appProtocol on any port' do
+          service['spec']['ports'].each do |port|
+            expect(port).not_to have_key('appProtocol'), "expected #{port['name']} not to have appProtocol set"
+          end
+        end
+      end
     end
 
     describe 'templates/deployment.yaml' do
