@@ -47,7 +47,7 @@ Input: dict "context" $ "name" string
     {{- if $sentinels }}
     {{-   $password := include "gitlab.redis.sentinel.password" .context }}
     {{-   if $password }}
-    sentinel_password: "{{ $password }}"
+    sentinel_password: {{ $password }}
     {{-   end }}
     {{- end }}
     id:
