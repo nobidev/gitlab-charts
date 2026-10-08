@@ -593,6 +593,58 @@ To move OpenBao to a different KMS key:
    > Pointing an alias at a different key does not re-encrypt anything already encrypted with the
    > old key.
 
+### X-Forwarded-For options
+
+By default, OpenBao records the address of the connecting proxy, such as the Ingress controller,
+as the `remote_address` of each request in the audit log. To record the address of the client
+instead, configure OpenBao to trust the `X-Forwarded-For` header sent by your proxy.
+
+The settings apply to the API listener only. They have no effect while
+`config.xForwardedFor.authorizedAddrs` is empty, so existing deployments are not affected.
+
+| Parameter                                                | Default                                                 | Description |
+|----------------------------------------------------------|---------------------------------------------------------|-------------|
+| `config.xForwardedFor.authorizedAddrs`                   | `[]`                                                    | List of CIDRs of the proxies whose `X-Forwarded-For` header OpenBao trusts. Setting at least one CIDR enables the feature. Must be a list. |
+| `config.xForwardedFor.hopSkips`                          | 0                                                       | Number of trusted proxy addresses to skip, counting from the end of the header. OpenBao uses the next address as the client address. |
+| `config.xForwardedFor.rejectNotPresent`                  | false                                                   | Reject requests that have no `X-Forwarded-For` header. Keep this `false`, because Kubernetes probes send requests without the header. |
+| `config.xForwardedFor.rejectNotAuthorized`               | false                                                   | Reject requests that have an `X-Forwarded-For` header but do not come from an address in `authorizedAddrs`. If `false`, OpenBao ignores the header and uses the address of the connection. |
+
+To enable the feature, set the CIDR of your Ingress controller pods:
+
+```yaml
+openbao:
+  config:
+    xForwardedFor:
+      authorizedAddrs:
+        - 10.0.0.0/16
+```
+
+On the command line, pass the list in braces:
+
+```shell
+--set 'openbao.config.xForwardedFor.authorizedAddrs={10.0.0.0/16}'
+```
+
+> [!warning]
+> `authorizedAddrs` matches the address of the connection that reaches OpenBao, not the addresses
+> in the header. If you set it to `0.0.0.0/0`, any pod that can reach the OpenBao Service directly
+> can send its own `X-Forwarded-For` header and change the `remote_address` recorded in the audit
+> log. Use the narrowest CIDR that covers your Ingress controller pods.
+
+The right value for `hopSkips` depends on how requests reach OpenBao. With default settings, the
+bundled NGINX Ingress controller replaces the `X-Forwarded-For` header with the address of the
+client it sees, so the header has one entry and `hopSkips: 0` returns the client address. This
+assumes the Ingress controller sees the client address, for example behind a layer 4 load balancer
+with `externalTrafficPolicy: Local`.
+
+If another proxy adds entries to the header before OpenBao, increase `hopSkips` by the number of
+proxies to skip. If `hopSkips` is not smaller than the number of entries in the header, OpenBao
+rejects the request with HTTP 400.
+
+GitLab sends its requests to OpenBao through the same external URL as runners, unless you set
+`global.openbao.internal_url` or `global.openbao.internal_host`. If you set either, make sure those
+requests produce a header with more entries than `hopSkips`, or no header at all.
+
 ### Audit event streaming options
 
 The OpenBao chart configures [auditing devices](https://openbao.org/docs/audit/) to stream events to GitLab.

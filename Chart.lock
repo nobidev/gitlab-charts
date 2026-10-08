@@ -28,7 +28,7 @@ dependencies:
   version: 4.1.0
 - name: openbao
   repository: oci://registry.gitlab.com/charts/charts.gitlab.io/release
-  version: 0.19.0
+  version: 0.20.0
 - name: traefik
   repository: https://helm.traefik.io/traefik
   version: 10.19.4
