@@ -32,7 +32,7 @@ spec:
             pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
             backend:
               service:
-                name: {{ template "gitlab.kas.serviceName" . }}
+                name: {{ template "kas.workspaces.serviceName" . }}
                 port:
                   number: {{ .Values.service.workspacesServerPort }}
   {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true" )) }}

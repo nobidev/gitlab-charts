@@ -1859,4 +1859,63 @@ describe 'kas configuration' do
       end
     end
   end
+
+  describe 'templates/service-workspaces.yaml' do
+    let(:helm_template) { HelmTemplate.new(default_values.deep_merge(kas_values)) }
+    let(:workspaces_values) do
+      YAML.safe_load(%(
+        global:
+          hosts:
+            workspaces:
+              name: workspaces.example.com
+          workspaces:
+            enabled: true
+          kas:
+            tls:
+              enabled: true
+              secretName: kas-tls
+              caSecretName: kas-ca
+      ))
+    end
+
+    it 'is not rendered when workspaces are disabled' do
+      expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+      expect(helm_template.resource_exists?('Service/test-kas-workspaces')).to be(false)
+    end
+
+    context 'when workspaces and KAS TLS are enabled with Gateway API' do
+      let(:kas_values) { default_kas_values.deep_merge!(workspaces_values) }
+
+      it 'routes workspaces through their listener to a plain Service that the BackendTLSPolicy does not cover' do
+        expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+        expect(helm_template.dig('Service/test-kas-workspaces', 'spec', 'ports')).to eq([
+          { 'port' => 8160, 'targetPort' => 8160, 'protocol' => 'TCP', 'name' => 'tcp-kas-workspaces-server' }
+        ])
+        expect(helm_template.dig('Service/test-kas-workspaces', 'spec', 'selector')).to eq(helm_template.dig('Service/test-kas', 'spec', 'selector'))
+        expect(helm_template.dig('HTTPRoute/test-kas-workspaces', 'spec', 'rules', 0, 'backendRefs', 0)).to include('name' => 'test-kas-workspaces', 'port' => 8160)
+        expect(helm_template.dig('HTTPRoute/test-kas-workspaces', 'spec', 'parentRefs', 0)).to include('sectionName' => 'kas-workspaces-web')
+        expect(helm_template.dig('BackendTLSPolicy/test-kas', 'spec', 'targetRefs').map { |ref| ref['name'] }).to eq(['test-kas'])
+      end
+    end
+
+    context 'when workspaces and KAS TLS are enabled with Traefik' do
+      let(:kas_values) do
+        default_kas_values.deep_merge!(workspaces_values).deep_merge!(YAML.safe_load(%(
+          global:
+            gatewayApi:
+              enabled: false
+            ingress:
+              provider: traefik
+        )))
+      end
+
+      it 'routes workspaces to a plain Service with the http scheme' do
+        expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+        expect(helm_template.dig('Ingress/test-kas-workspaces', 'spec', 'rules', 0, 'http', 'paths', 0, 'backend', 'service')).to eq(
+          'name' => 'test-kas-workspaces', 'port' => { 'number' => 8160 }
+        )
+        expect(helm_template.annotations('Service/test-kas-workspaces')).to eq('traefik.ingress.kubernetes.io/service.serversscheme' => 'http')
+      end
+    end
+  end
 end

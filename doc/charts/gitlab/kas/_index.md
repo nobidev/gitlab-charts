@@ -272,6 +272,10 @@ You can pass these parameters to the `helm install` command by using the `--set`
 Enable TLS communication between your `kas` pods and other GitLab chart components,
 through the [global KAS attribute](../../globals.md#tls-settings-1).
 
+The workspaces server does not use TLS. The workspaces routes use a separate
+`<release>-kas-workspaces` Service, so TLS settings for the main KAS Service, like the Gateway API
+`BackendTLSPolicy`, do not apply to it.
+
 ## Backend traffic policy
 
 When Envoy Gateway is used, the chart renders a

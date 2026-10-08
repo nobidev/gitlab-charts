@@ -12,13 +12,13 @@ metadata:
     {{ .Values.gatewayRoute.annotations | toYaml | nindent 4 }}
 spec:
   parentRefs:
-  {{- include "gitlab.gatewayApi.gatewayRef" . | nindent 4 }}
+  {{- include "gitlab.gatewayApi.gatewayRef.section" (dict "context" . "sectionName" .Values.gatewayRoute.workspacesSectionName) | nindent 4 }}
   hostnames:
     - {{ include "gitlab.workspaces.wildcardHostname" . | quote }}
   rules:
   - backendRefs:
     - kind: Service
-      name: {{ template "gitlab.kas.serviceName" . }}
+      name: {{ template "kas.workspaces.serviceName" . }}
       port: {{ .Values.service.workspacesServerPort }}
       weight: 1
     {{- with .Values.gatewayRoute.filters }}

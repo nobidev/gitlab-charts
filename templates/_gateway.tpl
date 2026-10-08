@@ -125,12 +125,19 @@ false
 Returns a target refs to the Gateway resource with a namespace and optionally a section name.
 */}}
 {{- define "gitlab.gatewayApi.gatewayRef" -}}
-{{- template "gitlab.gatewayApi.gatewayRef.local" . }}
-  namespace: {{ coalesce (.Values.gatewayRoute).gatewayNamespace .Values.global.gatewayApi.gatewayRef.namespace .Release.Namespace | quote }}
-{{- with .Values.gatewayRoute }}
-{{-   with .sectionName }}
+{{- include "gitlab.gatewayApi.gatewayRef.section" (dict "context" . "sectionName" (.Values.gatewayRoute).sectionName) }}
+{{- end }}
+
+{{/*
+Same as gitlab.gatewayApi.gatewayRef, for a listener other than gatewayRoute.sectionName. Takes a dict
+with "context" and "sectionName".
+*/}}
+{{- define "gitlab.gatewayApi.gatewayRef.section" -}}
+{{- $ := .context -}}
+{{- template "gitlab.gatewayApi.gatewayRef.local" $ }}
+  namespace: {{ coalesce ($.Values.gatewayRoute).gatewayNamespace $.Values.global.gatewayApi.gatewayRef.namespace $.Release.Namespace | quote }}
+{{- with .sectionName }}
   sectionName: {{ . | quote }}
-{{-   end }}
 {{- end }}
 {{- end }}
 
