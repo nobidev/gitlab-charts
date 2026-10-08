@@ -109,7 +109,7 @@ the URL-safe set are sent to Redis verbatim.
 Return the Sentinel password, if available.
 */}}
 {{- define "gitlab.redis.sentinel.password" -}}
-{{- if $.Values.global.redis.sentinelAuth.enabled -}}<%= File.read("/etc/gitlab/redis-sentinel/redis-sentinel-password").strip %>{{- end -}}
+{{- if $.Values.global.redis.sentinelAuth.enabled -}}<%= File.read("/etc/gitlab/redis-sentinel/redis-sentinel-password").strip.to_json %>{{- end -}}
 {{- end -}}
 
 {{/*

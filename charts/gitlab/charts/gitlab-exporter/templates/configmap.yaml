@@ -60,7 +60,7 @@ data:
             {{- $sentinels | nindent 12 }}
           {{- $sentinel_password := include "gitlab.redis.sentinel.password" . }}
           {{-   if $sentinel_password }}
-          redis_sentinel_password: "{{ $sentinel_password }}"
+          redis_sentinel_password: {{ $sentinel_password }}
           {{-   end }}
           {{- end }}
 

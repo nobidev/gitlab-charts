@@ -54,7 +54,7 @@ data:
           {{- $sentinels := include "gitlab.mailroom.redis.sentinels" $ }}
           {{- $sentinels | nindent 10 }}
           {{- if and $sentinels $sentinel_password }}
-          :sentinel_password: "{{ $sentinel_password }}"
+          :sentinel_password: {{ $sentinel_password }}
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" $ | nindent 10 }}
           {{- include "gitlab.mailroom.sentinel.tls" $ | nindent 10 }}
@@ -76,7 +76,7 @@ data:
           {{- $sentinels := include "gitlab.mailroom.redis.sentinels" . }}
           {{- $sentinels | nindent 10 }}
           {{- if and $sentinels $sentinel_password }}
-          :sentinel_password: "{{ $sentinel_password }}"
+          :sentinel_password: {{ $sentinel_password }}
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" . | nindent 10 }}
           {{- include "gitlab.mailroom.sentinel.tls" . | nindent 10 }}
@@ -121,7 +121,7 @@ data:
           {{- $sentinels := include "gitlab.mailroom.redis.sentinels" $ }}
           {{- $sentinels | nindent 10 }}
           {{- if and $sentinels $sentinel_password }}
-          :sentinel_password: "{{ $sentinel_password }}"
+          :sentinel_password: {{ $sentinel_password }}
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" $ | nindent 10 }}
           {{- include "gitlab.mailroom.sentinel.tls" $ | nindent 10 }}
@@ -143,7 +143,7 @@ data:
           {{- $sentinels := include "gitlab.mailroom.redis.sentinels" . }}
           {{- $sentinels | nindent 10 }}
           {{- if and $sentinels $sentinel_password }}
-          :sentinel_password: "{{ $sentinel_password }}"
+          :sentinel_password: {{ $sentinel_password }}
           {{- end }}
           {{- include "gitlab.mailroom.redis.tls" . | nindent 10 }}
           {{- include "gitlab.mailroom.sentinel.tls" . | nindent 10 }}
