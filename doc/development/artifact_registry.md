@@ -5,23 +5,25 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: Artifact Registry configuration
 ---
 
-## Overview
+{{< details >}}
 
-The Artifact Registry integration is an **experimental feature** currently available only on **GitLab.com** for connecting GitLab to a pre-release service. This feature is subject to change and should not be used in production environments outside of GitLab.com.
+- Tier: Premium, Ultimate
+- Offering: GitLab.com, GitLab Self-Managed
+- Status: Beta
 
-## Status
+{{< /details >}}
 
-- **Availability**: GitLab.com only
-- **Stability**: Experimental (subject to change)
-- **Support**: Limited to GitLab.com infrastructure team
+This integration connects GitLab to an Artifact Registry deployment. Artifact Registry
+also needs the [IAM Data Access Service](iam_data_access_service.md) integration.
+
+On GitLab Self-Managed, Artifact Registry is in closed beta. Use it only with help from
+GitLab engineering.
 
 ## Configuration
 
 The Artifact Registry connection can be configured through the Helm chart values under `global.appConfig.artifactRegistry`.
 
-The integration is optional and disabled by default, so self-managed installations are not
-required to configure it or supply an endpoint. GitLab.com enables it through its own
-deployment values.
+The integration is disabled by default.
 
 When the block is unset, the chart renders no `artifact_registry` section into `gitlab.yml`
 and mounts nothing.
@@ -75,8 +77,5 @@ service rather than refusing to start.
 
 ## Important notes
 
-- This feature is not intended for use outside of GitLab.com
-- Configuration changes may occur without notice
-- The service endpoint and authentication mechanism may change
-- Do not rely on this feature for production deployments
-- Report issues or feedback to the GitLab Package - Container Registry team
+- Configuration options, the service endpoint, and the authentication mechanism may change in later releases while the feature is in beta.
+- Report issues or feedback to the GitLab Package - Container Registry team.

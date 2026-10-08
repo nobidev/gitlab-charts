@@ -5,23 +5,24 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 title: IAM Data Access Service configuration
 ---
 
-## Overview
+{{< details >}}
 
-The IAM Data Access Service integration is an **experimental feature** currently available only on **GitLab.com** for testing a pre-release service. This feature is subject to change and should not be used in production environments outside of GitLab.com.
+- Tier: Premium, Ultimate
+- Offering: GitLab.com, GitLab Self-Managed
+- Status: Beta
 
-## Status
+{{< /details >}}
 
-- **Availability**: GitLab.com only
-- **Stability**: Experimental (subject to change)
-- **Support**: Limited to GitLab.com infrastructure team
+GitLab calls the IAM Data Access Service over gRPC. Artifact Registry depends on it.
+
+On GitLab Self-Managed, this integration is part of the Artifact Registry closed beta.
+Use it only with help from GitLab engineering.
 
 ## Configuration
 
 The IAM Data Access Service can be configured through the Helm chart values under `global.appConfig.iamDataAccessService`.
 
-The service is optional and disabled by default, so self-managed installations are not
-required to configure it or supply the gRPC endpoint. GitLab.com enables it through its
-own deployment values.
+The integration is disabled by default. You need it only if you install Artifact Registry.
 
 ### Basic configuration
 
@@ -53,12 +54,12 @@ global:
 
 When the IAM Data Access Service is enabled, the Helm chart automatically generates a service authentication token and stores it in a Kubernetes secret. The token is generated using cryptographically secure random bytes and converted to alpha-numeric text.
 
-The secret is created during the initial deployment and persists across upgrades. If the secret already exists, it will not be regenerated.
+The secret is created during the initial deployment and persists across upgrades.
+
+To supply your own token, create the secret before you enable the integration, using the
+name and key set in `authToken`. The chart does not replace a secret that already exists.
 
 ## Important notes
 
-- This feature is not intended for use outside of GitLab.com
-- Configuration changes may occur without notice
-- The service endpoint and authentication mechanism may change
-- Do not rely on this feature for production deployments
-- Report issues or feedback to the GitLab SSCS - Authentication team
+- Configuration options, the service endpoint, and the authentication mechanism may change in later releases while the feature is in beta.
+- Report issues or feedback to the GitLab SSCS - Authentication team.
