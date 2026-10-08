@@ -1297,13 +1297,15 @@ Flags to decide if new projects should be created with the respective features b
 default. All flags default to `true`.
 
 ```yaml
-defaultProjectsFeatures:
-  issues: true
-  mergeRequests: true
-  wiki: true
-  snippets: true
-  builds: true
-  containerRegistry: true
+global:
+  appConfig:
+    defaultProjectsFeatures:
+      issues: true
+      mergeRequests: true
+      wiki: true
+      snippets: true
+      builds: true
+      containerRegistry: true
 ```
 
 ### Gravatar/Libravatar settings
@@ -1340,14 +1342,16 @@ of shared configuration for these items. Making use of `object_store`, you can c
 are not individually configured with a `connection` property.
 
 ```yaml
-object_store:
-  enabled: true
-  proxy_download: true
-  allowed_download_modes: []
-  storage_options:
-  connection:
-    secret:
-    key:
+global:
+  appConfig:
+    object_store:
+      enabled: true
+      proxy_download: true
+      allowed_download_modes: []
+      storage_options:
+      connection:
+        secret:
+        key:
 ```
 
 | Name              |  Type   | Default | Description |
@@ -1433,29 +1437,36 @@ in the `storage_options` configuration section:
 Example:
 
 ```yaml
-  enabled: true
-  proxy_download: true
-  connection:
-    secret: gitlab-rails-storage
-    key: connection
-  storage_options:
-    server_side_encryption: aws:kms
-    server_side_encryption_kms_key_id: arn:aws:kms:us-west-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
+global:
+  appConfig:
+    object_store:
+      enabled: true
+      proxy_download: true
+      connection:
+        secret: gitlab-rails-storage
+        key: connection
+      storage_options:
+        server_side_encryption: aws:kms
+        server_side_encryption_kms_key_id: arn:aws:kms:us-west-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
 ```
 
 ### LFS, Artifacts, Uploads, Packages, External MR diffs, and Dependency Proxy
 
 Details on these settings are below. Documentation is not repeated individually,
 as they are structurally identical aside from the default value of the `bucket` property.
+The following example uses `lfs`. For other services, replace `lfs` with the corresponding setting.
 
 ```yaml
-  enabled: true
-  proxy_download: true
-  allowed_download_modes: []
-  bucket:
-  connection:
-    secret:
-    key:
+global:
+  appConfig:
+    lfs:
+      enabled: true
+      proxy_download: true
+      allowed_download_modes: []
+      bucket:
+      connection:
+        secret:
+        key:
 ```
 
 | Name             |  Type   | Default                                                      | Description |
@@ -1662,20 +1673,22 @@ This password will then be injected into the GitLab configuration at runtime.
 An example configuration snippet:
 
 ```yaml
-ldap:
-  preventSignin: false
-  servers:
-    # 'main' is the GitLab 'provider ID' of this LDAP server
-    main:
-      label: 'LDAP'
-      host: '_your_ldap_server'
-      port: 636
-      uid: 'sAMAccountName'
-      bind_dn: 'cn=administrator,cn=Users,dc=domain,dc=net'
-      base: 'dc=domain,dc=net'
-      password:
-        secret: my-ldap-password-secret
-        key: the-key-containing-the-password
+global:
+  appConfig:
+    ldap:
+      preventSignin: false
+      servers:
+        # 'main' is the GitLab 'provider ID' of this LDAP server
+        main:
+          label: 'LDAP'
+          host: '_your_ldap_server'
+          port: 636
+          uid: 'sAMAccountName'
+          bind_dn: 'cn=administrator,cn=Users,dc=domain,dc=net'
+          base: 'dc=domain,dc=net'
+          password:
+            secret: my-ldap-password-secret
+            key: the-key-containing-the-password
 ```
 
 Example `--set` configuration items, when using the global chart:
@@ -1777,22 +1790,24 @@ and other popular services. Expanded documentation can be found in the [OmniAuth
 for GitLab.
 
 ```yaml
-omniauth:
-  enabled: false
-  autoSignInWithProvider:
-  syncProfileFromProvider: []
-  syncProfileAttributes: ['email']
-  allowSingleSignOn: ['saml']
-  blockAutoCreatedUsers: true
-  autoLinkLdapUser: false
-  autoLinkSamlUser: false
-  autoLinkUser: ['openid_connect']
-  externalProviders: []
-  allowBypassTwoFactor: []
-  providers: []
-  # - secret: gitlab-google-oauth2
-  #   key: provider
-  # - name: group_saml
+global:
+  appConfig:
+    omniauth:
+      enabled: false
+      autoSignInWithProvider:
+      syncProfileFromProvider: []
+      syncProfileAttributes: ['email']
+      allowSingleSignOn: ['saml']
+      blockAutoCreatedUsers: true
+      autoLinkLdapUser: false
+      autoLinkSamlUser: false
+      autoLinkUser: ['openid_connect']
+      externalProviders: []
+      allowBypassTwoFactor: []
+      providers: []
+      # - secret: gitlab-google-oauth2
+      #   key: provider
+      # - name: group_saml
 ```
 
 | Name                      | Type             | Default |
@@ -1881,20 +1896,24 @@ Once created, the `providers` are enabled by providing the maps in configuration
 shown below:
 
 ```yaml
-omniauth:
-  providers:
-    - secret: gitlab-google-oauth2
-    - secret: azure_activedirectory_v2
-    - secret: gitlab-azure-oauth2
-    - secret: gitlab-cas3
+global:
+  appConfig:
+    omniauth:
+      providers:
+        - secret: gitlab-google-oauth2
+        - secret: azure_activedirectory_v2
+        - secret: gitlab-azure-oauth2
+        - secret: gitlab-cas3
 ```
 
 [Group SAML](https://docs.gitlab.com/integration/saml/#configure-group-saml-sso-on-gitlab-self-managed) configuration example:
 
 ```yaml
-omniauth:
-  providers:
-    - name: group_saml
+global:
+  appConfig:
+    omniauth:
+      providers:
+        - name: group_saml
 ```
 
 Example configuration `--set` items, when using the global chart:
