@@ -116,6 +116,8 @@ controlled by `global.shell.port`.
 | `keda.triggers`                                          |                                                         | List of triggers to activate scaling of the target resource, defaults to triggers computed from `hpa.cpu` and `hpa.memory` |
 | `logging.format`                                         | `json`                                                  | Set to `text` for unstructured logs |
 | `logging.sshdLogLevel`                                   | `ERROR`                                                 | Log level for underlying SSH daemon |
+| `maxReplicas`                                            | `10`                                                    | Maximum number of replicas |
+| `minReplicas`                                            | `2`                                                     | Minimum number of replicas |
 | `priorityClassName`                                      |                                                         | [Priority class](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/) assigned to pods. |
 | `replicaCount`                                           | `1`                                                     | Shell replicas |
 | `serviceLabels`                                          | `{}`                                                    | Supplemental service labels |
@@ -270,6 +272,21 @@ deployment:
 
 Reference the official [Kubernetes Documentation](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 for additional details regarding this configuration.
+
+### Autoscaling for SSH traffic spikes
+
+The Horizontal Pod Autoscaler (HPA) scales on CPU usage. It waits for pods to start
+and become ready, so it does not immediately react to a sudden burst of SSH connections.
+During a sharp traffic spike, GitLab Shell can run under-provisioned for the first few
+minutes before the HPA eventually reaches an adequate replica count.
+
+The chart's defaults (`minReplicas: 2`, `maxReplicas: 10`) still work for steady
+traffic, and this guidance does not change them. If your environment sees frequent,
+sharp spikes, raise `minReplicas` so more pods already run before a spike starts.
+Default resource requests from GitLab Shell are small (see
+[Resource usage](../../../architecture/resource-usage.md#gitlab-shell)). Check your
+own traffic and resource usage, and base your `minReplicas` value on what you
+observe.
 
 ### tolerations
 
