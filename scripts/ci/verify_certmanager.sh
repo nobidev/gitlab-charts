@@ -22,8 +22,15 @@ if [ ! -f "${issuing_root}" ]; then
   exit 1
 fi
 
-# Gateway API path only: k3d NGINX deployments are forced to HTTP (k3d_deploy.sh).
-issuer="${release}-gw-issuer"
+# Gateway API or the externally managed Traefik Ingress: k3d NGINX deployments are
+# forced to HTTP (k3d_deploy.sh).
+if use_traefik_ingress; then
+  issuer="${release}-issuer"
+  expected_certs="${release}-gitlab-tls ${release}-registry-tls ${release}-kas-tls"
+else
+  issuer="${release}-gw-issuer"
+  expected_certs="gitlab-tls registry-tls kas-tls"
+fi
 
 # Poll and wait budgets, overridable for slower clusters or manual runs.
 ISSUER_READY_TIMEOUT="${ISSUER_READY_TIMEOUT:-300s}"
@@ -34,10 +41,10 @@ CERT_READY_TIMEOUT="${CERT_READY_TIMEOUT:-600s}"
 echo "Waiting for ACME Issuer ${issuer} to be Ready (registered against Pebble)"
 kubectl wait "issuer/${issuer}" -n "${ns}" --for=condition=Ready --timeout="${ISSUER_READY_TIMEOUT}"
 
-# cert-manager's gateway-shim creates the Certificates asynchronously from the
-# Gateway listener certificateRefs; wait for each expected one by name so an
-# unrelated Certificate in the namespace can never mask a missing one.
-expected_certs="gitlab-tls registry-tls kas-tls"
+# cert-manager's gateway-shim or ingress-shim creates the Certificates
+# asynchronously from the Gateway listeners or the Ingresses; wait for each
+# expected one by name so an unrelated Certificate in the namespace can never
+# mask a missing one.
 echo "Waiting for Certificates to be created: ${expected_certs}"
 missing=""
 for _ in $(seq 1 "${CERT_CREATE_RETRIES}"); do
@@ -51,7 +58,7 @@ done
 kubectl get certificates -n "${ns}" || true
 if [ -n "${missing}" ]; then
   echo "ERROR: Certificate(s) not created within $((CERT_CREATE_RETRIES * CERT_CREATE_INTERVAL))s:${missing}"
-  echo "cert-manager's gateway-shim may not be running, or the Gateway listeners/issuer annotation are misconfigured."
+  echo "cert-manager's gateway-shim/ingress-shim may not be running, or the Gateway listeners/Ingresses/issuer annotation are misconfigured."
   exit 1
 fi
 

@@ -5,8 +5,8 @@
 # Replaces gatewayapi-http.values.yaml — the chart renders Ingress objects and,
 # for Git over SSH, an IngressRouteTCP, instead of HTTPRoute/TCPRoute.
 #
-# HTTP only: the cert-manager/Pebble HTTPS path is Gateway API only, and
-# k3d_deploy.sh forces Ingress deployments back to HTTP.
+# HTTP only, for the QA job: the gitlab-qa containers cannot trust a
+# runtime-generated CA. The review specs use traefik-https-k3d.values.yaml.
 #
 # None of the deprecated bundled Ingress controllers are installed here. That is
 # the point of this environment: NGINX Ingress, Traefik and HAProxy are removed
