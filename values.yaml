@@ -782,7 +782,9 @@ global:
       grpc:
         # Whether the KAS gRPC Ingress is rendered, and therefore whether agents are
         # pointed at grpcs:// when Ingress is used. Unset renders it for the NGINX
-        # Ingress provider only. Set `true` or `false` to force it.
+        # Ingress provider only. Set `true` or `false` to force it. Traefik needs
+        # `true`, after its entrypoint is configured for gRPC:
+        # https://docs.gitlab.com/charts/charts/gitlab/kas/#traefik
         enabled:
     tls:
       enabled: false

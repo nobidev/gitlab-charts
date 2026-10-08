@@ -110,3 +110,25 @@ listeners share port 80 and Envoy Gateway rejects section-scoped policies for th
 true
 {{- end -}}
 {{- end -}}
+
+{{/*
+Whether the KAS gRPC Ingress is rendered. Never with a relative URL root, because the gRPC path
+cannot be prefixed. <no value> hostnames are not empty: https://github.com/helm/helm/issues/13487.
+*/}}
+{{- define "kas.ingress.grpc.render" -}}
+{{- if and .Values.global.kas.enabled (eq (include "gitlab.ingress.enabled" .) "true") -}}
+{{-   $hostname := include "gitlab.kas.hostname" . | trim -}}
+{{-   $relativeUrlRoot := default "" .Values.global.appConfig.relativeUrlRoot -}}
+{{-   $grpcEnabled := include "gitlab.kas.ingress.grpc.enabled" (dict "local" .Values.ingress.grpc.enabled "global" .Values.global.kas.ingress.grpc.enabled "provider" .Values.global.ingress.provider) -}}
+{{-   if and (eq $grpcEnabled "true") (ne $hostname "") (ne $hostname "<no value>") (eq $relativeUrlRoot "") -}}
+true
+{{-   end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Name of the Service the KAS gRPC Ingress routes to: with Traefik, the dedicated gRPC Service.
+*/}}
+{{- define "kas.ingress.grpc.serviceName" -}}
+{{- include "gitlab.kas.serviceName" . -}}{{ if eq .Values.global.ingress.provider "traefik" }}-grpc{{ end }}
+{{- end -}}
