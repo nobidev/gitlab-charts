@@ -155,22 +155,14 @@ ports:
 The gRPC Ingress routes to a dedicated `<release>-kas-grpc` Service, annotated with
 `traefik.ingress.kubernetes.io/service.serversscheme: h2c`. Traefik sets the backend protocol for a
 whole Service, and the Kubernetes API proxy behind the main KAS Service does not accept h2c. The
-`service.annotations` and `global.service.annotations` values apply to both Services. The gRPC
-Service always uses the scheme that matches `global.kas.tls.enabled`, so a `serversscheme`
-annotation in `service.annotations` applies only to the main KAS Service.
+`service.annotations` and `global.service.annotations` values apply to both Services, except for a
+`serversscheme` that the chart sets.
 
-When [`global.kas.tls.enabled`](#enable-tls-communication) is `true`, the gRPC Service uses the
-`https` scheme, and Traefik must trust the KAS certificate. Create a Traefik `ServersTransport` with
-the CA certificate and the KAS Service address as `serverName`, and reference it on both Services:
-
-```yaml
-gitlab:
-  kas:
-    service:
-      annotations:
-        traefik.ingress.kubernetes.io/service.serversscheme: https
-        traefik.ingress.kubernetes.io/service.serverstransport: <namespace>-<name>@kubernetescrd
-```
+When [`global.kas.tls.enabled`](#enable-tls-communication) is `true`, both Services use the `https`
+scheme and a Traefik `ServersTransport` that the chart renders as `<release>-kas`. It verifies the
+KAS certificate for the KAS Service address against the CA in `global.kas.tls.caSecretName`, or skips
+verification when `global.kas.tls.verify` is `false`. To use your own `ServersTransport` instead, set
+`traefik.ingress.kubernetes.io/service.serverstransport` in `service.annotations`.
 
 ### Installation command line options
 

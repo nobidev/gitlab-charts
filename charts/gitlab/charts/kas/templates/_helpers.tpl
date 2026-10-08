@@ -137,3 +137,26 @@ Name of the Service the KAS gRPC Ingress routes to: with Traefik, the dedicated 
 {{-   $name -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Whether the chart renders a Traefik ServersTransport for KAS: Traefik routes to KAS through Ingress,
+and KAS serves TLS.
+*/}}
+{{- define "kas.traefik.serversTransport.enabled" -}}
+{{- if and .Values.global.kas.enabled .Values.global.kas.tls.enabled (eq .Values.global.ingress.provider "traefik") (eq (include "gitlab.ingress.enabled" .) "true") -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Annotations of a KAS Service routed by Traefik. Takes a dict with "context" and "scheme". The scheme wins
+over service.annotations, and the chart's ServersTransport is used unless service.annotations sets one.
+*/}}
+{{- define "kas.traefik.serviceAnnotations" -}}
+{{- $ := .context -}}
+{{- $annotations := merge (dict "traefik.ingress.kubernetes.io/service.serversscheme" .scheme) (include "gitlab.serviceAnnotations" $ | fromYaml) -}}
+{{- if eq (include "kas.traefik.serversTransport.enabled" $) "true" -}}
+{{-   $_ := merge $annotations (dict "traefik.ingress.kubernetes.io/service.serverstransport" (printf "%s-%s@kubernetescrd" $.Release.Namespace (include "fullname" $))) -}}
+{{- end -}}
+{{- toYaml $annotations -}}
+{{- end -}}

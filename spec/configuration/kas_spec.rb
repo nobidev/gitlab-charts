@@ -1728,6 +1728,8 @@ describe 'kas configuration' do
           ])
           expect(grpc_service_spec['selector']).to eq(helm_template.dig('Service/test-kas', 'spec', 'selector'))
 
+          expect(helm_template.resource_exists?('ServersTransport/test-kas')).to be(false)
+
           # The Kubernetes API proxy behind the main Service does not accept h2c.
           expect(helm_template.annotations('Service/test-kas').to_h).not_to include('traefik.ingress.kubernetes.io/service.serversscheme')
         end
@@ -1740,11 +1742,39 @@ describe 'kas configuration' do
                   tls:
                     enabled: true
                     secretName: kas-tls
+                    caSecretName: kas-ca
             )))
           end
 
-          it 'uses the https scheme' do
-            expect(helm_template.annotations('Service/test-kas-grpc')).to include('traefik.ingress.kubernetes.io/service.serversscheme' => 'https')
+          it 'renders a ServersTransport that both Services use with the https scheme' do
+            expect(helm_template.dig('ServersTransport/test-kas', 'spec')).to eq(
+              'serverName' => 'test-kas.default.svc',
+              'rootCAs' => [{ 'secret' => 'kas-ca' }]
+            )
+            %w[Service/test-kas Service/test-kas-grpc].each do |service|
+              expect(helm_template.annotations(service)).to include(
+                'traefik.ingress.kubernetes.io/service.serversscheme' => 'https',
+                'traefik.ingress.kubernetes.io/service.serverstransport' => 'default-test-kas@kubernetescrd'
+              )
+            end
+          end
+
+          context 'when certificate verification is disabled' do
+            let(:kas_values) do
+              super().deep_merge!(YAML.safe_load(%(
+                global:
+                  kas:
+                    tls:
+                      verify: false
+              )))
+            end
+
+            it 'skips verification in the ServersTransport' do
+              expect(helm_template.dig('ServersTransport/test-kas', 'spec')).to eq(
+                'serverName' => 'test-kas.default.svc',
+                'insecureSkipVerify' => true
+              )
+            end
           end
         end
 

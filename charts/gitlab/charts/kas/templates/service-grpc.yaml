@@ -1,7 +1,6 @@
 {{- /* Traefik sets the backend protocol per Service, and the k8s-proxy behind the main Service does not accept h2c. */ -}}
 {{- if and (eq .Values.global.ingress.provider "traefik") (eq (include "kas.ingress.grpc.render" .) "true") -}}
 {{- $scheme := ternary "https" "h2c" (eq $.Values.global.kas.tls.enabled true) -}}
-{{- $annotations := merge (dict "traefik.ingress.kubernetes.io/service.serversscheme" $scheme) (include "gitlab.serviceAnnotations" . | fromYaml) -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -12,7 +11,7 @@ metadata:
     {{- include "gitlab.commonLabels" . | nindent 4 }}
     {{- include "gitlab.serviceLabels" . | nindent 4 }}
   annotations:
-    {{- toYaml $annotations | nindent 4 }}
+    {{- include "kas.traefik.serviceAnnotations" (dict "context" . "scheme" $scheme) | nindent 4 }}
 spec:
   type: ClusterIP
   {{- if .Values.service.trafficDistribution }}

@@ -9,7 +9,11 @@ metadata:
     {{- include "gitlab.commonLabels" . | nindent 4 }}
     {{- include "gitlab.serviceLabels" . | nindent 4 }}
   annotations:
+    {{- if eq (include "kas.traefik.serversTransport.enabled" .) "true" }}
+    {{- include "kas.traefik.serviceAnnotations" (dict "context" . "scheme" "https") | nindent 4 }}
+    {{- else }}
     {{- include "gitlab.serviceAnnotations" . | nindent 4 }}
+    {{- end }}
 spec:
   type: {{ .Values.service.type | quote }}
   {{- if (eq .Values.service.type "LoadBalancer") }}
