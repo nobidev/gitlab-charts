@@ -1767,14 +1767,33 @@ describe 'kas configuration' do
             )))
           end
 
-          it 'applies the annotations, overriding the scheme, but keeps a ClusterIP Service' do
+          it 'applies the annotations, except for the scheme, and keeps a ClusterIP Service' do
             expect(helm_template.annotations('Service/test-kas-grpc')).to include(
               'global' => 'annotation',
               'traefik.ingress.kubernetes.io/service.serverstransport' => 'gitlab-kas@kubernetescrd',
-              'traefik.ingress.kubernetes.io/service.serversscheme' => 'https'
+              'traefik.ingress.kubernetes.io/service.serversscheme' => 'h2c'
             )
             expect(grpc_service_spec).to include('type' => 'ClusterIP', 'trafficDistribution' => 'PreferClose')
             expect(grpc_service_spec).not_to include('loadBalancerIP')
+          end
+        end
+
+        context 'when the KAS Service name is long' do
+          let(:kas_values) do
+            super().deep_merge!(YAML.safe_load(%(
+              global:
+                kas:
+                  nameOverride: kas-with-a-very-long-name-override-to-overflow-the-service-name
+            )))
+          end
+
+          it 'truncates the gRPC Service name to 63 characters and routes the gRPC Ingress to it' do
+            expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+
+            service_name = helm_template.resources('Service/').map { |key| key.delete_prefix('Service/') }.find { |name| name.end_with?('-grpc') }
+            expect(service_name).to end_with('-grpc')
+            expect(service_name.length).to be <= 63
+            expect(grpc_path.dig('backend', 'service', 'name')).to eq(service_name)
           end
         end
 

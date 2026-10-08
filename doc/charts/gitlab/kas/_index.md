@@ -155,7 +155,9 @@ ports:
 The gRPC Ingress routes to a dedicated `<release>-kas-grpc` Service, annotated with
 `traefik.ingress.kubernetes.io/service.serversscheme: h2c`. Traefik sets the backend protocol for a
 whole Service, and the Kubernetes API proxy behind the main KAS Service does not accept h2c. The
-`service.annotations` and `global.service.annotations` values apply to both Services.
+`service.annotations` and `global.service.annotations` values apply to both Services. The gRPC
+Service always uses the scheme that matches `global.kas.tls.enabled`, so a `serversscheme`
+annotation in `service.annotations` applies only to the main KAS Service.
 
 When [`global.kas.tls.enabled`](#enable-tls-communication) is `true`, the gRPC Service uses the
 `https` scheme, and Traefik must trust the KAS certificate. Create a Traefik `ServersTransport` with

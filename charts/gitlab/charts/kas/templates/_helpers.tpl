@@ -130,5 +130,10 @@ true
 Name of the Service the KAS gRPC Ingress routes to: with Traefik, the dedicated gRPC Service.
 */}}
 {{- define "kas.ingress.grpc.serviceName" -}}
-{{- include "gitlab.kas.serviceName" . -}}{{ if eq .Values.global.ingress.provider "traefik" }}-grpc{{ end }}
+{{- $name := include "gitlab.kas.serviceName" . -}}
+{{- if eq .Values.global.ingress.provider "traefik" -}}
+{{-   printf "%s-grpc" ($name | trunc 58 | trimSuffix "-") -}}
+{{- else -}}
+{{-   $name -}}
+{{- end -}}
 {{- end -}}
