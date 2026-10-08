@@ -70,7 +70,7 @@ spec:
             pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
             backend:
               service:
-                name: {{ template "gitlab.kas.serviceName" . }}
+                name: {{ template "kas.workspaces.serviceName" . }}
                 port:
                   number: {{ .Values.service.workspacesServerPort }}
           {{- end }}

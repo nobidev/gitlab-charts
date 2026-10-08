@@ -1894,6 +1894,10 @@ describe 'kas configuration' do
         expect(helm_template.dig('Service/test-kas-workspaces', 'spec', 'selector')).to eq(helm_template.dig('Service/test-kas', 'spec', 'selector'))
         expect(helm_template.dig('HTTPRoute/test-kas-workspaces', 'spec', 'rules', 0, 'backendRefs', 0)).to include('name' => 'test-kas-workspaces', 'port' => 8160)
         expect(helm_template.dig('HTTPRoute/test-kas-workspaces', 'spec', 'parentRefs', 0)).to include('sectionName' => 'kas-workspaces-web')
+        # Kept out of the gitlab-kas HTTPRoute, whose BackendTrafficPolicy forces the client protocol.
+        expect(helm_template.dig('HTTPRoute/test-kas', 'spec', 'rules').map { |rule| rule.dig('matches', 0, 'path', 'value') }).not_to include('/workspaces')
+        expect(helm_template.dig('HTTPRoute/test-kas-workspaces-api', 'spec')).to include('hostnames' => ['kas.example.com'])
+        expect(helm_template.dig('HTTPRoute/test-kas-workspaces-api', 'spec', 'rules', 0, 'backendRefs', 0)).to include('name' => 'test-kas-workspaces', 'port' => 8160)
         expect(helm_template.dig('BackendTLSPolicy/test-kas', 'spec', 'targetRefs').map { |ref| ref['name'] }).to eq(['test-kas'])
       end
     end
@@ -1914,6 +1918,8 @@ describe 'kas configuration' do
         expect(helm_template.dig('Ingress/test-kas-workspaces', 'spec', 'rules', 0, 'http', 'paths', 0, 'backend', 'service')).to eq(
           'name' => 'test-kas-workspaces', 'port' => { 'number' => 8160 }
         )
+        workspaces_api_path = helm_template.dig('Ingress/test-kas', 'spec', 'rules', 0, 'http', 'paths').find { |path| path['path'] == '/workspaces/' }
+        expect(workspaces_api_path.dig('backend', 'service')).to eq('name' => 'test-kas-workspaces', 'port' => { 'number' => 8160 })
         expect(helm_template.annotations('Service/test-kas-workspaces')).to eq('traefik.ingress.kubernetes.io/service.serversscheme' => 'http')
       end
     end
