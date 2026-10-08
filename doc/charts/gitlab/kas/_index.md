@@ -163,6 +163,7 @@ scheme and a Traefik `ServersTransport` that the chart renders as `<release>-kas
 KAS certificate for the KAS Service address against the CA in `global.kas.tls.caSecretName`, or skips
 verification when `global.kas.tls.verify` is `false`. To use your own `ServersTransport` instead, set
 `traefik.ingress.kubernetes.io/service.serverstransport` in `service.annotations`.
+The `ServersTransport` uses the `rootCAs` option, which requires Traefik v3.4 or later.
 
 ### Installation command line options
 
