@@ -88,7 +88,7 @@ to the `helm install` command using the `--set` flags.
 | `containerSecurityContext`                               |                                                            | Override container [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) under which the container is started |
 | `containerSecurityContext.runAsUser`                     | `1000`                                                     | Allows overwriting of the specific security context user ID under which the container is started |
 | `containerSecurityContext.allowPrivilegeEscalation`      | `false`                                                    | Controls whether a process of the container can gain more privileges than its parent process |
-| `containerSecurityContext.runAsNonRoot`                  | `false`                                                    | Controls whether the container runs with a non-root user |
+| `containerSecurityContext.runAsNonRoot`                  | `true`                                                     | Controls whether the container runs with a non-root user |
 | `containerSecurityContext.capabilities.drop`             | `[ "ALL" ]`                                                | Removes [Linux capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html) for the Gitaly container |
 | `tolerations`                                            | `[]`                                                       | Toleration labels for pod assignment |
 | `psql.port`                                              |                                                            | Set PostgreSQL server port. Takes precedence over `global.psql.port` |

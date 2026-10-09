@@ -1313,7 +1313,7 @@ However, a custom Libravatar service can also be used if needed:
 
 | Name                |  Type  | Default | Description |
 |:--------------------|:------:|:--------|:------------|
-| `gravatar.plainURL` | String | (empty) | [HTTP URL to Libravatar instance (instead of using gravatar.com)](https://docs.gitlab.com/administration/libravatar/). |
+| `gravatar.plainUrl` | String | (empty) | [HTTP URL to Libravatar instance (instead of using gravatar.com)](https://docs.gitlab.com/administration/libravatar/). |
 | `gravatar.sslUrl`   | String | (empty) | [HTTPS URL to Libravatar instance (instead of using gravatar.com)](https://docs.gitlab.com/administration/libravatar/). |
 
 ### Hooking Analytics services to the GitLab instance

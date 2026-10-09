@@ -51,10 +51,10 @@ to the `helm install` command using the `--set` flags.
 | `deployment.livenessProbe.successThreshold`                   | `1`                                                             | Minimum consecutive successes for the liveness probe to be considered successful after having failed |
 | `deployment.livenessProbe.failureThreshold`                   | `3`                                                             | Minimum consecutive failures for the liveness probe to be considered failed after having succeeded |
 | `deployment.readinessProbe.initialDelaySeconds`               | `0`                                                             | Delay before readiness probe is initiated |
-| `deployment.readinessProbe.periodSeconds`                     | `10`                                                            | How often to perform the readiness probe |
+| `deployment.readinessProbe.periodSeconds`                     | `5`                                                             | How often to perform the readiness probe |
 | `deployment.readinessProbe.timeoutSeconds`                    | `2`                                                             | When the readiness probe times out |
 | `deployment.readinessProbe.successThreshold`                  | `1`                                                             | Minimum consecutive successes for the readiness probe to be considered successful after having failed |
-| `deployment.readinessProbe.failureThreshold`                  | `3`                                                             | Minimum consecutive failures for the readiness probe to be considered failed after having succeeded |
+| `deployment.readinessProbe.failureThreshold`                  | `2`                                                             | Minimum consecutive failures for the readiness probe to be considered failed after having succeeded |
 | `deployment.strategy`                                         | `{}`                                                            | Allows one to configure the update strategy used by the deployment. When not provided, the cluster default is used. |
 | `deployment.revisionHistoryLimit`                             |                                                                 | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
 | `enabled`                                                     | `true`                                                          | Webservice enabled flag |
@@ -129,7 +129,7 @@ to the `helm install` command using the `--set` flags.
 | `global.registry.tokenIssuer`                                 | `gitlab-issuer`                                                 | Registry token issuer |
 | `replicaCount`                                                | `1`                                                             | Webservice number of replicas |
 | `resources.requests.cpu`                                      | `300m`                                                          | Webservice minimum CPU |
-| `resources.requests.memory`                                   | `1.5G`                                                          | Webservice minimum memory |
+| `resources.requests.memory`                                   | `2.5G`                                                          | Webservice minimum memory |
 | `service.externalPort`                                        | `8080`                                                          | Webservice exposed port |
 | `securityContext.fsGroup`                                     | `1000`                                                          | Group ID under which the pod should be started |
 | `securityContext.runAsUser`                                   | `1000`                                                          | User ID under which the pod should be started |
@@ -184,7 +184,7 @@ to the `helm install` command using the `--set` flags.
 | `workhorse.healthcheckListener.checkInterval`                 | `10s`                                                           | Time interval between consecutive health status checks of the upstream Puma server. |
 | `workhorse.healthcheckListener.timeout`                       | `5s`                                                            | Timeout of Puma check requests. |
 | `workhorse.healthcheckListener.maxConsecutiveFailures`        | `1`                                                             | Number of failures before marking the workhorse as not ready. |
-| `workhorse.healthcheckListener.minSuccessfullProbes`          | `1`                                                             | Number of successful probes before workhorse is deemed ready. |
+| `workhorse.healthcheckListener.minSuccessfulProbes`           | `1`                                                             | Number of successful probes before workhorse is deemed ready. |
 | `workhorse.healthcheckListener.railsSkipInterval`             | `0s`                                                            | Time delay before resuming Puma readiness checks after a request is successfully processed. Disabled by default. |
 | `workhorse.loadShedding.enabled`                              | `false`                                                         | Enable load shedding to return `503` when Puma's request backlog exceeds the threshold. |
 | `workhorse.loadShedding.backlogThreshold`                     | `50`                                                            | Backlog threshold at which to start shedding load. |
@@ -197,8 +197,8 @@ to the `helm install` command using the `--set` flags.
 | `workhorse.monitoring.exporter.enabled`                       | `false`                                                         | Enable workhorse to expose Prometheus metrics, this is overridden by `workhorse.metrics.enabled` |
 | `workhorse.monitoring.exporter.port`                          | `9229`                                                          | Port number to use for workhorse Prometheus metrics |
 | `workhorse.monitoring.exporter.tls.enabled`                   | `false`                                                         | When set to `true`, enables TLS on metrics endpoint. It requires [TLS to be enabled for Workhorse](#gitlab-workhorse). |
-| `workhorse.metrics.enabled`                                   | `true`                                                          | If a workhorse metrics endpoint should be made available for scraping |
-| `workhorse.metrics.port`                                      | `8083`                                                          | Workhorse metrics endpoint port |
+| `workhorse.metrics.enabled`                                   | `false`                                                         | If a workhorse metrics endpoint should be made available for scraping |
+| `workhorse.metrics.port`                                      | `9229`                                                          | Workhorse metrics endpoint port. The chart does not use this value. The metrics endpoint listens on `workhorse.monitoring.exporter.port`. |
 | `workhorse.metrics.path`                                      | `/metrics`                                                      | Workhorse metrics endpoint path |
 | `workhorse.metrics.serviceMonitor.enabled`                    | `false`                                                         | If a ServiceMonitor should be created to enable Prometheus Operator to manage the Workhorse metrics scraping |
 | `workhorse.metrics.serviceMonitor.additionalLabels`           | `{}`                                                            | Additional labels to add to the Workhorse ServiceMonitor |
@@ -571,8 +571,8 @@ webservice:
 | `ingress.serviceUpstream`         | Boolean | `true`                    | [See Below](#serviceupstream). |
 | `ingress.tls.enabled`             | Boolean | `true`                    | When set to `false`, you disable TLS for GitLab Webservice. This is mainly useful for cases in which you cannot use TLS termination at Ingress-level, like when you have a TLS-terminating proxy before the Ingress Controller. |
 | `ingress.tls.secretName`          | String  | (empty)                   | The name of the Kubernetes TLS Secret that contains a valid certificate and key for the GitLab URL. When not set, the `global.ingress.tls.secretName` value is used instead. |
-| `ingress.tls.smardcardSecretName` | String  | (empty)                   | The name of the Kubernetes TLS SEcret that contains a valid certificate and key for the GitLab smartcard URL if enabled. When not set, the `global.ingress.tls.secretName` value is used instead. |
-| `ingress.tls.useGeoClass`         | Boolean | `false`                   | Override the IngressClass with the Geo Ingress class (`global.geo.ingressClass`). Required for primary Geo sites. |
+| `ingress.tls.smartcardSecretName` | String  | (empty)                   | The name of the Kubernetes TLS Secret that contains a valid certificate and key for the GitLab smartcard URL if enabled. When not set, the `global.ingress.tls.secretName` value is used instead. |
+| `ingress.useGeoClass`             | Boolean | `false`                   | Override the IngressClass with the Geo Ingress class (`global.geo.ingressClass`). Required for primary Geo sites. |
 
 ### annotations
 

@@ -240,11 +240,10 @@ See the [instructions for creating secrets](secrets.md).
 
 | Parameter                              | Default | Description |
 |----------------------------------------|---------|-------------|
-| `certmanager.rbac.create`              | `true`  | Create and use RBAC resources |
+| `certmanager.global.rbac.create`       | `true`  | Create and use RBAC resources |
 | `gitlab-runner.rbac.create`            | `true`  | Create and use RBAC resources |
-| `nginx-ingress.rbac.create`            | `false` | Create and use default RBAC resources |
-| `nginx-ingress.rbac.createClusterRole` | `false` | Create and use Cluster role |
-| `nginx-ingress.rbac.createRole`        | `true`  | Create and use namespaced role |
+| `nginx-ingress.rbac.create`            | `true`  | Create and use default RBAC resources |
+| `nginx-ingress.rbac.scope`             | `false` | Must be `false`. IngressClasses are not namespaced, so NGINX Ingress needs its cluster role, and the chart refuses `true`. |
 | `prometheus.rbac.create`               | `true`  | Create and use RBAC resources |
 
 If you're setting `nginx-ingress.rbac.create` to `false` to configure the RBAC rules by yourself, you

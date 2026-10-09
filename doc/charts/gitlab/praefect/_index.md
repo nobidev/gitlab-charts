@@ -301,7 +301,7 @@ the `helm install` command using the `--set` flags.
 |----------------------------------------------------------|---------------------------------------------------|-------------|
 | `common.labels`                                          | `{}`                                              | Supplemental labels that are applied to all objects created by this chart. |
 | `failover.enabled`                                       | true                                              | Whether Praefect should perform failover on node failure |
-| `failover.readonlyAfter`                                 | false                                             | Whether the nodes should be in read-only mode after failover |
+| `failover.readonlyAfter`                                 | true                                              | Whether the nodes should be in read-only mode after failover |
 | `autoMigrate`                                            | true                                              | Automatically run migrations on startup |
 | `image.repository`                                       | `registry.gitlab.com/gitlab-org/build/cng/gitaly` | The default image repository to use. Praefect is bundled as part of the Gitaly image |
 | `podLabels`                                              | `{}`                                              | Supplemental Pod labels. Will not be used for selectors. |
