@@ -239,6 +239,8 @@ ingress:
 > Enabling SSL passthrough requires cert-manager to create another Ingress to complete HTTP01 challanges.
 > If you use the bundled certmanager and `Issuer`, make sure the Issuer sets the correct `IngressClass` by
 > configuring [`global.ingress.useNewIngressForCerts`](../globals.md#globalingressusenewingressforcerts).
+>
+> Do not combine SSL passthrough with the [X-Forwarded-For options](#x-forwarded-for-options).
 
 ### Gateway API
 
@@ -592,6 +594,72 @@ To move OpenBao to a different KMS key:
    > If you disable or delete the old key before the re-encryption completes, OpenBao cannot unseal.
    > Pointing an alias at a different key does not re-encrypt anything already encrypted with the
    > old key.
+
+### X-Forwarded-For options
+
+By default, OpenBao records the address of the connecting proxy, such as the Ingress controller,
+as the `remote_address` of each request in the audit log. To record the address of the client
+instead, configure OpenBao to trust the `X-Forwarded-For` header sent by your proxy.
+
+The settings apply to the API listener only. They have no effect while
+`config.xForwardedFor.authorizedAddrs` is empty, so existing deployments are not affected.
+
+| Parameter                                                | Default                                                 | Description |
+|----------------------------------------------------------|---------------------------------------------------------|-------------|
+| `config.xForwardedFor.authorizedAddrs`                   | `[]`                                                    | List of CIDRs of the proxies whose `X-Forwarded-For` header OpenBao trusts. Setting at least one CIDR enables the feature. Must be a list. |
+| `config.xForwardedFor.hopSkips`                          | 0                                                       | Number of trusted proxy addresses to skip, counting from the end of the header. OpenBao uses the next address as the client address. |
+| `config.xForwardedFor.rejectNotPresent`                  | false                                                   | Reject requests that have no `X-Forwarded-For` header. Keep this `false`, because Kubernetes probes send requests without the header. |
+| `config.xForwardedFor.rejectNotAuthorized`               | false                                                   | Reject requests that have an `X-Forwarded-For` header but do not come from an address in `authorizedAddrs`. If `false`, OpenBao ignores the header and uses the address of the connection. |
+
+To enable the feature, set `authorizedAddrs` to the CIDR of the proxy pods that connect to
+OpenBao. With NGINX, these are the controller pods. With Gateway API, these are the Envoy
+proxy pods. These pods get their addresses from the cluster pod CIDR. For example, on GKE:
+`gcloud container clusters describe <cluster> --location <location> --format='value(clusterIpv4Cidr)'`.
+
+```yaml
+openbao:
+  config:
+    xForwardedFor:
+      authorizedAddrs:
+        - 10.0.0.0/16
+```
+
+On the command line, pass the list in braces:
+
+```shell
+--set 'openbao.config.xForwardedFor.authorizedAddrs={10.0.0.0/16}'
+```
+
+> [!warning]
+> `authorizedAddrs` matches the address of the connection, not the addresses in the header.
+> With the pod CIDR, any pod that can reach the OpenBao Service can set its own
+> `X-Forwarded-For` header. This changes the client address recorded in the OpenBao audit log
+> and in GitLab Secrets Manager audit events. Limit which pods can reach OpenBao on port
+> `8200`, for example with a `NetworkPolicy`, or give the proxy pods a dedicated pod range.
+>
+> Do not use these settings with `ingress.sslPassthroughNginx: true`. With TLS passthrough,
+> NGINX cannot change the `X-Forwarded-For` header, so any client can set its own.
+
+Set `hopSkips` based on how requests reach OpenBao:
+
+| Path to OpenBao | `hopSkips` |
+|---|---|
+| Layer 4 load balancer → NGINX or Envoy Gateway | `0` |
+| Layer 7 load balancer → Envoy Gateway | `1` |
+| Layer 7 load balancer → NGINX with `use-forwarded-headers: "true"` and `compute-full-forwarded-for: "true"` in `nginx-ingress.controller.config` | `1` |
+
+With a layer 4 load balancer, the proxy must see the client address, for example with
+`externalTrafficPolicy: Local`. With a layer 7 load balancer and NGINX default settings,
+NGINX replaces the header, so OpenBao records the load balancer address.
+
+If `hopSkips` is not smaller than the number of entries in the header, OpenBao rejects the
+request with HTTP 400. For example, `hopSkips: 1` with NGINX default settings makes every
+request through the Ingress fail. Kubernetes probes send no header, so they still pass and
+the pods look healthy.
+
+GitLab sends its requests to OpenBao through the same external URL as runners, unless you set
+`global.openbao.internal_url` or `global.openbao.internal_host`. If you set either, make sure those
+requests produce a header with more entries than `hopSkips`, or no header at all.
 
 ### Audit event streaming options
 
