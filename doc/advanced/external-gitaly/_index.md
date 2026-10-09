@@ -416,7 +416,8 @@ Schedule the move by following the steps indicated in [moving repositories](http
    {{< tab title="Gitaly" >}}
 
    Disable the internal Gitaly subchart, and point the `default` repository storage to the external
-   Gitaly service.
+   Gitaly service. The external Gitaly service must have a storage named `default`, in addition to the
+   storage you moved repositories to. Gitaly serves only the storages in its configuration.
 
    ```yaml
    global:
@@ -462,8 +463,15 @@ Schedule the move by following the steps indicated in [moving repositories](http
      (Praefect). For more information, see
      [configure where new repositories are stored](https://docs.gitlab.com/administration/repository_storage_paths/#configure-where-new-repositories-are-stored).
    - If you use server-side repository backups, configure the internal Gitaly with the same backup
-     object storage as the Gitaly Cluster nodes. For more information, see
+     object storage as the Gitaly Cluster nodes. The internal Gitaly needs it to back up any
+     repositories that remain on `default`, and some GitLab versions also use it to record each backup
+     run. For more information, see
      [server-side backups](../../charts/gitlab/gitaly/_index.md#server-side-backups).
+
+   If you don't want to keep the internal Gitaly subchart, configure a virtual storage named `default`
+   in Praefect instead, and point the `default` repository storage to Praefect. The `default` virtual
+   storage needs its own Gitaly nodes. For more information, see
+   [multiple virtual storages](https://docs.gitlab.com/administration/gitaly/praefect/#multiple-virtual-storages).
 
       {{< /tab >}}
 
