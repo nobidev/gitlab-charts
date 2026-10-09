@@ -119,4 +119,46 @@ describe 'Certificates configuration' do
       end
     end
   end
+
+  context 'Dependency-waiting init containers' do
+    let(:registry_db_values) do
+      default_values.deep_merge(YAML.safe_load(%(
+        registry:
+          database:
+            enabled: true
+            sslmode: verify-full
+            password:
+              secret: registry-psql-secret
+              key: password
+      )))
+    end
+
+    subject(:template) { HelmTemplate.new(registry_db_values) }
+
+    it 'templates successfully' do
+      expect(template.exit_code).to eq(0)
+    end
+
+    it 'mounts the certificates volumes into every dependencies init container' do
+      volumes = %w[etc-ssl-certs etc-pki-ca-trust-extracted-pem]
+
+      checked = []
+
+      %w[Deployment StatefulSet Job].each do |kind|
+        template.resources_by_kind(kind).each_key do |name|
+          next unless template.find_container(name, 'dependencies', true)
+
+          checked << name
+
+          volumes.each do |volume|
+            mount = template.find_volume_mount(name, 'dependencies', volume, true)
+            expect(mount).to be_truthy,
+              "unable to locate '#{volume}' mount in 'dependencies' init container of #{name}"
+          end
+        end
+      end
+
+      expect(checked).to include('Deployment/test-registry')
+    end
+  end
 end
