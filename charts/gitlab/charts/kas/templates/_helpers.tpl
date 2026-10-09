@@ -110,3 +110,53 @@ listeners share port 80 and Envoy Gateway rejects section-scoped policies for th
 true
 {{- end -}}
 {{- end -}}
+
+{{/*
+Whether the KAS gRPC Ingress is rendered. Never with a relative URL root, because the gRPC path
+cannot be prefixed. <no value> hostnames are not empty: https://github.com/helm/helm/issues/13487.
+*/}}
+{{- define "kas.ingress.grpc.render" -}}
+{{- if and .Values.global.kas.enabled (eq (include "gitlab.ingress.enabled" .) "true") -}}
+{{-   $hostname := include "gitlab.kas.hostname" . | trim -}}
+{{-   $relativeUrlRoot := default "" .Values.global.appConfig.relativeUrlRoot -}}
+{{-   $grpcEnabled := include "gitlab.kas.ingress.grpc.enabled" (dict "local" .Values.ingress.grpc.enabled "global" .Values.global.kas.ingress.grpc.enabled "provider" .Values.global.ingress.provider) -}}
+{{-   if and (eq $grpcEnabled "true") (ne $hostname "") (ne $hostname "<no value>") (eq $relativeUrlRoot "") -}}
+true
+{{-   end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Name of the Service the KAS gRPC Ingress routes to: with Traefik, the dedicated gRPC Service.
+*/}}
+{{- define "kas.ingress.grpc.serviceName" -}}
+{{- $name := include "gitlab.kas.serviceName" . -}}
+{{- if eq .Values.global.ingress.provider "traefik" -}}
+{{-   printf "%s-grpc" ($name | trunc 58 | trimSuffix "-") -}}
+{{- else -}}
+{{-   $name -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Whether the chart renders a Traefik ServersTransport for KAS: Traefik routes to KAS through Ingress,
+and KAS serves TLS.
+*/}}
+{{- define "kas.traefik.serversTransport.enabled" -}}
+{{- if and .Values.global.kas.enabled .Values.global.kas.tls.enabled (eq .Values.global.ingress.provider "traefik") (eq (include "gitlab.ingress.enabled" .) "true") -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Annotations of a KAS Service routed by Traefik. Takes a dict with "context" and "scheme". The scheme wins
+over service.annotations, and the chart's ServersTransport is used unless service.annotations sets one.
+*/}}
+{{- define "kas.traefik.serviceAnnotations" -}}
+{{- $ := .context -}}
+{{- $annotations := merge (dict "traefik.ingress.kubernetes.io/service.serversscheme" .scheme) (include "gitlab.serviceAnnotations" $ | fromYaml) -}}
+{{- if eq (include "kas.traefik.serversTransport.enabled" $) "true" -}}
+{{-   $_ := merge $annotations (dict "traefik.ingress.kubernetes.io/service.serverstransport" (printf "%s-%s@kubernetescrd" $.Release.Namespace (include "fullname" $))) -}}
+{{- end -}}
+{{- toYaml $annotations -}}
+{{- end -}}

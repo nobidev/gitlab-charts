@@ -1,14 +1,9 @@
-{{- if .Values.global.kas.enabled -}}
-{{- if eq (include "gitlab.ingress.enabled" $) "true" -}}
+{{- if eq (include "kas.ingress.grpc.render" .) "true" -}}
 {{- $hostname := include "gitlab.kas.hostname" . | trim -}}
 {{- $tlsSecret := include "kas.tlsSecret" . -}}
 {{- $ingressCfg := dict "global" .Values.global.ingress "local" .Values.ingress "context" . -}}
 {{- $isIngressProviderNginx := eq .Values.global.ingress.provider "nginx" -}}
-{{- $relativeUrlRoot := default "" .Values.global.appConfig.relativeUrlRoot -}}
-{{- $grpcEnabled := include "gitlab.kas.ingress.grpc.enabled" (dict "local" .Values.ingress.grpc.enabled "global" .Values.global.kas.ingress.grpc.enabled "provider" .Values.global.ingress.provider) -}}
-{{/*  * This needs special handling for <no value> objects because these are not*/}}
-{{/*considered empty: https://github.com/helm/helm/issues/13487.*/}}
-{{- if and (eq $grpcEnabled "true") (ne $hostname "") (ne $hostname "<no value>") (eq $relativeUrlRoot "") }}
+{{- $isIngressProviderTraefik := eq .Values.global.ingress.provider "traefik" -}}
 apiVersion: {{ template "gitlab.ingress.apiVersion" $ingressCfg }}
 kind: Ingress
 metadata:
@@ -38,6 +33,10 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
     {{- end }}
     {{- end }}
+    {{- if $isIngressProviderTraefik }}
+    {{- /* A plain prefix, because Traefik PathRegexp is unanchored. Explicit, in case the default matcher changes. */}}
+    traefik.ingress.kubernetes.io/router.pathmatcher: PathPrefix
+    {{- end }}
   {{- range $key, $value := merge .Values.ingress.annotations .Values.global.ingress.annotations }}
     {{ $key }}: {{ $value | quote }}
   {{- end }}
@@ -47,11 +46,15 @@ spec:
     - host: {{ $hostname }}
       http:
         paths:
+          {{- if $isIngressProviderTraefik }}
+          - path: /gitlab.agent.
+          {{- else }}
           - path: /gitlab\.agent\.(.+)
+          {{- end }}
             pathType: ImplementationSpecific
             backend:
               service:
-                name: {{ template "gitlab.kas.serviceName" . }}
+                name: {{ template "kas.ingress.grpc.serviceName" . }}
                 port:
                   number: {{ .Values.service.externalPort }}
   {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true")) }}
@@ -62,6 +65,4 @@ spec:
   {{- else }}
   tls: []
   {{- end }}
-{{- end }}
-{{- end }}
 {{- end }}

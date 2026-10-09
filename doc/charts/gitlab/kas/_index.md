@@ -94,6 +94,7 @@ The KAS service supports gRPC traffic through the same port as WebSocket traffic
 #### Controller Support
 
 - **NGINX Ingress Controller**: Fully supported. The gRPC Ingress is rendered by default.
+- **Traefik**: Supported for Traefik v3. Not rendered by default, see [Traefik](#traefik).
 - **Other Controllers**: Any controller that supports regex-based path matching can be used. Set `global.kas.ingress.grpc.enabled: true` to render the gRPC Ingress.
 
 #### Path Pattern
@@ -105,6 +106,7 @@ The gRPC Ingress uses the following path pattern:
 ```
 
 This pattern ensures proper routing of gRPC traffic to the KAS service while maintaining WebSocket functionality on the same port.
+With the Traefik provider, the gRPC Ingress uses the path prefix `/gitlab.agent.` instead.
 
 #### Configuration
 
@@ -132,6 +134,36 @@ the advertised address, so the two can disagree. Use the global setting instead.
 
 No additional configuration is needed when using the NGINX Ingress Controller as it's automatically set up.
 For other controllers, add relevant annotations to support gRPC and ensure they support regex-based path matching and configure them to route the specified path pattern to the KAS service.
+
+#### Traefik
+
+With Traefik v3 as an [external Ingress controller](../../../advanced/external-ingress/_index.md),
+set `global.kas.ingress.grpc.enabled: true` explicitly. The chart does not render the gRPC Ingress
+for Traefik by default, because gRPC also needs configuration on the Traefik entrypoint that serves
+KAS, which the chart cannot manage. By default, Traefik allows 60 seconds to read a request
+(`respondingTimeouts.readTimeout`). For HTTP/2, the timeout applies to each stream, so agents lose
+their gRPC tunnel every minute. Disable the timeout, for example, with the Traefik Helm chart:
+
+```yaml
+ports:
+  websecure:
+    transport:
+      respondingTimeouts:
+        readTimeout: 0
+```
+
+The gRPC Ingress routes to a dedicated `<release>-kas-grpc` Service, annotated with
+`traefik.ingress.kubernetes.io/service.serversscheme: h2c`. Traefik sets the backend protocol for a
+whole Service, and the Kubernetes API proxy behind the main KAS Service does not accept h2c. The
+`service.annotations` and `global.service.annotations` values apply to both Services, except for a
+`serversscheme` that the chart sets.
+
+When [`global.kas.tls.enabled`](#enable-tls-communication) is `true`, both Services use the `https`
+scheme and a Traefik `ServersTransport` that the chart renders as `<release>-kas`. It verifies the
+KAS certificate for the KAS Service address against the CA in `global.kas.tls.caSecretName`, or skips
+verification when `global.kas.tls.verify` is `false`. To use your own `ServersTransport` instead, set
+`traefik.ingress.kubernetes.io/service.serverstransport` in `service.annotations`.
+The `ServersTransport` uses the `rootCAs` option, which requires Traefik v3.4 or later.
 
 ### Installation command line options
 

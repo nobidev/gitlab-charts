@@ -1590,11 +1590,15 @@ describe 'kas configuration' do
 
   describe 'templates/ingress-grpc.yaml' do
     let(:helm_template) { HelmTemplate.new(default_values.deep_merge(kas_values)) }
+    let(:grpc_path) { helm_template.dig('Ingress/test-kas-grpc', 'spec', 'rules', 0, 'http', 'paths', 0) }
+    let(:grpc_service_spec) { helm_template.dig('Service/test-kas-grpc', 'spec') }
 
-    it 'is rendered by default for the nginx provider' do
+    it 'is rendered by default for the nginx provider, routing to the main KAS Service' do
       expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
-      expect(helm_template.dig('Ingress/test-kas-grpc', 'spec', 'rules', 0, 'http', 'paths', 0, 'path')).to eq('/gitlab\\.agent\\.(.+)')
+      expect(grpc_path['path']).to eq('/gitlab\\.agent\\.(.+)')
+      expect(grpc_path.dig('backend', 'service', 'name')).to eq('test-kas')
       expect(helm_template.annotations('Ingress/test-kas-grpc')).to include('nginx.ingress.kubernetes.io/backend-protocol' => 'GRPC')
+      expect(helm_template.resource_exists?('Service/test-kas-grpc')).to be(false)
     end
 
     context 'when disabled globally' do
@@ -1650,7 +1654,7 @@ describe 'kas configuration' do
         default_kas_values.deep_merge!(YAML.safe_load(%(
           global:
             ingress:
-              provider: traefik
+              provider: haproxy
         )))
       end
 
@@ -1669,9 +1673,174 @@ describe 'kas configuration' do
           )))
         end
 
-        it 'is rendered without nginx annotations' do
+        it 'is rendered without provider annotations, routing to the main KAS Service' do
           expect(helm_template.resource_exists?('Ingress/test-kas-grpc')).to be(true)
-          expect(helm_template.annotations('Ingress/test-kas-grpc')).not_to include('nginx.ingress.kubernetes.io/backend-protocol')
+          expect(helm_template.annotations('Ingress/test-kas-grpc')).not_to include('nginx.ingress.kubernetes.io/backend-protocol', 'traefik.ingress.kubernetes.io/router.pathmatcher')
+          expect(grpc_path).to include(
+            'path' => '/gitlab\\.agent\\.(.+)',
+            'backend' => { 'service' => { 'name' => 'test-kas', 'port' => { 'number' => 8150 } } }
+          )
+          expect(helm_template.resource_exists?('Service/test-kas-grpc')).to be(false)
+        end
+      end
+    end
+
+    context 'when the Ingress provider is traefik' do
+      let(:kas_values) do
+        default_kas_values.deep_merge!(YAML.safe_load(%(
+          global:
+            ingress:
+              provider: traefik
+        )))
+      end
+
+      it 'renders neither the gRPC Ingress nor the gRPC Service' do
+        expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+        expect(helm_template.resource_exists?('Ingress/test-kas-grpc')).to be(false)
+        expect(helm_template.resource_exists?('Service/test-kas-grpc')).to be(false)
+      end
+
+      context 'when enabled globally' do
+        let(:kas_values) do
+          super().deep_merge!(YAML.safe_load(%(
+            global:
+              kas:
+                ingress:
+                  grpc:
+                    enabled: true
+          )))
+        end
+
+        it 'matches the gRPC package as a path prefix and routes to a dedicated h2c Service' do
+          expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+
+          ingress_annotations = helm_template.annotations('Ingress/test-kas-grpc')
+          expect(ingress_annotations).to include('traefik.ingress.kubernetes.io/router.pathmatcher' => 'PathPrefix')
+          expect(ingress_annotations.keys).not_to include(a_string_starting_with('nginx.ingress.kubernetes.io/'))
+
+          expect(grpc_path).to include('path' => '/gitlab.agent.', 'pathType' => 'ImplementationSpecific')
+          expect(grpc_path.dig('backend', 'service')).to eq('name' => 'test-kas-grpc', 'port' => { 'number' => 8150 })
+
+          expect(helm_template.annotations('Service/test-kas-grpc')).to include('traefik.ingress.kubernetes.io/service.serversscheme' => 'h2c')
+          expect(grpc_service_spec['type']).to eq('ClusterIP')
+          expect(grpc_service_spec['ports']).to eq([
+            { 'port' => 8150, 'targetPort' => 8150, 'protocol' => 'TCP', 'name' => 'tcp-kas-grpc' }
+          ])
+          expect(grpc_service_spec['selector']).to eq(helm_template.dig('Service/test-kas', 'spec', 'selector'))
+
+          expect(helm_template.resource_exists?('ServersTransport/test-kas')).to be(false)
+
+          # The Kubernetes API proxy behind the main Service does not accept h2c.
+          expect(helm_template.annotations('Service/test-kas').to_h).not_to include('traefik.ingress.kubernetes.io/service.serversscheme')
+        end
+
+        context 'when KAS TLS is enabled' do
+          let(:kas_values) do
+            super().deep_merge!(YAML.safe_load(%(
+              global:
+                kas:
+                  tls:
+                    enabled: true
+                    secretName: kas-tls
+                    caSecretName: kas-ca
+            )))
+          end
+
+          it 'renders a ServersTransport that both Services use with the https scheme' do
+            expect(helm_template.dig('ServersTransport/test-kas', 'spec')).to eq(
+              'serverName' => 'test-kas.default.svc',
+              'rootCAs' => [{ 'secret' => 'kas-ca' }]
+            )
+            %w[Service/test-kas Service/test-kas-grpc].each do |service|
+              expect(helm_template.annotations(service)).to include(
+                'traefik.ingress.kubernetes.io/service.serversscheme' => 'https',
+                'traefik.ingress.kubernetes.io/service.serverstransport' => 'default-test-kas@kubernetescrd'
+              )
+            end
+          end
+
+          context 'when certificate verification is disabled' do
+            let(:kas_values) do
+              super().deep_merge!(YAML.safe_load(%(
+                global:
+                  kas:
+                    tls:
+                      verify: false
+              )))
+            end
+
+            it 'skips verification in the ServersTransport' do
+              expect(helm_template.dig('ServersTransport/test-kas', 'spec')).to eq(
+                'serverName' => 'test-kas.default.svc',
+                'insecureSkipVerify' => true
+              )
+            end
+          end
+        end
+
+        context 'when Service settings are set' do
+          let(:kas_values) do
+            super().deep_merge!(YAML.safe_load(%(
+              global:
+                service:
+                  annotations:
+                    global: annotation
+              gitlab:
+                kas:
+                  service:
+                    type: LoadBalancer
+                    loadBalancerIP: 1.2.3.4
+                    trafficDistribution: PreferClose
+                    annotations:
+                      traefik.ingress.kubernetes.io/service.serverstransport: gitlab-kas@kubernetescrd
+                      traefik.ingress.kubernetes.io/service.serversscheme: https
+            )))
+          end
+
+          it 'applies the annotations, except for the scheme, and keeps a ClusterIP Service' do
+            expect(helm_template.annotations('Service/test-kas-grpc')).to include(
+              'global' => 'annotation',
+              'traefik.ingress.kubernetes.io/service.serverstransport' => 'gitlab-kas@kubernetescrd',
+              'traefik.ingress.kubernetes.io/service.serversscheme' => 'h2c'
+            )
+            expect(grpc_service_spec).to include('type' => 'ClusterIP', 'trafficDistribution' => 'PreferClose')
+            expect(grpc_service_spec).not_to include('loadBalancerIP')
+          end
+        end
+
+        context 'when the KAS Service name is long' do
+          let(:kas_values) do
+            super().deep_merge!(YAML.safe_load(%(
+              global:
+                kas:
+                  nameOverride: kas-with-a-very-long-name-override-to-overflow-the-service-name
+            )))
+          end
+
+          it 'truncates the gRPC Service name to 63 characters and routes the gRPC Ingress to it' do
+            expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+
+            service_name = helm_template.resources('Service/').map { |key| key.delete_prefix('Service/') }.find { |name| name.end_with?('-grpc') }
+            expect(service_name).to end_with('-grpc')
+            expect(service_name.length).to be <= 63
+            expect(grpc_path.dig('backend', 'service', 'name')).to eq(service_name)
+          end
+        end
+
+        context 'when a relative URL root is set' do
+          let(:kas_values) do
+            super().deep_merge!(YAML.safe_load(%(
+              global:
+                appConfig:
+                  relativeUrlRoot: /gitlab
+            )))
+          end
+
+          it 'renders neither the gRPC Ingress nor the gRPC Service' do
+            expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+            expect(helm_template.resource_exists?('Ingress/test-kas-grpc')).to be(false)
+            expect(helm_template.resource_exists?('Service/test-kas-grpc')).to be(false)
+          end
         end
       end
     end
