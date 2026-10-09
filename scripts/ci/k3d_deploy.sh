@@ -86,6 +86,7 @@ echo "export GITLAB_RELEASE_NAME=$(gitlab_release_name)"                        
 echo "export GITLAB_URL=gitlab-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"        >> "${VARIABLES_FILE}"
 echo "export GITLAB_ROOT_DOMAIN=${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"       >> "${VARIABLES_FILE}"
 echo "export REGISTRY_URL=registry-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"    >> "${VARIABLES_FILE}"
+echo "export WORKSPACES_HOST=$(workspaces_host)"                                  >> "${VARIABLES_FILE}"
 # On stable branches, use VERSION (e.g. 19.0.4-ee) — those image tags are preserved
 # by the release pipeline. On master/feature branches, use REVISION (short SHA).
 if [[ "${CI_COMMIT_BRANCH}" =~ -stable$ ]] || [[ "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" =~ -stable$ ]]; then

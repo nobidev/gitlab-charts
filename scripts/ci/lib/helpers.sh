@@ -92,6 +92,12 @@ function traefik_namespace() {
   echo -n "${TRAEFIK_NAMESPACE:-traefik}"
 }
 
+# Workspaces hostname of k3d review environments. nip.io resolves the workspace
+# hosts below it to the k3d loadbalancer, like every other hostname.
+function workspaces_host() {
+  echo -n "workspaces-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"
+}
+
 function use_external_garage() {
   [[ "${SKIP_EXTERNAL_GARAGE}" != "true" ]]
 }

@@ -62,8 +62,11 @@ if [ -n "${missing}" ]; then
   exit 1
 fi
 
-echo "Waiting for all Certificates to be Ready (ACME HTTP-01 issuance)"
-kubectl wait certificates -n "${ns}" --all --for=condition=Ready --timeout="${CERT_READY_TIMEOUT}"
+# Not --all: the Certificate for the self-signed workspaces Secret never becomes
+# Ready (see pebble_create_workspaces_tls in lib/pebble.sh).
+echo "Waiting for Certificates to be Ready (ACME HTTP-01 issuance): ${expected_certs}"
+# shellcheck disable=SC2086 # expected_certs is a space-separated list of names
+kubectl wait certificate ${expected_certs} -n "${ns}" --for=condition=Ready --timeout="${CERT_READY_TIMEOUT}"
 
 for host in gitlab registry kas; do
   fqdn="${host}-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"
