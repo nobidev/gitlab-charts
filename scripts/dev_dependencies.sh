@@ -16,7 +16,7 @@ source "${SCRIPT_DIR}/ci/lib/cloudnativepg.sh"
 source "${SCRIPT_DIR}/ci/lib/garage.sh"
 
 NAMESPACE="${NAMESPACE:-gitlab}"
-GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.2.0}"
+GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.4.1}"
 CNPG_POSTGRESQL_TAG="${CNPG_POSTGRESQL_TAG:-17}"
 
 GENERATED_VALUES="${VALUES_DIR}/dev-external.values.yaml"
@@ -209,7 +209,7 @@ Usage: $0 {setup|teardown|status}
 
 Environment variables:
   NAMESPACE           Kubernetes namespace to use (default: gitlab)
-  GARAGE_APP_VERSION  Garage version to install (default: 2.2.0)
+  GARAGE_APP_VERSION  Garage version to install (default: 2.4.1)
   CNPG_POSTGRESQL_TAG PostgreSQL image tag for CloudNativePG (default: 17)
 
 See doc/development/external-dependencies.md for full documentation.

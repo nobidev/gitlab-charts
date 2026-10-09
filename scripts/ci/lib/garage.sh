@@ -16,7 +16,7 @@ function deploy_external_garage() {
 
     # default to v2.2.0 as that is the first version we tested with
     # garage charts are not tagged, we use the garage app release versions to get the charts
-    GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.2.0}"
+    GARAGE_APP_VERSION="${GARAGE_APP_VERSION:-2.4.1}"
 
     # garage's chart comes from a git ref rather than a versioned repo index,
     # so cache the pulled .tgz by that ref instead of using ensure_external_chart.
