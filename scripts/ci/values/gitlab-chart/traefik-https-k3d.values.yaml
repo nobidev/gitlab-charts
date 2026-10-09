@@ -1,0 +1,43 @@
+# HTTPS variant of traefik-http.values.yaml for the k3d review specs, with
+# certificates from Pebble (pebble-k3d.values.yaml). Agents are pointed at
+# grpcs://, so the KAS gRPC Ingress is exercised over TLS.
+nginx-ingress:
+  enabled: false
+
+traefik:
+  install: false
+
+certmanager:
+  config:
+    # cert-manager does not start without the Gateway API CRDs, which only
+    # Envoy Gateway installs here (see scripts/ci/k3d.sh).
+    enableGatewayAPI: false
+
+global:
+  ingress:
+    enabled: true
+    provider: traefik
+    class: traefik
+    configureCertmanager: true
+    # Solve HTTP-01 through separate Ingresses, which Traefik also serves on
+    # `web`, where Pebble validates. The chart's Ingresses are bound to
+    # `websecure` below.
+    useNewIngressForCerts: true
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+  kas:
+    ingress:
+      grpc:
+        enabled: true
+  gatewayApi:
+    enabled: false
+    installEnvoy: false
+    configureCertmanager: false
+    httpToHttpsRedirect: false
+
+gitlab:
+  gitlab-shell:
+    traefik:
+      entrypoint: gitlab-shell
+      apiVersion: traefik.io/v1alpha1

@@ -92,9 +92,9 @@ function deploy() {
   # k3d has no pre-provisioned wildcard cert (unlike the GKE review apps that
   # the plain *-https values target): HTTPS k3d deployments use the -k3d
   # variant, where cert-manager issues certificates from the in-cluster
-  # Pebble ACME server (scripts/ci/lib/pebble.sh). Gateway API only — the
-  # Ingress path is deprecated (removal announced for 20.0) and k3d Ingress
-  # deployments are forced to HTTP in k3d_deploy.sh.
+  # Pebble ACME server (scripts/ci/lib/pebble.sh). Gateway API and the
+  # externally managed Traefik Ingress only: k3d NGINX Ingress deployments are
+  # forced to HTTP in k3d_deploy.sh.
   K3D_VALUES_SUFFIX=""
   if is_k3d_deployment && [ "$(external_protocol)" = "https" ]; then
     K3D_VALUES_SUFFIX="-k3d"
@@ -105,10 +105,16 @@ function deploy() {
     NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/ingress-$(external_protocol).values.yaml"
   elif use_traefik_ingress; then
     echo "Exposing GitLab via externally managed Traefik Ingress in $(external_protocol) mode"
-    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/traefik-$(external_protocol).values.yaml"
+    NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/traefik-$(external_protocol)${K3D_VALUES_SUFFIX}.values.yaml"
   else
     echo "Exposing GitLab via Gateway API in $(external_protocol) mode"
     NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi-$(external_protocol)${K3D_VALUES_SUFFIX}.values.yaml"
+  fi
+
+  # Passed after CI_CONFIGURATION, whose ci-base.values.yaml sets installCertmanager: false.
+  PEBBLE_CONFIGURATION=""
+  if use_pebble; then
+    PEBBLE_CONFIGURATION="-f ${VALUES_DIR}/pebble-k3d.values.yaml"
   fi
 
   if [ -n "${REVIEW_APPS_SENTRY_DSN}" ] && [ -n "${REVIEW_APPS_SENTRY_ENVIRONMENT}" ]; then
@@ -139,6 +145,7 @@ function deploy() {
     ${CI_CONFIGURATION} \
     ${SENTRY_CONFIGURATION} \
     ${NETWORKING_CONFIGURATION} \
+    ${PEBBLE_CONFIGURATION} \
     ${VALKEY_CONFIGURATION} \
     ${POSTGRESQL_CONFIGURATION} \
     ${GARAGE_CONFIGURATION} \

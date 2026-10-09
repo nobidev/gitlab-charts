@@ -33,10 +33,11 @@ ports:
     expose:
       default: true
     exposedPort: 80
-  # Not exposed: this environment is HTTP-only and all routers bind to `web`.
+  # Not exposed for HTTP-only deployments, where all routers bind to `web`.
   # Publishing 443 completes a TLS handshake that then matches no router, so
   # Docker (HTTPS-first for --insecure-registry hosts) gets Traefik's
-  # "404 page not found" instead of falling back to HTTP.
+  # "404 page not found" instead of falling back to HTTP. HTTPS deployments
+  # expose it through traefik-https.values.yaml.
   websecure:
     expose:
       default: false

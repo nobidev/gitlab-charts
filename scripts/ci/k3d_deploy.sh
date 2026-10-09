@@ -15,12 +15,12 @@ echo "K3D_K8S_IMAGE=${K3D_K8S_IMAGE}"
 
 mkdir -p "$(dirname "${VARIABLES_FILE}")"
 
-# The cert-manager/Pebble HTTPS path is Gateway API only (the bundled Ingress
-# controllers are deprecated, removal announced for 20.0). Force k3d Ingress
-# deployments back to HTTP so k3d_nginx and k3d_traefik keep working with the
-# review-specs template defaults.
-if use_ingress && [ "$(external_protocol)" = "https" ]; then
-  echo "k3d Ingress deployments do not support the cert-manager HTTPS path; using HTTP"
+# The cert-manager/Pebble HTTPS path covers Gateway API and the externally
+# managed Traefik Ingress. Force k3d NGINX Ingress deployments back to HTTP so
+# k3d_nginx keeps working with the review-specs template defaults: the bundled
+# NGINX Ingress controller is deprecated, removal announced for 20.0.
+if use_nginx_ingress && [ "$(external_protocol)" = "https" ]; then
+  echo "k3d NGINX Ingress deployments do not support the cert-manager HTTPS path; using HTTP"
   export EXTERNAL_PROTOCOL=http
   export DEPLOY_PEBBLE=false
 fi
