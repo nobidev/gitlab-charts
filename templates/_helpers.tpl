@@ -705,11 +705,22 @@ Return the Topology Service TLS Secret name
 {{- end -}}
 
 {{/*
+Return whether the global Cells Topology Service client uses TLS.
+*/}}
+{{- define "gitlab.global.cell.topologyService.tls.enabled" -}}
+{{- if and .Values.global.appConfig.cell.enabled .Values.global.appConfig.cell.topologyServiceClient.tls.enabled -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
 Mount topology service TLS secrets in projected volume sources
 Usage: {{ include "gitlab.topologyService.mountSecrets" $ | nindent 10 }}
 */}}
 {{- define "gitlab.topologyService.mountSecrets" -}}
-{{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+{{- if eq (include "gitlab.global.cell.topologyService.tls.enabled" $) "true" }}
 - secret:
     name: {{ template "topology-service.tls.secret" $ }}
     items:
@@ -726,7 +737,7 @@ Usage: {{ include "gitlab.topologyService.volumeMounts" (dict "context" $ "secre
 */}}
 {{- define "gitlab.topologyService.volumeMounts" -}}
 {{- $context := .context -}}
-{{- if and $context.Values.global.appConfig.cell.enabled $context.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+{{- if eq (include "gitlab.global.cell.topologyService.tls.enabled" $context) "true" }}
 - name: {{ .secretsVolumeName }}
   mountPath: /srv/gitlab/config/topology-service/tls.crt
   subPath: topology-service/tls.crt
@@ -743,7 +754,7 @@ Configure script for topology service TLS secrets
 Usage: {{ include "gitlab.topologyService.configureScript" $ | nindent 4 }}
 */}}
 {{- define "gitlab.topologyService.configureScript" -}}
-{{- if and $.Values.global.appConfig.cell.enabled $.Values.global.appConfig.cell.topologyServiceClient.tls.enabled }}
+{{- if eq (include "gitlab.global.cell.topologyService.tls.enabled" $) "true" }}
   if [ -d /init-config/topology-service ]; then
     mkdir -p /init-secrets/topology-service
     cp -v -L /init-config/topology-service/tls.key /init-secrets/topology-service/tls.key
