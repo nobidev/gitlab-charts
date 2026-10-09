@@ -1894,6 +1894,7 @@ describe 'kas configuration' do
         expect(helm_template.dig('Service/test-kas-workspaces', 'spec', 'selector')).to eq(helm_template.dig('Service/test-kas', 'spec', 'selector'))
         expect(helm_template.dig('HTTPRoute/test-kas-workspaces', 'spec', 'rules', 0, 'backendRefs', 0)).to include('name' => 'test-kas-workspaces', 'port' => 8160)
         expect(helm_template.dig('HTTPRoute/test-kas-workspaces', 'spec', 'parentRefs', 0)).to include('sectionName' => 'kas-workspaces-web')
+        expect(helm_template.dig('HTTPRoute/test-kas-workspaces', 'spec', 'rules', 0, 'matches')).to eq([{ 'path' => { 'type' => 'PathPrefix', 'value' => '/' } }])
         # Kept out of the gitlab-kas HTTPRoute, whose BackendTrafficPolicy forces the client protocol.
         expect(helm_template.dig('HTTPRoute/test-kas', 'spec', 'rules').map { |rule| rule.dig('matches', 0, 'path', 'value') }).not_to include('/workspaces')
         expect(helm_template.dig('HTTPRoute/test-kas-workspaces-api', 'spec')).to include('hostnames' => ['kas.example.com'])

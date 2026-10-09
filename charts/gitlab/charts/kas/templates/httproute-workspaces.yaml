@@ -29,10 +29,11 @@ spec:
     timeouts:
       {{- . | toYaml | nindent 6 }}
     {{- end }}
+    {{- /* Workspaces are served on all paths of their hosts, like in the workspaces Ingress. */}}
     matches:
     - path:
         type: PathPrefix
-        value: {{ .Values.ingress.workspacesServerApiPath | quote }}
+        value: "/"
 ---
 {{/*
 The workspaces server API on the KAS host. It is a separate HTTPRoute so that the gitlab-kas
