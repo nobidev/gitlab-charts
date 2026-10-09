@@ -33,10 +33,15 @@ function deploy_external_traefik() {
   chart="$(ensure_external_chart traefik-upstream "${TRAEFIK_CHART_REPO}" traefik \
     "${TRAEFIK_CHART_VERSION}" --version "${TRAEFIK_CHART_VERSION}")"
 
+  local -a values=(-f "$(traefik_values_file)")
+  if [ "$(external_protocol)" = "https" ]; then
+    values+=(-f "${TRAEFIK_LIB_DIR}/../values/traefik/traefik-https.values.yaml")
+  fi
+
   echo "Installing externally managed Traefik (chart ${TRAEFIK_CHART_VERSION}) into namespace $(traefik_namespace)"
   helm upgrade --install "$(traefik_release_name)" "${chart}" \
     --namespace "$(traefik_namespace)" --create-namespace \
-    -f "$(traefik_values_file)" \
+    "${values[@]}" \
     --wait --timeout 300s \
     --hide-notes
 

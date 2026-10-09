@@ -109,7 +109,7 @@ function common_openshift_values() {
 }
 
 function use_nginx_ingress() {
-  [[ "${USE_NGINX_INGRESS}" == "true" ]]
+  [[ "${USE_NGINX_INGRESS:-}" == "true" ]]
 }
 
 # Expose GitLab through an externally managed Traefik installation (the upstream
@@ -117,7 +117,7 @@ function use_nginx_ingress() {
 # Gateway API or a bundled Ingress controller. Mutually exclusive with
 # USE_NGINX_INGRESS.
 function use_traefik_ingress() {
-  [[ "${USE_TRAEFIK_INGRESS}" == "true" ]]
+  [[ "${USE_TRAEFIK_INGRESS:-}" == "true" ]]
 }
 
 # True when GitLab is exposed through Ingress objects instead of Gateway API,

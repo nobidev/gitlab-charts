@@ -11,7 +11,7 @@
 # Deployed via the jupyterhub/pebble-helm-chart, which also generates Pebble's
 # ACME API TLS leaf at pod start, signed by a STATIC root shipped in the
 # chart's ConfigMap (key root-cert.pem) — that root is what cert-manager
-# mounts as SSL_CERT_FILE (see gatewayapi-https-k3d.values.yaml). The root's
+# mounts as SSL_CERT_FILE (see pebble-k3d.values.yaml). The root's
 # private key is public upstream: CI-only trust, never for anything real.
 #
 # See: https://github.com/letsencrypt/pebble

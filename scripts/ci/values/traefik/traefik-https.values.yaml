@@ -1,0 +1,12 @@
+# Overlay on traefik.values.yaml for HTTPS deployments, applied by
+# scripts/ci/lib/traefik.sh.
+ports:
+  websecure:
+    expose:
+      default: true
+    exposedPort: 443
+    transport:
+      respondingTimeouts:
+        # The 60s default cuts the gRPC tunnel of KAS agents, see
+        # doc/charts/gitlab/kas/_index.md.
+        readTimeout: 0
