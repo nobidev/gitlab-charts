@@ -1913,14 +1913,44 @@ describe 'kas configuration' do
         )))
       end
 
-      it 'routes workspaces to a plain Service with the http scheme' do
+      it 'routes workspaces to a plain Service with the http scheme, while the main Service uses https' do
         expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
         expect(helm_template.dig('Ingress/test-kas-workspaces', 'spec', 'rules', 0, 'http', 'paths', 0, 'backend', 'service')).to eq(
           'name' => 'test-kas-workspaces', 'port' => { 'number' => 8160 }
         )
-        workspaces_api_path = helm_template.dig('Ingress/test-kas', 'spec', 'rules', 0, 'http', 'paths').find { |path| path['path'] == '/workspaces/' }
-        expect(workspaces_api_path.dig('backend', 'service')).to eq('name' => 'test-kas-workspaces', 'port' => { 'number' => 8160 })
+        expect(helm_template.dig('Ingress/test-kas-workspaces-api', 'spec', 'rules', 0, 'http', 'paths', 0, 'backend', 'service')).to eq(
+          'name' => 'test-kas-workspaces', 'port' => { 'number' => 8160 }
+        )
         expect(helm_template.annotations('Service/test-kas-workspaces')).to eq('traefik.ingress.kubernetes.io/service.serversscheme' => 'http')
+        expect(helm_template.annotations('Service/test-kas')).to include('traefik.ingress.kubernetes.io/service.serversscheme' => 'https')
+      end
+    end
+
+    context 'when workspaces and KAS TLS are enabled with NGINX' do
+      let(:kas_values) do
+        default_kas_values.deep_merge!(workspaces_values).deep_merge!(YAML.safe_load(%(
+          global:
+            gatewayApi:
+              enabled: false
+            ingress:
+              provider: nginx
+        )))
+      end
+
+      it 'serves the KAS host workspaces path from an Ingress without the backend TLS annotations' do
+        expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+        expect(helm_template.annotations('Ingress/test-kas')).to include('nginx.ingress.kubernetes.io/backend-protocol' => 'https')
+        expect(helm_template.dig('Ingress/test-kas', 'spec', 'rules', 0, 'http', 'paths').map { |path| path['path'] }).not_to include('/workspaces/')
+
+        workspaces_api = helm_template['Ingress/test-kas-workspaces-api']
+        expect(workspaces_api.dig('metadata', 'annotations').keys).not_to include(
+          'nginx.ingress.kubernetes.io/backend-protocol', a_string_starting_with('nginx.ingress.kubernetes.io/proxy-ssl'), 'cert-manager.io/issuer'
+        )
+        expect(workspaces_api.dig('spec', 'rules', 0)).to include('host' => 'kas.example.com')
+        expect(workspaces_api.dig('spec', 'rules', 0, 'http', 'paths', 0)).to include(
+          'path' => '/workspaces/', 'backend' => { 'service' => { 'name' => 'test-kas-workspaces', 'port' => { 'number' => 8160 } } }
+        )
+        expect(workspaces_api.dig('spec', 'tls')).to eq(helm_template.dig('Ingress/test-kas', 'spec', 'tls'))
       end
     end
   end

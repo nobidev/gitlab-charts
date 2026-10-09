@@ -274,7 +274,8 @@ through the [global KAS attribute](../../globals.md#tls-settings-1).
 
 The workspaces server does not use TLS. The workspaces routes use a separate
 `<release>-kas-workspaces` Service, so TLS settings for the main KAS Service, like the Gateway API
-`BackendTLSPolicy`, do not apply to it.
+`BackendTLSPolicy`, do not apply to it. On the KAS host, the workspaces path has an Ingress of its own,
+because NGINX applies the backend TLS annotations of an Ingress to all of its paths.
 
 ## Backend traffic policy
 

@@ -65,15 +65,6 @@ spec:
               serviceName: {{ template "gitlab.kas.serviceName" . }}
               servicePort: {{ .Values.service.externalPort }}
             {{- end }}
-          {{ if .Values.global.workspaces.enabled }}
-          - path: "{{ trimSuffix "/" $.Values.ingress.workspacesServerApiPath }}{{ $.Values.global.ingress.path }}"
-            pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
-            backend:
-              service:
-                name: {{ template "kas.workspaces.serviceName" . }}
-                port:
-                  number: {{ .Values.service.workspacesServerPort }}
-          {{- end }}
   {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true" )) }}
   tls:
     - hosts:
