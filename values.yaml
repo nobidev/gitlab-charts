@@ -560,6 +560,13 @@ global:
       ## JetStream stream replication factor. Defaults to 1 for single-node
       ## deployments; set to 3 for a clustered NATS deployment.
       # streamReplicas: 1
+      ## Audit event streaming partition topology. drainPartitionCount is how
+      ## many partitions (and durable consumers) are provisioned and drained;
+      ## publishPartitionCount is how many of those publishing spreads across
+      ## (capped at drain). Both default to 1; raise them for a high-volume
+      ## deployment.
+      # drainPartitionCount: 1
+      # publishPartitionCount: 1
       ## Mutual TLS. The GitLab NATS clusters use verify_and_map, so the
       ## client must present a client certificate whose CN maps to a NATS
       ## user. The secret must contain `ca.crt`, `tls.crt`, and `tls.key`.

@@ -18,6 +18,8 @@ describe 'NATS configuration' do
               - "tls://nats2.example.com:4222"
             connectTimeout: 2
             streamReplicas: 3
+            drainPartitionCount: 8
+            publishPartitionCount: 4
     ))
   end
 
@@ -96,6 +98,8 @@ describe 'NATS configuration' do
         expect(nats['servers']).to eq(['tls://nats.example.com:4222', 'tls://nats2.example.com:4222'])
         expect(nats['connect_timeout']).to eq(2)
         expect(nats['stream_replicas']).to eq(3)
+        expect(nats['drain_partition_count']).to eq(8)
+        expect(nats['publish_partition_count']).to eq(4)
         expect(nats['tls']).to be_nil
       end
     end
@@ -120,6 +124,10 @@ describe 'NATS configuration' do
       gitlab_yml_erb = template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb')
       gitlab_yml = YAML.safe_load(gitlab_yml_erb)
       tls = gitlab_yml['production']['nats']['tls']
+
+      nats = gitlab_yml['production']['nats']
+      expect(nats).not_to have_key('drain_partition_count')
+      expect(nats).not_to have_key('publish_partition_count')
 
       expect(tls).not_to be_nil
       expect(tls['ca_file']).to eq('/srv/gitlab/config/nats/ca.crt')
