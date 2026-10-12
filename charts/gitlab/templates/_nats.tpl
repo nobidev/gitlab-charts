@@ -21,6 +21,12 @@ nats:
   {{- if .streamReplicas }}
   stream_replicas: {{ .streamReplicas | int }}
   {{- end }}
+  {{- if .drainPartitionCount }}
+  drain_partition_count: {{ .drainPartitionCount | int }}
+  {{- end }}
+  {{- if .publishPartitionCount }}
+  publish_partition_count: {{ .publishPartitionCount | int }}
+  {{- end }}
   {{- if eq (include "gitlab.appConfig.nats.tls.enabled" $context) "true" }}
   tls:
     ca_file: "/srv/gitlab/config/nats/ca.crt"

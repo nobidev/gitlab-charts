@@ -23,6 +23,8 @@ into `gitlab.yml` for the Webservice, Sidekiq, and Toolbox components.
 | `global.appConfig.nats.servers`          | List of NATS server URLs. For example, `tls://nats.example.com:4222`. |
 | `global.appConfig.nats.connectTimeout`   | Connection timeout in seconds. |
 | `global.appConfig.nats.streamReplicas`   | JetStream stream replication factor. Use `1` for single-node and `3` for clustered deployments. |
+| `global.appConfig.nats.drainPartitionCount`   | Number of audit event streaming partitions, and durable consumers, that are provisioned and drained. Defaults to `1`. Raise it for a high-volume deployment. |
+| `global.appConfig.nats.publishPartitionCount` | Number of partitions that publishing spreads across, capped at the drain count. Defaults to `1`. Raise it for a high-volume deployment. |
 | `global.appConfig.nats.tls.enabled`      | Whether to connect over mutual TLS. |
 | `global.appConfig.nats.tls.secret`       | Name of the secret that holds the client certificate. |
 
