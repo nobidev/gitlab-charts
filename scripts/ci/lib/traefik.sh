@@ -18,7 +18,7 @@
 
 TRAEFIK_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TRAEFIK_CHART_REPO="${TRAEFIK_CHART_REPO:-https://traefik.github.io/charts}"
-TRAEFIK_CHART_VERSION="${TRAEFIK_CHART_VERSION:-41.6.0}"
+TRAEFIK_CHART_VERSION="${TRAEFIK_CHART_VERSION:-41.6.1}"
 
 function traefik_values_file() {
   echo -n "${TRAEFIK_LIB_DIR}/../values/traefik/traefik.values.yaml"
