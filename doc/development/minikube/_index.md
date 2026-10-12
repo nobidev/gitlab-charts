@@ -71,7 +71,7 @@ change according to the pieces being tested, and the requirements as listed:
 - `--disk-size string`: Disk size allocated to the minikube VM (format: `<number>[<unit>]`,
   where unit = `b`, `k`, `m` or `g`) (default `20g`). See the GitLab
   [storage](https://docs.gitlab.com/install/requirements/#storage) and
-  [database](https://docs.gitlab.com/install/requirements/#database)
+  [database](https://docs.gitlab.com/install/requirements/#postgresql)
   requirements.
 
   This is created in your home directory under `~/.minikube/machines/minikube/`.

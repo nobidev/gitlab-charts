@@ -77,7 +77,7 @@ Bear in mind that communication is required:
   - The primary needs to expose TCP port `5432`.
   - The secondary needs to expose TCP ports `5432` & `5431`.
 
-Install an [operating system supported by the Linux package](https://docs.gitlab.com/install/requirements/#operating-systems), and then
+Install an [operating system supported by the Linux package](https://docs.gitlab.com/install/package/#supported-platforms), and then
 [install the Linux package](https://about.gitlab.com/install/) onto it. Do not provide the
 `EXTERNAL_URL` environment variable when installing, as we'll provide a minimal
 configuration file before reconfiguring the package.

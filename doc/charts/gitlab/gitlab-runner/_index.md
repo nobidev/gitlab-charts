@@ -17,7 +17,7 @@ The GitLab Runner subchart provides a GitLab Runner for running CI jobs. It is e
 > [!note]
 > The bundled GitLab Runner is provided for evaluation purposes only.
 > For production deployments, install GitLab Runner on a separate machine for
-> [security and performance reasons](https://docs.gitlab.com/install/requirements/#gitlab-runner).
+> [security and performance reasons](https://docs.gitlab.com/runner/install/).
 > For more information, see the
 > [reference architecture documentation](../../../installation/_index.md#use-the-reference-architectures).
 
@@ -42,7 +42,7 @@ To use the recommended workflow:
 
 If you want to use the legacy workflow (not recommended):
 
-- You must [re-enable the legacy workflow](https://docs.gitlab.com/administration/settings/continuous_integration/#enable-runner-registrations-tokens).
+- You must [re-enable the legacy workflow](https://docs.gitlab.com/administration/settings/continuous_integration/#control-runner-registration).
 - The registration token is populated by the [`shared-secrets`](../../shared-secrets.md) Job.
 - You must migrate to the new workflow before GitLab 18.0, which will remove support for the legacy workflow.
 
