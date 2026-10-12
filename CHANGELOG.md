@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.4.2 (2026-10-07)
+
+### Changed (1 change)
+
+- [Update ai-gateway to v0.15.3](https://gitlab.com/gitlab-org/security/charts/gitlab/-/commit/964fe1175cf9dc90f0cf63345b36e843482fb012)
+
 ## 10.4.1 (2026-09-22)
 
 ### Changed (1 change)
@@ -40,6 +46,10 @@ entry.
 - [Update gitlab-runner to v0.92.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4058ff60a97d518b5c4d71dbb2804af8f7d74ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5292))
 - [Update Debian base from bookworm to trixie](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/f22d142fdac57c5d3832bdcb2647f4c7d57bccf9) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5281))
 - [Update gitlab-runner to v0.92.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/fca325450df764b23edaf3962066423af5a148c0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5276))
+
+## 10.3.5 (2026-10-07)
+
+No changes.
 
 ## 10.3.4 (2026-09-24)
 
@@ -93,6 +103,10 @@ entry.
 - [Update helm to v4.2.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/4e5bc5b7d74e118096452890ddb971c6364a7c0a) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5202))
 - [Update gitlab-runner to v0.91.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/6f8ff0bf646aa6fa2dc3b658b710f3570ba46cd0) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5201))
 - [Update prometheus to v29.17.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/de64cf4a6c18fe3b1cd7d2f707eb9ca0a6b1720f) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5097))
+
+## 10.2.8 (2026-10-07)
+
+No changes.
 
 ## 10.2.7 (2026-09-22)
 
