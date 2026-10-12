@@ -126,7 +126,10 @@ scriptTpl: |
 ## the wait Job it gates on.
 batchedBackgroundMigrationsCheck:
   enabled: false
-  activeDeadlineSeconds: 3600
+  # 6h: batched background migrations on large instances legitimately run for many
+  # hours. This Job is an upgrade gate, so the deadline must be generous enough to
+  # avoid a false DeadlineExceeded failing an upgrade that was progressing fine.
+  activeDeadlineSeconds: 21600
   backoffLimit: 6
   resources:
     requests:
