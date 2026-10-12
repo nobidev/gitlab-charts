@@ -71,15 +71,20 @@ describe 'batched background migrations wait Job' do
       expect(service_accounts.length).to eq(1)
     end
 
-    it 'carries the distinguishing label the Operator selects on, plus the migrations app and target-version labels' do
+    it 'carries the distinguishing label the Operator selects on and a distinct app label, plus target-version' do
       _t, jobs = bbm_job
       job = jobs.values[0]
       labels = job['metadata']['labels']
       expect(labels).to include('gitlab.com/batched-background-migrations-check' => 'true')
-      expect(labels).to include('app' => 'migrations')
+      # Must not share `app: migrations` with the schema-migrations Job, or selectors
+      # keyed on it (for example the v1beta1 Operator) would scoop up this wait Job.
+      expect(labels).to include('app' => 'batched-background-migrations')
+      expect(labels).not_to include('app' => 'migrations')
       expect(labels).to have_key('gitlab.com/target-version')
       pod_labels = job['spec']['template']['metadata']['labels']
       expect(pod_labels).to include('gitlab.com/batched-background-migrations-check' => 'true')
+      expect(pod_labels).to include('app' => 'batched-background-migrations')
+      expect(pod_labels).not_to include('app' => 'migrations')
     end
 
     it 'runs the gitlab:background_migrations:wait rake task after waiting for dependencies' do

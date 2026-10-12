@@ -7,11 +7,16 @@ metadata:
   name: {{ template "migrations.batchedBackgroundMigrations.jobname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- /* This wait Job must NOT carry `app: migrations`: selectors that target the
+           schema-migrations Job (notably the v1beta1 Operator, which lists migration
+           Jobs by `app=migrations`) would otherwise match it. Override just `app` and keep
+           every other standard label. The v2alpha1 Operator selects this Job by the
+           batched-background-migrations-check label below, independent of `app`. */}}
+    {{- include "gitlab.standardLabels" . | replace (printf "app: %s" (include "name" .)) "app: batched-background-migrations" | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
     {{- /* target-version is the incoming release being deployed. The Operator uses it with
            the batched-background-migrations-check label to tell this wait Job apart from the
-           schema-migrations Job, which shares the `app: migrations` label. */}}
+           schema-migrations Job. */}}
     gitlab.com/target-version: {{ include "gitlab.versionTag" . | quote }}
     gitlab.com/batched-background-migrations-check: "true"
   {{- if .Values.annotations }}
@@ -32,7 +37,9 @@ spec:
       {{- end }}
       {{- end }}
       labels:
-        {{- include "gitlab.standardLabels" . | nindent 8 }}
+        {{- /* See the Job metadata labels above: override `app` so selectors keyed on
+               `app=migrations` do not match this wait Job's pods. */}}
+        {{- include "gitlab.standardLabels" . | replace (printf "app: %s" (include "name" .)) "app: batched-background-migrations" | nindent 8 }}
         {{- include "gitlab.commonLabels" . | nindent 8 }}
         {{- include "gitlab.podLabels" . | nindent 8 }}
         gitlab.com/batched-background-migrations-check: "true"
