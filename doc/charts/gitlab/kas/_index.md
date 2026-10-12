@@ -175,7 +175,7 @@ You can pass these parameters to the `helm install` command by using the `--set`
 | `annotations`                                            | `{}`                                                  | Pod annotations. |
 | `common.labels`                                          | `{}`                                                  | Supplemental labels that are applied to all objects created by this chart. |
 | `securityContext.runAsUser`                              | `65532`                                               | User ID under which the pod should be started |
-| `securityContext.runAsGroup`                             | `65534`                                               | Group ID under which the pod should be started |
+| `securityContext.runAsGroup`                             | `65532`                                               | Group ID under which the pod should be started |
 | `securityContext.fsGroup`                                | `65532`                                               | Group ID under which the pod should be started |
 | `securityContext.fsGroupChangePolicy`                    |                                                       | Policy for changing ownership and permission of the volume (requires Kubernetes 1.23) |
 | `securityContext.seccompProfile.type`                    | `RuntimeDefault`                                      | Seccomp profile to use |

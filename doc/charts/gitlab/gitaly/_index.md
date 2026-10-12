@@ -101,7 +101,7 @@ the `helm install` command using the `--set` flags.
 | `persistence.accessMode`                                 | `ReadWriteOnce`                                         | Gitaly persistence access mode |
 | `persistence.annotations`                                |                                                         | Gitaly persistence annotations |
 | `persistence.enabled`                                    | `true`                                                  | Gitaly enable persistence flag |
-| `persistance.labels`                                     |                                                         | Gitaly persistence labels |
+| `persistence.labels`                                     |                                                         | Gitaly persistence labels |
 | `persistence.matchExpressions`                           |                                                         | Label-expression matches to bind |
 | `persistence.matchLabels`                                |                                                         | Label-value matches to bind |
 | `persistence.size`                                       | `50Gi`                                                  | Gitaly persistence volume size |
@@ -138,7 +138,7 @@ the `helm install` command using the `--set` flags.
 | `statefulset.startupProbe.successThreshold`              | `1`                                                     | Minimum consecutive successes for the startup probe to be considered successful after having failed |
 | `statefulset.startupProbe.failureThreshold`              | `60`                                                    | Minimum consecutive failures for the startup probe to be considered failed after having succeeded |
 | `statefulset.revisionHistoryLimit`                       |                                                         | The number of previous revisions to keep. When not provided and `global.revisionHistoryLimit` is unset, the Kubernetes default is used. |
-| `metrics.enabled`                                        | `false`                                                 | If a metrics endpoint should be made available for scraping |
+| `metrics.enabled`                                        | `true`                                                  | If a metrics endpoint should be made available for scraping |
 | `metrics.port`                                           | `9236`                                                  | Metrics endpoint port |
 | `metrics.path`                                           | `/metrics`                                              | Metrics endpoint path |
 | `metrics.serviceMonitor.enabled`                         | `false`                                                 | If a ServiceMonitor should be created to enable Prometheus Operator to manage the metrics scraping, note that enabling this removes the `prometheus.io` scrape annotations |
@@ -147,7 +147,7 @@ the `helm install` command using the `--set` flags.
 | `metrics.metricsPort`                                    |                                                         | **DEPRECATED** Use `metrics.port` |
 | `gomemlimit.enabled`                                     | `true`                                                  | This will automatically set the `GOMEMLIMIT` environment variable for the Gitaly container to `resources.limits.memory`, if that limit is also set. Users can override this value by setting this value false and setting `GOMEMLIMIT` in `extraEnv`. This must meet [documented format criteria](https://pkg.go.dev/runtime#hdr-Environment_Variables). |
 | `cgroups.enabled`                                        | `false`                                                 | Gitaly has built-in cgroups control. When configured, Gitaly assigns Git processes to a cgroup based on the repository the Git command is operating in. This parameter will enable repository cgroups. Note only cgroups v2 will be supported if enabled. |
-| `cgroups.initContainer.image.repository`                 | `registry.com/gitlab-org/build/cng/gitaly-init-cgroups` | Gitaly image repository |
+| `cgroups.initContainer.image.repository`                 | `registry.gitlab.com/gitlab-org/build/cng/gitaly-init-cgroups` | Gitaly image repository |
 | `cgroups.initContainer.image.tag`                        | `master`                                                | Gitaly image tag |
 | `cgroups.initContainer.image.pullPolicy`                 | `IfNotPresent`                                          | Gitaly image pull policy |
 | `cgroups.initContainer.securityContext`                  |                                                         | Container [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) for the `init-cgroups` container. The map is rendered as-is, so any valid container-level field is accepted. |

@@ -80,7 +80,7 @@ to the `helm install` command using the `--set` flags:
 | `keda.restoreToOriginalReplicaCount`                     |                                                              | Specifies whether the target resource should be scaled back to original replicas count after the `ScaledObject` is deleted |
 | `keda.behavior`                                          |                                                              | The specifications for up- and downscaling behavior, defaults to `hpa.behavior` |
 | `keda.triggers`                                          |                                                              | List of triggers to activate scaling of the target resource, defaults to triggers computed from `hpa.cpu` and `hpa.memory` |
-| `minReplicas`                                            | `2`                                                          | Minimum number of replicas |
+| `minReplicas`                                            | `1`                                                          | Minimum number of replicas |
 | `maxReplicas`                                            | `10`                                                         | Maximum number of replicas |
 | `maxUnavailable`                                         | `1`                                                          | Limit of maximum number of Pods to be unavailable |
 | `image.pullPolicy`                                       | `Always`                                                     | Sidekiq image pull policy |
@@ -439,13 +439,13 @@ on a per-pod basis.
 
 | Name                         |  Type   | Default   | Description |
 |:-----------------------------|:-------:|:----------|:------------|
-| `concurrency`                | Integer | `25`      | The number of tasks to process simultaneously. |
-| `timeout`                    | Integer | `4`       | The Sidekiq shutdown timeout. The number of seconds after Sidekiq gets the TERM signal before it forcefully shuts down its processes. |
+| `concurrency`                | Integer | `20`      | The number of tasks to process simultaneously. |
+| `timeout`                    | Integer | `25`      | The Sidekiq shutdown timeout. The number of seconds after Sidekiq gets the TERM signal before it forcefully shuts down its processes. |
 | `memoryKiller.checkInterval` | Integer | `3`       | Amount of time in seconds between memory checks |
 | `memoryKiller.maxRss`        | Integer | `2000000` | Maximum RSS before delayed shutdown triggered expressed in kilobytes |
 | `memoryKiller.graceTime`     | Integer | `900`     | Time to wait before a triggered shutdown expressed in seconds |
 | `memoryKiller.shutdownWait`  | Integer | `30`      | Amount of time after triggered shutdown for existing jobs to finish expressed in seconds |
-| `minReplicas`                | Integer | `2`       | Minimum number of replicas |
+| `minReplicas`                | Integer | `1`       | Minimum number of replicas |
 | `maxReplicas`                | Integer | `10`      | Maximum number of replicas |
 | `maxUnavailable`             | Integer | `1`       | Limit of maximum number of Pods to be unavailable |
 
@@ -491,7 +491,7 @@ Sidekiq instances.
 | `memoryKiller.maxRss`                 | Integer | `2000000`      | Overrides the maximum RSS for a given pod. |
 | `memoryKiller.graceTime`              | Integer | `900`          | Overrides the time to wait before a triggered shutdown for a given Pod |
 | `memoryKiller.shutdownWait`           | Integer | `30`           | Overrides the amount of time after triggered shutdown for existing jobs to finish for a given Pod |
-| `minReplicas`                         | Integer | `2`            | Minimum number of replicas |
+| `minReplicas`                         | Integer |                | Minimum number of replicas. If not provided, it is pulled from the chart-wide default. |
 | `maxReplicas`                         | Integer | `10`           | Maximum number of replicas |
 | `maxUnavailable`                      | Integer | `1`            | Limit of maximum number of Pods to be unavailable |
 | `podLabels`                           |   Map   | `{}`           | Supplemental Pod labels. Will not be used for selectors. |

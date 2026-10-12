@@ -319,8 +319,8 @@ The GitLab chart defaults to creating and using [RBAC](rbac.md). If your cluster
 have RBAC enabled, you must disable these settings:
 
 ```shell
---set certmanager.rbac.create=false
---set nginx-ingress.rbac.createRole=false
+--set certmanager.global.rbac.create=false
+--set nginx-ingress.rbac.create=false
 --set prometheus.rbac.create=false
 --set gitlab-runner.rbac.create=false
 ```
