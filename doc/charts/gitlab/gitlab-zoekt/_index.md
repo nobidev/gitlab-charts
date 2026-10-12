@@ -36,7 +36,7 @@ Use the Zoekt chart to connect Zoekt to a Linux package instance.
 
 Prerequisites:
 
-- A dedicated Zoekt cluster based on current [sizing recommendations](https://docs.gitlab.com/integration/exact_code_search/zoekt/#sizing-recommendations).
+- A dedicated Zoekt cluster based on current [sizing recommendations](https://docs.gitlab.com/integration/zoekt/#sizing-recommendations).
 
 To use the Zoekt chart with a Linux package instance:
 

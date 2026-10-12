@@ -45,7 +45,7 @@ helm upgrade --install gitlab . \
 
 ## ClickHouse setup
 
-ClickHouse must be set up as per the guide provided in [Run and configure ClickHouse](https://docs.gitlab.com/integration/clickhouse/#run-and-configure-clickhouse).
+ClickHouse must be set up as per the guide provided in [Set up ClickHouse](https://docs.gitlab.com/integration/clickhouse/#set-up-clickhouse).
 
 The GitLab Helm chart will not perform the initial setup steps required to start using ClickHouse such as creating databases or creating a user with the appropriate permissions.
 

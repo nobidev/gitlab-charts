@@ -982,7 +982,7 @@ found in [`examples/objectstorage`](https://gitlab.com/gitlab-org/charts/gitlab/
 
 For S3, make sure you give the correct
 [permissions for registry storage](https://distribution.github.io/distribution/storage-drivers/s3/#s3-permission-scopes). For more information about storage configuration, see
-[Container Registry storage driver](https://docs.gitlab.com/administration/packages/container_registry/#container-registry-storage-driver) in the administration documentation.
+[Container Registry storage driver](https://docs.gitlab.com/administration/packages/container_registry/#configure-storage-for-the-container-registry) in the administration documentation.
 
 Place the _contents_ of the `storage` block into the secret, and provide the following
 as items to the `storage` map:

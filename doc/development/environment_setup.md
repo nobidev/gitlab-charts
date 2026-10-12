@@ -15,7 +15,7 @@ The minimum tools required for charts development are documented on the [Require
 We recommend to use [`mise`](https://mise.jdx.dev) to install these tools.
 This allows us to easily switch between versions, such as different kubectl or Helm versions.
 
-We provide a [`.tool-versions` file](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/.tool-versions)
+We provide a [`mise.toml` file](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/mise.toml)
 that specifies these tools with their recommended versions. To install or update them:
 
 1. Clone the charts repository and change directory:
