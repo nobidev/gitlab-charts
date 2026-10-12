@@ -9,7 +9,6 @@ title: OpenBao chart
 
 - Tier: Premium, Ultimate
 - Offering: GitLab Self-Managed
-- Status: Beta
 
 {{< /details >}}
 
@@ -19,12 +18,9 @@ title: OpenBao chart
 - [Flag](https://docs.gitlab.com/administration/feature_flags/) `ci_tanukey_ui` was merged into `secrets_manager` in GitLab 18.4.
 - Made available to some users in a closed beta in GitLab 18.8.
 - Public beta [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/21731) in GitLab 19.0.
+- [Generally available](https://gitlab.com/groups/gitlab-org/-/work_items/17903) in GitLab 19.5. Feature flag `secrets_manager` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/259222).
 
 {{< /history >}}
-
-> [!flag]
-> The availability of this feature is controlled by a feature flag.
-> For more information, see the history.
 
 You can use the [OpenBao chart](https://gitlab.com/gitlab-org/cloud-native/charts/openbao) to install
 OpenBao, which is required to enable the [GitLab secrets manager](https://docs.gitlab.com/ci/secrets/secrets_manager/).
