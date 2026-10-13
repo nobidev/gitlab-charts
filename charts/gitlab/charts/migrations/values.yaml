@@ -119,3 +119,32 @@ scriptTpl: |
   {{- else }}
   /scripts/db-migrate;
   {{- end}}
+
+## Wait Job that holds a zero-downtime upgrade until the current version's batched
+## background migrations finish, so the next upgrade starts from a consistent schema.
+## Disabled by default; the GitLab Operator turns this on during an upgrade to render
+## the wait Job it gates on.
+# Experimental: this wait Job is marked experimental (gitlab.com/experimental: "true")
+# while the GitLab Operator integration lands. The marker is dropped once it is a fully
+# supported charts zero-downtime-upgrade option.
+batchedBackgroundMigrationsCheck:
+  enabled: false
+  # 6h: batched background migrations on large instances legitimately run for many
+  # hours. This Job is an upgrade gate, so the deadline must be generous enough to
+  # avoid a false DeadlineExceeded failing an upgrade that was progressing fine.
+  activeDeadlineSeconds: 21600
+  backoffLimit: 6
+  resources:
+    requests:
+      cpu: 250m
+      memory: 200Mi
+  # The wait loop lives in the Rails app as the gitlab:background_migrations:wait rake
+  # task, which polls the unfinished batched background migrations across every database
+  # and exits once none remain (or fails if any are in a failed state). The Job's
+  # activeDeadlineSeconds bounds the total wait, and backoffLimit retries it on transient
+  # database errors.
+  scriptTpl: |
+    set -e;
+    /scripts/wait-for-deps;
+    cd /srv/gitlab;
+    /srv/gitlab/bin/rake gitlab:background_migrations:wait;
