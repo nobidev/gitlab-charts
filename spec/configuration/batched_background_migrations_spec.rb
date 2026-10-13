@@ -1,0 +1,121 @@
+require 'spec_helper'
+require 'helm_template_helper'
+require 'yaml'
+require 'hash_deep_merge'
+
+describe 'batched background migrations wait Job' do
+  let(:default_values) do
+    HelmTemplate.with_defaults(%(
+      global: {}
+    ))
+  end
+
+  def bbm_job
+    t = HelmTemplate.new(values)
+    expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+    jobs = t.resources_by_kind('Job').select { |key, _| key.start_with?('Job/test-migrations-bbm-') }
+    [t, jobs]
+  end
+
+  context 'when migrations.batchedBackgroundMigrationsCheck.enabled is false (default)' do
+    let(:values) { default_values }
+
+    it 'does not render the wait Job' do
+      _t, jobs = bbm_job
+      expect(jobs).to be_empty
+    end
+  end
+
+  context 'when migrations.batchedBackgroundMigrationsCheck.enabled is true' do
+    let(:values) do
+      default_values.deep_merge(YAML.safe_load(%(
+        gitlab:
+          migrations:
+            batchedBackgroundMigrationsCheck:
+              enabled: true
+      )))
+    end
+
+    it 'renders exactly one wait Job' do
+      _t, jobs = bbm_job
+      expect(jobs.length).to eq(1)
+    end
+
+    it 'gives the wait Job a name distinct from the schema-migrations Job, within the 63-char limit' do
+      t, jobs = bbm_job
+      bbm_name = jobs.values[0]['metadata']['name']
+
+      migrations_jobs = t.resources_by_kind('Job').select do |key, _|
+        key.start_with?('Job/test-migrations-') && !key.start_with?('Job/test-migrations-bbm-')
+      end
+      expect(migrations_jobs.length).to eq(1)
+
+      expect(bbm_name).not_to eq(migrations_jobs.values[0]['metadata']['name'])
+      expect(bbm_name.length).to be <= 63
+    end
+
+    it 'does not render a second ServiceAccount for the wait Job' do
+      with_sa = values.deep_merge(YAML.safe_load(%(
+        gitlab:
+          migrations:
+            serviceAccount:
+              enabled: true
+              create: true
+      )))
+      t = HelmTemplate.new(with_sa)
+      expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+
+      service_accounts = t.resources_by_kind('ServiceAccount').select do |key, _|
+        key.start_with?('ServiceAccount/test-migrations')
+      end
+      expect(service_accounts.length).to eq(1)
+    end
+
+    it 'carries the distinguishing label the Operator selects on and a distinct app label, plus target-version' do
+      _t, jobs = bbm_job
+      job = jobs.values[0]
+      labels = job['metadata']['labels']
+      expect(labels).to include('gitlab.com/batched-background-migrations-check' => 'true')
+      # Must not share `app: migrations` with the schema-migrations Job, or selectors
+      # keyed on it (for example the v1beta1 Operator) would scoop up this wait Job.
+      expect(labels).to include('app' => 'batched-background-migrations')
+      expect(labels).not_to include('app' => 'migrations')
+      expect(labels).to have_key('gitlab.com/target-version')
+      # Marked experimental while the Operator integration lands.
+      expect(labels).to include('gitlab.com/experimental' => 'true')
+      pod_labels = job['spec']['template']['metadata']['labels']
+      expect(pod_labels).to include('gitlab.com/batched-background-migrations-check' => 'true')
+      expect(pod_labels).to include('app' => 'batched-background-migrations')
+      expect(pod_labels).not_to include('app' => 'migrations')
+      expect(pod_labels).to include('gitlab.com/experimental' => 'true')
+    end
+
+    it 'runs the gitlab:background_migrations:wait rake task after waiting for dependencies' do
+      _t, jobs = bbm_job
+      container = jobs.values[0]['spec']['template']['spec']['containers'].find { |c| c['name'] == 'migrations' }
+      expect(container).not_to be_nil
+      args = container['args'].join("\n")
+      expect(args).to include('/scripts/wait-for-deps')
+      expect(args).to include('gitlab:background_migrations:wait')
+    end
+
+    it 'does not bypass the schema version, since it only reads migration counts' do
+      _t, jobs = bbm_job
+      container = jobs.values[0]['spec']['template']['spec']['containers'].find { |c| c['name'] == 'migrations' }
+      env_names = (container['env'] || []).map { |e| e['name'] }
+      expect(env_names).not_to include('BYPASS_SCHEMA_VERSION')
+    end
+
+    it 'is not rendered when the migrations component itself is disabled' do
+      disabled = values.deep_merge(YAML.safe_load(%(
+        gitlab:
+          migrations:
+            enabled: false
+      )))
+      t = HelmTemplate.new(disabled)
+      expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+      jobs = t.resources_by_kind('Job').select { |key, _| key.start_with?('Job/test-migrations-bbm-') }
+      expect(jobs).to be_empty
+    end
+  end
+end
