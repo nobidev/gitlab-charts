@@ -616,7 +616,9 @@ everything attached to it. You are responsible for:
   `gitlab-smartcard-web`, `registry-web`, `pages-web`, `kas-web`, `kas-workspaces-web`,
   `gitlab-ssh`, `openbao-web`, `ai-gateway-web`, `ai-gateway-grpc`). Each sub-chart accepts a
   `gatewayRoute.sectionName` override if your listener names differ. For the `ai-gateway-grpc`
-  listener, use `ai-gateway.gatewayRoute.grpc.sectionName`.
+  listener, use `ai-gateway.gatewayRoute.grpc.sectionName`. For the `kas-workspaces-web` listener,
+  use `gitlab.kas.gatewayRoute.workspacesSectionName`, or set it to `""` to attach the workspaces
+  route to all listeners.
 - Configuring an HTTP-to-HTTPS redirect on your `Gateway` if you need one. The
   `global.gatewayApi.httpToHttpsRedirect` flag only applies to the chart-managed `Gateway`.
 - Annotating your `Gateway` for TLS certificates. The chart still creates a cert-manager `Issuer`

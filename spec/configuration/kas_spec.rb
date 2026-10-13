@@ -855,45 +855,24 @@ describe 'kas configuration' do
         end
       end
 
-      context 'when workspaces.enabled is given' do
-        let(:workspaces_enabled) { true }
+      context 'when workspaces are enabled' do
         let(:kas_values) do
-          default_kas_values.deep_merge!(
-            'gitlab' => {
-              'kas' => {
-                'workspaces' => {
-                  'enabled' => workspaces_enabled,
-                  "listen" => {
-                    "listen_grace_period" => "10s",
-                    "shutdown_grace_period" => "100s",
-                    "network" => "tcp",
-                    "address" => :"9000"
-                  }
-                }
-              },
-              'global' => { 'hosts' => {
-                'workspaces' => {
-                  'name' => 'workspaces.example.com'
-                }
-              } }
-            }
-          )
+          default_kas_values.deep_merge!(YAML.safe_load(%(
+            global:
+              hosts:
+                workspaces:
+                  name: workspaces.example.com
+              workspaces:
+                enabled: true
+            gitlab:
+              kas:
+                workspaces:
+                  enabled: true
+          )))
         end
 
-        context 'when workspaces.enabled is true' do
-          let(:workspaces_enabled) { true }
-
-          it 'exports workspaces server port' do
-            expect(service['spec']['ports']).to include(include("name" => "tcp-kas-workspaces-server"))
-          end
-        end
-
-        context 'when workspaces.enabled is false' do
-          let(:workspaces_enabled) { false }
-
-          it 'exports no workspaces server port' do
-            expect(service['spec']['ports']).not_to include(include("name" => "tcp-kas-workspaces-server"))
-          end
+        it 'exports no workspaces server port, which the workspaces Service exports' do
+          expect(service['spec']['ports']).not_to include(include("name" => "tcp-kas-workspaces-server"))
         end
       end
 
@@ -919,36 +898,6 @@ describe 'kas configuration' do
 
         it 'does not set appProtocol on the k8s-api port, which serves plain HTTP/1.1' do
           expect(service_port('tcp-kas-k8s-api')).not_to have_key('appProtocol')
-        end
-
-        context 'and workspaces.enabled is true' do
-          let(:kas_values) do
-            default_kas_values.deep_merge!(
-              'gitlab' => {
-                'kas' => {
-                  'service' => { 'appProtocol' => 'grpc' },
-                  'workspaces' => {
-                    'enabled' => true,
-                    'listen' => {
-                      'listen_grace_period' => '10s',
-                      'shutdown_grace_period' => '100s',
-                      'network' => 'tcp',
-                      'address' => :"9000"
-                    }
-                  }
-                },
-                'global' => { 'hosts' => {
-                  'workspaces' => {
-                    'name' => 'workspaces.example.com'
-                  }
-                } }
-              }
-            )
-          end
-
-          it 'does not set appProtocol on the workspaces-server port, which serves plain HTTP/1.1 and WebSocket traffic' do
-            expect(service_port('tcp-kas-workspaces-server')).not_to have_key('appProtocol')
-          end
         end
       end
 
@@ -1062,19 +1011,15 @@ describe 'kas configuration' do
         )
       end
 
-      context 'when workspaces is enabled' do
+      context 'when workspaces are enabled' do
         let(:kas_values) do
           default_kas_values.deep_merge!(YAML.safe_load(%(
-              gitlab:
-                kas:
+              global:
+                hosts:
                   workspaces:
-                    enabled: true
-                    listenGracePeriod: "10s"
-                    shutdownGracePeriod: "100s"
-                global:
-                  hosts:
-                    workspaces:
-                      name: workspaces.example.com
+                    name: workspaces.example.com
+                workspaces:
+                  enabled: true
             )))
         end
 
@@ -1086,21 +1031,19 @@ describe 'kas configuration' do
         end
       end
 
-      context 'when workspaces is disabled' do
+      context 'when workspaces are disabled' do
         let(:kas_values) do
           default_kas_values.deep_merge!(YAML.safe_load(%(
               gitlab:
                 kas:
                   workspaces:
-                    enabled: false
-                    listenGracePeriod: "10s"
-                    shutdownGracePeriod: "100s"
+                    enabled: true
             )))
         end
 
-        it 'does not expose workspaces server port' do
+        it 'does not expose workspaces server port, also with the local workspaces.enabled' do
           workspace_server = deployment.dig('spec', 'template', 'spec', 'containers', 0, 'ports').find do |ports|
-            ports['name'] == 'kas-workspaces-server'
+            ports['name'] == 'kas-ws-srv'
           end
           expect(workspace_server).to be(nil)
         end
@@ -1900,6 +1843,42 @@ describe 'kas configuration' do
         expect(helm_template.dig('HTTPRoute/test-kas-workspaces-api', 'spec')).to include('hostnames' => ['kas.example.com'])
         expect(helm_template.dig('HTTPRoute/test-kas-workspaces-api', 'spec', 'rules', 0, 'backendRefs', 0)).to include('name' => 'test-kas-workspaces', 'port' => 8160)
         expect(helm_template.dig('BackendTLSPolicy/test-kas', 'spec', 'targetRefs').map { |ref| ref['name'] }).to eq(['test-kas'])
+      end
+    end
+
+    context 'when the workspaces listener is renamed' do
+      let(:kas_values) do
+        default_kas_values.deep_merge!(workspaces_values).deep_merge!(YAML.safe_load(%(
+          gitlab:
+            kas:
+              gatewayRoute:
+                sectionName: https
+                workspacesSectionName: workspaces
+        )))
+      end
+
+      it 'attaches the wildcard workspaces route to that listener and the KAS host routes to the KAS listener' do
+        expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+        expect(helm_template.dig('HTTPRoute/test-kas-workspaces', 'spec', 'parentRefs', 0)).to include('sectionName' => 'workspaces')
+        expect(helm_template.dig('HTTPRoute/test-kas-workspaces-api', 'spec', 'parentRefs', 0)).to include('sectionName' => 'https')
+        expect(helm_template.dig('HTTPRoute/test-kas', 'spec', 'parentRefs', 0)).to include('sectionName' => 'https')
+      end
+    end
+
+    context 'when the workspaces listener is unset' do
+      let(:kas_values) do
+        default_kas_values.deep_merge!(workspaces_values).deep_merge!(YAML.safe_load(%(
+          gitlab:
+            kas:
+              gatewayRoute:
+                workspacesSectionName: ""
+        )))
+      end
+
+      it 'attaches the wildcard workspaces route to all listeners of the Gateway' do
+        expect(helm_template.exit_code).to eq(0), "Unexpected error code #{helm_template.exit_code} -- #{helm_template.stderr}"
+        expect(helm_template.dig('HTTPRoute/test-kas-workspaces', 'spec', 'parentRefs', 0)).to include('name' => 'test-gw')
+        expect(helm_template.dig('HTTPRoute/test-kas-workspaces', 'spec', 'parentRefs', 0)).not_to have_key('sectionName')
       end
     end
 
