@@ -353,11 +353,11 @@ describe 'Webservice Deployments configuration' do
 
         # Test GODEBUG without deployment overrides
         default_workhorse_env = chart_extra_env.env(item_key('Deployment', 'default'), 'gitlab-workhorse')
-        expect(default_workhorse_env).to include(env_value('GODEBUG', 'tlsmlkem=0,tlskyber=0'))
+        expect(default_workhorse_env).to include(env_value('GODEBUG', 'tlsmlkem=0'))
 
         # Test GODEBUG gets overriden on api deployment
         default_workhorse_env = chart_extra_env.env(item_key('Deployment', 'api'), 'gitlab-workhorse')
-        expect(default_workhorse_env).to_not include(env_value('GODEBUG', 'tlsmlkem=0,tlskyber=0'))
+        expect(default_workhorse_env).to_not include(env_value('GODEBUG', 'tlsmlkem=0'))
         expect(default_workhorse_env).to include(env_value('GODEBUG', 'foo=bar'))
       end
     end
