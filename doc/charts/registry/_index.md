@@ -1185,6 +1185,50 @@ database:
 
 The `loadBalancing` section allows configuring [database load balancing](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#loadbalancing). The corresponding [Redis connection](#redis-for-database-load-balancing) must be enabled for this feature to work.
 
+#### Database metrics
+
+{{< details >}}
+
+- Status: Experiment
+
+{{< /details >}}
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/container-registry/-/work_items/1250) as an [experiment](https://docs.gitlab.com/policy/development_stages_support/#experiment) in GitLab 18.4.
+
+{{< /history >}}
+
+> [!warning]
+> This is an experimental feature and is available for testing, but not ready for production use.
+
+The `metrics` section enables [database metrics collection](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#metrics).
+Use this feature to collect metrics from the metadata database and expose them through the registry's Prometheus endpoint.
+
+To test this feature and scrape these metrics, set `metrics.enabled: true`.
+
+Prerequisites:
+
+- Registry 4.27.0 or later.
+- The metadata database (`database.enabled: true`).
+- The [Redis cache](#redis-cache) (`redis.cache.enabled: true`). The registry uses
+  Redis for distributed locking, so only one registry Pod collects metrics at a time.
+
+```yaml
+database:
+  enabled: true
+  metrics:
+    enabled: true
+    interval: 10s
+    leaseDuration: 30s
+redis:
+  cache:
+    enabled: true
+```
+
+`leaseDuration` must be longer than `interval`, so the same Pod keeps collecting metrics
+between runs.
+
 #### Manage the database
 
 See the [Container registry metadata database](metadata_database.md) page for
