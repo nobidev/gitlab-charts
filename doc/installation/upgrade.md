@@ -89,7 +89,7 @@ These settings are baseline recommendations. You will need to adjust them based 
           rollingUpdate:
             maxSurge: "10%"
             maxUnavailable: 0
-      terminationGracePeriodSeconds: 60
+        terminationGracePeriodSeconds: 60
     sidekiq:
       deployment:
         strategy:
@@ -97,7 +97,7 @@ These settings are baseline recommendations. You will need to adjust them based 
           rollingUpdate:
             maxSurge: "10%"
             maxUnavailable: 0
-      terminationGracePeriodSeconds: 600
+        terminationGracePeriodSeconds: 600
     gitlab-shell:
       deployment:
         strategy:
@@ -105,30 +105,30 @@ These settings are baseline recommendations. You will need to adjust them based 
           rollingUpdate:
             maxSurge: "10%"
             maxUnavailable: 0
-      terminationGracePeriodSeconds: 60
-    registry:
-      deployment:
-        strategy:
-          type: RollingUpdate
-          rollingUpdate:
-            maxSurge: "10%"
-            maxUnavailable: 0
+        terminationGracePeriodSeconds: 60
+
+  registry:
+    deployment:
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: "10%"
+          maxUnavailable: 0
       terminationGracePeriodSeconds: 60
 
   nginx-ingress:
     controller:
-      deployment:
-        strategy:
-          type: RollingUpdate
-          rollingUpdate:
-            maxSurge: "10%"
-            maxUnavailable: 0
+      updateStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: "10%"
+          maxUnavailable: 0
       terminationGracePeriodSeconds: 300
       minReadySeconds: 10
   ```
 
 > [!note]
-> When configuring the `terminationGracePeriodSeconds` for Sidekiq, you will need to consider your longest running jobs to ensure that they have enough time to complete before the grave period expires.
+> When configuring the `terminationGracePeriodSeconds` for Sidekiq, you will need to consider your longest running jobs to ensure that they have enough time to complete before the grace period expires.
 
 These settings ensure:
 
