@@ -197,6 +197,13 @@ Prerequisites:
    kubectl exec <GARAGE_POD>  -- /garage layout apply --version 1
    ```
 
+1. Set the namespace and Garage pod variables, replacing the `NAMESPACE` and `GARAGE_POD` placeholders with the correct values from your deployment:
+
+   ```shell
+   NAMESPACE=<NAMESPACE>
+   GARAGE_POD=<GARAGE_POD>
+   ```
+
 1. Create the GitLab buckets:
 
    > [!note]
@@ -209,20 +216,14 @@ Prerequisites:
             "gitlab-mr-diffs" "gitlab-packages" "gitlab-pages" "gitlab-terraform-state" \
             "gitlab-uploads" "registry" "runner-cache" "tmp" )
    for bucket in "${buckets[@]}"; do
-     kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage bucket create "${bucket}";
+     kubectl exec -n ${NAMESPACE} ${GARAGE_POD}  -- /garage bucket create "${bucket}";
    done
    ```
 
-1. Create a API key, note the access and secret key, and grant access to the created buckets. Make sure to replace the `NAMESPACE` placeholder:
+1. Create a API key, note the access and secret key, and grant access to the created buckets:
 
    ```shell
-   # Create GitLab key. Note down the access and secret key.
-   # For ease of access we can create a variable 'KEY_OUTPUT' and store
-   # the output of 'kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage key create gitlab-app-key'
-   # and then parse the values for 'GARAGE_ACCESS_KEY' and 'GARAGE_SECRET_KEY'
-   NAMESPACE=<NAMESPACE>
-
-   KEY_OUTPUT=$(kubectl exec -n <NAMESPACE> <GARAGE_POD> -- \
+   KEY_OUTPUT=$(kubectl exec -n ${NAMESPACE} ${GARAGE_POD} -- \
        /garage key create gitlab-app-key)
 
    GARAGE_ACCESS_KEY=$(echo "${KEY_OUTPUT}" | grep 'Key ID:' | awk '{print $3}')
@@ -230,7 +231,7 @@ Prerequisites:
 
    # Grant permissions to the GitLab key.
    for bucket in "${buckets[@]}"; do
-     kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage bucket allow --read --write --key gitlab-app-key "${bucket}";
+     kubectl exec -n ${NAMESPACE} ${GARAGE_POD}  -- /garage bucket allow --read --write --key gitlab-app-key "${bucket}";
    done
    ```
 
