@@ -27,7 +27,7 @@ external services reachable from the Kubernetes cluster this chart is deployed o
 ## Design Choices
 
 This chart creates multiple `Deployment`s and associated `ConfigMap`s. It was decided
-that it would be clearer to make use of `ConfigMap` behaviours instead of using `environment`
+that it would be clearer to make use of `ConfigMap` behaviors instead of using `environment`
 attributes or additional arguments to the `command` for the containers, in order to
 avoid any concerns about command length. This choice results in a large number of
 `ConfigMap`s, but provides very clear definitions of what each pod should be doing.
@@ -484,7 +484,7 @@ Sidekiq instances.
 | `concurrency`                         | Integer |                | The number of tasks to process simultaneously. If not provided, it will be pulled from the chart-wide default. |
 | `name`                                | String  |                | Used to name the `Deployment` and `ConfigMap` for this pod. It should be kept short, and should not be duplicated between any two entries. |
 | `queues`                              | String  |                | [See below](#queues). |
-| `timeout`                             | Integer |                | The Sidekiq shutdown timeout. The number of seconds after Sidekiq gets the TERM signal before it forcefully shuts down its processes. If not provided, it will be pulled from the chart-wide default. This value **must** be less than `terminationGracePeriodSeconds`. |
+| `timeout`                             | Integer |                | The Sidekiq shutdown timeout. The number of seconds after Sidekiq gets the TERM signal before it forcefully shuts down its processes. If not provided, it will be pulled from the chart-wide default. This value must be less than `terminationGracePeriodSeconds`. |
 | `resources`                           |         |                | Each pod can present it's own `resources` requirements, which will be added to the `Deployment` created for it, if present. These match the Kubernetes documentation. |
 | `nodeSelector`                        |         |                | Each pod can be configured with a `nodeSelector` attribute, which will be added to the `Deployment` created for it, if present. These definitions match the Kubernetes documentation. |
 | `memoryKiller.checkInterval`          | Integer | `3`            | Amount of time between memory checks |

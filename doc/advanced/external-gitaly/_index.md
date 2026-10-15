@@ -203,7 +203,7 @@ have to
 > [!note]
 > You can choose any valid secret name and key for this, but make
 > sure the key is unique across all the secrets specified in `customCAs` to avoid
-> collision since all keys within the secrets will be mounted. You **do not**
+> collision since all keys within the secrets will be mounted. You do not
 > need to provide the key for the certificate, as this is the _client side_.
 
 ## Test that GitLab can connect to Gitaly
@@ -577,7 +577,7 @@ kubectl scale deploy -lapp=gitlab-gitlab-runner,release=<release> --replicas=0
 
 ##### 3. Confirm no CI jobs are running
 
-In the Admin Area, go to **CI/CD > Jobs**. This page shows you all jobs, but confirm that there are no jobs with the **Running** status. You need to wait for the jobs to complete before proceeding to the next step.
+In the Admin Area, go to {{< ui text="CI/CD" >}} > {{< ui text="Jobs" >}}. This page shows you all jobs, but confirm that there are no jobs with the {{< ui text="Running" >}} status. You need to wait for the jobs to complete before proceeding to the next step.
 
 ##### 4. Disable Sidekiq cron jobs
 
@@ -591,9 +591,9 @@ kubectl exec <toolbox pod name> -it -- gitlab-rails runner 'Sidekiq::Cron::Job.a
 
 We need to wait for any enqueued or in progress jobs to complete before proceeding to the next step.
 
-1. In the Admin Area, go to [**Monitoring**](https://docs.gitlab.com/administration/admin_area/#background-jobs) and select **Background Jobs**.
-1. Under the Sidekiq dashboard, select **Queues** and then **Live Poll**.
-1. Wait for **Busy** and **Enqueued** to drop to 0.
+1. In the Admin Area, go to [{{< ui text="Monitoring" >}}](https://docs.gitlab.com/administration/admin_area/#background-jobs) and select {{< ui text="Background Jobs" >}}.
+1. Under the Sidekiq dashboard, select {{< external-ui text="Queues" >}} and then {{< external-ui text="Live Poll" >}}.
+1. Wait for {{< external-ui text="Busy" >}} and {{< external-ui text="Enqueued" >}} to drop to 0.
 
    ![Sidekiq background jobs](img/sidekiq_bg_jobs_v16_5.png)
 

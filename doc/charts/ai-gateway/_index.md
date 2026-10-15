@@ -48,16 +48,16 @@ To configure and deploy the chart:
    -o jsonpath='{range .items[*]}{.metadata.name}.{.metadata.namespace}.svc{"\n"}{end}'
    ```
 
-1. After the chart is deployed and your instance is available, on in the upper-right corner of your GitLab instance, select **Admin**.
-1. In the left sidebar, select **GitLab Duo**.
-1. Select **Change configuration** and:
-   - Change the **Local AI Gateway URL** to `http://<SERVICE_HOST_NAME>`.
-   - Change the **Local URL for the GitLab Duo Agent Platform service** to `<SERVICE_HOST_NAME>:50052`.
-   - Clear the checkbox **Use TLS for the GitLab Duo Agent Platform service**.
-   - If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab Duo Agent Platform** features.
+1. After the chart is deployed and your instance is available, on in the upper-right corner of your GitLab instance, select {{< ui text="Admin" >}}.
+1. In the left sidebar, select {{< ui text="GitLab Duo" >}}.
+1. Select {{< ui text="Change configuration" >}} and:
+   - Change the {{< ui text="Local AI Gateway URL" >}} to `http://<SERVICE_HOST_NAME>`.
+   - Change the {{< ui text="Local URL for the GitLab Duo Agent Platform service" >}} to `<SERVICE_HOST_NAME>:50052`.
+   - Clear the checkbox {{< ui text="Use TLS for the GitLab Duo Agent Platform service" >}}.
+   - If you are using an offline license, make sure you select a model for the {{< ui text="Code Suggestions" >}} and the {{< ui text="GitLab Duo Agent Platform" >}} features.
    For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
-1. Select **Save changes**.
-1. On the **GitLab Duo** page (`/admin/gitlab_duo`), select **Run health check** to verify that everything is working correctly.
+1. Select {{< ui text="Save changes" >}}.
+1. On the {{< ui text="GitLab Duo" >}} page (`/admin/gitlab_duo`), select {{< ui text="Run health check" >}} to verify that everything is working correctly.
 
 ## Configure internal TLS
 
@@ -113,11 +113,10 @@ To configure TLS:
 
 Go to your GitLab Duo configuration page and change the following:
 
-- Change the **Local AI Gateway URL** to `https://<SERVICE_HOST_NAME>`.
-- Change the **Local URL for the GitLab Duo Agent Platform service** to `<SERVICE_HOST_NAME>:50052`.
-- Enable the **Use TLS for the GitLab Duo Agent Platform service**.
-- If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab
-  Duo Agent Platform** features. For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
+- Change the {{< ui text="Local AI Gateway URL" >}} to `https://<SERVICE_HOST_NAME>`.
+- Change the {{< ui text="Local URL for the GitLab Duo Agent Platform service" >}} to `<SERVICE_HOST_NAME>:50052`.
+- Enable the {{< ui text="Use TLS for the GitLab Duo Agent Platform service" >}}.
+- If you are using an offline license, make sure you select a model for the {{< ui text="Code Suggestions" >}} and the {{< ui text="GitLab Duo Agent Platform" >}} features. For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
 
 ### TLS ciphers suites
 
@@ -183,11 +182,10 @@ ai-gateway:
 
 Deploy the changes, then go to your GitLab Duo configuration page and change the following:
 
-- Change the **Local AI Gateway URL** to `https://ai-gateway.<YOUR_DOMAIN>`.
-- Change the **Local URL for the GitLab Duo Agent Platform service** to `grpc-ai-gateway.<YOUR_DOMAIN>:443`.
-- Enable the **Use TLS for the GitLab Duo Agent Platform service**.
-- If you are using an offline license, make sure you select a model for the **Code Suggestions** and the **GitLab
-  Duo Agent Platform** features. For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
+- Change the {{< ui text="Local AI Gateway URL" >}} to `https://ai-gateway.<YOUR_DOMAIN>`.
+- Change the {{< ui text="Local URL for the GitLab Duo Agent Platform service" >}} to `grpc-ai-gateway.<YOUR_DOMAIN>:443`.
+- Enable the {{< ui text="Use TLS for the GitLab Duo Agent Platform service" >}}.
+- If you are using an offline license, make sure you select a model for the {{< ui text="Code Suggestions" >}} and the {{< ui text="GitLab Duo Agent Platform" >}} features. For more information, see [configure GitLab to use self-hosted models](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/).
 
 ### End to end encryption
 

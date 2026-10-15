@@ -62,10 +62,10 @@ OpenBao, which is required to enable the [GitLab secrets manager](https://docs.g
      install: true
    ```
 
-1. In GitLab, on the top bar, select **Search or go to** and find your project.
-1. Select **Settings > General**.
-1. Expand **Visibility, project features, permissions**.
-1. Turn on the **Secrets Manager** toggle, and wait for the Secrets Manager to be provisioned.
+1. In GitLab, on the top bar, select {{< ui text="Search or go to" >}} and find your project.
+1. Select {{< ui text="Settings" >}} > {{< ui text="General" >}}.
+1. Expand {{< ui text="Visibility, project features, permissions" >}}.
+1. Turn on the {{< ui text="Secrets Manager" >}} toggle, and wait for the Secrets Manager to be provisioned.
 
 ## Rolling back OpenBao upgrades
 

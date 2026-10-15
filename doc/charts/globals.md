@@ -966,7 +966,7 @@ The `authToken` attribute for Gitaly has two sub keys:
 - `secret` defines the name of the Kubernetes `Secret` to pull from.
 - `key` defines the name of the key in the above secret that contains the `authToken`.
 
-All Gitaly nodes **must** share the same authentication token.
+All Gitaly nodes must share the same authentication token.
 
 ### Deprecated Gitaly settings
 
