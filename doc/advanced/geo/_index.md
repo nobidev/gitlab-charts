@@ -467,7 +467,7 @@ _it is not best practice_.
 
 After configuration above is prepared:
 
-1. Check TCP connectivity to the **primary** site's PostgreSQL node:
+1. Check TCP connectivity to the primary site's PostgreSQL node:
 
    ```shell
    openssl s_client -connect <primary_node_ip>:5432 </dev/null
@@ -483,15 +483,15 @@ After configuration above is prepared:
    If this step fails, you may be using the wrong IP address, or a firewall may
    be preventing access to the server. Check the IP address, paying close
    attention to the difference between public and private addresses and ensure
-   that, if a firewall is present, the **secondary** PostgreSQL node is
-   permitted to connect to the **primary** PostgreSQL node on TCP port 5432.
+   that, if a firewall is present, the secondary PostgreSQL node is
+   permitted to connect to the primary PostgreSQL node on TCP port 5432.
 
 1. Place the content into `/etc/gitlab/gitlab.rb`
 1. Run `gitlab-ctl reconfigure`. If you experience any issues in regards to the
    service not listening on TCP, try directly restarting it with
    `gitlab-ctl restart postgresql`.
 1. Place the Primary PostgreSQL node's certificate content from above into `primary.crt`
-1. Set up PostgreSQL TLS verification on the **secondary** PostgreSQL node:
+1. Set up PostgreSQL TLS verification on the secondary PostgreSQL node:
 
    Install the `primary.crt` file:
 
@@ -506,10 +506,10 @@ After configuration above is prepared:
 
    PostgreSQL will now only recognize that exact certificate when verifying TLS
    connections. The certificate can only be replicated by someone with access
-   to the private key, which is **only** present on the **primary** PostgreSQL
+   to the private key, which is only present on the primary PostgreSQL
    node.
 
-1. Test that the `gitlab-psql` user can connect to the **primary** site's PostgreSQL
+1. Test that the `gitlab-psql` user can connect to the primary site's PostgreSQL
    (the default Linux package database name is `gitlabhq_production`):
 
    ```shell
@@ -524,13 +524,13 @@ After configuration above is prepared:
 
    When prompted enter the password collected earlier for the
    `gitlab_replicator` user. If all worked correctly, you should see
-   the list of **primary** PostgreSQL node's databases.
+   the list of primary PostgreSQL node's databases.
 
    A failure to connect here indicates that the TLS configuration is incorrect.
    Ensure that the contents of `~gitlab-psql/data/server.crt` on the
-   **primary** PostgreSQL node
+   primary PostgreSQL node
    match the contents of `~gitlab-psql/.postgresql/root.crt` on the
-   **secondary** PostgreSQL node.
+   secondary PostgreSQL node.
 
 1. Replicate the databases. Replace `PRIMARY_DATABASE_HOST` with the IP or hostname
    of your Primary PostgreSQL node:
@@ -691,20 +691,20 @@ To deploy this chart as a Geo Secondary site, start [from this example configura
 Now that both databases are configured and applications are deployed, we must tell
 the Primary site that the Secondary site exists:
 
-1. Visit the **primary** site.
-1. In the upper-right corner, select **Admin**.
-1. In the left sidebar, select **Geo > Add site**.
-1. Add the **secondary** site. Use the full GitLab URL for the URL.
+1. Visit the primary site.
+1. In the upper-right corner, select {{< ui text="Admin" >}}.
+1. In the left sidebar, select {{< ui text="Geo" >}} > {{< ui text="Add site" >}}.
+1. Add the secondary site. Use the full GitLab URL for the URL.
 1. Enter a Name with the `global.geo.nodeName` of the Secondary site. These values must always match exactly, character for character.
 1. Enter Internal URL, for example `https://shanghai.gitlab.example.com`.
 1. Optionally, choose which groups or storage shards should be replicated by the
-   **secondary** site. Leave blank to replicate all.
-1. Select **Add node**.
+   secondary site. Leave blank to replicate all.
+1. Select {{< ui text="Add node" >}}.
 
-After the **secondary** site is added to the administration panel, it automatically starts
-replicating missing data from the **primary** site. This process is known as "backfill".
-Meanwhile, the **primary** site starts to notify each **secondary** site of any changes, so
-that the **secondary** site can replicate those changes promptly.
+After the secondary site is added to the administration panel, it automatically starts
+replicating missing data from the primary site. This process is known as "backfill".
+Meanwhile, the primary site starts to notify each secondary site of any changes, so
+that the secondary site can replicate those changes promptly.
 
 ## Confirm Operational Status
 
@@ -793,12 +793,12 @@ In some cases, you may want to give users control over which site they visit. Fo
 
 1. Update the secondary site's External URL in GitLab so that it can use the URL wherever it's needed:
    - Using the Admin UI:
-     1. Visit the **primary** site.
-     1. In the upper-right corner, select **Admin**.
-     1. Select **Geo > Sites**.
-     1. Select the pencil icon to **Edit the secondary site**.
+     1. Visit the primary site.
+     1. In the upper-right corner, select {{< ui text="Admin" >}}.
+     1. Select {{< ui text="Geo" >}} > {{< ui text="Sites" >}}.
+     1. Select the pencil icon to edit the secondary site.
      1. Edit the External URL, for example `https://shanghai.gitlab.example.com`.
-     1. Select **Save changes**.
+     1. Select {{< ui text="Save changes" >}}.
 
 1. Redeploy the secondary site's chart:
 

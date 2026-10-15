@@ -137,7 +137,7 @@ and they will assist you with any issues you are having.
   kubectl exec -it <toolbox-pod-name> -- gitlab-rake db:migrate:status
   ```
 
-- Troubleshooting **Infrastructure > Kubernetes clusters** integration:
+- Troubleshooting {{< ui text="Infrastructure" >}} > {{< ui text="Kubernetes clusters" >}} integration:
   - Check the output of `kubectl get events -w --all-namespaces`.
   - Check the logs of pods within `gitlab-managed-apps` namespace.
 - How to get your [initial administrator password](../installation/deployment.md#initial-login):

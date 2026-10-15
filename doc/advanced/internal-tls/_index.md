@@ -37,7 +37,7 @@ This script:
   each virtual storage.
 - Creates two Kubernetes Secret objects:
   - A secret of type `kuberetes.io/tls` which has the server certificate and key pair.
-  - A secret of type `Opaque` which **only** contains the public certificate of the CA as `ca.crt`
+  - A secret of type `Opaque` which only contains the public certificate of the CA as `ca.crt`
     as need by NGINX Ingress.
 
 Prerequisites:
