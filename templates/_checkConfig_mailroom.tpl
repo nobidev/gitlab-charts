@@ -82,3 +82,25 @@ serviceDeskEmail:
 {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.serviceDeskEmail.deliveryMethod */}}
+
+{{/*
+Ensure publicKeyFiles names both a secret and the fields to read from it.
+Half a configuration mounts nothing, so asymmetric tokens would be silently rejected.
+*/}}
+{{- define "gitlab.checkConfig.mailroom.publicKeyFiles" -}}
+{{- range $mailbox := list "incomingEmail" "serviceDeskEmail" }}
+{{-   $config := index $.Values.global.appConfig $mailbox }}
+{{-   $publicKeys := $config.publicKeyFiles | default (dict) }}
+{{-   if and $config.enabled (eq $config.deliveryMethod "webhook") }}
+{{-     if and $publicKeys.secret (not $publicKeys.keys) }}
+{{ $mailbox }}:
+    `global.appConfig.{{ $mailbox }}.publicKeyFiles.secret` is set but `keys` is empty, so no public key is mounted. List the secret fields holding the PEM public keys.
+{{-     end }}
+{{-     if and $publicKeys.keys (not $publicKeys.secret) }}
+{{ $mailbox }}:
+    `global.appConfig.{{ $mailbox }}.publicKeyFiles.keys` is set but `secret` is empty. Name the secret holding those fields.
+{{-     end }}
+{{-   end }}
+{{- end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.mailroom.publicKeyFiles */}}

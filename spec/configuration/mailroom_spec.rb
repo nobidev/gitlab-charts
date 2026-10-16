@@ -1046,4 +1046,140 @@ describe 'Mailroom configuration' do
       end
     end
   end
+
+  context 'with asymmetric JWT public keys' do
+    let(:public_key_files) do
+      %(
+              publicKeyFiles:
+                secret: incoming-email-public-keys
+                keys: [current.pub]
+      )
+    end
+
+    let(:values) do
+      HelmTemplate.with_defaults(%(
+        global:
+          appConfig:
+            incomingEmail:
+              enabled: true
+              address: "incoming+%{key}@example.com"
+              password:
+                secret: incoming-pw
+        #{public_key_files}
+      ))
+    end
+
+    let(:rails_config) { template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb') }
+
+    it 'lists and mounts the keys in Webservice, alongside the symmetric secret_file', :aggregate_failures do
+      sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+      match = sources.select { |s| s['secret']['name'] == 'incoming-email-public-keys' }
+
+      expect(rails_config).to include('public_key_files:')
+      expect(rails_config).to include('/etc/gitlab/mailroom/incoming_email_public_key_current.pub')
+      expect(rails_config).to include('/etc/gitlab/mailroom/incoming_email_webhook_secret')
+      expect(match.length).to eq(1)
+      expect(match.first['secret']['items']).to contain_exactly(
+        a_hash_including('key' => 'current.pub', 'path' => 'mailroom/incoming_email_public_key_current.pub')
+      )
+    end
+
+    context 'with a second key trusted during rotation' do
+      let(:public_key_files) do
+        %(
+              publicKeyFiles:
+                secret: incoming-email-public-keys
+                keys: [current.pub, previous.pub]
+        )
+      end
+
+      it 'lists and mounts both keys, so tokens signed with either are accepted', :aggregate_failures do
+        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+        match = sources.select { |s| s['secret']['name'] == 'incoming-email-public-keys' }
+
+        expect(rails_config).to include('/etc/gitlab/mailroom/incoming_email_public_key_current.pub')
+        expect(rails_config).to include('/etc/gitlab/mailroom/incoming_email_public_key_previous.pub')
+        expect(match.first['secret']['items'].map { |i| i['key'] }).to eq(['current.pub', 'previous.pub'])
+      end
+    end
+
+    context 'when not configured' do
+      let(:public_key_files) { '' }
+
+      it 'renders no public_key_files, so only symmetric tokens are accepted' do
+        expect(template.exit_code).to eq(0)
+        expect(rails_config).not_to include('public_key_files:')
+      end
+    end
+
+    it 'does not mount the public keys into the mailroom pod, which never verifies tokens' do
+      sources = template.projected_volume_sources('Deployment/test-mailroom', 'init-mailroom-secrets')
+
+      expect(sources.map { |s| s.dig('secret', 'name') }).not_to include('incoming-email-public-keys')
+    end
+
+    context 'when the mailbox is disabled' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          global:
+            appConfig:
+              serviceDeskEmail:
+                enabled: false
+                publicKeyFiles:
+                  secret: service-desk-email-public-keys
+                  keys: [current.pub]
+        ))
+      end
+
+      it 'mounts no public keys' do
+        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+
+        expect(template.exit_code).to eq(0)
+        expect(sources.map { |s| s.dig('secret', 'name') }).not_to include('service-desk-email-public-keys')
+      end
+    end
+
+    context 'with the sidekiq delivery method' do
+      let(:public_key_files) do
+        %(
+              deliveryMethod: sidekiq
+              publicKeyFiles:
+                secret: incoming-email-public-keys
+                keys: [current.pub]
+        )
+      end
+
+      it 'neither lists nor mounts the public keys, as no token is sent' do
+        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+
+        expect(rails_config).not_to include('public_key_files:')
+        expect(sources.map { |s| s.dig('secret', 'name') }).not_to include('incoming-email-public-keys')
+      end
+    end
+
+    context 'with service desk email' do
+      let(:public_key_files) do
+        %(
+            serviceDeskEmail:
+              enabled: true
+              address: "service-desk+%{key}@example.com"
+              password:
+                secret: service-desk-pw
+              publicKeyFiles:
+                secret: service-desk-email-public-keys
+                keys: [current.pub]
+        )
+      end
+
+      it 'renders and projects the service desk keys under their own path' do
+        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+        match = sources.select { |s| s['secret']['name'] == 'service-desk-email-public-keys' }
+
+        expect(rails_config).to include('/etc/gitlab/mailroom/service_desk_email_public_key_current.pub')
+        expect(match.first['secret']['items']).to contain_exactly(
+          a_hash_including('key' => 'current.pub', 'path' => 'mailroom/service_desk_email_public_key_current.pub')
+        )
+      end
+    end
+  end
 end
