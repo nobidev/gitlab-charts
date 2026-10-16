@@ -501,6 +501,37 @@ describe 'toolbox configuration' do
       end
     end
 
+    context 'using gcs backend without objectStorage.config' do
+      let(:values) do
+        # See 'using s3 backend without objectStorage.config' for why the key is deleted explicitly.
+        values = default_values.deep_merge!(
+          YAML.safe_load(%(
+          gitlab:
+            toolbox:
+              backups:
+                objectStorage:
+                  backend: gcs
+          ))
+        )
+        values['gitlab']['toolbox']['backups']['objectStorage'].delete('config')
+        values
+      end
+
+      let(:template) do
+        HelmTemplate.new(values)
+      end
+
+      it 'does not set GOOGLE_APPLICATION_CREDENTIALS in the deployment and cronjob' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        deployment_env = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec', 'containers', 0, 'env')
+        cronjob_env = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec', 'containers', 0, 'env')
+
+        expect(deployment_env.map { |e| e['name'] }).not_to include('GOOGLE_APPLICATION_CREDENTIALS')
+        expect(cronjob_env.map { |e| e['name'] }).not_to include('GOOGLE_APPLICATION_CREDENTIALS')
+      end
+    end
+
     context 'using s3 backend with a single quote in cron extraArgs' do
       let(:values) do
         default_values.deep_merge!(
