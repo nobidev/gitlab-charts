@@ -95,8 +95,15 @@ to the `helm install` command using the `--set` flags.
 | `tls.enabled`                                            | `false`                                                    | GitLab Exporter TLS enabled |
 | `tls.secretName`                                         | `{Release.Name}-gitlab-exporter-tls`                       | GitLab Exporter TLS secret. Must point to a [Kubernetes TLS secret](https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets). |
 | `listenAddr`                                             | `*`                                                        | GitLab Exporter listen address. |
+| `probeGeo`                                               | `false`                                                    | Whether to enable the `geo_node_status` database probe for Geo metrics in GitLab Exporter |
 
 ## Chart configuration examples
+
+### probeGeo
+
+`probeGeo` controls whether the `geo_node_status` database probe is enabled in GitLab Exporter. Defaults to `false`.
+
+Rails already emits `geo_*` gauge metrics with `{name:, url:}` labels from Sidekiq, so this probe is disabled by default to avoid duplicate metric series. When enabled, GitLab Exporter scrapes `geo_node_status` metrics directly from PostgreSQL.
 
 ### extraEnv
 
