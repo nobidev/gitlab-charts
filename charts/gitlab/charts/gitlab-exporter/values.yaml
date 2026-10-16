@@ -30,6 +30,9 @@ metrics:
 
 enabled: true
 
+## Whether to enable the Geo node status probe
+probeGeo: false
+
 tls:
   enabled: false
   # secretName:

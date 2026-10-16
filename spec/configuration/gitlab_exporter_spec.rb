@@ -42,6 +42,28 @@ describe 'gitlab-exporter configuration' do
       expect(sidekiq_config['opts']['redis_url']).to eq("redis://:#{password}@redis.example.com:6379/0")
       expect(sidekiq_config['opts']).not_to include('redis_sentinels')
     end
+
+    it 'does not configure geo_node_status prober by default' do
+      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      expect(rendered_erb['probes']['database']).not_to include('geo_node_status')
+      expect(rendered_erb['probes']['metrics']).not_to include('geo_node_status')
+    end
+  end
+
+  context 'when probeGeo is enabled' do
+    let(:values) do
+      default_values.deep_merge(YAML.safe_load(%(
+        gitlab:
+          gitlab-exporter:
+            probeGeo: true
+      )))
+    end
+
+    it 'configures geo_node_status in database and metrics probes' do
+      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      expect(rendered_erb['probes']['database']['geo_node_status']).to include('class_name' => 'Database::GeoNodeStatusProber')
+      expect(rendered_erb['probes']['metrics']['geo_node_status']).to include('class_name' => 'Database::GeoNodeStatusProber')
+    end
   end
 
   context 'with custom Redis database value' do
