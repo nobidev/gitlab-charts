@@ -33,6 +33,21 @@ Return gitaly storage for external hosts
 {{-     else }}
 {{-       printf "gitaly_address: tcp://%s:%d\n" $storage.hostname (default 8075 $storage.port | int64) -}}
 {{-     end -}}
+{{- /*
+  gitwayAddress is internal to GitLab.com's gitway pilot and is not part of
+  this chart's supported values: it is deliberately undocumented, has no
+  changelog entry, and is temporary. Rails dials gitway_address instead of
+  gitaly_address while the route_gitaly_through_gitway feature flag is on,
+  routing the storage through gitway (https://gitlab.com/gitlab-org/gitway).
+  It is removed in that rollout's cleanup step, when gitaly_address itself
+  points at gitway: https://gitlab.com/gitlab-org/gitlab/-/work_items/632171
+
+  Only external storages support it; internal and Praefect storages do not.
+  Please don't document it or add it to values.yaml.
+*/ -}}
+{{-     if $storage.gitwayAddress }}
+{{-       printf "  gitway_address: %s\n" $storage.gitwayAddress -}}
+{{-     end -}}
 {{-   end -}}
 {{- end -}}
 

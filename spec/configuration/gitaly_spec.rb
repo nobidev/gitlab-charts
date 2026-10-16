@@ -161,6 +161,49 @@ describe 'Gitaly configuration' do
         expect(storages['default']['gitaly_address']).to eq('dns://8.8.8.8:53/gitaly.consul.internal')
       end
     end
+
+    # gitwayAddress is internal to GitLab.com's gitway pilot and deliberately
+    # undocumented. See the comment in charts/gitlab/templates/_gitaly.tpl
+    # before changing or removing it.
+    context 'when external is configured with gitwayAddress' do
+      let(:values) do
+        default_values.deep_merge(YAML.safe_load(%(
+          global:
+            gitaly:
+              enabled: false
+              external:
+              - name: default
+                hostname: git.example.com
+                port: 9999
+                gitwayAddress: tcp://gitway.example.com:8075
+              - name: consul
+                address: dns://8.8.8.8:53/gitaly.consul.internal
+                gitwayAddress: dns:///gitway.example.com:8076
+              - name: direct
+                hostname: git2.example.com
+        )))
+      end
+
+      let(:storages) { gitlab_yml['production']['repositories']['storages'] }
+
+      it 'renders gitway_address next to gitaly_address' do
+        expect(storages['default']).to eq(
+          'path' => '/var/opt/gitlab/repo',
+          'gitaly_address' => 'tcp://git.example.com:9999',
+          'gitway_address' => 'tcp://gitway.example.com:8075'
+        )
+      end
+
+      it 'passes the address through unchanged' do
+        expect(storages['consul']['gitaly_address']).to eq('dns://8.8.8.8:53/gitaly.consul.internal')
+        expect(storages['consul']['gitway_address']).to eq('dns:///gitway.example.com:8076')
+      end
+
+      it 'omits gitway_address for storages without one' do
+        expect(storages['direct']).not_to have_key('gitway_address')
+        expect(storages['direct']['gitaly_address']).to eq('tcp://git2.example.com:8075')
+      end
+    end
   end
 
   context 'When gitaly host is specified with address' do
