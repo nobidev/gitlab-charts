@@ -995,9 +995,7 @@ as items to the `storage` map:
 
 Beyond the storage driver, the secret can also include other upstream
 [`storage` options](https://distribution.github.io/distribution/about/configuration/#storage)
-in the same YAML block. The most commonly useful is a
-[`cache`](https://distribution.github.io/distribution/about/configuration/#cache)
-(for example, `blobdescriptor: inmemory`) to reduce calls to the storage backend.
+in the same YAML block.
 
 ```shell
 # Example using S3
