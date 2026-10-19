@@ -37,11 +37,10 @@ These temporary credential mechanisms improve security by:
 ## Azure Blob Storage
 
 Direct support for Azure Blob storage is available for
-[uploaded attachments, CI job artifacts, LFS, and other object types supported via the consolidated settings](https://docs.gitlab.com/administration/object_storage/#configure-each-object-type-to-define-its-own-storage-connection-storage-specific-form). In previous GitLab versions, an [Azure MinIO gateway](azure-minio-gateway.md) was needed.
+[uploaded attachments, CI job artifacts, LFS, and other object types supported via the consolidated settings](https://docs.gitlab.com/administration/object_storage/#configure-each-object-type-to-define-its-own-storage-connection-storage-specific-form).
 
 > [!note]
-> GitLab [does not support](https://github.com/minio/minio/issues/9978) the Azure MinIO gateway as the storage for the Docker Registry.
-> Please refer to the [corresponding Azure example](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/registry.azure.yaml) when [setting up the Docker Registry](#docker-registry-images).
+> Refer to the [corresponding Azure example](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/registry.azure.yaml) when [setting up the Docker Registry](#docker-registry-images).
 
 Although Azure uses the word container to denote a collection of blobs,
 GitLab standardizes on the term bucket.
@@ -91,7 +90,7 @@ Configuration of object storage for the `registry` chart is done via the `regist
 
 Create the secret per [registry chart documentation on storage](../../charts/registry/_index.md#storage), then configure the chart to make use of this secret.
 
-Examples for [S3](https://distribution.github.io/distribution/storage-drivers/s3/)(S3 compatible storages, but Azure MinIO gateway not supported, see [Azure Blob Storage](#azure-blob-storage)), [Azure](https://distribution.github.io/distribution/storage-drivers/azure/) and [GCS](https://distribution.github.io/distribution/storage-drivers/gcs/) drivers can be found in
+Examples for [S3](https://distribution.github.io/distribution/storage-drivers/s3/)(S3 compatible storages), [Azure](https://distribution.github.io/distribution/storage-drivers/azure/) and [GCS](https://distribution.github.io/distribution/storage-drivers/gcs/) drivers can be found in
 [`examples/objectstorage`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage).
 
 - [`registry.s3.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/registry.s3.yaml)
@@ -184,12 +183,11 @@ See the [charts/globals documentation on appConfig](../../charts/globals.md#conf
 
 Create the secret(s) per the [connection details documentation](../../charts/globals.md#connection), and then configure the chart to use the provided secrets. Note, the same secret can be used for all of them.
 
-Examples for [AWS](https://fog.github.io/storage/#using-amazon-s3-and-fog) (any S3 compatible like [Azure using MinIO](azure-minio-gateway.md)) and [Google](https://fog.github.io/storage/#google-cloud-storage) providers can be found in
+Examples for [AWS](https://fog.github.io/storage/#using-amazon-s3-and-fog) (any S3 compatible) and [Google](https://fog.github.io/storage/#google-cloud-storage) providers can be found in
 [`examples/objectstorage`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage).
 
 - [`rails.s3.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.s3.yaml)
 - [`rails.gcs.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.gcs.yaml)
-- [`rails.azure.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.azure.yaml)
 - [`rails.azurerm.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.azurerm.yaml)
 
 ### S3 encryption
@@ -312,27 +310,8 @@ See the [backup/restore object storage documentation](../../backup-restore/_inde
      gcloud iam service-accounts keys create --iam-account gitlab-gcs@${PROJECT_ID}.iam.gserviceaccount.com storage.config
      ```
 
-   - On Azure Storage
-
-     ```ini
-     [default]
-     # Setup endpoint: hostname of the Web App
-     host_base = https://your_minio_setup.azurewebsites.net
-     host_bucket = https://your_minio_setup.azurewebsites.net
-     # Leave as default
-     bucket_location = us-west-1
-     use_https = True
-     multipart_chunk_size_mb = 128 # default is 15 (MB)
-
-     # Setup access keys
-     # Access Key = Azure Storage Account name
-     access_key = AZURE_ACCOUNT_NAME
-     # Secret Key = Azure Storage Account Key
-     secret_key = AZURE_ACCOUNT_KEY
-
-     # Use S3 v4 signature APIs
-     signature_v2 = False
-     ```
+   - On Azure Storage, set the backend to `azure`. The file then uses a different format, described in
+     [backups to Azure Blob Storage](../../backup-restore/_index.md#backups-to-azure-blob-storage).
 
 1. Create the secret
 
