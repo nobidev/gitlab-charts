@@ -1,4 +1,4 @@
-{{- if and .Values.enabled (eq (include "webservice.gatewayApi.sectionCtp.enabled" .) "true") }}
+{{- if and .Values.enabled (eq (include "webservice.gatewayApi.sectionCtp.enabled" .) "true") .Values.clientTrafficPolicy.main.spec }}
 {{/*
 ClientTrafficPolicy targeting the main Rails listener (gitlab-web).
 Keeps paths with escaped slashes unchanged, as they are commonly used

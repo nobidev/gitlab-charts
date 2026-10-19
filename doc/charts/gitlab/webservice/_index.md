@@ -726,6 +726,10 @@ set the fields you want to change. This restores the ability to configure `Clien
 behavior for Webservice listeners. For more information, see
 [issue 6571](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/6571).
 
+To skip the `main` or `geo` policy, set its `spec` to `null`, for example when TLS is
+terminated upstream of an HTTP Gateway. For more information, see
+[TLS terminated upstream of the Gateway](../../../advanced/gateway-api/_index.md#tls-terminated-upstream-of-the-gateway).
+
 Envoy Gateway defaults for the HTTP/2 flow-control windows are:
 
 - 64 KiB for streams.

@@ -361,6 +361,47 @@ This is required because when multiple HTTP listeners share the same port, Envoy
 not accept section-scoped `ClientTrafficPolicy` resources that the chart renders for HTTPS.
 As a result, the escaped-slash handling must be configured globally.
 
+##### TLS terminated upstream of the Gateway
+
+When a load balancer in front of the Gateway terminates TLS, set the Gateway to HTTP.
+Keep `global.hosts.https: true` so that GitLab generates `https://` URLs.
+
+With HTTPS enabled, the Webservice and KAS charts render section-scoped `ClientTrafficPolicy`
+resources. Envoy Gateway rejects these policies on HTTP listeners that share a port. Depending on the order of the
+listeners, a rejected policy can also prevent the gateway-wide policy from applying to every
+listener on that port. The chart therefore fails with an error that names each affected policy.
+
+Disable the section-scoped policies and configure their settings on the gateway-wide policy
+instead:
+
+```yaml
+global:
+  hosts:
+    https: true
+gatewayApiResources:
+  gateway:
+    protocol: HTTP
+  envoy:
+    clientTrafficPolicySpec:
+      path:
+        escapedSlashesAction: KeepUnchanged
+      headers:
+        host:
+          stripTrailingHostDot: true
+gitlab:
+  webservice:
+    clientTrafficPolicy:
+      main:
+        spec: null
+  kas:
+    clientTrafficPolicy:
+      spec: null
+```
+
+The Geo policy renders whether or not HTTPS is enabled. In either HTTP setup, if Geo is
+configured with `global.geo.gatewayApi.additionalHostname`, also set
+`gitlab.webservice.clientTrafficPolicy.geo.spec: null`.
+
 ### TLS between Gateway and backend services
 
 When TLS is enabled on a backend service (Webservice, KAS, or Registry), the chart creates a

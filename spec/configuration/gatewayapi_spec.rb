@@ -647,6 +647,7 @@ describe 'Gateway API configuration' do
           global:
             hosts:
               externalIP: 127.0.0.1
+              https: false
             pages:
               enabled: true
             gatewayApi:
@@ -738,6 +739,123 @@ describe 'Gateway API configuration' do
           expect(webservice_clienttrafficpolicy["spec"]["path"]["escapedSlashesAction"]).to eq("KeepUnchanged")
           expect(webservice_clienttrafficpolicy["spec"]["targetRefs"][0]["sectionName"]).to eq("gitlab-web")
         end
+      end
+    end
+
+    # global.hosts.https only decides whether the section-scoped CTPs render; the listener
+    # protocol comes from gatewayApiResources.gateway.protocol. With HTTPS hosts on HTTP
+    # listeners (TLS terminated upstream), Envoy Gateway rejects the section-scoped CTPs
+    # (several HTTP listeners on port 80). The rejected policies still override the gateway-wide
+    # CTP on their listeners; when one of them is the first listener on the shared port, the
+    # gateway-wide CTP does not apply to that port at all.
+    context 'section-scoped ClientTrafficPolicies on shared HTTP listeners' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            hosts:
+              https: true
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+              configureCertmanager: false
+          gatewayApiResources:
+            gateway:
+              protocol: HTTP
+        ))
+      end
+
+      it 'fails with guidance for every affected policy' do
+        expect(template.exit_code).not_to eq(0)
+        expect(template.stderr).to include("`gitlab.webservice.clientTrafficPolicy.main.spec` targets the `gitlab-web`")
+        expect(template.stderr).to include("`gitlab.kas.clientTrafficPolicy.spec` targets the `kas-web`")
+      end
+
+      context 'when the section-scoped policies are disabled' do
+        let(:values) do
+          super().deep_merge(YAML.safe_load(%(
+            gitlab:
+              webservice:
+                clientTrafficPolicy:
+                  main:
+                    spec: null
+              kas:
+                clientTrafficPolicy:
+                  spec: null
+          )))
+        end
+
+        it 'renders without the section-scoped policies' do
+          expect(template.exit_code).to eq(0), template.stderr
+          expect(webservice_clienttrafficpolicy).to be_nil
+          expect(kas_clienttrafficpolicy).to be_nil
+        end
+      end
+
+      context 'when the HTTP listener does not share its port with another HTTP listener' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              gatewayApi:
+                httpToHttpsRedirect: false
+            gatewayApiResources:
+              gateway:
+                protocol: HTTPS
+                listeners:
+                  gitlab-web:
+                    protocol: HTTP
+          )))
+        end
+
+        it 'renders the section-scoped policy' do
+          expect(template.exit_code).to eq(0), template.stderr
+          expect(webservice_clienttrafficpolicy).not_to be_nil
+        end
+      end
+
+      context 'when the Gateway is not managed by the chart' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            global:
+              gatewayApi:
+                gatewayRef:
+                  name: external-gateway
+          )))
+        end
+
+        it 'skips the check' do
+          expect(template.exit_code).to eq(0), template.stderr
+        end
+      end
+    end
+
+    context 'Geo ClientTrafficPolicy with spec set to null' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+          global:
+            geo:
+              enabled: true
+              role: primary
+              gatewayApi:
+                additionalHostname: geo.example.com
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+          gitlab:
+            webservice:
+              clientTrafficPolicy:
+                geo:
+                  spec: null
+        ))
+      end
+
+      it 'does not render the Geo policy' do
+        expect(template.exit_code).to eq(0), template.stderr
+        expect(webservice_geo_clienttrafficpolicy).to be_nil
       end
     end
 
