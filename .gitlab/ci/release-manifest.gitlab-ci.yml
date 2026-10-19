@@ -1,0 +1,35 @@
+# Mirrors the `update-release-manifest` job of the common-ci-tasks release-platform
+# component, which this project does not include:
+# https://gitlab.com/gitlab-com/gl-infra/common-ci-tasks/-/blob/main/release-platform.md
+# RELEASE_MANIFEST_ENABLED and RELEASE_MANIFEST_UPDATE_TRIGGER_TOKEN are provisioned by
+# the release-manifest module in https://gitlab.com/gitlab-com/gl-infra/infra-mgmt.
+update_release_manifest:
+  stage: release-package
+  image: "${CI_REGISTRY}/${CI_TOOLS_NAMESPACE}/gitlab-omnibus-builder/distribution_ci_tools:${CI_TOOLS_VERSION}"
+  needs:
+    - job: release_package
+      artifacts: false
+  # A failed manifest update must not fail the release.
+  allow_failure: true
+  variables:
+    GIT_STRATEGY: none
+    RELEASE_MANIFEST_MODULE_ID: gitlab-chart
+  script:
+    - |
+      if [ -z "${RELEASE_MANIFEST_UPDATE_TRIGGER_TOKEN:-}" ]; then
+        echo "ERROR: RELEASE_MANIFEST_UPDATE_TRIGGER_TOKEN is not set, cannot update the release manifest."
+        exit 1
+      fi
+    # trigger pipeline for https://gitlab.com/gitlab-org/release-tools
+    - curl -fsS --connect-timeout 10 --max-time 30 --request POST
+        --form "token=${RELEASE_MANIFEST_UPDATE_TRIGGER_TOKEN}" --form ref=master
+        --form "variables[UPDATE_MUTABLE_CATALOG]=true"
+        --form "variables[MODULE_TAG]=${CI_COMMIT_TAG}"
+        --form "variables[MODULE_SHA]=${CI_COMMIT_SHA}"
+        --form "variables[MODULE_ID]=${RELEASE_MANIFEST_MODULE_ID}"
+        --form "variables[MODULE_SOURCE_URL]=https://gitlab.com/${CANONICAL_PROJECT_PATH}/"
+        https://gitlab.com/api/v4/projects/430285/trigger/pipeline
+  rules:
+    - if: '$RELEASE_MANIFEST_ENABLED != "true"'
+      when: never
+    - if: '$PIPELINE_TYPE == "RELEASE_PIPELINE"'

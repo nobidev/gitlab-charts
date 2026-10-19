@@ -172,6 +172,9 @@ include:
   - local: /.gitlab/ci/checks.gitlab-ci.yml
     rules:
       - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
+  - local: /.gitlab/ci/release-manifest.gitlab-ci.yml
+    rules:
+      - if: '$LIMIT_TO == "" || $LIMIT_TO == null'
   # Uses `secrets`, which dev.gitlab.org rejects and fork MR pipelines can't use.
   - local: /.gitlab/ci/review-docs.gitlab-ci.yml
     rules:
