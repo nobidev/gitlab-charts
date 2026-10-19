@@ -62,8 +62,13 @@ describe 'Gateway API configuration' do
       expect(gateway).not_to be_nil
       # Route objects
       expect(routes).not_to include(nil)
+      # Gateway-wide ClientTrafficPolicy strips the trailing Host dot on every
+      # listener without a section-scoped policy (registry-web, pages-web, HTTP-only)
+      expect(clienttrafficpolicy).not_to be_nil
+      expect(clienttrafficpolicy["spec"]["headers"]["host"]["stripTrailingHostDot"]).to be(true)
+      expect(clienttrafficpolicy["spec"]["targetRefs"][0]["name"]).to eq("test-gw")
+      expect(clienttrafficpolicy["spec"]["targetRefs"][0]).not_to have_key("sectionName")
       # Optional gateway-wide policies
-      expect(clienttrafficpolicy).to be_nil
       expect(securitypolicy).to be_nil
       # Per-listener ClientTrafficPolicy with hardcoded escaped slashes handling
       expect(webservice_clienttrafficpolicy).not_to be_nil

@@ -53,7 +53,7 @@ Outdated CRDs cause one of two failures:
   `no matches for kind "TCPRoute" in version "gateway.networking.k8s.io/v1"`.
 - The upgrade succeeds, but the API server prunes fields that the CRDs do not define. Kubernetes
   drops these fields without an error, so the setting has no effect and the resource looks correct
-  in Helm output. For example, GitLab chart 10.3 sets `stripTrailingHostDot` on the Webservice
+  in Helm output. For example, GitLab chart 10.3 and later set `stripTrailingHostDot` on
   `ClientTrafficPolicy` resources, which the Envoy Gateway 1.8 CRDs do not define.
 
 ## Use Envoy Gateway with GitLab

@@ -163,7 +163,8 @@ optionally create a `ClientTrafficPolicy` and a `SecurityPolicy` bound to the ma
 > upstream timeouts. See
 > [Gateway timeouts](../../charts/gitlab/webservice/_index.md#gateway-timeouts).
 > The KAS chart renders a section-scoped `ClientTrafficPolicy` for the `kas-web` listener that
-> keeps HTTP/2 enabled for the agent for Kubernetes. See
+> keeps HTTP/2 enabled for the agent for Kubernetes and strips the trailing dot from the `Host`
+> header. See
 > [Client traffic policy](../../charts/gitlab/kas/_index.md#client-traffic-policy).
 
 #### Envoy Gateway metrics
