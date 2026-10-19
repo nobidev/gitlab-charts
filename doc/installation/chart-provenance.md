@@ -37,8 +37,12 @@ gpg: Total number processed: 1
 gpg:               imported: 1
 ```
 
-This command downloads the key and adds it to your default keyring. You should
-put the GitLab Helm chart signing key into a separate keyring. You can use the
+This command downloads the key and adds it to your default keyring. If the key is already in your
+keyring and has expired, the command updates it with the renewed expiration date. If you
+[exported the key](#export-the-signing-key) earlier, export it again. `helm verify` reads the
+exported file and not your keyring.
+
+You should put the GitLab Helm chart signing key into a separate keyring. You can use the
 `--no-default-keyring --keyring <keyring>` `gpg` options to create a new keyring
 that contains just the GitLab chart signing key.
 
