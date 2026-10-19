@@ -20,6 +20,39 @@ describe 'registry configuration' do
     YAML.safe_load(yaml, permitted_classes: [Symbol])
   end
 
+  context 'when rendering Rails registry notification secrets' do
+    let(:configmaps) { %w[test-webservice test-sidekiq test-toolbox] }
+
+    it "preserves each secret as a string in each Rails ConfigMap" do
+      template = HelmTemplate.new(default_values)
+      expect(template.exit_code).to eq(0), template.stderr
+
+      [
+        'Ab3xY9zQ',
+        '12345678901234567890123456789012',
+        12345678901234567890123456789012,
+        '0x1234abcd',
+        '12_34',
+        '-12345',
+        'yes',
+        'no',
+        "quotes\" backslash\\ interpolation\#{token}\nnext line"
+      ].each do |secret|
+        files = RuntimeTemplate.mock_files.merge(
+          '/etc/gitlab/registry/notificationSecret' => [secret].to_json
+        )
+
+        configmaps.each do |configmap|
+          raw_template = template.dig("ConfigMap/#{configmap}", 'data', 'gitlab.yml.erb').dup
+          rendered = RuntimeTemplate.erb(raw_template: raw_template, files: files)
+          config = YAML.safe_load(rendered, aliases: true)
+
+          expect(config.dig('production', 'registry', 'notification_secret')).to eq(secret.to_s)
+        end
+      end
+    end
+  end
+
   context 'When customer provides additional labels' do
     let(:values) do
       default_values.deep_merge(YAML.safe_load(%(
