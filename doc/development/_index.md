@@ -74,6 +74,11 @@ ChaosKube can be used to test the fault tolerance of highly available cloud-nati
 
 [Instructions](nats.md) for configuring an external NATS server with GitLab.
 
+### Envoy connection lifecycle
+
+[Instructions](envoy_connection_lifecycle.md) for validating that Envoy closes idle
+upstream connections to Webservice on a deployed environment.
+
 ## Versioning and Release
 
 Details on the version scheme, branching and tags can be found in [release document](release.md).
