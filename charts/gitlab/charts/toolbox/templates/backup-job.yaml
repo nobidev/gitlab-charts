@@ -124,7 +124,7 @@ spec:
                   value: '/var/opt/gitlab/templates'
                 - name: CONFIG_DIRECTORY
                   value: '/srv/gitlab/config'
-                {{- if eq .Values.backups.objectStorage.backend "gcs" }}
+                {{- if and (eq .Values.backups.objectStorage.backend "gcs") .Values.backups.objectStorage.config }}
                 - name: GOOGLE_APPLICATION_CREDENTIALS
                   value: '/etc/gitlab/objectstorage/{{ default "config" .Values.backups.objectStorage.config.key }}'
                 {{- end }}
