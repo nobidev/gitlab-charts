@@ -1540,6 +1540,7 @@ describe 'Gateway API configuration' do
         expect(webservice_backendtrafficpolicy).not_to be_nil
         expect(webservice_backendtrafficpolicy["spec"]["timeout"]["tcp"]["connectTimeout"]).to eq("300s")
         expect(webservice_backendtrafficpolicy["spec"]["timeout"]["http"]["streamIdleTimeout"]).to eq("3600s")
+        expect(webservice_backendtrafficpolicy["spec"]["timeout"]["http"]["connectionIdleTimeout"]).to eq("15s")
         expect(webservice_backendtrafficpolicy["spec"]["targetRefs"][0]).to eq(
           "group" => "gateway.networking.k8s.io",
           "kind" => "HTTPRoute",

@@ -197,6 +197,10 @@ clientTrafficPolicy:
 #   flows in either direction, making it the closest Envoy equivalent to an
 #   NGINX proxy-read-timeout. Absolute HTTPRoute timeouts remain disabled
 #   (`0s`), as NGINX Ingress never applied an absolute request deadline.
+# - `http.connectionIdleTimeout` closes pooled upstream connections that have
+#   carried no requests for the given period. Without it Envoy keeps idle
+#   connections for an hour, and bursty traffic can accumulate them until the
+#   upstream circuit breaker limit is reached.
 backendTrafficPolicy:
   spec:
     timeout:
@@ -204,6 +208,7 @@ backendTrafficPolicy:
         connectTimeout: 300s
       http:
         streamIdleTimeout: 3600s
+        connectionIdleTimeout: 15s
 
 backendTLSPolicy:
   hostname: ""

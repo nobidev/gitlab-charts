@@ -756,16 +756,20 @@ When Envoy Gateway is used, the chart renders a
 [`BackendTrafficPolicy`](https://gateway.envoyproxy.io/docs/api/extension_types/#backendtrafficpolicy)
 targeting the Webservice `HTTPRoute`, with the following default timeouts:
 
-| Timeout                                          | Envoy Gateway field                    | Default |
-|--------------------------------------------------|----------------------------------------|---------|
-| Upstream connection establishment                 | `spec.timeout.tcp.connectTimeout`      | `300s`  |
-| Stream inactivity                                 | `spec.timeout.http.streamIdleTimeout`  | `3600s` |
-| Absolute request deadline                         | `gatewayRoute.rules[].timeouts`        | `0s` (disabled) |
+| Timeout                           | Envoy Gateway field                       | Default         |
+|-----------------------------------|-------------------------------------------|-----------------|
+| Upstream connection establishment | `spec.timeout.tcp.connectTimeout`         | `300s`          |
+| Stream inactivity                 | `spec.timeout.http.streamIdleTimeout`     | `3600s`         |
+| Idle upstream connection          | `spec.timeout.http.connectionIdleTimeout` | `15s`           |
+| Absolute request deadline         | `gatewayRoute.rules[].timeouts`           | `0s` (disabled) |
 
 `streamIdleTimeout` is an inactivity timeout: it resets whenever data flows in
 either direction, so long-running downloads, uploads, and WebSocket connections
 are not interrupted while traffic is flowing, and only genuinely idle streams
-are reclaimed. The absolute `HTTPRoute` timeouts stay disabled (`0s`) by
+are reclaimed. `connectionIdleTimeout` closes pooled upstream connections to
+Webservice that have carried no requests for 15 seconds. This stops idle
+connections accumulating under bursty traffic until they reach the upstream
+circuit breaker limit. The absolute `HTTPRoute` timeouts stay disabled (`0s`) by
 default, because an absolute deadline terminates legitimate long-running
 transfers regardless of activity.
 
