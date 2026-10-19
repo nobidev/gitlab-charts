@@ -12,12 +12,18 @@ update_release_manifest:
   # A failed manifest update must not fail the release.
   allow_failure: true
   variables:
-    GIT_STRATEGY: none
     RELEASE_MANIFEST_MODULE_ID: gitlab-chart
   script:
     - |
       if [ -z "${RELEASE_MANIFEST_UPDATE_TRIGGER_TOKEN:-}" ]; then
         echo "ERROR: RELEASE_MANIFEST_UPDATE_TRIGGER_TOKEN is not set, cannot update the release manifest."
+        exit 1
+      fi
+    # The GitLab version this chart release was built for, so a backport only updates its own GitLab minor
+    - |
+      GITLAB_VERSION=$(awk '/^appVersion:/ {print $2}' Chart.yaml)
+      if [ -z "${GITLAB_VERSION}" ]; then
+        echo "ERROR: appVersion is not set in Chart.yaml, cannot update the release manifest."
         exit 1
       fi
     # trigger pipeline for https://gitlab.com/gitlab-org/release-tools
@@ -28,6 +34,7 @@ update_release_manifest:
         --form "variables[MODULE_SHA]=${CI_COMMIT_SHA}"
         --form "variables[MODULE_ID]=${RELEASE_MANIFEST_MODULE_ID}"
         --form "variables[MODULE_SOURCE_URL]=https://gitlab.com/${CANONICAL_PROJECT_PATH}/"
+        --form "variables[MODULE_GITLAB_VERSION]=${GITLAB_VERSION}"
         https://gitlab.com/api/v4/projects/430285/trigger/pipeline
   rules:
     - if: '$RELEASE_MANIFEST_ENABLED != "true"'
