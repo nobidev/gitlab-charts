@@ -78,5 +78,5 @@ registry:
   api_url: {{ template "gitlab.registry.api.url" . }}
   key: /etc/gitlab/registry/gitlab-registry.key
   issuer: {{ default "gitlab-issuer" $registryTokenIssuer }}
-  notification_secret: <%= YAML.load_file("/etc/gitlab/registry/notificationSecret").flatten.first %>
+  notification_secret: <%= YAML.load_file("/etc/gitlab/registry/notificationSecret").flatten.first.to_s.to_json %>
 {{- end -}}{{/* "gitlab.appConfig.registry.configuration" */}}
