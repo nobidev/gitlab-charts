@@ -229,11 +229,6 @@ Each entry in `fields` has a `path`, and a `shape` of `scalar`, `pem`, or `list`
 uses `charset` and `length`. A `pem` uses `bits`. A `list` uses `charset` and `length` to
 produce a single-element list.
 
-A `list` with `acceptsScalar: true` is generated as a single-element list, but the existing
-value may be a string. Secrets created before the field became a list hold a string. Accept
-either type for that field. Never convert a string into a list, or a list into a string.
-`db_key_base` is the only such field.
-
 Reconciliation here is per field, not per key:
 
 - Parse the existing `secrets.yml` if the Secret exists.

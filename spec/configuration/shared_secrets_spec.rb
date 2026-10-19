@@ -149,11 +149,11 @@ describe 'shared-secrets provisioning' do
       end
     end
 
-    it 'generates db_key_base as a list but renders it as a list or a string' do
+    it 'generates db_key_base as a list and indents every line of it' do
       script = generate_secrets_script(template)
 
       expect(script).to include(%(db_key_base=${db_key_base:-"- $(gen_random 'a-f0-9' 128)"}))
-      expect(script).to include(%(db_key_base: $(render_rails_scalar_or_list "${db_key_base}" "        ")))
+      expect(script).to include(%(db_key_base:\n$(echo "${db_key_base}" | awk '{print "        " $0}')))
       expect(script).not_to include(%(db_key_base: $db_key_base\n))
     end
 
@@ -301,13 +301,11 @@ describe 'shared-secrets provisioning' do
       end
     end
 
-    it 'tells the controller that db_key_base is a list that may hold a string' do
+    it 'tells the controller that db_key_base is a list' do
       fields = resource['spec']['secrets'].find { |s| s['name'] == 'test-rails-secret' }
                                           .dig('generators', 0, 'fields')
-      db_key_base = fields.find { |field| field['path'] == 'db_key_base' }
 
-      expect(db_key_base).to include('shape' => 'list', 'acceptsScalar' => true)
-      expect(fields.reject { |field| field['path'] == 'db_key_base' }).to all(satisfy { |f| !f.key?('acceptsScalar') })
+      expect(fields.find { |field| field['path'] == 'db_key_base' }).to include('shape' => 'list')
     end
 
     it 'keeps numeric parameters as integers' do

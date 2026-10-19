@@ -98,10 +98,8 @@ Losing db_key_base here would make every encrypted column in the database unread
 
 The field list comes from the manifest; the merge algorithm stays here. It keeps every
 declared field that has a value, generates declared fields that are missing, null or
-empty, and keeps lists as they are. A `list` field with `acceptsScalar` is generated as a
-list but kept as a string when the existing secret holds one. It writes the document back
-from the field list, so it drops undeclared fields and the blocks of every environment
-other than $env.
+empty, and keeps lists as they are. It writes the document back from the field list, so
+it drops undeclared fields and the blocks of every environment other than $env.
 
 Args: a manifest entry whose sole generator is of type railsSecrets.
 */}}
@@ -144,9 +142,6 @@ stringData:
 {{-   if eq $field.shape "pem" }}
       {{ $field.path }}: |
 $(echo "${{"{"}}{{ $field.path }}}" | awk '{print "        " $0}')
-{{-   else if $field.acceptsScalar }}
-{{- /* A list, or a string kept from an install that predates the list. */}}
-      {{ $field.path }}: $(render_rails_scalar_or_list "${{"{"}}{{ $field.path }}}" "        ")
 {{-   else if eq $field.shape "list" }}
 {{- /* Indent every line, not just the first. A rotated key list arrives from
        fetch_rails_value as multi-line text, and a literal prefix here would leave the

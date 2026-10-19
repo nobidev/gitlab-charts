@@ -12,6 +12,8 @@ DEBIAN_VERSION_CLEAN=${DEBIAN_VERSION%%-*}
 # Docker apt packages carry a "-1" package revision (e.g. 5:28.1.0-1~debian.13~trixie).
 DOCKER_DEB_VERSION="5:${DOCKER_VERSION}-1~debian.${DEBIAN_VERSION_NUMBER}~${DEBIAN_VERSION_CLEAN}"
 KUBECTL_VERSION=${KUBECTL_VERSION:-1.28.3}
+# Matches the yq that the CNG kubectl image ships, which runs the shared-secrets Job.
+YQ_VERSION=${YQ_VERSION:-4.54.1}
 TARGET_DIR=${TARGET_DIR:-"/usr/local/bin"}
 
 apt-get update -qq
@@ -92,3 +94,20 @@ if [ "${STRICT_VERSIONS:-false}" == "true" ] && [ "${KUBECTL_INSTALLED_VERSION}"
     mv kubectl ${TARGET_DIR}/kubectl
 fi
 kubectl version --client=true -o yaml 2>/dev/null || echo "kubectl installation failed"
+
+YQ_INSTALLED_VERSION=""
+if command -v yq; then
+    echo "yq already installed"
+    echo "Expected version: ${YQ_VERSION}"
+    YQ_INSTALLED_VERSION=$(yq --version | sed -e 's/.* v//')
+    echo "Installed yq version: ${YQ_INSTALLED_VERSION}"
+fi
+
+if [ "${STRICT_VERSIONS:-false}" == "true" ] && [ "${YQ_INSTALLED_VERSION}" != "${YQ_VERSION}" ] || [ -z "${YQ_INSTALLED_VERSION}" ]; then
+    YQ_ARCH=$(uname -m); case "$YQ_ARCH" in x86_64) YQ_ARCH="amd64";; aarch64) YQ_ARCH="arm64";; esac
+    echo "Installing yq-${YQ_VERSION} (${YQ_ARCH})"
+    curl -Lsfo yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_${YQ_ARCH}
+    chmod +x yq
+    mv yq ${TARGET_DIR}/yq
+fi
+echo -n "Effective: "; yq --version 2>/dev/null || echo "yq installation failed"
