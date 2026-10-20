@@ -415,14 +415,24 @@ PostgreSQL.
 
 1. If you are migrating MinIO, copy your backup to the toolbox and upload it to your new object storage:
 
-   ```shell
-   # Find Toolbox Pod
-   kubectl get pods -l app=toolbox
-   # Copy backup archive to Pod
-   kubectl cp LOCAL_BACKUP_ARCHIVE.tar <TOOLBOX_POD>:/tmp
-   # Upload archive to backup bucket
-   s3cmd put /tmp/LOCAL_BACKUP_ARCHIVE.tar s3://gitlab-backups/
-   ```
+   1. Find the Toolbox pod:
+
+      ```shell
+      kubectl get pods -n ${NAMESPACE} -l app=toolbox
+      ```
+
+   1. Set the Toolbox pod variable, replacing the `TOOLBOX_POD` placeholder with the pod name from the previous command:
+
+      ```shell
+      TOOLBOX_POD=<TOOLBOX_POD>
+      ```
+
+   1. Copy the backup archive to the pod, then upload it to the backup bucket from inside the pod:
+
+      ```shell
+      kubectl cp -n ${NAMESPACE} -c toolbox LOCAL_BACKUP_ARCHIVE.tar ${TOOLBOX_POD}:/tmp
+      kubectl exec -n ${NAMESPACE} ${TOOLBOX_POD} -c toolbox -- s3cmd put /tmp/LOCAL_BACKUP_ARCHIVE.tar s3://gitlab-backups/
+      ```
 
 1. If you are migrating PostgreSQL or MinIO, [scale down the workloads and restore the backup](../../backup-restore/restore.md#restoring-the-backup-file).
 1. After the upgrade is complete, upgrade your GitLab instance to run any pending migrations.
