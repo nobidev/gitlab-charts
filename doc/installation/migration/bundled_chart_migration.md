@@ -176,7 +176,7 @@ Prerequisites:
 1. Confirm Garage is up and running:
 
    ```shell
-   $ kubectl get statefulsets.apps -n garage -l app.kubernetes.io/name=garage
+   $ kubectl get statefulsets.apps -n ${NAMESPACE} -l app.kubernetes.io/name=garage
    NAME     READY   AGE
    garage   3/3     36s
    ```
