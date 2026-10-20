@@ -2,6 +2,10 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.2.9 (2026-10-20)
+
+No changes.
+
 ## 10.2.8 (2026-10-07)
 
 No changes.
