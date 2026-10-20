@@ -70,16 +70,25 @@ To replace the bundled Redis, PostgreSQL, and MinIO charts, provision externally
 For an overview on the available options check the [recommended infrastructure and services](https://docs.gitlab.com/administration/reference_architectures/#infrastructure-and-services)
 and make sure they meet the [current minimum requirements](https://docs.gitlab.com/install/requirements/).
 
+Set the namespace and Helm release name of your GitLab installation, replacing the `NAMESPACE` and `RELEASE`
+placeholders with the correct values from your deployment. The commands in the rest of this guide use these
+variables, so run them all in the same shell session.
+
+```shell
+NAMESPACE=<NAMESPACE>
+RELEASE=<RELEASE>
+```
+
 ### Provision external Valkey or Redis
 
 1. Provision your external Valkey or Redis service. For example, by using the official [Valkey Helm chart](https://github.com/valkey-io/valkey-helm):
 
    This sets up an independent Valkey instance that retains data across restarts. The authentication credentials are stored in a Secret
-   named `<RELEASE>-auth`.
+   named `valkey-auth`.
 
    ```shell
    helm repo add valkey https://valkey.io/valkey-helm/
-   helm install valkey valkey/valkey -n <NAMESPACE> \
+   helm install valkey valkey/valkey -n ${NAMESPACE} \
      --set dataStorage.enabled=true \
      --set dataStorage.requestedSize=2Gi \
      --set metrics.enabled=true \
@@ -91,7 +100,7 @@ and make sure they meet the [current minimum requirements](https://docs.gitlab.c
 1. Confirm Valkey is up and running:
 
    ```script
-   $ kubectl get deployment -n <NAMESPACE> -l app.kubernetes.io/name=valkey
+   $ kubectl get deployment -n ${NAMESPACE} -l app.kubernetes.io/name=valkey
    NAME     READY   UP-TO-DATE   AVAILABLE   AGE
    valkey   1/1     1            1           30m
    ```
@@ -136,7 +145,7 @@ Provision your external PostgreSQL service. For example, by using [CloudNativePG
 1. Confirm the PostgreSQL cluster is healthy:
 
    ```script
-   $ kubectl get clusters -n <NAMESPACE>
+   $ kubectl get clusters -n ${NAMESPACE}
    NAME                 AGE   INSTANCES   READY   STATUS                     PRIMARY
    gitlab-rails-db      20m   1           1       Cluster in healthy state   gitlab-rails-db-1
    ```
@@ -159,7 +168,7 @@ Prerequisites:
    ```shell
    helm plugin install https://github.com/aslafy-z/helm-git
    helm repo add garage "git+https://git.deuxfleurs.fr/Deuxfleurs/garage.git@script/helm?ref=v2.2.0"
-   helm install garage garage/garage -n <NAMESPACE> \
+   helm install garage garage/garage -n ${NAMESPACE} \
      --set persistence.data.size=5Gi \
      --set persistence.meta.size=250Mi
    ```
@@ -170,6 +179,12 @@ Prerequisites:
    $ kubectl get statefulsets.apps -n garage -l app.kubernetes.io/name=garage
    NAME     READY   AGE
    garage   3/3     36s
+   ```
+
+1. Set the Garage pod variable, replacing the `GARAGE_POD` placeholder with the name of one of your Garage pods:
+
+   ```shell
+   GARAGE_POD=<GARAGE_POD>
    ```
 
 1. Initialize the cluster layout.
@@ -186,22 +201,15 @@ Prerequisites:
 
    ```shell
    # Check node IDs
-   kubectl exec <GARAGE_POD>  -- /garage status
+   kubectl exec -n ${NAMESPACE} ${GARAGE_POD}  -- /garage status
 
    # Assign nodes to gitlab zone
-   kubectl exec <GARAGE_POD>  -- /garage layout assign -z gitlab1 -c 5G <Node ID 1>
-   kubectl exec <GARAGE_POD>  -- /garage layout assign -z gitlab2 -c 5G <Node ID 2>
-   kubectl exec <GARAGE_POD>  -- /garage layout assign -z gitlab3 -c 5G <Node ID 3>
+   kubectl exec -n ${NAMESPACE} ${GARAGE_POD}  -- /garage layout assign -z gitlab1 -c 5G <Node ID 1>
+   kubectl exec -n ${NAMESPACE} ${GARAGE_POD}  -- /garage layout assign -z gitlab2 -c 5G <Node ID 2>
+   kubectl exec -n ${NAMESPACE} ${GARAGE_POD}  -- /garage layout assign -z gitlab3 -c 5G <Node ID 3>
 
    # Apply the layout
-   kubectl exec <GARAGE_POD>  -- /garage layout apply --version 1
-   ```
-
-1. Set the namespace and Garage pod variables, replacing the `NAMESPACE` and `GARAGE_POD` placeholders with the correct values from your deployment. Run the remaining steps in this section in the same shell session, because they reuse these variables:
-
-   ```shell
-   NAMESPACE=<NAMESPACE>
-   GARAGE_POD=<GARAGE_POD>
+   kubectl exec -n ${NAMESPACE} ${GARAGE_POD}  -- /garage layout apply --version 1
    ```
 
 1. Create the GitLab buckets:
@@ -293,8 +301,8 @@ PostgreSQL.
    ```
 
    ```shell
-   helm upgrade <RELEASE> gitlab/gitlab -f your-values.yaml
-   kubectl annotate pvc <RELEASE>-minio --list
+   helm upgrade ${RELEASE} gitlab/gitlab -n ${NAMESPACE} -f your-values.yaml
+   kubectl annotate pvc -n ${NAMESPACE} ${RELEASE}-minio --list
    ```
 
    > [!note]
@@ -402,7 +410,7 @@ PostgreSQL.
 1. If you are migrating PostgreSQL, upgrade your GitLab instance with migrations disabled:
 
    ```shell
-   helm upgrade <RELEASE> gitlab/gitlab -f your-values.yaml --set gitlab.migrations.enabled=false
+   helm upgrade ${RELEASE} gitlab/gitlab -n ${NAMESPACE} -f your-values.yaml --set gitlab.migrations.enabled=false
    ```
 
 1. If you are migrating MinIO, copy your backup to the toolbox and upload it to your new object storage:
@@ -420,7 +428,7 @@ PostgreSQL.
 1. After the upgrade is complete, upgrade your GitLab instance to run any pending migrations.
 
    ```shell
-   helm upgrade <RELEASE> gitlab/gitlab -f your-values.yaml
+   helm upgrade ${RELEASE} gitlab/gitlab -n ${NAMESPACE} -f your-values.yaml
    ```
 
 1. Confirm GitLab is operational.
@@ -428,6 +436,6 @@ PostgreSQL.
 1. Delete Secrets and PersistentVolumeClaims related to the bundled PostgreSQL, MinIO, and Redis.
 
    ```shell
-   kubectl delete pvc <RELEASE>-minio redis-data-<RELEASE>-redis-master-0 data-<RELEASE>-postgresql-0
-   kubectl delete secret <RELEASE>-postgresql-password <RELEASE>-redis-secret <RELEASE>-minio-secret <RELEASE>-minio-tls
+   kubectl delete pvc -n ${NAMESPACE} ${RELEASE}-minio redis-data-${RELEASE}-redis-master-0 data-${RELEASE}-postgresql-0
+   kubectl delete secret -n ${NAMESPACE} ${RELEASE}-postgresql-password ${RELEASE}-redis-secret ${RELEASE}-minio-secret ${RELEASE}-minio-tls
    ```
