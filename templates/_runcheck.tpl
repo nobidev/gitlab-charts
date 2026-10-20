@@ -35,8 +35,8 @@ if [ -d "${secrets_dir}" ]; then
     fi
   fi
 fi
-MIN_VERSION=19.2
-CHART_MIN_VERSION=10.2
+MIN_VERSION=19.5
+CHART_MIN_VERSION=10.5
 
 # Remove 'v' prefix from GitLab version if present (set in Chart.yaml appVersions)
 GITLAB_VERSION=${GITLAB_VERSION#v}
