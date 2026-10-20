@@ -14,8 +14,11 @@ title: Using the Praefect chart
 {{< /details >}}
 
 > [!warning]
-> The Praefect chart is still under development. This experimental version is not yet suitable for production use. Upgrades may require significant manual intervention.
-> See our [Praefect GA release Epic](https://gitlab.com/groups/gitlab-org/charts/-/epics/33) for more information.
+> The Praefect chart is an experiment and is not suitable for production use.
+> Upgrades may require significant manual intervention.
+> GitLab has de-prioritized this configuration in favor of a new Gitaly storage backend.
+> For details and the available options, see
+> [Gitaly on Kubernetes](https://docs.gitlab.com/administration/gitaly/kubernetes/#deployment-options).
 
 The Praefect chart is used to manage [Gitaly Cluster (Praefect)](https://docs.gitlab.com/administration/gitaly/praefect/)
 inside a GitLab installment deployed with the Helm charts.
