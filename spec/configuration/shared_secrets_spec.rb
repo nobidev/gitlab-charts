@@ -138,115 +138,86 @@ describe 'shared-secrets provisioning' do
     end
 
     it 'indents every line of a rotated key list' do
-      # A rotated active_record_encryption key list arrives from fetch_rails_value as
-      # multi-line text. Prefixing only the first line leaves later entries at column 0
-      # and kubectl rejects the document, breaking the upgrade.
+      # A rotated key list arrives from fetch_rails_value as multi-line text. Prefixing
+      # only the first line leaves later entries at column 0 and kubectl rejects the
+      # document, breaking the upgrade.
       script = generate_secrets_script(template)
 
-      %w[active_record_encryption_primary_key active_record_encryption_deterministic_key].each do |field|
+      expect(script).to include(%(db_key_base=${db_key_base:-"- $(gen_random 'a-f0-9' 128)"}))
+
+      %w[db_key_base active_record_encryption_primary_key active_record_encryption_deterministic_key].each do |field|
         expect(script).to include(%(#{field}:\n$(echo "${#{field}}" | awk '{print "        " $0}')))
         expect(script).not_to include(%(#{field}:\n        $#{field}\n))
       end
     end
 
-    it 'generates db_key_base as a list and indents every line of it' do
-      script = generate_secrets_script(template)
-
-      expect(script).to include(%(db_key_base=${db_key_base:-"- $(gen_random 'a-f0-9' 128)"}))
-      expect(script).to include(%(db_key_base:\n$(echo "${db_key_base}" | awk '{print "        " $0}')))
-      expect(script).not_to include(%(db_key_base: $db_key_base\n))
+    def yq_v4?
+      out, status = Open3.capture2e('yq', '--version')
+      status.success? && out.match?(/mikefarah.*version v?4\./)
+    rescue Errno::ENOENT
+      false
     end
 
-    # Runs the Rails secret merge from the rendered script against a stubbed kubectl, so
-    # the YAML that would be applied can be read back. fetch_rails_value needs mikefarah's
-    # yq v4, which the Job's image ships; skip where it is not installed.
-    describe 'merging db_key_base into an existing Rails secret' do
-      let(:script) { generate_secrets_script(template) }
-      let(:yq_v4) do
-        out, status = Open3.capture2e('yq', '--version')
-        status.success? && out.match?(/mikefarah.*version v?4\./)
-      rescue Errno::ENOENT
-        false
+    # Runs the Rails secret merge from the rendered script against a stubbed kubectl, and
+    # returns the secrets.yml it would apply. fetch_rails_value needs mikefarah's yq v4,
+    # which the Job's image ships.
+    def merge_rails_secret(script, existing)
+      Dir.mktmpdir do |dir|
+        functions = script.scan(/^function \w+\(\)\{\n.*?^\}$/m).join("\n")
+        rails = script[/^if \[ -n "\$env" \]; then\n.*?^fi$/m]
+
+        File.write(File.join(dir, 'existing.yml'), existing) if existing
+        File.write(File.join(dir, 'kubectl'), <<~'SH')
+          #!/usr/bin/env bash
+          case "$*" in
+            *"get secret"*"-o jsonpath"*) base64 < "$DIR/existing.yml" ;;
+            *"get secret"*) [ -f "$DIR/existing.yml" ] ;;
+            *apply*) cp "${@: -1}" "$DIR/applied.yml" ;;
+          esac
+        SH
+        File.chmod(0o755, File.join(dir, 'kubectl'))
+        File.write(File.join(dir, 'run.sh'), <<~SH)
+          set -e
+          namespace=test
+          env=production
+          #{functions}
+          function label_secret(){ :; }
+          function gen_random(){ echo generated; }
+          function openssl(){ echo pem; }
+          cd "$(mktemp -d)"
+          #{rails}
+        SH
+
+        _, stderr, status = Open3.capture3({ 'DIR' => dir, 'PATH' => "#{dir}:#{ENV.fetch('PATH')}" },
+                                           'bash', File.join(dir, 'run.sh'))
+        expect(status).to be_success, stderr
+
+        YAML.safe_load(File.read(File.join(dir, 'applied.yml'))).dig('stringData', 'secrets.yml')
       end
+    end
 
-      before do
-        skip 'mikefarah yq v4 is not installed' unless yq_v4
-      end
+    def db_key_base(secrets_yml)
+      YAML.safe_load(secrets_yml).dig('production', 'db_key_base')
+    end
 
-      def merge_rails_secret(script, existing)
-        Dir.mktmpdir do |dir|
-          functions = script.scan(/^function \w+\(\)\{\n.*?^\}$/m).join("\n")
-          rails = script[/^if \[ -n "\$env" \]; then\n.*?^fi$/m]
+    it 'generates db_key_base as a list and keeps an existing one as it is', :aggregate_failures do
+      skip 'mikefarah yq v4 is not installed' unless yq_v4?
 
-          File.write(File.join(dir, 'existing.yml'), existing) if existing
-          File.write(File.join(dir, 'kubectl'), <<~'SH')
-            #!/usr/bin/env bash
-            case "$*" in
-              *"get secret"*"-o jsonpath"*) base64 < "$DIR/existing.yml" ;;
-              *"get secret"*) [ -f "$DIR/existing.yml" ] ;;
-              *apply*) cp "${@: -1}" "$DIR/applied.yml" ;;
-            esac
-          SH
-          File.chmod(0o755, File.join(dir, 'kubectl'))
-          File.write(File.join(dir, 'run.sh'), <<~SH)
-            set -e
-            namespace=test
-            env=production
-            #{functions}
-            function label_secret(){ :; }
-            function gen_random(){ echo generated; }
-            function openssl(){ echo pem; }
-            cd "$(mktemp -d)"
-            #{rails}
-          SH
+      script = generate_secrets_script(template)
 
-          _, stderr, status = Open3.capture3({ 'DIR' => dir, 'PATH' => "#{dir}:#{ENV.fetch('PATH')}" },
-                                             'bash', File.join(dir, 'run.sh'))
-          expect(status).to be_success, stderr
+      expect(db_key_base(merge_rails_secret(script, nil))).to eq(%w[generated])
 
-          applied = YAML.safe_load(File.read(File.join(dir, 'applied.yml')))
-          YAML.safe_load(applied.dig('stringData', 'secrets.yml')).fetch('production')
-        end
-      end
+      # A second run starts from what the first one applied, so it also reads back a
+      # string the Job moved to the line after the key.
+      {
+        '  db_key_base: oldkey' => 'oldkey',
+        "  db_key_base:\n    - oldkey\n    - newkey\n    - thirdkey" => %w[oldkey newkey thirdkey],
+        '  db_key_base: [newkey, oldkey]' => %w[newkey oldkey]
+      }.each do |existing, kept|
+        first = merge_rails_secret(script, "production:\n#{existing}\n")
 
-      it 'generates a list of one key on a fresh install' do
-        expect(merge_rails_secret(script, nil)['db_key_base']).to eq(%w[generated])
-      end
-
-      it 'keeps an existing string as a string' do
-        existing = "production:\n  db_key_base: oldkey\n"
-
-        expect(merge_rails_secret(script, existing)['db_key_base']).to eq('oldkey')
-      end
-
-      it 'keeps an existing string as a string across repeated upgrades' do
-        existing = "production:\n  db_key_base: oldkey\n"
-        first = merge_rails_secret(script, existing)
-        second = merge_rails_secret(script, { 'production' => first }.to_yaml)
-
-        expect(second).to eq(first)
-        expect(second['db_key_base']).to eq('oldkey')
-      end
-
-      it 'keeps an existing list, in order' do
-        existing = "production:\n  db_key_base:\n    - oldkey\n    - newkey\n    - thirdkey\n"
-
-        expect(merge_rails_secret(script, existing)['db_key_base']).to eq(%w[oldkey newkey thirdkey])
-      end
-
-      it 'keeps a list written in flow style' do
-        existing = "production:\n  db_key_base: [newkey, oldkey]\n"
-
-        expect(merge_rails_secret(script, existing)['db_key_base']).to eq(%w[newkey oldkey])
-      end
-
-      it 'keeps the list across repeated upgrades' do
-        existing = "production:\n  db_key_base:\n    - newkey\n    - oldkey\n"
-        first = merge_rails_secret(script, existing)
-        second = merge_rails_secret(script, { 'production' => first }.to_yaml)
-
-        expect(second).to eq(first)
-        expect(second['db_key_base']).to eq(%w[newkey oldkey])
+        expect(db_key_base(first)).to eq(kept), "from #{existing.inspect}"
+        expect(merge_rails_secret(script, first)).to eq(first), "a second run from #{existing.inspect}"
       end
     end
   end
