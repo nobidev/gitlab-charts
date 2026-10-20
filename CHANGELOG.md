@@ -2,6 +2,10 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.5.1 (2026-10-20)
+
+No changes.
+
 ## 10.5.0 (2026-10-15)
 
 ### Added (3 changes)
