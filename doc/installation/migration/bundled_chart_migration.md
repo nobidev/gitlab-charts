@@ -197,7 +197,7 @@ Prerequisites:
    kubectl exec <GARAGE_POD>  -- /garage layout apply --version 1
    ```
 
-1. Set the namespace and Garage pod variables, replacing the `NAMESPACE` and `GARAGE_POD` placeholders with the correct values from your deployment:
+1. Set the namespace and Garage pod variables, replacing the `NAMESPACE` and `GARAGE_POD` placeholders with the correct values from your deployment. Run the remaining steps in this section in the same shell session, because they reuse these variables:
 
    ```shell
    NAMESPACE=<NAMESPACE>
