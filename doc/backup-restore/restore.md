@@ -147,6 +147,22 @@ The steps for restoring a GitLab installation are
 
 1. This process will take time depending on the size of the tarball.
 1. The restoration process will erase the existing contents of database, move existing repositories to temporary locations and extract the contents of the tarball. Repositories will be moved to their corresponding locations on the disk and other data, like artifacts, uploads, LFS etc. will be uploaded to corresponding buckets in Object Storage.
+1. Before you restart the application, connect to each distinct restored PostgreSQL database with a
+   PostgreSQL client and gather optimizer statistics.
+   Include the CI database if your installation uses a separate one.
+   Use a role that can analyze the restored tables, and run these statements in the same session:
+
+   ```sql
+   SET statement_timeout = 0;
+   ANALYZE VERBOSE;
+   ```
+
+   Check the output for errors and skipped tables.
+   Database-wide `ANALYZE` includes partitioned parent tables, which autovacuum does not analyze.
+   `ANALYZE` does not rebuild visibility maps for index-only scans.
+   If your restore window permits the additional I/O and write-ahead log (WAL) data, consider `VACUUM (VERBOSE, ANALYZE);`
+   instead of `ANALYZE VERBOSE;`, outside a transaction block.
+   For more information, see [PostgreSQL routine vacuuming](https://www.postgresql.org/docs/current/routine-vacuuming.html).
 1. Restart the application:
 
    ```shell
@@ -211,3 +227,4 @@ The restoration process does not update the `gitlab-initial-root-password` secre
 
 - [GitLab chart Backup/Restore Introduction](_index.md)
 - [Backing up a GitLab installation](backup.md)
+
