@@ -197,6 +197,13 @@ Prerequisites:
    kubectl exec <GARAGE_POD>  -- /garage layout apply --version 1
    ```
 
+1. Set the namespace and Garage pod variables, replacing the `NAMESPACE` and `GARAGE_POD` placeholders with the correct values from your deployment. Run the remaining steps in this section in the same shell session, because they reuse these variables:
+
+   ```shell
+   NAMESPACE=<NAMESPACE>
+   GARAGE_POD=<GARAGE_POD>
+   ```
+
 1. Create the GitLab buckets:
 
    > [!note]
@@ -209,41 +216,34 @@ Prerequisites:
             "gitlab-mr-diffs" "gitlab-packages" "gitlab-pages" "gitlab-terraform-state" \
             "gitlab-uploads" "registry" "runner-cache" "tmp" )
    for bucket in "${buckets[@]}"; do
-     kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage bucket create "${bucket}";
+     kubectl exec -n ${NAMESPACE} ${GARAGE_POD}  -- /garage bucket create "${bucket}";
    done
    ```
 
-1. Create a API key, note the access and secret key, and grant access to the created buckets:
+1. Create an API key and grant it access to the created buckets:
 
    ```shell
-   # Create GitLab key. Note down the access and secret key.
-   # For ease of access we can create a variable 'KEY_OUTPUT' and store
-   # the output of 'kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage key create gitlab-app-key'
-   # and then parse the values for 'GARAGE_ACCESS_KEY' and 'GARAGE_SECRET_KEY'
-   local KEY_OUTPUT
-   KEY_OUTPUT=$(kubectl exec -n <NAMESPACE> <GARAGE_POD> -- \
+   KEY_OUTPUT=$(kubectl exec -n ${NAMESPACE} ${GARAGE_POD} -- \
        /garage key create gitlab-app-key)
 
-   local GARAGE_ACCESS_KEY GARAGE_SECRET_KEY
    GARAGE_ACCESS_KEY=$(echo "${KEY_OUTPUT}" | grep 'Key ID:' | awk '{print $3}')
    GARAGE_SECRET_KEY=$(echo "${KEY_OUTPUT}" | grep 'Secret key:' | awk '{print $3}')
 
    # Grant permissions to the GitLab key.
    for bucket in "${buckets[@]}"; do
-     kubectl exec -n <NAMESPACE> <GARAGE_POD>  -- /garage bucket allow --read --write --key gitlab-app-key "${bucket}";
+     kubectl exec -n ${NAMESPACE} ${GARAGE_POD}  -- /garage bucket allow --read --write --key gitlab-app-key "${bucket}";
    done
    ```
 
-1. Create a Secret configuring the object storage access. Make sure to replace the `GARAGE_ACCESS_KEY`,
-   `GARAGE_SECRET_KEY`, and `NAMESPACE` placeholders:
+1. Create a Secret configuring the object storage access:
 
    ```shell
-   cat <<EOF | kubectl create secret generic gitlab-object-storage --from-file=config=/dev/stdin
+   cat <<EOF | kubectl create secret -n ${NAMESPACE} generic gitlab-object-storage --from-file=config=/dev/stdin
    provider: AWS
    region: garage
-   aws_access_key_id: <GARAGE_ACCESS_KEY>
-   aws_secret_access_key: <GARAGE_SECRET_KEY>
-   endpoint: "http://garage.<NAMESPACE>.svc.cluster.local:3900"
+   aws_access_key_id: ${GARAGE_ACCESS_KEY}
+   aws_secret_access_key: ${GARAGE_SECRET_KEY}
+   endpoint: "http://garage.${NAMESPACE}.svc.cluster.local:3900"
    path_style: true
    EOF
    ```
@@ -251,12 +251,12 @@ Prerequisites:
 1. Create a Secret configuring access for backup/restore:
 
    ```shell
-   cat <<EOF | kubectl create secret generic gitlab-object-storage-s3cmd --from-file=config=/dev/stdin
+   cat <<EOF | kubectl create secret -n ${NAMESPACE} generic gitlab-object-storage-s3cmd --from-file=config=/dev/stdin
    [default]
-   access_key = <GARAGE_ACCESS_KEY>
-   secret_key = <GARAGE_SECRET_KEY>
-   host_base = garage.<NAMESPACE>.svc.cluster.local:3900
-   host_bucket = garage.<NAMESPACE>.svc.cluster.local:3900
+   access_key = ${GARAGE_ACCESS_KEY}
+   secret_key = ${GARAGE_SECRET_KEY}
+   host_base = garage.${NAMESPACE}.svc.cluster.local:3900
+   host_bucket = garage.${NAMESPACE}.svc.cluster.local:3900
    use_https = False
    EOF
    ```
@@ -264,7 +264,7 @@ Prerequisites:
 1. Create a Secret configuring access for registry:
 
    ```shell
-   cat <<EOF | kubectl create secret generic gitlab-registry-storage --from-file=config=/dev/stdin
+   cat <<EOF | kubectl create secret -n ${NAMESPACE} generic gitlab-registry-storage --from-file=config=/dev/stdin
    s3:
      accesskey: ${GARAGE_ACCESS_KEY}
      secretkey: ${GARAGE_SECRET_KEY}
