@@ -166,7 +166,7 @@ the `helm install` command using the `--set` flags.
 | `autoscaling.minReplicas`                                | 2                                                       | Minimum OpenBao replicas. |
 | `autoscaling.maxReplicas`                                | 2                                                       | Maximum OpenBao replicas. |
 | `autoscaling.targetCPUUtilizationPercentage`             | 80                                                      | Target CPU utilization for autoscaling. |
-| `autoscaling.targetCPUMemoryPercentage`                  |                                                         | Target memory utilization for autoscaling. |
+| `autoscaling.targetMemoryUtilizationPercentage`          |                                                         | Target memory utilization for autoscaling. |
 | `livenessProbe`                                          |                                                         | OpenBao liveness probe. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
 | `readinessProbe`                                         |                                                         | OpenBao readiness probe. Check [OpenBao values](https://gitlab.com/gitlab-org/cloud-native/charts/openbao/-/blob/main/values.yaml) for the default. |
 | `nodeSelector`                                           | {}                                                      | Node selector labels. |
@@ -751,4 +751,4 @@ Set them under `openbao.config.storage.postgresql`, in addition to the connectio
 | `config.storage.postgresql.connection.keepalivesCount`       | null       | Number of TCP keepalive probes to send before dropping a connection. |
 | `config.storage.postgresql.connection.keepalivesIdle`        | null       | Seconds of inactivity before the first TCP keepalive probe. |
 | `config.storage.postgresql.connection.keepalivesInterval`    | null       | Seconds between TCP keepalive probes. |
-| `config.storage.postgresql.connection.sslMode`               | `disable`  | PostgreSQL SSL mode, such as `disable`, `require`, or `verify-full`. |
+| `config.storage.postgresql.connection.sslMode`               | null       | PostgreSQL SSL mode, such as `disable`, `require`, or `verify-full`. When not set, inherits `global.openbao.psql.sslMode`, then `global.psql.sslMode`. When none are set, no SSL mode is passed and the driver default `prefer` applies. |
