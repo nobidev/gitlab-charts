@@ -10,6 +10,7 @@ title: CI setup and use
 | Variable           | Default Value                        | Description |
 |--------------------|--------------------------------------|-------------|
 | `LIMIT_TO`         | `""`                                 | Limit pipeline execution to a specific logical block. Available blocks: `eks131`, `gke130`, `gke131`, `gke131a`, `vcluster`. Empty value implies absence of limits - i.e. all components shall be considered for execution. |
+| `SKIP_JOB_REGEX`   | `""`                                 | Regular expression of review trigger job names to skip. For example, `/^k3d_arm64/` skips the `k3d_arm64` job. Empty value skips no jobs. |
 | `DOCKERHUB_PREFIX` | `docker.io`                          | Override the prefix of DockerHub images. Allows to pull DockerHub from the dependency proxy or another mirror. |
 | `DOCKER_MIRROR`    | `https://mirror.gcr.io`              | Default Docker mirror in DinD jobs. |
 | `DOCKER_OPTIONS`   | `--registry-mirror ${DOCKER_MIRROR}` | Flags passed to the Docker daemon. |
@@ -21,6 +22,19 @@ title: CI setup and use
 `LIMIT_TO` accepts only a single value.
 
 Empty value implies that there are no limits and that pipeline shall be executed in full.
+
+### SKIP_JOB_REGEX
+
+`SKIP_JOB_REGEX` allows to skip review trigger jobs whose name matches the
+given regular expression. The expression is matched against the full job name,
+so anchors should be used for exact targeting. For example, `/^k3d_arm64/`
+skips the `k3d_arm64` job while leaving all other review jobs in place.
+
+This is primarily useful for upstream triggers, such as CNG testing images
+that are known not to work on certain platforms - for example, amd64-only
+images can skip `k3d_arm64` without losing the rest of the review coverage.
+
+Empty value implies that no jobs are skipped.
 
 ### Docker and DockerHub variables
 
