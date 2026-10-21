@@ -99,6 +99,10 @@ workflow:
     - if: '$CI_SERVER_HOST != "gitlab.com" || $CI_PROJECT_PATH != $CANONICAL_PROJECT_PATH'
       when: never
 
+.rule:skip_if_job_matches_regex:
+    - if: '$SKIP_JOB_REGEX && $CI_JOB_NAME =~ $SKIP_JOB_REGEX'
+      when: never
+
 # Skip for all repos that are not canonical or the security fork.
 # Sister rule to ".rule:skip_if_no_cluster" as only jobs with `environment` set get KUBECONFIG set
 .rule:skip_if_not_canonical_or_security:
