@@ -1697,7 +1697,7 @@ openbao:
           host: ''
           database: ''  # Empty allows global.openbao.psql.database. Set explicitly to override.
           username: ''  # Empty allows global.openbao.psql.username. Set explicitly to override.
-          sslMode: ''
+          sslMode: null  # One of disable, allow, prefer, require, verify-ca, verify-full. null emits no sslmode.
 
 gatewayApiResources:
   class:
