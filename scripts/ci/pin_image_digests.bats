@@ -75,8 +75,13 @@ setup() {
 @test "rendering digests file with helm template" {
   DIGESTS_FILE="$BATS_TEST_TMPDIR/ci.digests.yaml"
   REQUIRED_VALUES_FILE="$BATS_TEST_TMPDIR/required.values.yaml"
-
   source scripts/ci/pin_image_digests.sh
+
+  # Use the stable image tag matching the chart's appVersion (for example
+  # `19-1-stable` for `v19.1.9`, or `master` on master), as stable branch
+  # pipelines do. The `vX.Y.Z` tag is not published yet while a stable
+  # branch prepares a release.
+  GITLAB_VERSION=$(get_image_branch_for_gitlab_app_version "$(awk '/^appVersion:/ { print $2 }' "$CHART_FILE")")
 
   render_digests_file
 
