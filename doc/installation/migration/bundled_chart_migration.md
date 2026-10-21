@@ -167,7 +167,7 @@ Prerequisites:
 1. Confirm Garage is up and running:
 
    ```shell
-   $ kubectl get statefulsets.apps -n garage -l app.kubernetes.io/name=garage
+   $ kubectl get statefulsets.apps -n <NAMESPACE> -l app.kubernetes.io/name=garage
    NAME     READY   AGE
    garage   3/3     36s
    ```
@@ -409,11 +409,11 @@ PostgreSQL.
 
    ```shell
    # Find Toolbox Pod
-   kubectl get pods -l app=toolbox
+   kubectl get pods -n <NAMESPACE> -l app=toolbox
    # Copy backup archive to Pod
-   kubectl cp LOCAL_BACKUP_ARCHIVE.tar <TOOLBOX_POD>:/tmp
-   # Upload archive to backup bucket
-   s3cmd put /tmp/LOCAL_BACKUP_ARCHIVE.tar s3://gitlab-backups/
+   kubectl cp -n <NAMESPACE> -c toolbox LOCAL_BACKUP_ARCHIVE.tar <TOOLBOX_POD>:/tmp
+   # Upload archive to backup bucket from inside the Pod
+   kubectl exec -n <NAMESPACE> <TOOLBOX_POD> -c toolbox -- s3cmd put /tmp/LOCAL_BACKUP_ARCHIVE.tar s3://gitlab-backups/
    ```
 
 1. If you are migrating PostgreSQL or MinIO, [scale down the workloads and restore the backup](../../backup-restore/restore.md#restoring-the-backup-file).
