@@ -12,8 +12,6 @@ set -e
 # Usage:
 # $ bats scripts/ci/pin_image_digests_test.sh
 
-PROJECT_ROOT="$(dirname -- "$BATS_TEST_FILENAME")/../.."
-
 setup() {
   unset GITLAB_VERSION # set by CNG-triggered pipelines
   unset CI_MERGE_REQUEST_TARGET_BRANCH_NAME # backports to stable branches use the stable branch tag
