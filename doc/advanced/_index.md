@@ -16,5 +16,6 @@ title: 'Configure external services and customize'
 - Using [FIPS-compliant images](fips/_index.md)
 - Making use of [GitLab Geo functionality](geo/_index.md)
 - Enabling [internal TLS between services](internal-tls/_index.md)
+- Deploying within an [Istio service mesh](istio.md)
 - After install, [managing Persistent Volumes](persistent-volumes/_index.md)
 - Using [Red Hat UBI-based images](ubi/_index.md)
