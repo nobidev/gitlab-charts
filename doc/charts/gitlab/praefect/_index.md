@@ -334,6 +334,7 @@ the `helm install` command using the `--set` flags.
 | `securityContext.runAsUser`                              | 1000                                              |             |
 | `securityContext.fsGroup`                                | 1000                                              |             |
 | `securityContext.fsGroupChangePolicy`                    |                                                   | Policy for changing ownership and permission of the volume (requires Kubernetes 1.23) |
+| `securityContext.seLinuxChangePolicy`                     |                                                         | Policy for changing SELinux labels on the volume. `MountOption` uses a mount option instead of recursive relabeling. Requires Kubernetes 1.32 |
 | `securityContext.seccompProfile.type`                    | `RuntimeDefault`                                  | Seccomp profile to use |
 | `containerSecurityContext.allowPrivilegeEscalation`      | `false`                                           | Controls whether a process of the container can gain more privileges than its parent process |
 | `containerSecurityContext.runAsNonRoot`                  | `true`                                            | Controls whether the container runs with a non-root user |

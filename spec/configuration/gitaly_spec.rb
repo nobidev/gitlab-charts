@@ -256,6 +256,47 @@ describe 'Gitaly configuration' do
         end
       end
     end
+
+    context 'when seLinuxChangePolicy is set' do
+      let(:values) do
+        default_values.deep_merge(YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                securityContext:
+                  fsGroup: 1000
+                  runAsUser: 1000
+                  fsGroupChangePolicy: OnRootMismatch
+                  seLinuxChangePolicy: MountOption
+        )))
+      end
+
+      it 'renders seLinuxChangePolicy in pod securityContext' do
+        security_context = statefulset['spec']['template']['spec']['securityContext']
+        expect(security_context).to include(
+          'fsGroup' => 1000,
+          'runAsUser' => 1000,
+          'fsGroupChangePolicy' => 'OnRootMismatch',
+          'seLinuxChangePolicy' => 'MountOption'
+        )
+      end
+    end
+
+    context 'when seLinuxChangePolicy is not set' do
+      let(:values) do
+        default_values.deep_merge(YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                securityContext:
+                  fsGroup: 1000
+                  runAsUser: 1000
+        )))
+      end
+
+      it 'does not include seLinuxChangePolicy in pod securityContext' do
+        security_context = statefulset['spec']['template']['spec']['securityContext']
+        expect(security_context).not_to have_key('seLinuxChangePolicy')
+      end
+    end
   end
 
   context 'With additional gitconfig' do

@@ -131,6 +131,7 @@ serviceAccount:
 | `securityContext.fsGroup`                     | `1000`                                                     | Group ID under which the pod should be started |
 | `securityContext.runAsUser`                   | `1000`                                                     | User ID under which the pod should be started |
 | `securityContext.fsGroupChangePolicy`         |                                                            | Policy for changing ownership and permission of the volume (requires Kubernetes 1.23) |
+| `securityContext.seLinuxChangePolicy`                     |                                                         | Policy for changing SELinux labels on the volume. `MountOption` uses a mount option instead of recursive relabeling. Requires Kubernetes 1.32 |
 | `containerSecurityContext`                    |                                                            | Override container [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) under which the container is started |
 | `containerSecurityContext.runAsUser`          | `1000`                                                     | Allow to overwrite the specific security context under which the container is started |
 | `serviceAccount.annotations`                  | `{}`                                                       | Annotations for ServiceAccount |

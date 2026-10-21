@@ -178,6 +178,7 @@ You can pass these parameters to the `helm install` command by using the `--set`
 | `securityContext.runAsGroup`                             | `65532`                                               | Group ID under which the pod should be started |
 | `securityContext.fsGroup`                                | `65532`                                               | Group ID under which the pod should be started |
 | `securityContext.fsGroupChangePolicy`                    |                                                       | Policy for changing ownership and permission of the volume (requires Kubernetes 1.23) |
+| `securityContext.seLinuxChangePolicy`                     |                                                         | Policy for changing SELinux labels on the volume. `MountOption` uses a mount option instead of recursive relabeling. Requires Kubernetes 1.32 |
 | `securityContext.seccompProfile.type`                    | `RuntimeDefault`                                      | Seccomp profile to use |
 | `containerSecurityContext.runAsUser`                     | `65532`                                               | Override container [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) user ID under which the container is started |
 | `containerSecurityContext.allowPrivilegeEscalation`      | `false`                                               | Controls whether a process of the container can gain more privileges than its parent process |

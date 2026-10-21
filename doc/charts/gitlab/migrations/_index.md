@@ -69,6 +69,7 @@ Table below contains all the possible charts configurations that can be supplied
 | `securityContext.fsGroup`                                | `1000`                                                       | Group ID under which the pod should be started |
 | `securityContext.runAsUser`                              | `1000`                                                       | User ID under which the pod should be started |
 | `securityContext.fsGroupChangePolicy`                    |                                                              | Policy for changing ownership and permission of the volume (requires Kubernetes 1.23) |
+| `securityContext.seLinuxChangePolicy`                     |                                                         | Policy for changing SELinux labels on the volume. `MountOption` uses a mount option instead of recursive relabeling. Requires Kubernetes 1.32 |
 | `securityContext.seccompProfile.type`                    | `RuntimeDefault`                                             | Seccomp profile to use |
 | `containerSecurityContext.runAsUser`                     | `1000`                                                       | Override container [`securityContext`](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) under which the container is started |
 | `containerSecurityContext.allowPrivilegeEscalation`      | `false`                                                      | Controls whether a process of the container can gain more privileges than its parent process |

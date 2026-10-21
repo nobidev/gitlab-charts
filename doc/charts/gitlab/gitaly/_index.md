@@ -88,6 +88,7 @@ the `helm install` command using the `--set` flags.
 | `serviceAccount.name`                                    |                                                         | Name of the ServiceAccount. If not set, the full chart name is used |
 | `securityContext.fsGroup`                                | `1000`                                                  | Group ID under which the pod should be started |
 | `securityContext.fsGroupChangePolicy`                    |                                                         | Policy for changing ownership and permission of the volume (requires Kubernetes 1.23) |
+| `securityContext.seLinuxChangePolicy`                    |                                                         | Policy for changing SELinux labels on the volume. `MountOption` uses a mount option instead of recursive relabeling. Requires Kubernetes 1.32 |
 | `securityContext.runAsUser`                              | `1000`                                                  | User ID under which the pod should be started |
 | `securityContext.seccompProfile.type`                    |                                                         | Seccomp profile to use. Not set by default, because the `RuntimeDefault` profile can block the syscalls Gitaly needs to run Git ([issue 5780](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/5780)) |
 | `shareProcessNamespace`                                  | `false`                                                 | Allows making container processes visible to all other contains in the same pod |

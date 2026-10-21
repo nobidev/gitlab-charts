@@ -207,6 +207,7 @@ securityContext:
   runAsUser: 1000
   fsGroup: 1000
   # fsGroupChangePolicy: OnRootMismatch
+  # seLinuxChangePolicy: MountOption
   # seLinuxOptions:
   #   type: spc_t
   #   level: "s0:c123,c456"
