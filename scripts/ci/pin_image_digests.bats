@@ -70,16 +70,24 @@ setup() {
   [[ "$output" =~ $expected ]]
 }
 
+# Images missing from render_digests_file fall back to `global.gitlabVersion`,
+# whose release tag is not published yet while a release is being prepared.
 @test "rendering digests file with helm template" {
-  DIGESTS_FILE="$PROJECT_ROOT/ci.digests.test.yaml"
+  DIGESTS_FILE="$BATS_TEST_TMPDIR/ci.digests.yaml"
+  REQUIRED_VALUES_FILE="$BATS_TEST_TMPDIR/required.values.yaml"
 
   source scripts/ci/pin_image_digests.sh
 
-  image_tag="$(tag_and_digest gitlab-base)"
+  render_digests_file
+
+  # Read the tag back instead of calling tag_and_digest again, which could
+  # resolve a newer digest.
+  image_tag=$(awk '/gitlabBase:/ { found = 1 } found && /tag:/ { gsub(/"/, "", $2); print $2; exit }' "$DIGESTS_FILE")
+  [ -n "$image_tag" ]
 
   expected="image: \"registry.gitlab.com/gitlab-org/build/cng/gitlab-base:$image_tag\""
 
-  cat << CIYAML > $DIGESTS_FILE
+  cat << CIYAML > $REQUIRED_VALUES_FILE
 certmanager-issuer:
   email: ci@gitlab.com
 global:
@@ -101,9 +109,6 @@ global:
       connection:
         secret: object-storage-secret
         key: connection
-  gitlabBase:
-    image:
-      tag: "$image_tag"
 gitlab:
   toolbox:
     backups:
@@ -120,8 +125,18 @@ registry:
 CIYAML
 
   helm dependency build
-  run helm template . -f $DIGESTS_FILE
+  run helm template . -f $REQUIRED_VALUES_FILE -f $DIGESTS_FILE
 
   [ "$status" -eq 0 ]
   [[ "$output" =~ $expected ]]
+
+  unpinned=$(echo "$output" \
+    | grep -oE "registry\.gitlab\.com/gitlab-org/build/cng/[^\"'[:space:]]+" \
+    | grep -v '@sha256:' | sort -u || true)
+
+  if [ -n "$unpinned" ]; then
+    echo "CNG images not pinned by render_digests_file:"
+    echo "$unpinned"
+    return 1
+  fi
 }
