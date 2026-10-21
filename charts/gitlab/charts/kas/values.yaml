@@ -215,6 +215,7 @@ securityContext:
   runAsGroup: 65532
   fsGroup: 65532
   # fsGroupChangePolicy: OnRootMismatch
+  # seLinuxChangePolicy: MountOption
   seccompProfile:
     type: "RuntimeDefault"
 

@@ -618,6 +618,9 @@ securityContext:
 {{-   if not (empty $psc.fsGroupChangePolicy) }}
   fsGroupChangePolicy: {{ $psc.fsGroupChangePolicy }}
 {{-   end }}
+{{-   if not (empty $psc.seLinuxChangePolicy) }}
+  seLinuxChangePolicy: {{ $psc.seLinuxChangePolicy }}
+{{-   end }}
 {{-   if $psc.seccompProfile }}
   seccompProfile:
     {{- toYaml $psc.seccompProfile | nindent 4 }}
