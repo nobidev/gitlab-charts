@@ -741,6 +741,190 @@ describe 'Gateway API configuration' do
       end
     end
 
+    context 'TLS terminated upstream' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            geo:
+              enabled: true
+              role: primary
+              gatewayApi:
+                additionalHostname: geo.example.com
+            pages:
+              enabled: true
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+              tlsTerminatedUpstream: true
+        ))
+      end
+
+      let(:listeners) { gateway['spec']['listeners'].to_h { |l| [l['name'], l] } }
+      let(:redirect_route) { template["HTTPRoute/test-http-redirect"] }
+      let(:root_rule) { webservice_route['spec']['rules'].find { |r| r['name'] == 'default-root' } }
+
+      it 'serves HTTP on port 443 from the listeners that inherit the root protocol' do
+        expect(template.exit_code).to eq(0), template.stderr
+
+        %w[gitlab-web gitlab-web-geo registry-web kas-web].each do |name|
+          expect(listeners[name]).to include('protocol' => 'HTTP', 'port' => 443), "listener #{name}"
+          expect(listeners[name]).not_to have_key('tls')
+        end
+        expect(listeners['gitlab-ssh']).to include('protocol' => 'TCP', 'port' => 22)
+      end
+
+      it 'redirects HTTP on port 80 to HTTPS and skips cert-manager' do
+        expect(template.exit_code).to eq(0), template.stderr
+
+        expect(listeners['http-default']).to include('protocol' => 'HTTP', 'port' => 80)
+        expect(redirect_route).not_to be_nil
+        expect(gateway['metadata']['annotations'] || {}).not_to have_key('cert-manager.io/issuer')
+      end
+
+      it 'moves the section-scoped ClientTrafficPolicy settings to the gateway-wide policy' do
+        expect(template.exit_code).to eq(0), template.stderr
+
+        expect(webservice_clienttrafficpolicy).to be_nil
+        expect(webservice_geo_clienttrafficpolicy).to be_nil
+        expect(kas_clienttrafficpolicy).to be_nil
+        expect(clienttrafficpolicy['spec']).to include(
+          'path' => { 'escapedSlashesAction' => 'KeepUnchanged' },
+          'headers' => { 'host' => { 'stripTrailingHostDot' => true } }
+        )
+        expect(clienttrafficpolicy['spec']['targetRefs'][0]).not_to have_key('sectionName')
+      end
+
+      it 'sets X-Forwarded-Proto on every rule of the chart-managed HTTPRoutes' do
+        expect(template.exit_code).to eq(0), template.stderr
+
+        header_filter = [{
+          'type' => 'RequestHeaderModifier',
+          'requestHeaderModifier' => { 'set' => [{ 'name' => 'X-Forwarded-Proto', 'value' => 'https' }] }
+        }]
+        [webservice_route, registry_route, kas_route, kas_k8s_proxy_route, pages_route].each do |route|
+          route['spec']['rules'].each do |rule|
+            expect(rule['filters']).to eq(header_filter), "route #{route['metadata']['name']}"
+          end
+        end
+        expect(redirect_route['spec']['rules'][0]['filters'].map { |f| f['type'] }).to eq(['RequestRedirect'])
+      end
+
+      context 'with a custom port and gateway-wide ClientTrafficPolicy' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            gatewayApiResources:
+              gateway:
+                port: 8443
+              envoy:
+                clientTrafficPolicySpec:
+                  path:
+                    escapedSlashesAction: UnescapeAndRedirect
+          )))
+        end
+
+        it 'uses the port and keeps the user values' do
+          expect(template.exit_code).to eq(0), template.stderr
+
+          expect(listeners['gitlab-web']).to include('protocol' => 'HTTP', 'port' => 8443)
+          expect(listeners['http-default']['port']).to eq(80)
+          expect(clienttrafficpolicy['spec']['path']['escapedSlashesAction']).to eq('UnescapeAndRedirect')
+          expect(clienttrafficpolicy['spec']['headers']['host']['stripTrailingHostDot']).to be(true)
+        end
+      end
+
+      context 'with RequestHeaderModifier filters on the routes' do
+        let(:values) do
+          super().deep_merge(HelmTemplate.with_defaults(%(
+            registry:
+              gatewayRoute:
+                filters:
+                - type: RequestHeaderModifier
+                  requestHeaderModifier:
+                    set:
+                    - name: X-Custom
+                      value: registry
+            gitlab:
+              webservice:
+                deployments:
+                  default:
+                    gatewayRoute:
+                      rules:
+                      - name: root
+                        matches:
+                        - path:
+                            type: PathPrefix
+                            value: /
+                        filters:
+                        - type: RequestHeaderModifier
+                          requestHeaderModifier:
+                            set:
+                            - name: X-Custom
+                              value: custom
+                      - name: api
+                        matches:
+                        - path:
+                            type: PathPrefix
+                            value: /api
+                        filters:
+                        - type: RequestHeaderModifier
+                          requestHeaderModifier:
+                            set:
+                            - name: x-forwarded-proto
+                              value: custom
+          )))
+        end
+
+        let(:api_rule) { webservice_route['spec']['rules'].find { |r| r['name'] == 'default-api' } }
+
+        it 'adds the header to the existing filter unless it already sets X-Forwarded-Proto' do
+          expect(template.exit_code).to eq(0), template.stderr
+
+          expect(root_rule['filters'].length).to eq(1)
+          expect(root_rule['filters'][0]['requestHeaderModifier']['set']).to eq([
+            { 'name' => 'X-Custom', 'value' => 'custom' },
+            { 'name' => 'X-Forwarded-Proto', 'value' => 'https' }
+          ])
+          expect(api_rule['filters'][0]['requestHeaderModifier']['set']).to eq([
+            { 'name' => 'x-forwarded-proto', 'value' => 'custom' }
+          ])
+          expect(registry_route['spec']['rules'][0]['filters'][0]['requestHeaderModifier']['set']).to eq([
+            { 'name' => 'X-Custom', 'value' => 'registry' },
+            { 'name' => 'X-Forwarded-Proto', 'value' => 'https' }
+          ])
+        end
+      end
+    end
+
+    context 'gatewayApiResources.gateway.port' do
+      let(:values) do
+        HelmTemplate.with_defaults(%(
+          nginx-ingress:
+            enabled: false
+
+          global:
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+          gatewayApiResources:
+            gateway:
+              port: 8443
+        ))
+      end
+
+      it 'applies only to listeners that inherit the root protocol' do
+        expect(template.exit_code).to eq(0), template.stderr
+
+        listeners = gateway['spec']['listeners'].to_h { |l| [l['name'], l] }
+        expect(listeners['gitlab-web']).to include('protocol' => 'HTTPS', 'port' => 8443)
+        expect(listeners['http-default']).to include('protocol' => 'HTTP', 'port' => 80)
+        expect(listeners['gitlab-ssh']).to include('protocol' => 'TCP', 'port' => 22)
+        expect(webservice_route['spec']['rules'][0]).not_to have_key('filters')
+      end
+    end
+
     context 'when individual services are disabled' do
       context 'when kas is disabled' do
         let(:values) do

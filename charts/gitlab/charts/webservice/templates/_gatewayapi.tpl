@@ -49,7 +49,8 @@ Conditions:
 {{- $envoy := and .Values.global.gatewayApi.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) -}}
 {{- $sameNamespace := eq "true" (include "gitlab.gatewayApi.gateway.sameNamespace" .) -}}
 {{- $https := or .Values.global.hosts.https .Values.global.hosts.gitlab.https -}}
-{{- if and $envoy $sameNamespace $https -}}
+{{- $upstream := eq "true" (include "gitlab.gatewayApi.tlsTerminatedUpstream" .) -}}
+{{- if and $envoy $sameNamespace $https (not $upstream) -}}
 true
 {{- end -}}
 {{- end -}}

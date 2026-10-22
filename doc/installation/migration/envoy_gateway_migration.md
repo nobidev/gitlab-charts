@@ -373,3 +373,13 @@ On chart versions that bundle Envoy Gateway 1.8 or earlier, the setting is not
 available. Remove the trailing dot from the client configuration instead. For
 example, update the `url` setting in the GitLab Runner `config.toml`, or remove
 the trailing dot from `/etc/hosts` entries on the client host.
+
+## TLS terminated at an upstream load balancer
+
+If a load balancer in front of Envoy Gateway terminates TLS, for example an AWS Network Load
+Balancer, set `global.gatewayApi.tlsTerminatedUpstream: true`. Otherwise, GitLab treats requests
+as HTTP, and SAML sign-in enters an infinite redirect loop. Existing sessions keep working, so the
+problem can go unnoticed until users sign in again after the migration.
+
+For more information, see
+[TLS terminated at a load balancer](../../advanced/gateway-api/_index.md#tls-terminated-at-a-load-balancer).

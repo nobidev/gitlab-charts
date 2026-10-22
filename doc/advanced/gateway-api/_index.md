@@ -17,7 +17,8 @@ but remains available until its full removal in GitLab 20.0.
 | `global.gatewayApi.configureCertmanager`            | Boolean | true           | Configure cert-manager to get certificates from Let's Encrypt via a Gateway API HTTP-01 solver. Requires `certmanager-issuer.email`. |
 | `global.gatewayApi.gatewayRef.name`                 | String  |                | Gateway name rendered to all Gateway API resources. Use this to reference an externally managed Gateway and to disable the Gateway provided by the chart. |
 | `global.gatewayApi.gatewayRef.namespace`            | String  |                | Gateway namespace rendered to all Gateway API resources. Use this to reference an externally managed Gateway in another namespace and to disable the Gateway provided by the chart. |
-| `global.gatewayApi.httpToHttpsRedirect`             | Boolean | true           | Create an HTTPRoute that redirects all HTTP traffic to HTTPS with a 301 status code. Only effective when `protocol` is `HTTPS` and the Gateway is managed (no `gatewayRef`). |
+| `global.gatewayApi.httpToHttpsRedirect`             | Boolean | true           | Create an HTTPRoute that redirects all HTTP traffic to HTTPS with a 301 status code. Only effective when `protocol` is `HTTPS` or `tlsTerminatedUpstream` is `true`, and the Gateway is managed (no `gatewayRef`). |
+| `global.gatewayApi.tlsTerminatedUpstream`           | Boolean | false          | Set to `true` when a load balancer in front of the Gateway terminates TLS. For more information, see [TLS terminated at a load balancer](#tls-terminated-at-a-load-balancer). |
 | `global.gatewayApi.installEnvoy`                    | Boolean | true           | Install the [bundled Envoy Gateway](../../charts/envoygateway/_index.md) subchart. Default flipped to `true` in GitLab 19.0. |
 | `global.gatewayApi.configureEnvoy`                  | Boolean | unset          | Configure Envoy Gateway's Gateway API resources (`GatewayClass`, `EnvoyProxy`, `ClientTrafficPolicy`, `BackendTrafficPolicy`, `SecurityPolicy`). Defaults to the value of `global.gatewayApi.installEnvoy` when unset. Set explicitly to configure these resources for an externally managed Envoy Gateway without installing the bundled subchart. |
 
@@ -53,6 +54,7 @@ GitLab chart allows you to customize the managed `Gateway`, `GatewayClass`, and 
 | `gatewayApiResources.class.controllerName`         | String  | `gateway.envoyproxy.io/gitlab-gatewayclass-controller` | Controller name of the GatewayClass. |
 | `gatewayApiResources.gateway.addresses`            | Array   | []             | Array of addresses to be added to the Gateway. |
 | `gatewayApiResources.gateway.protocol`             | String  | `HTTPS`        | Default listener protocol. |
+| `gatewayApiResources.gateway.port`                 | Integer | unset          | Port for listeners that inherit `protocol`. Defaults to `443` for HTTPS and `80` for HTTP. With `global.gatewayApi.tlsTerminatedUpstream`, defaults to `443`. |
 | `gatewayApiResources.gateway.annotations`          | Map     | `{}`           | Annotations to add to the managed Gateway. |
 | `gatewayApiResources.gateway.infrastructure`       | Object  | `{}`           | [GatewayInfrastructure](https://gateway-api.sigs.k8s.io/reference/spec/#gatewayinfrastructure) added to the managed Gateway. |
 | `gatewayApiResources.gateway.tls.secretName`       | String  | `""`           | Name of a single TLS Secret to serve from every listener that terminates TLS, replacing their `certificateRefs` field. Leave empty to configure certificates per listener. |
@@ -334,8 +336,7 @@ gitlab:
 
 #### HTTP-only mode
 
-To expose GitLab over HTTP (for example, when TLS is terminated upstream), set the chart-managed
-Gateway to HTTP:
+To expose GitLab over HTTP, set the chart-managed Gateway to HTTP:
 
 ```yaml
 global:
@@ -345,6 +346,12 @@ gatewayApiResources:
   gateway:
     protocol: HTTP
 ```
+
+In this mode, the chart renders all HTTP listeners on port 80 and does not render the HTTP to
+HTTPS redirect.
+
+If a load balancer in front of the Gateway terminates TLS and users connect over HTTPS, don't
+use HTTP-only mode. Instead, see [TLS terminated at a load balancer](#tls-terminated-at-a-load-balancer).
 
 When the bundled Envoy Gateway is used, also configure `KeepUnchanged` on the gateway-wide
 `ClientTrafficPolicy`:
@@ -360,6 +367,85 @@ gatewayApiResources:
 This is required because when multiple HTTP listeners share the same port, Envoy Gateway does
 not accept section-scoped `ClientTrafficPolicy` resources that the chart renders for HTTPS.
 As a result, the escaped-slash handling must be configured globally.
+
+#### TLS terminated at a load balancer
+
+When a load balancer in front of the Gateway terminates TLS, for example an AWS Network Load
+Balancer, set `global.gatewayApi.tlsTerminatedUpstream`:
+
+```yaml
+global:
+  hosts:
+    https: true
+  gatewayApi:
+    tlsTerminatedUpstream: true
+```
+
+With this setting, the chart:
+
+- Renders the listeners that inherit `gatewayApiResources.gateway.protocol` as HTTP on port 443.
+  To use another port, set `gatewayApiResources.gateway.port`. Use port 80 only if your load
+  balancer never forwards plain HTTP to the Gateway. On port 80, the GitLab hostnames take
+  precedence over the redirect listener, so plain HTTP requests reach GitLab marked as HTTPS.
+- Keeps the HTTP to HTTPS redirect on port 80 when `global.gatewayApi.httpToHttpsRedirect` is
+  `true`.
+- Does not configure cert-manager for the Gateway, because the load balancer holds the
+  certificates.
+- Sets `X-Forwarded-Proto: https` on the Webservice, Registry, KAS, and GitLab Pages `HTTPRoute`
+  resources. Envoy receives plain HTTP from the load balancer, so it otherwise sends
+  `X-Forwarded-Proto: http`. GitLab then treats requests as HTTP. For example, SAML sign-in enters
+  a redirect loop, and the registry returns `http://` upload URLs to clients.
+- Does not render the section-scoped `ClientTrafficPolicy` resources of Webservice and KAS.
+  Envoy Gateway does not accept them on HTTP listeners that share a port. Instead, the
+  gateway-wide `ClientTrafficPolicy` keeps escaped slashes unchanged and strips a trailing dot
+  from the `Host` header. Values in `gatewayApiResources.envoy.clientTrafficPolicySpec` take
+  precedence.
+
+If you set route `filters`, the chart adds the header to your `RequestHeaderModifier` filter.
+A filter that already sets `X-Forwarded-Proto` keeps its value.
+
+The OpenBao and GitLab AI Gateway charts render their own routes, so the chart does not set the
+header on them. To set it, add a `RequestHeaderModifier` filter to `openbao.gatewayRoute.filters`
+or `ai-gateway.gatewayRoute.filters`.
+
+Configure your load balancer to terminate TLS and forward the traffic to port 443 of the Envoy
+Gateway service. For example, for an AWS Network Load Balancer:
+
+```yaml
+gatewayApiResources:
+  gateway:
+    infrastructure:
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: external
+        service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+        service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<certificate_arn>"
+        service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+        service.beta.kubernetes.io/aws-load-balancer-alpn-policy: HTTP2Preferred
+```
+
+The load balancer must negotiate HTTP/2 with Application-Layer Protocol Negotiation (ALPN) for
+GitLab agents that connect to KAS with `grpcs://`. gRPC clients reject TLS connections without
+ALPN, and the agents fail with `credentials: cannot check peer: missing selected ALPN property`.
+The AWS Load Balancer Controller does not negotiate ALPN by default, so set the
+`aws-load-balancer-alpn-policy` annotation. Envoy accepts the decrypted HTTP/2 traffic on its HTTP
+listeners. Agents that connect with `wss://` use HTTP/1.1 and don't need ALPN.
+
+If you enable `global.gatewayApi.tlsTerminatedUpstream` on an existing installation:
+
+- Listeners that served HTTP on port 80 move to port 443. The ports of the Envoy Gateway service
+  change, so the load balancer that the service provisions changes too. If you manage the load
+  balancer yourself, forward the traffic to port 443.
+- The chart stops configuring cert-manager for the Gateway. cert-manager no longer renews the
+  existing certificate secrets.
+- Custom `gitlab.webservice.clientTrafficPolicy` and `gitlab.kas.clientTrafficPolicy` settings no
+  longer apply. Add the settings you need to `gatewayApiResources.envoy.clientTrafficPolicySpec`.
+
+The chart fails with an error if `global.gatewayApi.tlsTerminatedUpstream` is combined with:
+
+- `global.hosts.https: false`.
+- Smartcard authentication, because the Gateway must terminate TLS to verify client
+  certificates.
+- A listener that sets `protocol` to `HTTPS` or `TLS`.
 
 ### TLS between Gateway and backend services
 
