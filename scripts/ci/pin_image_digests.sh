@@ -160,6 +160,10 @@ gitlab:
 registry:
   image:
     tag: "$(tag_and_digest gitlab-container-registry)"
+shared-secrets:
+  selfsign:
+    image:
+      tag: "$(tag_and_digest cfssl-self-sign)"
 CIYAML
 
   echo "Finished writing $DIGESTS_FILE."
