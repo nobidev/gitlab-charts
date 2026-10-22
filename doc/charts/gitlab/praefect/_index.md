@@ -14,7 +14,7 @@ title: Using the Praefect chart
 {{< /details >}}
 
 > [!warning]
-> The Praefect chart is in beta and is not suitable for production use.
+> The Praefect chart is an experiment and is not suitable for production use.
 > Upgrades may require significant manual intervention.
 > GitLab has de-prioritized this configuration in favor of a new Gitaly storage backend.
 > For details and the available options, see
