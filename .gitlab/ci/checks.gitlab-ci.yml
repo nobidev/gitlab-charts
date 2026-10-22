@@ -46,6 +46,7 @@ check_docs_markdown:
   script:
     # Lint Markdown
     - markdownlint-cli2 'doc/**/*.md'
+    - rumdl check --config doc/.rumdl.toml doc
   rules:
     - !reference [.rule:skip_if_dev]
     - if: '$PIPELINE_TYPE =~ /DOCS_PIPELINE/'

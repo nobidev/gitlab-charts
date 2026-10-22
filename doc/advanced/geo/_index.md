@@ -261,7 +261,6 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
        role: primary
    ```
 
-   <!-- markdownlint-disable MD044 -->
    - [`global.hosts.domain`](../../charts/globals.md#configure-host-settings)
    - [`global.psql.host`](../../charts/globals.md#configure-postgresql-settings)
    - `global.geo.nodeName` must match
@@ -270,7 +269,6 @@ To deploy this chart as a Geo Primary, start [from this example configuration](h
      - [Configuring SSL/TLS](../../installation/tools.md#tls-certificates)
      - The [Redis](../external-redis/_index.md) configuration
      - The [Object Storage](../external-object-storage/_index.md) configuration
-   <!-- markdownlint-enable MD044 -->
 
 1. Add the necessary Ingress or Gateway API configuration to your `primary.yaml`.
 
@@ -621,20 +619,18 @@ To deploy this chart as a Geo Secondary site, start [from this example configura
            key: geo-postgresql-password
    ```
 
-   <!-- markdownlint-disable MD044 -->
    - [`global.hosts.domain`](../../charts/globals.md#configure-host-settings)
    - [`global.psql.host`](../../charts/globals.md#configure-postgresql-settings)
    - [`global.geo.psql.host`](../../charts/globals.md#configure-postgresql-settings)
    - `global.geo.nodeName` must match
      [the Name field of a Geo site in the Admin Area](https://docs.gitlab.com/administration/geo_sites/#common-settings)
-   - Optionally set `nginx-ingress-geo.enabled` to enable an ingress controller pre-configured for internal Geo traffic.
+   - Optionally set `nginx-ingress-geo.enabled` to enable an Ingress controller pre-configured for internal Geo traffic.
      [This makes it easier to promote the site to a primary.](../../charts/nginx/_index.md#gitlab-geo).
    - Also configure any additional settings, such as:
      - [Configuring SSL/TLS](../../installation/tools.md#tls-certificates)
      - The [Redis](../external-redis/_index.md) configuration
      - The [Object Storage](../external-object-storage/_index.md) configuration
    - For external databases, `global.psql.host` is the secondary, read-only replica database, while `global.geo.psql.host` is the Geo tracking database
-   <!-- markdownlint-enable MD044 -->
 
 1. Add the necessary Ingress or Gateway API configuration to your `secondary.yaml`.
 
