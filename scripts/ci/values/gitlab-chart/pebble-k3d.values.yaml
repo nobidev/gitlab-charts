@@ -12,6 +12,21 @@ global:
   certificates:
     customCAs:
       - secret: pebble-issuing-ca
+  ingress:
+    tls:
+      # Pebble issues wildcard certificates only through DNS-01, which the
+      # chart's HTTP-01 issuer cannot solve. The wildcard workspaces host uses
+      # a self-signed certificate instead (pebble_create_workspaces_tls).
+      workspacesSecretName: workspaces-selfsigned-tls
+
+# The Gateway API counterpart of global.ingress.tls.workspacesSecretName.
+gatewayApiResources:
+  gateway:
+    listeners:
+      kas-workspaces-web:
+        tls:
+          certificateRefs:
+            - name: workspaces-selfsigned-tls
 
 certmanager-issuer:
   email: gitlab-charts-ci@example.com

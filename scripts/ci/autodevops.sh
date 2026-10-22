@@ -111,6 +111,11 @@ function deploy() {
     NETWORKING_CONFIGURATION="-f ${VALUES_DIR}/gatewayapi-$(external_protocol)${K3D_VALUES_SUFFIX}.values.yaml"
   fi
 
+  WORKSPACES_CONFIGURATION=""
+  if is_k3d_deployment; then
+    WORKSPACES_CONFIGURATION="-f ${VALUES_DIR}/workspaces-k3d.values.yaml"
+  fi
+
   # Passed after CI_CONFIGURATION, whose ci-base.values.yaml sets installCertmanager: false.
   PEBBLE_CONFIGURATION=""
   if use_pebble; then
@@ -145,6 +150,7 @@ function deploy() {
     ${CI_CONFIGURATION} \
     ${SENTRY_CONFIGURATION} \
     ${NETWORKING_CONFIGURATION} \
+    ${WORKSPACES_CONFIGURATION} \
     ${PEBBLE_CONFIGURATION} \
     ${VALKEY_CONFIGURATION} \
     ${POSTGRESQL_CONFIGURATION} \
@@ -168,6 +174,7 @@ function prepare_values() {
       CNPG_CLUSTER_SECRET="$(cnpg_cluster_secret)" \
       CNPG_CLUSTER_REGISTRY_SECRET="$(cnpg_cluster_registry_secret)" \
       GARAGE_RELEASE_NAME="$(garage_release_name)" \
+      WORKSPACES_HOST="$(workspaces_host)" \
         envsubst < "$f" > "${VALUES_DIR}/$(basename $f)"
   done
 }

@@ -425,9 +425,10 @@ Backend TLS for KAS is controlled by `global.kas.tls.enabled`. The validation ho
 to the service DNS name (`<service-name>.<namespace>.svc`) and can be overridden with
 `kas.backendTLSPolicy.hostname`:
 
-> [!warning]
-> GitLab Workspaces does not yet support internal TLS. If you use Workspaces,
-> do not enable internal TLS for GitLab Relay because it will cause protocol and TLS errors.
+> [!note]
+> The workspaces server does not use internal TLS. The workspaces route uses a separate
+> `<release>-kas-workspaces` Service that the KAS `BackendTLSPolicy` does not cover, so you can
+> use Workspaces with internal TLS for GitLab Relay.
 
 ```yaml
 global:
@@ -615,7 +616,9 @@ everything attached to it. You are responsible for:
   `gitlab-smartcard-web`, `registry-web`, `pages-web`, `kas-web`, `kas-workspaces-web`,
   `gitlab-ssh`, `openbao-web`, `ai-gateway-web`, `ai-gateway-grpc`). Each sub-chart accepts a
   `gatewayRoute.sectionName` override if your listener names differ. For the `ai-gateway-grpc`
-  listener, use `ai-gateway.gatewayRoute.grpc.sectionName`.
+  listener, use `ai-gateway.gatewayRoute.grpc.sectionName`. For the `kas-workspaces-web` listener,
+  use `gitlab.kas.gatewayRoute.workspacesSectionName`, or set it to `""` to attach the workspaces
+  route to all listeners.
 - Configuring an HTTP-to-HTTPS redirect on your `Gateway` if you need one. The
   `global.gatewayApi.httpToHttpsRedirect` flag only applies to the chart-managed `Gateway`.
 - Annotating your `Gateway` for TLS certificates. The chart still creates a cert-manager `Issuer`

@@ -1,0 +1,10 @@
+# Workspaces for k3d per-job review environments, exercised by
+# spec/features/kas_workspaces_spec.rb. Passed by scripts/ci/autodevops.sh for
+# k3d deployments, where nip.io resolves the wildcard workspace hostnames to the
+# k3d loadbalancer (see workspaces_host in scripts/ci/lib/helpers.sh).
+global:
+  hosts:
+    workspaces:
+      name: "${WORKSPACES_HOST}"
+  workspaces:
+    enabled: true

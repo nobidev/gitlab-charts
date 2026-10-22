@@ -188,6 +188,8 @@ You can pass these parameters to the `helm install` command by using the `--set`
 | `extraContainers`                                        |                                                       | Multiline literal style string containing a list of containers to include. |
 | `extraEnv`                                               |                                                       | List of extra environment variables to expose |
 | `extraEnvFrom`                                           |                                                       | List of extra environment variables from other data sources to expose |
+| `gatewayRoute.sectionName`                               | `kas-web`                                             | Gateway listener the KAS `HTTPRoute` resources attach to, including the workspaces API route on the KAS host. |
+| `gatewayRoute.workspacesSectionName`                     | `kas-workspaces-web`                                  | Gateway listener the wildcard workspaces `HTTPRoute` attaches to. Set to `""` to attach the route to all listeners of the Gateway. |
 | `init.containerSecurityContext`                          |                                                       | init container securityContext overrides |
 | `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                               | initContainer specific: Controls whether a process can gain more privileges than its parent process |
 | `init.containerSecurityContext.runAsNonRoot`             | `true`                                                | initContainer specific: Controls whether the container runs with a non-root user |
@@ -272,6 +274,11 @@ You can pass these parameters to the `helm install` command by using the `--set`
 
 Enable TLS communication between your `kas` pods and other GitLab chart components,
 through the [global KAS attribute](../../globals.md#tls-settings-1).
+
+The workspaces server does not use TLS. The workspaces routes use a separate
+`<release>-kas-workspaces` Service, so TLS settings for the main KAS Service, like the Gateway API
+`BackendTLSPolicy`, do not apply to it. On the KAS host, the workspaces path has an Ingress of its own,
+because NGINX applies the backend TLS annotations of an Ingress to all of its paths.
 
 ## Backend traffic policy
 

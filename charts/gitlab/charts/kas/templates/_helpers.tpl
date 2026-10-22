@@ -160,3 +160,11 @@ over service.annotations, and the chart's ServersTransport is used unless servic
 {{- end -}}
 {{- toYaml $annotations -}}
 {{- end -}}
+
+{{/*
+Name of the Service the workspaces routes use. The workspaces server does not serve TLS, so it gets a
+Service of its own that TLS settings for the main KAS Service, like its BackendTLSPolicy, do not cover.
+*/}}
+{{- define "kas.workspaces.serviceName" -}}
+{{- printf "%s-workspaces" (include "gitlab.kas.serviceName" . | trunc 52 | trimSuffix "-") -}}
+{{- end -}}

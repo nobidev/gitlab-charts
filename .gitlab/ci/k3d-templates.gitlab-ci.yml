@@ -155,12 +155,13 @@
     - kubectl version --output=json
     # Deploy GitLab chart + external services (Valkey, CNPG, Garage, Pebble)
     - ./scripts/ci/k3d_deploy.sh
-    # Trust the Pebble-issued certificates in the spec runner: Ruby (rest-client,
-    # open-uri) and curl honor SSL_CERT_FILE/CURL_CA_BUNDLE. Merged with the
-    # system bundle so other TLS (rubygems, GitLab API) keeps working.
+    # Trust the Pebble-issued certificates, and the self-signed one of the
+    # wildcard workspaces host, in the spec runner: Ruby (rest-client, open-uri)
+    # and curl honor SSL_CERT_FILE/CURL_CA_BUNDLE. Merged with the system bundle
+    # so other TLS (rubygems, GitLab API) keeps working.
     - |
       if [ -f pebble-pki/issuing-root.pem ]; then
-        cat /etc/ssl/certs/ca-certificates.crt pebble-pki/issuing-root.pem > /tmp/ci-ca-bundle.pem
+        cat /etc/ssl/certs/ca-certificates.crt pebble-pki/issuing-root.pem pebble-pki/workspaces-ca.pem > /tmp/ci-ca-bundle.pem
         export SSL_CERT_FILE=/tmp/ci-ca-bundle.pem
         export CURL_CA_BUNDLE=/tmp/ci-ca-bundle.pem
       fi

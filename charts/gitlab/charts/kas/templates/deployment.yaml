@@ -88,7 +88,7 @@ spec:
               name: {{ template "name" . }}-private-api
             - containerPort: {{ .Values.observability.port }}
               name: http-metrics
-            {{- if (.Values.workspaces).enabled }}
+            {{- if .Values.global.workspaces.enabled }}
             - containerPort: {{ .Values.service.workspacesServerPort }}
               # ws=workspaces
               # srv=server

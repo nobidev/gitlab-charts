@@ -71,6 +71,7 @@ function deploy_pebble() {
   fi
 
   pebble_fetch_issuing_root
+  pebble_create_workspaces_tls
 }
 
 # Pebble regenerates its issuing root on every process start, so it can only be
@@ -111,8 +112,43 @@ function pebble_fetch_issuing_root() {
     --dry-run=client -o yaml | kubectl apply -f -
 }
 
+# Pebble issues wildcard certificates only through DNS-01, which the chart's
+# HTTP-01 issuer cannot solve. The wildcard workspaces host therefore gets a
+# certificate from a throwaway CA, which the spec runner trusts next to Pebble's
+# issuing root (see pebble-k3d.values.yaml for the Secret name).
+#
+# cert-manager still creates a Certificate for the Secret from the workspaces
+# Ingress or Gateway listener. Its issuance fails without touching the Secret,
+# and scripts/ci/verify_certmanager.sh does not wait for it.
+function pebble_create_workspaces_tls() {
+  local pki_dir host
+  pki_dir="$(pebble_pki_dir)"
+  host="$(workspaces_host)"
+
+  echo "Creating a self-signed certificate for *.${host}"
+  openssl req -x509 -newkey rsa:2048 -nodes -days 2 -subj "/CN=k3d workspaces CA" \
+    -addext "basicConstraints=critical,CA:TRUE" \
+    -addext "keyUsage=critical,keyCertSign,cRLSign" \
+    -keyout "${pki_dir}/workspaces-ca.key" -out "${pki_dir}/workspaces-ca.pem" 2>/dev/null
+  openssl req -newkey rsa:2048 -nodes -subj "/CN=*.${host}" \
+    -keyout "${pki_dir}/workspaces.key" -out "${pki_dir}/workspaces.csr" 2>/dev/null
+  openssl x509 -req -days 2 -in "${pki_dir}/workspaces.csr" \
+    -CA "${pki_dir}/workspaces-ca.pem" -CAkey "${pki_dir}/workspaces-ca.key" -set_serial "0x$(openssl rand -hex 16)" \
+    -extfile <(printf 'subjectAltName=DNS:*.%s\nextendedKeyUsage=serverAuth\n' "${host}") \
+    -out "${pki_dir}/workspaces.pem" 2>/dev/null
+
+  if ! pebble_pem_is_cert "${pki_dir}/workspaces.pem"; then
+    echo "ERROR: could not create the self-signed workspaces certificate"
+    exit 1
+  fi
+
+  kubectl create secret tls workspaces-selfsigned-tls -n "${NAMESPACE}" \
+    --cert="${pki_dir}/workspaces.pem" --key="${pki_dir}/workspaces.key" \
+    --dry-run=client -o yaml | kubectl apply -f -
+}
+
 function remove_pebble() {
   echo "Removing Pebble"
   helm uninstall pebble -n "${NAMESPACE}" --ignore-not-found
-  kubectl delete secret pebble-issuing-ca -n "${NAMESPACE}" --ignore-not-found
+  kubectl delete secret pebble-issuing-ca workspaces-selfsigned-tls -n "${NAMESPACE}" --ignore-not-found
 }
