@@ -1,12 +1,12 @@
 .kubeconform:
+  extends: .chart_deps_cache
   stage: test
   when: always
   script:
     - kubectl version --client=true --output=json
     - helm version --template='{{.Version}}'
     - helm plugin list
-    - helm repo add gitlab https://charts.gitlab.io
-    - helm dependency update
+    - bash ./scripts/ci/ensure_chart_deps.sh
     - echo "$HELM_DEFAULT_SETTINGS" | tee ./template_settings.yaml
     - echo "${KUBECONFORM_SCHEMA_LOCATION:-default}"
     - >

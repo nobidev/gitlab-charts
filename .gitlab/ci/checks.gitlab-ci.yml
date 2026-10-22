@@ -190,13 +190,13 @@ docs-test hugo:
 # https://github.com/zegl/kube-score
 # Initially motivated to detect duplicated environment variable definitions
 kube-score:
+  extends: .chart_deps_cache
   image:
     name: ${KUBE_SCORE_IMAGE}
     entrypoint: [""]
   stage: test
   script:
-    - bash ./scripts/ci/add_dependency_repos.sh
-    - helm dependency build
+    - bash ./scripts/ci/ensure_chart_deps.sh
     - echo "$HELM_DEFAULT_SETTINGS" | tee ./template_settings.yaml
     - helm template . -f ./template_settings.yaml > /tmp/test.yaml
     - >
@@ -211,13 +211,13 @@ kube-score:
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
 
 lint_chart:
+  extends: .chart_deps_cache
   stage: test
   when: always
   script:
     - kubectl version --client=true --output=json
     - helm version --template='Helm Version - {{.Version}}'
-    - helm repo add gitlab https://charts.gitlab.io
-    - helm dependency update
+    - bash ./scripts/ci/ensure_chart_deps.sh
     - echo "$HELM_DEFAULT_SETTINGS" | tee ./template_settings.yaml
     - echo "$HELM_SETTINGS" | tee -a ./template_settings.yaml
     - helm lint -f ./template_settings.yaml .
