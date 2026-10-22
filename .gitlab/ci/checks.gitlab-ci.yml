@@ -181,13 +181,13 @@ docs-test hugo:
 # https://github.com/zegl/kube-score
 # Initially motivated to detect duplicated environment variable definitions
 kube-score:
+  extends: .chart_deps_cache
   image:
     name: ${KUBE_SCORE_IMAGE}
     entrypoint: [""]
   stage: prepare
   script:
-    - bash ./scripts/ci/add_dependency_repos.sh
-    - helm dependency build
+    - bash ./scripts/ci/ensure_chart_deps.sh
     - helm template . --set certmanager-issuer.email=gitlab@example.com  > /tmp/test.yaml
     - /kube-score score --ignore-container-cpu-limit --ignore-container-memory-limit --ignore-test "container-image-pull-policy,container-security-context-user-group-id,container-ephemeral-storage-request-and-limit,container-security-context-readonlyrootfilesystem,pod-probes,pod-networkpolicy,container-resources,deployment-has-poddisruptionbudget,deployment-replicas,deployment-has-host-podantiaffinity" /tmp/test.yaml
   rules:
@@ -196,13 +196,13 @@ kube-score:
     - if: '$PIPELINE_TYPE =~ /BRANCH_PIPELINE$/'
 
 lint_package:
+  extends: .chart_deps_cache
   stage: preflight
   when: always
   script:
     - kubectl version --client=true --output=json
     - helm version --template='Helm Version - {{.Version}}'
-    - helm repo add gitlab https://charts.gitlab.io
-    - helm dependency update
+    - bash ./scripts/ci/ensure_chart_deps.sh
     - echo "$HELM_DEFAULT_SETTINGS" | tee ./template_settings.yaml
     - echo "$HELM_SETTINGS" | tee -a ./template_settings.yaml
     - helm lint -f ./template_settings.yaml .
