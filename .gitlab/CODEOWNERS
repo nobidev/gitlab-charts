@@ -24,6 +24,7 @@
 .markdownlint-cli2.yaml @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership
 /doc/.markdownlint/ @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership
 /doc/.vale/ @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership
+/doc/.rumdl.toml @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership
 
 ## Localization files that do not need `*` rule approval,
 ## but still require an approval from the localization team (covered by later [Localization Team] rules).

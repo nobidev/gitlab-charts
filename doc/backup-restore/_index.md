@@ -237,7 +237,7 @@ confirm that all buckets in your environment have been created, and that the GCP
 
 This error happens when a Kubernetes secret containing a `.s3cfg` file was not specified through the `gitlab.toolbox.backups.objectStorage.config.secret` value.
 
-To fix this, follow the instructions in [backups to S3](_index.md#backups-to-s3).
+To fix this, follow the instructions in [backups to S3](#backups-to-s3).
 
 If you're authenticating with an IAM role for a ServiceAccount (IRSA) and don't use static AWS credentials, there's no `.s3cfg` file to create.
 Use `awscli` instead of the default `s3cmd` by passing `--s3tool awscli` to `backup-utility`. For more information, see [using IAM roles for service accounts (IRSA)](backup.md#using-iam-roles-for-service-accounts-irsa).

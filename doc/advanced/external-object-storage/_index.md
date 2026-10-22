@@ -105,23 +105,22 @@ Examples for [S3](https://distribution.github.io/distribution/storage-drivers/s3
 1. Follow [registry chart documentation on storage](../../charts/registry/_index.md#storage) for creating the secret.
 1. Configure the chart as documented.
 
-<!-- markdownlint-disable MD013 -->
-## LFS, Artifacts, Uploads, Packages, External Diffs, Terraform State, Dependency Proxy, Secure Files, Agent Plans, CI Catalog Bundles
-<!-- markdownlint-enable MD013 -->
+## Configure object storage for GitLab features
 
-Configuration of object storage for LFS, artifacts, uploads, packages, external
-diffs, Terraform state, Secure Files, Agent Plans, CI Catalog Bundles, and pseudonymizer is done via the following keys:
+Configure object storage for each object type with these keys:
 
-- `global.appConfig.lfs`
-- `global.appConfig.artifacts`
-- `global.appConfig.uploads`
-- `global.appConfig.packages`
-- `global.appConfig.externalDiffs`
-- `global.appConfig.dependencyProxy`
-- `global.appConfig.terraformState`
-- `global.appConfig.ciSecureFiles`
-- `global.appConfig.agentPlanContent`
-- `global.appConfig.ciCatalogBundles`
+| Object type           | Key                                 |
+|-----------------------|-------------------------------------|
+| Agent plans           | `global.appConfig.agentPlanContent` |
+| Artifacts             | `global.appConfig.artifacts`        |
+| CI/CD Catalog bundles | `global.appConfig.ciCatalogBundles` |
+| Dependency Proxy      | `global.appConfig.dependencyProxy`  |
+| External diffs        | `global.appConfig.externalDiffs`    |
+| LFS                   | `global.appConfig.lfs`              |
+| Packages              | `global.appConfig.packages`         |
+| Secure Files          | `global.appConfig.ciSecureFiles`    |
+| Terraform state       | `global.appConfig.terraformState`   |
+| Uploads               | `global.appConfig.uploads`          |
 
 Note also that:
 
