@@ -73,6 +73,9 @@
     {{- if not (or $.Values.global.ingress.configureCertmanager $.Values.global.ingress.tls) }}
     - secret:
         name: {{ template "gitlab.wildcard-self-signed-cert-name" $ }}-ca
+        items:
+          - key: cfssl_ca
+            path: cfssl_ca.crt
     {{- end }}
     {{- if $internalGitalyTLSEnabled }}
     {{-   if $.Values.global.praefect.enabled }}

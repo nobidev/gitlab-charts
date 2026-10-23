@@ -22,6 +22,7 @@ Any image used there must work like the [Cloud Native GitLab `certificates` imag
   Files can be symbolic links.
   Keys in `global.certificates.customCAs` must end in `.crt`, because the Debian-based image reads
   only `*.crt` files.
+  The chart mounts its internal CA certificates with a `.crt` extension too.
 - Write a trust store with the system and custom CA certificates to every file in
   [Output files](#output-files).
   The output directories are in-memory `emptyDir` volumes.
