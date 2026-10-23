@@ -246,6 +246,13 @@ update-trigger-branch:
     - if: '$PIPELINE_TYPE == "CANONICAL_DEFAULT_BRANCH_PIPELINE"'
     - if: '$TRIGGER_UPDATE'  # Allow us to manually trigger this job in a pipeline if we wish using this CI variable
 
+# Trigger inputs:
+# - GITLAB_VERSION: CNG image tag to test (for example `master-nix`).
+# - CNG_REGISTRY: Registry holding the CNG images (the upstream project's
+#   CI_REGISTRY_IMAGE, for example `registry.gitlab.com/gitlab-org/build/cng-mirror`).
+#   Defaults to `registry.gitlab.com/gitlab-org/build/cng`. Both are consumed
+#   by scripts/ci/pin_image_digests.sh and reach this job as trigger
+#   variables.
 pin_image_versions:
   stage: specs
   script:

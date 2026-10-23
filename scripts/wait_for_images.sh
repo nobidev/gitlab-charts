@@ -22,6 +22,9 @@ CNG_REGISTRY=${CNG_REGISTRY:-"registry.gitlab.com/gitlab-org/build/cng"}
 
 GITLAB_VERSION=$(awk '/^appVersion:/ {print $2}' Chart.yaml)
 if [ "${GITLAB_VERSION}" == "master" ] || [ "${GITLAB_VERSION}" == "main" ]; then
+  # For master/main (including CNG-triggered pipelines that set
+  # GITLAB_VERSION), image existence is verified by the digest lookups in
+  # scripts/ci/pin_image_digests.sh instead.
   echo "Chart specifies master or main as GitLab version. Hence not waiting for images."
   exit 0
 elif is_autodeploy "${GITLAB_VERSION}"; then
@@ -37,6 +40,8 @@ else
   # if it's not semver, no v will be prepended
   wait_on_version=${GITLAB_VERSION}
 fi
+
+echo "Using CNG registry: ${CNG_REGISTRY}"
 
 #TODO: Get all the components and their corresponding versions
 components=(gitlab-rails-ee gitlab-webservice-ee gitlab-workhorse-ee gitlab-sidekiq-ee gitlab-toolbox-ee)

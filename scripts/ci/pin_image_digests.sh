@@ -9,6 +9,18 @@ set -e
 # Dependencies:
 # - skopeo
 #
+# Environment variables:
+# - GITLAB_VERSION: Image tag to look up (for example `master-nix`), as passed
+#   by CNG trigger pipelines. Defaults to the tag derived from Chart.yaml.
+# - CNG_REGISTRY: Registry holding the CNG images, without a trailing tag
+#   (the upstream project's CI_REGISTRY_IMAGE, for example
+#   `registry.gitlab.com/gitlab-org/build/cng-mirror`). Defaults to the
+#   canonical registry `registry.gitlab.com/gitlab-org/build/cng`.
+# - CNG_REGISTRY_USERNAME / CNG_REGISTRY_PASSWORD: Optional credentials used
+#   to `skopeo login` against the registry domain before looking up digests.
+#   Only used when CNG_REGISTRY_PASSWORD is set; public registries need
+#   neither.
+#
 # Debug Files:
 # - skopeo_errors.log: Captures detailed error output from skopeo for debugging
 #   This file should be included as a CI artifact to help diagnose registry issues
@@ -19,6 +31,18 @@ set -e
 PROJECT_ROOT="$(dirname -- "${BASH_SOURCE[0]}")/../.."
 DIGESTS_FILE="${DIGESTS_FILE:-$PROJECT_ROOT/ci.digests.yaml}"
 CHART_FILE="${CHART_FILE:-$PROJECT_ROOT/Chart.yaml}"
+
+# The registry holding the CNG images. CNG trigger pipelines (for example
+# from a CNG fork or mirror) can set this to their own CI_REGISTRY_IMAGE so
+# the chart tests exercise the images that pipeline actually built.
+DEFAULT_CNG_REGISTRY="registry.gitlab.com/gitlab-org/build/cng"
+CNG_REGISTRY="${CNG_REGISTRY:-$DEFAULT_CNG_REGISTRY}"
+# Strip any trailing slash so repositories render as "${CNG_REGISTRY}/<component>".
+CNG_REGISTRY="${CNG_REGISTRY%/}"
+
+if [ "${CNG_REGISTRY}" != "${DEFAULT_CNG_REGISTRY}" ]; then
+  echo "Using non-default CNG registry: ${CNG_REGISTRY}" >&2
+fi
 
 function main() {
   if [ $SOURCED -eq 0 ]; then
@@ -59,6 +83,22 @@ function get_tag() {
   fi
 }
 
+# Returns the image repository for the given component.
+# Usage:
+#   `component_repository gitlab-webservice-ee`
+function component_repository() {
+  echo -n "${CNG_REGISTRY}/$1"
+}
+
+# Logs in to the CNG registry, but only when credentials are explicitly
+# provided. Public registries (the default) need no login.
+function login_registry() {
+  if [ -n "${CNG_REGISTRY_PASSWORD}" ]; then
+    # ${CNG_REGISTRY%%/*} extracts the registry domain from the full path.
+    printf '%s' "${CNG_REGISTRY_PASSWORD}" | skopeo login -u "${CNG_REGISTRY_USERNAME:-gitlab-ci-token}" --password-stdin "${CNG_REGISTRY%%/*}"
+  fi
+}
+
 # Gets the current digest for the given image name and image tag.
 # Usage:
 #   `get_digest gitlab-webservice-ee master`
@@ -75,7 +115,7 @@ function get_digest() {
   while [ $attempt -le $max_retries ]; do
     # Try to get the digest, with failures logged silently
     # All error details are captured in skopeo_errors.log for later analysis
-    if digest=$(skopeo inspect docker://registry.gitlab.com/gitlab-org/build/cng/$component:$tag --format "{{.Digest}}" --no-tags 2>>"skopeo_errors.log"); then
+    if digest=$(skopeo inspect docker://$(component_repository $component):$tag --format "{{.Digest}}" --no-tags 2>>"skopeo_errors.log"); then
       # Success - return the digest without any logging
       echo -n "${digest}"
       return 0
@@ -117,52 +157,68 @@ function tag_and_digest() {
 # Usage:
 #   `render_digests_file`
 function render_digests_file() {
+  login_registry
+
   rm -f $DIGESTS_FILE
   cat << CIYAML > $DIGESTS_FILE
 # generated: $(date)
 global:
   gitlabBase:
     image:
+      repository: "$(component_repository gitlab-base)"
       tag: "$(tag_and_digest gitlab-base)"
   certificates:
     image:
+      repository: "$(component_repository certificates)"
       tag: "$(tag_and_digest certificates)"
   kubectl:
     image:
+      repository: "$(component_repository kubectl)"
       tag: "$(tag_and_digest kubectl)"
 gitlab:
   gitaly:
     image:
+      repository: "$(component_repository gitaly)"
       tag: "$(tag_and_digest gitaly)"
   gitlab-exporter:
     image:
+      repository: "$(component_repository gitlab-exporter)"
       tag: "$(tag_and_digest gitlab-exporter)"
   gitlab-shell:
     image:
+      repository: "$(component_repository gitlab-shell)"
       tag: "$(tag_and_digest gitlab-shell)"
   kas:
     image:
+      repository: "$(component_repository gitlab-kas)"
       tag: "$(tag_and_digest gitlab-kas)"
   migrations:
     image:
+      repository: "$(component_repository gitlab-toolbox-ee)"
       tag: "$(tag_and_digest gitlab-toolbox-ee)"
   sidekiq:
     image:
+      repository: "$(component_repository gitlab-sidekiq-ee)"
       tag: "$(tag_and_digest gitlab-sidekiq-ee)"
   toolbox:
     image:
+      repository: "$(component_repository gitlab-toolbox-ee)"
       tag: "$(tag_and_digest gitlab-toolbox-ee)"
   webservice:
     image:
+      repository: "$(component_repository gitlab-webservice-ee)"
       tag: "$(tag_and_digest gitlab-webservice-ee)"
     workhorse:
+      image: "$(component_repository gitlab-workhorse-ee)"
       tag: "$(tag_and_digest gitlab-workhorse-ee)"
 registry:
   image:
+    repository: "$(component_repository gitlab-container-registry)"
     tag: "$(tag_and_digest gitlab-container-registry)"
 shared-secrets:
   selfsign:
     image:
+      repository: "$(component_repository cfssl-self-sign)"
       tag: "$(tag_and_digest cfssl-self-sign)"
 CIYAML
 
