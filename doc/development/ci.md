@@ -9,7 +9,7 @@ title: CI setup and use
 
 | Variable           | Default Value                        | Description |
 |--------------------|--------------------------------------|-------------|
-| `LIMIT_TO`         | `""`                                 | Limit pipeline execution to a specific logical block. Available blocks: `eks131`, `gke130`, `gke131`, `gke131a`, `vcluster`. Empty value implies absence of limits - i.e. all components shall be considered for execution. |
+| `LIMIT_TO`         | `""`                                 | Limit pipeline execution to a specific logical block. Available blocks: `k3d_version`, `k3d_version_arm64`. Empty value implies absence of limits - i.e. all components shall be considered for execution. |
 | `SKIP_JOB_REGEX`   | `""`                                 | Regular expression of review trigger job names to skip. For example, `/^k3d_arm64/` skips the `k3d_arm64` job. Empty value skips no jobs. |
 | `DOCKERHUB_PREFIX` | `docker.io`                          | Override the prefix of DockerHub images. Allows to pull DockerHub from the dependency proxy or another mirror. |
 | `DOCKER_MIRROR`    | `https://mirror.gcr.io`              | Default Docker mirror in DinD jobs. |

@@ -44,24 +44,3 @@ The database environment can be reset in a development environment by:
 > [!note]
 > This will delete all data in the databases and should not be run in
 > production.
-
-## CI clusters are low on available resources
-
-You may notice one or more CI clusters run low on available resources like CPU
-and memory. Our clusters are configured to automatically scale the available
-nodes, but sometimes we hit the upper limit and therefore no more nodes can be
-created. In this case, a good first step is to see if any installations of the
-GitLab Helm Charts in the clusters can be removed.
-
-Installations are usually cleaned up automatically by the Review Apps logic in
-the pipeline, but this can fail for various reasons. See the following issues
-for more details:
-
-- [What can we do about cleaning up failed deploys in CI?](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2076)
-- <https://gitlab.com/gitlab-org/charts/gitlab/-/issues/5338>
-
-As a workaround, these installations can be manually deleted by running the associated
-`stop_review` job(s) in CI. To make this easier, use the
-[`helm_ci_triage.sh`](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/scripts/ci/helm_ci_triage.sh)
-script to get a list of running installations and open the associated pipeline to run
-the `stop_review` job(s). Further usage details are available in the script.

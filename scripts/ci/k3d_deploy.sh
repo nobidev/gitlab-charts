@@ -28,7 +28,6 @@ fi
 deploy_external_components
 deploy
 wait_for_deploy
-# check_domain_ip is skipped: nip.io resolves immediately without DNS propagation
 
 if ! use_ingress; then
   # Wait for ClientTrafficPolicy resources to be reconciled by the Envoy Gateway

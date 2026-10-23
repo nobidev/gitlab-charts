@@ -174,7 +174,7 @@ function remove_external_garage() {
         "$(garage_release_name)-gitlab-registry-storage" \
         -n "${NAMESPACE}" --ignore-not-found
 
-    # Delete PVCs that are not covered by out cleanup script
+    # helm uninstall leaves PVCs behind
     kubectl delete pvc -n "${NAMESPACE}" \
         -l app.kubernetes.io/instance=$(garage_release_name) \
         --ignore-not-found

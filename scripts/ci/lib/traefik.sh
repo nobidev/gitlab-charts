@@ -51,9 +51,3 @@ function deploy_external_traefik() {
   kubectl wait --for=condition=Established --timeout=120s \
     crd/ingressroutetcps.traefik.io
 }
-
-function remove_external_traefik() {
-  echo "Removing externally managed Traefik"
-  helm uninstall "$(traefik_release_name)" -n "$(traefik_namespace)" --ignore-not-found
-  kubectl delete namespace "$(traefik_namespace)" --ignore-not-found
-}

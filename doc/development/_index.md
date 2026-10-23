@@ -108,8 +108,8 @@ The configuration for these CI pipelines is managed in:
 We use [Review apps](https://docs.gitlab.com/ci/review_apps/) in CI to
 deploy running instances of the Helm Charts and test against them.
 
-We deploy these Review apps to k3d clusters running in the runner and one
-remote GKE cluster, confirm that the Helm release is created successfully,
+We deploy these Review apps to k3d clusters running in the runner,
+confirm that the Helm release is created successfully,
 and then run [GitLab QA](gitlab-qa/_index.md) and other [RSpec tests](rspec.md).
 
 We run k3d environments for:
@@ -122,29 +122,6 @@ We run k3d environments for:
    - The bundled NGINX Ingress, Traefik, and HAProxy charts are deprecated and are removed in 20.0.
      This environment installs the upstream Traefik chart into its own namespace, outside of the
      GitLab chart, so that the `Ingress` resources the chart renders stay under test after the removal.
-
-### Managing Review apps
-
-Review apps will stay active for two hours by default, at which time they will be stopped automatically
-by associated CI jobs. The process works as follows:
-
-1. `create_review_*` jobs create the Review App environment.
-   - These jobs only `echo` environment information. This ensures that these jobs do not fail, meaning we
-     can create environments consistently and avoid leaving them in a broken state where they cannot be
-     automaticaly stopped by future CI Jobs.
-1. `review_*` jobs install the Helm Chart to the environment.
-1. `stop_review_*` jobs run after the duration defined in the variable named `REVIEW_APPS_AUTO_STOP_IN`.
-
-If you notice that one or more of the `review_*` jobs have failed and need to debug the environment, you can:
-
-1. Find the associated `create_review_*` job.
-1. At the top of the job page, click the environment link titled something like `This job is deployed to <cluster>/<commit>`.
-1. At the top right of the environment page, you will see buttons to:
-   - Pin the environment: marked by a pin icon, this button will prevent the environment from being stopped automatically.
-     If you click this, it will cancel the `stop_review_*` job. Be sure to run that job manually when you have finished debugging.
-     This option is helpful if you need more time to debug a failed environment.
-   - View deployment: this button will open the environment URL of the running instance of GitLab.
-   - Stop: this buttton will run the associated `stop_review_*` job.
 
 ## Handling configuration deprecations
 

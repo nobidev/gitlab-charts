@@ -146,9 +146,3 @@ function pebble_create_workspaces_tls() {
     --cert="${pki_dir}/workspaces.pem" --key="${pki_dir}/workspaces.key" \
     --dry-run=client -o yaml | kubectl apply -f -
 }
-
-function remove_pebble() {
-  echo "Removing Pebble"
-  helm uninstall pebble -n "${NAMESPACE}" --ignore-not-found
-  kubectl delete secret pebble-issuing-ca workspaces-selfsigned-tls -n "${NAMESPACE}" --ignore-not-found
-}

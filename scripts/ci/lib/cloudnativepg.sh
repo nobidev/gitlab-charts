@@ -1,14 +1,10 @@
 #!/bin/bash
 
-# Deploy PostgreSQL using the the CloudNativePG helm chart into the same namespace
-# as the GitLab namespace.
-# Should currently only be used for vcluster-based review environments to:
-#   1. Avoid CRD conflicts.
-#   2. Avoid resource conflicts in native review environments where mutliple review deploysments exist in the same namespace.
+# Deploy PostgreSQL using a CloudNativePG cluster in the GitLab namespace.
 function deploy_external_postgresql() {
-  # Install operator for isolated clusters (vcluster, k3d) that don't have a
-  # shared CNPG operator. Native GKE/EKS environments use a cluster-wide install.
-  if is_ci_deployment && (is_vcluster_deployment || is_k3d_deployment); then
+  # Install the operator on single-use k3d clusters. Shared clusters (such as
+  # the GitLab Operator's OpenShift cluster) have a cluster-wide install.
+  if is_ci_deployment && is_k3d_deployment; then
     echo "Installing CloudNativePG"
     install_cnpg_operator
   fi
@@ -110,7 +106,7 @@ function remove_external_postgresql() {
     echo "Removing CloudNativePG PostgreSQL Cluster"
     kubectl delete -n "${NAMESPACE}" --wait --ignore-not-found=true cluster "$(cnpg_cluster_name)"
     
-    if is_local_deployment || (is_ci_deployment && is_vcluster_deployment); then
+    if is_local_deployment; then
       echo "Removing CloudNativePG"
       helm uninstall "$(cnpg_release_name)" -n "${NAMESPACE}" --wait --ignore-not-found
     fi

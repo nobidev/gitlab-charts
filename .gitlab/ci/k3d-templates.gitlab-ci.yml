@@ -26,7 +26,6 @@
   extends:
     - .specs
     - .k3d_base
-  stage: qa
   # Own cache: k3d jobs deploy a cluster (unlike other .specs jobs), so they
   # also need .external_charts_cache. extends replaces arrays rather than
   # merging them, so the full list has to be repeated here.
@@ -133,8 +132,6 @@
     # runtime-generated CA (no volume/env injection mechanism for git).
     EXTERNAL_PROTOCOL: "https"
     DEPLOY_PEBBLE: "true"
-  # Override rules: k3d provisions its own cluster inside the job, so there is
-  # no pre-existing KUBECONFIG to check (skip_if_no_cluster would silently skip us).
   rules:
     # k3d jobs are not yet validated on mirrors (e.g. security); restrict to canonical.
     - !reference [.rule:skip_if_fork]

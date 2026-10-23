@@ -8,13 +8,6 @@ function is_local_deployment() {
   ! is_ci_deployment
 }
 
-# Note: GitLab chart has no vcluster review environment anymore.
-# This is kept for GitLab Operator which sources this script and
-# still has vcluster environments.
-function is_vcluster_deployment() {
-  [[ -n "${VCLUSTER_K8S_VERSION}" ]]
-}
-
 function is_openshift_deployment() {
   [[ -n "${OPENSHIFT_DEPLOYMENT}" ]]
 }
@@ -69,14 +62,6 @@ function cnpg_cluster_registry_secret() {
   echo -n "$(cnpg_cluster_name)-registry-app"
 }
 
-function use_external_valkey() {
-  [[ "${SKIP_EXTERNAL_VALKEY}" != "true" ]]
-}
-
-function use_external_postgresql() {
-  [[ "${SKIP_EXTERNAL_POSTGRESQL}" != "true" ]]
-}
-
 function garage_release_name() {
   echo -n "$(release_name_base)-garage"
 }
@@ -96,10 +81,6 @@ function traefik_namespace() {
 # hosts below it to the k3d loadbalancer, like every other hostname.
 function workspaces_host() {
   echo -n "workspaces-${HOST_SUFFIX}.${KUBE_INGRESS_BASE_DOMAIN}"
-}
-
-function use_external_garage() {
-  [[ "${SKIP_EXTERNAL_GARAGE}" != "true" ]]
 }
 
 # Pebble (in-cluster ACME test server) is opt-in: only HTTPS k3d jobs deploy it

@@ -26,42 +26,12 @@ function deploy_external_components() {
     deploy_external_traefik
   fi
 
-  if use_external_valkey; then
-    deploy_external_valkey
-  fi
-
-  if use_external_postgresql; then
-    deploy_external_postgresql
-  fi
-
-  if use_external_garage; then
-      deploy_external_garage
-  fi
+  deploy_external_valkey
+  deploy_external_postgresql
+  deploy_external_garage
 
   if use_pebble; then
     deploy_pebble
-  fi
-}
-
-function remove_external_components() {
-  if use_external_valkey; then
-    remove_external_valkey
-  fi
-
-  if use_external_postgresql; then
-    remove_external_postgresql
-  fi
-
-  if use_external_garage; then
-      remove_external_garage
-  fi
-
-  if use_pebble; then
-    remove_pebble
-  fi
-
-  if use_traefik_ingress; then
-    remove_external_traefik
   fi
 }
 
@@ -127,23 +97,9 @@ function deploy() {
     SENTRY_CONFIGURATION="-f ${VALUES_DIR}/sentry.values.yaml"
   fi
 
-  VALKEY_CONFIGURATION=""
-  if use_external_valkey; then
-    echo "External Valkey deployment detected"
-    VALKEY_CONFIGURATION="-f ${VALUES_DIR}/external-valkey.values.yaml"
-  fi
-
-  POSTGRESQL_CONFIGURATION="-f ${VALUES_DIR}/bundled-postgresql.values.yaml"
-  if use_external_postgresql; then
-    echo "External PostgreSQL deployment detected"
-    POSTGRESQL_CONFIGURATION="-f ${VALUES_DIR}/external-postgresql.values.yaml"
-  fi
-
-  GARAGE_CONFIGURATION=""
-  if use_external_garage; then
-      echo "External object storage (Garage) deployment detected"
-      GARAGE_CONFIGURATION="-f ${VALUES_DIR}/external-garage.values.yaml"
-  fi
+  VALKEY_CONFIGURATION="-f ${VALUES_DIR}/external-valkey.values.yaml"
+  POSTGRESQL_CONFIGURATION="-f ${VALUES_DIR}/external-postgresql.values.yaml"
+  GARAGE_CONFIGURATION="-f ${VALUES_DIR}/external-garage.values.yaml"
 
   helm upgrade --install \
     --wait --timeout 900s \
@@ -216,73 +172,6 @@ function wait_for_deploy {
   check_kas_status
 
   echo ""
-}
-
-function ensure_namespace() {
-  kubectl describe namespace "$NAMESPACE" || kubectl create namespace "$NAMESPACE"
-}
-
-function set_context() {
-  if is_k3d_deployment; then
-    echo "K3D_MODE: using local k3d kubeconfig (${KUBECONFIG})"
-    return
-  fi
-  if [ -z ${AGENT_NAME+x} ] || [ -z ${AGENT_PROJECT_PATH+x} ]; then
-    echo "No AGENT_NAME or AGENT_PROJECT_PATH set, using the default"
-  else
-    kubectl config get-contexts
-    kubectl config use-context ${AGENT_PROJECT_PATH}:${AGENT_NAME}
-    kubectl config set-context --current --namespace=${NAMESPACE}
-  fi
-}
-
-function check_kube_domain() {
-  if [ -z ${KUBE_INGRESS_BASE_DOMAIN+x} ]; then
-    echo "ERROR: In order to deploy, KUBE_INGRESS_BASE_DOMAIN must be set as a variable at the group or project level, or manually added in .gitlab-cy.yml"
-    false
-  else
-    true
-  fi
-}
-
-function check_domain_ip() {
-  # Expect the `DOMAIN` is a wildcard.
-  domain_ip=$(getent hosts gitlab$DOMAIN 2>/dev/null | awk '{print $1}')
-
-  if [ -z $domain_ip ]; then
-    echo "ERROR: There was a problem resolving the IP of 'gitlab$DOMAIN'. Be sure you have configured a DNS entry."
-    false
-  else
-    export DOMAIN_IP=$domain_ip
-    echo "Found IP for gitlab$DOMAIN: $DOMAIN_IP"
-    true
-  fi
-}
-
-function delete() {
-  helm uninstall "$(gitlab_release_name)" || true
-}
-
-function cleanup() {
-  kubectl -n "$NAMESPACE" delete --ignore-not-found=true \
-    $(get_resources "ingress,svc,pdb,hpa,deploy,statefulset,replicaset,job,pod,secret,configmap,clusterrole,clusterrolebinding,role,rolebinding,sa") \
-    || true
-
-  pvcs=$(get_resources "pvc")
-  for pvc in ${pvcs}; do
-    pv=$(kubectl -n "$NAMESPACE" get pvc "$pvc" -o jsonpath='{.spec.volumeName}' 2>&1)
-    volumeHandle=$(kubectl get pv "$pv" -o jsonpath='{.spec.csi.volumeHandle}' 2>&1)
-    # Delete PVC only, PV and volume should be handled by reclaim policy
-    echo "Deleting $pvc (PV: $pv, CSI volume: $volumeHandle)"
-    kubectl -n "$NAMESPACE" delete pvc "$pvc" || true
-  done
-}
-
-function get_resources() {
-  kubectl -n "$NAMESPACE" get "$1" --no-headers 2>&1 \
-    | grep "$(release_name_base)" \
-    | awk '{print $1}' \
-    | xargs
 }
 
 function wait_for_toolbox() {
