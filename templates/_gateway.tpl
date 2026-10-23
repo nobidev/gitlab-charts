@@ -220,7 +220,8 @@ false
 Renders the filters of a chart-managed HTTPRoute rule. With TLS terminated upstream, Envoy
 receives plain HTTP and would send `X-Forwarded-Proto: http`, so the header is set to `https`.
 Gateway API allows one RequestHeaderModifier per rule, so the header is added to an existing
-one unless it already sets X-Forwarded-Proto.
+one unless it already sets or adds X-Forwarded-Proto. Envoy Gateway ignores a `set` entry
+for a header that the same filter adds, so none is rendered in that case.
 
 Input: dict "filters" (list) "context" (root context)
 */}}
@@ -235,7 +236,7 @@ Input: dict "filters" (list) "context" (root context)
 {{-       $modifier := $filter.requestHeaderModifier | default dict -}}
 {{-       $set := $modifier.set | default list -}}
 {{-       $headerSet := false -}}
-{{-       range $set -}}
+{{-       range concat $set ($modifier.add | default list) -}}
 {{-         if eq (lower .name) "x-forwarded-proto" -}}
 {{-           $headerSet = true -}}
 {{-         end -}}

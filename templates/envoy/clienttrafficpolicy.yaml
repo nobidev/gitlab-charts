@@ -1,8 +1,12 @@
 {{- if eq "true" (include "gitlab.gatewayApi.envoy.installPolicies" .) -}}
 {{-   $spec := deepCopy (.Values.gatewayApiResources.envoy.clientTrafficPolicySpec | default dict) }}
-{{- /* With TLS terminated upstream, the Webservice and KAS section-scoped policies are skipped. */}}
+{{- /*
+With TLS terminated upstream, the Webservice and KAS section-scoped policies are skipped,
+so their defaults apply gateway-wide. The HTTP/2 windows still apply, because the load
+balancer forwards h2c.
+*/}}
 {{-   if eq "true" (include "gitlab.gatewayApi.tlsTerminatedUpstream" .) }}
-{{-     $defaults := dict "path" (dict "escapedSlashesAction" "KeepUnchanged") "headers" (dict "host" (dict "stripTrailingHostDot" true)) }}
+{{-     $defaults := dict "path" (dict "escapedSlashesAction" "KeepUnchanged") "headers" (dict "host" (dict "stripTrailingHostDot" true)) "http2" (dict "initialStreamWindowSize" "8Mi" "initialConnectionWindowSize" "16Mi") }}
 {{-     $spec = mergeOverwrite $defaults $spec }}
 {{-   end }}
 {{-   if $spec }}

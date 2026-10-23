@@ -29,10 +29,16 @@ Gateway API:
   the Gateway must terminate TLS to verify client certificates.
 {{-   end }}
 {{-   range $name, $listener := .Values.gatewayApiResources.gateway.listeners }}
-{{-     if has (upper (default "" $listener.protocol)) (list "HTTPS" "TLS") }}
+{{-     $protocol := upper (default "" $listener.protocol) }}
+{{-     if has $protocol (list "HTTPS" "TLS") }}
 Gateway API:
   The gatewayApiResources.gateway.listeners.{{ $name }}.protocol setting must not be HTTPS or TLS
   with global.gatewayApi.tlsTerminatedUpstream, because the load balancer terminates TLS.
+{{-     else if and (eq $protocol "HTTP") (ne $name "http-default") }}
+Gateway API:
+  The gatewayApiResources.gateway.listeners.{{ $name }}.protocol setting must be empty with
+  global.gatewayApi.tlsTerminatedUpstream. A listener set to HTTP is served on port 80 instead of
+  gatewayApiResources.gateway.port, and bypasses the HTTP to HTTPS redirect.
 {{-     end }}
 {{-   end }}
 {{- end }}

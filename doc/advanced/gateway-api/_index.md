@@ -347,8 +347,8 @@ gatewayApiResources:
     protocol: HTTP
 ```
 
-In this mode, the chart renders all HTTP listeners on port 80 and does not render the HTTP to
-HTTPS redirect.
+In this mode, the chart renders all HTTP listeners on port 80, or on
+`gatewayApiResources.gateway.port` when set, and does not render the HTTP to HTTPS redirect.
 
 If a load balancer in front of the Gateway terminates TLS and users connect over HTTPS, don't
 use HTTP-only mode. Instead, see [TLS terminated at a load balancer](#tls-terminated-at-a-load-balancer).
@@ -397,12 +397,13 @@ With this setting, the chart:
   a redirect loop, and the registry returns `http://` upload URLs to clients.
 - Does not render the section-scoped `ClientTrafficPolicy` resources of Webservice and KAS.
   Envoy Gateway does not accept them on HTTP listeners that share a port. Instead, the
-  gateway-wide `ClientTrafficPolicy` keeps escaped slashes unchanged and strips a trailing dot
-  from the `Host` header. Values in `gatewayApiResources.envoy.clientTrafficPolicySpec` take
-  precedence.
+  gateway-wide `ClientTrafficPolicy` keeps escaped slashes unchanged, strips a trailing dot
+  from the `Host` header, and raises the HTTP/2 flow-control windows for all listeners. Values in
+  `gatewayApiResources.envoy.clientTrafficPolicySpec` take precedence.
 
 If you set route `filters`, the chart adds the header to your `RequestHeaderModifier` filter.
-A filter that already sets `X-Forwarded-Proto` keeps its value.
+A filter that already sets `X-Forwarded-Proto` keeps its value. Use `set`, not `add`, for this
+header: `add` appends to the `http` value that Envoy sets, so GitLab receives `http,<value>`.
 
 The OpenBao and GitLab AI Gateway charts render their own routes, so the chart does not set the
 header on them. To set it, add a `RequestHeaderModifier` filter to `openbao.gatewayRoute.filters`
@@ -430,6 +431,22 @@ The AWS Load Balancer Controller does not negotiate ALPN by default, so set the
 `aws-load-balancer-alpn-policy` annotation. Envoy accepts the decrypted HTTP/2 traffic on its HTTP
 listeners. Agents that connect with `wss://` use HTTP/1.1 and don't need ALPN.
 
+To log the IP addresses of clients instead of the load balancer, enable PROXY protocol on both
+the load balancer and Envoy. Envoy then adds the client address to the `X-Forwarded-For` header.
+Envoy closes connections without a PROXY protocol header, so enable both at the same time.
+For example, for an AWS Network Load Balancer:
+
+```yaml
+gatewayApiResources:
+  gateway:
+    infrastructure:
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+  envoy:
+    clientTrafficPolicySpec:
+      proxyProtocol: {}
+```
+
 If you enable `global.gatewayApi.tlsTerminatedUpstream` on an existing installation:
 
 - Listeners that served HTTP on port 80 move to port 443. The ports of the Envoy Gateway service
@@ -446,6 +463,8 @@ The chart fails with an error if `global.gatewayApi.tlsTerminatedUpstream` is co
 - Smartcard authentication, because the Gateway must terminate TLS to verify client
   certificates.
 - A listener that sets `protocol` to `HTTPS` or `TLS`.
+- A listener other than `http-default` that sets `protocol` to `HTTP`. Leave `protocol` empty, so
+  that the listener uses `gatewayApiResources.gateway.port`.
 
 ### TLS between Gateway and backend services
 

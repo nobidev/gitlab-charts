@@ -755,6 +755,11 @@ describe 'Gateway API configuration' do
                 additionalHostname: geo.example.com
             pages:
               enabled: true
+            workspaces:
+              enabled: true
+            hosts:
+              workspaces:
+                name: workspaces.example.com
             gatewayApi:
               enabled: true
               installEnvoy: true
@@ -769,7 +774,7 @@ describe 'Gateway API configuration' do
       it 'serves HTTP on port 443 from the listeners that inherit the root protocol' do
         expect(template.exit_code).to eq(0), template.stderr
 
-        %w[gitlab-web gitlab-web-geo registry-web kas-web].each do |name|
+        %w[gitlab-web gitlab-web-geo registry-web kas-web kas-workspaces-web pages-web].each do |name|
           expect(listeners[name]).to include('protocol' => 'HTTP', 'port' => 443), "listener #{name}"
           expect(listeners[name]).not_to have_key('tls')
         end
@@ -792,7 +797,8 @@ describe 'Gateway API configuration' do
         expect(kas_clienttrafficpolicy).to be_nil
         expect(clienttrafficpolicy['spec']).to include(
           'path' => { 'escapedSlashesAction' => 'KeepUnchanged' },
-          'headers' => { 'host' => { 'stripTrailingHostDot' => true } }
+          'headers' => { 'host' => { 'stripTrailingHostDot' => true } },
+          'http2' => { 'initialStreamWindowSize' => '8Mi', 'initialConnectionWindowSize' => '16Mi' }
         )
         expect(clienttrafficpolicy['spec']['targetRefs'][0]).not_to have_key('sectionName')
       end
@@ -804,7 +810,8 @@ describe 'Gateway API configuration' do
           'type' => 'RequestHeaderModifier',
           'requestHeaderModifier' => { 'set' => [{ 'name' => 'X-Forwarded-Proto', 'value' => 'https' }] }
         }]
-        [webservice_route, registry_route, kas_route, kas_k8s_proxy_route, pages_route].each do |route|
+        workspaces_routes = %w[test-kas-workspaces test-kas-workspaces-api].map { |name| template["HTTPRoute/#{name}"] }
+        [webservice_route, registry_route, kas_route, kas_k8s_proxy_route, pages_route, *workspaces_routes].each do |route|
           route['spec']['rules'].each do |rule|
             expect(rule['filters']).to eq(header_filter), "route #{route['metadata']['name']}"
           end
@@ -874,12 +881,24 @@ describe 'Gateway API configuration' do
                             set:
                             - name: x-forwarded-proto
                               value: custom
+                      - name: uploads
+                        matches:
+                        - path:
+                            type: PathPrefix
+                            value: /uploads
+                        filters:
+                        - type: RequestHeaderModifier
+                          requestHeaderModifier:
+                            add:
+                            - name: X-Forwarded-Proto
+                              value: custom
           )))
         end
 
         let(:api_rule) { webservice_route['spec']['rules'].find { |r| r['name'] == 'default-api' } }
+        let(:uploads_rule) { webservice_route['spec']['rules'].find { |r| r['name'] == 'default-uploads' } }
 
-        it 'adds the header to the existing filter unless it already sets X-Forwarded-Proto' do
+        it 'adds the header to the existing filter unless it already sets or adds X-Forwarded-Proto' do
           expect(template.exit_code).to eq(0), template.stderr
 
           expect(root_rule['filters'].length).to eq(1)
@@ -890,6 +909,9 @@ describe 'Gateway API configuration' do
           expect(api_rule['filters'][0]['requestHeaderModifier']['set']).to eq([
             { 'name' => 'x-forwarded-proto', 'value' => 'custom' }
           ])
+          expect(uploads_rule['filters'][0]['requestHeaderModifier']).to eq(
+            'add' => [{ 'name' => 'X-Forwarded-Proto', 'value' => 'custom' }]
+          )
           expect(registry_route['spec']['rules'][0]['filters'][0]['requestHeaderModifier']['set']).to eq([
             { 'name' => 'X-Custom', 'value' => 'registry' },
             { 'name' => 'X-Forwarded-Proto', 'value' => 'https' }

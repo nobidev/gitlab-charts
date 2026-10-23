@@ -27,6 +27,10 @@ describe 'checkConfig Gateway API' do
       'a listener uses HTTPS' => [
         { 'gatewayApiResources' => { 'gateway' => { 'listeners' => { 'gitlab-web' => { 'protocol' => 'HTTPS' } } } } },
         'gatewayApiResources.gateway.listeners.gitlab-web.protocol setting must not be HTTPS or TLS'
+      ],
+      'a listener other than http-default uses HTTP' => [
+        { 'gatewayApiResources' => { 'gateway' => { 'listeners' => { 'gitlab-web' => { 'protocol' => 'HTTP' } } } } },
+        'gatewayApiResources.gateway.listeners.gitlab-web.protocol setting must be empty'
       ]
     }.each do |description, (overrides, message)|
       context description do
