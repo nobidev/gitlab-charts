@@ -2399,10 +2399,9 @@ global:
 ```
 
 > [!note]
-> The `.crt` extension in the Secret's key name is important for the
-> [Debian update-ca-certificates package](https://manpages.debian.org/trixie/ca-certificates/update-ca-certificates.8.en.html).
-> This step ensures that the custom CA file is mounted with that extension and is processed
-> in the Certificates `initContainers`.
+> Key names must end in `.crt`. The
+> [Debian update-ca-certificates package](https://manpages.debian.org/trixie/ca-certificates/update-ca-certificates.8.en.html)
+> reads only files with that extension, so the Certificates `initContainers` skip any other custom CA file.
 > Previously, when the certificates helper image was Alpine-based, the file extension was not actually required
 > even though the [documentation](https://gitlab.alpinelinux.org/alpine/ca-certificates/-/blob/master/update-ca-certificates.8)
 > says that it is.
@@ -2412,6 +2411,11 @@ You can provide any number of Secrets or ConfigMaps, each containing any number 
 PEM-encoded CA certificates. These are configured as entries under `global.certificates.customCAs`.
 All keys are mounted unless `keys:` is provided with a list of specific keys to be mounted. All mounted keys across all Secrets and ConfigMaps must be unique.
 The Secrets and ConfigMaps can be named in any fashion, but they *must not* contain key names that collide.
+
+The `certificates` init container builds the trust store with the image in `global.certificates.image`.
+If you replace this image, it must provide `/scripts/bundle-certificates`, because the chart runs that
+script instead of the image's default command.
+For more information, see the [certificates image contract](../development/certificates_image.md).
 
 ## Application Resource
 

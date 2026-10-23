@@ -9,6 +9,7 @@
 - name: certificates
   image: {{ include "gitlab.certificates.image" . }}
   {{- include "gitlab.image.pullPolicy" $imageCfg | indent 2 }}
+  command: ["/scripts/bundle-certificates"]
   {{- include "gitlab.init.containerSecurityContext" . | indent 2 }}
   env:
   {{- include "gitlab.timeZone.env" . | nindent 2 }}

@@ -120,6 +120,59 @@ describe 'Certificates configuration' do
     end
   end
 
+  context 'certificates init container' do
+    let(:cron_values) do
+      default_values.deep_merge(YAML.safe_load(%(
+        gitlab:
+          toolbox:
+            backups:
+              cron:
+                enabled: true
+            databaseReindex:
+              cron:
+                enabled: true
+      )))
+    end
+
+    subject(:template) { HelmTemplate.new(cron_values) }
+
+    it 'templates successfully' do
+      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+    end
+
+    it 'runs bundle-certificates explicitly instead of the image command' do
+      checked = []
+
+      pod_spec_paths = {
+        'Deployment' => %w[spec template spec],
+        'StatefulSet' => %w[spec template spec],
+        'Job' => %w[spec template spec],
+        'CronJob' => %w[spec jobTemplate spec template spec]
+      }
+
+      pod_spec_paths.each do |kind, path|
+        template.resources_by_kind(kind).each_key do |name|
+          container = template.dig(name, *path, 'initContainers')&.find { |c| c['name'] == 'certificates' }
+          next unless container
+
+          checked << name
+          expect(container['command']).to eq(['/scripts/bundle-certificates']),
+            "unexpected command in 'certificates' init container of #{name}"
+        end
+      end
+
+      expect(checked).to include(
+        'Deployment/test-webservice-default',
+        'Deployment/test-sidekiq-all-in-1-v2',
+        'Deployment/test-toolbox',
+        'StatefulSet/test-gitaly',
+        'Deployment/test-registry',
+        'CronJob/test-toolbox-backup',
+        'CronJob/test-toolbox-db-reindex'
+      )
+    end
+  end
+
   context 'Dependency-waiting init containers' do
     let(:registry_db_values) do
       default_values.deep_merge(YAML.safe_load(%(

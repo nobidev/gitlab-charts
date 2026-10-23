@@ -35,6 +35,15 @@ describe 'Self-Signed Certificates configuration' do
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
         expect(includes_selfsigned_job(t)).to be_truthy
       end
+
+      it 'runs generate-certificates explicitly instead of the image command' do
+        t = HelmTemplate.new(values_certmanager_disabled)
+        job = t.resources_by_kind('Job').keys.find { |resource| resource.end_with?('selfsign') }
+        container = t.find_container(job, 'cfssl-self-sign', true)
+
+        expect(container).to be_truthy, "unable to locate 'cfssl-self-sign' init container in #{job}"
+        expect(container['command']).to eq(['/scripts/generate-certificates'])
+      end
     end
 
     context 'when one Secret is specified' do
