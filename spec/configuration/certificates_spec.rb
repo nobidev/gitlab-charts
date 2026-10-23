@@ -120,6 +120,37 @@ describe 'Certificates configuration' do
     end
   end
 
+  context 'certificates init container' do
+    subject(:template) { HelmTemplate.new(default_values) }
+
+    it 'templates successfully' do
+      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+    end
+
+    it 'runs bundle-certificates explicitly instead of the image command' do
+      checked = []
+
+      %w[Deployment StatefulSet Job].each do |kind|
+        template.resources_by_kind(kind).each_key do |name|
+          container = template.find_container(name, 'certificates', true)
+          next unless container
+
+          checked << name
+          expect(container['command']).to eq(['/scripts/bundle-certificates']),
+            "unexpected command in 'certificates' init container of #{name}"
+        end
+      end
+
+      expect(checked).to include(
+        'Deployment/test-webservice-default',
+        'Deployment/test-sidekiq-all-in-1-v2',
+        'Deployment/test-toolbox',
+        'StatefulSet/test-gitaly',
+        'Deployment/test-registry'
+      )
+    end
+  end
+
   context 'Dependency-waiting init containers' do
     let(:registry_db_values) do
       default_values.deep_merge(YAML.safe_load(%(
