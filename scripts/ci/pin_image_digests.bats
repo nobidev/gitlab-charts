@@ -14,6 +14,7 @@ set -e
 
 setup() {
   unset GITLAB_VERSION # set by CNG-triggered pipelines
+  unset CNG_REGISTRY # set by CNG-triggered pipelines to select the image registry
   unset CI_MERGE_REQUEST_TARGET_BRANCH_NAME # backports to stable branches use the stable branch tag
 }
 
@@ -66,6 +67,94 @@ setup() {
 
   [ "$status" -eq 0 ]
   [[ "$output" =~ $expected ]]
+}
+
+@test "component_repository, without CNG_REGISTRY" {
+  source scripts/ci/pin_image_digests.sh
+  run component_repository 'gitlab-webservice-ee'
+
+  [ "$status" -eq 0 ]
+  [ "$output" = "registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ee" ]
+}
+
+@test "component_repository, with CNG_REGISTRY" {
+  CNG_REGISTRY='registry.gitlab.com/gitlab-org/build/cng-mirror'
+
+  source scripts/ci/pin_image_digests.sh
+  run component_repository 'gitlab-webservice-ee'
+
+  [ "$status" -eq 0 ]
+  [ "$output" = "registry.gitlab.com/gitlab-org/build/cng-mirror/gitlab-webservice-ee" ]
+}
+
+@test "component_repository, strips trailing slash from CNG_REGISTRY" {
+  CNG_REGISTRY='registry.gitlab.com/gitlab-org/build/cng-mirror/'
+
+  source scripts/ci/pin_image_digests.sh
+  run component_repository 'gitlab-webservice-ee'
+
+  [ "$status" -eq 0 ]
+  [ "$output" = "registry.gitlab.com/gitlab-org/build/cng-mirror/gitlab-webservice-ee" ]
+}
+
+@test "get_digest, inspects the custom CNG_REGISTRY" {
+  CNG_REGISTRY='registry.example.com/custom/cng'
+
+  # Stub skopeo to record its arguments instead of reaching the network.
+  skopeo() {
+    echo "$@" > "$BATS_TEST_TMPDIR/skopeo.args"
+    echo 'sha256:0000000000000000000000000000000000000000000000000000000000000000'
+  }
+  export -f skopeo
+
+  source scripts/ci/pin_image_digests.sh
+  run get_digest 'gitlab-webservice-ee' 'master-nix'
+
+  [ "$status" -eq 0 ]
+  [ "$output" = 'sha256:0000000000000000000000000000000000000000000000000000000000000000' ]
+  grep -q 'docker://registry.example.com/custom/cng/gitlab-webservice-ee:master-nix' "$BATS_TEST_TMPDIR/skopeo.args"
+}
+
+@test "render_digests_file, writes default repositories" {
+  DIGESTS_FILE="$BATS_TEST_TMPDIR/ci.digests.yaml"
+  GITLAB_VERSION='master'
+
+  # Stub the registry lookups to avoid the network; repository rendering
+  # happens independently of the digest values.
+  tag_and_digest() {
+    echo -n 'master@sha256:0000000000000000000000000000000000000000000000000000000000000000'
+  }
+  export -f tag_and_digest
+
+  source scripts/ci/pin_image_digests.sh
+  run render_digests_file
+
+  [ "$status" -eq 0 ]
+  grep -q 'repository: "registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ee"' "$DIGESTS_FILE"
+  grep -q 'repository: "registry.gitlab.com/gitlab-org/build/cng/gitlab-kas"' "$DIGESTS_FILE"
+  grep -q 'image: "registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ee"' "$DIGESTS_FILE"
+}
+
+@test "render_digests_file, writes custom CNG_REGISTRY repositories" {
+  DIGESTS_FILE="$BATS_TEST_TMPDIR/ci.digests.yaml"
+  GITLAB_VERSION='master'
+  CNG_REGISTRY='registry.gitlab.com/gitlab-org/build/cng-mirror'
+
+  # Stub the registry lookups to avoid the network; repository rendering
+  # happens independently of the digest values.
+  tag_and_digest() {
+    echo -n 'master@sha256:0000000000000000000000000000000000000000000000000000000000000000'
+  }
+  export -f tag_and_digest
+
+  source scripts/ci/pin_image_digests.sh
+  run render_digests_file
+
+  [ "$status" -eq 0 ]
+  grep -q 'repository: "registry.gitlab.com/gitlab-org/build/cng-mirror/gitlab-webservice-ee"' "$DIGESTS_FILE"
+  grep -q 'repository: "registry.gitlab.com/gitlab-org/build/cng-mirror/gitlab-kas"' "$DIGESTS_FILE"
+  grep -q 'image: "registry.gitlab.com/gitlab-org/build/cng-mirror/gitlab-workhorse-ee"' "$DIGESTS_FILE"
+  ! grep -q 'registry.gitlab.com/gitlab-org/build/cng/' "$DIGESTS_FILE"
 }
 
 # Images missing from render_digests_file fall back to `global.gitlabVersion`,

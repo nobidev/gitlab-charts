@@ -14,6 +14,8 @@ title: CI setup and use
 | `DOCKERHUB_PREFIX` | `docker.io`                          | Override the prefix of DockerHub images. Allows to pull DockerHub from the dependency proxy or another mirror. |
 | `DOCKER_MIRROR`    | `https://mirror.gcr.io`              | Default Docker mirror in DinD jobs. |
 | `DOCKER_OPTIONS`   | `--registry-mirror ${DOCKER_MIRROR}` | Flags passed to the Docker daemon. |
+| `GITLAB_VERSION`   | `""`                                 | CNG image tag to test, for example `master-nix`. Empty value uses the tag derived from `Chart.yaml`. |
+| `CNG_REGISTRY`     | `registry.gitlab.com/gitlab-org/build/cng` | Registry holding the CNG images, for example `registry.gitlab.com/gitlab-org/build/cng-mirror`. |
 
 ### LIMIT_TO
 
@@ -35,6 +37,28 @@ that are known not to work on certain platforms - for example, amd64-only
 images can skip `k3d_arm64` without losing the rest of the review coverage.
 
 Empty value implies that no jobs are skipped.
+
+### CNG image variables
+
+Upstream [CNG](https://gitlab.com/gitlab-org/build/CNG) pipelines trigger
+chart test pipelines with `GITLAB_VERSION` to select the image tag. A CNG
+fork or mirror, such as `gitlab-org/build/CNG-mirror`, also passes
+`CNG_REGISTRY` with its own `CI_REGISTRY_IMAGE`, so the chart tests pull the
+images that pipeline built instead of the canonical registry.
+
+The `pin_image_versions` job passes both variables to
+`scripts/ci/pin_image_digests.sh`. The script resolves image digests from
+`CNG_REGISTRY` and writes per-component `repository` and `tag` values into
+the `ci.digests.yaml` artifact used by the review and test deployments. A
+missing image fails the lookup, so a misconfigured registry stops the
+pipeline instead of silently testing other images.
+
+To pull from a private registry, set `CNG_REGISTRY_USERNAME` and
+`CNG_REGISTRY_PASSWORD`. The script logs in with `skopeo` only when
+`CNG_REGISTRY_PASSWORD` is set.
+
+The chart `values.yaml` defaults are unchanged. `CNG_REGISTRY` affects only
+pipelines that set the variable.
 
 ### Docker and DockerHub variables
 
