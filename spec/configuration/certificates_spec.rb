@@ -151,6 +151,33 @@ describe 'Certificates configuration' do
     end
   end
 
+  context 'self-signed wildcard CA' do
+    let(:certmanager_disabled) do
+      default_values.deep_merge(YAML.safe_load(%(
+        installCertmanager: false
+        global:
+          ingress:
+            configureCertmanager: false
+      )))
+    end
+
+    subject(:template) { HelmTemplate.new(certmanager_disabled) }
+
+    it 'templates successfully' do
+      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+    end
+
+    # update-ca-certificates on Debian only reads *.crt files
+    it 'mounts the CA with a .crt extension' do
+      sources = template.projected_volume_sources('Deployment/test-webservice-default', 'custom-ca-certificates')
+      expect(sources).to be_truthy, "unable to locate 'custom-ca-certificates' volume for Deployment/test-webservice-default"
+
+      ca = sources.find { |source| source.dig('secret', 'name') == 'test-wildcard-tls-ca' }
+      expect(ca).to be_truthy, "unable to locate 'test-wildcard-tls-ca' in 'custom-ca-certificates' volume"
+      expect(ca['secret']['items']).to eq([{ 'key' => 'cfssl_ca', 'path' => 'cfssl_ca.crt' }])
+    end
+  end
+
   context 'Dependency-waiting init containers' do
     let(:registry_db_values) do
       default_values.deep_merge(YAML.safe_load(%(
