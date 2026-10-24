@@ -160,8 +160,13 @@ The steps for restoring a GitLab installation are
    Check the output for errors and skipped tables.
    Database-wide `ANALYZE` includes partitioned parent tables, which autovacuum does not analyze.
    `ANALYZE` does not rebuild visibility maps for index-only scans.
-   If your restore window permits the additional I/O and write-ahead log (WAL) data, consider `VACUUM (VERBOSE, ANALYZE);`
+   To prepare visibility maps before application traffic resumes, run `VACUUM (VERBOSE, ANALYZE);`
    instead of `ANALYZE VERBOSE;`, outside a transaction block.
+   This can take substantially longer than `ANALYZE` alone.
+   If you defer vacuuming, index-only scans may require many heap reads, potentially degrading query
+   performance until vacuuming completes.
+   Choose based on your restore window and workload requirements.
+   Vacuuming can also generate substantial I/O and write-ahead log (WAL) data.
    For more information, see [PostgreSQL routine vacuuming](https://www.postgresql.org/docs/current/routine-vacuuming.html).
 1. Restart the application:
 
