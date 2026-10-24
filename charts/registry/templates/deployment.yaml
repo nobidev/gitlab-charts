@@ -73,7 +73,11 @@ spec:
           image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.init.image) | quote }}
           {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
           {{- include "gitlab.init.containerSecurityContext" $ | indent 10 }}
+          {{- if .Values.init.script }}
           args: ["sh", "/config/configure"]
+          {{- else }}
+          command: {{ include "registry.configure.command" . }}
+          {{- end }}
           volumeMounts:
             - name: registry-secrets
               mountPath: /config
@@ -100,9 +104,7 @@ spec:
           command: ["/scripts/wait-for-deps"]
           volumeMounts:
             {{- include "gitlab.certificates.volumeMount" $ | nindent 12 }}
-            - name: registry-server-config
-              mountPath: /etc/docker/registry/
-              readOnly: true
+            {{- include "registry.server.volumeMounts" (dict "context" $ "database" false) | nindent 12 }}
           resources:
             {{- toYaml .Values.init.resources | nindent 12 }}
           env:
@@ -124,9 +126,7 @@ spec:
           {{- include "gitlab.extraEnv" . | nindent 10 }}
           {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
           volumeMounts:
-          - name: registry-server-config
-            mountPath: /etc/docker/registry/
-            readOnly: true
+          {{- include "registry.server.volumeMounts" (dict "context" $ "database" false) | nindent 10 }}
           {{- include "gitlab.certificates.volumeMount" . | nindent 10 }}
           ports:
             - containerPort: {{ .Values.service.internalPort }}
@@ -177,9 +177,17 @@ spec:
       - name: registry-server-config
         emptyDir:
           medium: "Memory"
+      {{- if not .Values.init.script }}
+      - name: registry-files
+        projected:
+          sources:
+          {{- include "registry.files.sources" . | nindent 10 }}
+          {{- include "registry.database.ssl.files" . | nindent 10 }}
+      {{- end }}
       - name: registry-secrets
         projected:
           sources:
+          {{- if .Values.init.script }}
           - configMap:
               name: {{ template "registry.fullname" . }}
           - secret:
@@ -187,6 +195,7 @@ spec:
               items:
                   - key: registry-auth.crt
                     path: certificate.crt
+          {{- end }}
           - secret:
               name: {{ template "gitlab.registry.httpSecret.secret" . }}
               items:
@@ -198,12 +207,12 @@ spec:
               items:
                 - key: {{ default "config" .Values.storage.key }}
                   path: storage/config
-                {{- if .Values.storage.extraKey }}
+                {{- if and .Values.init.script .Values.storage.extraKey }}
                 - key: {{ .Values.storage.extraKey }}
                   path: storage/{{ .Values.storage.extraKey }}
                 {{- end }}
           {{- end }}
-          {{- if .Values.middleware.storage }}
+          {{- if and .Values.init.script .Values.middleware.storage }}
             {{-  range $index, $v := .Values.middleware.storage }}
               {{- if $v.options.privatekeySecret }}
           - secret:
@@ -214,7 +223,7 @@ spec:
               {{- end }}
             {{- end }}
           {{- end }}
-          {{- if .Values.profiling.stackdriver.credentials.secret }}
+          {{- if and .Values.init.script .Values.profiling.stackdriver.credentials.secret }}
           - secret:
               name: {{ .Values.profiling.stackdriver.credentials.secret }}
               items:
@@ -224,9 +233,11 @@ spec:
           {{- include "registry.notifications.secrets" $ | nindent 10 }}
           {{- if or .Values.database.enabled .Values.database.configure }}
           {{-   include "gitlab.registry.database.password.projectedVolume" . | nindent 10 }}
-          {{-   include "gitlab.registry.psql.ssl" . | nindent 10 }}
+          {{-   if .Values.init.script }}
+          {{-     include "gitlab.registry.psql.ssl" . | nindent 10 }}
+          {{-   end }}
           {{- end }}
-          {{- if .Values.tls.enabled }}
+          {{- if and .Values.init.script .Values.tls.enabled }}
           # TLS secret for HTTPS service
           - secret:
               name: {{ include "gitlab.registry.tls.secret" $ }}
@@ -236,7 +247,7 @@ spec:
                 - key: tls.key
                   path: tls/tls.key
           {{- end }}
-          {{- if and .Values.debug.tls.enabled .Values.debug.tls.secretName }}
+          {{- if and .Values.init.script .Values.debug.tls.enabled .Values.debug.tls.secretName }}
           # TLS secret for metrics/debug HTTPS service
           - secret:
               name: {{ .Values.debug.tls.secretName }}

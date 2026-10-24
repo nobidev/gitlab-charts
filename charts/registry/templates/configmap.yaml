@@ -1,4 +1,7 @@
 {{- if .Values.enabled -}}
+{{- $escape := not .Values.init.script -}}
+{{- $config := include "registry.gomplate.render" (dict "context" . "template" "registry.config.tpl" "escape" $escape) -}}
+{{- $migrationsConfig := include "registry.gomplate.render" (dict "context" . "template" "registry.migrations.config.tpl" "escape" $escape) -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,12 +11,14 @@ metadata:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
 data:
+  {{- if .Values.init.script }}
   configure: |-
     {{- .Values.init.script | nindent 4 }}
+  {{- end }}
   config.yml.tpl: |
-    {{- include "registry.config.tpl" . | nindent 4 }}
+    {{- $config | nindent 4 }}
 
   # minimal configuration, in order to do database migrations
   migrations-config.yml.tpl: |
-    {{- include "registry.migrations.config.tpl" . | nindent 4 }}
+    {{- $migrationsConfig | nindent 4 }}
 {{- end -}}

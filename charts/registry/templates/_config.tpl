@@ -44,7 +44,7 @@ http:
   draintimeout: {{ .Values.draintimeout }}
   headers:
     X-Content-Type-Options: [nosniff]
-  secret: "HTTP_SECRET"
+  secret: {{ include "registry.config.secret" (dict "context" $ "placeholder" "HTTP_SECRET" "file" "httpSecret") }}
   relativeurls: {{ .Values.relativeurls }}
 health:
   {{- if kindIs "map" .Values.health }}
@@ -98,6 +98,10 @@ profiling:
     {{- end }}
   {{- end }}
 storage:
+{{- if and .Values.storage.secret (not .Values.init.script) }}
+{{ include "registry.config.secretYaml" (dict "context" $ "file" "storage/config" "indent" 2) }}
+  {{ include "registry.gomplate" (dict "context" $ "expression" "file.Read \"/config/storage/config\" | regexp.Match \"(?m)^delete[ \\t]*:\" | test.Ternary \"\" \"delete:\\n    enabled: true\"") }}
+{{- end }}
   maintenance:
     readonly:
       enabled: {{ .Values.maintenance.readonly.enabled }}

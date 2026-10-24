@@ -18,6 +18,15 @@ Expectation: input contents has .sentinels or .cluster, which is a List of Dict
 {{ join "," $addresses }}
 {{- end -}}
 
+{{/*
+Sentinel passwords are read by gomplate in either init mode. With a custom
+`init.script`, the init image entrypoint renders config.yml.tpl before it
+runs the script.
+*/}}
+{{- define "registry.redis.sentinelPassword" -}}
+{{- include "registry.gomplate" (dict "context" . "expression" "file.Read \"/config/redis-sentinel/redis-sentinel-password\" | strings.TrimSpace | data.ToJSON") -}}
+{{- end -}}
+
 {{- define "gitlab.registry.redisCacheSecret.mount" -}}
 {{- if .Values.redis.cache.password.enabled }}
 - secret:
@@ -93,7 +102,7 @@ redis:
     mainname: {{ .Values.redis.cache.host }}
     {{-   if .Values.redis.cache.sentinelpassword }}
     {{-     if .Values.redis.cache.sentinelpassword.enabled }}
-    sentinelpassword: {% file.Read "/config/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON %}
+    sentinelpassword: {{ include "registry.redis.sentinelPassword" $ }}
     {{-     end }}
     {{-   end }}
     {{- else if .Values.redis.cache.cluster }}
@@ -102,7 +111,7 @@ redis:
     addr: {{ include "registry.redis.host.addresses" .redisMergedConfig | quote }}
     mainname: {{ template "gitlab.redis.host" . }}
     {{- if .redisMergedConfig.sentinelAuth.enabled }}
-    sentinelpassword: {% file.Read "/config/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON %}
+    sentinelpassword: {{ include "registry.redis.sentinelPassword" $ }}
     {{- end }}
     {{- else if .Values.redis.cache.host  }}
     addr: {{ printf "%s:%d" .Values.redis.cache.host (int .Values.redis.cache.port | default 6379) | quote }}
@@ -113,7 +122,7 @@ redis:
     username: {{ .Values.redis.cache.username }}
     {{- end }}
     {{- if .Values.redis.cache.password.enabled }}
-    password: "REDIS_CACHE_PASSWORD"
+    password: {{ include "registry.config.secret" (dict "context" $ "placeholder" "REDIS_CACHE_PASSWORD" "file" "registry/redis-password") }}
     {{- end }}
     {{- if hasKey .Values.redis.cache "db" }}
     db: {{ .Values.redis.cache.db }}
@@ -163,7 +172,7 @@ redis:
     addr: {{ include "registry.redis.host.addresses" .redisMergedConfig | quote }}
     mainname: {{ template "gitlab.redis.host" . }}
     {{-   if .redisMergedConfig.sentinelAuth.enabled }}
-    sentinelpassword: {% file.Read "/config/redis-sentinel/redis-sentinel-password" | strings.TrimSpace | data.ToJSON %}
+    sentinelpassword: {{ include "registry.redis.sentinelPassword" $ }}
     {{-   end }}
     {{- else }}
     addr: {{ printf "%s:%s" ( include "gitlab.redis.host" . ) ( include "gitlab.redis.port" . ) | quote }}
@@ -172,7 +181,7 @@ redis:
     username: {{ .Values.redis.rateLimiting.username }}
     {{- end }}
     {{- if .Values.redis.rateLimiting.password.enabled }}
-    password: "REDIS_RATE_LIMITING_PASSWORD"
+    password: {{ include "registry.config.secret" (dict "context" $ "placeholder" "REDIS_RATE_LIMITING_PASSWORD" "file" "registry/redis-rateLimiting-password") }}
     {{- end }}
     {{- if hasKey .Values.redis.rateLimiting "db" }}
     db: {{ .Values.redis.rateLimiting.db }}
@@ -224,7 +233,7 @@ redis:
     username: {{ .Values.redis.loadBalancing.username }}
     {{- end }}
     {{- if .Values.redis.loadBalancing.password.enabled }}
-    password: "REDIS_LOAD_BALANCING_PASSWORD"
+    password: {{ include "registry.config.secret" (dict "context" $ "placeholder" "REDIS_LOAD_BALANCING_PASSWORD" "file" "registry/redis-loadBalancing-password") }}
     {{- end }}
     {{- if hasKey .Values.redis.loadBalancing "db" }}
     db: {{ .Values.redis.loadBalancing.db }}

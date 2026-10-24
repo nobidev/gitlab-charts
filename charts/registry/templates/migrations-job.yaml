@@ -50,7 +50,11 @@ spec:
         {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 8 }}
         {{- include "gitlab.init.containerSecurityContext" $ | indent 8 }}
         {{- end }}
+        {{- if .Values.init.script }}
         args: ['sh', '/config/configure']
+        {{- else }}
+        command: {{ include "registry.configure.command" . }}
+        {{- end }}
         volumeMounts:
           - name: registry-secrets
             mountPath: /config
@@ -83,9 +87,7 @@ spec:
         - /scripts/wait-for-deps
         - /scripts/db-migrate
         volumeMounts:
-          - name: registry-server-config
-            mountPath: /etc/docker/registry/
-            readOnly: true
+          {{- include "registry.server.volumeMounts" (dict "context" $ "database" true) | nindent 10 }}
         {{- include "gitlab.certificates.volumeMount" . | nindent 10 }}
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
@@ -106,15 +108,25 @@ spec:
       - name: registry-server-config
         emptyDir:
           medium: "Memory"
+      {{- if and (not .Values.init.script) (include "registry.database.ssl.enabled" .) }}
+      - name: registry-files
+        projected:
+          sources:
+          {{- include "registry.database.ssl.files" . | nindent 10 }}
+      {{- end }}
       - name: registry-secrets
         projected:
           sources:
+          {{- if .Values.init.script }}
           - configMap:
               name: {{ template "registry.fullname" . }}
               items:
               - key: configure
                 path: configure
+          {{- end }}
           {{- include "gitlab.registry.database.password.projectedVolume" . | nindent 10 }}
-          {{- include "gitlab.registry.psql.ssl" . | nindent 10 }}
+          {{- if .Values.init.script }}
+          {{-   include "gitlab.registry.psql.ssl" . | nindent 10 }}
+          {{- end }}
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
 {{- end }}

@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'helm_template_helper'
 require 'yaml'
 require 'hash_deep_merge'
+require 'runtime_template_helper'
 
 describe 'middleware configuration' do
   let(:default_values) do
@@ -37,13 +38,12 @@ describe 'middleware configuration' do
       t = HelmTemplate.new(values)
       expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
       expect(
-        YAML.safe_load(
+        RuntimeTemplate.registry_config(
           t.dig(
             'ConfigMap/test-registry',
             'data',
             'config.yml.tpl'
-          ),
-          permitted_classes: [Symbol]
+          )
         )['middleware']).to include(YAML.safe_load(%(
           storage:
             - name: cloudfront
@@ -56,7 +56,7 @@ describe 'middleware configuration' do
     it 'Projects middleware storage secrets into deployment' do
       t = HelmTemplate.new(values)
       expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
-      projected_secret_key = t.find_projected_secret_key('Deployment/test-registry', 'registry-secrets', 'cdn-private-key', 'private.pem')
+      projected_secret_key = t.find_projected_secret_key('Deployment/test-registry', 'registry-files', 'cdn-private-key', 'private.pem')
       expect(projected_secret_key).to have_key('path')
       expect(projected_secret_key['path']).to eq('middleware.storage/0/private.pem') if projected_secret_key
     end

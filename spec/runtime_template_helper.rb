@@ -62,6 +62,21 @@ class RuntimeTemplate
     raw_template
   end
 
+  # Renders the registry config.yml.tpl with gomplate, mocking every file it
+  # reads from /config, and returns the parsed configuration.
+  def self.registry_config(raw_template)
+    files = raw_template.scan(%r{file\.Read "(/config/[^"]+)"}).flatten.uniq.to_h do |path|
+      content = case path
+                when %r{/notifications/} then "[#{JUNK_TOKEN}]"
+                when %r{/storage/config$} then "s3:\n  bucket: registry\n"
+                else JUNK_PASSWORD
+                end
+      [path, content]
+    end
+
+    YAML.safe_load(gomplate(raw_template: raw_template.dup, files: files), permitted_classes: [Symbol])
+  end
+
   JUNK_PASSWORD = 'somthing^&question@ble'.freeze
   JUNK_TOKEN = SecureRandom.hex.freeze
 
