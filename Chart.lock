@@ -13,7 +13,7 @@ dependencies:
   version: '*.*.*'
 - name: cert-manager
   repository: oci://quay.io/jetstack/charts
-  version: v1.20.2
+  version: v1.21.3
 - name: prometheus
   repository: oci://ghcr.io/prometheus-community/charts
   version: 27.52.0
@@ -47,5 +47,5 @@ dependencies:
 - name: gateway-helm
   repository: oci://registry-1.docker.io/envoyproxy
   version: 1.7.1
-digest: sha256:c67a49aa139966d94655910aacd1b45c48d241aa32bd2e1f2f65eed5a213d1a3
-generated: "2026-05-11T09:09:26.74909925+02:00"
+digest: sha256:43a87372bb9c69c2049309d141afa6c1dbd220507ae3fe0f83be02b4b8f1904f
+generated: "2026-10-27T17:52:59.395467+01:00"
