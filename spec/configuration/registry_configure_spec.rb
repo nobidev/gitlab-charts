@@ -158,11 +158,33 @@ describe 'registry configure init container' do
       end
     end
 
-    context 'when the storage secret has an empty delete block' do
-      let(:storage_config) { "filesystem:\n  rootdirectory: /var/lib/registry\ndelete: {}\n" }
+    {
+      'flow style' => "delete: {enabled: false}\n",
+      'a comment before enabled' => "delete:\n  # keep tags\n  enabled: false\n",
+      'a blank line before enabled' => "delete:\n\n  enabled: false\n"
+    }.each do |form, delete_config|
+      context "when the storage secret sets delete.enabled in #{form}" do
+        let(:storage_config) { "filesystem:\n  rootdirectory: /var/lib/registry\n#{delete_config}" }
 
-      it 'does not add the default' do
-        expect(gomplate(configmap['config.yml.tpl']).dig('storage', 'delete')).to eq({})
+        it 'keeps the configured value' do
+          rendered = RuntimeTemplate.gomplate(raw_template: configmap['config.yml.tpl'].dup, files: config_files)
+
+          expect(YAML.safe_load(rendered, permitted_classes: [Symbol]).dig('storage', 'delete')).to eq('enabled' => false)
+          expect(rendered.scan(/^\s*delete:/).length).to eq(1)
+        end
+      end
+    end
+
+    {
+      'an empty delete block' => "delete: {}\n",
+      'a null delete key' => "delete:\n"
+    }.each do |form, delete_config|
+      context "when the storage secret has #{form}" do
+        let(:storage_config) { "filesystem:\n  rootdirectory: /var/lib/registry\n#{delete_config}" }
+
+        it 'defaults delete.enabled to true, as the configure script did' do
+          expect(gomplate(configmap['config.yml.tpl']).dig('storage', 'delete')).to eq('enabled' => true)
+        end
       end
     end
 

@@ -1079,8 +1079,8 @@ external service, such as `s3`, `gcs`, `azure` or other compatible Object Storag
 
 > [!note]
 > The chart will populate `delete.enabled: true` into this configuration
-> by default if the `storage` Secret does not contain a top-level `delete` key.
-> A `delete` key with any value, including `delete: {}`, disables the default. This keeps expected behavior in line with
+> by default if the `storage` Secret does not set `delete.enabled`, including
+> when it has an empty `delete` key such as `delete: {}`. This keeps expected behavior in line with
 > the Linux package.
 
 ### `middleware.storage`
