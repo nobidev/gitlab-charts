@@ -100,7 +100,7 @@ profiling:
 storage:
 {{- if and .Values.storage.secret (not .Values.init.script) }}
 {{ include "registry.config.secretYaml" (dict "context" $ "file" "storage/config" "indent" 2) }}
-  {{ include "registry.gomplate" (dict "context" $ "expression" "file.Read \"/config/storage/config\" | regexp.Match `(?m)^delete[ \\t]*:[ \\t]*(?:[{][^}\\n]*enabled[ \\t]*:|(?:#[^\\n]*)?\\r?\\n(?:[ \\t]*(?:#[^\\n]*)?\\r?\\n|[ \\t]+[^\\n]*\\r?\\n)*?[ \\t]+enabled[ \\t]*:)` | test.Ternary \"\" \"delete:\\n    enabled: true\"") }}
+  {{ include "registry.gomplate" (dict "context" $ "expression" (include "registry.config.storageDeleteDefault" .)) }}
 {{- end }}
   maintenance:
     readonly:
@@ -147,4 +147,18 @@ version: 0.1
 log:
   {{ toYaml .Values.log | nindent 2 | trim }}
 {{- include "registry.database.config" $ | nindent 0 }}
+{{- end -}}
+
+{{/*
+Gomplate expression that prints the `delete.enabled: true` default unless the
+storage Secret sets `delete.enabled`, either in flow style
+(`delete: {enabled: false}`) or in block style, where blank, comment and other
+indented lines may come before `enabled:`. It matches a regex because
+`data.YAML` rejects repeated keys, which the registry accepts.
+*/}}
+{{- define "registry.config.storageDeleteDefault" -}}
+{{- $flow := `\{[^}\n]*enabled[ \t]*:` -}}
+{{- $block := `(?:#.*)?\n(?:(?:[ \t#].*)?\n)*[ \t]+enabled[ \t]*:` -}}
+{{- $setsEnabled := printf `(?m)^delete[ \t]*:[ \t]*(?:%s|%s)` $flow $block -}}
+{{- printf `file.Read "/config/storage/config" | strings.ReplaceAll "\r\n" "\n" | regexp.Match %q | test.Ternary "" "delete:\n    enabled: true"` $setsEnabled -}}
 {{- end -}}
