@@ -11,9 +11,23 @@ describe 'registry configuration' do
 
   let(:sentinel_password) { SecureRandom.hex }
 
-  def render_yaml(raw_template, env = {})
-    files = { '/config/redis-sentinel/redis-sentinel-password' => sentinel_password }
+  let(:config_files) do
+    {
+      '/config/redis-sentinel/redis-sentinel-password' => sentinel_password,
+      '/config/httpSecret' => 'http-secret',
+      '/config/database_password' => 'database-password',
+      '/config/registry/redis-password' => 'redis-cache-password',
+      '/config/registry/redis-rateLimiting-password' => 'redis-rate-limiting-password',
+      '/config/registry/redis-loadBalancing-password' => 'redis-load-balancing-password',
+      '/config/storage/config' => "s3:\n  bucket: registry\n"
+    }
+  end
 
+  def read_secret(file)
+    %({% file.Read "/config/#{file}" | strings.TrimRight "\\n" | data.ToJSON %})
+  end
+
+  def render_yaml(raw_template, env = {}, files = config_files)
     yaml = RuntimeTemplate.gomplate(raw_template: raw_template, files: files, env: env)
 
     # Strings like :5000 get loaded as Symbols, so allow this for now
@@ -144,7 +158,7 @@ describe 'registry configuration' do
           TLS_CONFIG
         )
 
-        tls_crt = t.find_projected_secret_key('Deployment/test-registry', 'registry-secrets', 'test-registry-tls', 'tls.crt')
+        tls_crt = t.find_projected_secret_key('Deployment/test-registry', 'registry-files', 'test-registry-tls', 'tls.crt')
         expect(tls_crt).not_to be_empty
 
         ingress_annotations = t.annotations('Ingress/test-registry')
@@ -175,7 +189,7 @@ describe 'registry configuration' do
         t = HelmTemplate.new(values)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
 
-        expect(t.find_projected_secret('Deployment/test-registry', 'registry-secrets', 'internal-hosts-tls')).to be true
+        expect(t.find_projected_secret('Deployment/test-registry', 'registry-files', 'internal-hosts-tls')).to be true
       end
     end
 
@@ -228,7 +242,7 @@ describe 'registry configuration' do
         t = HelmTemplate.new(values)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
 
-        expect(t.find_projected_secret('Deployment/test-registry', 'registry-secrets', 'global-tls')).to be true
+        expect(t.find_projected_secret('Deployment/test-registry', 'registry-files', 'global-tls')).to be true
       end
     end
 
@@ -249,7 +263,7 @@ describe 'registry configuration' do
         t = HelmTemplate.new(values)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
 
-        expect(t.find_projected_secret('Deployment/test-registry', 'registry-secrets', 'internal-hosts-tls')).to be true
+        expect(t.find_projected_secret('Deployment/test-registry', 'registry-files', 'internal-hosts-tls')).to be true
       end
     end
 
@@ -328,7 +342,7 @@ describe 'registry configuration' do
               host: "psql.example.com"
               port: 5432
               user: global_test_user
-              password: "DB_PASSWORD_FILE"
+              password: #{read_secret('database_password')}
               dbname: global_test_db
               sslmode: disable
             CONFIG
@@ -363,7 +377,7 @@ describe 'registry configuration' do
               host: "psql.example.com"
               port: 5432
               user: local_test_user
-              password: "DB_PASSWORD_FILE"
+              password: #{read_secret('database_password')}
               dbname: local_test_db
               sslmode: disable
             CONFIG
@@ -398,7 +412,7 @@ describe 'registry configuration' do
               host: "psql.example.com"
               port: 5432
               user: global_registry_user
-              password: "DB_PASSWORD_FILE"
+              password: #{read_secret('database_password')}
               dbname: global_registry_db
               sslmode: disable
             CONFIG
@@ -432,7 +446,7 @@ describe 'registry configuration' do
               host: "psql.example.com"
               port: 5432
               user: global_registry_user
-              password: "DB_PASSWORD_FILE"
+              password: #{read_secret('database_password')}
               dbname: global_registry_db
               sslmode: disable
             CONFIG
@@ -486,7 +500,7 @@ describe 'registry configuration' do
               host: "psql.example.com"
               port: 5432
               user: registry
-              password: "DB_PASSWORD_FILE"
+              password: #{read_secret('database_password')}
               dbname: registry
               sslmode: disable
               primary: primary.record.fqdn
@@ -519,7 +533,7 @@ describe 'registry configuration' do
               host: "psql.example.com"
               port: 5432
               user: registry
-              password: "DB_PASSWORD_FILE"
+              password: #{read_secret('database_password')}
               dbname: registry
               sslmode: disable
               backgroundmigrations:
@@ -553,7 +567,7 @@ describe 'registry configuration' do
               host: "psql.example.com"
               port: 5432
               user: registry
-              password: "DB_PASSWORD_FILE"
+              password: #{read_secret('database_password')}
               dbname: registry
               sslmode: disable
               backgroundmigrations:
@@ -644,7 +658,7 @@ describe 'registry configuration' do
               host: "psql.example.com"
               port: 5432
               user: registry
-              password: "DB_PASSWORD_FILE"
+              password: #{read_secret('database_password')}
               dbname: registry
               sslmode: disable
             CONFIG
@@ -693,7 +707,7 @@ describe 'registry configuration' do
                 host: "psql.example.com"
                 port: 5432
                 user: registry
-                password: "DB_PASSWORD_FILE"
+                password: #{read_secret('database_password')}
                 dbname: registry
                 sslmode: disable
                 loadbalancing:
@@ -757,7 +771,7 @@ describe 'registry configuration' do
                 host: "psql.example.com"
                 port: 5432
                 user: registry
-                password: "DB_PASSWORD_FILE"
+                password: #{read_secret('database_password')}
                 dbname: registry
                 sslmode: disable
                 loadbalancing:
@@ -827,7 +841,7 @@ describe 'registry configuration' do
                 host: "psql.example.com"
                 port: 5432
                 user: registry
-                password: "DB_PASSWORD_FILE"
+                password: #{read_secret('database_password')}
                 dbname: registry
                 sslmode: disable
                 metrics:
@@ -864,7 +878,7 @@ describe 'registry configuration' do
                 host: "psql.example.com"
                 port: 5432
                 user: registry
-                password: "DB_PASSWORD_FILE"
+                password: #{read_secret('database_password')}
                 dbname: registry
                 sslmode: disable
                 metrics:
@@ -966,7 +980,7 @@ describe 'registry configuration' do
               cache:
                 enabled: true
                 addr: "redis.example.com:12345"
-                password: "REDIS_CACHE_PASSWORD"
+                password: #{read_secret('registry/redis-password')}
                 db: 0
                 dialtimeout: 10ms
                 readtimeout: 10ms
@@ -1290,7 +1304,7 @@ describe 'registry configuration' do
                 enabled: true
                 addr: "redis.example.com:12345"
                 username: registry
-                password: "REDIS_RATE_LIMITING_PASSWORD"
+                password: #{read_secret('registry/redis-rateLimiting-password')}
                 db: 0
                 dialtimeout: 10ms
                 readtimeout: 10ms
@@ -1668,7 +1682,7 @@ describe 'registry configuration' do
               cache:
                 enabled: true
                 addr: "redis.cache.example.com:12345"
-                password: "REDIS_CACHE_PASSWORD"
+                password: #{read_secret('registry/redis-password')}
                 db: 0
                 dialtimeout: 10ms
                 readtimeout: 10ms
@@ -1683,7 +1697,7 @@ describe 'registry configuration' do
               ratelimiter:
                 enabled: true
                 addr: "redis.rate-limiter.example.com:54321"
-                password: "REDIS_RATE_LIMITING_PASSWORD"
+                password: #{read_secret('registry/redis-rateLimiting-password')}
                 db: 1
                 dialtimeout: 20ms
                 readtimeout: 20ms
@@ -1942,7 +1956,7 @@ describe 'registry configuration' do
                 enabled: true
                 addr: "redis.example.com:12345"
                 username: registry
-                password: "REDIS_LOAD_BALANCING_PASSWORD"
+                password: #{read_secret('registry/redis-loadBalancing-password')}
                 db: 0
                 dialtimeout: 10ms
                 readtimeout: 10ms
@@ -2252,7 +2266,7 @@ describe 'registry configuration' do
               cache:
                 enabled: true
                 addr: "redis.cache.example.com:12345"
-                password: "REDIS_CACHE_PASSWORD"
+                password: #{read_secret('registry/redis-password')}
                 db: 0
                 dialtimeout: 10ms
                 readtimeout: 10ms
@@ -2267,7 +2281,7 @@ describe 'registry configuration' do
               loadbalancing:
                 enabled: true
                 addr: "redis.load-balancing.example.com:54321"
-                password: "REDIS_LOAD_BALANCING_PASSWORD"
+                password: #{read_secret('registry/redis-loadBalancing-password')}
                 db: 1
                 dialtimeout: 20ms
                 readtimeout: 20ms
@@ -2349,7 +2363,7 @@ describe 'registry configuration' do
           DEBUG_TLS_CONFIG
         )
 
-        tls_crt = t.find_projected_secret_key('Deployment/test-registry', 'registry-secrets', 'registry-service-tls', 'tls.crt')
+        tls_crt = t.find_projected_secret_key('Deployment/test-registry', 'registry-files', 'registry-service-tls', 'tls.crt')
         expect(tls_crt).not_to be_empty
 
         liveness_probe = t.find_container('Deployment/test-registry', 'registry')['livenessProbe']['httpGet']
@@ -2395,7 +2409,7 @@ describe 'registry configuration' do
           DEBUG_TLS_CONFIG
         )
 
-        tls_crt = t.find_projected_secret_key('Deployment/test-registry', 'registry-secrets', 'registry-debug-tls', 'tls.crt')
+        tls_crt = t.find_projected_secret_key('Deployment/test-registry', 'registry-files', 'registry-debug-tls', 'tls.crt')
         expect(tls_crt).not_to be_empty
 
         liveness_probe = t.find_container('Deployment/test-registry', 'registry')['livenessProbe']['httpGet']

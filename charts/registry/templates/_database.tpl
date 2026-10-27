@@ -11,7 +11,7 @@ database:
   host: {{ default (include "gitlab.psql.host" .) .Values.database.host | quote }}
   port: {{ default (include "gitlab.psql.port" .) .Values.database.port }}
   user: {{ include "registry.database.username" . }}
-  password: "DB_PASSWORD_FILE"
+  password: {{ include "registry.config.secret" (dict "context" $ "placeholder" "DB_PASSWORD_FILE" "file" "database_password") }}
   dbname: {{ include "registry.database.name" . }}
   sslmode: {{ .Values.database.sslmode }}
   {{- if .Values.database.ssl }}
@@ -150,4 +150,34 @@ Returns the K8s Secret definition for a PostgreSQL mutual TLS connection.
       - key: {{ include "gitlab.registry.psql.ssl.serverCA" . }}
         path: ssl/server-ca.pem
 {{-   end -}}
+{{- end -}}
+
+{{/*
+Returns "true" when the registry connects to PostgreSQL with client certificates.
+*/}}
+{{- define "registry.database.ssl.enabled" -}}
+{{- if and (or .Values.database.enabled .Values.database.configure) (or .Values.database.ssl .Values.global.psql.ssl) -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Returns the PostgreSQL client certificate Secret as a projected volume source
+that is mounted at /etc/docker/registry/ssl.
+*/}}
+{{- define "registry.database.ssl.files" -}}
+{{- if include "registry.database.ssl.enabled" . }}
+- secret:
+    name: {{ include "gitlab.registry.psql.ssl.secret" . }}
+    items:
+      - key: {{ include "gitlab.registry.psql.ssl.clientCertificate" . }}
+        path: ssl/client-certificate.pem
+        mode: {{ include "registry.keyFileMode" . }}
+      - key: {{ include "gitlab.registry.psql.ssl.clientKey" . }}
+        path: ssl/client-key.pem
+        mode: {{ include "registry.keyFileMode" . }}
+      - key: {{ include "gitlab.registry.psql.ssl.serverCA" . }}
+        path: ssl/server-ca.pem
+        mode: {{ include "registry.keyFileMode" . }}
+{{- end -}}
 {{- end -}}
