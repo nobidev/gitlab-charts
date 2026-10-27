@@ -5,8 +5,8 @@ Ensure Registry object store secret is configured.
 {{-   with $.Values.registry -}}
 {{-     if and .enabled (not .storage.secret) }}
 Registry Object Storage:
-  The chart provides no longer bundled object storage solution. Please
-  prepare an external object storage solution for the Registry by following 
+  The chart no longer provides a bundled object storage solution. Please
+  prepare an external object storage solution for the Registry by following
   https://docs.gitlab.com/charts/advanced/external-object-storage/#registry-configuration
 {{-     end -}}
 {{-   end -}}
@@ -23,7 +23,7 @@ so a per-Pages connection is neither needed nor rendered.
 {{-   with $.Values.global.pages -}}
 {{-     if and .enabled .objectStore.enabled (empty .objectStore.connection) (not $.Values.global.appConfig.object_store.enabled) }}
 Pages Object Storage:
-  The chart provides no longer bundled object storage solution. Please
+  The chart no longer provides a bundled object storage solution. Please
   prepare an external object storage solution for Pages by following
   https://docs.gitlab.com/charts/advanced/external-object-storage/
 {{-     end -}}
