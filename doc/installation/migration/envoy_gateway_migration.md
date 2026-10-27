@@ -376,8 +376,8 @@ the trailing dot from `/etc/hosts` entries on the client host.
 
 ## TLS terminated at a load balancer
 
-If a load balancer in front of Envoy Gateway terminates TLS, for example an AWS Network Load
-Balancer, set `global.gatewayApi.externalTlsTermination: true`. Otherwise, GitLab treats requests
+If a load balancer, such as an AWS Network Load Balancer, terminates TLS in front of Envoy Gateway,
+set `global.gatewayApi.externalTlsTermination: true`. Without this setting, GitLab treats requests
 as HTTP, and SAML sign-in enters an infinite redirect loop. Existing sessions keep working, so the
 problem can go unnoticed until users sign in again after the migration.
 

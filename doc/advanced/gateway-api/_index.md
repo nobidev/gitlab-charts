@@ -18,7 +18,7 @@ but remains available until its full removal in GitLab 20.0.
 | `global.gatewayApi.gatewayRef.name`                 | String  |                | Gateway name rendered to all Gateway API resources. Use this to reference an externally managed Gateway and to disable the Gateway provided by the chart. |
 | `global.gatewayApi.gatewayRef.namespace`            | String  |                | Gateway namespace rendered to all Gateway API resources. Use this to reference an externally managed Gateway in another namespace and to disable the Gateway provided by the chart. |
 | `global.gatewayApi.httpToHttpsRedirect`             | Boolean | true           | Create an HTTPRoute that redirects all HTTP traffic to HTTPS with a 301 status code. Only effective when `protocol` is `HTTPS` or `externalTlsTermination` is `true`, and the Gateway is managed (no `gatewayRef`). |
-| `global.gatewayApi.externalTlsTermination`          | Boolean | false          | Set to `true` when a load balancer in front of the Gateway terminates TLS. For more information, see [TLS terminated at a load balancer](#tls-terminated-at-a-load-balancer). |
+| `global.gatewayApi.externalTlsTermination`          | Boolean | false          | Set to `true` when TLS is terminated by a load balancer in front of the Gateway. For more information, see [TLS terminated at a load balancer](#tls-terminated-at-a-load-balancer). |
 | `global.gatewayApi.installEnvoy`                    | Boolean | true           | Install the [bundled Envoy Gateway](../../charts/envoygateway/_index.md) subchart. Default flipped to `true` in GitLab 19.0. |
 | `global.gatewayApi.configureEnvoy`                  | Boolean | unset          | Configure Envoy Gateway's Gateway API resources (`GatewayClass`, `EnvoyProxy`, `ClientTrafficPolicy`, `BackendTrafficPolicy`, `SecurityPolicy`). Defaults to the value of `global.gatewayApi.installEnvoy` when unset. Set explicitly to configure these resources for an externally managed Envoy Gateway without installing the bundled subchart. |
 
@@ -350,7 +350,7 @@ gatewayApiResources:
 In this mode, the chart renders all HTTP listeners on port 80, or on
 `gatewayApiResources.gateway.port` when set, and does not render the HTTP to HTTPS redirect.
 
-If a load balancer in front of the Gateway terminates TLS and users connect over HTTPS, don't
+If TLS is terminated by a load balancer in front of the Gateway and users connect over HTTPS, don't
 use HTTP-only mode. Instead, see [TLS terminated at a load balancer](#tls-terminated-at-a-load-balancer).
 
 When the bundled Envoy Gateway is used, also configure `KeepUnchanged` on the gateway-wide
@@ -370,7 +370,7 @@ As a result, the escaped-slash handling must be configured globally.
 
 #### TLS terminated at a load balancer
 
-When a load balancer in front of the Gateway terminates TLS, set
+When TLS is terminated by a load balancer in front of the Gateway, set
 `global.gatewayApi.externalTlsTermination`:
 
 ```yaml
@@ -413,7 +413,7 @@ Configure the load balancer to:
   the AWS Network Load Balancer, don't negotiate ALPN by default.
 
 To configure the load balancer that the Envoy Gateway service provisions, add annotations to
-`gatewayApiResources.gateway.infrastructure.annotations`. For an AWS Network Load Balancer, see
+`gatewayApiResources.gateway.infrastructure.annotations`. For an AWS Network Load Balancer, see also
 [AWS Load Balancer Controller annotations](https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/service/annotations/).
 
 To log the IP addresses of clients instead of the load balancer, enable PROXY protocol on the
