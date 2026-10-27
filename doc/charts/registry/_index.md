@@ -202,6 +202,7 @@ If you chose to deploy this chart as a standalone, remove the `registry` at the 
 | `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                                              | initContainer specific: Controls whether a process can gain more privileges than its parent process |
 | `init.containerSecurityContext.runAsNonRoot`             | `true`                                                               | initContainer specific: Controls whether the container runs with a non-root user |
 | `init.containerSecurityContext.capabilities.drop`        | `[ "ALL" ]`                                                          | initContainer specific: Removes [Linux capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html) for the container |
+| `init.script`                                            | `""`                                                                 | Custom script for the `configure` initContainer. See [Configuring the `configure` init container](#configuring-the-configure-init-container) |
 | `keda.enabled`                                           | `false`                                                              | Use [KEDA](https://keda.sh/) `ScaledObjects` instead of `HorizontalPodAutoscalers` |
 | `keda.pollingInterval`                                   | `30`                                                                 | The interval to check each trigger on |
 | `keda.cooldownPeriod`                                    | `300`                                                                | The period to wait after the last trigger reported active before scaling the resource back to 0 |
@@ -473,6 +474,56 @@ Default settings:
 
 - `tag: 'v4.15.2-gitlab'`
 - `pullPolicy: 'IfNotPresent'`
+
+## Configuring the `configure` init container
+
+The `configure` init container of the registry `Deployment` and of the migrations
+`Job` renders `/etc/docker/registry/config.yml` from the `ConfigMap` with
+[`gomplate`](https://docs.gomplate.ca/). It runs `gomplate` directly, without a shell,
+so the init container image (`init.image`, `gitlab-base` by default) must provide
+`gomplate` on its `PATH`. The Debian and UBI `gitlab-base` images provide it.
+
+`gomplate` reads each Secret from a mounted file:
+
+- Passwords, the `httpSecret`, and other single values are written to `config.yml`
+  as quoted strings, so they can contain any character. Trailing newlines are removed.
+- The [`storage`](#storage) Secret and
+  [notification header Secrets](../../installation/secrets.md#registry-sensitive-notification-headers)
+  contain YAML, which is inserted into `config.yml` as is.
+
+If a value in the chart configuration contains the `gomplate` delimiter `{%`, the
+chart escapes it so that `gomplate` writes it unchanged.
+
+The files that `config.yml` references are mounted from their Secrets into the
+registry container. These include the `storage.extraKey` file, the
+`middleware.storage` private keys, the `profiling.stackdriver.credentials` file,
+the TLS certificates, and the PostgreSQL client certificates. Except for the
+registry authentication certificate, these files are readable only by the owner
+and the group set in `securityContext.fsGroup`. If no `fsGroup` is set, they are
+readable by all users of the container, so that the registry user can read them.
+
+### Upgrade to the `gomplate` init container
+
+Earlier chart versions ran a shell script in the `configure` init container. When
+you upgrade without a custom `init.script`:
+
+- The init container image must provide `gomplate` on its `PATH`. If you set
+  `init.image` or `global.gitlabBase.image` to an image without it, the init
+  container fails to start.
+- `{% %}` in chart values was evaluated by `gomplate` in the `gitlab-base` image
+  entrypoint. It is now written to `config.yml` unchanged.
+- The `registry-server-config` volume holds only `config.yml`. The other files are
+  mounted from their Secrets. Extra volume mounts or containers that read other
+  files from that volume must mount the Secrets instead.
+
+### Custom `init.script`
+
+When `init.script` is set, the `configure` init container runs it with `sh` instead,
+as earlier chart versions did. The script receives the Secrets in `/config`, and a
+`config.yml` with placeholders for them, for example `HTTP_SECRET` and `DB_PASSWORD_FILE`.
+It must write the configuration and the files it references to `/registry`.
+A custom script needs an init container image with a shell and the tools that the
+script uses.
 
 ## Configuring the `service`
 
@@ -1028,7 +1079,8 @@ external service, such as `s3`, `gcs`, `azure` or other compatible Object Storag
 
 > [!note]
 > The chart will populate `delete.enabled: true` into this configuration
-> by default if not specified by the user. This keeps expected behavior in line with
+> by default if the `storage` Secret does not set `delete.enabled`, including
+> when it has an empty `delete` key such as `delete: {}`. This keeps expected behavior in line with
 > the Linux package.
 
 ### `middleware.storage`

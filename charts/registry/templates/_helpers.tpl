@@ -62,7 +62,13 @@ notifications:
           {{- range $header, $value := $headers -}}
             {{- if kindIs "map" $value -}}
               {{- if hasKey $value "secret" }}
-        {{ $header }}: SECRET_{{ $value.secret }}_{{ default "value" $value.key }}
+                {{- $fileName := printf "SECRET_%s_%s" $value.secret (default "value" $value.key) }}
+                {{- if $.Values.init.script }}
+        {{ $header }}: {{ $fileName }}
+                {{- else }}
+        {{ $header }}:
+{{ include "registry.config.secretYaml" (dict "context" $ "file" (printf "notifications/%s" $fileName) "indent" 10) }}
+                {{- end }}
               {{- end -}}
             {{- else }}
         {{ $header }}: {{ $value }}
@@ -205,4 +211,246 @@ matched by the registry PDB and Deployment selectors.
 {{- $labels := (include "gitlab.standardLabels" .) | fromYaml }}
 {{- $_ := set $labels "app" "registry-migrations" }}
 {{- toYaml $labels }}
+{{- end -}}
+
+{{/*
+Emit a gomplate action into config.yml.tpl. The action is recorded in the
+context and a placeholder is emitted in its place, which
+"registry.gomplate.render" swaps for the action. Values cannot produce the
+placeholder, because it contains NUL characters that the render rejects in
+anything else.
+*/}}
+{{- define "registry.gomplate" -}}
+{{- $actions := default (list) .context.registryGomplateActions -}}
+{{- $_ := set .context "registryGomplateActions" (append $actions (printf "{%% %s %%}" .expression)) -}}
+{{- include "registry.gomplate.placeholder" (len $actions) -}}
+{{- end -}}
+
+{{- define "registry.gomplate.placeholder" -}}
+{{- printf "\x00gomplate-action-%d\x00" (int .) -}}
+{{- end -}}
+
+{{/*
+Render the named `template` into a gomplate template.
+
+With `escape`, every `{%` that values put into the text is escaped, so that
+gomplate prints it instead of evaluating it. The placeholders emitted by
+"registry.gomplate" while rendering are then replaced by their actions.
+
+Rendering fails if the text holds a NUL character other than one copy of each
+placeholder, so a value cannot forge an action, or if a placeholder is missing.
+
+Usage:
+{{ include "registry.gomplate.render" (dict "context" $ "template" "registry.config.tpl" "escape" true) }}
+*/}}
+{{- define "registry.gomplate.render" -}}
+{{- $start := len (default (list) .context.registryGomplateActions) -}}
+{{- $text := include .template .context -}}
+{{- $actions := default (list) .context.registryGomplateActions -}}
+{{- $unclaimed := $text -}}
+{{- range $index := untilStep $start (len $actions) 1 -}}
+{{-   $parts := splitn (include "registry.gomplate.placeholder" $index) 2 $unclaimed -}}
+{{-   $unclaimed = print $parts._0 (default "" $parts._1) -}}
+{{- end -}}
+{{- if contains "\x00" $unclaimed -}}
+{{-   fail "registry: a value rendered into the registry configuration contains a NUL character." -}}
+{{- end -}}
+{{- range $index := untilStep $start (len $actions) 1 -}}
+{{-   if not (contains (include "registry.gomplate.placeholder" $index) $text) -}}
+{{-     fail (printf "registry: placeholder %d of the gomplate template %s is missing." $index $.template) -}}
+{{-   end -}}
+{{- end -}}
+{{- if .escape -}}
+{{-   $text = replace "{%" "{%\"{%\"%}" $text -}}
+{{- end -}}
+{{- range $index := untilStep $start (len $actions) 1 -}}
+{{-   $text = replace (include "registry.gomplate.placeholder" $index) (index $actions $index) $text -}}
+{{- end -}}
+{{- $text -}}
+{{- end -}}
+
+{{/*
+Render a secret as a string in config.yml.tpl.
+
+With a custom `init.script`, emit the legacy placeholder for the script to
+replace. Otherwise gomplate reads the mounted file and emits it as a JSON
+string, which is valid YAML for any content. Trailing newlines are dropped,
+as the legacy `$(cat file)` did.
+
+Usage:
+{{ include "registry.config.secret" (dict "context" $ "placeholder" "HTTP_SECRET" "file" "httpSecret") }}
+*/}}
+{{- define "registry.config.secret" -}}
+{{- if .context.Values.init.script -}}
+{{ .placeholder | quote }}
+{{- else -}}
+{{- $expression := printf "file.Read %q | strings.TrimRight \"\\n\" | data.ToJSON" (printf "/config/%s" .file) -}}
+{{- include "registry.gomplate" (dict "context" .context "expression" $expression) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Render a secret that holds YAML into config.yml.tpl, indented by `indent`
+spaces. The registry parses the content as YAML, as it did when the legacy
+script inserted it. Must be placed at the start of a line.
+
+Usage:
+{{ include "registry.config.secretYaml" (dict "context" $ "file" "storage/config" "indent" 2) }}
+*/}}
+{{- define "registry.config.secretYaml" -}}
+{{- $expression := printf "file.Read %q | strings.TrimRight \"\\n\" | strings.Indent %d" (printf "/config/%s" .file) (int .indent) -}}
+{{- include "registry.gomplate" (dict "context" .context "expression" $expression) -}}
+{{- end -}}
+
+{{/*
+File mode for the TLS and database key material mounted into the registry.
+With an fsGroup, the kubelet makes the files readable by that group. Without
+one, they are owned by root and must be world-readable for the registry user.
+*/}}
+{{- define "registry.keyFileMode" -}}
+{{- if dig "fsGroup" "" (default (dict) .Values.securityContext) -}}
+0440
+{{- else -}}
+0444
+{{- end -}}
+{{- end -}}
+
+{{/*
+Projected volume sources for the files that config.yml references, other than
+config.yml itself and the database client certificates.
+*/}}
+{{- define "registry.files.sources" -}}
+- secret:
+    name: {{ template "gitlab.registry.certificate.secret" . }}
+    items:
+      - key: registry-auth.crt
+        path: certificate.crt
+{{- if and .Values.storage.secret .Values.storage.extraKey }}
+- secret:
+    name: {{ .Values.storage.secret }}
+    items:
+      - key: {{ .Values.storage.extraKey }}
+        path: storage/{{ .Values.storage.extraKey }}
+        mode: {{ include "registry.keyFileMode" . }}
+{{- end }}
+{{- range $index, $v := .Values.middleware.storage }}
+{{-   if $v.options.privatekeySecret }}
+- secret:
+    name: {{ $v.options.privatekeySecret.secret }}
+    items:
+      - key: {{ $v.options.privatekeySecret.key }}
+        path: {{ printf "middleware.storage/%d/%s" $index $v.options.privatekeySecret.key }}
+        mode: {{ include "registry.keyFileMode" $ }}
+{{-   end }}
+{{- end }}
+{{- if .Values.profiling.stackdriver.credentials.secret }}
+- secret:
+    name: {{ .Values.profiling.stackdriver.credentials.secret }}
+    items:
+      - key: {{ template "gitlab.registry.profiling.stackdriver.credentials.key" . }}
+        path: profiling-key.json
+        mode: {{ include "registry.keyFileMode" . }}
+{{- end }}
+{{- if .Values.tls.enabled }}
+- secret:
+    name: {{ include "gitlab.registry.tls.secret" . }}
+    items:
+      - key: tls.crt
+        path: tls/tls.crt
+        mode: {{ include "registry.keyFileMode" . }}
+      - key: tls.key
+        path: tls/tls.key
+        mode: {{ include "registry.keyFileMode" . }}
+{{- end }}
+{{- if and .Values.debug.tls.enabled .Values.debug.tls.secretName }}
+- secret:
+    name: {{ .Values.debug.tls.secretName }}
+    items:
+      - key: tls.crt
+        path: tls/tls-debug.crt
+        mode: {{ include "registry.keyFileMode" . }}
+      - key: tls.key
+        path: tls/tls-debug.key
+        mode: {{ include "registry.keyFileMode" . }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Command of the configure init container when no custom `init.script` is set.
+*/}}
+{{- define "registry.configure.command" -}}
+["gomplate", "--left-delim", "{%", "--right-delim", "%}", "--file", "/templates/config.yml.tpl", "--out", "/registry/config.yml"]
+{{- end -}}
+
+{{/*
+Volume mounts that place the rendered config.yml and the files it references
+under /etc/docker/registry.
+
+With a custom `init.script`, the script copies everything into the
+registry-server-config volume. Otherwise each file is mounted on its own,
+because a volume cannot be mounted inside a read-only one. Set `database` to
+mount only what the database configuration needs.
+
+Usage:
+{{ include "registry.server.volumeMounts" (dict "context" $ "database" false) }}
+*/}}
+{{- define "registry.server.volumeMounts" -}}
+{{- $values := .context.Values -}}
+{{- if $values.init.script -}}
+- name: registry-server-config
+  mountPath: /etc/docker/registry/
+  readOnly: true
+{{- else -}}
+- name: registry-server-config
+  mountPath: /etc/docker/registry/config.yml
+  subPath: config.yml
+  readOnly: true
+{{- if not .database }}
+- name: registry-files
+  mountPath: /etc/docker/registry/certificate.crt
+  subPath: certificate.crt
+  readOnly: true
+{{-   if and $values.storage.secret $values.storage.extraKey }}
+- name: registry-files
+  mountPath: /etc/docker/registry/storage
+  subPath: storage
+  readOnly: true
+{{-   end }}
+{{-   if include "registry.middleware.privatekeys" .context }}
+- name: registry-files
+  mountPath: /etc/docker/registry/middleware.storage
+  subPath: middleware.storage
+  readOnly: true
+{{-   end }}
+{{-   if $values.profiling.stackdriver.credentials.secret }}
+- name: registry-files
+  mountPath: /etc/docker/registry/profiling-key.json
+  subPath: profiling-key.json
+  readOnly: true
+{{-   end }}
+{{-   if or $values.tls.enabled (and $values.debug.tls.enabled $values.debug.tls.secretName) }}
+- name: registry-files
+  mountPath: /etc/docker/registry/tls
+  subPath: tls
+  readOnly: true
+{{-   end }}
+{{- end }}
+{{- if include "registry.database.ssl.enabled" .context }}
+- name: registry-files
+  mountPath: /etc/docker/registry/ssl
+  subPath: ssl
+  readOnly: true
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
+Returns "true" when any `middleware.storage` entry mounts a private key.
+*/}}
+{{- define "registry.middleware.privatekeys" -}}
+{{- range .Values.middleware.storage -}}
+{{-   if .options.privatekeySecret -}}
+true
+{{-   end -}}
+{{- end -}}
 {{- end -}}

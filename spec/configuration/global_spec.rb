@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'helm_template_helper'
 require 'yaml'
 require 'hash_deep_merge'
+require 'runtime_template_helper'
 
 describe 'global configuration' do
   let(:default_values) do
@@ -239,7 +240,7 @@ describe 'global configuration' do
       expect(gitlab_config).to include('notification_secret')
 
       config = t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')
-      config_yaml = YAML.safe_load(config, permitted_classes: [Symbol])
+      config_yaml = RuntimeTemplate.registry_config(config)
 
       # With geo enabled && syncing of the registry enabled, we insert this notifier
       expect(config_yaml['notifications']['endpoints'].count { |item| item['name'] == 'geo_event' }).to eq(1)
@@ -288,7 +289,7 @@ describe 'global configuration' do
 
       # The below is ugly, both code wise, as well as informing the user testing WHAT is wrong...
       config = t.dig('ConfigMap/test-registry', 'data', 'config.yml.tpl')
-      config_yaml = YAML.safe_load(config, permitted_classes: [Symbol])
+      config_yaml = RuntimeTemplate.registry_config(config)
 
       # Testing that we don't accidentally blow away a customization
       expect(config_yaml['notifications']['endpoints'].count { |item| item['name'] == 'FooListener' }).to eq(1)

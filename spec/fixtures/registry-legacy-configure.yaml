@@ -1,0 +1,177 @@
+# The registry configure init containers, their registry-secrets volumes, and
+# the ConfigMap templates, as the chart rendered them before the configure
+# container used gomplate (origin/master 53e3d35bd), for the values in
+# registry_configure_spec.rb with a custom init.script. Container images are
+# left out. A custom init.script must keep rendering these unchanged.
+deploy_configure:
+  name: configure
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    runAsNonRoot: true
+    runAsUser: 1000
+  args:
+  - sh
+  - /config/configure
+  volumeMounts:
+  - name: registry-secrets
+    mountPath: /config
+  - name: registry-server-config-templates
+    mountPath: /templates
+    readOnly: true
+  - name: registry-server-config
+    mountPath: /registry
+  resources:
+    requests:
+      cpu: 50m
+  env:
+  - name: CONFIG_TEMPLATE_DIRECTORY
+    value: /templates
+  - name: CONFIG_DIRECTORY
+    value: /registry
+  - name: TZ
+    value: UTC
+job_configure:
+  name: configure
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    runAsNonRoot: true
+    runAsUser: 1000
+  args:
+  - sh
+  - /config/configure
+  volumeMounts:
+  - name: registry-secrets
+    mountPath: /config
+  - name: registry-server-config-templates
+    mountPath: /templates
+    readOnly: true
+  - name: registry-server-config
+    mountPath: /registry
+  resources:
+    requests:
+      cpu: 50m
+  env:
+  - name: CONFIG_TEMPLATE_DIRECTORY
+    value: /templates
+  - name: CONFIG_DIRECTORY
+    value: /registry
+deploy_secrets:
+  name: registry-secrets
+  projected:
+    sources:
+    - configMap:
+        name: test-registry
+    - secret:
+        name: test-registry-secret
+        items:
+        - key: registry-auth.crt
+          path: certificate.crt
+    - secret:
+        name: test-registry-httpsecret
+        items:
+        - key: secret
+          path: httpSecret
+    - secret:
+        name: registry-storage-secret
+        items:
+        - key: config
+          path: storage/config
+        - key: gcs.json
+          path: storage/gcs.json
+    - secret:
+        name: cloudfront-key
+        items:
+        - key: private.pem
+          path: middleware.storage/0/private.pem
+    - secret:
+        name: profiling-key
+        items:
+        - key: credentials
+          path: profiling-key.json
+    - secret:
+        name: registry-authorization-header
+        items:
+        - key: header
+          path: notifications/SECRET_registry-authorization-header_header
+    - secret:
+        name: test-registry-database-password
+        items:
+        - key: password
+          path: database_password
+    - secret:
+        name: registry-db-ssl
+        items:
+        - key: server-ca.crt
+          path: ssl/client-certificate.pem
+        - key: client.key
+          path: ssl/client-key.pem
+        - key: server-ca.crt
+          path: ssl/server-ca.pem
+    - secret:
+        name: test-registry-tls
+        items:
+        - key: tls.crt
+          path: tls/tls.crt
+        - key: tls.key
+          path: tls/tls.key
+    - secret:
+        name: test-redis-secret
+        items:
+        - key: secret
+          path: registry/redis-password
+    - secret:
+        name: test-redis-secret
+        items:
+        - key: secret
+          path: registry/redis-rateLimiting-password
+    - secret:
+        name: test-redis-secret
+        items:
+        - key: secret
+          path: registry/redis-loadBalancing-password
+job_secrets:
+  name: registry-secrets
+  projected:
+    sources:
+    - configMap:
+        name: test-registry
+        items:
+        - key: configure
+          path: configure
+    - secret:
+        name: test-registry-database-password
+        items:
+        - key: password
+          path: database_password
+    - secret:
+        name: registry-db-ssl
+        items:
+        - key: server-ca.crt
+          path: ssl/client-certificate.pem
+        - key: client.key
+          path: ssl/client-key.pem
+        - key: server-ca.crt
+          path: ssl/server-ca.pem
+config.yml.tpl: "version: 0.1\nlog:\n  fields:\n    service: registry\n  level: info\nhttp:\n  addr: :5000\n  # `host` is not configurable\n  # `prefix` is not configurable\n  tls:\n    certificate: /etc/docker/registry/tls/tls.crt\n    key: /etc/docker/registry/tls/tls.key\n    minimumTLS: \"tls1.2\"\n  debug:\n    addr: :5001\n    prometheus:\n      enabled: false\n      path: /metrics\n  draintimeout: 0\n  headers:\n    X-Content-Type-Options: [nosniff]\n  secret: \"HTTP_SECRET\"\n  relativeurls: false\nhealth:\n  storagedriver:\n    enabled: false\n    interval: 10s\n    threshold: 3\nauth:\n  token:\n    realm: https://gitlab.example.com/jwt/auth\n    service: container_registry\n    issuer: gitlab-issuer\n    # This is provided from the initContainer execution, at a known path.\n    rootcertbundle: /etc/docker/registry/certificate.crt\n    autoredirect: false\nvalidation:\n  disabled: true\n  manifests:\n    referencelimit: 0\n    payloadsizelimit: 0\n    urls:\n      allow:\n    \
+  \  deny:\n\nnotifications:\n  endpoints:\n    - name: listener\n      url: https://listener.example.com\n      headers:\n        Authorization: SECRET_registry-authorization-header_header\n        X-Plain: [plain]\nreporting:\nprofiling:\n  stackdriver:\n    enabled: true\n    service: \"test-registry\"\n    serviceversion: v4.43.0-gitlab\n    keyfile: /etc/docker/registry/profiling-key.json\nstorage:\n  maintenance:\n    readonly:\n      enabled: false\n    uploadpurging:\n      enabled: true\n      age: 168h\n      interval: 24h\n      dryrun: false\nmiddleware:\n  storage:\n  \n  - name: cloudfront\n    options: \n      baseurl: https://cdn.example.com\n      privatekey: /etc/docker/registry/middleware.storage/0/private.pem\n      \n  \ndatabase:\n  enabled: true\n  host: \"psql.example.com\"\n  port: 5432\n  user: registry\n  password: \"DB_PASSWORD_FILE\"\n  dbname: registry\n  sslmode: disable\ngc:\n  disabled: false\nredis:\n  cache:\n    enabled: true\n    addr: \"redis.example.com:6379\"\
+  \n    password: \"REDIS_CACHE_PASSWORD\"\n  ratelimiter:\n    enabled: true\n    addr: \"redis.example.com:6379\"\n    password: \"REDIS_RATE_LIMITING_PASSWORD\"\n  loadbalancing:\n    enabled: true\n    addr: \"redis.example.com:6379\"\n    password: \"REDIS_LOAD_BALANCING_PASSWORD\"\nrate_limiter:\n  enabled: false\n"
+migrations-config.yml.tpl: |
+  version: 0.1
+  log:
+    fields:
+      service: registry
+    level: info
+  database:
+    enabled: true
+    host: "psql.example.com"
+    port: 5432
+    user: registry
+    password: "DB_PASSWORD_FILE"
+    dbname: registry
+    sslmode: disable
