@@ -182,19 +182,21 @@ describe 'shared-secrets provisioning' do
       expect(job).not_to be_nil, 'Expected a shared-secrets Job to be present'
 
       container = job.dig('spec', 'template', 'spec', 'containers').first
-      expect(container['image']).to start_with('registry.gitlab.com/gitlab-org/build/cng/secretgen:')
+      expect(container['image']).to start_with('registry.gitlab.com/gitlab-org/build/cng/kubectl:')
       expect(container['command']).to eq(['/usr/local/bin/secretgen', '--manifest', '/etc/secretgen/manifest.yaml'])
       expect(container['volumeMounts']).to eq([{ 'name' => 'scripts', 'mountPath' => '/etc/secretgen', 'readOnly' => true }])
       expect(job.dig('spec', 'template', 'spec', 'volumes'))
         .to eq([{ 'name' => 'scripts', 'configMap' => { 'name' => 'test-shared-secrets' } }])
     end
 
-    it 'takes the image from shared-secrets.secretgen.image' do
+    it 'takes the image from global.kubectl.image, with the tag suffix' do
       template = HelmTemplate.new(values.deep_merge(YAML.safe_load(%(
-        shared-secrets:
-          secretgen:
+        global:
+          image:
+            tagSuffix: -ubi
+          kubectl:
             image:
-              repository: registry.example.com/secretgen
+              repository: registry.example.com/kubectl
               tag: v1.2.3
               pullPolicy: Always
       ))))
@@ -202,7 +204,7 @@ describe 'shared-secrets provisioning' do
                           .find { |name, _| name.match?(%r{\AJob/test-shared-secrets-\h+\z}) }
                           .last.dig('spec', 'template', 'spec', 'containers').first
 
-      expect(container['image']).to start_with('registry.example.com/secretgen:v1.2.3')
+      expect(container['image']).to eq('registry.example.com/kubectl:v1.2.3-ubi')
       expect(container['imagePullPolicy']).to eq('Always')
     end
 

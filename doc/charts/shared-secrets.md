@@ -42,9 +42,6 @@ the `helm install` command using the `--set` flag:
 | `rbac.create`                | `true`                                                     | Create RBAC roles and bindings |
 | `resources`                  |                                                            | resource requests, limits |
 | `secretgen.enabled`          | `false`                                                    | [See Below](#run-the-job-without-a-shell) |
-| `secretgen.image.pullPolicy` |                                                            | secretgen image pull policy |
-| `secretgen.image.repository` | `registry.gitlab.com/gitlab-org/build/cng/secretgen`       | secretgen image repository |
-| `secretgen.image.tag`        |                                                            | secretgen image tag |
 | `securityContext.fsGroup`    | `65534`                                                    | User ID to mount filesystems as |
 | `securityContext.runAsUser`  | `65534`                                                    | User ID to run the container as |
 | `selfsign.caSubject`         | `GitLab Helm Chart`                                        | selfsign CA Subject |
@@ -99,14 +96,14 @@ chart uses. The job still generates that Secret, as described in
 ### Run the job without a shell
 
 > [!warning]
-> This option is under development, and the image it needs is not published yet. Do not set
-> `secretgen.enabled`.
+> This option is under development, and the kubectl image does not carry the command yet. Do not
+> set `secretgen.enabled`.
 
 With `secretgen.enabled: true` and `provider: job`, the job runs the `secretgen` command of the
-[GitLab Operator](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator) instead of its
-shell script. The command reads the `GitLabSecrets` document that `provider: controller` renders,
-from the job's ConfigMap. It also issues the self-signed certificates, so the selfsign job does
-not run.
+[GitLab Operator](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator) from the kubectl
+image, `global.kubectl.image`, instead of its shell script. The command reads the `GitLabSecrets`
+document that `provider: controller` renders, from the job's ConfigMap. It also issues the
+self-signed certificates, so the selfsign job does not run.
 
 The command fills in missing secrets and keys as the shell script does, except that it:
 
