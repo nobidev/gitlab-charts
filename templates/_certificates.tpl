@@ -9,6 +9,7 @@
 - name: certificates
   image: {{ include "gitlab.certificates.image" . }}
   {{- include "gitlab.image.pullPolicy" $imageCfg | indent 2 }}
+  command: ["/scripts/bundle-certificates"]
   {{- include "gitlab.init.containerSecurityContext" . | indent 2 }}
   env:
   {{- include "gitlab.timeZone.env" . | nindent 2 }}
@@ -72,6 +73,9 @@
     {{- if not (or $.Values.global.ingress.configureCertmanager $.Values.global.ingress.tls) }}
     - secret:
         name: {{ template "gitlab.wildcard-self-signed-cert-name" $ }}-ca
+        items:
+          - key: cfssl_ca
+            path: cfssl_ca.crt
     {{- end }}
     {{- if $internalGitalyTLSEnabled }}
     {{-   if $.Values.global.praefect.enabled }}

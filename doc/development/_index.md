@@ -37,6 +37,11 @@ Secret generation can also be delegated to a controller. See the
 [GitLabSecrets controller contract](secrets_controller.md) for the resource the chart
 renders in that mode.
 
+## Certificates image
+
+The `certificates` init container runs a script from the certificates image to build each Pod's CA
+trust store. See the [certificates image contract](certificates_image.md) for what the image must provide.
+
 ## Writing and running tests
 
 We run several different types of tests to validate the charts work as intended.
