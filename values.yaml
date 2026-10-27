@@ -1522,6 +1522,16 @@ shared-secrets:
   ##                controller generate the values. Requires the GitLab Operator.
   ## `enabled: false` disables provisioning entirely, regardless of this setting.
   provider: job
+  ## Run the secretgen binary of the GitLab Operator on the GitLabSecrets document instead
+  ## of the generation script. It also issues the self-signed certificates, so the selfsign
+  ## Job does not run. Applies to `provider: job` only.
+  secretgen:
+    enabled: false
+    image:
+      repository: registry.gitlab.com/gitlab-org/build/cng/secretgen
+      # pullPolicy: IfNotPresent
+      # Default tag is `master`, overridable by `global.gitlabVersion`.
+      # tag: master
   rbac:
     create: true
   selfsign:

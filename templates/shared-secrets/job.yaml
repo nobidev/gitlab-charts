@@ -1,6 +1,7 @@
 {{- $sharedSecretValues := index .Values "shared-secrets" -}}
 {{- if eq (include "gitlab.shared-secrets.job.enabled" .) "true" }}
-{{-   $imageCfg := dict "global" .Values.global.image "local" .Values.global.kubectl.image -}}
+{{-   $secretgen := $sharedSecretValues.secretgen -}}
+{{-   $imageCfg := dict "global" .Values.global.image "local" (ternary $secretgen.image .Values.global.kubectl.image $secretgen.enabled) -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -48,24 +49,38 @@ spec:
       {{- include "gitlab.image.pullSecrets" $imageCfg | nindent 6 }}
       containers:
         - name: {{ .Chart.Name }}
+          {{- if $secretgen.enabled }}
+          image: {{ include "gitlab.helper.image" (dict "context" . "image" $secretgen.image) }}
+          {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
+          command: ['/usr/local/bin/secretgen', '--manifest', '/etc/secretgen/manifest.yaml']
+          {{- else }}
           image: {{ include "gitlab.kubectl.image" . }}
           {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
           command: ['/bin/bash', '/scripts/generate-secrets']
+          {{- end }}
           {{- if $sharedSecretValues.containerSecurityContext }}
           securityContext:
             {{- toYaml $sharedSecretValues.containerSecurityContext | nindent 12 }}
           {{- end }}
           volumeMounts:
+            {{- if $secretgen.enabled }}
+            - name: scripts
+              mountPath: /etc/secretgen
+              readOnly: true
+            {{- else }}
             - name: scripts
               mountPath: /scripts
             - name: ssh
               mountPath: /etc/ssh
+            {{- end }}
           resources:
             {{- toYaml $sharedSecretValues.resources | nindent 12 }}
       volumes:
       - name: scripts
         configMap:
           name: {{ template "shared-secrets.fullname" . }}
+      {{- if not $secretgen.enabled }}
       - name: ssh
         emptyDir: {}
+      {{- end }}
 {{- end }}

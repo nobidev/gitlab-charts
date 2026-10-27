@@ -12,6 +12,11 @@ metadata:
     "helm.sh/hook-weight": "-3"
     "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
 data:
+{{- if (index .Values "shared-secrets" "secretgen" "enabled") }}
+  manifest.yaml: |
+    {{- include "gitlab.secrets.document" . | nindent 4 }}
+{{- else }}
   generate-secrets: |
     {{- include (print $.Template.BasePath "/shared-secrets/_generate_secrets.sh.tpl") . | nindent 4 }}
+{{- end }}
 {{- end -}}

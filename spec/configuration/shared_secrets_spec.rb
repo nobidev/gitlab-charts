@@ -46,6 +46,14 @@ describe 'shared-secrets provisioning' do
     )))
   end
 
+  def with_secretgen(values)
+    values.deep_merge(YAML.safe_load(%(
+      shared-secrets:
+        secretgen:
+          enabled: true
+    )))
+  end
+
   # The set of (secret name, key name) pairs the job backend would create, parsed back
   # out of the rendered shell.
   def job_backend_pairs(script)
@@ -145,6 +153,75 @@ describe 'shared-secrets provisioning' do
         expect(script).to include(%(#{field}:\n$(echo "${#{field}}" | awk '{print "        " $0}')))
         expect(script).not_to include(%(#{field}:\n        $#{field}\n))
       end
+    end
+  end
+
+  describe 'provider: job with secretgen' do
+    let(:values) { with_secretgen(default_values) }
+    let(:template) { HelmTemplate.new(values) }
+    let(:job) { template.resources_by_kind('Job').find { |name, _| name.match?(%r{\AJob/test-shared-secrets-\h+\z}) }&.last }
+    let(:document) { YAML.safe_load(template.dig('ConfigMap/test-shared-secrets', 'data', 'manifest.yaml')) }
+
+    # The binary reads the document the controller backend applies, so the two backends
+    # cannot drift: there is one projection of the manifest, not two.
+    { 'the defaults' => :default_values, 'every conditional entry' => :all_features }.each do |name, base|
+      it "mounts the GitLabSecrets document of provider: controller instead of the script, with #{name}" do
+        job_template = HelmTemplate.new(with_secretgen(send(base)))
+        expect(job_template.exit_code).to eq(0), "Unexpected error code #{job_template.exit_code} -- #{job_template.stderr}"
+
+        controller = HelmTemplate.new(as_controller(send(base)))
+        expect(controller.exit_code).to eq(0), "Unexpected error code #{controller.exit_code} -- #{controller.stderr}"
+
+        data = job_template.dig('ConfigMap/test-shared-secrets', 'data')
+        expect(data.keys).to eq(['manifest.yaml'])
+        expect(YAML.safe_load(data['manifest.yaml'])).to eq(controller.resources_by_kind('GitLabSecrets').values.first)
+      end
+    end
+
+    it 'runs the secretgen binary on the mounted document, with no shell' do
+      expect(job).not_to be_nil, 'Expected a shared-secrets Job to be present'
+
+      container = job.dig('spec', 'template', 'spec', 'containers').first
+      expect(container['image']).to start_with('registry.gitlab.com/gitlab-org/build/cng/secretgen:')
+      expect(container['command']).to eq(['/usr/local/bin/secretgen', '--manifest', '/etc/secretgen/manifest.yaml'])
+      expect(container['volumeMounts']).to eq([{ 'name' => 'scripts', 'mountPath' => '/etc/secretgen', 'readOnly' => true }])
+      expect(job.dig('spec', 'template', 'spec', 'volumes'))
+        .to eq([{ 'name' => 'scripts', 'configMap' => { 'name' => 'test-shared-secrets' } }])
+    end
+
+    it 'takes the image from shared-secrets.secretgen.image' do
+      template = HelmTemplate.new(values.deep_merge(YAML.safe_load(%(
+        shared-secrets:
+          secretgen:
+            image:
+              repository: registry.example.com/secretgen
+              tag: v1.2.3
+              pullPolicy: Always
+      ))))
+      container = template.resources_by_kind('Job')
+                          .find { |name, _| name.match?(%r{\AJob/test-shared-secrets-\h+\z}) }
+                          .last.dig('spec', 'template', 'spec', 'containers').first
+
+      expect(container['image']).to start_with('registry.example.com/secretgen:v1.2.3')
+      expect(container['imagePullPolicy']).to eq('Always')
+    end
+
+    it 'issues the self-signed certificates itself, so no selfsign Job renders' do
+      expect(template.resources('shared-secrets').grep(/selfsign/)).to be_empty
+      expect(document.dig('spec', 'certificates', 0, 'tlsSecret')).to eq('test-wildcard-tls')
+    end
+
+    it 'keeps the RBAC the binary writes with' do
+      expect(template.dig('Role/test-shared-secrets', 'rules'))
+        .to eq([{ 'apiGroups' => [''], 'resources' => ['secrets'], 'verbs' => %w[get list create patch] }])
+    end
+
+    it 'changes nothing under provider: controller' do
+      controller = HelmTemplate.new(as_controller(values))
+
+      expect(controller.resource_exists?('ConfigMap/test-shared-secrets')).to be false
+      expect(controller.resources('shared-secrets').grep(/^Job/)).to be_empty
+      expect(controller.resources_by_kind('GitLabSecrets').length).to eq(1)
     end
   end
 

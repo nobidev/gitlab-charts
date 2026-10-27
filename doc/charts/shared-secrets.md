@@ -41,6 +41,10 @@ the `helm install` command using the `--set` flag:
 | `priorityClassName`          |                                                            | [Priority class](https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/) assigned to pods |
 | `rbac.create`                | `true`                                                     | Create RBAC roles and bindings |
 | `resources`                  |                                                            | resource requests, limits |
+| `secretgen.enabled`          | `false`                                                    | [See Below](#run-the-job-without-a-shell) |
+| `secretgen.image.pullPolicy` |                                                            | secretgen image pull policy |
+| `secretgen.image.repository` | `registry.gitlab.com/gitlab-org/build/cng/secretgen`       | secretgen image repository |
+| `secretgen.image.tag`        |                                                            | secretgen image tag |
 | `securityContext.fsGroup`    | `65534`                                                    | User ID to mount filesystems as |
 | `securityContext.runAsUser`  | `65534`                                                    | User ID to run the container as |
 | `selfsign.caSubject`         | `GitLab Helm Chart`                                        | selfsign CA Subject |
@@ -91,6 +95,25 @@ chart uses. The job still generates that Secret, as described in
 > [!note]
 > Generated secrets are not owned by the Helm release, so `helm uninstall` does not remove
 > them. For more information, see [uninstall](../installation/uninstall.md).
+
+### Run the job without a shell
+
+> [!warning]
+> This option is under development, and the image it needs is not published yet. Do not set
+> `secretgen.enabled`.
+
+With `secretgen.enabled: true` and `provider: job`, the job runs the `secretgen` command of the
+[GitLab Operator](https://gitlab.com/gitlab-org/cloud-native/gitlab-operator) instead of its
+shell script. The command reads the `GitLabSecrets` document that `provider: controller` renders,
+from the job's ConfigMap. It also issues the self-signed certificates, so the selfsign job does
+not run.
+
+The command fills in missing secrets and keys as the shell script does, except that it:
+
+- Adds a missing key to any Secret, including the Secrets the script builds from files.
+- Fails the job when a Secret holds part of a key pair or certificate set, or a `secrets.yml`
+  that does not parse.
+- Keeps undeclared fields and other environments in `secrets.yml`.
 
 ## How the job treats existing secrets
 
