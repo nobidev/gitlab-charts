@@ -236,6 +236,39 @@ lint_chart:
     - if: '$PIPELINE_TYPE == "AUTO_DEPLOY_PIPELINE"'
     - if: '$PIPELINE_TYPE == "RELEASE_PIPELINE"'
 
+# Render the chart and fail if any CNG image it would deploy is missing from the
+# registry, so a component bump cannot merge ahead of the image being published.
+# See https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6733
+verify_component_image_tags:
+  extends: .chart_deps_cache
+  stage: test
+  before_script:
+    - apt-get update -qq && apt-get install -y skopeo
+  script:
+    - bash ./scripts/ci/ensure_chart_deps.sh
+    - echo "$HELM_DEFAULT_SETTINGS" | tee ./template_settings.yaml
+    - helm template . -f ./template_settings.yaml -f ./scripts/ci/values/verify-images.yaml > rendered.yaml
+    - ruby ./scripts/ci/verify_component_image_tags.rb rendered.yaml
+  rules:
+    # Run on MR and default-branch pipelines when anything that can change a
+    # rendered image tag is touched. Release pipelines are excluded: chart
+    # release pipelines run before the CNG images are synced to GitLab.com.
+    - if: '$PIPELINE_TYPE =~ /MR_PIPELINE$/'
+      changes: &image_tag_paths
+        - Chart.yaml
+        - Chart.lock
+        - charts/**/Chart.yaml
+        - values.yaml
+        - charts/**/values.yaml
+        # Image refs are computed in templates, so template edits can change the
+        # rendered tags the job checks.
+        - templates/**/*
+        - charts/**/templates/**/*
+        - scripts/ci/verify_component_image_tags.rb
+        - scripts/ci/values/verify-images.yaml
+    - if: '$PIPELINE_TYPE =~ /DEFAULT_BRANCH_PIPELINE$/'
+      changes: *image_tag_paths
+
 rspec_without_cluster:
   extends: .specs
   variables:
