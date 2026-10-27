@@ -1,7 +1,14 @@
 .kubeconform:
-  extends: .chart_deps_cache
   stage: test
   when: always
+  # Downloaded schemas are cached per Kubernetes version so each run does not
+  # re-fetch them from the schema location, which is rate-limited.
+  cache:
+    - !reference [.chart_deps_cache, cache]
+    - key: "kubeconform-schemas-${KUBE_VERSION}"
+      paths:
+        - .kubeconform-cache/
+      when: always
   script:
     - kubectl version --client=true --output=json
     - helm version --template='{{.Version}}'
@@ -11,6 +18,7 @@
     - echo "${KUBECONFORM_SCHEMA_LOCATION:-default}"
     - >
       helm kubeconform --strict --summary
+      --cache --cache-dir .kubeconform-cache
       -f ./template_settings.yaml
       --kubernetes-version $KUBE_VERSION
       --schema-location "${KUBECONFORM_SCHEMA_LOCATION:-default}"
