@@ -13,6 +13,7 @@ spec/examples.txt
 Chart.*.yaml
 scripts/debug/chart-info
 .idea
+.rumdl_cache
 # Agents: local state and worktrees, which Git must not track.
 .claude/settings.local.json
 .claude/worktrees/
