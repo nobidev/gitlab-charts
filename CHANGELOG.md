@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.4.4 (2026-10-27)
+
+### Changed (1 change)
+
+- [Update helm chart cert-manager to v1.21.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/353004fcf16944d44a817fa882412f1edf1fecab) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5518))
+
 ## 10.4.3 (2026-10-20)
 
 No changes.
