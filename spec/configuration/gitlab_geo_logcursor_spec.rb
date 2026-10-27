@@ -28,28 +28,49 @@ describe 'geo-logcursor configuration' do
     ))
   end
 
-  context 'security context defaults' do
-    let(:template) { HelmTemplate.new(default_values) }
+  context 'security context' do
     let(:pod_spec) { template.dig('Deployment/test-geo-logcursor', 'spec', 'template', 'spec') }
     let(:restricted_container_context) do
       {
-        'runAsUser' => 1000,
         'allowPrivilegeEscalation' => false,
         'runAsNonRoot' => true,
         'capabilities' => { 'drop' => ['ALL'] }
       }
     end
 
-    it 'sets the RuntimeDefault seccomp profile on the pod' do
-      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-      expect(pod_spec.dig('securityContext', 'seccompProfile')).to eq({ 'type' => 'RuntimeDefault' })
+    context 'with default values' do
+      let(:template) { HelmTemplate.new(default_values) }
+
+      it 'renders a restricted pod and container security context' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        expect(pod_spec['securityContext']).to include('runAsUser' => 1000, 'seccompProfile' => { 'type' => 'RuntimeDefault' })
+
+        pod_spec['initContainers'].each do |container|
+          expect(container['securityContext']).to eq(restricted_container_context), "container #{container['name']}"
+        end
+        pod_spec['containers'].each do |container|
+          expect(container['securityContext']).to eq(restricted_container_context.merge('runAsUser' => 1000)), "container #{container['name']}"
+        end
+      end
     end
 
-    it 'sets a restricted security context on all containers' do
-      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-      containers = pod_spec['initContainers'] + pod_spec['containers']
-      containers.each do |container|
-        expect(container['securityContext']).to eq(restricted_container_context), "container #{container['name']}"
+    context 'with a custom pod runAsUser' do
+      let(:template) do
+        HelmTemplate.new(default_values.deep_merge(YAML.safe_load(%(
+          gitlab:
+            geo-logcursor:
+              securityContext:
+                runAsUser: 2000
+        ))))
+      end
+
+      it 'lets the init containers inherit the pod user' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        expect(pod_spec.dig('securityContext', 'runAsUser')).to eq(2000)
+
+        pod_spec['initContainers'].each do |container|
+          expect(container['securityContext']).not_to have_key('runAsUser'), "container #{container['name']}"
+        end
       end
     end
   end

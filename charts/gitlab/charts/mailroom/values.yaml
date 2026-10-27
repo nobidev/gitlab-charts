@@ -15,7 +15,6 @@ init:
     requests:
       cpu: 50m
   containerSecurityContext:
-    runAsUser: 1000
     allowPrivilegeEscalation: false
     runAsNonRoot: true
     capabilities:

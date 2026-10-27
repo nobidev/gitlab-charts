@@ -109,7 +109,6 @@ serviceAccount:
 | `init.image.tag`                              |                                                            | Mailroom init image tag |
 | `init.resources`                              | `{ requests: { cpu: 50m }}`                                | Mailroom init container resource requirements |
 | `init.containerSecurityContext`               |                                                            | initContainer container specific [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) |
-| `init.containerSecurityContext.runAsUser`     | `1000`                                                     | initContainer specific: User ID under which the container should be started |
 | `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                                    | initContainer specific: Controls whether a process can gain more privileges than its parent process |
 | `init.containerSecurityContext.runAsNonRoot`  | `true`                                                     | initContainer specific: Controls whether the container runs with a non-root user |
 | `init.containerSecurityContext.capabilities.drop` | `[ "ALL" ]`                                                | initContainer specific: Removes [Linux capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html) for the container |
