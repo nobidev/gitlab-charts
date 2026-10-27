@@ -52,6 +52,12 @@ No changes.
 - [Reuse the global Topology Service TLS guard](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ace1cf6c49e30cf188710c2fb97fb76e90b52b88) by @vivekyarra567 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5458))
 - [Document GitLab Shell HPA scaling guidance for traffic spikes](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/85a8478ee39b32b7bd399347a99426531e469eec) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5426))
 
+## 10.4.4 (2026-10-27)
+
+### Changed (1 change)
+
+- [Update helm chart cert-manager to v1.21.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/353004fcf16944d44a817fa882412f1edf1fecab) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5518))
+
 ## 10.4.3 (2026-10-20)
 
 No changes.
