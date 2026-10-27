@@ -2,6 +2,14 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.5.2 (2026-10-27)
+
+### Changed (3 changes)
+
+- [Update helm chart cert-manager to v1.21.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b7f613caf14540eb529057ca3da207669327b37d) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5517))
+- [Update helm chart gitlab-runner to v0.94.1](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/81c6abb749724f4cc29ce7a98bf5fe87ea9dc662) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5509))
+- [Update helm chart gitlab-runner to v0.94.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/3a50ba3821dbb7d5823a618d05e50e3707f0002a) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5491))
+
 ## 10.5.1 (2026-10-20)
 
 No changes.
