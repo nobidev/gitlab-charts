@@ -305,22 +305,30 @@ To avoid this issue you can [disable data integrity protection](backup.md#data-i
 
 ### Error: unrecognized configuration parameter "transaction_timeout"
 
-The GitLab chart deploys a toolbox for tasks like backup and restore,
-which currently ships with PostgreSQL 17 client libraries.
+The GitLab chart deploys a Toolbox for tasks like backup and restore.
+The Toolbox ships with the PostgreSQL client tools for the newest
+PostgreSQL major version that your GitLab version
+[supports](https://docs.gitlab.com/install/requirements/#postgresql).
+To check which version your Toolbox uses, run:
 
-The client libraries are backwards compatible, so if you're running
-PostgreSQL 16, backups and restores will still work, but you may
-see this error:
+```shell
+kubectl exec <toolbox-pod-name> -it -- pg_dump --version
+```
+
+The client tools are backwards compatible, so if your PostgreSQL server
+runs an older supported major version, backups and restores still work.
+However, you might see errors about configuration parameters that
+your server version does not recognize, for example:
 
 ```plaintext
 ERROR:  unrecognized configuration parameter "transaction_timeout"
 ```
 
-This happens because pg_dump is backwards compatible but doesn't
-guarantee restores will work seamlessly across different server
+This happens because `pg_dump` is backwards compatible but doesn't
+guarantee that restores work seamlessly across different server
 versions.
 
 For more details, see the [`pg_dump` documentation](https://www.postgresql.org/docs/current/app-pgdump.html).
 
-The backup tool will ask if you want to ignore this error, which is
+The backup tool asks if you want to ignore this error, which is
 safe to do in this case.
