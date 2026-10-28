@@ -1,8 +1,8 @@
 ---
 apiVersion: v2
 name: praefect
-version: 10.1.9
-appVersion: 19.1.9
+version: 10.1.10
+appVersion: 19.1.10
 description: Praefect is a router and transaction manager for Gitaly, and a required
   component for running a Gitaly Cluster.
 keywords:
