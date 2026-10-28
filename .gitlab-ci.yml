@@ -62,7 +62,7 @@ variables:
   GITLAB_NAMESPACE: "gitlab-org"
   GITLAB_QA_VERSION: "15.9.0"
   # Valkey deployed to CI review envionments
-  VALKEY_CHART_VERSION: "0.12.0"
+  VALKEY_CHART_VERSION: "0.12.1"
   GARAGE_APP_VERSION: "2.4.1"
   # Externally managed Traefik Ingress controller deployed to the k3d_traefik environment
   TRAEFIK_CHART_VERSION: "41.6.1"

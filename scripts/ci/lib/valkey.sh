@@ -22,6 +22,8 @@ function deploy_external_valkey() {
     --set dataStorage.enabled=true \
     --set dataStorage.requestedSize=100Mi \
     --set dataStorage.keepPvc=false \
+    --set deploymentStrategy=Recreate \
+    --set valkeyConfig="appendonly yes" \
     --set metrics.enabled=true \
     --set auth.enabled=true \
     --set auth.aclUsers.default.permissions="~* &* +@all" \
