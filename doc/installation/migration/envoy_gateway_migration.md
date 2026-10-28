@@ -359,9 +359,31 @@ responses after the migration. The Envoy access log records these requests with
 configured with a trailing dot in the `url` setting to avoid DNS search domain
 lookups. Affected runners fail to verify or register with `status=404`.
 
-The chart enables the `stripTrailingHostDot` setting on the Webservice listeners
-by default, which restores the NGINX behavior. This setting requires the bundled
-Envoy Gateway 1.9 or later.
+The chart enables the `stripTrailingHostDot` setting by default, which restores the
+NGINX behavior. This setting requires the bundled Envoy Gateway 1.9 or later.
+The listeners it covers depend on the chart version:
+
+- GitLab chart 10.6 and later set it on every listener of the chart-managed Gateway.
+  The gateway-wide `ClientTrafficPolicy` (`gatewayApiResources.envoy.clientTrafficPolicySpec`)
+  covers most listeners, and the section-scoped policies of the Webservice and KAS charts
+  cover their own listeners.
+- GitLab chart 10.3 to 10.5 set it on the Webservice listeners only, and only when
+  HTTPS is enabled with `global.hosts.https`. Requests to other hosts, for example
+  `https://registry.example.com./`, still receive `404`. To cover them, set it on the
+  gateway-wide policy:
+
+  ```yaml
+  gatewayApiResources:
+    envoy:
+      clientTrafficPolicySpec:
+        headers:
+          host:
+            stripTrailingHostDot: true
+  ```
+
+  The section-scoped KAS policy takes precedence over the gateway-wide policy on the
+  `kas-web` listener. To cover KAS as well, also set
+  `gitlab.kas.clientTrafficPolicy.spec.headers.host.stripTrailingHostDot: true`.
 
 The setting also requires the `ClientTrafficPolicy` CRD from Envoy Gateway 1.9.
 The Envoy Gateway 1.8 CRD does not define this field, so the API server prunes

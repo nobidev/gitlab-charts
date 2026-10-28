@@ -1802,7 +1802,16 @@ gatewayApiResources:
                 gitlab.com/prometheus_scrape: "true"
                 gitlab.com/prometheus_port: "19001"
                 gitlab.com/prometheus_path: "/stats/prometheus"
-    clientTrafficPolicySpec: {}
+    ## Gateway-wide ClientTrafficPolicy. Applies to every listener that no
+    ## section-scoped policy covers, for example registry-web, pages-web and
+    ## all listeners in HTTP-only mode. Strips the trailing dot from the Host
+    ## header before route matching, as NGINX does: Gateway API hostnames
+    ## cannot contain a trailing dot, so clients sending an absolute FQDN
+    ## (`host.`) otherwise get a 404. Set `headers: null` to drop the default.
+    clientTrafficPolicySpec:
+      headers:
+        host:
+          stripTrailingHostDot: true
     securityPolicySpec: {}
     metrics:
       envoyGateway:
