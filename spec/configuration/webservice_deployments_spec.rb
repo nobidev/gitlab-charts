@@ -300,7 +300,9 @@ describe 'Webservice Deployments configuration' do
 
     it 'sets preStop hooks' do
       webservice = chart_deployments.find_container(item_key('Deployment', 'default'), 'webservice')
-      expect(webservice.dig('lifecycle', 'preStop', 'exec', 'command')).to eq(["/bin/bash", "-c", "pkill -SIGINT -o ruby"])
+      command = webservice.dig('lifecycle', 'preStop', 'exec', 'command')
+      expect(command.first(3)).to eq(["/usr/bin/env", "ruby", "-e"])
+      expect(command[3]).to include('Process.kill("INT"')
 
       workhorse = chart_deployments.find_container(item_key('Deployment', 'default'), 'gitlab-workhorse')
       expect(workhorse.dig('lifecycle', 'preStop', 'exec', 'command')).to eq(["/bin/bash", "-c", "sleep $SHUTDOWN_BLACKOUT_SECONDS"])

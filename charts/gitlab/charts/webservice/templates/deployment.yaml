@@ -357,7 +357,17 @@ spec:
           lifecycle:
             preStop:
               exec:
-                command: ["/bin/bash", "-c", "pkill -SIGINT -o ruby"]
+                command:
+                - /usr/bin/env
+                - ruby
+                - -e
+                - |
+                  pids = Dir["/proc/[0-9]*"].filter_map do |p|
+                    cmd = File.read("#{p}/cmdline") rescue next
+                    [File.stat(p).mtime, p[6..].to_i] if cmd.start_with?("puma ") && !cmd.include?("cluster worker")
+                  end
+                  oldest = pids.min
+                  Process.kill("INT", oldest[1]) if oldest
           resources:
             {{- toYaml .resources | nindent 12 }}
         - name: gitlab-workhorse
