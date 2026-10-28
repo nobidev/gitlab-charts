@@ -440,11 +440,8 @@ spec:
           {{ if not .workhorse.healthcheckListener.enabled }}
           lifecycle:
             preStop:
-              exec:
-                command:
-                - /bin/bash
-                - -c
-                - sleep $SHUTDOWN_BLACKOUT_SECONDS
+              sleep:
+                seconds: {{ .shutdown.blackoutSeconds }}
           {{- end }}
           livenessProbe:
             exec:

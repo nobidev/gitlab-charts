@@ -2816,6 +2816,12 @@ describe 'registry configuration' do
         expect(t.resource_exists?('Deployment/test-registry')).to be true
       end
 
+      it 'delays shutdown with a native sleep preStop hook' do
+        t = HelmTemplate.new(registry_values)
+        registry = t.find_container('Deployment/test-registry', 'registry')
+        expect(registry.dig('lifecycle', 'preStop')).to eq({ 'sleep' => { 'seconds' => 5 } })
+      end
+
       context 'when registry integration enabled globally' do
         let(:test_values) do
           YAML.safe_load(%(

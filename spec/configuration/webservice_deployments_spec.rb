@@ -305,7 +305,7 @@ describe 'Webservice Deployments configuration' do
       expect(command[3]).to include('Process.kill("INT"')
 
       workhorse = chart_deployments.find_container(item_key('Deployment', 'default'), 'gitlab-workhorse')
-      expect(workhorse.dig('lifecycle', 'preStop', 'exec', 'command')).to eq(["/bin/bash", "-c", "sleep $SHUTDOWN_BLACKOUT_SECONDS"])
+      expect(workhorse.dig('lifecycle', 'preStop')).to eq({ 'sleep' => { 'seconds' => 10 } })
     end
 
     context 'extraEnv configuration for deployments' do
