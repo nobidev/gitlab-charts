@@ -151,6 +151,18 @@ upstream changelog if your usage is impacted by the potentially breaking changes
 - https://cert-manager.io/docs/releases/upgrading/upgrading-1.18-1.19
 {{- end }}
 
+{{- /* The chart does not set its Envoy Proxy image when proxySpec sets imageRepository */}}
+{{- $envoyImageRepositoryWorkload := include "gitlab.gatewayApi.envoy.proxy.imageRepositoryWorkload" . }}
+{{- if $envoyImageRepositoryWorkload }}
+{{ $WARNING }}
+envoy-gateway:
+  `gatewayApiResources.envoy.proxySpec.provider.kubernetes.{{ $envoyImageRepositoryWorkload }}.container.imageRepository` is set,
+  so the chart does not set the Envoy Proxy image to `{{ include "gitlab.gatewayApi.envoy.proxy.image" . }}`.
+  Envoy Gateway uses its default tag with that repository, and its default Envoy Proxy image still trusts
+  the compromised eMudhra intermediate CAs. Set `container.image` to the patched tag in your registry instead.
+  See https://docs.gitlab.com/charts/advanced/gateway-api/#envoy-proxy-image
+{{- end }}
+
 {{- /* ===== INFORMATIONAL NOTIFICATIONS ===== */}}
 {{- /* Notifications endpoint threshold should use maxretries instead */ -}}
 {{- $usesThreshold := false }}
