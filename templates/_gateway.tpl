@@ -154,6 +154,7 @@ local:
     certificateRefs: List of certificate references
 root:
   protocol: Default protocol (HTTPS or HTTP)
+  port: Port for listeners that inherit the root protocol (optional)
   tls:
     secretName: Single Secret to serve from every TLS-terminating listener
 
@@ -174,6 +175,9 @@ needed to resolve `gitlab.shell.port`.
 {{- $port := 443 }}
 {{- if eq "HTTP" $protocol }}
 {{-   $port = 80 }}
+{{- end }}
+{{- if and (not .local.protocol) .root.port }}
+{{-   $port = .root.port | int }}
 {{- end }}
 {{- if eq "TCP" $protocol }}
 {{-   $port = (include "gitlab.shell.port" .context | int) }}
@@ -201,14 +205,67 @@ needed to resolve `gitlab.shell.port`.
 {{- end -}}
 
 {{/*
+Returns true if TLS is terminated by a load balancer in front of the Gateway. Only reads
+globals, so subcharts can use it.
+*/}}
+{{- define "gitlab.gatewayApi.externalTlsTermination" -}}
+{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.externalTlsTermination -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
+Renders the filters of a chart-managed HTTPRoute rule. With external TLS termination, Envoy
+receives plain HTTP and would send `X-Forwarded-Proto: http`, so the header is set to `https`.
+Gateway API allows one RequestHeaderModifier per rule, so the header is added to an existing
+one unless it already sets or adds X-Forwarded-Proto. Envoy Gateway ignores a `set` entry
+for a header that the same filter adds, so none is rendered in that case.
+
+Input: dict "filters" (list) "context" (root context)
+*/}}
+{{- define "gitlab.gatewayApi.routeFilters" -}}
+{{- $filters := deepCopy (.filters | default list) -}}
+{{- if eq "true" (include "gitlab.gatewayApi.externalTlsTermination" .context) -}}
+{{-   $header := dict "name" "X-Forwarded-Proto" "value" "https" -}}
+{{-   $modifierFound := false -}}
+{{-   range $filter := $filters -}}
+{{-     if eq $filter.type "RequestHeaderModifier" -}}
+{{-       $modifierFound = true -}}
+{{-       $modifier := $filter.requestHeaderModifier | default dict -}}
+{{-       $set := $modifier.set | default list -}}
+{{-       $headerSet := false -}}
+{{-       range concat $set ($modifier.add | default list) -}}
+{{-         if eq (lower .name) "x-forwarded-proto" -}}
+{{-           $headerSet = true -}}
+{{-         end -}}
+{{-       end -}}
+{{-       if not $headerSet -}}
+{{-         $_ := set $modifier "set" (append $set $header) -}}
+{{-       end -}}
+{{-       $_ := set $filter "requestHeaderModifier" $modifier -}}
+{{-     end -}}
+{{-   end -}}
+{{-   if not $modifierFound -}}
+{{-     $filters = prepend $filters (dict "type" "RequestHeaderModifier" "requestHeaderModifier" (dict "set" (list $header))) -}}
+{{-   end -}}
+{{- end -}}
+{{- if $filters -}}
+{{-   $filters | toYaml -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Returns true if the http-default listener should be included on the managed Gateway.
-Enabled when either configureCertmanager or httpToHttpsRedirect (with HTTPS protocol)
-is active, and the Gateway is managed (no external gatewayRef).
+Enabled when either configureCertmanager or httpToHttpsRedirect (with HTTPS protocol or
+external TLS termination) is active, and the Gateway is managed (no external gatewayRef).
 */}}
 {{- define "gitlab.gatewayApi.httpDefault.enabled" -}}
 {{- $managed := and .Values.global.gatewayApi.enabled (not .Values.global.gatewayApi.gatewayRef) -}}
 {{- $certmanager := eq "true" (include "gitlab.gatewayApi.configureCertmanager" .) -}}
-{{- $redirect := and .Values.global.gatewayApi.httpToHttpsRedirect (eq (upper .Values.gatewayApiResources.gateway.protocol) "HTTPS") -}}
+{{- $https := or (eq (upper .Values.gatewayApiResources.gateway.protocol) "HTTPS") (eq "true" (include "gitlab.gatewayApi.externalTlsTermination" .)) -}}
+{{- $redirect := and .Values.global.gatewayApi.httpToHttpsRedirect $https -}}
 {{- if and $managed (or $certmanager $redirect) -}}
 true
 {{- end -}}
@@ -217,11 +274,11 @@ true
 {{/*
 Returns true if the HTTP-to-HTTPS redirect HTTPRoute should be rendered.
 Enabled when gatewayApi is enabled, httpToHttpsRedirect is true, protocol
-is HTTPS, and the Gateway is managed (no external gatewayRef).
+is HTTPS or TLS is terminated externally, and the Gateway is managed (no external gatewayRef).
 */}}
 {{- define "gitlab.gatewayApi.httpRedirect.enabled" -}}
 {{- $enabled := and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.httpToHttpsRedirect -}}
-{{- $httpsProtocol := eq (upper .Values.gatewayApiResources.gateway.protocol) "HTTPS" -}}
+{{- $httpsProtocol := or (eq (upper .Values.gatewayApiResources.gateway.protocol) "HTTPS") (eq "true" (include "gitlab.gatewayApi.externalTlsTermination" .)) -}}
 {{- $managedGateway := not .Values.global.gatewayApi.gatewayRef -}}
 {{- if and $enabled $httpsProtocol $managedGateway -}}
 true
@@ -244,10 +301,11 @@ configured per Route by setting true/false explicitly.
 Checks if cert-manager should be wired into the Gateway API routing path. Requires both
 global.gatewayApi.enabled and global.gatewayApi.configureCertmanager: the Issuer this
 produces solves HTTP01 challenges through a gatewayHTTPRoute, so it is inert without a
-Gateway to attach to.
+Gateway to attach to. Skipped with external TLS termination.
 */}}
 {{- define "gitlab.gatewayApi.configureCertmanager" -}}
-{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.configureCertmanager -}}
+{{- $externalTls := eq "true" (include "gitlab.gatewayApi.externalTlsTermination" .) -}}
+{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.configureCertmanager (not $externalTls) -}}
 true
 {{- else -}}
 false

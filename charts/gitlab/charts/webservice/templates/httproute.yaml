@@ -29,9 +29,9 @@ spec:
     {{ with .name }}
     name: {{ printf "%s-%s" $deployment.name . }}
     {{- end }}
-    {{- with .filters }}
+    {{- with (include "gitlab.gatewayApi.routeFilters" (dict "filters" .filters "context" $)) }}
     filters:
-      {{- . | toYaml | nindent 6 }}
+      {{- . | nindent 6 }}
     {{- end }}
     matches:
       {{- .matches | toYaml | nindent 6 }}
