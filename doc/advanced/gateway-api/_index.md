@@ -169,6 +169,36 @@ optionally create a `ClientTrafficPolicy` and a `SecurityPolicy` bound to the ma
 > header. See
 > [Client traffic policy](../../charts/gitlab/kas/_index.md#client-traffic-policy).
 
+#### Envoy Proxy image
+
+When the bundled Envoy Gateway is installed (`global.gatewayApi.installEnvoy: true`), the chart
+sets the Envoy Proxy image of its `EnvoyProxy` to `docker.io/envoyproxy/envoy:distroless-v1.39.6`.
+The default Envoy Proxy image of the bundled Envoy Gateway still trusts compromised intermediate
+certificate authorities (CVE-2026-111943). The chart keeps the image unchanged when
+`gatewayApiResources.envoy.proxySpec` sets `container.image` or `container.imageRepository` for the
+Envoy workload.
+
+The Envoy Gateway chart setting `envoy-gateway.global.images.envoyProxy.image` does not apply to this
+`EnvoyProxy`. To pull the Envoy Proxy image from your own registry, set `container.image` to the patched
+tag in that registry:
+
+```yaml
+gatewayApiResources:
+  envoy:
+    proxySpec:
+      provider:
+        kubernetes:
+          envoyDeployment:
+            container:
+              image: registry.example.com/envoyproxy/envoy:distroless-v1.39.6
+```
+
+If Envoy runs as a DaemonSet, set the image under `envoyDaemonSet` instead of `envoyDeployment`.
+
+Don't use `container.imageRepository` for this: Envoy Gateway then uses its default tag with that
+repository. When `container.imageRepository` is set, the chart prints a warning after `helm install` and
+`helm upgrade`.
+
 #### Envoy Gateway metrics
 
 The bundled Prometheus is set up to collect metrics from both Envoy Gateway and the managed
