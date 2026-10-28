@@ -21,9 +21,9 @@ spec:
       name: {{ template "kas.workspaces.serviceName" . }}
       port: {{ .Values.service.workspacesServerPort }}
       weight: 1
-    {{- with .Values.gatewayRoute.filters }}
+    {{- with (include "gitlab.gatewayApi.routeFilters" (dict "filters" .Values.gatewayRoute.filters "context" $)) }}
     filters:
-      {{- . | toYaml | nindent 6 }}
+      {{- . | nindent 6 }}
     {{- end }}
     {{- with .Values.gatewayRoute.timeouts }}
     timeouts:
@@ -61,9 +61,9 @@ spec:
       name: {{ template "kas.workspaces.serviceName" . }}
       port: {{ .Values.service.workspacesServerPort }}
       weight: 1
-    {{- with .Values.gatewayRoute.filters }}
+    {{- with (include "gitlab.gatewayApi.routeFilters" (dict "filters" .Values.gatewayRoute.filters "context" $)) }}
     filters:
-      {{- . | toYaml | nindent 6 }}
+      {{- . | nindent 6 }}
     {{- end }}
     matches:
     - path:

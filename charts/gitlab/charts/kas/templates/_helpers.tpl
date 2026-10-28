@@ -106,7 +106,8 @@ listeners share port 80 and Envoy Gateway rejects section-scoped policies for th
 {{- $envoy := and .Values.global.gatewayApi.enabled (eq "true" (include "gitlab.gatewayApi.configureEnvoy" .)) -}}
 {{- $sameNamespace := eq "true" (include "gitlab.gatewayApi.gateway.sameNamespace" .) -}}
 {{- $https := or .Values.global.hosts.https .Values.global.hosts.kas.https -}}
-{{- if and $envoy $sameNamespace $https -}}
+{{- $externalTls := eq "true" (include "gitlab.gatewayApi.externalTlsTermination" .) -}}
+{{- if and $envoy $sameNamespace $https (not $externalTls) -}}
 true
 {{- end -}}
 {{- end -}}

@@ -21,9 +21,9 @@ spec:
       name: {{ template "registry.fullname" . }}
       port: {{ .Values.service.externalPort }}
       weight: 1
-    {{- with .Values.gatewayRoute.filters }}
+    {{- with (include "gitlab.gatewayApi.routeFilters" (dict "filters" .Values.gatewayRoute.filters "context" $)) }}
     filters:
-      {{- . | toYaml | nindent 6 }}
+      {{- . | nindent 6 }}
     {{- end }}
     {{- with .Values.gatewayRoute.timeouts }}
     timeouts:
