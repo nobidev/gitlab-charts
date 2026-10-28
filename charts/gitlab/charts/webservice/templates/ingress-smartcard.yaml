@@ -55,18 +55,7 @@ spec:
       http:
         paths:
           - path: {{ .ingress.path }}
-            {{ if eq (include "gitlab.ingress.apiVersion" $ingressCfg) "networking.k8s.io/v1" -}}
-            pathType: {{ default $.Values.global.ingress.pathType .ingress.pathType }}
-            backend:
-              service:
-                  name: {{ template "webservice.fullname.withSuffix" . }}
-                  port:
-                    number: {{ $.Values.service.workhorseExternalPort }}
-            {{- else -}}
-            backend:
-              serviceName: {{ template "webservice.fullname.withSuffix" . }}
-              servicePort: {{ $.Values.service.workhorseExternalPort }}
-            {{- end -}}
+            {{- include "gitlab.ingress.pathBackend" (dict "ingressCfg" $ingressCfg "serviceName" (include "webservice.fullname.withSuffix" .) "servicePort" $.Values.service.workhorseExternalPort "pathType" (default $.Values.global.ingress.pathType .ingress.pathType)) | nindent 12 }}
   {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true" )) }}
   tls:
     - hosts:

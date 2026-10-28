@@ -52,6 +52,7 @@ This is output as YAML, it can be read back in as a dict via `toYaml`.
 {{- define "webservice.datamodel.blank" -}}
 {{- range $k, $v := (dict "ingress" .Values.ingress "extraIngress" .Values.extraIngress) }}
 {{ $k }}:
+  apiVersion: {{ $v.apiVersion | default "" | quote }}
   path: # intentionally not setting a value. User must set.
   pathType: Prefix
   annotations:

@@ -303,12 +303,65 @@ describe 'GitLab Ingress configuration(s)' do
         template = HelmTemplate.new(api_version)
         expect(template.exit_code).to eq(0)
 
-        # The KAS gRPC Ingress always renders networking.k8s.io/v1 backends.
-        (ingress_names - %w[test-kas-grpc]).each do |ingress_name|
+        ingress_names.each do |ingress_name|
           get_paths(template, ingress_name).each do |p|
             expect(p['backend']).to have_key('serviceName'), "#{ingress_name}: #{p['backend']}"
             expect(p['backend']).not_to have_key('service')
           end
+        end
+      end
+
+      it 'renders the workspaces Ingresses consistently with the apiVersion' do
+        values = enable_all_ingress.deep_merge(YAML.safe_load(%(
+            global:
+              ingress:
+                apiVersion: networking.k8s.io/v1beta1
+              hosts:
+                workspaces:
+                  name: workspaces.example.com
+              workspaces:
+                enabled: true
+          )))
+
+        template = HelmTemplate.new(values)
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        %w[test-kas-workspaces test-kas-workspaces-api].each do |ingress_name|
+          expect(get_api_version(template, ingress_name)).to eq('networking.k8s.io/v1beta1')
+          expect(get_ingress_class_annotation(template, ingress_name)).to eq('test-nginx')
+          expect(get_ingress_class_spec(template, ingress_name)).to be_nil
+          get_paths(template, ingress_name).each do |p|
+            expect(p['backend']).to have_key('serviceName'), "#{ingress_name}: #{p['backend']}"
+            expect(p['backend']).not_to have_key('service')
+          end
+        end
+      end
+    end
+
+    context 'when set on the webservice chart' do
+      let(:webservice_api_version) do
+        enable_all_ingress.deep_merge(YAML.safe_load(%(
+          gitlab:
+            webservice:
+              ingress:
+                apiVersion: networking.k8s.io/v1beta1
+        )))
+      end
+
+      it 'applies to the webservice Ingresses' do
+        template = HelmTemplate.new(webservice_api_version)
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        %w[test-webservice-default test-webservice-default-smartcard].each do |ingress_name|
+          expect(get_api_version(template, ingress_name)).to eq('networking.k8s.io/v1beta1')
+          expect(get_ingress_class_annotation(template, ingress_name)).to eq('test-nginx')
+          get_paths(template, ingress_name).each do |p|
+            expect(p['backend']).to have_key('serviceName'), "#{ingress_name}: #{p['backend']}"
+          end
+        end
+
+        (ingress_names - %w[test-webservice-default test-webservice-default-smartcard]).each do |ingress_name|
+          expect(get_api_version(template, ingress_name)).to eq('networking.k8s.io/v1')
         end
       end
     end

@@ -3,7 +3,7 @@
 {{- $wildcardHostname := include "gitlab.workspaces.wildcardHostname" . -}}
 {{- $tlsSecret := include "workspaces.tlsSecret" . -}}
 {{- $ingressCfg := dict "global" .Values.global.ingress "local" .Values.ingress "context" . -}}
-apiVersion: networking.k8s.io/v1
+apiVersion: {{ template "gitlab.ingress.apiVersion" $ingressCfg }}
 kind: Ingress
 metadata:
   name: {{ template "fullname" . }}-workspaces
@@ -29,12 +29,7 @@ spec:
       http:
         paths:
           - path: "/"
-            pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
-            backend:
-              service:
-                name: {{ template "kas.workspaces.serviceName" . }}
-                port:
-                  number: {{ .Values.service.workspacesServerPort }}
+            {{- include "gitlab.ingress.pathBackend" (dict "ingressCfg" $ingressCfg "serviceName" (include "kas.workspaces.serviceName" .) "servicePort" .Values.service.workspacesServerPort "pathType" (default "Prefix" $.Values.global.ingress.pathType)) | nindent 12 }}
   {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true" )) }}
   tls:
     - hosts:
@@ -50,7 +45,7 @@ the KAS Ingress without cert-manager annotations of its own.
 */}}
 {{- $kasHostname := include "gitlab.kas.hostname" . }}
 {{- $kasTlsSecret := include "kas.tlsSecret" . }}
-apiVersion: networking.k8s.io/v1
+apiVersion: {{ template "gitlab.ingress.apiVersion" $ingressCfg }}
 kind: Ingress
 metadata:
   name: {{ template "fullname" . }}-workspaces-api
@@ -75,12 +70,7 @@ spec:
       http:
         paths:
           - path: "{{ trimSuffix "/" $.Values.ingress.workspacesServerApiPath }}{{ $.Values.global.ingress.path }}"
-            pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
-            backend:
-              service:
-                name: {{ template "kas.workspaces.serviceName" . }}
-                port:
-                  number: {{ .Values.service.workspacesServerPort }}
+            {{- include "gitlab.ingress.pathBackend" (dict "ingressCfg" $ingressCfg "serviceName" (include "kas.workspaces.serviceName" .) "servicePort" .Values.service.workspacesServerPort "pathType" (default "Prefix" $.Values.global.ingress.pathType)) | nindent 12 }}
   {{- if (and $kasTlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true" )) }}
   tls:
     - hosts:

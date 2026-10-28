@@ -24,6 +24,34 @@ kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" $ingressC
 {{- end -}}
 
 {{/*
+Renders the `pathType` and `backend` of an Ingress path, in the shape that
+matches the apiVersion returned by `gitlab.ingress.apiVersion`.
+
+It expects a dictionary with four entries:
+  - `ingressCfg` the dictionary passed to `gitlab.ingress.apiVersion`
+  - `serviceName` the name of the backend Service
+  - `servicePort` the port number of the backend Service
+  - `pathType` the pathType, only rendered for networking.k8s.io/v1
+
+Example usage:
+{{- include "gitlab.ingress.pathBackend" (dict "ingressCfg" $ingressCfg "serviceName" $name "servicePort" $port "pathType" "Prefix") | nindent 12 }}
+*/}}
+{{- define "gitlab.ingress.pathBackend" -}}
+{{-   if eq (include "gitlab.ingress.apiVersion" .ingressCfg) "networking.k8s.io/v1" -}}
+pathType: {{ .pathType }}
+backend:
+  service:
+    name: {{ .serviceName }}
+    port:
+      number: {{ .servicePort }}
+{{-   else -}}
+backend:
+  serviceName: {{ .serviceName }}
+  servicePort: {{ .servicePort }}
+{{-   end -}}
+{{- end -}}
+
+{{/*
 Returns the ingress provider
 
 It expects a dictionary with two entries:
