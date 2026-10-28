@@ -169,3 +169,51 @@ true
 false
 {{- end -}}
 {{- end -}}
+
+{{/*
+Envoy Proxy image used with the bundled Envoy Gateway when proxySpec sets none.
+The default Envoy Proxy image of the bundled Envoy Gateway still trusts the
+compromised eMudhra intermediate CAs. See the upstream remediation:
+https://gateway.envoyproxy.io/news/releases/notes/v1.8.6/#upgrading-envoy-proxy-to-v1389
+*/}}
+{{- define "gitlab.gatewayApi.envoy.proxy.image" -}}
+docker.io/envoyproxy/envoy:distroless-v1.38.9
+{{- end -}}
+
+{{/*
+Returns the key of the Envoy workload that a proxySpec.provider.kubernetes map configures:
+envoyDaemonSet when it is set, envoyDeployment otherwise. templates/envoy/proxy.yaml drops
+envoyDeployment when envoyDaemonSet is set.
+*/}}
+{{- define "gitlab.gatewayApi.envoy.proxy.workload" -}}
+{{- ternary "envoyDaemonSet" "envoyDeployment" (hasKey . "envoyDaemonSet") -}}
+{{- end -}}
+
+{{/*
+Returns which image field the container of that workload sets: "image", "imageRepository",
+or nothing. The EnvoyProxy CRD accepts only one of them, so templates/envoy/proxy.yaml sets
+gitlab.gatewayApi.envoy.proxy.image only when this returns nothing.
+*/}}
+{{- define "gitlab.gatewayApi.envoy.proxy.imageSource" -}}
+{{- $workloadSpec := get . (include "gitlab.gatewayApi.envoy.proxy.workload" .) | default dict -}}
+{{- $container := get $workloadSpec "container" | default dict -}}
+{{- if $container.image -}}
+image
+{{- else if $container.imageRepository -}}
+imageRepository
+{{- end -}}
+{{- end -}}
+
+{{/*
+Returns the Envoy workload key when its container sets imageRepository instead of image while
+the bundled Envoy Gateway is installed, so templates/NOTES.txt can warn that the chart does not
+set gitlab.gatewayApi.envoy.proxy.image.
+*/}}
+{{- define "gitlab.gatewayApi.envoy.proxy.imageRepositoryWorkload" -}}
+{{- $spec := .Values.gatewayApiResources.envoy.proxySpec -}}
+{{- if and .Values.global.gatewayApi.enabled .Values.global.gatewayApi.installEnvoy $spec.provider $spec.provider.kubernetes -}}
+{{-   if eq (include "gitlab.gatewayApi.envoy.proxy.imageSource" $spec.provider.kubernetes) "imageRepository" -}}
+{{ include "gitlab.gatewayApi.envoy.proxy.workload" $spec.provider.kubernetes }}
+{{-   end -}}
+{{- end -}}
+{{- end -}}
