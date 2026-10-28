@@ -44,6 +44,12 @@ describe 'Mailroom configuration' do
       # check there are no Sentinels
       expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).not_to include(":sentinels:")
     end
+
+    it 'sets no preStop hook, so kubelet sends TERM directly' do
+      t = HelmTemplate.new(default_values)
+      containers = t.dig('Deployment/test-mailroom', 'spec', 'template', 'spec', 'containers')
+      expect(containers).to all(satisfy { |c| !c.key?('lifecycle') })
+    end
   end
 
   context 'with IMAP settings' do

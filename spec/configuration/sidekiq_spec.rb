@@ -691,6 +691,12 @@ describe 'Sidekiq configuration' do
       HelmTemplate.defaults
     end
 
+    it 'sets no preStop hook, so kubelet sends TERM directly' do
+      t = HelmTemplate.new(default_values)
+      containers = t.dig('Deployment/test-sidekiq-all-in-1-v2', 'spec', 'template', 'spec', 'containers')
+      expect(containers).to all(satisfy { |c| !c.key?('lifecycle') })
+    end
+
     context 'with default deployment-global value and no pod-local value' do
       it 'sets default deployment-global value for terminationGracePeriodSeconds in the Pod spec' do
         t = HelmTemplate.new(default_values)

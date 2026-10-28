@@ -304,10 +304,6 @@ spec:
             timeoutSeconds: {{ $.Values.readinessProbe.timeoutSeconds }}
             successThreshold: {{ $.Values.readinessProbe.successThreshold }}
             failureThreshold: {{ $.Values.readinessProbe.failureThreshold }}
-          lifecycle:
-            preStop:
-              exec:
-                command: ["/bin/bash", "-c", "pkill -f 'sidekiq'"]
           resources:
             {{- toYaml ( default $resources .resources ) | nindent 12 }}
       volumes:

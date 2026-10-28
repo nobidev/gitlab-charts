@@ -103,10 +103,6 @@ spec:
             exec:
               command:
                 - /scripts/healthcheck
-          lifecycle:
-            preStop:
-              exec:
-                command: ["/bin/bash", "-c", "pkill -f 'mail_room'"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:

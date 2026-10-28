@@ -48,6 +48,12 @@ describe 'gitlab-exporter configuration' do
       expect(rendered_erb['probes']['database']).not_to include('geo_node_status')
       expect(rendered_erb['probes']['metrics']).not_to include('geo_node_status')
     end
+
+    it 'sets no preStop hook, so kubelet sends TERM directly' do
+      expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+      containers = template.dig('Deployment/test-gitlab-exporter', 'spec', 'template', 'spec', 'containers')
+      expect(containers).to all(satisfy { |c| !c.key?('lifecycle') })
+    end
   end
 
   context 'when probeGeo is enabled' do

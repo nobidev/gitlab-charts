@@ -124,10 +124,6 @@ spec:
                 - pgrep
                 - -f
                 - gitlab-exporter
-          lifecycle:
-            preStop:
-              exec:
-                command: ["/bin/bash", "-c", "pkill -f 'gitlab-exporter'"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
