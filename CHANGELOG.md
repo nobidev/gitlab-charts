@@ -2,6 +2,13 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.2.10 (2026-10-28)
+
+### Changed (2 changes)
+
+- [Update Envoy Gateway to v1.8.6](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/3de9e422c183c46a38ad626de6fef962b1b6b1d2) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5544))
+- [Update helm chart cert-manager to v1.21.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/baf8be7e0c5564fd5dd1a802054457f2c043492c) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5532))
+
 ## 10.2.9 (2026-10-20)
 
 No changes.
