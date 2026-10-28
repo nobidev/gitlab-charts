@@ -537,6 +537,119 @@ describe 'Gateway API configuration' do
       end
     end
 
+    describe 'Envoy Proxy image' do
+      let(:proxy_kubernetes) { envoyproxy['spec']['provider']['kubernetes'] }
+
+      context 'with the bundled Envoy Gateway' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          global:
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+          ))
+        end
+
+        it 'uses the patched Envoy Proxy image' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(proxy_kubernetes['envoyDeployment']['container']['image']).to eq('docker.io/envoyproxy/envoy:distroless-v1.39.6')
+        end
+      end
+
+      context 'with the bundled Envoy Gateway deployed as a DaemonSet' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          global:
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+
+          gatewayApiResources:
+            envoy:
+              proxySpec:
+                provider:
+                  kubernetes:
+                    envoyDaemonSet: {}
+          ))
+        end
+
+        it 'uses the patched Envoy Proxy image on the DaemonSet' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(proxy_kubernetes['envoyDaemonSet']['container']['image']).to eq('docker.io/envoyproxy/envoy:distroless-v1.39.6')
+        end
+      end
+
+      context 'with an Envoy Proxy image set in proxySpec' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          global:
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+
+          gatewayApiResources:
+            envoy:
+              proxySpec:
+                provider:
+                  kubernetes:
+                    envoyDeployment:
+                      container:
+                        image: registry.example.com/envoy:custom
+          ))
+        end
+
+        it 'keeps the configured image' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(proxy_kubernetes['envoyDeployment']['container']['image']).to eq('registry.example.com/envoy:custom')
+        end
+      end
+
+      context 'with an Envoy Proxy image repository set in proxySpec' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          global:
+            gatewayApi:
+              enabled: true
+              installEnvoy: true
+
+          gatewayApiResources:
+            envoy:
+              proxySpec:
+                provider:
+                  kubernetes:
+                    envoyDeployment:
+                      container:
+                        imageRepository: registry.example.com/envoyproxy/envoy
+          ))
+        end
+
+        it 'keeps the image repository without setting an image' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          container = proxy_kubernetes['envoyDeployment']['container']
+          expect(container['imageRepository']).to eq('registry.example.com/envoyproxy/envoy')
+          expect(container).not_to have_key('image')
+        end
+      end
+
+      context 'with an externally managed Envoy Gateway' do
+        let(:values) do
+          HelmTemplate.with_defaults(%(
+          global:
+            gatewayApi:
+              enabled: true
+              installEnvoy: false
+              configureEnvoy: true
+          ))
+        end
+
+        it 'does not set an Envoy Proxy image' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(envoyproxy).not_to be_nil
+          expect(envoyproxy.dig('spec', 'provider', 'kubernetes', 'envoyDeployment', 'container', 'image')).to be_nil
+        end
+      end
+    end
+
     describe 'Deploy as DaemonSet' do
       let(:values) do
         HelmTemplate.with_defaults(%(
