@@ -335,6 +335,13 @@ No changes.
 - [Update helm to v4.2.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c4a987f65aeaa012ea6f87e336aa0c92538929ba) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5071))
 - [Update ai-gateway to v0.12.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c0f3f8f16cadd83232eecd4f5134270fefac0666) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5068))
 
+## 10.0.11 (2026-10-28)
+
+### Changed (2 changes)
+
+- [Update Envoy Gateway to v1.8.6](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/2aa442f95dbe4e49f353f2a7a92622c65a132192) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5546))
+- [Update helm chart cert-manager to v1.20.5](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/c9a6ea9f3582af31a1b6aba734a82ee032fcd291) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5534))
+
 ## 10.0.10 (2026-10-20)
 
 No changes.
