@@ -256,6 +256,13 @@ No changes.
 - [Update container-registry to v4.40.2-gitlab](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/991bf40f76b4ea6f948765cb404f314daa0dd179) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5144))
 - [Update gitlab-runner to v0.90.0](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/68c3e43166a2bdcb7b50f16e185dc2773059a778) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5127))
 
+## 10.1.10 (2026-10-28)
+
+### Changed (2 changes)
+
+- [Update Envoy Gateway to v1.8.6](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/126ff58b16d4bff6041d70bc7f251d94408edfe5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5545))
+- [Update helm chart cert-manager to v1.20.5](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/0ffe12bdb564e5473507b0d965d172074b61a7d6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5533))
+
 ## 10.1.9 (2026-10-20)
 
 No changes.
