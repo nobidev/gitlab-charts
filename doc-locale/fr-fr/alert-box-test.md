@@ -11,7 +11,7 @@ Cette page sert à vérifier le fonctionnement du job CI `docs-i18n-fix-alert-bo
 
 > [!note] La traduction automatique a placé le corps sur la même ligne que le marqueur.
 
-## Cas 2 : la ligne du corps n'a pas le préfixe `> `
+## Cas 2 : la ligne du corps n'a pas le préfixe de citation
 
 > [!warning]
 Cette ligne n'a pas le préfixe de citation.
@@ -29,15 +29,25 @@ Cette ligne n'a pas le préfixe de citation.
 
 ## Cas 5 : autres types d'alerte
 
+Alerte de type caution :
+
 > [!caution] Cette action est irréversible.
+
+Alerte de type tip :
 
 > [!tip]
 Nous recommandons de faire une sauvegarde au préalable.
 
+Alerte de type flag :
+
 > [!flag] Cette fonctionnalité est derrière un indicateur.
+
+Alerte de type disclaimer :
 
 > [!disclaimer]
 Vérifiez la documentation avant de modifier la configuration.
+
+Alerte de type warning :
 
 > [!warning] Ces informations sont fournies à titre indicatif.
 
