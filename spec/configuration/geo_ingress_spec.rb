@@ -78,17 +78,13 @@ describe 'Geo NGINX controller' do
     it 'configures the internal (extra) Ingress' do
       expect(internal_ingress).to_not eql(nil)
       expect(internal_ingress["spec"]["rules"][0]["host"]).to eql('gitlab-internal.example.com')
-      expect(internal_ingress["metadata"]["annotations"]).to include(
-        "kubernetes.io/ingress.class" => geo_nginx_class
-      )
+      expect(internal_ingress["spec"]["ingressClassName"]).to eql(geo_nginx_class)
     end
 
     it 'configures the external (default) Ingress' do
       expect(external_ingress).to_not eql(nil)
       expect(external_ingress["spec"]["rules"][0]["host"]).to eql('gitlab.example.com')
-      expect(external_ingress["metadata"]["annotations"]).to include(
-        "kubernetes.io/ingress.class" => geo_nginx_class
-      )
+      expect(external_ingress["spec"]["ingressClassName"]).to eql(geo_nginx_class)
     end
 
     it 'renders the unified hostname to the gitlab.yml' do
