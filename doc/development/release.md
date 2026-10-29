@@ -187,6 +187,8 @@ The script:
 
 ### Manually releasing the chart
 
+#### Preparation
+
 Only release managers (RM) have authorization to operate this. Chart maintainers wanting to do this should coordinate with RMs.
 
 Before manually releasing the chart, ensure all the chart changes you want from `master` have been picked into the
@@ -194,17 +196,25 @@ stable branch for the version you will release, and that those changes have prop
 
 For example, if you want to release version `0.2.1` of the charts, the changes will need to be in `0-2-stable`
 
-A ChatOps command exists to tag a release. Run the following command in the
+#### Step-by-step
+
+- A ChatOps command exists to tag a release. Run the following command in the
 relevant release Slack channel (such as `#f_upcoming_release`)
 
 ```plaintext
 /chatops gitlab run helm tag <charts version> <GitLab version>
 ```
 
-See past real examples:
+- After the ChatOps command, a tagging pipeline is created in [the pipelines page](https://dev.gitlab.org/gitlab/charts/gitlab/-/pipelines) (for example, [#471498](https://dev.gitlab.org/gitlab/charts/gitlab/-/pipelines/471498)).
+
+- Trigger the `release_package` job to release the new chart version
+
+#### Past examples
 
 - [Manual Release Chart 9.8.6 and 9.9.2](https://gitlab.com/gitlab-org/charts/gitlab/-/work_items/6308)
 - [Release Charts v8.11.6](https://gitlab.com/gitlab-org/distribution/team-tasks/-/work_items/1766)
+
+#### Alternative: Use Rake task
 
 You can also do it manually, without using the ChatOps command as follows:
 
