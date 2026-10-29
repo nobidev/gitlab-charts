@@ -1,7 +1,7 @@
 ---
 apiVersion: v2
 name: migrations
-version: 10.4.5
+version: 10.4.6
 appVersion: v19.4.5
 description: Database migrations and other versioning tasks for upgrading Gitlab
 keywords:
