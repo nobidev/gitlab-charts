@@ -2,6 +2,12 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 10.5.4 (2026-10-29)
+
+### Changed (1 change)
+
+- [Update Envoy Gateway to v1.9.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/3c129fedaf07bfd69f06e5980297982ad60ca229) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5541))
+
 ## 10.5.3 (2026-10-28)
 
 No changes.
