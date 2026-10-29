@@ -56,6 +56,12 @@ No changes.
 - [Reuse the global Topology Service TLS guard](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/ace1cf6c49e30cf188710c2fb97fb76e90b52b88) by @vivekyarra567 ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5458))
 - [Document GitLab Shell HPA scaling guidance for traffic spikes](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/85a8478ee39b32b7bd399347a99426531e469eec) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5426))
 
+## 10.4.6 (2026-10-29)
+
+### Changed (1 change)
+
+- [Update Envoy Gateway to v1.9.3](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/43f13b10555b1717e9628f70b6cc5e659ba555cc) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5542))
+
 ## 10.4.5 (2026-10-28)
 
 No changes.
