@@ -72,7 +72,23 @@ and make sure they meet the [current minimum requirements](https://docs.gitlab.c
 
 ### Provision external Valkey or Redis
 
-1. Provision your external Valkey or Redis service. For example, by using the official [Valkey Helm chart](https://github.com/valkey-io/valkey-helm):
+Provision your external Valkey or Redis service. For example, by using the official [Valkey Helm chart](https://github.com/valkey-io/valkey-helm).
+
+The following install command uses these settings to protect the Valkey data, which includes user sessions:
+
+- `valkeyConfig="appendonly yes"` turns on the [append-only file (AOF)](https://valkey.io/topics/persistence/).
+  Valkey logs every change and, by default, writes the log to disk every second. Without AOF,
+  Valkey saves only periodic snapshots. If the node that runs Valkey fails without a graceful
+  shutdown, all changes after the last snapshot are lost, and users must sign in again.
+- `deploymentStrategy=Recreate` stops the old Valkey Pod before the new Pod starts during an
+  upgrade. Two Valkey instances then don't use the same persistent volume at the same time.
+
+> [!warning]
+> If you already run Valkey without AOF, do not add `valkeyConfig="appendonly yes"` to an
+> existing release. When Valkey restarts with AOF turned on and no AOF exists, Valkey starts with an empty dataset
+> and ignores the existing snapshot. Instead, [turn on AOF for an existing Valkey instance](#turn-on-aof-for-an-existing-valkey-instance).
+
+1. Install Valkey:
 
    This sets up an independent Valkey instance that retains data across restarts. The authentication credentials are stored in a Secret
    named `<RELEASE>-auth`.
@@ -90,20 +106,6 @@ and make sure they meet the [current minimum requirements](https://docs.gitlab.c
      --set auth.aclUsers.default.password="<RANDOM PASSWORD>"
    ```
 
-   These settings protect the Valkey data, which includes user sessions:
-
-   - `valkeyConfig="appendonly yes"` turns on the [append-only file (AOF)](https://valkey.io/topics/persistence/).
-     Valkey logs every change and, by default, writes the log to disk every second. Without AOF,
-     Valkey saves only periodic snapshots. If the node that runs Valkey fails without a graceful
-     shutdown, all changes after the last snapshot are lost, and users must sign in again.
-   - `deploymentStrategy=Recreate` stops the old Valkey Pod before the new Pod starts during an
-     upgrade. Two Valkey instances then don't use the same persistent volume at the same time.
-
-   > [!warning]
-   > If you already run Valkey without AOF, do not add `valkeyConfig="appendonly yes"` to an
-   > existing release. When Valkey restarts with AOF turned on and no AOF exists, Valkey starts with an empty dataset
-   > and ignores the existing snapshot. Instead, [turn on AOF for an existing Valkey instance](#turn-on-aof-for-an-existing-valkey-instance).
-
 1. Confirm Valkey is up and running:
 
    ```script
@@ -114,8 +116,9 @@ and make sure they meet the [current minimum requirements](https://docs.gitlab.c
 
 #### Turn on AOF for an existing Valkey instance
 
-If you installed Valkey without `valkeyConfig="appendonly yes"`, turn on AOF on the running instance
-before you change the Helm release. Valkey then writes the current dataset to the AOF, and no data is lost.
+If you installed Valkey without append-only file (AOF) (`valkeyConfig="appendonly yes"`),
+turn on AOF on the running instance before you change the Helm release.
+Valkey then writes the current dataset to the AOF and no data is lost.
 
 1. Optional. Back up the latest snapshot:
 
@@ -125,7 +128,7 @@ before you change the Helm release. Valkey then writes the current dataset to th
 
 1. Switch the Deployment strategy to `Recreate`, so that a restart during this procedure doesn't run
    two Valkey Pods on the same volume. Helm cannot change the strategy from `RollingUpdate` to
-   `Recreate`, because the existing Deployment keeps its `rollingUpdate` settings. This command does
+   `Recreate` because the existing Deployment keeps its `rollingUpdate` settings. This command does
    not restart the Pod:
 
    ```shell
