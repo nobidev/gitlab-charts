@@ -453,6 +453,13 @@ No changes.
 - [Breaking: Drop bundled MinIO chart](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/26820c4955e839d5c3af080307c4006951218bd6) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4964))
 - [Breaking: Drop bundled Redis and PostgreSQL charts](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/08560add29dc61dd782ceea0730ff1fdcc40e1da) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/4950))
 
+## 9.11.16 (2026-10-29)
+
+### Changed (2 changes)
+
+- [Update Envoy Gateway to v1.7.5](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b0cff7589c24bc0bc6d02897ab5217f778731157) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5547))
+- [Update helm chart cert-manager to v1.20.5](https://gitlab.com/gitlab-org/charts/gitlab/-/commit/b588a34091fe75c31f63ea9b2524bed8b9cd10f5) ([merge request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/5535))
+
 ## 9.11.15 (2026-10-27)
 
 No changes.
