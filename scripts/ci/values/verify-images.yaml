@@ -1,0 +1,21 @@
+# Values used only by the verify_component_image_tags job. Enables subcharts
+# that ship CNG images but are off by default, so `helm template` renders them
+# and their image tags get verified.
+#
+# Keep this in sync with new optional CNG subcharts; anything not enabled here
+# is not rendered and therefore not checked. Note that enabling a subchart can
+# require extra configuration for the chart's rendering checks to pass (see
+# OpenBao's database settings below).
+gitlab-zoekt:
+  install: true
+openbao:
+  install: true
+global:
+  openbao:
+    psql:
+      host: openbao.example.com
+      database: openbao
+      username: openbao
+      password:
+        secret: openbao-password
+        key: password
