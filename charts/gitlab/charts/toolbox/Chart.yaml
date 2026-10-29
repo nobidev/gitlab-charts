@@ -1,7 +1,7 @@
 ---
 apiVersion: v2
 name: toolbox
-version: 10.5.3
+version: 10.5.4
 appVersion: v19.5.3
 description: For manually running rake tasks through kubectl
 keywords:
