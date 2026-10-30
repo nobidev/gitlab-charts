@@ -1,7 +1,8 @@
 ---
-stage: GitLab Duo Self-Hosted
-group: Custom models
+stage: AI Platform
+group: AI Model Services
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see <https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments>
+description: Deploy a self-hosted AI Gateway as a subchart alongside your GitLab instance.
 title: AI Gateway chart
 ---
 
@@ -13,7 +14,7 @@ title: AI Gateway chart
 
 {{< /details >}}
 
-The AI Gateway chart deploys the AI Gateway as a sub-chart alongside your GitLab instance.
+The AI Gateway chart deploys a [self-hosted AI Gateway](https://docs.gitlab.com/install/install_ai_gateway/) as a subchart alongside your GitLab instance.
 It enables GitLab Duo Self-Hosted and the GitLab Duo Agent Platform on Kubernetes.
 This feature is an [experiment](https://docs.gitlab.com/policy/development_stages_support/).
 
