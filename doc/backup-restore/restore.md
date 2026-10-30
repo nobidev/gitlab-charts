@@ -147,9 +147,18 @@ The steps for restoring a GitLab installation are
 
 1. This process will take time depending on the size of the tarball.
 1. The restoration process will erase the existing contents of database, move existing repositories to temporary locations and extract the contents of the tarball. Repositories will be moved to their corresponding locations on the disk and other data, like artifacts, uploads, LFS etc. will be uploaded to corresponding buckets in Object Storage.
-1. Before you restart the application, connect to each distinct restored PostgreSQL database with a
-   PostgreSQL client and gather optimizer statistics.
+1. Before you restart the application, gather optimizer statistics for each distinct restored
+   PostgreSQL database.
    Include the CI database if your installation uses a separate one.
+   Until you analyze the restored tables, the query planner can choose inefficient plans and the UI can
+   show inconsistent counts.
+   Connect to each database with a PostgreSQL client, for example from the Toolbox pod:
+
+   ```shell
+   kubectl exec -it <Toolbox pod name> -- gitlab-rails dbconsole --include-password --database main
+   ```
+
+   To use another connection method, see [Start a database console](https://docs.gitlab.com/administration/troubleshooting/postgresql/#start-a-database-console).
    Use a role that can analyze the restored tables, and run these statements in the same session:
 
    ```sql
@@ -160,13 +169,13 @@ The steps for restoring a GitLab installation are
    Check the output for errors and skipped tables.
    Database-wide `ANALYZE` includes partitioned parent tables, which autovacuum does not analyze.
    `ANALYZE` does not rebuild visibility maps for index-only scans.
-   To prepare visibility maps before application traffic resumes, run `VACUUM (VERBOSE, ANALYZE);`
-   instead of `ANALYZE VERBOSE;`, outside a transaction block.
-   This can take substantially longer than `ANALYZE` alone.
-   If you defer vacuuming, index-only scans may require many heap reads, potentially degrading query
-   performance until vacuuming completes.
+   To also prepare visibility maps before application traffic resumes, you can run
+   `VACUUM (VERBOSE, ANALYZE);` instead of `ANALYZE VERBOSE;`, outside a transaction block.
+   This vacuum is optional, can take substantially longer than `ANALYZE` alone, and can generate
+   substantial I/O and write-ahead log (WAL) data.
+   If you defer the vacuum, index-only scans may require many heap reads.
+   This can degrade query performance until the vacuum completes.
    Choose based on your restore window and workload requirements.
-   Vacuuming can also generate substantial I/O and write-ahead log (WAL) data.
    For more information, see [PostgreSQL routine vacuuming](https://www.postgresql.org/docs/current/routine-vacuuming.html).
 1. Restart the application:
 
