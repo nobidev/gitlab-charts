@@ -72,16 +72,34 @@ and make sure they meet the [current minimum requirements](https://docs.gitlab.c
 
 ### Provision external Valkey or Redis
 
-1. Provision your external Valkey or Redis service. For example, by using the official [Valkey Helm chart](https://github.com/valkey-io/valkey-helm):
+Provision your external Valkey or Redis service. For example, by using the official [Valkey Helm chart](https://github.com/valkey-io/valkey-helm).
+
+The following install command uses these settings to protect the Valkey data, which includes user sessions:
+
+- `valkeyConfig="appendonly yes"` turns on the [append-only file (AOF)](https://valkey.io/topics/persistence/).
+  Valkey logs every change and, by default, writes the log to disk every second. Without AOF,
+  Valkey saves only periodic snapshots. If the node that runs Valkey fails without a graceful
+  shutdown, all changes after the last snapshot are lost, and users must sign in again.
+- `deploymentStrategy=Recreate` stops the old Valkey Pod before the new Pod starts during an
+  upgrade. Two Valkey instances then don't use the same persistent volume at the same time.
+
+> [!warning]
+> If you already run Valkey without AOF, do not add `valkeyConfig="appendonly yes"` to an
+> existing release. When Valkey restarts with AOF turned on and no AOF exists, Valkey starts with an empty dataset
+> and ignores the existing snapshot. Instead, [turn on AOF for an existing Valkey instance](#turn-on-aof-for-an-existing-valkey-instance).
+
+1. Install Valkey:
 
    This sets up an independent Valkey instance that retains data across restarts. The authentication credentials are stored in a Secret
    named `<RELEASE>-auth`.
 
    ```shell
    helm repo add valkey https://valkey.io/valkey-helm/
-   helm install valkey valkey/valkey -n <NAMESPACE> \
+   helm install valkey valkey/valkey -n <NAMESPACE> --version 0.12.1 \
      --set dataStorage.enabled=true \
      --set dataStorage.requestedSize=2Gi \
+     --set deploymentStrategy=Recreate \
+     --set valkeyConfig="appendonly yes" \
      --set metrics.enabled=true \
      --set auth.enabled=true \
      --set auth.aclUsers.default.permissions="~* &* +@all" \
@@ -95,6 +113,77 @@ and make sure they meet the [current minimum requirements](https://docs.gitlab.c
    NAME     READY   UP-TO-DATE   AVAILABLE   AGE
    valkey   1/1     1            1           30m
    ```
+
+#### Turn on AOF for an existing Valkey instance
+
+If you installed Valkey without append-only file (AOF) (`valkeyConfig="appendonly yes"`),
+turn on AOF on the running instance before you change the Helm release.
+Valkey then writes the current dataset to the AOF and no data is lost.
+
+1. Optional. Back up the latest snapshot:
+
+   ```shell
+   kubectl exec -n <NAMESPACE> deploy/valkey -c valkey -- cat /data/dump.rdb > valkey-dump.rdb
+   ```
+
+1. Switch the Deployment strategy to `Recreate`, so that a restart during this procedure doesn't run
+   two Valkey Pods on the same volume. Helm cannot change the strategy from `RollingUpdate` to
+   `Recreate` because the existing Deployment keeps its `rollingUpdate` settings. This command does
+   not restart the Pod:
+
+   ```shell
+   kubectl patch deployment valkey -n <NAMESPACE> \
+     -p '{"spec":{"strategy":{"type":"Recreate","rollingUpdate":null}}}'
+   ```
+
+1. Get the password of the `default` user:
+
+   ```shell
+   VALKEY_PASSWORD=$(kubectl get secret -n <NAMESPACE> valkey-auth \
+     -o jsonpath='{.data.default-password}' | base64 --decode)
+   ```
+
+   If you use `auth.usersExistingSecret`, read the password from that Secret instead.
+
+1. Turn on AOF on the running instance:
+
+   ```shell
+   kubectl exec -n <NAMESPACE> deploy/valkey -c valkey -- \
+     valkey-cli --no-auth-warning -a "$VALKEY_PASSWORD" CONFIG SET appendonly yes
+   ```
+
+1. Wait until Valkey finishes writing the AOF:
+
+   ```shell
+   kubectl exec -n <NAMESPACE> deploy/valkey -c valkey -- \
+     valkey-cli --no-auth-warning -a "$VALKEY_PASSWORD" INFO persistence \
+     | grep -E 'aof_enabled|aof_rewrite_in_progress|aof_rewrite_scheduled|aof_last_bgrewrite_status'
+   ```
+
+   Continue only when the output matches:
+
+   ```plaintext
+   aof_enabled:1
+   aof_rewrite_in_progress:0
+   aof_rewrite_scheduled:0
+   aof_last_bgrewrite_status:ok
+   ```
+
+1. Persist the settings in the Helm release:
+
+   ```shell
+   helm upgrade valkey valkey/valkey -n <NAMESPACE> --version 0.12.1 --reset-then-reuse-values \
+     --set deploymentStrategy=Recreate \
+     --set valkeyConfig="appendonly yes"
+   ```
+
+   This upgrade restarts Valkey. With the `Recreate` strategy, Valkey is unavailable until the new
+   Pod is ready. The new Pod loads its data from the AOF.
+
+   Until this upgrade succeeds, AOF is turned on only in the running process. If Valkey restarts
+   before the upgrade, AOF is turned off again and the AOF on the volume stops receiving changes.
+   Repeat the steps to turn on AOF and wait for the AOF before you upgrade. Otherwise, Valkey loads
+   the outdated AOF and loses the changes made after the restart.
 
 ### Provision external PostgreSQL
 
