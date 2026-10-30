@@ -158,6 +158,7 @@ The steps for restoring a GitLab installation are
    kubectl exec -it <Toolbox pod name> -- gitlab-rails dbconsole --include-password --database main
    ```
 
+   For a separate CI database, run the same command with `--database ci`.
    To use another connection method, see [Start a database console](https://docs.gitlab.com/administration/troubleshooting/postgresql/#start-a-database-console).
    Use a role that can analyze the restored tables, and run these statements in the same session:
 
