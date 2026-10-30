@@ -446,8 +446,8 @@ describe 'gitlab-shell configuration' do
         expect_successful_exit_code
 
         volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
-        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
-        secret_names = init_secrets_volume['projected']['sources'].map { |s| s['secret']['name'] }
+        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-secrets' }
+        secret_names = init_secrets_volume['projected']['sources'].map { |s| s.dig('secret', 'name') }
         expect(secret_names).not_to include('my-ca-keys-secret')
       end
     end
@@ -475,8 +475,8 @@ describe 'gitlab-shell configuration' do
         expect_successful_exit_code
 
         volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
-        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
-        secret_names = init_secrets_volume['projected']['sources'].map { |s| s['secret']['name'] }
+        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-secrets' }
+        secret_names = init_secrets_volume['projected']['sources'].map { |s| s.dig('secret', 'name') }
         expect(secret_names).not_to include('my-ca-keys-secret')
       end
     end
@@ -505,11 +505,11 @@ describe 'gitlab-shell configuration' do
         ])
       end
 
-      it 'includes trusted CA keys in the shell-init-secrets projected volume' do
+      it 'includes trusted CA keys in the shell-secrets projected volume' do
         expect_successful_exit_code
 
         volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
-        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
+        init_secrets_volume = volumes.find { |v| v['name'] == 'shell-secrets' }
         ca_source = init_secrets_volume['projected']['sources'].find do |s|
           s['secret']['name'] == 'my-ca-keys-secret'
         end
@@ -520,11 +520,12 @@ describe 'gitlab-shell configuration' do
         )
       end
 
-      it 'includes CA key copy commands in configure script' do
+      it 'projects the CA keys at paths below the shell-secrets mount' do
         expect_successful_exit_code
 
-        configure_script = t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure')
-        expect(configure_script).to include('trusted-ca-keys')
+        expect(t.projected_item_paths('Deployment/test-gitlab-shell', 'shell-secrets')).to include(
+          'ssh/trusted-ca-keys/ca1.pub', 'ssh/trusted-ca-keys/ca2.pub'
+        )
       end
     end
   end
@@ -568,7 +569,7 @@ describe 'gitlab-shell configuration' do
 
     def topology_service_secret_source
       volumes = t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec', 'volumes')
-      init_secrets_volume = volumes.find { |v| v['name'] == 'shell-init-secrets' }
+      init_secrets_volume = volumes.find { |v| v['name'] == 'shell-secrets' }
       init_secrets_volume['projected']['sources'].find do |s|
         (s.dig('secret', 'items') || []).any? { |i| i['path'].to_s.include?('shell/topology-service') }
       end
@@ -654,7 +655,7 @@ describe 'gitlab-shell configuration' do
         end
       end
 
-      it 'adds the topology service secret to the shell-init-secrets projected volume' do
+      it 'adds the topology service secret to the shell-secrets projected volume' do
         expect_successful_exit_code
 
         ts_source = topology_service_secret_source
@@ -666,25 +667,13 @@ describe 'gitlab-shell configuration' do
         )
       end
 
-      it 'includes topology service cert copy commands in the configure script' do
+      it 'projects the topology service certs at the paths read by the rendered config' do
         expect_successful_exit_code
 
-        configure_script = t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure')
-        expect(configure_script).to include('shell/topology-service/tls.crt')
-        expect(configure_script).to include('shell/topology-service/tls.key')
-      end
-
-      # Regression test for INC-11083 / !5119: the topology-service copies write
-      # files that are subsequently chmod 0400'd into the shared init-secrets
-      # emptyDir. Without `cp -f`, a re-run of the configure script (init-container
-      # retry or rollout overlap) cannot overwrite the previously written 0400
-      # files and fails with "Permission denied", crash-looping the init container.
-      it 'copies topology service certs with the force flag (idempotent re-run)' do
-        expect_successful_exit_code
-
-        configure_script = t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure')
-        expect(configure_script).to match(%r{cp\s+(-\w+\s+)*-f(\s+-\w+)*\s+/\$\{config_dir\}/shell/topology-service/tls\.crt})
-        expect(configure_script).to match(%r{cp\s+(-\w+\s+)*-f(\s+-\w+)*\s+/\$\{config_dir\}/shell/topology-service/tls\.key})
+        paths = t.projected_item_paths('Deployment/test-gitlab-shell', 'shell-secrets')
+        expect(paths).to include('shell/topology-service/tls.crt', 'shell/topology-service/tls.key')
+        expect(rendered_config['topology_service']['tls']['cert_file']).to eq('/etc/gitlab-secrets/shell/topology-service/tls.crt')
+        expect(rendered_config['topology_service']['tls']['key_file']).to eq('/etc/gitlab-secrets/shell/topology-service/tls.key')
       end
     end
 
@@ -714,11 +703,11 @@ describe 'gitlab-shell configuration' do
         expect(topology_service_secret_source).to be_nil
       end
 
-      it 'does not include topology service cert copy commands in the configure script' do
+      it 'does not project any topology service cert paths' do
         expect_successful_exit_code
 
-        configure_script = t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure')
-        expect(configure_script).not_to include('shell/topology-service')
+        paths = t.projected_item_paths('Deployment/test-gitlab-shell', 'shell-secrets')
+        expect(paths.grep(%r{shell/topology-service})).to be_empty
       end
     end
 
@@ -808,19 +797,40 @@ describe 'gitlab-shell configuration' do
     end
   end
 
-  describe 'configure script idempotency (INC-11083 regression)' do
+  describe 'SSH host keys' do
     let(:values) { default_values }
+    let(:pod_spec) { t.dig('Deployment/test-gitlab-shell', 'spec', 'template', 'spec') }
+    let(:shell_container) { pod_spec['containers'].find { |c| c['name'] == 'gitlab-shell' } }
 
-    let(:configure_script) { t.dig('ConfigMap/test-gitlab-shell', 'data', 'configure') }
-
-    # The SSH host keys are copied and then chmod 0400'd into the shared
-    # init-secrets emptyDir. Without `cp -f`, a second execution of the configure
-    # script against the same emptyDir cannot overwrite the 0400 files and exits
-    # non-zero under `set -e`, causing Init:CrashLoopBackOff (INC-11083 / !5119).
-    it 'copies SSH host keys with the force flag so re-runs do not fail with Permission denied' do
+    it 'mounts the host keys from a dedicated volume and points KEYS_DIRECTORY at it', :aggregate_failures do
       expect_successful_exit_code
 
-      expect(configure_script).to match(%r{cp\s+(-\w+\s+)*-f(\s+-\w+)*\s+/\$\{config_dir\}/ssh_host_\*})
+      host_keys_volume = pod_spec['volumes'].find { |v| v['name'] == 'shell-host-keys' }
+      expect(host_keys_volume).not_to be_nil
+      expect(host_keys_volume['secret']['secretName']).to eq('test-gitlab-shell-host-keys')
+      expect(shell_container['volumeMounts']).to include(
+        include('name' => 'shell-host-keys', 'mountPath' => '/etc/gitlab-ssh-host-keys', 'readOnly' => true)
+      )
+      expect(shell_container['env']).to include('name' => 'KEYS_DIRECTORY', 'value' => '/etc/gitlab-ssh-host-keys')
+    end
+
+    context 'with the openssh daemon' do
+      let(:values) do
+        default_values.deep_merge(YAML.safe_load(%(
+          gitlab:
+            gitlab-shell:
+              sshDaemon: openssh
+        )))
+      end
+
+      it 'configures HostKey directives from the host keys mount' do
+        expect_successful_exit_code
+
+        sshd_config = t.dig('ConfigMap/test-gitlab-shell-sshd', 'data', 'sshd_config')
+        %w[rsa ecdsa ed25519].each do |type|
+          expect(sshd_config).to match(%r{^HostKey /etc/gitlab-ssh-host-keys/ssh_host_#{type}_key$})
+        end
+      end
     end
   end
 end

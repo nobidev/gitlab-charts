@@ -38,7 +38,7 @@ describe 'Mailroom configuration' do
       # check the default service name & password are used
       expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).to include("redis.example.com:6379")
       # check the default secret is mounted
-      projected_volume = t.projected_volume_sources('Deployment/test-mailroom','init-mailroom-secrets')
+      projected_volume = t.projected_volume_sources('Deployment/test-mailroom','mailroom-secrets')
       redis_mount =  projected_volume.select { |item| item['secret']['name'] == "test-redis-secret" }
       expect(redis_mount.length).to eq(1)
       # check there are no Sentinels
@@ -330,7 +330,7 @@ describe 'Mailroom configuration' do
       expect(t.exit_code).to eq(0)
       # configure the external-redis server, port, secret
       expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).to include("redis.example.com:9999/0")
-      projected_volume = t.projected_volume_sources('Deployment/test-mailroom','init-mailroom-secrets')
+      projected_volume = t.projected_volume_sources('Deployment/test-mailroom','mailroom-secrets')
       redis_mount =  projected_volume.select { |item| item['secret']['name'] == "external-redis-secret" }
       expect(redis_mount.length).to eq(1)
       expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).not_to include(":sentinels:")
@@ -402,7 +402,7 @@ describe 'Mailroom configuration' do
       end
 
       it 'mounts the Sentinel password secret' do
-        projected_volume = template.projected_volume_sources('Deployment/test-mailroom','init-mailroom-secrets')
+        projected_volume = template.projected_volume_sources('Deployment/test-mailroom','mailroom-secrets')
         sentinel_secrets =  projected_volume.find { |item| item.dig('secret', 'name') == "redis-sentinel-secret" }
 
         expect(sentinel_secrets.length).to eq(1)
@@ -437,7 +437,7 @@ describe 'Mailroom configuration' do
       expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).not_to include("resque.redis")
       expect(t.dig('ConfigMap/test-mailroom','data','mail_room.yml')).to include("queue.redis")
       # check mount of the secret
-      projected_volume = t.projected_volume_sources('Deployment/test-mailroom','init-mailroom-secrets')
+      projected_volume = t.projected_volume_sources('Deployment/test-mailroom','mailroom-secrets')
       redis_mount =  projected_volume.select { |item| item['secret']['name'] == "redis-queues-secret" }
       expect(redis_mount.length).to eq(1)
       # no Sentinels present
@@ -582,7 +582,7 @@ describe 'Mailroom configuration' do
           jwt_secret_path: "/etc/gitlab/mailroom/incoming_email_webhook_secret"
         )
 
-        projected_secret = template.get_projected_secret('Deployment/test-mailroom', 'init-mailroom-secrets', 'test-mailroom-auth-token')
+        projected_secret = template.get_projected_secret('Deployment/test-mailroom', 'mailroom-secrets', 'test-mailroom-auth-token')
         expect(projected_secret).to eql(
           "name" => "test-mailroom-auth-token",
           "items" => [
@@ -598,7 +598,7 @@ describe 'Mailroom configuration' do
         expect(gitlab_yml["production"]["incoming_email"]).to include(
           "secret_file" => "/etc/gitlab/mailroom/incoming_email_webhook_secret"
         )
-        projected_secret = template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', 'test-mailroom-auth-token')
+        projected_secret = template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', 'test-mailroom-auth-token')
         expect(projected_secret).to eql(
           "name" => "test-mailroom-auth-token",
           "items" => [
@@ -615,8 +615,8 @@ describe 'Mailroom configuration' do
         let(:default_secret_name) { 'test-incoming-email-auth-token' }
 
         it 'uses a default secret name' do
-          expect(template.get_projected_secret('Deployment/test-mailroom', 'init-mailroom-secrets', default_secret_name)).not_to be_empty
-          expect(template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', default_secret_name)).not_to be_empty
+          expect(template.get_projected_secret('Deployment/test-mailroom', 'mailroom-secrets', default_secret_name)).not_to be_empty
+          expect(template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', default_secret_name)).not_to be_empty
         end
       end
 
@@ -625,7 +625,7 @@ describe 'Mailroom configuration' do
         let(:default_secret_key) { 'authToken' }
 
         it 'uses a default secret key name' do
-          mailroom_secret = template.get_projected_secret('Deployment/test-mailroom', 'init-mailroom-secrets', auth_token_secret)
+          mailroom_secret = template.get_projected_secret('Deployment/test-mailroom', 'mailroom-secrets', auth_token_secret)
           expect(mailroom_secret).to eql(
             "name" => "test-mailroom-auth-token",
             "items" => [
@@ -636,7 +636,7 @@ describe 'Mailroom configuration' do
             ]
           )
 
-          webservice_secret = template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', auth_token_secret)
+          webservice_secret = template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', auth_token_secret)
           expect(webservice_secret).to eql(
             "name" => "test-mailroom-auth-token",
             "items" => [
@@ -721,7 +721,7 @@ describe 'Mailroom configuration' do
           jwt_secret_path: "/etc/gitlab/mailroom/service_desk_email_webhook_secret"
         )
 
-        projected_secret = template.get_projected_secret('Deployment/test-mailroom', 'init-mailroom-secrets', 'test-mailroom-auth-token')
+        projected_secret = template.get_projected_secret('Deployment/test-mailroom', 'mailroom-secrets', 'test-mailroom-auth-token')
         expect(projected_secret).to eql(
           "name" => "test-mailroom-auth-token",
           "items" => [
@@ -737,7 +737,7 @@ describe 'Mailroom configuration' do
         expect(gitlab_yml["production"]["service_desk_email"]).to include(
           "secret_file" => "/etc/gitlab/mailroom/service_desk_email_webhook_secret"
         )
-        projected_secret = template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', 'test-mailroom-auth-token')
+        projected_secret = template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', 'test-mailroom-auth-token')
         expect(projected_secret).to eql(
           "name" => "test-mailroom-auth-token",
           "items" => [
@@ -754,8 +754,8 @@ describe 'Mailroom configuration' do
         let(:default_secret_name) { 'test-service-desk-email-auth-token' }
 
         it 'uses a default secret name' do
-          expect(template.get_projected_secret('Deployment/test-mailroom', 'init-mailroom-secrets', default_secret_name)).not_to be_empty
-          expect(template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', default_secret_name)).not_to be_empty
+          expect(template.get_projected_secret('Deployment/test-mailroom', 'mailroom-secrets', default_secret_name)).not_to be_empty
+          expect(template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', default_secret_name)).not_to be_empty
         end
       end
 
@@ -764,7 +764,7 @@ describe 'Mailroom configuration' do
         let(:default_secret_key) { 'authToken' }
 
         it 'uses a default secret key name' do
-          mailroom_secret = template.get_projected_secret('Deployment/test-mailroom', 'init-mailroom-secrets', auth_token_secret)
+          mailroom_secret = template.get_projected_secret('Deployment/test-mailroom', 'mailroom-secrets', auth_token_secret)
           expect(mailroom_secret).to eql(
             "name" => "test-mailroom-auth-token",
             "items" => [
@@ -775,7 +775,7 @@ describe 'Mailroom configuration' do
             ]
           )
 
-          webservice_secret = template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', auth_token_secret)
+          webservice_secret = template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', auth_token_secret)
           expect(webservice_secret).to eql(
             "name" => "test-mailroom-auth-token",
             "items" => [
@@ -864,7 +864,7 @@ describe 'Mailroom configuration' do
 
       it 'mounts Redis TLS secrets' do
         volumes = template.dig('Deployment/test-mailroom', 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |v| v["name"] == "init-mailroom-secrets" }
+        init_secrets = volumes.find { |v| v["name"] == "mailroom-secrets" }
         sources = init_secrets.dig("projected", "sources")
 
         ca_secret = sources.find { |s| s.dig("secret", "name") == "redis-ca" }
@@ -923,7 +923,7 @@ describe 'Mailroom configuration' do
 
       it 'mounts Sentinel TLS secrets' do
         volumes = template.dig('Deployment/test-mailroom', 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |v| v["name"] == "init-mailroom-secrets" }
+        init_secrets = volumes.find { |v| v["name"] == "mailroom-secrets" }
         sources = init_secrets.dig("projected", "sources")
 
         ca_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-ca" }
@@ -999,7 +999,7 @@ describe 'Mailroom configuration' do
 
       it 'mounts both Redis and Sentinel TLS secrets' do
         volumes = template.dig('Deployment/test-mailroom', 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |v| v["name"] == "init-mailroom-secrets" }
+        init_secrets = volumes.find { |v| v["name"] == "mailroom-secrets" }
         sources = init_secrets.dig("projected", "sources")
 
         # Redis TLS secrets
@@ -1072,7 +1072,7 @@ describe 'Mailroom configuration' do
     let(:rails_config) { template.dig('ConfigMap/test-webservice', 'data', 'gitlab.yml.erb') }
 
     it 'lists and mounts the keys in Webservice, alongside the symmetric secret_file', :aggregate_failures do
-      sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+      sources = template.projected_volume_sources('Deployment/test-webservice-default', 'webservice-secrets')
       match = sources.select { |s| s['secret']['name'] == 'incoming-email-public-keys' }
 
       expect(rails_config).to include('public_key_files:')
@@ -1094,7 +1094,7 @@ describe 'Mailroom configuration' do
       end
 
       it 'lists and mounts both keys, so tokens signed with either are accepted', :aggregate_failures do
-        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'webservice-secrets')
         match = sources.select { |s| s['secret']['name'] == 'incoming-email-public-keys' }
 
         expect(rails_config).to include('/etc/gitlab/mailroom/incoming_email_public_key_current.pub')
@@ -1113,7 +1113,7 @@ describe 'Mailroom configuration' do
     end
 
     it 'does not mount the public keys into the mailroom pod, which never verifies tokens' do
-      sources = template.projected_volume_sources('Deployment/test-mailroom', 'init-mailroom-secrets')
+      sources = template.projected_volume_sources('Deployment/test-mailroom', 'mailroom-secrets')
 
       expect(sources.map { |s| s.dig('secret', 'name') }).not_to include('incoming-email-public-keys')
     end
@@ -1132,7 +1132,7 @@ describe 'Mailroom configuration' do
       end
 
       it 'mounts no public keys' do
-        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'webservice-secrets')
 
         expect(template.exit_code).to eq(0)
         expect(sources.map { |s| s.dig('secret', 'name') }).not_to include('service-desk-email-public-keys')
@@ -1150,7 +1150,7 @@ describe 'Mailroom configuration' do
       end
 
       it 'neither lists nor mounts the public keys, as no token is sent' do
-        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'webservice-secrets')
 
         expect(rails_config).not_to include('public_key_files:')
         expect(sources.map { |s| s.dig('secret', 'name') }).not_to include('incoming-email-public-keys')
@@ -1172,7 +1172,7 @@ describe 'Mailroom configuration' do
       end
 
       it 'renders and projects the service desk keys under their own path' do
-        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets')
+        sources = template.projected_volume_sources('Deployment/test-webservice-default', 'webservice-secrets')
         match = sources.select { |s| s['secret']['name'] == 'service-desk-email-public-keys' }
 
         expect(rails_config).to include('/etc/gitlab/mailroom/service_desk_email_public_key_current.pub')

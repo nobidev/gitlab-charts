@@ -91,9 +91,6 @@ service:
   # trafficDistribution: PreferClose
 
 init:
-  image: {}
-    # repository:
-    # tag:
   resources:
     requests:
       cpu: 50m

@@ -105,9 +105,9 @@ describe 'iamAuthService templates' do
   describe 'gitlab.appConfig.iamAuthService.mountSecrets' do
     let(:deployments) do
       {
-        'Deployment/test-webservice-default' => 'init-webservice-secrets',
-        'Deployment/test-sidekiq-all-in-1-v2' => 'init-sidekiq-secrets',
-        'Deployment/test-toolbox' => 'init-toolbox-secrets'
+        'Deployment/test-webservice-default' => 'webservice-secrets',
+        'Deployment/test-sidekiq-all-in-1-v2' => 'sidekiq-secrets',
+        'Deployment/test-toolbox' => 'toolbox-secrets'
       }
     end
 

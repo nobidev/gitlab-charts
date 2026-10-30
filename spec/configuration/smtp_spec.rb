@@ -16,7 +16,7 @@ describe 'SMTP configuration' do
   end
   let(:template) { HelmTemplate.new values }
   let(:smtp_secret) do
-    template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', 'gitlab-smtp')
+    template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', 'gitlab-smtp')
   end
 
   context 'authentication enabled' do
@@ -50,7 +50,7 @@ describe 'SMTP configuration' do
       end
 
       it 'does not mount a user_name secret' do
-        username_secret = template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', 'gitlab-smtp-username')
+        username_secret = template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', 'gitlab-smtp-username')
         expect(username_secret).to eq(nil)
       end
     end
@@ -73,7 +73,7 @@ describe 'SMTP configuration' do
       end
 
       it 'does mount the user_name secret' do
-        username_secret = template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', 'gitlab-smtp-username')
+        username_secret = template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', 'gitlab-smtp-username')
         expect(username_secret).to_not eq(nil)
         expect(username_secret['items'][0]['key']).to eq('username')
         expect(username_secret['items'][0]['path']).to eq('smtp/smtp-username')
@@ -112,7 +112,7 @@ describe 'SMTP configuration' do
         end
 
         it 'does not mount the user_name secret' do
-          username_secret = template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', 'gitlab-smtp-username')
+          username_secret = template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', 'gitlab-smtp-username')
           expect(username_secret).to eq(nil)
         end
       end
@@ -148,7 +148,7 @@ describe 'SMTP configuration' do
         end
 
         it 'does not mount the user_name secret' do
-          username_secret = template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', 'gitlab-smtp-username')
+          username_secret = template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', 'gitlab-smtp-username')
           expect(username_secret).to eq(nil)
         end
       end

@@ -134,7 +134,7 @@ describe 'GitLab Pages' do
         it 'creates necessary secrets and mounts them on webservice deployment' do
           webservice_secret_mounts = pages_enabled_template.projected_volume_sources(
             'Deployment/test-webservice-default',
-            'init-webservice-secrets'
+            'webservice-secrets'
           )
 
           shared_secret_mount = webservice_secret_mounts.select do |item|
@@ -147,7 +147,7 @@ describe 'GitLab Pages' do
         it 'creates necessary secrets and mounts them on pages deployment' do
           pages_secret_mounts = pages_enabled_template.projected_volume_sources(
             'Deployment/test-gitlab-pages',
-            'init-pages-secrets'
+            'pages-secrets'
           )
 
           shared_secret_mount = pages_secret_mounts.select do |item|
@@ -176,7 +176,7 @@ describe 'GitLab Pages' do
         it 'mounts shared secret on webservice deployment' do
           webservice_secret_mounts = pages_enabled_template.projected_volume_sources(
             'Deployment/test-webservice-default',
-            'init-webservice-secrets'
+            'webservice-secrets'
           )
 
           shared_secret_mount = webservice_secret_mounts.select do |item|
@@ -189,7 +189,7 @@ describe 'GitLab Pages' do
         it 'mounts shared secret on pages deployment' do
           pages_secret_mounts = pages_enabled_template.projected_volume_sources(
             'Deployment/test-gitlab-pages',
-            'init-pages-secrets'
+            'pages-secrets'
           )
 
           shared_secret_mount = pages_secret_mounts.select do |item|
@@ -290,7 +290,7 @@ describe 'GitLab Pages' do
           it 'creates necessary secrets and configmaps and mounts them on migration job' do
             migrations_secret_mounts = pages_enabled_template.projected_volume_sources(
               'Job/test-migrations-1',
-              'init-migrations-secrets'
+              'migrations-secrets'
             )
 
             oauth_secret_mount = migrations_secret_mounts.select do |item|
@@ -316,7 +316,7 @@ describe 'GitLab Pages' do
           it 'creates necessary secrets and mounts them on pages deployment' do
             pages_secret_mounts = pages_enabled_template.projected_volume_sources(
               'Deployment/test-gitlab-pages',
-              'init-pages-secrets'
+              'pages-secrets'
             )
 
             shared_secret_mount = pages_secret_mounts.select do |item|
@@ -690,7 +690,7 @@ describe 'GitLab Pages' do
           it 'is not mounted on Pages pod' do
             pages_secret_mounts = pages_enabled_template.projected_volume_sources(
               'Deployment/test-gitlab-pages',
-              'init-pages-secrets'
+              'pages-secrets'
             )
 
             tls_mount = pages_secret_mounts.find { |mount| mount['secret']['name'] == 'test-pages-tls' }
@@ -753,7 +753,7 @@ describe 'GitLab Pages' do
           it 'is not mounted on Pages pod' do
             pages_secret_mounts = pages_enabled_template.projected_volume_sources(
               'Deployment/test-gitlab-pages',
-              'init-pages-secrets'
+              'pages-secrets'
             )
 
             tls_mount = pages_secret_mounts.find { |mount| mount['secret']['name'] == 'test-pages-tls' }
@@ -820,7 +820,7 @@ describe 'GitLab Pages' do
           it 'is mounted on Pages pod' do
             pages_secret_mounts = pages_enabled_template.projected_volume_sources(
               'Deployment/test-gitlab-pages',
-              'init-pages-secrets'
+              'pages-secrets'
             )
 
             tls_mount = pages_secret_mounts.find { |mount| mount['secret']['name'] == 'test-pages-tls' }
@@ -890,7 +890,7 @@ describe 'GitLab Pages' do
           it 'is mounted on Pages pod' do
             pages_secret_mounts = pages_enabled_template.projected_volume_sources(
               'Deployment/test-gitlab-pages',
-              'init-pages-secrets'
+              'pages-secrets'
             )
 
             tls_mount = pages_secret_mounts.find { |mount| mount['secret']['name'] == 'test-pages-tls' }

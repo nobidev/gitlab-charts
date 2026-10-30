@@ -83,8 +83,6 @@ to the `helm install` command using the `--set` flags.
 | `image.pullSecrets`                                           |                                                                 | Secrets for the image repository |
 | `image.repository`                                            | `registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ee` | Webservice image repository |
 | `image.tag`                                                   |                                                                 | Webservice image tag |
-| `init.image.repository`                                       |                                                                 | initContainer image |
-| `init.image.tag`                                              |                                                                 | initContainer image tag |
 | `init.containerSecurityContext.runAsUser`                     | `1000`                                                          | initContainer specific: User ID under which the container should be started |
 | `init.containerSecurityContext.allowPrivilegeEscalation`      | `false`                                                         | initContainer specific: Controls whether a process can gain more privileges than its parent process |
 | `init.containerSecurityContext.runAsNonRoot`                  | `true`                                                          | initContainer specific: Controls whether the container runs with a non-root user |

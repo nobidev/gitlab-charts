@@ -440,8 +440,8 @@ describe 'toolbox configuration' do
         container_env = deployment_spec.dig('containers', 0, 'env')
         expect(container_env).to include(env_value('AZURE_CONFIG_FILE', '/etc/gitlab/objectstorage/azure_config'))
         expect(container_env).to include(env_value('BACKUP_BACKEND', 'azure'))
-        init_secret = deployment_spec['volumes'].find { |s| s['name'] == 'init-toolbox-secrets' }
-        token_secret = init_secret["projected"]["sources"].find { |sc| sc['secret']['name'] == 'azure-backup-conf' }["secret"]
+        init_secret = deployment_spec['volumes'].find { |s| s['name'] == 'toolbox-secrets' }
+        token_secret = init_secret["projected"]["sources"].find { |sc| sc.dig('secret', 'name') == 'azure-backup-conf' }["secret"]
         expect(token_secret["items"]).to eq([{ "key" => 'azconf', "path" => 'objectstorage/azure_config' }])
       end
 
@@ -450,9 +450,23 @@ describe 'toolbox configuration' do
         container_env = cronjob_spec.dig('containers', 0, 'env')
         expect(container_env).to include(env_value('AZURE_CONFIG_FILE', '/etc/gitlab/objectstorage/azure_config'))
         expect(container_env).to include(env_value('BACKUP_BACKEND', 'azure'))
-        init_secret = cronjob_spec['volumes'].find { |s| s['name'] == 'init-toolbox-secrets' }
-        token_secret = init_secret["projected"]["sources"].find { |sc| sc['secret']['name'] == 'azure-backup-conf' }["secret"]
+        init_secret = cronjob_spec['volumes'].find { |s| s['name'] == 'toolbox-secrets' }
+        token_secret = init_secret["projected"]["sources"].find { |sc| sc.dig('secret', 'name') == 'azure-backup-conf' }["secret"]
         expect(token_secret["items"]).to eq([{ "key" => 'azconf', "path" => 'objectstorage/azure_config' }])
+      end
+    end
+
+    context 'using s3 backend with objectStorage.config' do
+      let(:template) { HelmTemplate.new(default_values) }
+
+      it 'projects the .s3cfg secret key directly to .s3cfg in the deployment and cronjob' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+
+        %w[Deployment/test-toolbox CronJob/test-toolbox-backup].each do |item|
+          paths = template.projected_item_paths(item, 'toolbox-secrets')
+          expect(paths).to include('.s3cfg')
+          expect(paths).not_to include('objectstorage/.s3cfg')
+        end
       end
     end
 
@@ -479,9 +493,9 @@ describe 'toolbox configuration' do
       end
 
       def s3cfg_secret_sources(pod_spec)
-        init_secret = pod_spec['volumes'].find { |v| v['name'] == 'init-toolbox-secrets' }
+        init_secret = pod_spec['volumes'].find { |v| v['name'] == 'toolbox-secrets' }
         init_secret['projected']['sources'].select do |source|
-          source['secret']&.dig('items')&.any? { |item| item['path'] == 'objectstorage/.s3cfg' }
+          source['secret']&.dig('items')&.any? { |item| item['path'] == '.s3cfg' }
         end
       end
 

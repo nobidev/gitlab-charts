@@ -66,7 +66,7 @@ describe 'Database configuration' do
         expect(db_config['production'].dig('ci', 'port')).to eq(9999)
         expect(db_config['production'].dig('ci', 'database_tasks')).to eq(false)
 
-        webservice_secret_mounts = t.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets').select do |item|
+        webservice_secret_mounts = t.projected_volume_sources('Deployment/test-webservice-default', 'webservice-secrets').select do |item|
           item['secret']['name'] == 'sekrit' && item['secret']['items'][0]['key'] == 'pa55word'
         end
         expect(webservice_secret_mounts.length).to eq(2)
@@ -113,7 +113,7 @@ describe 'Database configuration' do
       it 'Does not template password files for `bogus` stanza' do
         t = HelmTemplate.new(decompose_bogus)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
-        webservice_secret_mounts = t.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets').select do |item|
+        webservice_secret_mounts = t.projected_volume_sources('Deployment/test-webservice-default', 'webservice-secrets').select do |item|
           item['secret']['items'][0]['key'] == 'postgresql-password' && item['secret']['items'][0]['path'] == 'postgres/psql-password-bogus'
         end
         expect(webservice_secret_mounts.length).to eq(0)
@@ -336,7 +336,7 @@ describe 'Database configuration' do
         expect(ci_config['load_balancing']).to eq({ 'hosts' => ['a.secondary.global', 'b.secondary.global'] })
 
         # Check the secret mounts
-        webservice_secret_mounts = t.projected_volume_sources('Deployment/test-webservice-default', 'init-webservice-secrets').select do |item|
+        webservice_secret_mounts = t.projected_volume_sources('Deployment/test-webservice-default', 'webservice-secrets').select do |item|
           item['secret']['items'][0]['key'] == 'password'
         end
         psql_secret_mounts = webservice_secret_mounts.map { |x| x['secret']['name'] }

@@ -753,20 +753,6 @@ Usage: {{ include "gitlab.topologyService.volumeMounts" (dict "context" $ "secre
 {{- end -}}
 
 {{/*
-Configure script for topology service TLS secrets
-Usage: {{ include "gitlab.topologyService.configureScript" $ | nindent 4 }}
-*/}}
-{{- define "gitlab.topologyService.configureScript" -}}
-{{- if eq (include "gitlab.global.cell.topologyService.tls.enabled" $) "true" }}
-  if [ -d /init-config/topology-service ]; then
-    mkdir -p /init-secrets/topology-service
-    cp -v -L /init-config/topology-service/tls.key /init-secrets/topology-service/tls.key
-    cp -v -L /init-config/topology-service/tls.crt /init-secrets/topology-service/tls.crt
-  fi
-{{- end }}
-{{- end -}}
-
-{{/*
 Return whether the GitLab Shell Topology Service client uses mTLS.
 
 GitLab Shell's use of the Topology Service is controlled directly by
@@ -783,22 +769,8 @@ true
 {{- end -}}
 
 {{/*
-Configure script fragment that materializes the Topology Service mTLS cert/key
-into the GitLab Shell secrets directory. Mirrors the SSH host key handling.
-Usage: {{ include "gitlab.gitlab-shell.topologyService.configureScript" $ | nindent 4 }}
-*/}}
-{{- define "gitlab.gitlab-shell.topologyService.configureScript" -}}
-{{- if eq (include "gitlab.gitlab-shell.topologyService.tls.enabled" $) "true" }}
-mkdir -p /${secret_dir}/shell/topology-service
-cp -f -v -L /${config_dir}/shell/topology-service/tls.crt /${secret_dir}/shell/topology-service/tls.crt
-cp -f -v -L /${config_dir}/shell/topology-service/tls.key /${secret_dir}/shell/topology-service/tls.key
-chmod 0400 /${secret_dir}/shell/topology-service/tls.key
-{{- end }}
-{{- end -}}
-
-{{/*
 Projected volume source that provides the Topology Service mTLS secret to the
-GitLab Shell init container. The secret is expected to contain tls.crt and tls.key
+GitLab Shell container. The secret is expected to contain tls.crt and tls.key
 (the cert-manager / Vault PKI client certificate, e.g. cell-1-<env>-mtls-cert).
 Usage: {{ include "gitlab.gitlab-shell.topologyService.mountSecrets" $ | nindent 12 }}
 */}}

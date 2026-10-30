@@ -14,9 +14,9 @@ describe 'Amazon SES Mailer configuration' do
 
   let(:charts_with_ses_init_secret_mounts) do
     {
-      'test-sidekiq-all-in-1-v2' => 'init-sidekiq-secrets',
-      'test-webservice-default' => 'init-webservice-secrets',
-      'test-toolbox' => 'init-toolbox-secrets'
+      'test-sidekiq-all-in-1-v2' => 'sidekiq-secrets',
+      'test-webservice-default' => 'webservice-secrets',
+      'test-toolbox' => 'toolbox-secrets'
     }
   end
 
@@ -48,9 +48,9 @@ describe 'Amazon SES Mailer configuration' do
       expect(amazon_ses_mailer['role_arn']).to eq('arn:aws:iam::123456789012:role/ses-mailer')
       expect(amazon_ses_mailer['access_key_id']).to eq('AKIAEXAMPLE')
 
-      # check that the configure script includes `amazon_ses_mailer`
-      configure = template.dig("ConfigMap/test-#{chart}", 'data', 'configure')
-      expect(configure).to match(/# optional\nfor secret in .* amazon_ses_mailer .*; do/m)
+      # check that the secrets volume projects the secret at the path read by gitlab.yml.erb
+      deployment, mount = charts_with_ses_init_secret_mounts.find { |d, _| d.include?(chart) }
+      expect(template.projected_item_paths("Deployment/#{deployment}", mount)).to include('amazon_ses_mailer/secret_access_key')
     end
   end
 
@@ -76,9 +76,9 @@ describe 'Amazon SES Mailer configuration' do
     it 'populates amazon-ses-mailer-secret-access-key into cronjob' do
       job_template_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate')
       job_pod_volumes = job_template_spec.dig('spec', 'template', 'spec', 'volumes')
-      init_secret = job_pod_volumes.find { |s| s['name'] == 'init-toolbox-secrets' }
+      init_secret = job_pod_volumes.find { |s| s['name'] == 'toolbox-secrets' }
       secret_names = init_secret["projected"]["sources"].map do |item|
-        item['secret']['name']
+        item.dig('secret', 'name')
       end
       expect(secret_names).to include('amazon-ses-mailer-secret-access-key')
     end
@@ -100,9 +100,9 @@ describe 'Amazon SES Mailer configuration' do
     it 'populates amazon-ses-mailer-secret-access-key into cronjob' do
       job_template_spec = template.dig('CronJob/test-toolbox-db-reindex', 'spec', 'jobTemplate')
       job_pod_volumes = job_template_spec.dig('spec', 'template', 'spec', 'volumes')
-      init_secret = job_pod_volumes.find { |s| s['name'] == 'init-toolbox-secrets' }
+      init_secret = job_pod_volumes.find { |s| s['name'] == 'toolbox-secrets' }
       secret_names = init_secret["projected"]["sources"].map do |item|
-        item['secret']['name']
+        item.dig('secret', 'name')
       end
       expect(secret_names).to include('amazon-ses-mailer-secret-access-key')
     end

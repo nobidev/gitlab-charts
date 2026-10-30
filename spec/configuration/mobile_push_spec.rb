@@ -42,12 +42,9 @@ describe 'Mobile push configuration' do
 
       deployments_with_mobile_push.each do |chart, deployment|
         item = template.find_projected_secret_key(
-          deployment, "init-#{chart}-secrets", 'gitlab-mobile-push-apns-auth-key', 'auth_key'
+          deployment, "#{chart}-secrets", 'gitlab-mobile-push-apns-auth-key', 'auth_key'
         )
         expect(item).to eq('key' => 'auth_key', 'path' => 'mobile_push/apns_auth_key.p8')
-
-        configure = template.dig("ConfigMap/test-#{chart}", 'data', 'configure')
-        expect(configure).to include('mobile_push')
       end
     end
 
@@ -112,7 +109,7 @@ describe 'Mobile push configuration' do
 
       deployments_with_mobile_push.each do |chart, deployment|
         found = template.find_projected_secret(
-          deployment, "init-#{chart}-secrets", 'gitlab-mobile-push-apns-auth-key'
+          deployment, "#{chart}-secrets", 'gitlab-mobile-push-apns-auth-key'
         )
         expect(found).to be(false)
       end

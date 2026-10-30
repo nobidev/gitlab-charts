@@ -197,7 +197,7 @@ describe 'gitlab-exporter configuration' do
       end
 
       let(:volumes) { template.dig('Deployment/test-gitlab-exporter', 'spec', 'template', 'spec', 'volumes') }
-      let(:secret_volumes) { volumes.find { |volume| volume['name'] == 'init-gitlab-exporter-secrets' } }
+      let(:secret_volumes) { volumes.find { |volume| volume['name'] == 'gitlab-exporter-secrets' } }
       let(:secret_names) { secret_volumes.dig('projected', 'sources').map { |source| source['secret'] }.map { |secret| secret['name'] } }
 
       it 'configures Sentinels with password' do
@@ -233,7 +233,7 @@ describe 'gitlab-exporter configuration' do
 
     it 'should mount the TLS certificates' do
       volumes = template.dig('Deployment/test-gitlab-exporter', 'spec', 'template', 'spec', 'volumes')
-      init_secrets = volumes.find { |v| v["name"] == "init-gitlab-exporter-secrets" }
+      init_secrets = volumes.find { |v| v["name"] == "gitlab-exporter-secrets" }
       tls_secret = init_secrets.dig("projected", "sources").find { |s| s.dig("secret", "name") == "exporter-tls-secret" }
 
       expect(tls_secret).not_to be_nil
@@ -273,7 +273,7 @@ describe 'gitlab-exporter configuration' do
 
       it 'should mount Redis TLS secrets' do
         volumes = template.dig('Deployment/test-gitlab-exporter', 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |v| v["name"] == "init-gitlab-exporter-secrets" }
+        init_secrets = volumes.find { |v| v["name"] == "gitlab-exporter-secrets" }
         sources = init_secrets.dig("projected", "sources")
 
         ca_secret = sources.find { |s| s.dig("secret", "name") == "redis-ca" }
@@ -328,7 +328,7 @@ describe 'gitlab-exporter configuration' do
 
       it 'mounts Sentinel TLS secrets' do
         volumes = template.dig('Deployment/test-gitlab-exporter', 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |v| v["name"] == "init-gitlab-exporter-secrets" }
+        init_secrets = volumes.find { |v| v["name"] == "gitlab-exporter-secrets" }
         sources = init_secrets.dig("projected", "sources")
 
         ca_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-ca" }

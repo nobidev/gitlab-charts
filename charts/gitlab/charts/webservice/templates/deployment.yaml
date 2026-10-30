@@ -1,6 +1,5 @@
 {{- if $.Values.enabled }}
 {{- $imageCfg := dict "global" $.Values.global.image "local" $.Values.image -}}
-{{- $initImageCfg := include "gitlab.configure.config" $.Values | fromYaml -}}
 {{- $affinityMode := coalesce $.Values.antiAffinity $.Values.global.antiAffinity -}}
 {{- $topologyKey := coalesce $.Values.affinity.podAntiAffinity.topologyKey $.Values.global.affinity.podAntiAffinity.topologyKey -}}
 {{- include "database.datamodel.prepare" $ -}}
@@ -119,40 +118,6 @@ spec:
       initContainers:
         {{- include "gitlab.extraInitContainers" $ | nindent 8 }}
         {{- include "gitlab.certificates.initContainer" $ | nindent 8 }}
-        - name: configure
-          command: ['sh']
-          args: [ '-c', 'sh -x /config-webservice/configure ; sh -x /config-workhorse/configure ; mkdir -p -m 3770 /tmp/gitlab']
-          image: {{ include "gitlab.configure.image" (dict "root" $ "image" $.Values.init.image ) | quote }}
-          {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
-          {{- include "gitlab.init.containerSecurityContext" $ | indent 10 }}
-          env:
-            {{- include "gitlab.timeZone.env" $ | nindent 12 }}
-            {{- include "webservice.extraEnv" (dict "global" $.Values.global "local" .) | nindent 12 }}
-            {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 12 }}
-          volumeMounts:
-          {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
-          {{- include "gitlab.psql.ssl.volumeMount" $ | nindent 10 }}
-          {{- include "gitlab.geo.psql.ssl.volumeMount" $ | nindent 10 }}
-          - name: webservice-config
-            mountPath: /config-webservice
-            readOnly: true
-          - name: workhorse-config
-            mountPath: /config-workhorse
-            readOnly: true
-          - name: init-webservice-secrets
-            mountPath: /init-config
-            readOnly: true
-          - name: webservice-secrets
-            mountPath: /init-secrets
-            readOnly: false
-          - name: workhorse-secrets
-            mountPath: /init-secrets-workhorse
-            readOnly: false
-          - name: shared-tmp
-            mountPath: /tmp
-            readOnly: false
-          resources:
-            {{- toYaml $.Values.init.resources | nindent 12 }}
         - name: dependencies
           image: {{ include "webservice.image" $ }}
           {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
@@ -470,8 +435,6 @@ spec:
       {{- include "webservice.sshHostKeys.volume" (dict "local" . "Release" $.Release "Values" $.Values) | nindent 6 }}
       {{- end }}
       {{- include "gitlab.extraVolumes" $ | nindent 6 }}
-      {{- include "gitlab.psql.ssl.volume" $ | nindent 6 }}
-      {{- include "gitlab.geo.psql.ssl.volume" $ | nindent 6 }}
       {{- include "gitlab.appConfig.kerberos.volume" $ | nindent 6 }}
       - name: shared-tmp
         {{- include "gitlab.volume.emptyDir" .sharedTmpDir | nindent 8 }}
@@ -486,10 +449,34 @@ spec:
       - name: workhorse-config
         configMap:
             name: {{ $.Release.Name }}-workhorse-{{ .name }}
-      - name: init-webservice-secrets
+      - name: workhorse-secrets
         projected:
           defaultMode: 0400
           sources:
+          - secret:
+              name: {{ template "gitlab.workhorse.secret" $ }}
+              items:
+                - key: {{ template "gitlab.workhorse.key" $ }}
+                  path: gitlab-workhorse/secret
+          {{- if $.Values.global.workhorse.tls.enabled }}
+          - secret:
+              name: {{ include "workhorse.tls.secret" $ }}
+              items:
+                - key: "tls.crt"
+                  path: "gitlab-workhorse/tls.crt"
+                - key: "tls.key"
+                  path: "gitlab-workhorse/tls.key"
+          {{- end }}
+          {{- include "workhorse.redis.secrets" $ | nindent 10 }}
+          {{- if $.Values.global.appConfig.object_store.connection }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store) | nindent 10 }}
+          {{- end }}
+      - name: webservice-secrets
+        projected:
+          defaultMode: 0400
+          sources:
+          {{- include "gitlab.psql.ssl.secretSource" $ | nindent 10 }}
+          {{- include "gitlab.geo.psql.ssl.secretSource" $ | nindent 10 }}
           - secret:
               name: {{ template "gitlab.rails-secrets.secret" $ }}
               items:
@@ -609,12 +596,6 @@ spec:
             - key: {{ $.Values.global.email.smime.certName }}
               path: .gitlab_smime_cert
       {{- end }}
-      - name: webservice-secrets
-        emptyDir:
-          medium: "Memory"
-      - name: workhorse-secrets
-        emptyDir:
-          medium: "Memory"
       - name: shared-upload-directory
         {{- include "gitlab.volume.emptyDir" .sharedUploadDir | nindent 8 }}
       {{- include "gitlab.certificates.volumes" $ | nindent 6 }}

@@ -397,8 +397,6 @@ See [Configure the GitLab chart with an external Redis](../advanced/external-red
 | `gitlab.toolbox.image.pullPolicy`                          | `IfNotPresent`                                                  | Toolbox image pull policy |
 | `gitlab.toolbox.image.repository`                          | `registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ee`    | Toolbox image repository |
 | `gitlab.toolbox.image.tag`                                 | `master`                                                        | Toolbox image tag |
-| `gitlab.toolbox.init.image.repository`                     |                                                                 | Toolbox init image repository |
-| `gitlab.toolbox.init.image.tag`                            |                                                                 | Toolbox init image tag |
 | `gitlab.toolbox.init.resources.requests.cpu`               | `50m`                                                           | Toolbox init minimum needed CPU |
 | `gitlab.toolbox.persistence.accessMode`                    | `ReadWriteOnce`                                                 | Toolbox persistence access mode |
 | `gitlab.toolbox.persistence.enabled`                       | `false`                                                         | Toolbox enable persistence flag |

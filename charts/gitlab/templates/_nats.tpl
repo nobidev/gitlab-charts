@@ -103,18 +103,3 @@ Usage: {{ include "gitlab.appConfig.nats.volumeMounts" (dict "context" $ "secret
   readOnly: true
 {{- end }}
 {{- end -}}
-
-{{/*
-Configure script that materializes the NATS TLS files into the secrets directory.
-Usage: {{ include "gitlab.appConfig.nats.configureScript" $ | nindent 4 }}
-*/}}
-{{- define "gitlab.appConfig.nats.configureScript" -}}
-{{- if eq (include "gitlab.appConfig.nats.tls.enabled" $) "true" }}
-  if [ -d /init-config/nats ]; then
-    mkdir -p /init-secrets/nats
-    cp -v -L /init-config/nats/ca.crt /init-secrets/nats/ca.crt
-    cp -v -L /init-config/nats/tls.crt /init-secrets/nats/tls.crt
-    cp -v -L /init-config/nats/tls.key /init-secrets/nats/tls.key
-  fi
-{{- end }}
-{{- end -}}

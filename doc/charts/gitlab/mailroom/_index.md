@@ -105,8 +105,6 @@ serviceAccount:
 | `image.registry`                              |                                                            | Mailroom image registry |
 | `image.repository`                            | `registry.gitlab.com/gitlab-org/build/cng/gitlab-mailroom` | Mailroom image repository |
 | `image.tag`                                   |                                                            | Mailroom image tag |
-| `init.image.repository`                       |                                                            | Mailroom init image repository |
-| `init.image.tag`                              |                                                            | Mailroom init image tag |
 | `init.resources`                              | `{ requests: { cpu: 50m }}`                                | Mailroom init container resource requirements |
 | `init.containerSecurityContext`               |                                                            | initContainer container specific [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) |
 | `keda.enabled`                                | `false`                                                    | Use [KEDA](https://keda.sh/) `ScaledObjects` instead of `HorizontalPodAutoscalers` |

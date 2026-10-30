@@ -8,19 +8,19 @@ describe 'ClickHouse configuration' do
     {
       'webservice' => {
         identifier: 'test-webservice-default',
-        init_mount: 'init-webservice-secrets'
+        init_mount: 'webservice-secrets'
       },
       'sidekiq' => {
         identifier: 'test-sidekiq-all-in-1-v2',
-        init_mount: 'init-sidekiq-secrets'
+        init_mount: 'sidekiq-secrets'
       },
       'toolbox' => {
         identifier: 'test-toolbox',
-        init_mount: 'init-toolbox-secrets'
+        init_mount: 'toolbox-secrets'
       },
       'migrations' => {
         identifier: 'test-migrations-suffix',
-        init_mount: 'init-migrations-secrets'
+        init_mount: 'migrations-secrets'
       }
     }
   end
@@ -47,7 +47,7 @@ describe 'ClickHouse configuration' do
     volumes = template.dig("#{kind}/#{id}", *volumes_path.split('.'))
     secrets = volumes.find { |volume| volume['name'] == mnt_name }
 
-    secrets['projected']['sources'].find { |item| item['secret']['name'] == 'gitlab-click-house-password' }
+    secrets['projected']['sources'].find { |item| item.dig('secret', 'name') == 'gitlab-click-house-password' }
   end
 
   it 'does not generate the click_house.yml file', :aggregate_failures do

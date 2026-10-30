@@ -1,5 +1,4 @@
 {{- $imageCfg := dict "global" .Values.global.image "local" .Values.image -}}
-{{- $initImageCfg := include "gitlab.configure.config" .Values | fromYaml -}}
 {{- $initCgroupsImageCfg := dict "global" .Values.global.image "local" .Values.cgroups.initContainer.image -}}
 spec:
   selector:
@@ -75,13 +74,13 @@ spec:
             - name: CGROUP_PATH
               value: /run/gitaly/cgroup/kubepods.slice/
             - name: OUTPUT_PATH
-              value: /init-secrets/gitaly-pod-cgroup
+              value: /etc/gitaly-cgroup/gitaly-pod-cgroup
             {{- include "gitlab.extraEnv" . | nindent 12 }}
             {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" (dict)) | nindent 12 }}
             {{- include "gitlab.timeZone.env" . | nindent 12 }}
           volumeMounts:
-            - name: gitaly-secrets
-              mountPath: /init-secrets
+            - name: gitaly-cgroup-path
+              mountPath: /etc/gitaly-cgroup
               readOnly: false
             - name: cgroup
               mountPath: /run/gitaly/cgroup
@@ -91,28 +90,6 @@ spec:
       {{- end }}
         {{- include "gitlab.extraInitContainers" . | nindent 8 }}
         {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
-        - name: configure
-          command: ['sh', '/config/configure']
-          image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.init.image) | quote }}
-          {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
-          {{- include "gitlab.init.containerSecurityContext" . | indent 10 }}
-          env:
-          {{- include "gitlab.timeZone.env" . | nindent 12 }}
-          {{- include "gitlab.extraEnv" . | nindent 12 }}
-          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 12 }}
-          volumeMounts:
-            {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
-            - name: gitaly-config
-              mountPath: /config
-              readOnly: true
-            - name: init-gitaly-secrets
-              mountPath: /init-config
-              readOnly: true
-            - name: gitaly-secrets
-              mountPath: /init-secrets
-              readOnly: false
-          resources:
-            {{- toYaml .Values.init.resources | nindent 12 }}
       {{- include "gitlab.podSecurityContext" .Values.securityContext | nindent 6 }}
       {{- include "gitlab.affinity" . | nindent 6 }}
       {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
@@ -161,6 +138,9 @@ spec:
             {{- if .Values.cgroups.enabled }}
             - name: cgroup
               mountPath: '/run/gitaly/cgroup'
+            - name: gitaly-cgroup-path
+              mountPath: /etc/gitaly-cgroup
+              readOnly: true
             {{- end }}
             - name: gitaly-config
               mountPath: '/etc/gitaly/templates'
@@ -224,6 +204,9 @@ spec:
           hostPath:
             path: /sys/fs/cgroup
             type: Directory
+        - name: gitaly-cgroup-path
+          emptyDir:
+            medium: "Memory"
         {{- end }}
         - name: gitaly-config
           configMap:
@@ -237,9 +220,6 @@ spec:
           emptyDir: {}
         {{- end }}
         - name: gitaly-secrets
-          emptyDir:
-            medium: "Memory"
-        - name: init-gitaly-secrets
           projected:
             defaultMode: 0440
             sources:
@@ -247,18 +227,18 @@ spec:
                 name: {{ template "gitlab.gitaly.authToken.secret" . }}
                 items:
                   - key: {{ template "gitlab.gitaly.authToken.key" . }}
-                    path: "gitaly_token"
+                    path: "gitaly/gitaly_token"
             - secret:
                 name: {{ template "gitlab.gitlab-shell.authToken.secret" . }}
                 items:
                   - key: {{ template "gitlab.gitlab-shell.authToken.key" . }}
-                    path: ".gitlab_shell_secret"
+                    path: "shell/.gitlab_shell_secret"
             {{- if .Values.gpgSigning.enabled }}
             - secret:
                 name: {{ .Values.gpgSigning.secret }}
                 items:
                   - key: {{ .Values.gpgSigning.key }}
-                    path: "signing_key.gpg"
+                    path: "gitaly/signing_key.gpg"
             {{- end }}
             {{- if .Values.global.gitaly.tls.enabled }}
             {{- $secretName := include "gitlab.gitaly.tls.secret" . -}}
@@ -269,9 +249,9 @@ spec:
                 name: {{ $secretName }}
                 items:
                   - key: "tls.crt"
-                    path: "gitaly.crt"
+                    path: "gitaly/gitaly.crt"
                   - key: "tls.key"
-                    path: "gitaly.key"
+                    path: "gitaly/gitaly.key"
             {{- end }}
         {{- with .Values.global.gitaly.hooks }}
         {{-   if .preReceive }}

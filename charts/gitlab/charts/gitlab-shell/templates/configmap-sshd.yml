@@ -26,10 +26,11 @@ data:
     #ListenAddress 0.0.0.0
     #ListenAddress ::
 
-    #HostKey /etc/ssh/ssh_host_rsa_key
-    #HostKey /etc/ssh/ssh_host_dsa_key
-    #HostKey /etc/ssh/ssh_host_ecdsa_key
-    #HostKey /etc/ssh/ssh_host_ed25519_key
+    # The default host keys, read from the mounted Secret. Copies would be owned
+    # by the sshd user and group-readable, which sshd rejects.
+    HostKey /etc/gitlab-ssh-host-keys/ssh_host_rsa_key
+    HostKey /etc/gitlab-ssh-host-keys/ssh_host_ecdsa_key
+    HostKey /etc/gitlab-ssh-host-keys/ssh_host_ed25519_key
 
     # Ciphers and keying
     #RekeyLimit default none

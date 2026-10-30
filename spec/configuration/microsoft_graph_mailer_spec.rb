@@ -14,9 +14,9 @@ describe 'Microsoft Graph Mailer configuration' do
 
   let(:charts_with_msgraph_init_secret_mounts) do
     {
-      'test-sidekiq-all-in-1-v2' => 'init-sidekiq-secrets',
-      'test-webservice-default' => 'init-webservice-secrets',
-      'test-toolbox' => 'init-toolbox-secrets'
+      'test-sidekiq-all-in-1-v2' => 'sidekiq-secrets',
+      'test-webservice-default' => 'webservice-secrets',
+      'test-toolbox' => 'toolbox-secrets'
     }
   end
 
@@ -52,9 +52,9 @@ describe 'Microsoft Graph Mailer configuration' do
       expect(microsoft_graph_mailer['azure_ad_endpoint']).to eq('https://login.microsoftonline.com')
       expect(microsoft_graph_mailer['graph_endpoint']).to eq('https://graph.microsoft.com')
 
-      # check that the configure script includes `microsoft_graph_mailer`
-      configure = template.dig("ConfigMap/test-#{chart}", 'data', 'configure')
-      expect(configure).to match(/# optional\nfor secret in .* microsoft_graph_mailer .*; do/m)
+      # check that the secrets volume projects the secret at the path read by gitlab.yml.erb
+      deployment, mount = charts_with_msgraph_init_secret_mounts.find { |d, _| d.include?(chart) }
+      expect(template.projected_item_paths("Deployment/#{deployment}", mount)).to include('microsoft_graph_mailer/client_secret')
     end
   end
 
@@ -80,9 +80,9 @@ describe 'Microsoft Graph Mailer configuration' do
     it 'populates microsoft-graph-mailer-client-secret into cronjob'  do
       job_template_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate')
       job_pod_volumes = job_template_spec.dig('spec', 'template', 'spec', 'volumes')
-      init_secret = job_pod_volumes.find { |s| s['name'] == 'init-toolbox-secrets' }
+      init_secret = job_pod_volumes.find { |s| s['name'] == 'toolbox-secrets' }
       secret_names = init_secret["projected"]["sources"].map do |item|
-        item['secret']['name']
+        item.dig('secret', 'name')
       end
       expect(secret_names).to include('microsoft-graph-mailer-client-secret')
     end

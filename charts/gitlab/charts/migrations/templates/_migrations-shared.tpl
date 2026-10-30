@@ -10,33 +10,8 @@ resolves to the chart root exactly as it did inline.
 */}}
 
 {{- define "migrations.job.initContainers" -}}
-{{- $initImageCfg := include "gitlab.configure.config" .Values | fromYaml -}}
 {{- include "gitlab.extraInitContainers" . | nindent 8 }}
 {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
-        - name: configure
-          command: ['sh', '/config/configure']
-          image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.init.image) | quote }}
-          {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
-          {{- include "gitlab.init.containerSecurityContext" $ | indent 10 }}
-          env:
-          {{- include "gitlab.timeZone.env" . | nindent 10 }}
-          {{- include "gitlab.extraEnv" . | nindent 10 }}
-          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
-          volumeMounts:
-          {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
-          {{- include "gitlab.psql.ssl.volumeMount" . | nindent 10 }}
-          {{- include "gitlab.geo.psql.ssl.volumeMount" . | nindent 10 }}
-          - name: migrations-config
-            mountPath: /config
-            readOnly: true
-          - name: init-migrations-secrets
-            mountPath: /init-config
-            readOnly: true
-          - name: migrations-secrets
-            mountPath: /init-secrets
-            readOnly: false
-          resources:
-            {{- toYaml .Values.init.resources | nindent 12 }}
 {{- end -}}
 
 {{- define "migrations.job.volumeMounts" }}
@@ -66,15 +41,15 @@ resolves to the chart root exactly as it did inline.
 
 {{- define "migrations.job.volumes" -}}
       {{- include "gitlab.extraVolumes" . | nindent 6 }}
-      {{- include "gitlab.psql.ssl.volume" . | nindent 6 }}
-      {{- include "gitlab.geo.psql.ssl.volume" . | nindent 6 }}
       - name: migrations-config
         configMap:
           name: {{ template "fullname" . }}
-      - name: init-migrations-secrets
+      - name: migrations-secrets
         projected:
           defaultMode: 0400
           sources:
+          {{- include "gitlab.psql.ssl.secretSource" . | nindent 10 }}
+          {{- include "gitlab.geo.psql.ssl.secretSource" . | nindent 10 }}
           {{ if and (eq $.Values.global.pages.enabled true) (eq $.Values.global.pages.accessControl true) }}
           - secret:
               name: {{ template "oauth.gitlab-pages.secret" . }}
@@ -143,8 +118,5 @@ resolves to the chart root exactly as it did inline.
                 - key: {{ template "gitlab.migrations.license.key" . }}
                   path: migrations/enterprise_license
           {{- end }}
-      - name: migrations-secrets
-        emptyDir:
-          medium: "Memory"
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
 {{- end -}}

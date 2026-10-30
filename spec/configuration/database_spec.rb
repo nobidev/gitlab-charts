@@ -198,7 +198,7 @@ describe 'Database configuration' do
           .and match(/keepalives_interval: $/)
           .and match(/keepalives_count: $/)
           .and match(/tcp_user_timeout: $/)
-        sidekiq_secret_mounts =  t.projected_volume_sources('Deployment/test-sidekiq-all-in-1-v2','init-sidekiq-secrets').select { |item|
+        sidekiq_secret_mounts =  t.projected_volume_sources('Deployment/test-sidekiq-all-in-1-v2','sidekiq-secrets').select { |item|
           item['secret']['name'] == 'psql-secret'
         }
         expect(sidekiq_secret_mounts.length).to eq(2)
@@ -217,7 +217,7 @@ describe 'Database configuration' do
         expect(t.dig('ConfigMap/test-webservice','data','database.yml.erb')).to include('keepalives_interval: 3')
         expect(t.dig('ConfigMap/test-webservice','data','database.yml.erb')).to include('keepalives_count: 3')
         expect(t.dig('ConfigMap/test-webservice','data','database.yml.erb')).to include('tcp_user_timeout: 13000')
-        webservice_secret_mounts =  t.projected_volume_sources('Deployment/test-webservice-default','init-webservice-secrets').select { |item|
+        webservice_secret_mounts =  t.projected_volume_sources('Deployment/test-webservice-default','webservice-secrets').select { |item|
           item['secret']['name'] == 'other-postgresql-password' && item['secret']['items'][0]['key'] == 'other-password'
         }
         expect(webservice_secret_mounts.length).to eq(2)
@@ -250,7 +250,7 @@ describe 'Database configuration' do
           .and match(/keepalives_interval: $/)
           .and match(/keepalives_count: $/)
           .and match(/tcp_user_timeout: $/)
-        sidekiq_secret_mounts =  t.projected_volume_sources('Deployment/test-sidekiq-all-in-1-v2','init-sidekiq-secrets').select { |item|
+        sidekiq_secret_mounts =  t.projected_volume_sources('Deployment/test-sidekiq-all-in-1-v2','sidekiq-secrets').select { |item|
           item['secret']['name'] == 'psql-secret' && item['secret']['items'][0]['key'] == 'password'
         }
         expect(sidekiq_secret_mounts.length).to eq(2)
@@ -267,7 +267,7 @@ describe 'Database configuration' do
           .and match(/keepalives_interval: $/)
           .and match(/keepalives_count: $/)
           .and match(/tcp_user_timeout: $/)
-        webservice_secret_mounts =  t.projected_volume_sources('Deployment/test-webservice-default','init-webservice-secrets').select { |item|
+        webservice_secret_mounts =  t.projected_volume_sources('Deployment/test-webservice-default','webservice-secrets').select { |item|
           item['secret']['name'] == 'psql-secret' && item['secret']['items'][0]['key'] == 'password'
         }
         expect(webservice_secret_mounts.length).to eq(2)
@@ -294,13 +294,13 @@ describe 'Database configuration' do
         expect(t.exit_code).to eq(0)
         # sidekiq gets "global"
         expect(t.dig('ConfigMap/test-sidekiq','data','database.yml.erb')).to include('host: "psql.example.com"')
-        sidekiq_secret_mounts =  t.projected_volume_sources('Deployment/test-sidekiq-all-in-1-v2','init-sidekiq-secrets').select { |item|
+        sidekiq_secret_mounts =  t.projected_volume_sources('Deployment/test-sidekiq-all-in-1-v2','sidekiq-secrets').select { |item|
           item['secret']['name'] == 'global-postgresql-password' && item['secret']['items'][0]['key'] == 'global-password'
         }
         expect(sidekiq_secret_mounts.length).to eq(2)
         # webservice gets "other", with non-defaults
         expect(t.dig('ConfigMap/test-webservice','data','database.yml.erb')).to include('host: "psql.other"')
-        webservice_secret_mounts =  t.projected_volume_sources('Deployment/test-webservice-default','init-webservice-secrets').select { |item|
+        webservice_secret_mounts =  t.projected_volume_sources('Deployment/test-webservice-default','webservice-secrets').select { |item|
           item['secret']['name'] == 'global-postgresql-password' && item['secret']['items'][0]['key'] == 'global-password'
         }
         expect(webservice_secret_mounts.length).to eq(2)

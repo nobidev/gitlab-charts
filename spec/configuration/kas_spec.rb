@@ -127,7 +127,7 @@ describe 'kas configuration' do
     it 'mounts shared secret on webservice deployment' do
       webservice_secret_mounts = kas_enabled_template.projected_volume_sources(
         'Deployment/test-webservice-default',
-        'init-webservice-secrets'
+        'webservice-secrets'
       )
 
       shared_secret_mount = webservice_secret_mounts.select do |item|

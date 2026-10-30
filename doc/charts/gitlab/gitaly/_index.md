@@ -66,8 +66,6 @@ the `helm install` command using the `--set` flags.
 | `image.pullSecrets`                                      |                                                         | Secrets for the image repository |
 | `image.repository`                                       | `registry.gitlab.com/gitlab-org/build/cng/gitaly`       | Gitaly image repository |
 | `image.tag`                                              | `master`                                                | Gitaly image tag |
-| `init.image.repository`                                  |                                                         | initContainer image |
-| `init.image.tag`                                         |                                                         | initContainer image tag |
 | `init.containerSecurityContext`                          |                                                         | initContainer specific [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) |
 | `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                                 | initContainer specific: Controls whether a process can gain more privileges than its parent process |
 | `init.containerSecurityContext.runAsNonRoot`             | `true`                                                  | initContainer specific: Controls whether the container runs with a non-root user |
@@ -156,7 +154,7 @@ the `helm install` command using the `--set` flags.
 | `cgroups.initContainer.securityContext.runAsGroup`       | `0`                                                     | Group ID under which the `init-cgroups` container runs. |
 | `cgroups.initContainer.securityContext.privileged`       |                                                         | When `true`, runs the `init-cgroups` container in privileged mode. Required on clusters that enforce strict security policies, such as OpenShift with the `restricted` SCC. |
 | `cgroups.initContainer.securityContext.allowPrivilegeEscalation` |                                                 | Controls whether the `init-cgroups` container process can gain more privileges than its parent. Set to `true` when `privileged` is also `true`. |
-| `cgroups.mountpoint`                                     | `/etc/gitlab-secrets/gitaly-pod-cgroup`                 | Where the parent cgroup directory is mounted. |
+| `cgroups.mountpoint`                                     | `/etc/gitaly-cgroup/gitaly-pod-cgroup`                  | Where the parent cgroup directory is mounted. |
 | `cgroups.hierarchyRoot`                                  | `gitaly`                                                | Parent cgroup under which Gitaly creates groups, and is expected to be owned by the user and group Gitaly runs as. |
 | `cgroups.memoryBytes`                                    |                                                         | The total memory limit that is imposed collectively on all Git processes that Gitaly spawns. 0 implies no limit. |
 | `cgroups.cpuShares`                                      |                                                         | The CPU limit that is imposed collectively on all Git processes that Gitaly spawns. 0 implies no limit. The maximum is 1024 shares, which represents 100% of CPU. |

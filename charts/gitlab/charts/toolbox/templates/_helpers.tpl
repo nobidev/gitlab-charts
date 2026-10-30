@@ -63,7 +63,7 @@ Usage:
     name: {{ .config.secret }}
     items:
       - key: {{ default "config" .config.key }}
-        path: objectstorage/.s3cfg
+        path: {{ ternary ".s3cfg" "objectstorage/.s3cfg" (eq .backend "s3") }}
 {{-   end -}}
 {{- end -}}
 
@@ -92,68 +92,49 @@ Return the secret key for toolbox registry database restore password
 {{- end -}}
 
 {{/*
-Registry database configuration volume for toolbox pods.
+Registry database configuration sources for the toolbox secrets volume.
 
-This projected volume mounts registry metadata database credentials and connection
-configuration to toolbox pods for backup/restore operations.
+These projected volume sources place registry metadata database credentials and
+connection configuration under /etc/gitlab/registry-db/ for backup/restore
+operations.
 
-The volume includes three optional sources:
+The sources are all optional, to maintain backward compatibility when registry
+database is not configured:
 1. Connection parameters (host, port, database, SSL config) from registry chart ConfigMap
-2. Database username from toolbox ConfigMap
-3. Database password from Secret
-
-All sources use optional: true to maintain backward compatibility when registry
-database is not configured.
+2. Database usernames from toolbox ConfigMap
+3. Database passwords from Secret
 
 Usage:
-  {{- include "toolbox.registry.database.volume" . | nindent ... }}
+  {{- include "toolbox.registry.databaseBackupCredentialsSources" . | nindent 10 }}
 
 Files:
   - connection.env: Database connection parameters
-  - user.env: Database username
-  - pass: Database password
+  - backup-user.env / restore-user.env: Database usernames
+  - backup-pass / restore-pass: Database passwords
 */}}
-{{- define "toolbox.registry.databaseBackupCredentialsVolume" -}}
-- name: registry-db-config
-  projected:
-    defaultMode: 0440
-    sources:
-      - configMap:
-          name: {{ include "gitlab.other.fullname" ( dict "context" . "chartName" "registry" ) }}-db-connection-config
-          items:
-          - key: db-connection.env
-            path: connection.env
-          optional: true
-      - configMap:
-          name: {{ template "fullname" . }}-registry-db-backuprestore-users
-          items:
-          - key: backup-user
-            path: backup-user.env
-          - key: restore-user
-            path: restore-user.env
-          optional: true
-      - secret:
-          name: {{ include "toolbox.registry.database.password.secret" . }}
-          items:
-          - key: {{ template "toolbox.registry.database.password.backupKey" . }}
-            path: backup-pass
-          - key: {{ template "toolbox.registry.database.password.restoreKey" . }}
-            path: restore-pass
-          optional: true
-{{- end -}}
-
-{{/*
-Registry database configuration volume mount for toolbox containers.
-
-Mounts the registry database configuration volume to the container.
-
-Usage:
-  {{- include "toolbox.registry.database.volumeMount" . | nindent 12 }}
-*/}}
-{{- define "toolbox.registry.database.databaseBackupCredentialsMount" -}}
-- name: registry-db-config
-  mountPath: /etc/gitlab/registry-db/
-  readOnly: true
+{{- define "toolbox.registry.databaseBackupCredentialsSources" -}}
+- configMap:
+    name: {{ include "gitlab.other.fullname" ( dict "context" . "chartName" "registry" ) }}-db-connection-config
+    items:
+    - key: db-connection.env
+      path: registry-db/connection.env
+    optional: true
+- configMap:
+    name: {{ template "fullname" . }}-registry-db-backuprestore-users
+    items:
+    - key: backup-user
+      path: registry-db/backup-user.env
+    - key: restore-user
+      path: registry-db/restore-user.env
+    optional: true
+- secret:
+    name: {{ include "toolbox.registry.database.password.secret" . }}
+    items:
+    - key: {{ template "toolbox.registry.database.password.backupKey" . }}
+      path: registry-db/backup-pass
+    - key: {{ template "toolbox.registry.database.password.restoreKey" . }}
+      path: registry-db/restore-pass
+    optional: true
 {{- end -}}
 
 {{/*
@@ -184,53 +165,37 @@ Return the secret key for the OpenBao database restore password.
 {{- end -}}
 
 {{/*
-OpenBao database configuration volume for toolbox pods.
+OpenBao database configuration sources for the toolbox secrets volume.
 
-Projects OpenBao DB credentials for backup/restore:
+Projects OpenBao DB credentials for backup/restore under /etc/gitlab/openbao-db/:
 - connection.env: HOST, PORT, NAME from toolbox ConfigMap (no USER — operation-dependent)
 - backup-user.env / restore-user.env: per-operation USERNAME from toolbox ConfigMap
 - backup-pass / restore-pass: per-operation PASSWORD from Secret
 
 Usage:
-  {{- include "toolbox.openbao.databaseBackupCredentialsVolume" . | nindent 6 }}
+  {{- include "toolbox.openbao.databaseBackupCredentialsSources" . | nindent 10 }}
 */}}
-{{- define "toolbox.openbao.databaseBackupCredentialsVolume" -}}
-- name: openbao-db-config
-  projected:
-    defaultMode: 0440
-    sources:
-      - configMap:
-          name: {{ template "fullname" . }}-openbao-db-connection-config
-          items:
-          - key: db-connection.env
-            path: connection.env
-          optional: true
-      - configMap:
-          name: {{ template "fullname" . }}-openbao-db-backuprestore-users
-          items:
-          - key: backup-user
-            path: backup-user.env
-          - key: restore-user
-            path: restore-user.env
-          optional: true
-      - secret:
-          name: {{ include "toolbox.openbao.database.password.secret" . }}
-          items:
-          - key: {{ template "toolbox.openbao.database.password.backupKey" . }}
-            path: backup-pass
-          - key: {{ template "toolbox.openbao.database.password.restoreKey" . }}
-            path: restore-pass
-          optional: true
-{{- end -}}
-
-{{/*
-OpenBao database configuration volume mount for toolbox containers.
-
-Usage:
-  {{- include "toolbox.openbao.database.databaseBackupCredentialsMount" . | nindent 12 }}
-*/}}
-{{- define "toolbox.openbao.database.databaseBackupCredentialsMount" -}}
-- name: openbao-db-config
-  mountPath: /etc/gitlab/openbao-db/
-  readOnly: true
+{{- define "toolbox.openbao.databaseBackupCredentialsSources" -}}
+- configMap:
+    name: {{ template "fullname" . }}-openbao-db-connection-config
+    items:
+    - key: db-connection.env
+      path: openbao-db/connection.env
+    optional: true
+- configMap:
+    name: {{ template "fullname" . }}-openbao-db-backuprestore-users
+    items:
+    - key: backup-user
+      path: openbao-db/backup-user.env
+    - key: restore-user
+      path: openbao-db/restore-user.env
+    optional: true
+- secret:
+    name: {{ include "toolbox.openbao.database.password.secret" . }}
+    items:
+    - key: {{ template "toolbox.openbao.database.password.backupKey" . }}
+      path: openbao-db/backup-pass
+    - key: {{ template "toolbox.openbao.database.password.restoreKey" . }}
+      path: openbao-db/restore-pass
+    optional: true
 {{- end -}}

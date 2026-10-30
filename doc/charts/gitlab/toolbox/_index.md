@@ -143,8 +143,6 @@ gitlab:
 | `image.pullSecrets`                                      |                                                              | Toolbox image pull secrets |
 | `image.repository`                                       | `registry.gitlab.com/gitlab-org/build/cng/gitlab-toolbox-ee` | Toolbox image repository |
 | `image.tag`                                              | `master`                                                     | Toolbox image tag |
-| `init.image.repository`                                  |                                                              | Toolbox init image repository |
-| `init.image.tag`                                         |                                                              | Toolbox init image tag |
 | `init.resources`                                         | `{ requests: { cpu: '50m' }}`                                | Toolbox init container resource requirements |
 | `init.containerSecurityContext`                          |                                                              | initContainer specific [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) |
 | `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                                      | initContainer specific: Controls whether a process can gain more privileges than its parent process |

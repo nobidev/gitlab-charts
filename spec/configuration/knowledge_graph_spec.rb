@@ -59,7 +59,7 @@ describe 'Orbit configuration' do # rubocop:disable Metrics/BlockLength
     it 'mounts the jwt secret on webservice deployment', :aggregate_failures do
       secret = template.get_projected_secret(
         'Deployment/test-webservice-default',
-        'init-webservice-secrets',
+        'webservice-secrets',
         'test-orbit-secret'
       )
 
@@ -88,9 +88,9 @@ describe 'Orbit configuration' do # rubocop:disable Metrics/BlockLength
     it 'renders identical Rails configuration and secret mounts', :aggregate_failures do
       config_maps = %w[test-webservice test-sidekiq test-toolbox]
       secret_mounts = [
-        %w[Deployment/test-webservice-default init-webservice-secrets],
-        %w[Deployment/test-sidekiq-all-in-1-v2 init-sidekiq-secrets],
-        %w[Deployment/test-toolbox init-toolbox-secrets]
+        %w[Deployment/test-webservice-default webservice-secrets],
+        %w[Deployment/test-sidekiq-all-in-1-v2 sidekiq-secrets],
+        %w[Deployment/test-toolbox toolbox-secrets]
       ]
 
       config_maps.each do |config_map|
@@ -122,7 +122,7 @@ describe 'Orbit configuration' do # rubocop:disable Metrics/BlockLength
       expect(
         template.find_projected_secret(
           'Deployment/test-webservice-default',
-          'init-webservice-secrets',
+          'webservice-secrets',
           'test-orbit-secret'
         )
       ).to be(false)
@@ -144,7 +144,7 @@ describe 'Orbit configuration' do # rubocop:disable Metrics/BlockLength
     it 'does not mount the jwt secret' do
       has_secret = template.find_projected_secret(
         'Deployment/test-webservice-default',
-        'init-webservice-secrets',
+        'webservice-secrets',
         'test-orbit-secret'
       )
 

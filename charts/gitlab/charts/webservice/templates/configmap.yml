@@ -184,22 +184,6 @@ data:
       {{- include "gitlab.appConfig.registry.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.smartcard.configuration" $ | nindent 6 }}
       {{- include "gitlab.appConfig.openbao.configuration" . | nindent 6 }}
-  configure: |
-    {{- include "gitlab.scripts.configure.secrets" (dict) | nindent 4 }}
-    {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
-    {{- include "gitlab.geo.psql.ssl.initScript" . | nindent 4 }}
-    {{- if $.Values.tls.enabled }}
-      mkdir -p /init-secrets/puma
-      cp -v -L /init-config/puma/puma.crt /init-secrets/puma/puma.crt
-      cp -v -L /init-config/puma/puma.key /init-secrets/puma/puma.key
-    {{- end }}
-    {{- if eq (include "webservice-metrics.tls.enabled" $) "true" }}
-      mkdir -p /init-secrets/webservice-metrics
-      cp -v -L /init-config/webservice-metrics/webservice-metrics.crt /init-secrets/webservice-metrics/webservice-metrics.crt
-      cp -v -L /init-config/webservice-metrics/webservice-metrics.key /init-secrets/webservice-metrics/webservice-metrics.key
-    {{- end }}
-    {{- include "gitlab.topologyService.configureScript" $ | nindent 4 }}
-    {{- include "gitlab.appConfig.nats.configureScript" $ | nindent 4 }}
 
 {{- include "webservice.datamodel.prepare" $ -}}
 {{/* BEGIN range deployments */}}
@@ -308,21 +292,6 @@ data:
       timeout = {{ .timeout | quote }}
     {{-   end }}
     {{- end }}
-  configure: |
-      set -e
-      mkdir -p /init-secrets-workhorse/gitlab-workhorse
-      cp -v -r -L /init-config/gitlab-workhorse/secret /init-secrets-workhorse/gitlab-workhorse/secret
-      {{- include "workhorse.redis.secret-setup" $ | nindent 6 -}}
-      {{- if $.Values.global.appConfig.object_store.connection }}
-      if [ -f /init-config/objectstorage/object_store ]; then
-        mkdir -p /init-secrets-workhorse/objectstorage
-        cp -v -r -L /init-config/objectstorage/object_store /init-secrets-workhorse/objectstorage/
-      fi
-      {{- end }}
-      {{- if $.Values.global.workhorse.tls.enabled }}
-      cp -v -L /init-config/gitlab-workhorse/tls.crt /init-secrets-workhorse/gitlab-workhorse/tls.crt
-      cp -v -L /init-config/gitlab-workhorse/tls.key /init-secrets-workhorse/gitlab-workhorse/tls.key
-      {{- end }}
 
 # Leave this here - This line denotes end of block to the parser.
 {{- end }}{{/* END range deployments */}}

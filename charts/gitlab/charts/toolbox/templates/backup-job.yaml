@@ -1,6 +1,5 @@
 {{- if and .Values.enabled .Values.backups.cron.enabled }}
 {{- $imageCfg := dict "global" .Values.global.image "local" .Values.image -}}
-{{- $initImageCfg := include "gitlab.configure.config" .Values | fromYaml -}}
 {{- include "database.datamodel.prepare" . -}}
 apiVersion: {{ default "batch/v1" $.Values.global.batch.cronJob.apiVersion }}
 kind: CronJob
@@ -51,29 +50,6 @@ spec:
           initContainers:
             {{- include "gitlab.extraInitContainers" . | nindent 12 }}
             {{- include "gitlab.certificates.initContainer" . | nindent 12 }}
-            - name: configure
-              command: ['sh', '/config/configure']
-              image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.init.image) | quote }}
-              {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 14 }}
-              {{- include "gitlab.init.containerSecurityContext" . | indent 14 }}
-              env:
-               {{- include "gitlab.timeZone.env" $ | nindent 16 }}
-                {{- include "gitlab.extraEnv" $ | nindent 16 }}
-                {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 16 }}
-              volumeMounts:
-                {{- include "gitlab.extraVolumeMounts" . | nindent 16 }}
-                {{- include "gitlab.psql.ssl.volumeMount" . | nindent 16 }}
-                - name: toolbox-config
-                  mountPath: /config
-                  readOnly: true
-                - name: init-toolbox-secrets
-                  mountPath: /init-config
-                  readOnly: true
-                - name: toolbox-secrets
-                  mountPath: /init-secrets
-                  readOnly: false
-              resources:
-                {{- toYaml .Values.init.resources | nindent 16 }}
           {{- include "gitlab.image.pullSecrets" $imageCfg | indent 10 }}
           containers:
             {{- include "gitlab.extraContainers" . | nindent 12 }}
@@ -137,8 +113,6 @@ spec:
                 {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 16 }}
               volumeMounts:
                 {{- include "gitlab.extraVolumeMounts" . | nindent 16 }}
-                {{- include "toolbox.registry.database.databaseBackupCredentialsMount" . | nindent 16 }}
-                {{- include "toolbox.openbao.database.databaseBackupCredentialsMount" . | nindent 16 }}
                 - name: toolbox-config
                   mountPath: '/var/opt/gitlab/templates'
                 - name: toolbox-secrets
@@ -158,9 +132,6 @@ spec:
                 {{- toYaml .Values.backups.cron.resources | nindent 16 }}
           volumes:
             {{- include "gitlab.extraVolumes" . | nindent 12 }}
-            {{- include "gitlab.psql.ssl.volume" . | nindent 12 }}
-            {{- include "toolbox.registry.databaseBackupCredentialsVolume" . | nindent 12 }}
-            {{- include "toolbox.openbao.databaseBackupCredentialsVolume" . | nindent 12 }}
             - name: toolbox-config
               projected:
                 sources:
@@ -179,10 +150,13 @@ spec:
               {{- else }}
               emptyDir: {}
               {{- end }}
-            - name: init-toolbox-secrets
+            - name: toolbox-secrets
               projected:
                 defaultMode: 0400
                 sources:
+                {{- include "gitlab.psql.ssl.secretSource" . | nindent 16 }}
+                {{- include "toolbox.registry.databaseBackupCredentialsSources" . | nindent 16 }}
+                {{- include "toolbox.openbao.databaseBackupCredentialsSources" . | nindent 16 }}
                 - secret:
                     name: {{ template "gitlab.rails-secrets.secret" . }}
                     items:
@@ -236,9 +210,6 @@ spec:
                 {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.appConfig.microsoftGraphMailer.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.appConfig.amazonSesMailer.mountSecrets" $ | nindent 16 }}
-            - name: toolbox-secrets
-              emptyDir:
-                medium: "Memory"
             {{- include "gitlab.certificates.volumes" . | nindent 12 }}
           {{- if .Values.backups.cron.nodeSelector }}
           nodeSelector:

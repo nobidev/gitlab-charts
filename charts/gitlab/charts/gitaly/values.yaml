@@ -58,9 +58,6 @@ serviceLabels: {}
 shareProcessNamespace: false
 
 init:
-  image: {}
-    # repository:
-    # tag:
   resources:
     requests:
       cpu: 50m
@@ -86,7 +83,7 @@ cgroups:
     # appArmorProfile:
     #   type: Localhost
     #   localhostProfile: k8s-apparmor-example-deny-write
-  mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
+  mountpoint: '{% file.Read "/etc/gitaly-cgroup/gitaly-pod-cgroup" | strings.TrimSpace %}'
   hierarchyRoot: gitaly
   # memoryBytes:
   # cpuShares:

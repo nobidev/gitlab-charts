@@ -167,16 +167,5 @@ data:
           address: {{ .Values.health_checks.listenAddr | quote }}
           port: {{ .Values.health_checks.port }}
       {{- include "gitlab.appConfig.openbao.configuration" . | nindent 6 }}
-  configure: |
-    {{- include "gitlab.scripts.configure.secrets" (dict "required" "gitaly registry rails-secrets") | nindent 4 }}
-    {{- if $.Values.metrics.tls.enabled }}
-      mkdir -p /init-secrets/sidekiq-metrics
-      cp -v -L /init-config/sidekiq-metrics/sidekiq-metrics.crt /init-secrets/sidekiq-metrics/sidekiq-metrics.crt
-      cp -v -L /init-config/sidekiq-metrics/sidekiq-metrics.key /init-secrets/sidekiq-metrics/sidekiq-metrics.key
-    {{- end }}
-    {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
-    {{- include "gitlab.geo.psql.ssl.initScript" . | nindent 4 }}
-    {{- include "gitlab.topologyService.configureScript" $ | nindent 4 }}
-    {{- include "gitlab.appConfig.nats.configureScript" $ | nindent 4 }}
 # Leave this here - This line denotes end of block to the parser.
 {{- end }}

@@ -1,5 +1,4 @@
 {{- $imageCfg := dict "global" .Values.global.image "local" .Values.image -}}
-{{- $initImageCfg := include "gitlab.configure.config" .Values | fromYaml -}}
 {{- $praefectSsl := include "gitlab.praefect.psql.ssl" $ | fromYaml -}}
 apiVersion: apps/v1
 kind: StatefulSet
@@ -57,28 +56,6 @@ spec:
       initContainers:
         {{- include "gitlab.extraInitContainers" $ | nindent 8 }}
         {{- include "gitlab.certificates.initContainer" $ | nindent 8 }}
-        - name: configure
-          command: ['sh', '/config/configure']
-          image: {{ include "gitlab.configure.image" (dict "root" $ "image" .Values.init.image) | quote }}
-          {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
-          {{- include "gitlab.init.containerSecurityContext" $ | indent 10 }}
-          env:
-          {{- include "gitlab.extraEnv" $ | nindent 10 }}
-          {{- include "gitlab.extraEnvFrom" (dict "root" $ "local" .) | nindent 10 }}
-          {{- include "gitlab.timeZone.env" . | nindent 10 }}
-          volumeMounts:
-          {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
-          - name: praefect-config
-            mountPath: /config
-            readOnly: true
-          - name: init-praefect-secrets
-            mountPath: /init-config
-            readOnly: true
-          - name: praefect-secrets
-            mountPath: /init-secrets
-            readOnly: false
-          resources:
-            {{- toYaml $.Values.init.resources | nindent 12 }}
       {{- include "gitlab.podSecurityContext" .Values.securityContext | nindent 6 }}
       {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
       {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
@@ -146,36 +123,33 @@ spec:
           defaultMode: 420
           name: {{ template "fullname" . }}
         name: praefect-config
-      - emptyDir:
-          medium: Memory
-        name: praefect-secrets
-      - name: init-praefect-secrets
+      - name: praefect-secrets
         projected:
           defaultMode: 288
           sources:
           - secret:
               items:
               - key: {{ template "gitlab.gitaly.authToken.key" . }}
-                path: gitaly_token
+                path: praefect/gitaly_token
               name: {{ template "gitlab.gitaly.authToken.secret" . }}
           - secret:
               items:
               - key: {{ template "gitlab.praefect.authToken.key" . }}
-                path: praefect_token
+                path: praefect/praefect_token
               name: {{ template "gitlab.praefect.authToken.secret" . }}
           - secret:
               items:
               - key: {{ template "gitlab.praefect.dbSecret.key" . }}
-                path: db_password
+                path: praefect/db_password
               name: {{ template "gitlab.praefect.dbSecret.secret"  . }}
           {{- if $.Values.global.praefect.tls.enabled }}
           - secret:
               name: {{ template "gitlab.praefect.tls.secret" $ }}
               items:
                 - key: "tls.crt"
-                  path: "praefect.crt"
+                  path: "praefect/praefect.crt"
                 - key: "tls.key"
-                  path: "praefect.key"
+                  path: "praefect/praefect.key"
           {{- end }}
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
       {{- if $praefectSsl }}

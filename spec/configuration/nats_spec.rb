@@ -107,7 +107,7 @@ describe 'NATS configuration' do
     it 'does not mount a TLS secret when TLS is disabled' do
       has_secret = template.find_projected_secret(
         'Deployment/test-webservice-default',
-        'init-webservice-secrets',
+        'webservice-secrets',
         'test-nats-tls'
       )
 
@@ -138,7 +138,7 @@ describe 'NATS configuration' do
     it 'mounts the TLS secret on the webservice deployment', :aggregate_failures do
       secret = template.get_projected_secret(
         'Deployment/test-webservice-default',
-        'init-webservice-secrets',
+        'webservice-secrets',
         'test-nats-tls'
       )
 
@@ -162,21 +162,23 @@ describe 'NATS configuration' do
     it 'mounts the TLS secret on the sidekiq deployment' do
       secret = template.get_projected_secret(
         'Deployment/test-sidekiq-all-in-1-v2',
-        'init-sidekiq-secrets',
+        'sidekiq-secrets',
         'test-nats-tls'
       )
 
       expect(secret).not_to be_nil
     end
 
-    it 'renders the NATS TLS copy commands in the configure script', :aggregate_failures do
-      configmaps.each do |configmap|
-        configure = template.dig(configmap, 'data', 'configure')
+    it 'projects the NATS TLS files into each component secrets volume', :aggregate_failures do
+      {
+        'Deployment/test-webservice-default' => 'webservice-secrets',
+        'Deployment/test-sidekiq-all-in-1-v2' => 'sidekiq-secrets',
+        'Deployment/test-toolbox' => 'toolbox-secrets'
+      }.each do |deployment, volume|
+        paths = template.projected_item_paths(deployment, volume)
 
-        expect(configure).to include('cp -v -L /init-config/nats/ca.crt /init-secrets/nats/ca.crt'),
-          "Expected configure script to copy NATS TLS files in #{configmap}"
-        expect(configure).to include('cp -v -L /init-config/nats/tls.crt /init-secrets/nats/tls.crt')
-        expect(configure).to include('cp -v -L /init-config/nats/tls.key /init-secrets/nats/tls.key')
+        expect(paths).to include('nats/ca.crt', 'nats/tls.crt', 'nats/tls.key'),
+          "Expected NATS TLS files to be projected in #{deployment}"
       end
     end
   end
@@ -189,14 +191,14 @@ describe 'NATS configuration' do
 
       webservice_secret = template.get_projected_secret(
         'Deployment/test-webservice-default',
-        'init-webservice-secrets',
+        'webservice-secrets',
         'test-webservice-nats-tls'
       )
       expect(webservice_secret).not_to be_nil
 
       sidekiq_secret = template.get_projected_secret(
         'Deployment/test-sidekiq-all-in-1-v2',
-        'init-sidekiq-secrets',
+        'sidekiq-secrets',
         'test-sidekiq-nats-tls'
       )
       expect(sidekiq_secret).not_to be_nil
@@ -206,7 +208,7 @@ describe 'NATS configuration' do
       # toolbox has no per-component override, so it uses global.appConfig.nats.tls.secret
       toolbox_secret = template.get_projected_secret(
         'Deployment/test-toolbox',
-        'init-toolbox-secrets',
+        'toolbox-secrets',
         'test-nats-tls'
       )
 
@@ -225,14 +227,14 @@ describe 'NATS configuration' do
 
         override = template.get_projected_secret(
           'Deployment/test-toolbox',
-          'init-toolbox-secrets',
+          'toolbox-secrets',
           'test-toolbox-nats-tls'
         )
         expect(override).not_to be_nil
 
         has_global = template.find_projected_secret(
           'Deployment/test-toolbox',
-          'init-toolbox-secrets',
+          'toolbox-secrets',
           'test-nats-tls'
         )
         expect(has_global).to be(false)
@@ -250,14 +252,14 @@ describe 'NATS configuration' do
     it 'mounts each connecting component using its own secret', :aggregate_failures do
       webservice_secret = template.get_projected_secret(
         'Deployment/test-webservice-default',
-        'init-webservice-secrets',
+        'webservice-secrets',
         'test-webservice-nats-tls'
       )
       expect(webservice_secret).not_to be_nil
 
       sidekiq_secret = template.get_projected_secret(
         'Deployment/test-sidekiq-all-in-1-v2',
-        'init-sidekiq-secrets',
+        'sidekiq-secrets',
         'test-sidekiq-nats-tls'
       )
       expect(sidekiq_secret).not_to be_nil
@@ -266,19 +268,13 @@ describe 'NATS configuration' do
     it 'does not mount any NATS secret on toolbox when it has no configured secret', :aggregate_failures do
       sources = template.projected_volume_sources(
         'Deployment/test-toolbox',
-        'init-toolbox-secrets'
+        'toolbox-secrets'
       )
       nats_paths = sources.flat_map { |source| (source['secret'] || {})['items'].to_a }
         .map { |item| item['path'] }
         .select { |path| path.to_s.start_with?('nats/') }
 
       expect(nats_paths).to be_empty
-    end
-
-    it 'does not render NATS TLS copy commands in the toolbox configure script' do
-      configure = template.dig('ConfigMap/test-toolbox', 'data', 'configure')
-
-      expect(configure).not_to include('/init-secrets/nats/')
     end
 
     it 'keeps the rendered tls block consistent with the mounted secret', :aggregate_failures do
@@ -312,7 +308,7 @@ describe 'NATS configuration' do
     it 'does not mount a TLS secret' do
       has_secret = template.find_projected_secret(
         'Deployment/test-webservice-default',
-        'init-webservice-secrets',
+        'webservice-secrets',
         'test-nats-tls'
       )
 

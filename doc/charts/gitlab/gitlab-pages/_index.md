@@ -63,8 +63,6 @@ configurations that can be supplied to the `helm install` command using the
 | `image.pullSecrets`                                      |                                                         | Secrets for the image repository |
 | `image.repository`                                       | `registry.gitlab.com/gitlab-org/build/cng/gitlab-pages` | GitLab Pages image repository |
 | `image.tag`                                              |                                                         | image tag   |
-| `init.image.repository`                                  |                                                         | initContainer image |
-| `init.image.tag`                                         |                                                         | initContainer image tag |
 | `init.containerSecurityContext`                          |                                                         | initContainer specific [securityContext](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#securitycontext-v1-core) |
 | `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                                 | initContainer specific: Controls whether a process can gain more privileges than its parent process |
 | `init.containerSecurityContext.runAsNonRoot`             | `true`                                                  | initContainer specific: Controls whether the container runs with a non-root user |

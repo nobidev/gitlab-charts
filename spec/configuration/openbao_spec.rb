@@ -307,7 +307,7 @@ describe 'OpenBao installation' do
     end
 
     it 'mounts the custom secret to webservice' do
-      expect(template.get_projected_secret('Deployment/test-webservice-default', 'init-webservice-secrets', 'audit-secret')).to eq(
+      expect(template.get_projected_secret('Deployment/test-webservice-default', 'webservice-secrets', 'audit-secret')).to eq(
         { "items" => [{ "key" => "audit-key", "path" => "openbao/.gitlab_openbao_authentication_token_secret" }], "name" => "audit-secret" }
       )
     end

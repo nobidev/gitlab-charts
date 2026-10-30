@@ -18,8 +18,6 @@ service:
 
 init:
   resources: {}
-  image: {}
-    # pullPolicy: IfNotPresent
   containerSecurityContext:
     allowPrivilegeEscalation: false
     runAsNonRoot: true

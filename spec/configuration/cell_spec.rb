@@ -155,10 +155,10 @@ describe 'cells configuration' do
         expect(paths.include?('/srv/gitlab/config/topology-service/tls.key')).to eq(tls_expected)
       end
 
-      it 'copies TLS credentials only when both global settings are enabled' do
-        configure = helm_template.dig('ConfigMap/test-toolbox', 'data', 'configure')
+      it 'projects TLS credentials into the toolbox secrets volume only when both global settings are enabled' do
+        paths = helm_template.projected_item_paths('Deployment/test-toolbox', 'toolbox-secrets')
 
-        expect(configure.include?('/init-config/topology-service')).to eq(tls_expected)
+        expect(paths.any? { |path| path.start_with?('topology-service/') }).to eq(tls_expected)
       end
     end
   end

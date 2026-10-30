@@ -49,8 +49,6 @@ Table below contains all the possible charts configurations that can be supplied
 | `image.tag`                                              |                                                              | Migrations image tag |
 | `image.pullPolicy`                                       | `Always`                                                     | Migrations pull policy |
 | `image.pullSecrets`                                      |                                                              | Secrets for the image repository |
-| `init.image.repository`                                  | `registry.gitlab.com/gitlab-org/build/cng/gitlab-base`       | `initContainer` image repository |
-| `init.image.tag`                                         | `master`                                                     | `initContainer` image tag |
 | `init.image.containerSecurityContext`                    | `{}`                                                         | `initContainer` `securityContext` overrides |
 | `init.containerSecurityContext.allowPrivilegeEscalation` | `false`                                                      | `initContainer` specific: Controls whether a process can gain more privileges than its parent process |
 | `init.containerSecurityContext.runAsNonRoot`             | `true`                                                       | `initContainer` specific: Controls whether the container runs with a non-root user |

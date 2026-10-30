@@ -46,9 +46,9 @@ describe 'artifactRegistry templates' do
 
   let(:deployments) do
     {
-      'Deployment/test-webservice-default' => 'init-webservice-secrets',
-      'Deployment/test-sidekiq-all-in-1-v2' => 'init-sidekiq-secrets',
-      'Deployment/test-toolbox' => 'init-toolbox-secrets'
+      'Deployment/test-webservice-default' => 'webservice-secrets',
+      'Deployment/test-sidekiq-all-in-1-v2' => 'sidekiq-secrets',
+      'Deployment/test-toolbox' => 'toolbox-secrets'
     }
   end
 
@@ -152,15 +152,15 @@ describe 'artifactRegistry templates' do
         end
       end
 
-      it 'copies the secret directory out of the init container' do
+      it 'projects the secret directly into the secrets volume without a configure script' do
         t = HelmTemplate.new(enabled_values)
         expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
 
-        projected_path = secret_mount(t, 'Deployment/test-webservice-default', 'init-webservice-secrets')
+        projected_path = secret_mount(t, 'Deployment/test-webservice-default', 'webservice-secrets')
           .dig('secret', 'items', 0, 'path')
-        configure = t.dig('ConfigMap/test-webservice', 'data', 'configure')
 
-        expect(configure).to include(File.dirname(projected_path))
+        expect(File.dirname(projected_path)).to start_with('artifact-registry')
+        expect(t.projected_item_paths('Deployment/test-webservice-default', 'webservice-secrets')).to include(projected_path)
       end
     end
   end

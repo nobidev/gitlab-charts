@@ -178,10 +178,3 @@ data:
     {{- if $.Values.global.pages.namespaceInPath }}
     namespace-in-path={{ $.Values.global.pages.namespaceInPath }}
     {{- end }}
-  configure: |
-    {{- include "gitlab.scripts.configure.secrets" (dict "required" "pages" "optional" "none") | nindent 4 }}
-    {{- if $.Values.metrics.tls.enabled }}
-      mkdir -p /init-secrets/pages-metrics
-      cp -v -L /init-config/pages-metrics/pages-metrics.crt /init-secrets/pages-metrics/pages-metrics.crt
-      cp -v -L /init-config/pages-metrics/pages-metrics.key /init-secrets/pages-metrics/pages-metrics.key
-    {{- end }}

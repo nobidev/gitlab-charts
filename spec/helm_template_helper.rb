@@ -189,7 +189,8 @@ class HelmTemplate
   end
 
   def volumes(item)
-    @mapped.dig(item,'spec','template','spec','volumes')
+    @mapped.dig(item,'spec','template','spec','volumes') ||
+      @mapped.dig(item,'spec','jobTemplate','spec','template','spec','volumes')
   end
 
   def labels(item)
@@ -279,6 +280,23 @@ class HelmTemplate
   def projected_volume_sources(item,volume_name)
     find_volume(item,volume_name)
       &.dig('projected','sources')
+  end
+
+  # All item paths (relative to the volume mount) projected into a volume,
+  # from either secret or configMap sources.
+  def projected_item_paths(item, volume_name)
+    (projected_volume_sources(item, volume_name) || []).flat_map do |source|
+      items = source.dig('secret', 'items') || source.dig('configMap', 'items') || []
+      items.map { |i| i['path'] }
+    end
+  end
+
+  # Projected sources (secret or configMap) that have an item path below `prefix`.
+  def projected_sources_by_path(item, volume_name, prefix)
+    (projected_volume_sources(item, volume_name) || []).select do |source|
+      items = source.dig('secret', 'items') || source.dig('configMap', 'items') || []
+      items.any? { |i| i['path'].start_with?(prefix) }
+    end
   end
 
   def resources_by_kind(kind)

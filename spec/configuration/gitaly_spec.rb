@@ -24,7 +24,7 @@ describe 'Gitaly configuration' do
   def render_toml(raw_template, env = {})
     # provide the gitaly_token
     files = { '/etc/gitlab-secrets/gitaly/gitaly_token' => RuntimeTemplate::JUNK_TOKEN,
-              '/etc/gitlab-secrets/gitaly-pod-cgroup' => RuntimeTemplate::JUNK_TOKEN }
+              '/etc/gitaly-cgroup/gitaly-pod-cgroup' => RuntimeTemplate::JUNK_TOKEN }
 
     toml = RuntimeTemplate.gomplate(raw_template: raw_template, files: files, env: env)
 
@@ -958,7 +958,7 @@ describe 'Gitaly configuration' do
                   repository: registry.gitlab.com/gitlab-org/build/cng/gitaly-init-cgroups
                   tag: master
                   pullPolicy: IfNotPresent
-              mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
+              mountpoint: '{% file.Read "/etc/gitaly-cgroup/gitaly-pod-cgroup" | strings.TrimSpace %}'
               hierarchyRoot: gitaly
               memoryBytes: 64424509440
               cpuShares: 1024
@@ -983,7 +983,7 @@ describe 'Gitaly configuration' do
         expect(config_toml).to include(
           <<~CONFIG
           [cgroups]
-          mountpoint = "{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}"
+          mountpoint = "{% file.Read "/etc/gitaly-cgroup/gitaly-pod-cgroup" | strings.TrimSpace %}"
           hierarchy_root = "gitaly"
           memory_bytes = 64424509440
           cpu_shares = 1024
@@ -1007,6 +1007,23 @@ describe 'Gitaly configuration' do
         expect(gitaly_init_container['imagePullPolicy']).to eq('IfNotPresent')
         expect(gitaly_init_container['securityContext']).to include('runAsUser' => 0, 'runAsGroup' => 0)
         expect(gitaly_init_container_env.map { |env| env['name'] }).to match_array(%w[GITALY_POD_UID CGROUP_PATH OUTPUT_PATH TZ])
+      end
+
+      context 'with the legacy cgroup mountpoint in the secrets volume' do
+        let(:values) do
+          default_values.deep_merge(YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                cgroups:
+                  enabled: true
+                  mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
+          )))
+        end
+
+        it 'rewrites the mountpoint to the new cgroup path' do
+          expect(config_toml).to include('mountpoint = "{% file.Read "/etc/gitaly-cgroup/gitaly-pod-cgroup" | strings.TrimSpace %}"')
+          expect(config_toml).not_to include('/etc/gitlab-secrets/gitaly-pod-cgroup')
+        end
       end
     end
 
@@ -1043,7 +1060,7 @@ describe 'Gitaly configuration' do
                     runAsGroup: 0
                     runAsNonRoot: false
                     runAsUser: 0
-                mountpoint: '{% file.Read "/etc/gitlab-secrets/gitaly-pod-cgroup" | strings.TrimSpace %}'
+                mountpoint: '{% file.Read "/etc/gitaly-cgroup/gitaly-pod-cgroup" | strings.TrimSpace %}'
                 hierarchyRoot: gitaly
         )))
       end

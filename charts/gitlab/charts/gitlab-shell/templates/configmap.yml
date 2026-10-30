@@ -8,16 +8,6 @@ metadata:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
     {{- include "gitlab.commonLabels" . | nindent 4 }}
 data:
-  configure: |
-    {{- include "gitlab.scripts.configure.secrets" (dict "required" "shell" "optional" "none") | nindent 4 }}
-    mkdir -p /${secret_dir}/ssh
-    cp -f -v -r -L /${config_dir}/ssh_host_* /${secret_dir}/ssh/
-    chmod 0400 /${secret_dir}/ssh/ssh_host_*
-    {{- if and .Values.config.trustedUserCAKeys.secret .Values.config.trustedUserCAKeys.keys }}
-    mkdir -p /${secret_dir}/ssh/trusted-ca-keys
-    cp -v -r -L /${config_dir}/ssh/trusted-ca-keys/. /${secret_dir}/ssh/trusted-ca-keys/
-    {{- end }}
-    {{- include "gitlab.gitlab-shell.topologyService.configureScript" $ | nindent 4 }}
   config.yml.tpl: |
     # GitLab user. git by default
     user: git
@@ -84,10 +74,11 @@ data:
       public_key_algorithms:
         {{- .Values.config.publicKeyAlgorithms | toYaml | nindent 8 }}
       # SSH host key files.
-      # - Walking {% env.Getenv "KEYS_DIRECTORY" "/etc/ssh" %} for keys.
+      # - Walking {% env.Getenv "KEYS_DIRECTORY" "/etc/ssh" %} for keys, skipping the
+      #   `..data` and timestamped directories of the Secret volume.
       host_key_files:
       {%- range file.Walk ( env.Getenv "KEYS_DIRECTORY" "/etc/ssh" ) %}
-        {%- if filepath.Base . | filepath.Match "ssh_host_*_key" %}
+        {%- if and (filepath.Base . | filepath.Match "ssh_host_*_key") (not (strings.Contains "/.." .)) %}
         - {%.%}
         {%- end %}
       {%- end %}
@@ -118,8 +109,7 @@ data:
     {{- if .Values.config.topologyService.enabled }}
     # Topology Service gRPC client (Cells routing). mTLS is a separate concern,
     # gated by the global topology service TLS setting; when enabled, the client
-    # cert/key are mounted from the topology service TLS secret via the configure
-    # init script.
+    # cert/key are mounted from the topology service TLS secret.
     topology_service:
       enabled: true
       address: {{ required "global.appConfig.cell.topologyServiceClient.address must be set when topology service is enabled" .Values.global.appConfig.cell.topologyServiceClient.address | quote }}

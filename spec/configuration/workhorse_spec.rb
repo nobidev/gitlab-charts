@@ -205,7 +205,7 @@ CFG
         expect(redis_config['Password']).to eq(global_redis_password)
 
         expect(template.dig("ConfigMap/test-workhorse-default", 'data', 'workhorse-config.toml.tpl')).to include('redis/redis-password')
-        expect(template.dig('ConfigMap/test-workhorse-default', 'data', 'configure')).to include('init-config/redis/redis-password')
+        expect(template.projected_item_paths('Deployment/test-webservice-default', 'workhorse-secrets')).to include('redis/redis-password')
       end
     end
 
@@ -234,7 +234,7 @@ CFG
         expect(redis_config['Password']).to eq(global_redis_password)
 
         expect(template.dig("ConfigMap/test-workhorse-default", 'data', 'workhorse-config.toml.tpl')).to include('redis/redis-password')
-        expect(template.dig('ConfigMap/test-workhorse-default', 'data', 'configure')).to include('init-config/redis/redis-password')
+        expect(template.projected_item_paths('Deployment/test-webservice-default', 'workhorse-secrets')).to include('redis/redis-password')
       end
     end
 
@@ -266,7 +266,7 @@ CFG
         expect(redis_config['DB']).to eq(0)
         expect(redis_config['Password']).to eq(workhorse_redis_password)
         expect(template.dig("ConfigMap/test-workhorse-default", 'data', 'workhorse-config.toml.tpl')).to include('redis/workhorse-password')
-        expect(template.dig('ConfigMap/test-workhorse-default', 'data', 'configure')).to include('init-config/redis/workhorse-password')
+        expect(template.projected_item_paths('Deployment/test-webservice-default', 'workhorse-secrets')).to include('redis/workhorse-password')
       end
 
       context 'when workhorse redis does not have password' do
@@ -310,7 +310,7 @@ CFG
           expect(redis_config['DB']).to eq(0)
           expect(redis_config['Password']).to eq(workhorse_redis_password)
           expect(template.dig("ConfigMap/test-workhorse-default", 'data', 'workhorse-config.toml.tpl')).to include('redis/workhorse-password')
-          expect(template.dig('ConfigMap/test-workhorse-default', 'data', 'configure')).to include('init-config/redis/workhorse-password')
+          expect(template.projected_item_paths('Deployment/test-webservice-default', 'workhorse-secrets')).to include('redis/workhorse-password')
         end
       end
     end
@@ -346,7 +346,7 @@ CFG
         expect(redis_config['DB']).to eq(7)
         expect(redis_config['Password']).to eq(workhorse_redis_password)
         expect(template.dig("ConfigMap/test-workhorse-default", 'data', 'workhorse-config.toml.tpl')).to include('redis/workhorse-password')
-        expect(template.dig('ConfigMap/test-workhorse-default', 'data', 'configure')).to include('init-config/redis/workhorse-password')
+        expect(template.projected_item_paths('Deployment/test-webservice-default', 'workhorse-secrets')).to include('redis/workhorse-password')
       end
     end
 
@@ -392,7 +392,7 @@ CFG
         expect(redis_config['Password']).to eq(workhorse_redis_password)
         expect(redis_config['DB']).to eq(9)
         expect(template.dig("ConfigMap/test-workhorse-default", "data", 'workhorse-config.toml.tpl')).to include('redis/workhorse-password')
-        expect(template.dig('ConfigMap/test-workhorse-default', 'data', 'configure')).to include('init-config/redis/workhorse-password')
+        expect(template.projected_item_paths('Deployment/test-webservice-default', 'workhorse-secrets')).to include('redis/workhorse-password')
       end
 
       context 'with workhorse rediss scheme' do
@@ -472,7 +472,7 @@ CFG
           expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
           expect(template.dig("ConfigMap/test-workhorse-default", "data", 'workhorse-config.toml.tpl')).to include('redis/workhorse-password')
-          expect(template.dig('ConfigMap/test-workhorse-default', 'data', 'configure')).to include('init-config/redis/workhorse-password')
+          expect(template.projected_item_paths('Deployment/test-webservice-default', 'workhorse-secrets')).to include('redis/workhorse-password')
 
           expect(redis_workhorse_yml['production']['sentinel_password']).to eq(global_redis_sentinel_password)
         end
@@ -1048,7 +1048,7 @@ CFG
 
       it 'mounts both Redis and Sentinel TLS secrets' do
         volumes = template.dig('Deployment/test-webservice-default', 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |v| v["name"] == "init-webservice-secrets" }
+        init_secrets = volumes.find { |v| v["name"] == "webservice-secrets" }
         sources = init_secrets.dig("projected", "sources")
 
         # Redis TLS secrets

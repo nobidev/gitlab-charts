@@ -295,51 +295,13 @@ SentinelPassword = {% file.Read "/etc/gitlab/redis-sentinel/redis-sentinel-passw
 {{- end -}}
 
 {{/*
-Return the bash setup commands for redis secrets.
+Return the projected volume sources for the Redis secrets that Workhorse
+reads: those of the `workhorse` instance when configured, else the global ones.
 */}}
-{{- define "workhorse.redis.secret-setup" -}}
-{{- if $.Values.global.redis.workhorse -}}
-{{-   $_ := set $ "redisConfigName" "workhorse" }}
-{{- end -}}
-{{- include "gitlab.redis.selectedMergedConfig" . -}}
-{{- if .redisMergedConfig.password.enabled -}}
-{{-   $passwordPath := printf "%s-password" (default "redis" .redisConfigName) -}}
-mkdir -p /init-secrets-workhorse/redis
-cp -v -r -L /init-config/redis/{{ $passwordPath }} /init-secrets-workhorse/redis/
-{{- end -}}
-{{- if .redisMergedConfig.sentinelAuth.enabled }}
-mkdir -p /init-secrets-workhorse/redis-sentinel
-cp -v -r -L /init-config/redis-sentinel/redis-sentinel-password /init-secrets-workhorse/redis-sentinel/
-{{- end -}}
-{{- if eq (default "redis" .redisMergedConfig.scheme) "rediss" }}
-{{-   $redisTLS := .redisMergedConfig.redisTLS | default (dict) -}}
-{{-   if $redisTLS }}
-mkdir -p /init-secrets-workhorse/redis
-{{-     if (kindIs "map" $redisTLS.caFile) }}
-cp -v -r -L /init-config/redis/{{ $redisTLS.caFile.key }} /init-secrets-workhorse/redis/
-{{-     end }}
-{{-    if (kindIs "map" $redisTLS.cert) }}
-cp -v -r -L /init-config/redis/{{ $redisTLS.cert.key }} /init-secrets-workhorse/redis/
-{{-     end }}
-{{-     if (kindIs "map" $redisTLS.key) }}
-cp -v -r -L /init-config/redis/{{ $redisTLS.key.key }} /init-secrets-workhorse/redis/
-{{-     end }}
-{{-   end }}
-{{- end }}
-{{- $sentinelTLS := .redisMergedConfig.sentinelTLS | default (dict) -}}
-{{- if $sentinelTLS.enabled }}
-{{-   if $sentinelTLS }}
-mkdir -p /init-secrets-workhorse/redis-sentinel
-{{-     if (kindIs "map" $sentinelTLS.caFile) }}
-cp -v -r -L /init-config/redis-sentinel/{{ $sentinelTLS.caFile.key }} /init-secrets-workhorse/redis-sentinel/
-{{-     end }}
-{{-     if (kindIs "map" $sentinelTLS.cert) }}
-cp -v -r -L /init-config/redis-sentinel/{{ $sentinelTLS.cert.key }} /init-secrets-workhorse/redis-sentinel/
-{{-     end }}
-{{-     if (kindIs "map" $sentinelTLS.key) }}
-cp -v -r -L /init-config/redis-sentinel/{{ $sentinelTLS.key.key }} /init-secrets-workhorse/redis-sentinel/
-{{-     end }}
-{{-   end }}
-{{- end }}
-{{- $_ := set . "redisConfigName" "" }}
+{{- define "workhorse.redis.secrets" -}}
+{{- $_ := set $ "redisConfigName" (ternary "workhorse" "" (not (empty $.Values.global.redis.workhorse))) }}
+{{- $_ := set $ "usingOverride" false }}
+{{ include "gitlab.redis.secret" $ }}
+{{ include "gitlab.redisSentinel.secret" $ }}
+{{- $_ := set $ "redisConfigName" "" }}
 {{- end -}}

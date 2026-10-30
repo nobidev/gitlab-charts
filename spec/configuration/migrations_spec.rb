@@ -98,11 +98,6 @@ describe 'migrations configuration' do
       jobs.values[0]
     end
 
-    it 'renders the configure init container' do
-      pod = migrations_job['spec']['template']['spec']
-      expect(pod['initContainers'].map { |c| c['name'] }).to include('configure')
-    end
-
     it 'mounts the migrations config and secrets on the main container' do
       container = migrations_job['spec']['template']['spec']['containers'].find { |c| c['name'] == 'migrations' }
       expect(container['volumeMounts'].map { |m| m['name'] }).to include('migrations-config', 'migrations-secrets')
@@ -110,7 +105,7 @@ describe 'migrations configuration' do
 
     it 'renders the config and secret volumes' do
       volumes = migrations_job['spec']['template']['spec']['volumes'].map { |v| v['name'] }
-      expect(volumes).to include('migrations-config', 'init-migrations-secrets', 'migrations-secrets')
+      expect(volumes).to include('migrations-config', 'migrations-secrets', 'migrations-secrets')
     end
   end
 

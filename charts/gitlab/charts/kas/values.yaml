@@ -20,9 +20,6 @@ global:
       # name: workspaces.example.com
 
 init:
-  image: {}
-    # repository:
-    # tag:
   resources:
     requests:
       cpu: 50m

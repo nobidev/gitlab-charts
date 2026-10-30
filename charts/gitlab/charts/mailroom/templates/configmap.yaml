@@ -149,7 +149,5 @@ data:
           {{- include "gitlab.mailroom.sentinel.tls" . | nindent 10 }}
       {{- end }}
 
-  configure: |
-    {{- include "gitlab.scripts.configure.secrets" (dict "required" "mailroom" "optional" "redis redis-sentinel") | nindent 4 }}
 # Leave this here - This line denotes end of block to the parser.
 {{- end }}

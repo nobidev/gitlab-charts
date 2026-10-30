@@ -5,10 +5,6 @@ image: {}
   # tag: master
 
 init:
-  image: {}
-    # repository:
-    # tag:
-    # pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 50m

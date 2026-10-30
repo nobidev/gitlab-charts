@@ -138,26 +138,6 @@ data:
         {{- toYaml .Values.extra | nindent 8 }}
         {{- end }}
       {{- include "gitlab.appConfig.openbao.configuration" . | nindent 6 }}
-  configure: |
-    {{- include "gitlab.scripts.configure.secrets" (dict "required" "shell gitaly registry rails-secrets") | nindent 4 }}
-    {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
-    {{- include "gitlab.geo.psql.ssl.initScript" . | nindent 4 }}
-
-    # Mount point for registry DB secrets. Needs to be pre-created as later the
-    # volume is remounted read-only
-    mkdir "/${secret_dir}/registry-db/"
-
-    # Mount point for OpenBao DB secrets. Needs to be pre-created as later the
-    # volume is remounted read-only
-    mkdir "/${secret_dir}/openbao-db/"
-
-    {{- if eq .Values.backups.objectStorage.backend "s3" }}
-    if [ -f "/${secret_dir}/objectstorage/.s3cfg" ]; then
-      mv "/${secret_dir}/objectstorage/.s3cfg" "/${secret_dir}/.s3cfg"
-    fi
-    {{- end }}
-    {{- include "gitlab.topologyService.configureScript" $ | nindent 4 }}
-    {{- include "gitlab.appConfig.nats.configureScript" $ | nindent 4 }}
   configure-gcloud-storage: |
     set -e
     if command -v gcloud > /dev/null 2>&1; then

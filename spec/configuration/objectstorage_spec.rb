@@ -14,9 +14,9 @@ describe 'ObjectStorage configuration' do
 
   let(:init_secret_mounts) do
     {
-      'test-sidekiq-all-in-1-v2' => 'init-sidekiq-secrets',
-      'test-webservice-default' => 'init-webservice-secrets',
-      'test-toolbox' => 'init-toolbox-secrets'
+      'test-sidekiq-all-in-1-v2' => 'sidekiq-secrets',
+      'test-webservice-default' => 'webservice-secrets',
+      'test-toolbox' => 'toolbox-secrets'
     }
   end
 
@@ -122,7 +122,7 @@ describe 'ObjectStorage configuration' do
 
         init_secret_mounts.each do |deployment, mount|
           secret_names = t.projected_volume_sources("Deployment/#{deployment}", mount).map do |item|
-            item['secret']['name']
+            item.dig('secret', 'name')
           end
 
           expect(secret_names).to include('gitlab-object-storage', 'gitlab-cdn-storage')
@@ -329,7 +329,7 @@ describe 'ObjectStorage configuration' do
           # Check the secret mounts
           init_secret_mounts.each do |deployment, mount|
             secret_names = t.projected_volume_sources("Deployment/#{deployment}", mount).map do |item|
-              item['secret']['name']
+              item.dig('secret', 'name')
             end
 
             expect(secret_names).to include('gitlab-object-storage', 'gitlab-cdn-storage')

@@ -824,7 +824,7 @@ describe 'Sidekiq configuration' do
 
       it 'mounts Redis TLS secrets' do
         volumes = template.dig('Deployment/test-sidekiq-all-in-1-v2', 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |v| v["name"] == "init-sidekiq-secrets" }
+        init_secrets = volumes.find { |v| v["name"] == "sidekiq-secrets" }
         sources = init_secrets.dig("projected", "sources")
 
         ca_secret = sources.find { |s| s.dig("secret", "name") == "redis-ca" }
@@ -877,7 +877,7 @@ describe 'Sidekiq configuration' do
 
       it 'mounts sentinel TLS secrets' do
         volumes = template.dig('Deployment/test-sidekiq-all-in-1-v2', 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |v| v["name"] == "init-sidekiq-secrets" }
+        init_secrets = volumes.find { |v| v["name"] == "sidekiq-secrets" }
         sources = init_secrets.dig("projected", "sources")
 
         ca_secret = sources.find { |s| s.dig("secret", "name") == "sentinel-ca" }
@@ -947,7 +947,7 @@ describe 'Sidekiq configuration' do
 
       it 'mounts both Redis and Sentinel TLS secrets' do
         volumes = template.dig('Deployment/test-sidekiq-all-in-1-v2', 'spec', 'template', 'spec', 'volumes')
-        init_secrets = volumes.find { |v| v["name"] == "init-sidekiq-secrets" }
+        init_secrets = volumes.find { |v| v["name"] == "sidekiq-secrets" }
         sources = init_secrets.dig("projected", "sources")
 
         # Redis TLS secrets

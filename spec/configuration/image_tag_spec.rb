@@ -198,11 +198,6 @@ describe 'image tag configuration' do
             gitlabVersion: 1.2.3
             gitlabBase:
               tag: global-tag
-          gitlab:
-            sidekiq:
-              init:
-                image:
-                  tag: init-tag
         )
         template = HelmTemplate.new values
       rescue StandardError
@@ -214,11 +209,6 @@ describe 'image tag configuration' do
 
       it 'should render the template without error' do
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-      end
-
-      it 'should override the gitlab-base init image tag' do
-        configure = template.find_container('Deployment/test-sidekiq-all-in-1-v2', 'configure', true)
-        expect(configure['image']).to end_with(':init-tag')
       end
     end
   end

@@ -51,48 +51,34 @@ describe 'toolbox openbao database configuration' do
       expect(config_data).not_to include('OPENBAO_DATABASE_USER')
     end
 
-    it 'mounts openbao-db-config volume with 3 sources in deployment' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      openbao_db_volume = deployment_spec['volumes'].find { |v| v['name'] == 'openbao-db-config' }
-
-      expect(openbao_db_volume).not_to be_nil
-      expect(openbao_db_volume['projected']).not_to be_nil
-      expect(openbao_db_volume['projected']['defaultMode']).to eq(0o440)
-
-      sources = openbao_db_volume['projected']['sources']
+    it 'projects the openbao database sources into the toolbox-secrets volume with 3 sources in deployment' do
+      sources = template.projected_sources_by_path('Deployment/test-toolbox', 'toolbox-secrets', 'openbao-db/')
       expect(sources.length).to eq(3)
 
       connection_config = sources.find { |s| s['configMap'] && s['configMap']['name'] == 'test-toolbox-openbao-db-connection-config' }
       expect(connection_config).not_to be_nil
       expect(connection_config['configMap']['optional']).to be true
-      expect(connection_config['configMap']['items']).to eq([{ 'key' => 'db-connection.env', 'path' => 'connection.env' }])
+      expect(connection_config['configMap']['items']).to eq([{ 'key' => 'db-connection.env', 'path' => 'openbao-db/connection.env' }])
 
       users_config = sources.find { |s| s['configMap'] && s['configMap']['name'] == 'test-toolbox-openbao-db-backuprestore-users' }
       expect(users_config).not_to be_nil
       expect(users_config['configMap']['optional']).to be true
       expect(users_config['configMap']['items']).to eq([
-        { 'key' => 'backup-user', 'path' => 'backup-user.env' },
-        { 'key' => 'restore-user', 'path' => 'restore-user.env' }
+        { 'key' => 'backup-user', 'path' => 'openbao-db/backup-user.env' },
+        { 'key' => 'restore-user', 'path' => 'openbao-db/restore-user.env' }
       ])
 
       password_secret = sources.find { |s| s['secret'] }
       expect(password_secret).not_to be_nil
       expect(password_secret['secret']['optional']).to be true
       expect(password_secret['secret']['items']).to eq([
-        { 'key' => 'backupPassword', 'path' => 'backup-pass' },
-        { 'key' => 'restorePassword', 'path' => 'restore-pass' }
+        { 'key' => 'backupPassword', 'path' => 'openbao-db/backup-pass' },
+        { 'key' => 'restorePassword', 'path' => 'openbao-db/restore-pass' }
       ])
     end
 
-    it 'mounts openbao-db-config volume with 3 sources in backup job' do
-      cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
-      openbao_db_volume = cronjob_spec['volumes'].find { |v| v['name'] == 'openbao-db-config' }
-
-      expect(openbao_db_volume).not_to be_nil
-      expect(openbao_db_volume['projected']).not_to be_nil
-      expect(openbao_db_volume['projected']['defaultMode']).to eq(0o440)
-
-      sources = openbao_db_volume['projected']['sources']
+    it 'projects the openbao database sources into the toolbox-secrets volume with 3 sources in backup job' do
+      sources = template.projected_sources_by_path('CronJob/test-toolbox-backup', 'toolbox-secrets', 'openbao-db/')
       expect(sources.length).to eq(3)
 
       sources.each do |source|
@@ -102,26 +88,6 @@ describe 'toolbox openbao database configuration' do
           expect(source['secret']['optional']).to be true
         end
       end
-    end
-
-    it 'mounts openbao-db-config at correct path in deployment' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      container = deployment_spec['containers'].find { |c| c['name'] == 'toolbox' }
-      openbao_db_mount = container['volumeMounts'].find { |vm| vm['name'] == 'openbao-db-config' }
-
-      expect(openbao_db_mount).not_to be_nil
-      expect(openbao_db_mount['mountPath']).to eq('/etc/gitlab/openbao-db/')
-      expect(openbao_db_mount['readOnly']).to be true
-    end
-
-    it 'mounts openbao-db-config at correct path in backup job' do
-      cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
-      container = cronjob_spec['containers'].find { |c| c['name'] == 'toolbox-backup' }
-      openbao_db_mount = container['volumeMounts'].find { |vm| vm['name'] == 'openbao-db-config' }
-
-      expect(openbao_db_mount).not_to be_nil
-      expect(openbao_db_mount['mountPath']).to eq('/etc/gitlab/openbao-db/')
-      expect(openbao_db_mount['readOnly']).to be true
     end
   end
 
@@ -134,12 +100,10 @@ describe 'toolbox openbao database configuration' do
       expect(template.resource_exists?('ConfigMap/test-toolbox-openbao-db-connection-config')).to be false
     end
 
-    it 'still mounts openbao-db-config volume with all sources optional in deployment' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      openbao_db_volume = deployment_spec['volumes'].find { |v| v['name'] == 'openbao-db-config' }
-
-      expect(openbao_db_volume).not_to be_nil
-      expect(openbao_db_volume['projected']['sources']).to all(
+    it 'still projects the openbao database sources into the toolbox-secrets volume with all sources optional in deployment' do
+      sources = template.projected_sources_by_path('Deployment/test-toolbox', 'toolbox-secrets', 'openbao-db/')
+      expect(sources).not_to be_empty
+      expect(sources).to all(
         satisfy { |s| (s['configMap'] && s['configMap']['optional']) || (s['secret'] && s['secret']['optional']) }
       )
     end
@@ -216,15 +180,13 @@ describe 'toolbox openbao database configuration' do
     let(:template) { HelmTemplate.new(values) }
 
     it 'uses the custom secret name and per-operation keys' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      openbao_db_volume = deployment_spec['volumes'].find { |v| v['name'] == 'openbao-db-config' }
-      sources = openbao_db_volume['projected']['sources']
+      sources = template.projected_sources_by_path('Deployment/test-toolbox', 'toolbox-secrets', 'openbao-db/')
 
       password_secret = sources.find { |s| s['secret'] && s['secret']['name'] == 'custom-openbao-secret' }
       expect(password_secret).not_to be_nil
       expect(password_secret['secret']['items']).to eq([
-        { 'key' => 'myBackupKey', 'path' => 'backup-pass' },
-        { 'key' => 'myRestoreKey', 'path' => 'restore-pass' }
+        { 'key' => 'myBackupKey', 'path' => 'openbao-db/backup-pass' },
+        { 'key' => 'myRestoreKey', 'path' => 'openbao-db/restore-pass' }
       ])
     end
   end
@@ -242,15 +204,13 @@ describe 'toolbox openbao database configuration' do
     let(:template) { HelmTemplate.new(values) }
 
     it 'uses the default secret name and default backup/restore keys' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      openbao_db_volume = deployment_spec['volumes'].find { |v| v['name'] == 'openbao-db-config' }
-      sources = openbao_db_volume['projected']['sources']
+      sources = template.projected_sources_by_path('Deployment/test-toolbox', 'toolbox-secrets', 'openbao-db/')
 
       password_secret = sources.find { |s| s['secret'] && s['secret']['name'] == 'test-toolbox-openbao-database-password' }
       expect(password_secret).not_to be_nil
       expect(password_secret['secret']['items']).to eq([
-        { 'key' => 'backupPassword', 'path' => 'backup-pass' },
-        { 'key' => 'restorePassword', 'path' => 'restore-pass' }
+        { 'key' => 'backupPassword', 'path' => 'openbao-db/backup-pass' },
+        { 'key' => 'restorePassword', 'path' => 'openbao-db/restore-pass' }
       ])
     end
   end

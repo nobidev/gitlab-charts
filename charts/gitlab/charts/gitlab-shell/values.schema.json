@@ -409,9 +409,6 @@
           "type": "object"
         }
       },
-      "required": [
-        "image"
-      ],
       "title": "Init container details",
       "type": "object"
     },

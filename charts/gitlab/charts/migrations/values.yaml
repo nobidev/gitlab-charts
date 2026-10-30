@@ -8,9 +8,6 @@ image: {}
   # tag: master
 
 init:
-  image: {}
-    # repository:
-    # tag:
   resources:
     requests:
       cpu: 50m

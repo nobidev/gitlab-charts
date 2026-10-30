@@ -46,45 +46,31 @@ describe 'toolbox registry database configuration' do
       expect(template.dig('ConfigMap/test-toolbox-registry-db-backuprestore-users', 'data', 'backup-user')).to include('REGISTRY_DATABASE_USER=registry_backup_user')
     end
 
-    it 'mounts registry-db-config volume in deployment' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      registry_db_volume = deployment_spec['volumes'].find { |v| v['name'] == 'registry-db-config' }
-
-      expect(registry_db_volume).not_to be_nil
-      expect(registry_db_volume['projected']).not_to be_nil
-      expect(registry_db_volume['projected']['defaultMode']).to eq(0o440)
-
-      sources = registry_db_volume['projected']['sources']
+    it 'projects the registry database sources into the toolbox-secrets volume in deployment' do
+      sources = template.projected_sources_by_path('Deployment/test-toolbox', 'toolbox-secrets', 'registry-db/')
       expect(sources.length).to eq(3)
 
       # Check ConfigMap for connection config
       connection_config = sources.find { |s| s['configMap'] && s['configMap']['name'] == 'test-registry-db-connection-config' }
       expect(connection_config).not_to be_nil
       expect(connection_config['configMap']['optional']).to be true
-      expect(connection_config['configMap']['items']).to eq([{ 'key' => 'db-connection.env', 'path' => 'connection.env' }])
+      expect(connection_config['configMap']['items']).to eq([{ 'key' => 'db-connection.env', 'path' => 'registry-db/connection.env' }])
 
       # Check ConfigMap for users
       user_config = sources.find { |s| s['configMap'] && s['configMap']['name'] == 'test-toolbox-registry-db-backuprestore-users' }
       expect(user_config).not_to be_nil
       expect(user_config['configMap']['optional']).to be true
-      expect(user_config['configMap']['items']).to include({ 'key' => 'backup-user', 'path' => 'backup-user.env' })
+      expect(user_config['configMap']['items']).to include({ 'key' => 'backup-user', 'path' => 'registry-db/backup-user.env' })
 
       # Check Secret for passwords
       password_secret = sources.find { |s| s['secret'] && s['secret']['name'] == 'registry-db-password' }
       expect(password_secret).not_to be_nil
       expect(password_secret['secret']['optional']).to be true
-      expect(password_secret['secret']['items']).to include({ 'key' => 'backupPassword', 'path' => 'backup-pass' })
+      expect(password_secret['secret']['items']).to include({ 'key' => 'backupPassword', 'path' => 'registry-db/backup-pass' })
     end
 
-    it 'mounts registry-db-config volume in backup job' do
-      cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
-      registry_db_volume = cronjob_spec['volumes'].find { |v| v['name'] == 'registry-db-config' }
-
-      expect(registry_db_volume).not_to be_nil
-      expect(registry_db_volume['projected']).not_to be_nil
-      expect(registry_db_volume['projected']['defaultMode']).to eq(0o440)
-
-      sources = registry_db_volume['projected']['sources']
+    it 'projects the registry database sources into the toolbox-secrets volume in backup job' do
+      sources = template.projected_sources_by_path('CronJob/test-toolbox-backup', 'toolbox-secrets', 'registry-db/')
       expect(sources.length).to eq(3)
 
       # Verify all sources are marked as optional
@@ -95,26 +81,6 @@ describe 'toolbox registry database configuration' do
           expect(source['secret']['optional']).to be true
         end
       end
-    end
-
-    it 'mounts registry-db-config at correct path in deployment' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      container = deployment_spec['containers'].find { |c| c['name'] == 'toolbox' }
-      registry_db_mount = container['volumeMounts'].find { |vm| vm['name'] == 'registry-db-config' }
-
-      expect(registry_db_mount).not_to be_nil
-      expect(registry_db_mount['mountPath']).to eq('/etc/gitlab/registry-db/')
-      expect(registry_db_mount['readOnly']).to be true
-    end
-
-    it 'mounts registry-db-config at correct path in backup job' do
-      cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
-      container = cronjob_spec['containers'].find { |c| c['name'] == 'toolbox-backup' }
-      registry_db_mount = container['volumeMounts'].find { |vm| vm['name'] == 'registry-db-config' }
-
-      expect(registry_db_mount).not_to be_nil
-      expect(registry_db_mount['mountPath']).to eq('/etc/gitlab/registry-db/')
-      expect(registry_db_mount['readOnly']).to be true
     end
   end
 
@@ -142,45 +108,31 @@ describe 'toolbox registry database configuration' do
       expect(template.dig('ConfigMap/test-toolbox-registry-db-backuprestore-users', 'data', 'restore-user')).to include('REGISTRY_DATABASE_USER=registry_restore_user')
     end
 
-    it 'mounts registry-db-config volume in deployment' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      registry_db_volume = deployment_spec['volumes'].find { |v| v['name'] == 'registry-db-config' }
-
-      expect(registry_db_volume).not_to be_nil
-      expect(registry_db_volume['projected']).not_to be_nil
-      expect(registry_db_volume['projected']['defaultMode']).to eq(0o440)
-
-      sources = registry_db_volume['projected']['sources']
+    it 'projects the registry database sources into the toolbox-secrets volume in deployment' do
+      sources = template.projected_sources_by_path('Deployment/test-toolbox', 'toolbox-secrets', 'registry-db/')
       expect(sources.length).to eq(3)
 
       # Check ConfigMap for connection config
       connection_config = sources.find { |s| s['configMap'] && s['configMap']['name'] == 'test-registry-db-connection-config' }
       expect(connection_config).not_to be_nil
       expect(connection_config['configMap']['optional']).to be true
-      expect(connection_config['configMap']['items']).to eq([{ 'key' => 'db-connection.env', 'path' => 'connection.env' }])
+      expect(connection_config['configMap']['items']).to eq([{ 'key' => 'db-connection.env', 'path' => 'registry-db/connection.env' }])
 
       # Check ConfigMap for users
       user_config = sources.find { |s| s['configMap'] && s['configMap']['name'] == 'test-toolbox-registry-db-backuprestore-users' }
       expect(user_config).not_to be_nil
       expect(user_config['configMap']['optional']).to be true
-      expect(user_config['configMap']['items']).to include({ 'key' => 'restore-user', 'path' => 'restore-user.env' })
+      expect(user_config['configMap']['items']).to include({ 'key' => 'restore-user', 'path' => 'registry-db/restore-user.env' })
 
       # Check Secret for passwords
       password_secret = sources.find { |s| s['secret'] && s['secret']['name'] == 'registry-db-password' }
       expect(password_secret).not_to be_nil
       expect(password_secret['secret']['optional']).to be true
-      expect(password_secret['secret']['items']).to include({ 'key' => 'restorePassword', 'path' => 'restore-pass' })
+      expect(password_secret['secret']['items']).to include({ 'key' => 'restorePassword', 'path' => 'registry-db/restore-pass' })
     end
 
-    it 'mounts registry-db-config volume in backup job' do
-      cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
-      registry_db_volume = cronjob_spec['volumes'].find { |v| v['name'] == 'registry-db-config' }
-
-      expect(registry_db_volume).not_to be_nil
-      expect(registry_db_volume['projected']).not_to be_nil
-      expect(registry_db_volume['projected']['defaultMode']).to eq(0o440)
-
-      sources = registry_db_volume['projected']['sources']
+    it 'projects the registry database sources into the toolbox-secrets volume in backup job' do
+      sources = template.projected_sources_by_path('CronJob/test-toolbox-backup', 'toolbox-secrets', 'registry-db/')
       expect(sources.length).to eq(3)
 
       # Verify all sources are marked as optional
@@ -191,26 +143,6 @@ describe 'toolbox registry database configuration' do
           expect(source['secret']['optional']).to be true
         end
       end
-    end
-
-    it 'mounts registry-db-config at correct path in deployment' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      container = deployment_spec['containers'].find { |c| c['name'] == 'toolbox' }
-      registry_db_mount = container['volumeMounts'].find { |vm| vm['name'] == 'registry-db-config' }
-
-      expect(registry_db_mount).not_to be_nil
-      expect(registry_db_mount['mountPath']).to eq('/etc/gitlab/registry-db/')
-      expect(registry_db_mount['readOnly']).to be true
-    end
-
-    it 'mounts registry-db-config at correct path in backup job' do
-      cronjob_spec = template.dig('CronJob/test-toolbox-backup', 'spec', 'jobTemplate', 'spec', 'template', 'spec')
-      container = cronjob_spec['containers'].find { |c| c['name'] == 'toolbox-backup' }
-      registry_db_mount = container['volumeMounts'].find { |vm| vm['name'] == 'registry-db-config' }
-
-      expect(registry_db_mount).not_to be_nil
-      expect(registry_db_mount['mountPath']).to eq('/etc/gitlab/registry-db/')
-      expect(registry_db_mount['readOnly']).to be true
     end
   end
 
@@ -242,14 +174,12 @@ describe 'toolbox registry database configuration' do
     end
 
     it 'mounts both backup and restore password keys' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      registry_db_volume = deployment_spec['volumes'].find { |v| v['name'] == 'registry-db-config' }
-      sources = registry_db_volume['projected']['sources']
+      sources = template.projected_sources_by_path('Deployment/test-toolbox', 'toolbox-secrets', 'registry-db/')
 
       password_secret = sources.find { |s| s['secret'] && s['secret']['name'] == 'registry-db-password' }
       expect(password_secret).not_to be_nil
-      expect(password_secret['secret']['items']).to include({ 'key' => 'backupPassword', 'path' => 'backup-pass' })
-      expect(password_secret['secret']['items']).to include({ 'key' => 'restorePassword', 'path' => 'restore-pass' })
+      expect(password_secret['secret']['items']).to include({ 'key' => 'backupPassword', 'path' => 'registry-db/backup-pass' })
+      expect(password_secret['secret']['items']).to include({ 'key' => 'restorePassword', 'path' => 'registry-db/restore-pass' })
     end
   end
 
@@ -262,12 +192,10 @@ describe 'toolbox registry database configuration' do
       expect(template.resource_exists?('ConfigMap/test-toolbox-registry-db-backuprestore-users')).to be false
     end
 
-    it 'still mounts registry-db-config volume with optional sources' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      registry_db_volume = deployment_spec['volumes'].find { |v| v['name'] == 'registry-db-config' }
-
-      expect(registry_db_volume).not_to be_nil
-      expect(registry_db_volume['projected']['sources']).to all(
+    it 'still projects the registry database sources into the toolbox-secrets volume with optional sources' do
+      sources = template.projected_sources_by_path('Deployment/test-toolbox', 'toolbox-secrets', 'registry-db/')
+      expect(sources).not_to be_empty
+      expect(sources).to all(
         satisfy { |s| (s['configMap'] && s['configMap']['optional']) || (s['secret'] && s['secret']['optional']) }
       )
     end
@@ -292,14 +220,12 @@ describe 'toolbox registry database configuration' do
     let(:template) { HelmTemplate.new(values) }
 
     it 'uses the custom secret name and keys' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      registry_db_volume = deployment_spec['volumes'].find { |v| v['name'] == 'registry-db-config' }
-      sources = registry_db_volume['projected']['sources']
+      sources = template.projected_sources_by_path('Deployment/test-toolbox', 'toolbox-secrets', 'registry-db/')
 
       password_secret = sources.find { |s| s['secret'] && s['secret']['name'] == 'custom-registry-secret' }
       expect(password_secret).not_to be_nil
-      expect(password_secret['secret']['items']).to include({ 'key' => 'custom-backup-key', 'path' => 'backup-pass' })
-      expect(password_secret['secret']['items']).to include({ 'key' => 'custom-restore-key', 'path' => 'restore-pass' })
+      expect(password_secret['secret']['items']).to include({ 'key' => 'custom-backup-key', 'path' => 'registry-db/backup-pass' })
+      expect(password_secret['secret']['items']).to include({ 'key' => 'custom-restore-key', 'path' => 'registry-db/restore-pass' })
     end
   end
 
@@ -318,14 +244,12 @@ describe 'toolbox registry database configuration' do
     let(:template) { HelmTemplate.new(values) }
 
     it 'uses the default secret name and keys' do
-      deployment_spec = template.dig('Deployment/test-toolbox', 'spec', 'template', 'spec')
-      registry_db_volume = deployment_spec['volumes'].find { |v| v['name'] == 'registry-db-config' }
-      sources = registry_db_volume['projected']['sources']
+      sources = template.projected_sources_by_path('Deployment/test-toolbox', 'toolbox-secrets', 'registry-db/')
 
       password_secret = sources.find { |s| s['secret'] && s['secret']['name'] == 'test-toolbox-registry-database-password' }
       expect(password_secret).not_to be_nil
-      expect(password_secret['secret']['items']).to include({ 'key' => 'backupPassword', 'path' => 'backup-pass' })
-      expect(password_secret['secret']['items']).to include({ 'key' => 'restorePassword', 'path' => 'restore-pass' })
+      expect(password_secret['secret']['items']).to include({ 'key' => 'backupPassword', 'path' => 'registry-db/backup-pass' })
+      expect(password_secret['secret']['items']).to include({ 'key' => 'restorePassword', 'path' => 'registry-db/restore-pass' })
     end
   end
 end
