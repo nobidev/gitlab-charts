@@ -285,11 +285,12 @@ describe 'GitLab Ingress configuration(s)' do
       end
 
       with_them do
-        it 'fails the config check and names the setting' do
+        it 'fails the config check and names only that setting' do
           template = HelmTemplate.new(enable_all_ingress.deep_merge(YAML.safe_load(values_yaml)))
           expect(template.exit_code).not_to eq(0)
           expect(template.stderr).to include('Ingress objects support only: networking.k8s.io/v1.')
           expect(template.stderr).to include("`#{setting}: ")
+          expect(template.stderr.scan(/`[\w.-]+\.apiVersion: /).length).to eq(1), template.stderr
         end
       end
 
@@ -314,9 +315,9 @@ describe 'GitLab Ingress configuration(s)' do
         expect(template.exit_code).not_to eq(0)
         expect(template.stderr).to include(
           'Remove or update the following settings: ' \
-          '`gitlab.webservice.deployments.default.ingress.apiVersion: networking.k8s.io/v1beta1`, ' \
-          '`global.ingress.apiVersion: networking.k8s.io/v1beta1`, ' \
-          '`registry.ingress.apiVersion: extensions/v1beta1`'
+            '`gitlab.webservice.deployments.default.ingress.apiVersion: networking.k8s.io/v1beta1`, ' \
+            '`global.ingress.apiVersion: networking.k8s.io/v1beta1`, ' \
+            '`registry.ingress.apiVersion: extensions/v1beta1`'
         )
       end
 

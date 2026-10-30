@@ -46,7 +46,11 @@ This check runs whether or not Ingress is enabled.
 {{-   $_ := set $sources "gitlab.webservice.extraIngress.apiVersion" (dig "extraIngress" "apiVersion" "" $webservice) -}}
 {{-   range $name, $deployment := (dig "deployments" dict $webservice) -}}
 {{-     range $key := list "ingress" "extraIngress" -}}
-{{-       $_ := set $sources (printf "gitlab.webservice.deployments.%s.%s.apiVersion" $name $key) (dig $key "apiVersion" "" ($deployment | default dict)) -}}
+{{-       $value := dig $key "apiVersion" "" ($deployment | default dict) -}}
+{{/*      Skip values that webservice.datamodel.prepare copied from the chart-level setting */}}
+{{-       if ne (toString $value) (toString (dig $key "apiVersion" "" $webservice)) -}}
+{{-         $_ := set $sources (printf "gitlab.webservice.deployments.%s.%s.apiVersion" $name $key) $value -}}
+{{-       end -}}
 {{-     end -}}
 {{-   end -}}
 {{-   $invalid := list -}}
