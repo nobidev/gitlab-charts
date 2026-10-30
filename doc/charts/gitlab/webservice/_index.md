@@ -564,7 +564,7 @@ webservice:
 
 | Name                              |  Type   | Default                   | Description |
 |:----------------------------------|:-------:|:--------------------------|:------------|
-| `ingress.apiVersion`              | String  |                           | Value to use in the `apiVersion` field. |
+| `ingress.apiVersion`              | String  |                           | Value to use in the `apiVersion` field. The only accepted value is `networking.k8s.io/v1`. Also applies to `extraIngress.apiVersion` and the per-deployment `ingress.apiVersion` and `extraIngress.apiVersion`. |
 | `ingress.annotations`             |   Map   | See [below](#annotations) | These annotations will be used for every Ingress. For example: `ingress.annotations."nginx\.ingress\.kubernetes\.io/enable-access-log"=true`. |
 | `ingress.configureCertmanager`    | Boolean |                           | Toggles Ingress annotation `cert-manager.io/issuer` and `acme.cert-manager.io/http01-edit-in-place`. For more information see the [TLS requirement for GitLab Pages](../../../installation/tls.md). |
 | `ingress.enabled`                 | Boolean | `false`                   | Setting that controls whether to create Ingress objects for services that support them. When `false`, the `global.ingress.enabled` setting value is used. |

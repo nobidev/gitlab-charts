@@ -199,21 +199,6 @@ describe 'GitLab Ingress configuration(s)' do
       )))
     end
 
-    let(:api_version_specified) do
-      enable_all_ingress.deep_merge(YAML.safe_load(%(
-        global:
-          ingress:
-            apiVersion: global/v0beta0
-        gitlab:
-          webservice:
-            deployments:
-              default:
-                ingress:
-                  path: /
-                  apiVersion: local/v0beta0
-      )))
-    end
-
     context 'when not specified' do
       it 'sets default version (networking.k8s.io/v1)' do
         template = HelmTemplate.new(ingress_class_specified)
@@ -243,126 +228,109 @@ describe 'GitLab Ingress configuration(s)' do
       end
     end
 
-    context 'when specified' do
-      it 'sets proper API version' do
-        template = HelmTemplate.new(api_version_specified)
-        expect(template.exit_code).to eq(0)
-
-        ingress_names.each do |ingress_name|
-          api_version = get_api_version(template, ingress_name)
-
-          if ingress_name.include? "webservice"
-            expect(api_version).to eq("local/v0beta0")
-          else
-            expect(api_version).to eq("global/v0beta0")
-          end
-        end
-      end
-    end
-
-    context 'when using ingress with networking.k8s.io/v1beta1 API' do
-      it 'does not set ingressClassName resource' do
-        api_version = enable_all_ingress.deep_merge(YAML.safe_load(%(
-            global:
-              ingress:
-                apiVersion: networking.k8s.io/v1beta1
-          )))
-
-        template = HelmTemplate.new(api_version)
-        expect(template.exit_code).to eq(0)
-
-        ingress_names.each do |ingress_name|
-          class_resource = template.dig("Ingress/#{ingress_name}", 'spec', 'ingressClassName')
-          expect(class_resource).to eq(nil)
-        end
-      end
-
-      it 'sets ingress-class annotation' do
-        api_version = enable_all_ingress.deep_merge(YAML.safe_load(%(
-            global:
-              ingress:
-                apiVersion: networking.k8s.io/v1beta1
-          )))
-
-        template = HelmTemplate.new(api_version)
-        expect(template.exit_code).to eq(0)
-
-        ingress_names.each do |ingress_name|
-          annotation = template.dig("Ingress/#{ingress_name}", 'metadata', 'annotations', 'kubernetes.io/ingress.class')
-          expect(annotation).to eq('test-nginx')
-        end
-      end
-
-      it 'renders networking.k8s.io/v1beta1 backends' do
-        api_version = enable_all_ingress.deep_merge(YAML.safe_load(%(
-            global:
-              ingress:
-                apiVersion: networking.k8s.io/v1beta1
-          )))
-
-        template = HelmTemplate.new(api_version)
-        expect(template.exit_code).to eq(0)
-
-        ingress_names.each do |ingress_name|
-          get_paths(template, ingress_name).each do |p|
-            expect(p['backend']).to have_key('serviceName'), "#{ingress_name}: #{p['backend']}"
-            expect(p['backend']).not_to have_key('service')
-          end
-        end
-      end
-
-      it 'renders the workspaces Ingresses consistently with the apiVersion' do
-        values = enable_all_ingress.deep_merge(YAML.safe_load(%(
-            global:
-              ingress:
-                apiVersion: networking.k8s.io/v1beta1
-              hosts:
-                workspaces:
-                  name: workspaces.example.com
-              workspaces:
-                enabled: true
-          )))
-
-        template = HelmTemplate.new(values)
-        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
-
-        %w[test-kas-workspaces test-kas-workspaces-api].each do |ingress_name|
-          expect(get_api_version(template, ingress_name)).to eq('networking.k8s.io/v1beta1')
-          expect(get_ingress_class_annotation(template, ingress_name)).to eq('test-nginx')
-          expect(get_ingress_class_spec(template, ingress_name)).to be_nil
-          get_paths(template, ingress_name).each do |p|
-            expect(p['backend']).to have_key('serviceName'), "#{ingress_name}: #{p['backend']}"
-            expect(p['backend']).not_to have_key('service')
-          end
-        end
-      end
-    end
-
-    context 'when set on the webservice chart' do
-      let(:webservice_api_version) do
+    context 'when networking.k8s.io/v1 is set explicitly' do
+      let(:v1_specified) do
         enable_all_ingress.deep_merge(YAML.safe_load(%(
+          global:
+            ingress:
+              apiVersion: networking.k8s.io/v1
+          registry:
+            ingress:
+              apiVersion: networking.k8s.io/v1
           gitlab:
+            kas:
+              ingress:
+                apiVersion: networking.k8s.io/v1
+            gitlab-pages:
+              ingress:
+                apiVersion: networking.k8s.io/v1
             webservice:
               ingress:
-                apiVersion: networking.k8s.io/v1beta1
+                apiVersion: networking.k8s.io/v1
+              extraIngress:
+                apiVersion: networking.k8s.io/v1
+              deployments:
+                default:
+                  ingress:
+                    path: /
+                    apiVersion: networking.k8s.io/v1
         )))
       end
 
-      it 'applies to the webservice Ingresses' do
-        template = HelmTemplate.new(webservice_api_version)
+      it 'passes the config check and renders networking.k8s.io/v1 Ingresses' do
+        template = HelmTemplate.new(v1_specified)
         expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
 
-        %w[test-webservice-default test-webservice-default-smartcard].each do |ingress_name|
-          expect(get_api_version(template, ingress_name)).to eq('networking.k8s.io/v1beta1')
-          expect(get_ingress_class_annotation(template, ingress_name)).to eq('test-nginx')
+        ingress_names.each do |ingress_name|
+          expect(get_api_version(template, ingress_name)).to eq('networking.k8s.io/v1')
           get_paths(template, ingress_name).each do |p|
-            expect(p['backend']).to have_key('serviceName'), "#{ingress_name}: #{p['backend']}"
+            expect(p['backend']).to have_key('service'), "#{ingress_name}: #{p['backend']}"
           end
         end
+      end
+    end
 
-        (ingress_names - %w[test-webservice-default test-webservice-default-smartcard]).each do |ingress_name|
-          expect(get_api_version(template, ingress_name)).to eq('networking.k8s.io/v1')
+    context 'when a legacy apiVersion is set' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:setting, :values_yaml) do
+        'global.ingress.apiVersion'                                       | "global: {ingress: {apiVersion: networking.k8s.io/v1beta1}}"
+        'registry.ingress.apiVersion'                                     | "registry: {ingress: {apiVersion: networking.k8s.io/v1beta1}}"
+        'gitlab.kas.ingress.apiVersion'                                   | "gitlab: {kas: {ingress: {apiVersion: networking.k8s.io/v1beta1}}}"
+        'gitlab.gitlab-pages.ingress.apiVersion'                          | "gitlab: {gitlab-pages: {ingress: {apiVersion: networking.k8s.io/v1beta1}}}"
+        'gitlab.webservice.ingress.apiVersion'                            | "gitlab: {webservice: {ingress: {apiVersion: networking.k8s.io/v1beta1}}}"
+        'gitlab.webservice.extraIngress.apiVersion'                       | "gitlab: {webservice: {extraIngress: {apiVersion: networking.k8s.io/v1beta1}}}"
+        'gitlab.webservice.deployments.default.ingress.apiVersion'        | "gitlab: {webservice: {deployments: {default: {ingress: {path: /, apiVersion: networking.k8s.io/v1beta1}}}}}"
+        'gitlab.webservice.deployments.default.extraIngress.apiVersion'   | "gitlab: {webservice: {deployments: {default: {ingress: {path: /}, extraIngress: {apiVersion: extensions/v1beta1}}}}}"
+      end
+
+      with_them do
+        it 'fails the config check and names the setting' do
+          template = HelmTemplate.new(enable_all_ingress.deep_merge(YAML.safe_load(values_yaml)))
+          expect(template.exit_code).not_to eq(0)
+          expect(template.stderr).to include('Ingress objects support only: networking.k8s.io/v1.')
+          expect(template.stderr).to include("`#{setting}: ")
         end
+      end
+
+      it 'reports every invalid setting in one message' do
+        values = enable_all_ingress.deep_merge(YAML.safe_load(%(
+          global:
+            ingress:
+              apiVersion: networking.k8s.io/v1beta1
+          registry:
+            ingress:
+              apiVersion: extensions/v1beta1
+          gitlab:
+            webservice:
+              deployments:
+                default:
+                  ingress:
+                    path: /
+                    apiVersion: networking.k8s.io/v1beta1
+        )))
+
+        template = HelmTemplate.new(values)
+        expect(template.exit_code).not_to eq(0)
+        expect(template.stderr).to include(
+          'Remove or update the following settings: ' \
+          '`gitlab.webservice.deployments.default.ingress.apiVersion: networking.k8s.io/v1beta1`, ' \
+          '`global.ingress.apiVersion: networking.k8s.io/v1beta1`, ' \
+          '`registry.ingress.apiVersion: extensions/v1beta1`'
+        )
+      end
+
+      it 'fails the config check when Ingress is disabled' do
+        values = default_values.deep_merge(YAML.safe_load(%(
+          global:
+            ingress:
+              enabled: false
+              apiVersion: networking.k8s.io/v1beta1
+        )))
+
+        template = HelmTemplate.new(values)
+        expect(template.exit_code).not_to eq(0)
+        expect(template.stderr).to include('`global.ingress.apiVersion: networking.k8s.io/v1beta1`')
       end
     end
 
@@ -405,10 +373,6 @@ describe 'GitLab Ingress configuration(s)' do
     context 'when rendering ingress class configuration' do
       using RSpec::Parameterized::TableSyntax
       where(:api_version, :class_name, :expected_annotation, :expected_spec) do
-        'v1beta1' | nil    | 'test-nginx' | nil
-        'v1beta1' | 'foo'  | 'foo'        | nil
-        'v1beta1' | '""'   | ""           | nil
-        'v1beta1' | 'none' | nil          | nil
         'v1'      | nil    | nil          | 'test-nginx'
         'v1'      | 'foo'  | nil          | 'foo'
         'v1'      | '""'   | nil          | ""

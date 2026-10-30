@@ -27,3 +27,39 @@ ingress:
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
+
+{{/*
+Ensure that every Ingress apiVersion override is supported by the chart.
+Legacy Ingress apiVersions were removed in Kubernetes 1.22 and the chart
+only renders `networking.k8s.io/v1` objects.
+This check runs whether or not Ingress is enabled.
+*/}}
+{{- define "gitlab.checkConfig.ingress.apiVersion" -}}
+{{-   $supported := list "networking.k8s.io/v1" -}}
+{{-   $sources := dict "global.ingress.apiVersion" $.Values.global.ingress.apiVersion -}}
+{{-   $_ := set $sources "registry.ingress.apiVersion" (dig "ingress" "apiVersion" "" $.Values.registry) -}}
+{{-   range $chart := list "webservice" "kas" "gitlab-pages" -}}
+{{-     $values := index $.Values.gitlab $chart | default dict -}}
+{{-     $_ := set $sources (printf "gitlab.%s.ingress.apiVersion" $chart) (dig "ingress" "apiVersion" "" $values) -}}
+{{-   end -}}
+{{-   $webservice := $.Values.gitlab.webservice | default dict -}}
+{{-   $_ := set $sources "gitlab.webservice.extraIngress.apiVersion" (dig "extraIngress" "apiVersion" "" $webservice) -}}
+{{-   range $name, $deployment := (dig "deployments" dict $webservice) -}}
+{{-     range $key := list "ingress" "extraIngress" -}}
+{{-       $_ := set $sources (printf "gitlab.webservice.deployments.%s.%s.apiVersion" $name $key) (dig $key "apiVersion" "" ($deployment | default dict)) -}}
+{{-     end -}}
+{{-   end -}}
+{{-   $invalid := list -}}
+{{-   range $key := keys $sources | sortAlpha -}}
+{{-     $value := index $sources $key -}}
+{{-     if and $value (not (has $value $supported)) -}}
+{{-       $invalid = append $invalid (printf "`%s: %s`" $key $value) -}}
+{{-     end -}}
+{{-   end -}}
+{{-   if $invalid -}}
+ingress:
+  Ingress objects support only: {{ join ", " $supported }}.
+  Remove or update the following settings: {{ join ", " $invalid }}
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.ingress.apiVersion */}}

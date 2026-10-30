@@ -22,11 +22,6 @@ metadata:
     {{- include "webservice.labels" .deployment | nindent 4 }}
     {{- include "webservice.commonLabels" .deployment | nindent 4 }}
   annotations:
-    {{- if .ingressCfg.local.useGeoClass }}
-      {{- include "webservice.geo.ingress.class.annotation" .ingressCfg | nindent 4 }}
-    {{- else }}
-      {{- include "ingress.class.annotation" .ingressCfg | nindent 4 }}
-    {{- end }}
     kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" .ingressCfg }}"
     {{- include "gitlab.certmanager_annotations" .root | nindent 4 }}
   {{- range $key, $value := merge .ingressCfg.local.annotations $global.ingress.annotations (include "webservice.ingress.nginx.annotations" . | fromYaml)}}
@@ -43,7 +38,7 @@ spec:
       http:
         paths:
           - path: {{ $global.appConfig.relativeUrlRoot }}{{ .deployment.ingress.path }}
-            {{- include "gitlab.ingress.pathBackend" (dict "ingressCfg" .ingressCfg "serviceName" (include "webservice.fullname.withSuffix" .deployment) "servicePort" .root.Values.service.workhorseExternalPort "pathType" (default .deployment.ingress.pathType $global.ingress.pathType)) | nindent 12 }}
+            {{- include "gitlab.ingress.pathBackend" (dict "serviceName" (include "webservice.fullname.withSuffix" .deployment) "servicePort" .root.Values.service.workhorseExternalPort "pathType" (default .deployment.ingress.pathType $global.ingress.pathType)) | nindent 12 }}
   {{- if (and .tlsSecret (eq (include "gitlab.ingress.tls.enabled" .root) "true" )) }}
   tls:
     - hosts:

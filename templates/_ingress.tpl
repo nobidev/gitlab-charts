@@ -24,31 +24,24 @@ kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" $ingressC
 {{- end -}}
 
 {{/*
-Renders the `pathType` and `backend` of an Ingress path, in the shape that
-matches the apiVersion returned by `gitlab.ingress.apiVersion`.
+Renders the `pathType` and `backend` of a `networking.k8s.io/v1` Ingress path.
+`gitlab.checkConfig.ingress.apiVersion` rejects any other Ingress apiVersion.
 
-It expects a dictionary with four entries:
-  - `ingressCfg` the dictionary passed to `gitlab.ingress.apiVersion`
+It expects a dictionary with three entries:
   - `serviceName` the name of the backend Service
   - `servicePort` the port number of the backend Service
-  - `pathType` the pathType, only rendered for networking.k8s.io/v1
+  - `pathType` the pathType of the path
 
 Example usage:
-{{- include "gitlab.ingress.pathBackend" (dict "ingressCfg" $ingressCfg "serviceName" $name "servicePort" $port "pathType" "Prefix") | nindent 12 }}
+{{- include "gitlab.ingress.pathBackend" (dict "serviceName" $name "servicePort" $port "pathType" "Prefix") | nindent 12 }}
 */}}
 {{- define "gitlab.ingress.pathBackend" -}}
-{{-   if eq (include "gitlab.ingress.apiVersion" .ingressCfg) "networking.k8s.io/v1" -}}
 pathType: {{ .pathType }}
 backend:
   service:
     name: {{ .serviceName }}
     port:
       number: {{ .servicePort }}
-{{-   else -}}
-backend:
-  serviceName: {{ .serviceName }}
-  servicePort: {{ .servicePort }}
-{{-   end -}}
 {{- end -}}
 
 {{/*
@@ -67,23 +60,6 @@ Overrides the ingress-nginx template to make sure gitlab-shell name matches
 */}}
 {{- define "ingress-nginx.tcp-configmap" -}}
 {{ .Release.Name}}-nginx-ingress-tcp
-{{- end -}}
-
-{{/*
-Adds `ingress.class` annotation based on the API version of Ingress.
-
-It expects a dictionary with two entries:
-  - `global` which contains global ingress settings, e.g. .Values.global.ingress
-  - `context` which is the parent context (either `.` or `$`)
-*/}}
-{{- define "ingress.class.annotation" -}}
-{{-   if not (eq (default "" .global.class) "none" ) -}}
-{{-     $apiVersion := include "gitlab.ingress.apiVersion" . -}}
-{{-     $className := include "ingress.class.name" . -}}
-{{-       if not (eq $apiVersion "networking.k8s.io/v1") -}}
-kubernetes.io/ingress.class: {{ $className | quote }}
-{{-       end -}}
-{{-   end -}}
 {{- end -}}
 
 {{/*
@@ -114,7 +90,7 @@ Otherwise, it will use the given value (even an empty string "").
 {{- end -}}
 
 {{/*
-Sets `ingressClassName` based on the API version of Ingress.
+Sets `ingressClassName`, unless the class is `none`.
 
 It expects a dictionary with two entries:
   - `global` which contains global ingress settings, e.g. .Values.global.ingress
@@ -122,9 +98,6 @@ It expects a dictionary with two entries:
 */}}
 {{- define "ingress.class.field" -}}
 {{-   if not (eq (default "" .global.class) "none" ) -}}
-{{-     $apiVersion := include "gitlab.ingress.apiVersion" . -}}
-{{-     if eq $apiVersion "networking.k8s.io/v1" -}}
 ingressClassName: {{ include "ingress.class.name" . | quote }}
-{{-     end -}}
 {{-   end -}}
 {{- end -}}

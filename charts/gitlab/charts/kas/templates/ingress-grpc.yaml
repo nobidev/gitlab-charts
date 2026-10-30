@@ -14,7 +14,6 @@ metadata:
     {{- include "gitlab.commonLabels" . | nindent 4 }}
   annotations:
     kube-score/ignore: ingress-targets-service
-    {{ include "ingress.class.annotation" $ingressCfg }}
     kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" $ingressCfg }}"
     {{- if $isIngressProviderNginx }}
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -51,7 +50,7 @@ spec:
           {{- else }}
           - path: /gitlab\.agent\.(.+)
           {{- end }}
-            {{- include "gitlab.ingress.pathBackend" (dict "ingressCfg" $ingressCfg "serviceName" (include "kas.ingress.grpc.serviceName" .) "servicePort" .Values.service.externalPort "pathType" "ImplementationSpecific") | nindent 12 }}
+            {{- include "gitlab.ingress.pathBackend" (dict "serviceName" (include "kas.ingress.grpc.serviceName" .) "servicePort" .Values.service.externalPort "pathType" "ImplementationSpecific") | nindent 12 }}
   {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true")) }}
   tls:
     - hosts:

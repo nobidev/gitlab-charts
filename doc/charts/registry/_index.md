@@ -547,7 +547,7 @@ This section controls the registry Ingress.
 
 | Name                   |  Type   | Default | Description |
 |:-----------------------|:-------:|:--------|:------------|
-| `apiVersion`           | String  |         | Value to use in the `apiVersion` field. |
+| `apiVersion`           | String  |         | Value to use in the `apiVersion` field. The only accepted value is `networking.k8s.io/v1`. |
 | `annotations`          | String  |         | This field is an exact match to the standard `annotations` for [Kubernetes Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/). |
 | `configureCertmanager` | Boolean |         | Toggles Ingress annotation `cert-manager.io/issuer` and `acme.cert-manager.io/http01-edit-in-place`. For more information see the [TLS requirement for GitLab Pages](../../installation/tls.md). |
 | `enabled`              | Boolean | `false` | Setting that controls whether to create Ingress objects for services that support them. When `false` the `global.ingress.enabled` setting is used. |

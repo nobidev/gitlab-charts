@@ -56,6 +56,7 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{/* _checkConfig_ingress.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.ingress.alternatives" .) -}}
 {{- $messages = append $messages (include "gitlab.checkConfig.ingress.class" .) -}}
+{{- $messages = append $messages (include "gitlab.checkConfig.ingress.apiVersion" .) -}}
 
 {{/* _checkConfig_nginx.tpl*/}}
 {{- $messages = append $messages (include "gitlab.checkConfig.nginx.controller.extraArgs" .) -}}

@@ -21,7 +21,6 @@ metadata:
     {{- include "gitlab.standardLabels" $ | nindent 4 }}
     {{- include "gitlab.commonLabels" $ | nindent 4 }}
   annotations:
-    {{ include "ingress.class.annotation" $ingressCfg }}
     kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" $ingressCfg }}"
     {{- if eq "nginx" $.Values.global.ingress.provider }}
     {{-   if $.Values.global.workhorse.tls.enabled }}
@@ -55,7 +54,7 @@ spec:
       http:
         paths:
           - path: {{ .ingress.path }}
-            {{- include "gitlab.ingress.pathBackend" (dict "ingressCfg" $ingressCfg "serviceName" (include "webservice.fullname.withSuffix" .) "servicePort" $.Values.service.workhorseExternalPort "pathType" (default $.Values.global.ingress.pathType .ingress.pathType)) | nindent 12 }}
+            {{- include "gitlab.ingress.pathBackend" (dict "serviceName" (include "webservice.fullname.withSuffix" .) "servicePort" $.Values.service.workhorseExternalPort "pathType" (default $.Values.global.ingress.pathType .ingress.pathType)) | nindent 12 }}
   {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true" )) }}
   tls:
     - hosts:

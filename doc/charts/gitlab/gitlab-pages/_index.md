@@ -188,7 +188,7 @@ This section controls the GitLab Pages Ingress.
 
 | Name                   |  Type   | Default | Description |
 |:-----------------------|:-------:|:--------|:------------|
-| `apiVersion`           | String  |         | Value to use in the `apiVersion` field. |
+| `apiVersion`           | String  |         | Value to use in the `apiVersion` field. The only accepted value is `networking.k8s.io/v1`. |
 | `annotations`          | String  |         | This field is an exact match to the standard `annotations` for [Kubernetes Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/). |
 | `configureCertmanager` | Boolean | `false` | Toggles Ingress annotation `cert-manager.io/issuer` and `acme.cert-manager.io/http01-edit-in-place`. The acquisition of a TLS certificate for GitLab Pages via cert-manager is disabled because a wildcard certificate acquisition requires a cert-manager Issuer with a [DNS01 solver](https://cert-manager.io/docs/configuration/acme/dns01/), and the Issuer deployed by this chart only provides a [HTTP01 solver](https://cert-manager.io/docs/configuration/acme/http01/). For more information see the [TLS requirement for GitLab Pages](../../../installation/tls.md). |
 | `enabled`              | Boolean |         | Setting that controls whether to create Ingress objects for services that support them. When not set, the `global.ingress.enabled` setting is used. |
