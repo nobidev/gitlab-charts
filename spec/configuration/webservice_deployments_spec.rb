@@ -363,6 +363,32 @@ describe 'Webservice Deployments configuration' do
     end
   end
 
+  context 'when webservice is disabled with smartcard and deployments set' do
+    let(:disabled_values) do
+      default_values.deep_merge(YAML.safe_load(%(
+      global:
+        ingress:
+          enabled: true
+        appConfig:
+          smartcard:
+            enabled: true
+      gitlab:
+        webservice:
+          enabled: false
+          deployments:
+            default:
+              ingress:
+                path: /
+      )))
+    end
+
+    it 'templates successfully without webservice Ingresses' do
+      t = HelmTemplate.new(disabled_values)
+      expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+      expect(t.resources_by_kind('Ingress').keys).not_to include(a_string_starting_with('Ingress/test-webservice-'))
+    end
+  end
+
   context 'deployments datamodel' do
     let(:test_values) do
       default_values.deep_merge(YAML.safe_load(%(

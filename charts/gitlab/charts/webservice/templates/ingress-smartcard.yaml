@@ -1,5 +1,6 @@
-{{- if $.Values.global.appConfig.smartcard.enabled -}}
+{{- if and $.Values.enabled $.Values.global.appConfig.smartcard.enabled -}}
 {{- if eq (include "gitlab.ingress.enabled" $) "true" -}}
+{{- include "webservice.datamodel.prepare" $ -}}
 {{- $smartcardHostname := include "gitlab.smartcard.hostname" . -}}
 {{- $tlsSecret := include "smartcard.tlsSecret" . -}}
 {{/* BEGIN range deployments */}}
