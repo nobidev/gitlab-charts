@@ -9,6 +9,15 @@ describe 'image configuration' do
     ]
   end
 
+  # Charts checked for the default registry only. The ai-gateway subchart builds its image
+  # from image.repository alone and supports neither image.registry nor global.image.registry,
+  # so it is left out of the global and local registry checks.
+  let(:default_registry_only_charts) do
+    [
+      'ai-gateway'
+    ]
+  end
+
   let(:default_values) do
     HelmTemplate.with_defaults(%(
       global:
@@ -17,6 +26,8 @@ describe 'image configuration' do
             enabled: true # for Mailroom
             password:
               secret: foo # for Mailroom
+      ai-gateway:
+        install: true
     ))
   end
 
@@ -33,7 +44,7 @@ describe 'image configuration' do
       t = HelmTemplate.new(default_values)
       expect(t.exit_code).to eq(0)
 
-      included_charts.each do |chart, _|
+      (included_charts + default_registry_only_charts).each do |chart, _|
         expect(t.find_image("Deployment/test-#{chart}", chart)).to start_with('registry.gitlab.com')
       end
     end
