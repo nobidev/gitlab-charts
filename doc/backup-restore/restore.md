@@ -159,8 +159,6 @@ The steps for restoring a GitLab installation are
    ```
 
    For a separate CI database, run the same command with `--database ci`.
-   If PostgreSQL runs on a Linux package node, run `sudo gitlab-psql` on that node instead.
-   For the CI database, add `-d <database name>`.
    To use another connection method, see [Start a database console](https://docs.gitlab.com/administration/troubleshooting/postgresql/#start-a-database-console).
    Use a role that can analyze the restored tables, and run these statements in the same session:
 
