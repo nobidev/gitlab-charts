@@ -357,6 +357,8 @@ kubectl create secret generic <name>-ai-gateway-aigw-signing-secret --from-file=
 kubectl create secret generic <name>-ai-gateway-aigw-validation-secret --from-file=aigwValidationKey=aigw_validation.key
 ```
 
+To use other secret names or keys, see [Use your own JWT signing keys](../charts/ai-gateway/_index.md#use-your-own-jwt-signing-keys).
+
 ### Praefect DB password
 
 Generate a random 64 character alpha-numeric password. Replace `<name>` with

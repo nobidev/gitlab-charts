@@ -279,6 +279,13 @@ describe 'shared-secrets provisioning' do
         gitaly:
           authToken:
             secret: my-gitaly
+    ),
+    'the AI Gateway with a renamed key secret' => %(
+      ai-gateway:
+        install: true
+        aigwSigningKey:
+          secret: my-aigw-signing
+          key: signing.key
     )
   }
 

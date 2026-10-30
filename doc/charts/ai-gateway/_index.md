@@ -59,6 +59,63 @@ To configure and deploy the chart:
 1. Select {{< ui text="Save changes" >}}.
 1. On the {{< ui text="GitLab Duo" >}} page (`/admin/gitlab_duo`), select {{< ui text="Run health check" >}} to verify that everything is working correctly.
 
+## Configure the GitLab URL
+
+The AI gateway calls your GitLab instance to authenticate requests.
+By default, the chart uses the GitLab URL derived from `global.hosts`.
+
+If the AI gateway must reach GitLab through a different URL, set it in `ai-gateway.gitlab.url`.
+The API URL defaults to `<url>/api/v4`. To use a different API URL, set `ai-gateway.gitlab.apiUrl`.
+
+```yaml
+ai-gateway:
+  install: true
+  gitlab:
+    url: https://gitlab.example.com
+    # Optional, defaults to the URL above with /api/v4 appended
+    apiUrl: https://gitlab.example.com/api/v4
+```
+
+The URL must use HTTPS, because the AI gateway requires a secured GitLab endpoint in production mode.
+
+## Use your own JWT signing keys
+
+The AI gateway signs and validates its own short-lived tokens with four RSA keys.
+By default, the [shared-secrets job](../shared-secrets.md) generates them into these secrets:
+
+| Value                      | Default secret                                        | Default key                |
+|----------------------------|-------------------------------------------------------|----------------------------|
+| `aigwSigningKey`           | `<release>-ai-gateway-aigw-signing-secret`            | `aigwSigningKey`           |
+| `aigwValidationKey`        | `<release>-ai-gateway-aigw-validation-secret`         | `aigwValidationKey`        |
+| `duoWorkflowSigningKey`    | `<release>-ai-gateway-duo-workflow-signing-secret`    | `duoWorkflowSigningKey`    |
+| `duoWorkflowValidationKey` | `<release>-ai-gateway-duo-workflow-validation-secret` | `duoWorkflowValidationKey` |
+
+To use keys you manage yourself, create the secrets before you deploy the chart,
+then reference them:
+
+```yaml
+ai-gateway:
+  install: true
+  aigwSigningKey:
+    secret: my-aigw-signing-secret
+    key: aigw_signing.key
+  aigwValidationKey:
+    secret: my-aigw-validation-secret
+    key: aigw_validation.key
+  duoWorkflowSigningKey:
+    secret: my-duo-workflow-signing-secret
+    key: duo_workflow_signing.key
+  duoWorkflowValidationKey:
+    secret: my-duo-workflow-validation-secret
+    key: duo_workflow_validation.key
+```
+
+If you set only `secret`, `key` keeps its default.
+The shared-secrets job does not change a secret that already exists.
+If a referenced secret does not exist, the job generates a key into it.
+
+For the commands to generate the keys, see [AI Gateway secret](../../installation/secrets.md#ai-gateway-secret).
+
 ## Configure internal TLS
 
 {{< history >}}
