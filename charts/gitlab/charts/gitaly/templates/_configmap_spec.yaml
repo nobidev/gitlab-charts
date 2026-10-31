@@ -11,6 +11,50 @@ data:
     {{- if .Values.gpgSigning.enabled }}
     cp -v -L /init-config/signing_key.gpg  /init-secrets/gitaly/signing_key.gpg
     {{- end }}
+    {{- if .Values.storagePathFormat }}
+    sh /config/storage-path
+    {{- end }}
+  {{- if .Values.storagePathFormat }}
+  storage-path: |
+    set -e
+    {{- /*
+    Gitaly refuses to start when the storage path does not exist. Create it on a
+    fresh volume, but fail on a populated volume so that a changed
+    storagePathFormat does not start Gitaly on an empty storage. The fsGroup
+    group must be able to write the new directories, as it can write the volume
+    root, because the gitaly container can run as a different user.
+    */}}
+    umask 002
+    {{- if .storage }}
+    storage_name="${HOSTNAME}"
+    {{- else }}
+    {{- if not .skipStorages }}
+    set --{{ include "gitlab.gitaly.storageNames" . }}
+    {{- end }}
+    storage_index="${HOSTNAME##*-}"
+    case "${storage_index}" in
+      ''|*[!0-9]*) storage_index=0 ;;
+    esac
+    if [ "$#" -le "${storage_index}" ]; then
+      echo "Storage for node ${storage_index} is not present in the storageNames array." >&2
+      exit 1
+    fi
+    shift "${storage_index}"
+    storage_name="$1"
+    {{- end }}
+    storage_path="$(printf {{ .Values.storagePathFormat | squote }} "${storage_name}")"
+    if [ ! -d "${storage_path}" ]; then
+      if ! volume_entries="$(ls -A /home/git/repositories)"; then
+        echo "Cannot list /home/git/repositories. Refusing to create the storage path ${storage_path}." >&2
+        exit 1
+      fi
+      if [ -n "$(printf '%s\n' "${volume_entries}" | grep -v -x 'lost+found')" ]; then
+        echo "Storage path ${storage_path} does not exist, but /home/git/repositories is not empty. Refusing to create an empty storage. Check gitaly.storagePathFormat." >&2
+        exit 1
+      fi
+      mkdir -p "${storage_path}"
+    fi
+  {{- end }}
   config.toml.tpl: |
     {{- /*
     TLS and metrics listen addresses are chart-managed (see

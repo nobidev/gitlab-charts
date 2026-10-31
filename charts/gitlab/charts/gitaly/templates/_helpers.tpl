@@ -9,6 +9,18 @@
 {{- end -}}
 
 {{- /*
+gitlab.gitaly.repoDataVolumeMount returns the mount of the repository volume.
+The gitaly and configure containers must mount the same directory.
+*/ -}}
+{{- define "gitlab.gitaly.repoDataVolumeMount" -}}
+- name: repo-data
+  mountPath: '/home/git/repositories'
+  {{- if and .Values.persistence.enabled .Values.persistence.subPath }}
+  subPath: "{{ .Values.persistence.subPath }}"
+  {{- end }}
+{{- end -}}
+
+{{- /*
 gitlab.gitaly.configuration returns the full config.toml content as YAML. It
 first handles the current keys under .Values by converting them to snake case.
 It then merges in any keys found in the new .Values.configuration block, which

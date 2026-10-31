@@ -111,6 +111,9 @@ spec:
             - name: gitaly-secrets
               mountPath: /init-secrets
               readOnly: false
+            {{- if .Values.storagePathFormat }}
+            {{- include "gitlab.gitaly.repoDataVolumeMount" . | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml .Values.init.resources | nindent 12 }}
       {{- include "gitlab.podSecurityContext" .Values.securityContext | nindent 6 }}
@@ -167,11 +170,7 @@ spec:
             - name: gitaly-secrets
               mountPath: '/etc/gitlab-secrets'
               readOnly: true
-            - name: repo-data
-              mountPath: '/home/git/repositories'
-              {{- if and .Values.persistence.enabled .Values.persistence.subPath }}
-              subPath: "{{ .Values.persistence.subPath }}"
-              {{- end }}
+            {{- include "gitlab.gitaly.repoDataVolumeMount" . | nindent 12 }}
             {{- with .Values.global.gitaly.hooks }}
             {{- if .preReceive }}
             - name: gitaly-hooks-pre-receive

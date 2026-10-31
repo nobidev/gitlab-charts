@@ -533,6 +533,12 @@ contain only letters, digits, `.`, `_`, and `-`. A storage name must not be `.`
 or `..`. The chart puts the storage name into the path, so this rule keeps each
 storage below `/home/git/repositories`.
 
+When the storage path does not exist, the `configure` init container creates it.
+The `securityContext.fsGroup` group can write the new directories.
+If the storage path does not exist and the volume contains other files, the
+`configure` init container fails. This prevents Gitaly from starting on an empty
+storage when the volume contains repositories at a different path.
+
 > [!warning]
 > Do not change `storagePathFormat` on an existing installation. Gitaly does
 > not move the repositories. If you remove the value, Gitaly uses the volume root

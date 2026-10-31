@@ -4,6 +4,8 @@ require 'runtime_template_helper'
 require 'tomlrb'
 require 'yaml'
 require 'hash_deep_merge'
+require 'open3'
+require 'tmpdir'
 
 describe 'Gitaly configuration' do
   let(:default_values) { HelmTemplate.defaults }
@@ -377,6 +379,10 @@ describe 'Gitaly configuration' do
 
   describe 'storagePathFormat' do
     let(:storage_path_format) { '/home/git/repositories/git-data/%s/repositories' }
+    let(:configure_script) { configmap['data']['configure'] }
+    let(:configure_container) do
+      statefulset['spec']['template']['spec']['initContainers'].find { |c| c['name'] == 'configure' }
+    end
 
     let(:praefect_values) do
       YAML.safe_load(%(
@@ -389,11 +395,32 @@ describe 'Gitaly configuration' do
       ))
     end
 
+    # Runs the storage-path script with the repository volume at volume_dir.
+    def run_storage_path(volume_dir, hostname, env = {})
+      script = configmap['data']['storage-path'].gsub('/home/git/repositories', volume_dir)
+      Open3.capture3({ 'HOSTNAME' => hostname }.merge(env), 'sh', '-c', script)
+    end
+
+    # Returns the storage path that Gitaly uses, with the repository volume at volume_dir.
+    def gitaly_storage_path(volume_dir, hostname)
+      render_toml(config_toml, 'HOSTNAME' => hostname)['storage'][0]['path'].sub('/home/git/repositories', volume_dir)
+    end
+
+    def repo_data_mount(container)
+      container['volumeMounts'].find { |m| m['name'] == 'repo-data' }
+    end
+
     context 'when storagePathFormat is not set' do
       it 'uses the volume root as the storage path' do
         toml = render_toml(config_toml, 'HOSTNAME' => 'test-gitaly-0')
 
         expect(toml['storage']).to eq([{ 'name' => 'default', 'path' => '/home/git/repositories' }])
+      end
+
+      it 'does not create the storage path in the configure container' do
+        expect(configmap['data']).not_to have_key('storage-path')
+        expect(configure_script).not_to include('storage-path')
+        expect(configure_container['volumeMounts'].map { |m| m['name'] }).not_to include('repo-data')
       end
 
       context 'with Praefect enabled' do
@@ -431,6 +458,108 @@ describe 'Gitaly configuration' do
         expect(toml['storage']).to eq([{ 'name' => 'other', 'path' => '/home/git/repositories/git-data/other/repositories' }])
       end
 
+      it 'runs the storage-path script in the configure container' do
+        expect(configure_script).to include('sh /config/storage-path')
+        expect(repo_data_mount(configure_container)).to eq('name' => 'repo-data', 'mountPath' => '/home/git/repositories')
+      end
+
+      it 'creates the storage path that Gitaly uses on an empty volume' do
+        Dir.mktmpdir do |volume|
+          _, stderr, status = run_storage_path(volume, 'test-gitaly-1')
+
+          expect(status.success?).to be(true), stderr
+          expect(File.directory?(gitaly_storage_path(volume, 'test-gitaly-1'))).to be(true)
+          expect(Dir.children(File.join(volume, 'git-data'))).to eq(['other'])
+        end
+      end
+
+      it 'creates the storage path and its parents with group write permission' do
+        Dir.mktmpdir do |volume|
+          _, stderr, status = run_storage_path(volume, 'test-gitaly-1')
+
+          expect(status.success?).to be(true), stderr
+          ['git-data', 'git-data/other', 'git-data/other/repositories'].each do |dir|
+            expect(File.stat(File.join(volume, dir)).mode & 0o020).to eq(0o020), "#{dir} is not group-writable"
+          end
+        end
+      end
+
+      it 'creates the storage path on a volume that contains only lost+found' do
+        Dir.mktmpdir do |volume|
+          Dir.mkdir(File.join(volume, 'lost+found'))
+          _, stderr, status = run_storage_path(volume, 'test-gitaly-0')
+
+          expect(status.success?).to be(true), stderr
+          expect(File.directory?(gitaly_storage_path(volume, 'test-gitaly-0'))).to be(true)
+        end
+      end
+
+      it 'does not change a volume that contains the storage path' do
+        Dir.mktmpdir do |volume|
+          FileUtils.mkdir_p(File.join(volume, 'git-data', 'default', 'repositories', '@hashed'))
+          FileUtils.mkdir_p(File.join(volume, 'other-data'))
+          _, stderr, status = run_storage_path(volume, 'test-gitaly-0')
+
+          expect(status.success?).to be(true), stderr
+          expect(Dir.children(volume)).to match_array(%w[git-data other-data])
+          expect(Dir.children(File.join(volume, 'git-data'))).to eq(['default'])
+        end
+      end
+
+      it 'fails on a volume that contains other files but not the storage path' do
+        Dir.mktmpdir do |volume|
+          Dir.mkdir(File.join(volume, '@hashed'))
+          _, stderr, status = run_storage_path(volume, 'test-gitaly-0')
+
+          expect(status.success?).to be(false)
+          expect(stderr).to include('Refusing to create an empty storage')
+          expect(Dir.children(volume)).to eq(['@hashed'])
+        end
+      end
+
+      it 'fails when it cannot list the volume' do
+        Dir.mktmpdir do |volume|
+          Dir.mktmpdir do |bin|
+            File.write(File.join(bin, 'ls'), "#!/bin/sh\necho 'ls: Permission denied' >&2\nexit 2\n")
+            File.chmod(0o755, File.join(bin, 'ls'))
+            _, stderr, status = run_storage_path(volume, 'test-gitaly-0', 'PATH' => "#{bin}:#{ENV.fetch('PATH')}")
+
+            expect(status.success?).to be(false)
+            expect(stderr).to include('Cannot list')
+            expect(Dir.children(volume)).to be_empty
+          end
+        end
+      end
+
+      it 'fails when the pod index is not in the storage names' do
+        Dir.mktmpdir do |volume|
+          _, stderr, status = run_storage_path(volume, 'test-gitaly-2')
+
+          expect(status.success?).to be(false)
+          expect(stderr).to include('Storage for node 2 is not present')
+          expect(Dir.children(volume)).to be_empty
+        end
+      end
+
+      context 'with persistence.subPath set' do
+        let(:values) do
+          default_values.deep_merge(YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                storagePathFormat: #{storage_path_format}
+                persistence:
+                  subPath: data
+          )))
+        end
+
+        it 'mounts the same directory in the configure and gitaly containers' do
+          gitaly_container = statefulset['spec']['template']['spec']['containers'].find { |c| c['name'] == 'gitaly' }
+
+          expect(repo_data_mount(configure_container)).to include('subPath' => 'data')
+          expect(repo_data_mount(configure_container)).to eq(repo_data_mount(gitaly_container))
+        end
+      end
+
       it 'does not change the config checksum when the storage names change' do
         other_template = HelmTemplate.new(values.deep_merge('gitlab' => { 'gitaly' => { 'internal' => { 'names' => %w[default other third] } } }))
 
@@ -456,6 +585,16 @@ describe 'Gitaly configuration' do
           expect(toml['storage']).to eq(
             [{ 'name' => 'test-gitaly-default-1', 'path' => '/home/git/repositories/git-data/test-gitaly-default-1/repositories' }]
           )
+        end
+
+        it 'creates the storage path that Gitaly uses, named after the pod hostname' do
+          Dir.mktmpdir do |volume|
+            _, stderr, status = run_storage_path(volume, 'test-gitaly-default-1')
+
+            expect(status.success?).to be(true), stderr
+            expect(File.directory?(gitaly_storage_path(volume, 'test-gitaly-default-1'))).to be(true)
+            expect(Dir.children(File.join(volume, 'git-data'))).to eq(['test-gitaly-default-1'])
+          end
         end
       end
     end
