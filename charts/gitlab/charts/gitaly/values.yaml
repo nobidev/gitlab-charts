@@ -155,6 +155,15 @@ metrics:
   # DEPRECATED in favor of `metrics.port` as seen above
   metricsPort:
 
+## Format of the Gitaly storage path. The value is a printf format string
+## that receives the storage name as its only argument, for example
+## "/home/git/repositories/%s". The path must be below /home/git/repositories,
+## where the repository volume is mounted. When empty, the storage path is
+## /home/git/repositories.
+## WARNING: changing this value on an existing installation moves the storage
+## path. Gitaly does not move the repositories.
+storagePathFormat: ""
+
 ## Enable persistence using Persistent Volume Claims
 ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
 ##

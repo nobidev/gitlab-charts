@@ -110,3 +110,33 @@ gitaly:
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.gitaly.gpgSigning */}}
+
+{{/*
+Ensure that gitlab.gitaly.storagePathFormat is below the repository volume
+mount and has exactly one %s verb for the storage name. Quotes, backslashes,
+and control characters would break the TOML string and the shell script.
+The chart puts each storage name into the path, so the storage names must be
+plain path elements. This also keeps the names literal in the shell script.
+*/}}
+{{- define "gitlab.checkConfig.gitaly.storagePathFormat" -}}
+{{-   if $.Values.global.gitaly.enabled -}}
+{{-     with $.Values.gitlab.gitaly.storagePathFormat -}}
+{{-       if or (not (regexMatch "^/home/git/repositories/[^%\"'\\\\[:cntrl:]]*%s[^%\"'\\\\[:cntrl:]]*$" .)) (contains "/../" (printf "%s/" .)) }}
+gitaly:
+    `gitlab.gitaly.storagePathFormat` must be an absolute path below
+    /home/git/repositories with exactly one `%s` for the storage name, and no
+    other `%`, quote, backslash, control character, or `..` path element.
+    Current value: {{ . | quote }}
+{{-       end -}}
+{{-       range (coalesce $.Values.gitlab.gitaly.internal.names $.Values.global.gitaly.internal.names) }}
+{{-         if or (not (regexMatch "^[A-Za-z0-9._-]+$" (toString .))) (eq (toString .) ".") (eq (toString .) "..") }}
+gitaly:
+    When `gitlab.gitaly.storagePathFormat` is set, each storage name in
+    `internal.names` must contain only letters, digits, `.`, `_`, and `-`, and
+    must not be `.` or `..`. Current value: {{ . | quote }}
+{{-         end -}}
+{{-       end -}}
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.gitaly.storagePathFormat */}}

@@ -375,6 +375,92 @@ describe 'Gitaly configuration' do
     end
   end
 
+  describe 'storagePathFormat' do
+    let(:storage_path_format) { '/home/git/repositories/git-data/%s/repositories' }
+
+    let(:praefect_values) do
+      YAML.safe_load(%(
+        global:
+          praefect:
+            enabled: true
+            virtualStorages:
+            - name: default
+              gitalyReplicas: 2
+      ))
+    end
+
+    context 'when storagePathFormat is not set' do
+      it 'uses the volume root as the storage path' do
+        toml = render_toml(config_toml, 'HOSTNAME' => 'test-gitaly-0')
+
+        expect(toml['storage']).to eq([{ 'name' => 'default', 'path' => '/home/git/repositories' }])
+      end
+
+      context 'with Praefect enabled' do
+        let(:values) { default_values.deep_merge(praefect_values) }
+        let(:configmap_name) { 'ConfigMap/test-gitaly-praefect' }
+
+        it 'uses the volume root as the storage path' do
+          toml = render_toml(config_toml, 'HOSTNAME' => 'test-gitaly-default-1')
+
+          expect(toml['storage']).to eq([{ 'name' => 'test-gitaly-default-1', 'path' => '/home/git/repositories' }])
+        end
+      end
+    end
+
+    context 'when storagePathFormat is set' do
+      let(:values) do
+        default_values.deep_merge(YAML.safe_load(%(
+          gitlab:
+            gitaly:
+              storagePathFormat: #{storage_path_format}
+              internal:
+                names: [default, other]
+        )))
+      end
+
+      it 'formats the storage path with the storage name of the first pod' do
+        toml = render_toml(config_toml, 'HOSTNAME' => 'test-gitaly-0')
+
+        expect(toml['storage']).to eq([{ 'name' => 'default', 'path' => '/home/git/repositories/git-data/default/repositories' }])
+      end
+
+      it 'formats the storage path with the storage name of the second pod' do
+        toml = render_toml(config_toml, 'HOSTNAME' => 'test-gitaly-1')
+
+        expect(toml['storage']).to eq([{ 'name' => 'other', 'path' => '/home/git/repositories/git-data/other/repositories' }])
+      end
+
+      it 'does not change the config checksum when the storage names change' do
+        other_template = HelmTemplate.new(values.deep_merge('gitlab' => { 'gitaly' => { 'internal' => { 'names' => %w[default other third] } } }))
+
+        expect(other_template.dig(statefulset_name, 'spec', 'template', 'metadata', 'annotations', 'checksum/config'))
+          .to eq(statefulset.dig('spec', 'template', 'metadata', 'annotations', 'checksum/config'))
+      end
+
+      context 'with Praefect enabled' do
+        let(:values) do
+          default_values.deep_merge(praefect_values).deep_merge(YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                storagePathFormat: #{storage_path_format}
+          )))
+        end
+
+        let(:configmap_name) { 'ConfigMap/test-gitaly-praefect' }
+        let(:statefulset_name) { 'StatefulSet/test-gitaly-default' }
+
+        it 'formats the storage path with the pod hostname' do
+          toml = render_toml(config_toml, 'HOSTNAME' => 'test-gitaly-default-1')
+
+          expect(toml['storage']).to eq(
+            [{ 'name' => 'test-gitaly-default-1', 'path' => '/home/git/repositories/git-data/test-gitaly-default-1/repositories' }]
+          )
+        end
+      end
+    end
+  end
+
   context 'when TLS is enabled' do
     let(:values) do
       default_values.deep_merge(YAML.safe_load(%(

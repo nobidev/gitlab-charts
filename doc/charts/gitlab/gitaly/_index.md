@@ -109,13 +109,14 @@ the `helm install` command using the `--set` flags.
 | `persistence.storageClass`                               |                                                         | storageClassName for provisioning |
 | `persistence.subPath`                                    |                                                         | Gitaly persistence volume mount path |
 | `priorityClassName`                                      |                                                         | Gitaly StatefulSet priorityClassName |
+| `storagePathFormat`                                      |                                                         | Format of the storage path. A `printf` format string that receives the storage name. When empty, the storage path is `/home/git/repositories`. See [Storage path](#storage-path). |
 | `logging.level`                                          |                                                         | Log level   |
 | `logging.format`                                         | `json`                                                  | Log format  |
 | `logging.sentryDsn`                                      |                                                         | Sentry DSN URL - Exceptions from Go server |
 | `logging.sentryEnvironment`                              |                                                         | Sentry environment to be used for logging |
 | `shell.concurrency[]`                                    |                                                         | Concurrency of each RPC endpoint. See [Limit RPC concurrency](https://docs.gitlab.com/administration/gitaly/concurrency_limiting/#limit-rpc-concurrency) and [Enable adaptiveness for RPC concurrency](https://docs.gitlab.com/administration/gitaly/concurrency_limiting/#enable-adaptiveness-for-rpc-concurrency) for the configuration keys. |
 | `packObjectsCache.enabled`                               | `false`                                                 | Enable the Gitaly pack-objects cache |
-| `packObjectsCache.dir`                                   | `/home/git/repositories/+gitaly/PackObjectsCache`       | Directory where cache files get stored |
+| `packObjectsCache.dir`                                   | `/home/git/repositories/+gitaly/PackObjectsCache`       | Directory where cache files get stored. When `storagePathFormat` is set, the default is `+gitaly/PackObjectsCache` in the storage path. |
 | `packObjectsCache.max_age`                               | `5m`                                                    | Cache entries lifespan |
 | `packObjectsCache.min_occurrences`                       | `1`                                                     | Minimum count requiredto create a cache entry |
 | `git.catFileCacheSize`                                   |                                                         | Cache size used by Git cat-file process |
@@ -489,6 +490,56 @@ persistence:
 | `storageClass`     | String  |                 | Sets the storageClassName on the Volume Claim for dynamic provisioning. When unset or null, the default provisioner will be used. If set to a hyphen, dynamic provisioning is disabled. |
 | `subPath`          | String  |                 | Sets the path within the volume to mount, rather than the volume root. The root is used if the subPath is empty. |
 | `annotations`      |   Map   |                 | Sets the annotations on the Volume Claim for dynamic provisioning. See [Kubernetes Annotations Documentation](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) for details. |
+
+### Storage path
+
+By default, Gitaly stores the repositories in the root of the repository volume,
+`/home/git/repositories`. Use `storagePathFormat` to store them in a directory
+below the volume root. The value is a `printf` format string. The chart replaces
+`%s` with the name of the storage of the pod. This is useful when you re-attach
+a volume that has the repositories in a directory below the volume root, and the
+directory contains the storage name. For example:
+
+```yaml
+gitlab:
+  gitaly:
+    storagePathFormat: "/home/git/repositories/git-data/%s/repositories"
+```
+
+The files on a re-attached volume must be readable and writable by the Gitaly
+user (`securityContext.runAsUser`) or by the `securityContext.fsGroup` group.
+On a large volume, set `securityContext.fsGroupChangePolicy: OnRootMismatch`.
+Otherwise, the kubelet changes the group of all files each time the Pod starts.
+
+If `internal.names` contains only one storage name, you can use
+`persistence.subPath` instead, for example
+`persistence.subPath: git-data/default/repositories`. `persistence.subPath` is
+one value for all Pods of the StatefulSet. Each Pod has a different storage name.
+Use `storagePathFormat` when `internal.names` contains more than one storage
+name, because each Pod must use the directory of its own storage.
+With Praefect, the storage name is the Pod hostname, for example
+`gitlab-gitaly-default-0`, so `persistence.subPath` cannot contain the storage
+name.
+
+The value must:
+
+- Start with `/home/git/repositories/`.
+- Contain `%s` one time.
+- Not contain other `%` characters, quotes, backslashes, control characters, or
+  `..` path elements.
+
+When `storagePathFormat` is set, each storage name in `internal.names` must
+contain only letters, digits, `.`, `_`, and `-`. A storage name must not be `.`
+or `..`. The chart puts the storage name into the path, so this rule keeps each
+storage below `/home/git/repositories`.
+
+> [!warning]
+> Do not change `storagePathFormat` on an existing installation. Gitaly does
+> not move the repositories. If you remove the value, Gitaly uses the volume root
+> and the repositories become unavailable until you set the value again.
+
+The default directory of the pack-objects cache and the internal `+gitaly`
+directory are inside the storage path.
 
 ### Running Gitaly over TLS
 

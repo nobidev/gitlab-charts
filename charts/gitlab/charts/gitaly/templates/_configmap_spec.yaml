@@ -46,7 +46,11 @@ data:
     {% if coll.Has $storages $hostname %}
     [[storage]]
     name = "{% $hostname %}"
+    {{- if .Values.storagePathFormat }}
+    path = "{% printf {{ .Values.storagePathFormat | quote }} $hostname %}"
+    {{- else }}
     path = "/home/git/repositories"
+    {{- end }}
     {% else %}
     {% printf "Storage for node %q is not present in the storageNames array. Did you use kubectl to scale up? You need to solely use helm for this purpose." $hostname | fail %}
     {% end %}
@@ -68,7 +72,11 @@ data:
     {% if len $storages | lt $index %}
     [[storage]]
     name = "{% index $storages $index %}"
+    {{- if .Values.storagePathFormat }}
+    path = "{% printf {{ .Values.storagePathFormat | quote }} (index $storages $index) %}"
+    {{- else }}
     path = "/home/git/repositories"
+    {{- end }}
     {% else %}
     {% printf "Storage for node %d is not present in the storageNames array. Did you use kubectl to scale up? You need to solely use helm for this purpose." $index | fail %}
     {% end %}

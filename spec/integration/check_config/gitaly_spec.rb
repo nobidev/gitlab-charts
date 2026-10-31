@@ -265,4 +265,84 @@ describe 'checkConfig gitaly' do
                      success_description: 'when Praefect is enabled and defaultReplicationFactor is equal to or lower than than gitalyReplicas',
                      error_description: 'when Praefect is enabled and defaultReplicationFactor is greater than than gitalyReplicas'
   end
+
+  describe 'gitaly.storagePathFormat' do
+    let(:success_values) do
+      YAML.safe_load(%(
+        gitlab:
+          gitaly:
+            storagePathFormat: /home/git/repositories/git-data/%s/repositories
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_values) do
+      YAML.safe_load(%(
+        gitlab:
+          gitaly:
+            storagePathFormat: /var/opt/gitlab/git-data/%s/repositories
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_output) { '`gitlab.gitaly.storagePathFormat` must be an absolute path below' }
+
+    include_examples 'config validation',
+                     success_description: 'when storagePathFormat is below the repository volume and contains one %s',
+                     error_description: 'when storagePathFormat is not below the repository volume'
+
+    [
+      'git-data/%s/repositories',
+      '/home/git/repositories/git-data',
+      '/home/git/repositories/%s/%s',
+      '/home/git/repositories/%d',
+      '/home/git/repositories/../%s',
+      %(/home/git/repositories/'%s'),
+      %(/home/git/repositories/"%s"),
+      '/home/git/repositories/a\\b%s',
+      "/home/git/repositories/%s\n",
+      "/home/git/repositories/%s\tdata"
+    ].each do |format|
+      context "with #{format.inspect}" do
+        let(:error_values) do
+          default_required_values.deep_merge('gitlab' => { 'gitaly' => { 'storagePathFormat' => format } })
+        end
+
+        include_examples 'config validation', error_description: 'when storagePathFormat is not valid'
+      end
+    end
+
+    describe 'with storage names in internal.names' do
+      let(:success_values) do
+        default_required_values.deep_merge(
+          'gitlab' => { 'gitaly' => {
+            'storagePathFormat' => '/home/git/repositories/git-data/%s/repositories',
+            'internal' => { 'names' => %w[default storage-2 storage_3.data] }
+          } }
+        )
+      end
+
+      let(:error_output) { 'each storage name in' }
+
+      include_examples 'config validation',
+                       success_description: 'when all storage names are plain path elements'
+
+      ['../../../tmp/secondary', 'git/data', '..', '.', 'secondary$HOME', 'secondary`id`', 'a b'].each do |name|
+        context "with #{name.inspect}" do
+          let(:error_values) do
+            success_values.deep_merge('gitlab' => { 'gitaly' => { 'internal' => { 'names' => ['default', name] } } })
+          end
+
+          include_examples 'config validation', error_description: 'when a storage name is not a plain path element'
+        end
+      end
+    end
+
+    describe 'with storage names in internal.names and no storagePathFormat' do
+      let(:success_values) do
+        default_required_values.deep_merge('gitlab' => { 'gitaly' => { 'internal' => { 'names' => ['default', 'secondary$HOME'] } } })
+      end
+
+      include_examples 'config validation',
+                       success_description: 'when storagePathFormat is not set, the storage names are not checked'
+    end
+  end
 end
