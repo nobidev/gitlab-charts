@@ -265,4 +265,66 @@ describe 'checkConfig gitaly' do
                      success_description: 'when Praefect is enabled and defaultReplicationFactor is equal to or lower than than gitalyReplicas',
                      error_description: 'when Praefect is enabled and defaultReplicationFactor is greater than than gitalyReplicas'
   end
+
+  describe 'gitaly.arbitraryUid' do
+    let(:success_values) do
+      YAML.safe_load(%(
+        gitlab:
+          gitaly:
+            arbitraryUid:
+              enabled: false
+            cgroups:
+              enabled: true
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_values) do
+      YAML.safe_load(%(
+        gitlab:
+          gitaly:
+            arbitraryUid:
+              enabled: true
+            cgroups:
+              enabled: true
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_output) { '`gitlab.gitaly.arbitraryUid.enabled` and `gitlab.gitaly.cgroups.enabled`' }
+
+    include_examples 'config validation',
+                     success_description: 'when cgroups are enabled and arbitraryUid is disabled',
+                     error_description: 'when cgroups and arbitraryUid are both enabled'
+  end
+
+  describe 'gitaly.arbitraryUid runAsUser' do
+    let(:success_values) do
+      YAML.safe_load(%(
+        gitlab:
+          gitaly:
+            arbitraryUid:
+              enabled: true
+            securityContext:
+              runAsUser: 2000
+            containerSecurityContext:
+              runAsUser: 2000
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_values) do
+      YAML.safe_load(%(
+        gitlab:
+          gitaly:
+            arbitraryUid:
+              enabled: true
+            securityContext:
+              runAsUser: 2000
+      )).deep_merge!(default_required_values)
+    end
+
+    let(:error_output) { '`gitlab.gitaly.containerSecurityContext.runAsUser` (1000) overrides' }
+
+    include_examples 'config validation',
+                     success_description: 'when the Pod and container users are the same',
+                     error_description: 'when the default container user overrides a different Pod user'
+  end
 end

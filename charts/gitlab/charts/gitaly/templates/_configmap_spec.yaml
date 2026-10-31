@@ -11,6 +11,16 @@ data:
     {{- if .Values.gpgSigning.enabled }}
     cp -v -L /init-config/signing_key.gpg  /init-secrets/gitaly/signing_key.gpg
     {{- end }}
+  {{- if .Values.arbitraryUid.enabled }}
+  init-passwd: |
+    set -e
+    uid="$(id -u)"
+    gid="$(id -g)"
+    echo "git:x:${uid}:${gid}:GitLab:/home/git:/bin/sh" > /init-passwd/passwd
+    grep -v '^git:' /etc/passwd >> /init-passwd/passwd
+    echo "git:x:${gid}:" > /init-passwd/group
+    grep -v '^git:' /etc/group >> /init-passwd/group
+  {{- end }}
   config.toml.tpl: |
     {{- /*
     TLS and metrics listen addresses are chart-managed (see

@@ -110,3 +110,30 @@ gitaly:
 {{-   end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.gitaly.gpgSigning */}}
+
+{{/*
+Ensure that cgroups are not enabled when Gitaly runs as a different user.
+The init-cgroups container gives the Pod cgroup to UID 1000 only.
+Also ensure that the container user does not silently override a different
+Pod user, because the Gitaly container then runs as the container user.
+*/}}
+{{- define "gitlab.checkConfig.gitaly.arbitraryUid" -}}
+{{-   if and $.Values.global.gitaly.enabled $.Values.gitlab.gitaly.arbitraryUid.enabled $.Values.gitlab.gitaly.cgroups.enabled }}
+gitaly:
+    `gitlab.gitaly.arbitraryUid.enabled` and `gitlab.gitaly.cgroups.enabled`
+    cannot both be true. The init-cgroups container gives the Pod cgroup to
+    UID 1000 only, so Gitaly cannot write to it as a different user.
+{{-   end -}}
+{{-   if and $.Values.global.gitaly.enabled $.Values.gitlab.gitaly.arbitraryUid.enabled -}}
+{{-     $podUser := ($.Values.gitlab.gitaly.securityContext).runAsUser -}}
+{{-     $containerUser := ($.Values.gitlab.gitaly.containerSecurityContext).runAsUser -}}
+{{-     if and (not (kindIs "invalid" $podUser)) (not (kindIs "invalid" $containerUser)) (ne (int64 $podUser) (int64 $containerUser)) }}
+gitaly:
+    `gitlab.gitaly.containerSecurityContext.runAsUser` ({{ $containerUser }}) overrides
+    `gitlab.gitaly.securityContext.runAsUser` ({{ $podUser }}) when
+    `gitlab.gitaly.arbitraryUid.enabled` is true. Set both to the same value,
+    or set both to null.
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.gitaly.arbitraryUid */}}

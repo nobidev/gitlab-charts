@@ -223,6 +223,16 @@ containerSecurityContext:
   capabilities:
     drop: ["ALL"]
 
+## Run Gitaly as a user other than the image user (UID 1000).
+## Set the same runAsUser in securityContext and containerSecurityContext. Set
+## both to null only if an OpenShift SCC that assigns a UID (for example
+## restricted-v2) admits the Pod. Not compatible with cgroups.
+## The chart then writes the image directories that Gitaly needs to emptyDir
+## volumes, and adds a `git` entry for the user to /etc/passwd and /etc/group.
+## ref: https://docs.gitlab.com/charts/charts/gitlab/gitaly/#run-gitaly-as-a-different-user
+arbitraryUid:
+  enabled: false
+
 ## Enable deployment to use a serviceAccount
 serviceAccount:
   enabled: false

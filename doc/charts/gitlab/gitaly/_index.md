@@ -45,6 +45,7 @@ the `helm install` command using the `--set` flags.
 | Parameter                                                | Default                                                 | Description |
 |----------------------------------------------------------|---------------------------------------------------------|-------------|
 | `annotations`                                            |                                                         | Pod annotations |
+| `arbitraryUid.enabled`                                   | `false`                                                 | Run Gitaly as a user other than the image user. See [Run Gitaly as a different user](#run-gitaly-as-a-different-user). |
 | `backup.goCloudUrl`                                      |                                                         | Object storage URL for [server side Gitaly backups](https://docs.gitlab.com/administration/gitaly/configure_gitaly/#configure-server-side-backups). |
 | `common.labels`                                          | `{}`                                                    | Supplemental labels that are applied to all objects created by this chart. |
 | `configuration`                                          | `{}`                                                    | Pass-through block rendered into the Gitaly `config.toml`. Merged over the mapped settings below and takes precedence. See [`configuration`](#configuration). |
@@ -489,6 +490,90 @@ persistence:
 | `storageClass`     | String  |                 | Sets the storageClassName on the Volume Claim for dynamic provisioning. When unset or null, the default provisioner will be used. If set to a hyphen, dynamic provisioning is disabled. |
 | `subPath`          | String  |                 | Sets the path within the volume to mount, rather than the volume root. The root is used if the subPath is empty. |
 | `annotations`      |   Map   |                 | Sets the annotations on the Volume Claim for dynamic provisioning. See [Kubernetes Annotations Documentation](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) for details. |
+
+### Run Gitaly as a different user
+
+By default, Gitaly runs as the `git` user of the image, with the user ID (UID)
+`1000`. Some installations must run Gitaly as a different user. For example:
+
+- You re-attach volumes from an existing Linux package or external Gitaly
+  installation. The repositories on these volumes belong to a different user,
+  and you do not want to change the ownership of all files.
+- Your cluster assigns a user to each Pod, for example with a restricted
+  OpenShift security context constraint (SCC).
+
+The Gitaly image expects UID `1000`. Some of its directories belong to this user,
+and `/etc/passwd` has no entry for other users. To run Gitaly as a different user,
+set `arbitraryUid.enabled` and the user and group in the security context.
+
+> [!warning]
+> When `fsGroup` is set, the kubelet can change the group and permissions of
+> every file on the Gitaly volume each time it mounts the volume. On a large
+> re-attached volume, this can take hours. To prevent this:
+>
+> 1. Set `fsGroup` to the group that already owns the repositories, or set
+>    `fsGroup: null`. The chart default is `1000`.
+> 1. Set `securityContext.fsGroupChangePolicy` to `OnRootMismatch`. The kubelet
+>    then does not change the files when the root of the volume already has the
+>    correct group and permissions.
+
+```yaml
+gitlab:
+  gitaly:
+    arbitraryUid:
+      enabled: true
+    securityContext:
+      runAsUser: 2000
+      runAsGroup: 2000
+      fsGroup: 2000
+      fsGroupChangePolicy: OnRootMismatch
+    containerSecurityContext:
+      runAsUser: 2000
+      runAsGroup: 2000
+```
+
+In this example, `2000` must be the user ID and group ID that own the files on
+the volume. Set `runAsUser` to the same value in `securityContext` and in
+`containerSecurityContext`. The container value overrides the Pod value, so
+the chart fails with an error if the two values are different.
+
+If an OpenShift SCC assigns a UID when it admits the Pod, for example
+`restricted-v2`, set the chart defaults to `null`. The SCC then assigns the user,
+and the `init-passwd` container reads the user and group when the Pod starts:
+
+```yaml
+gitlab:
+  gitaly:
+    arbitraryUid:
+      enabled: true
+    securityContext:
+      runAsUser: null
+      fsGroup: null
+      fsGroupChangePolicy: OnRootMismatch
+    containerSecurityContext:
+      runAsUser: null
+```
+
+Use this example only with an SCC that assigns a UID, such as `restricted-v2`.
+With `nonroot-v2` or without OpenShift, set an explicit `runAsUser` as in the
+first example. The Debian image declares a non-numeric user, so the kubelet
+cannot verify `runAsNonRoot: true` when no `runAsUser` is set.
+
+You cannot use `arbitraryUid.enabled` with `cgroups.enabled`. The `init-cgroups`
+container gives the Pod cgroup to UID `1000` only. If you enable both, the chart
+fails with an error.
+
+When `arbitraryUid.enabled` is `true`, the chart:
+
+- Mounts `emptyDir` volumes at `/etc/gitaly`, `/var/log/gitaly`, and `/home/git`.
+  Gitaly writes its configuration and logs to these directories.
+- Adds an `init-passwd` init container. This container uses the Gitaly image and
+  runs as the Gitaly user. It copies `/etc/passwd` and `/etc/group` from the
+  image and replaces the `git` entry with the user and group of the container.
+  The `git` entry is the first line, so it takes precedence over an image entry
+  with the same user ID or group ID.
+- Mounts the new `/etc/passwd` and `/etc/group` in the `gitaly` container.
+- Sets the `HOME` environment variable of the `gitaly` container to `/home/git`.
 
 ### Running Gitaly over TLS
 

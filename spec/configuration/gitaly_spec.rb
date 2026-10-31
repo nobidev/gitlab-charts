@@ -4,6 +4,8 @@ require 'runtime_template_helper'
 require 'tomlrb'
 require 'yaml'
 require 'hash_deep_merge'
+require 'open3'
+require 'tmpdir'
 
 describe 'Gitaly configuration' do
   let(:default_values) { HelmTemplate.defaults }
@@ -372,6 +374,208 @@ describe 'Gitaly configuration' do
       # prometheus_listen_addr is derived from metrics.port and must match the
       # Service, so a configuration override is ignored.
       expect(toml['prometheus_listen_addr']).to eq(':9236')
+    end
+  end
+
+  describe 'arbitraryUid' do
+    arbitrary_uid_volumes = %w[gitaly-passwd gitaly-etc gitaly-logs gitaly-home].freeze
+    passwd_mounts = [
+      { 'name' => 'gitaly-passwd', 'mountPath' => '/etc/passwd', 'subPath' => 'passwd', 'readOnly' => true },
+      { 'name' => 'gitaly-passwd', 'mountPath' => '/etc/group', 'subPath' => 'group', 'readOnly' => true }
+    ].freeze
+
+    def pod_spec
+      statefulset['spec']['template']['spec']
+    end
+
+    def init_container(name)
+      pod_spec['initContainers'].find { |c| c['name'] == name }
+    end
+
+    def gitaly_container
+      pod_spec['containers'].find { |c| c['name'] == 'gitaly' }
+    end
+
+    def volume_names
+      pod_spec['volumes'].map { |v| v['name'] }
+    end
+
+    let(:arbitrary_uid_values) do
+      YAML.safe_load(%(
+        gitlab:
+          gitaly:
+            arbitraryUid:
+              enabled: true
+            securityContext:
+              runAsUser: 2000
+              runAsGroup: 2000
+              fsGroup: 2000
+            containerSecurityContext:
+              runAsUser: 2000
+              runAsGroup: 2000
+      ))
+    end
+
+    context 'when arbitraryUid is disabled' do
+      let(:values) { default_values }
+
+      it 'does not add the volumes, mounts, init container, or environment' do
+        expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+        expect(volume_names).not_to include(*arbitrary_uid_volumes)
+        expect(init_container('init-passwd')).to be_nil
+        expect(gitaly_container['volumeMounts'].map { |m| m['mountPath'] })
+          .not_to include('/etc/gitaly', '/var/log/gitaly', '/home/git', '/etc/passwd', '/etc/group')
+        expect(gitaly_container['env'].map { |e| e['name'] }).not_to include('HOME')
+        expect(configmap['data']).not_to have_key('init-passwd')
+      end
+    end
+
+    context 'when arbitraryUid is enabled' do
+      let(:values) { default_values.deep_merge(arbitrary_uid_values) }
+
+      it 'adds emptyDir volumes for the image directories and the passwd files' do
+        arbitrary_uid_volumes.each do |name|
+          expect(pod_spec['volumes']).to include('name' => name, 'emptyDir' => {})
+        end
+      end
+
+      it 'mounts the emptyDir volumes and the passwd files in the Gitaly container' do
+        expect(gitaly_container['volumeMounts']).to include(
+          { 'name' => 'gitaly-etc', 'mountPath' => '/etc/gitaly' },
+          { 'name' => 'gitaly-logs', 'mountPath' => '/var/log/gitaly' },
+          { 'name' => 'gitaly-home', 'mountPath' => '/home/git' },
+          { 'name' => 'gitaly-config', 'mountPath' => '/etc/gitaly/templates' },
+          *passwd_mounts
+        )
+        expect(gitaly_container['env']).to include('name' => 'HOME', 'value' => '/home/git')
+      end
+
+      it 'does not mount the passwd files in the configure container' do
+        expect(init_container('configure')['volumeMounts'].map { |m| m['name'] }).not_to include('gitaly-passwd')
+      end
+
+      it 'writes the passwd files with an init container that runs as the Gitaly user' do
+        expect(init_container('init-passwd')['image']).to eq(gitaly_container['image'])
+        expect(init_container('init-passwd')['securityContext']).to eq(gitaly_container['securityContext'])
+        expect(init_container('init-passwd')['command']).to eq(['sh', '/config/init-passwd'])
+        expect(init_container('init-passwd')['volumeMounts']).to include('name' => 'gitaly-passwd', 'mountPath' => '/init-passwd')
+        expect(pod_spec['initContainers'].map { |c| c['name'] }.index('init-passwd'))
+          .to be < pod_spec['initContainers'].map { |c| c['name'] }.index('configure')
+      end
+
+      it 'replaces the git entry of the image passwd and group files and puts it first' do
+        uid = Process.uid
+        gid = Process.gid
+        Dir.mktmpdir do |dir|
+          File.write(File.join(dir, 'passwd'),
+            "root:x:0:0:root:/root:/bin/sh\nother:x:#{uid}:#{gid}::/nonexistent:/sbin/nologin\n" \
+              "git:x:1000:1000::/home/git:/sbin/nologin\n")
+          File.write(File.join(dir, 'group'), "root:x:0:\nother:x:#{gid}:\ngit:x:1000:\n")
+          Dir.mkdir(File.join(dir, 'out'))
+          script = configmap['data']['init-passwd']
+            .gsub('/etc/passwd', File.join(dir, 'passwd'))
+            .gsub('/etc/group', File.join(dir, 'group'))
+            .gsub('/init-passwd/', File.join(dir, 'out/'))
+
+          _, stderr, status = Open3.capture3('sh', '-c', script)
+          expect(status.success?).to be(true), stderr
+
+          passwd = File.read(File.join(dir, 'out', 'passwd')).lines
+          group = File.read(File.join(dir, 'out', 'group')).lines
+          expect(passwd).to eq([
+            "git:x:#{uid}:#{gid}:GitLab:/home/git:/bin/sh\n",
+            "root:x:0:0:root:/root:/bin/sh\n",
+            "other:x:#{uid}:#{gid}::/nonexistent:/sbin/nologin\n"
+          ])
+          expect(group).to eq(["git:x:#{gid}:\n", "root:x:0:\n", "other:x:#{gid}:\n"])
+          expect(passwd.find { |l| l.split(':')[2] == uid.to_s }).to start_with('git:')
+          expect(group.find { |l| l.split(':')[2] == gid.to_s }).to start_with('git:')
+        end
+      end
+
+      context 'with Praefect enabled' do
+        let(:values) do
+          default_values.deep_merge(arbitrary_uid_values).deep_merge(YAML.safe_load(%(
+            global:
+              praefect:
+                enabled: true
+                virtualStorages:
+                - name: default
+                  gitalyReplicas: 2
+          )))
+        end
+
+        let(:configmap_name) { 'ConfigMap/test-gitaly-praefect' }
+        let(:statefulset_name) { 'StatefulSet/test-gitaly-default' }
+
+        it 'adds the init container, the volumes, and the mounts' do
+          expect(configmap['data']).to have_key('init-passwd')
+          expect(init_container('init-passwd')).not_to be_nil
+          expect(volume_names).to include(*arbitrary_uid_volumes)
+          expect(gitaly_container['volumeMounts']).to include(*passwd_mounts)
+        end
+      end
+
+      context 'when extraEnv is set' do
+        let(:values) do
+          default_values.deep_merge(arbitrary_uid_values).deep_merge(
+            'gitlab' => { 'gitaly' => { 'extraEnv' => { 'EXTRA_VAR' => 'extra' } } }
+          )
+        end
+
+        it 'adds the variable to the init-passwd container' do
+          expect(init_container('init-passwd')['env']).to include('name' => 'EXTRA_VAR', 'value' => 'extra')
+        end
+      end
+
+      context 'when extraEnv sets HOME' do
+        let(:values) do
+          default_values.deep_merge(arbitrary_uid_values).deep_merge(
+            'gitlab' => { 'gitaly' => { 'extraEnv' => { 'HOME' => '/custom/home' } } }
+          )
+        end
+
+        it 'does not add a second HOME entry' do
+          expect(gitaly_container['env'].select { |e| e['name'] == 'HOME' })
+            .to eq([{ 'name' => 'HOME', 'value' => '/custom/home' }])
+        end
+      end
+
+      context 'when the group is 0' do
+        let(:values) do
+          default_values.deep_merge(arbitrary_uid_values).deep_merge(
+            'gitlab' => { 'gitaly' => { 'containerSecurityContext' => { 'runAsGroup' => 0 } } }
+          )
+        end
+
+        it 'renders' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(init_container('init-passwd')['securityContext']).to include('runAsGroup' => 0)
+        end
+      end
+
+      context 'when the cluster assigns the user and group' do
+        let(:values) do
+          default_values.deep_merge(YAML.safe_load(%(
+            gitlab:
+              gitaly:
+                arbitraryUid:
+                  enabled: true
+                securityContext:
+                  runAsUser: null
+                  fsGroup: null
+                containerSecurityContext:
+                  runAsUser: null
+          )))
+        end
+
+        it 'renders without a user or group' do
+          expect(template.exit_code).to eq(0), "Unexpected error code #{template.exit_code} -- #{template.stderr}"
+          expect(init_container('init-passwd')).not_to be_nil
+          expect(init_container('init-passwd')['securityContext']).not_to include('runAsUser', 'runAsGroup')
+          expect(pod_spec['securityContext'].to_h).not_to include('runAsUser', 'runAsGroup', 'fsGroup')
+        end
+      end
     end
   end
 
