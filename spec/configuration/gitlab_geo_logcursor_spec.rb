@@ -28,6 +28,16 @@ describe 'geo-logcursor configuration' do
     ))
   end
 
+  context 'with default values' do
+    it 'sets no preStop hook, so kubelet sends TERM directly' do
+      t = HelmTemplate.new(default_values)
+      expect(t.exit_code).to eq(0), "Unexpected error code #{t.exit_code} -- #{t.stderr}"
+      containers = t.dig('Deployment/test-geo-logcursor', 'spec', 'template', 'spec', 'containers')
+      expect(containers).not_to be_empty
+      expect(containers).to all(satisfy { |c| !c.key?('lifecycle') })
+    end
+  end
+
   context 'When customer provides additional labels' do
     let(:values) do
       default_values.deep_merge(YAML.safe_load(%(

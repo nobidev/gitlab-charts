@@ -156,10 +156,6 @@ spec:
             timeoutSeconds: {{ .Values.deployment.readinessProbe.timeoutSeconds }}
             successThreshold: {{ .Values.deployment.readinessProbe.successThreshold }}
             failureThreshold: {{ .Values.deployment.readinessProbe.failureThreshold }}
-          lifecycle:
-            preStop:
-              exec:
-                command: ["/bin/bash", "-c", "pkill -SIGQUIT -f 'geo_log_cursor'"]
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
